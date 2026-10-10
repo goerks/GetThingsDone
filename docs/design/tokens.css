@@ -1,0 +1,60 @@
+/* Get It Done design tokens (direction "Focus"). Use these, never raw colours. */
+
+:root,
+:root[data-theme="light"] {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --border: #dde1e7;
+  --text: #14181f;
+  --muted: #566170;
+  --accent: #2457d6;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3e8f4;
+  --accent-soft-ink: #173c99;
+  --track: #e6e9ee;
+  --pill: #eef0f4;
+  --shadow: rgba(20, 24, 31, 0.05);
+
+  --epic-boards: #2457d6;
+  --epic-backlog: #b45309;
+  --epic-storage: #0f766e;
+  --epic-accessibility: #7c3aed;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f1318;
+  --surface: #171c23;
+  --border: #2b3340;
+  --text: #e6eaf0;
+  --muted: #9aa6b5;
+  --accent: #7aa2ff;
+  --accent-ink: #0f1318;
+  --accent-soft: #1f2a44;
+  --accent-soft-ink: #b8ccff;
+  --track: #2b3340;
+  --pill: #232b36;
+  --shadow: rgba(0, 0, 0, 0.3);
+
+  --epic-boards: #7aa2ff;
+  --epic-backlog: #f0a050;
+  --epic-storage: #3fd0b8;
+  --epic-accessibility: #b69cff;
+}
+
+:root {
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --target-min: 44px;
+}

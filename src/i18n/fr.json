@@ -1,0 +1,82 @@
+{
+  "app": {
+    "name": "Get It Done"
+  },
+  "nav": {
+    "main": "Navigation principale",
+    "board": "Tableau",
+    "backlog": "Backlog",
+    "storyMap": "Story Map",
+    "release2": "R2",
+    "storyMapNote": "Prévu pour la version 2"
+  },
+  "header": {
+    "toDark": "Passer au thème sombre",
+    "toLight": "Passer au thème clair",
+    "language": "Langue"
+  },
+  "status": {
+    "todo": "À faire",
+    "in_progress": "En cours",
+    "review": "Revue",
+    "done": "Terminé"
+  },
+  "board": {
+    "title": "Sprint 1",
+    "summary": "{{count}} stories · {{points}} points",
+    "emptyColumn": "Déposez une story ici",
+    "dragHandle": "Déplacer {{title}}",
+    "dnd": {
+      "instructions": "Appuyez sur espace pour saisir une story. Utilisez les flèches pour la déplacer, espace pour la déposer et échap pour annuler.",
+      "pickedUp": "{{title}} saisie.",
+      "over": "{{title}} est au-dessus de {{target}}.",
+      "dropped": "{{title}} déposée dans {{target}}.",
+      "cancelled": "Déplacement de {{title}} annulé."
+    }
+  },
+  "card": {
+    "criteria": "{{done}} critères acceptés sur {{total}}",
+    "points": "{{count}} points"
+  },
+  "newStory": {
+    "open": "Nouvelle story",
+    "title": "Titre",
+    "description": "Description",
+    "epic": "Epic",
+    "points": "Points",
+    "add": "Ajouter la story",
+    "cancel": "Annuler"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "hint": "L'ordre correspond à la priorité. Les stories du sprint apparaissent sur le tableau.",
+    "rank": "Rang {{rank}}",
+    "moveUp": "Monter {{title}}",
+    "moveDown": "Descendre {{title}}",
+    "inSprint": "Sprint 1",
+    "notInSprint": "Backlog",
+    "sprintToggle": "Sprint 1"
+  },
+  "detail": {
+    "back": "Retour au tableau",
+    "description": "Description",
+    "noDescription": "Pas encore de description.",
+    "criteria": "Critères d'acceptation",
+    "noCriteria": "Pas encore de critères d'acceptation.",
+    "progress": "{{done}} acceptés sur {{total}}",
+    "allAccepted": "Tous les critères sont acceptés. Prêt pour la fusion dans main.",
+    "newCriterion": "Nouveau critère",
+    "addCriterion": "Ajouter le critère",
+    "details": "Détails",
+    "status": "Statut",
+    "epic": "Epic",
+    "points": "Points",
+    "sprint": "Sprint",
+    "notFound": "Cette story n'existe pas."
+  },
+  "state": {
+    "loading": "Chargement…",
+    "saveFailed": "Échec de l'enregistrement : {{message}}",
+    "loadFailed": "Échec du chargement : {{message}}"
+  }
+}

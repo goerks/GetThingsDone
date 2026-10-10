@@ -1,0 +1,82 @@
+{
+  "app": {
+    "name": "Get It Done"
+  },
+  "nav": {
+    "main": "Navigazione principale",
+    "board": "Board",
+    "backlog": "Backlog",
+    "storyMap": "Story Map",
+    "release2": "R2",
+    "storyMapNote": "Prevista per la release 2"
+  },
+  "header": {
+    "toDark": "Passa al tema scuro",
+    "toLight": "Passa al tema chiaro",
+    "language": "Lingua"
+  },
+  "status": {
+    "todo": "Da fare",
+    "in_progress": "In corso",
+    "review": "Revisione",
+    "done": "Completato"
+  },
+  "board": {
+    "title": "Sprint 1",
+    "summary": "{{count}} storie · {{points}} punti",
+    "emptyColumn": "Rilascia qui una storia",
+    "dragHandle": "Sposta {{title}}",
+    "dnd": {
+      "instructions": "Premi spazio per prendere una storia. Usa le frecce per spostarla, spazio per rilasciarla ed esc per annullare.",
+      "pickedUp": "{{title}} presa.",
+      "over": "{{title}} è sopra {{target}}.",
+      "dropped": "{{title}} rilasciata in {{target}}.",
+      "cancelled": "Spostamento di {{title}} annullato."
+    }
+  },
+  "card": {
+    "criteria": "{{done}} criteri accettati su {{total}}",
+    "points": "{{count}} punti"
+  },
+  "newStory": {
+    "open": "Nuova storia",
+    "title": "Titolo",
+    "description": "Descrizione",
+    "epic": "Epic",
+    "points": "Punti",
+    "add": "Aggiungi storia",
+    "cancel": "Annulla"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "hint": "L'ordine è la priorità. Le storie dello sprint compaiono sulla board.",
+    "rank": "Posizione {{rank}}",
+    "moveUp": "Sposta {{title}} su",
+    "moveDown": "Sposta {{title}} giù",
+    "inSprint": "Sprint 1",
+    "notInSprint": "Backlog",
+    "sprintToggle": "Sprint 1"
+  },
+  "detail": {
+    "back": "Torna alla board",
+    "description": "Descrizione",
+    "noDescription": "Ancora nessuna descrizione.",
+    "criteria": "Criteri di accettazione",
+    "noCriteria": "Ancora nessun criterio di accettazione.",
+    "progress": "{{done}} accettati su {{total}}",
+    "allAccepted": "Tutti i criteri sono accettati. Pronto per il merge in main.",
+    "newCriterion": "Nuovo criterio",
+    "addCriterion": "Aggiungi criterio",
+    "details": "Dettagli",
+    "status": "Stato",
+    "epic": "Epic",
+    "points": "Punti",
+    "sprint": "Sprint",
+    "notFound": "Questa storia non esiste."
+  },
+  "state": {
+    "loading": "Caricamento…",
+    "saveFailed": "Salvataggio non riuscito: {{message}}",
+    "loadFailed": "Caricamento non riuscito: {{message}}"
+  }
+}

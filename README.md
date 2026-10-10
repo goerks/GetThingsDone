@@ -1,0 +1,43 @@
+# Get It Done
+
+A free, local-first tool for agile software development in small teams: board, backlog and acceptance criteria today, user story map next.
+
+This project is a showcase for "level 5 vibe coding". The product is built end to end by AI, a human product owner sets vision and features and accepts the result. See [docs/vision.md](docs/vision.md) and [CLAUDE.md](CLAUDE.md).
+
+## Status
+
+Early prototype (0.1). Working today:
+
+- Board with drag and drop (mouse, touch and keyboard)
+- Backlog with priority order and sprint membership
+- Story detail with acceptance criteria you can tick off
+- Light and dark theme, German, English, French and Italian
+- Local SQLite storage in the desktop app
+
+## Try it
+
+Every pull request builds a Windows app. Open the "Windows build" workflow run, download the `GetItDone-windows` artifact (GitHub login required) and start `GetItDone-portable.exe` or the installer.
+
+## Develop
+
+Requirements: Node.js 22, Rust (stable) and the [Tauri prerequisites](https://tauri.app/start/prerequisites/).
+
+```bash
+npm install
+npm run dev          # browser, data in localStorage
+npm run tauri dev    # desktop app, data in SQLite
+npm test             # unit and component tests
+npm run typecheck
+npm run tauri build  # installer and executable
+```
+
+## Documentation
+
+- [Vision and scope](docs/vision.md)
+- [Definition of done](docs/definition-of-done.md)
+- [Architecture decisions](docs/adr)
+- [Design system](docs/design/design-system.md)
+
+## Licence
+
+Apache License 2.0, see [LICENSE](LICENSE).

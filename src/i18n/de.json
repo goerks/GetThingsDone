@@ -1,0 +1,82 @@
+{
+  "app": {
+    "name": "Get It Done"
+  },
+  "nav": {
+    "main": "Hauptnavigation",
+    "board": "Board",
+    "backlog": "Backlog",
+    "storyMap": "Story Map",
+    "release2": "R2",
+    "storyMapNote": "Für Release 2 geplant"
+  },
+  "header": {
+    "toDark": "Zum dunklen Design wechseln",
+    "toLight": "Zum hellen Design wechseln",
+    "language": "Sprache"
+  },
+  "status": {
+    "todo": "Offen",
+    "in_progress": "In Arbeit",
+    "review": "Review",
+    "done": "Erledigt"
+  },
+  "board": {
+    "title": "Sprint 1",
+    "summary": "{{count}} Stories · {{points}} Punkte",
+    "emptyColumn": "Story hier ablegen",
+    "dragHandle": "{{title}} verschieben",
+    "dnd": {
+      "instructions": "Leertaste drücken, um eine Story aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen.",
+      "pickedUp": "{{title}} aufgenommen.",
+      "over": "{{title}} ist über {{target}}.",
+      "dropped": "{{title}} in {{target}} abgelegt.",
+      "cancelled": "Verschieben von {{title}} abgebrochen."
+    }
+  },
+  "card": {
+    "criteria": "{{done}} von {{total}} Kriterien abgenommen",
+    "points": "{{count}} Punkte"
+  },
+  "newStory": {
+    "open": "Neue Story",
+    "title": "Titel",
+    "description": "Beschreibung",
+    "epic": "Epic",
+    "points": "Punkte",
+    "add": "Story hinzufügen",
+    "cancel": "Abbrechen"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "hint": "Die Reihenfolge ist die Priorität. Stories im Sprint erscheinen auf dem Board.",
+    "rank": "Rang {{rank}}",
+    "moveUp": "{{title}} nach oben schieben",
+    "moveDown": "{{title}} nach unten schieben",
+    "inSprint": "Sprint 1",
+    "notInSprint": "Backlog",
+    "sprintToggle": "Sprint 1"
+  },
+  "detail": {
+    "back": "Zurück zum Board",
+    "description": "Beschreibung",
+    "noDescription": "Noch keine Beschreibung.",
+    "criteria": "Akzeptanzkriterien",
+    "noCriteria": "Noch keine Akzeptanzkriterien.",
+    "progress": "{{done}} von {{total}} abgenommen",
+    "allAccepted": "Alle Kriterien abgenommen. Bereit für den Merge in main.",
+    "newCriterion": "Neues Kriterium",
+    "addCriterion": "Kriterium hinzufügen",
+    "details": "Details",
+    "status": "Status",
+    "epic": "Epic",
+    "points": "Punkte",
+    "sprint": "Sprint",
+    "notFound": "Diese Story existiert nicht."
+  },
+  "state": {
+    "loading": "Lädt…",
+    "saveFailed": "Speichern fehlgeschlagen: {{message}}",
+    "loadFailed": "Laden fehlgeschlagen: {{message}}"
+  }
+}
