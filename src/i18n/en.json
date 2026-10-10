@@ -1,0 +1,82 @@
+{
+  "app": {
+    "name": "Get It Done"
+  },
+  "nav": {
+    "main": "Main",
+    "board": "Board",
+    "backlog": "Backlog",
+    "storyMap": "Story Map",
+    "release2": "R2",
+    "storyMapNote": "Planned for release 2"
+  },
+  "header": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme",
+    "language": "Language"
+  },
+  "status": {
+    "todo": "To do",
+    "in_progress": "In progress",
+    "review": "Review",
+    "done": "Done"
+  },
+  "board": {
+    "title": "Sprint 1",
+    "summary": "{{count}} stories · {{points}} points",
+    "emptyColumn": "Drop a story here",
+    "dragHandle": "Move {{title}}",
+    "dnd": {
+      "instructions": "Press space to pick up a story. Use the arrow keys to move it, space to drop it and escape to cancel.",
+      "pickedUp": "Picked up {{title}}.",
+      "over": "{{title}} is over {{target}}.",
+      "dropped": "{{title}} dropped in {{target}}.",
+      "cancelled": "Moving {{title}} cancelled."
+    }
+  },
+  "card": {
+    "criteria": "{{done}} of {{total}} criteria accepted",
+    "points": "{{count}} points"
+  },
+  "newStory": {
+    "open": "New story",
+    "title": "Title",
+    "description": "Description",
+    "epic": "Epic",
+    "points": "Points",
+    "add": "Add story",
+    "cancel": "Cancel"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "hint": "The order is the priority. Stories in the sprint appear on the board.",
+    "rank": "Rank {{rank}}",
+    "moveUp": "Move {{title}} up",
+    "moveDown": "Move {{title}} down",
+    "inSprint": "Sprint 1",
+    "notInSprint": "Backlog",
+    "sprintToggle": "Sprint 1"
+  },
+  "detail": {
+    "back": "Back to board",
+    "description": "Description",
+    "noDescription": "No description yet.",
+    "criteria": "Acceptance criteria",
+    "noCriteria": "No acceptance criteria yet.",
+    "progress": "{{done}} of {{total}} accepted",
+    "allAccepted": "All criteria accepted. Ready to merge into main.",
+    "newCriterion": "New criterion",
+    "addCriterion": "Add criterion",
+    "details": "Details",
+    "status": "Status",
+    "epic": "Epic",
+    "points": "Points",
+    "sprint": "Sprint",
+    "notFound": "This story does not exist."
+  },
+  "state": {
+    "loading": "Loading…",
+    "saveFailed": "Saving failed: {{message}}",
+    "loadFailed": "Loading failed: {{message}}"
+  }
+}
