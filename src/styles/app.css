@@ -1679,3 +1679,91 @@ fieldset.field legend {
   flex: 1;
   min-width: 0;
 }
+
+/* ---------- Settings ---------- */
+
+.header__settings {
+  color: var(--muted);
+}
+
+.header__settings:hover,
+.header__settings[aria-current='page'] {
+  color: var(--accent-soft-ink);
+}
+
+.header__settings[aria-current='page'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.settings {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.settings__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: var(--target-min);
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+a.settings__link:hover {
+  color: var(--text);
+  background: var(--pill);
+}
+
+.settings__link[aria-current='page'] {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-weight: 600;
+}
+
+.settings__link--planned {
+  cursor: default;
+}
+
+.settings__content {
+  min-width: 0;
+}
+
+.page-head--section h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Narrow screens: the sections become a row of chips above the content. */
+@media (max-width: 720px) {
+  .settings {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .settings__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .settings__link {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+
+  .settings__link[aria-current='page'] {
+    border-color: transparent;
+  }
+}

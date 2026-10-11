@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { LANGUAGES, setLanguage, type LanguageCode } from '../i18n';
 import { hrefs, type Route } from '../router';
 import type { Theme } from '../theme';
+import { GearIcon } from './icons';
 
 interface Props {
   route: Route;
@@ -38,9 +39,6 @@ export function Header({ route, theme, onToggleTheme }: Props) {
         <a href={hrefs.epics} className="nav__link" aria-current={route.name === 'epics' ? 'page' : undefined}>
           {t('nav.epics')}
         </a>
-        <a href={hrefs.fields} className="nav__link" aria-current={route.name === 'fields' ? 'page' : undefined}>
-          {t('nav.fields')}
-        </a>
       </nav>
 
       <div className="header__tools">
@@ -74,6 +72,15 @@ export function Header({ route, theme, onToggleTheme }: Props) {
             </option>
           ))}
         </select>
+        <a
+          href={hrefs.settings}
+          className="icon-btn header__settings"
+          aria-label={t('nav.settings')}
+          title={t('nav.settings')}
+          aria-current={route.name === 'settings' ? 'page' : undefined}
+        >
+          <GearIcon />
+        </a>
       </div>
     </header>
   );
