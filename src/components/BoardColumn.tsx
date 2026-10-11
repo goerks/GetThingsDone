@@ -34,7 +34,7 @@ export function BoardColumn({ status, stories, epics, drop }: Props) {
         <ul ref={setNodeRef} className="column__list">
           {stories.map((story) => (
             <li key={story.id}>
-              <SortableStoryCard story={story} epic={epics.get(story.epicId)} dropBefore={drop?.beforeId === story.id} />
+              <SortableStoryCard story={story} epic={epics.get(story.epicId ?? '')} dropBefore={drop?.beforeId === story.id} />
             </li>
           ))}
           {drop && drop.beforeId === null && stories.length > 0 && <li className="drop-line" aria-hidden="true" />}

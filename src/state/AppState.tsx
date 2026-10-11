@@ -27,6 +27,14 @@ import {
   type EpicPatch,
   type NewEpicInput
 } from '../domain/epics';
+import {
+  createField as createFieldIn,
+  deleteField as deleteFieldIn,
+  dropRemovedOptions,
+  setStoryValue,
+  updateField as updateFieldIn,
+  type FieldInput
+} from '../domain/fields';
 import { newId } from '../domain/ids';
 import {
   createSprint as createSprintIn,
@@ -35,12 +43,14 @@ import {
   updateSprint as updateSprintIn,
   type SprintInput
 } from '../domain/sprints';
-import type { Epic, Snapshot, Sprint, Story } from '../domain/types';
+import type { Epic, FieldAssignment, FieldDefinition, FieldValue, Snapshot, Sprint, Story } from '../domain/types';
 
 interface AppApi {
   epics: Epic[];
   sprints: Sprint[];
   stories: Story[];
+  fields: FieldDefinition[];
+  assignments: FieldAssignment[];
   loading: boolean;
   error: string | null;
   /** Drag and drop on the board. */
@@ -67,6 +77,13 @@ interface AppApi {
   updateEpic(id: string, patch: EpicPatch): void;
   /** Returns false when the epic still has stories and was kept. */
   deleteEpic(id: string): boolean;
+  /** Returns the id of the new field, or null when the input is invalid. */
+  createField(input: FieldInput): string | null;
+  /** Changes label, options and item types of a custom field. Returns false when the input is invalid. */
+  updateField(id: string, input: Omit<FieldInput, 'dataType'>): boolean;
+  deleteField(id: string): void;
+  /** Sets or clears (null) the value of a custom field on a story. */
+  setFieldValue(storyId: string, fieldId: string, value: FieldValue | null): void;
 }
 
 const AppContext = createContext<AppApi | null>(null);
@@ -84,13 +101,14 @@ interface Props {
 
 export function AppProvider({ repository, children }: Props) {
   const { t } = useTranslation();
-  const [snapshot, setSnapshot] = useState<Snapshot>({ epics: [], sprints: [], stories: [] });
+  const [snapshot, setSnapshot] = useState<Snapshot>({ epics: [], sprints: [], stories: [], fields: [], assignments: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const repoRef = useRef<Repository | null>(null);
   const storiesRef = useRef<Story[]>([]);
   const epicsRef = useRef<Epic[]>([]);
   const sprintsRef = useRef<Sprint[]>([]);
+  const fieldsRef = useRef<Pick<Snapshot, 'fields' | 'assignments'>>({ fields: [], assignments: [] });
 
   const update = useCallback((stories: Story[]) => {
     storiesRef.current = stories;
@@ -105,6 +123,11 @@ export function AppProvider({ repository, children }: Props) {
   const updateSprints = useCallback((sprints: Sprint[]) => {
     sprintsRef.current = sprints;
     setSnapshot((current) => ({ ...current, sprints }));
+  }, []);
+
+  const updateFields = useCallback((fields: FieldDefinition[], assignments: FieldAssignment[]) => {
+    fieldsRef.current = { fields, assignments };
+    setSnapshot((current) => ({ ...current, fields, assignments }));
   }, []);
 
   // Writes run one after another so a quick series of changes is stored in the order it happened.
@@ -138,6 +161,7 @@ export function AppProvider({ repository, children }: Props) {
         if (cancelled) return;
         storiesRef.current = loaded.stories;
         epicsRef.current = loaded.epics;
+        fieldsRef.current = { fields: loaded.fields, assignments: loaded.assignments };
         sprintsRef.current = loaded.sprints;
         setSnapshot(loaded);
       } catch (cause) {
@@ -159,6 +183,8 @@ export function AppProvider({ repository, children }: Props) {
       epics: snapshot.epics,
       sprints: snapshot.sprints,
       stories: snapshot.stories,
+      fields: snapshot.fields,
+      assignments: snapshot.assignments,
       loading,
       error,
       drop(activeId, overId, placement) {
@@ -284,9 +310,46 @@ export function AppProvider({ repository, children }: Props) {
         updateEpics(deleteEpicIn(epicsRef.current, storiesRef.current, id));
         persist((repo) => repo.deleteEpic(id));
         return true;
+      },
+      createField(input) {
+        const { fields, assignments } = fieldsRef.current;
+        const result = createFieldIn(fields, assignments, input, newId);
+        if (!result) return null;
+        updateFields(result.fields, result.assignments);
+        const own = result.assignments.filter((item) => item.fieldId === result.field.id);
+        persist(async (repo) => {
+          await repo.saveField(result.field);
+          await repo.saveAssignments(result.field.id, own);
+        });
+        return result.field.id;
+      },
+      updateField(id, input) {
+        const { fields, assignments } = fieldsRef.current;
+        const result = updateFieldIn(fields, assignments, id, input, newId);
+        if (!result) return false;
+        updateFields(result.fields, result.assignments);
+        update(dropRemovedOptions(storiesRef.current, result.field));
+        const own = result.assignments.filter((item) => item.fieldId === id);
+        persist(async (repo) => {
+          await repo.saveField(result.field);
+          await repo.saveAssignments(id, own);
+        });
+        return true;
+      },
+      deleteField(id) {
+        const { fields, assignments } = fieldsRef.current;
+        const result = deleteFieldIn(fields, assignments, storiesRef.current, id);
+        if (!result) return;
+        updateFields(result.fields, result.assignments);
+        update(result.stories);
+        persist((repo) => repo.deleteField(id));
+      },
+      setFieldValue(storyId, fieldId, value) {
+        update(setStoryValue(storiesRef.current, storyId, fieldId, value));
+        persist((repo) => repo.setFieldValue(storyId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, update, updateEpics, updateSprints, persist]
+    [snapshot, loading, error, update, updateEpics, updateSprints, updateFields, persist]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

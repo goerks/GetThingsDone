@@ -7,11 +7,11 @@ const NEW_EPIC = '__new__';
 
 interface Props {
   id: string;
-  value: string;
-  onChange: (epicId: string) => void;
+  value: string | null;
+  onChange: (epicId: string | null) => void;
 }
 
-/** Epic dropdown with a "New epic" entry that creates an epic in place. */
+/** Epic dropdown with "No epic" and a "New epic" entry that creates an epic in place. */
 export function EpicSelect({ id, value, onChange }: Props) {
   const { t } = useTranslation();
   const app = useApp();
@@ -43,15 +43,16 @@ export function EpicSelect({ id, value, onChange }: Props) {
       <select
         id={id}
         className="select"
-        value={creating ? NEW_EPIC : value}
+        value={creating ? NEW_EPIC : (value ?? '')}
         onChange={(event) => {
           if (event.target.value === NEW_EPIC) setCreating(true);
           else {
             setCreating(false);
-            onChange(event.target.value);
+            onChange(event.target.value || null);
           }
         }}
       >
+        <option value="">{t('epics.noEpic')}</option>
         {sortEpics(app.epics).map((epic) => (
           <option key={epic.id} value={epic.id}>
             {epic.name}

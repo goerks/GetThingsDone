@@ -49,7 +49,8 @@ function story(id: string, status: Story['status'], rank: number, sprintId: stri
     status,
     sprintId,
     rank,
-    criteria: []
+    criteria: [],
+    values: {}
   };
 }
 

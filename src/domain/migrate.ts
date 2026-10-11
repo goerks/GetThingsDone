@@ -1,12 +1,20 @@
 import { normalizeColorKey } from './epics';
+import { missingBuiltins } from './fields';
 import { addDays, SPRINT_LENGTH_DAYS } from './sprints';
-import type { Epic, Snapshot, Sprint, Story } from './types';
+import type { Epic, FieldAssignment, FieldDefinition, Snapshot, Sprint, Story } from './types';
 
-/** Snapshot as stored by release 0.1: one fixed sprint, stories with `inSprint`, epics without a position. */
+/**
+ * Snapshot as stored by an older release. Release 0.1: one fixed sprint, stories with `inSprint`, epics without
+ * a position. Before configurable fields (#4): no field library, no values, and every story has an epic.
+ */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey'> & { position?: number; colorKey: string }>;
   sprints?: Sprint[];
-  stories?: Array<Omit<Story, 'sprintId'> & { sprintId?: string | null; inSprint?: boolean }>;
+  stories?: Array<
+    Omit<Story, 'sprintId' | 'values'> & { sprintId?: string | null; inSprint?: boolean; values?: Story['values'] }
+  >;
+  fields?: FieldDefinition[];
+  assignments?: FieldAssignment[];
 }
 
 export const MIGRATED_SPRINT_ID = 'sprint-1';
@@ -32,7 +40,18 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
   }
   const stories: Story[] = rawStories.map(({ inSprint, sprintId, ...story }) => ({
     ...story,
-    sprintId: sprintId !== undefined ? sprintId : inSprint && needsSprint ? MIGRATED_SPRINT_ID : null
+    epicId: story.epicId || null,
+    sprintId: sprintId !== undefined ? sprintId : inSprint && needsSprint ? MIGRATED_SPRINT_ID : null,
+    values: story.values ?? {}
   }));
-  return { epics, sprints, stories };
+  const fields = stored.fields ?? [];
+  const assignments = stored.assignments ?? [];
+  const missing = missingBuiltins(fields, assignments);
+  return {
+    epics,
+    sprints,
+    stories,
+    fields: [...fields, ...missing.fields],
+    assignments: [...assignments, ...missing.assignments]
+  };
 }

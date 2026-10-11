@@ -7,7 +7,8 @@
     "board": "Board",
     "backlog": "Backlog",
     "storyMap": "Story Map",
-    "epics": "Epic"
+    "epics": "Epic",
+    "fields": "Campi"
   },
   "header": {
     "toDark": "Passa al tema scuro",
@@ -131,7 +132,8 @@
     "inUse_one": "Usato da {{count}} story. Assegnala prima a un altro epic.",
     "inUse_other": "Usato da {{count}} story. Assegnale prima a un altro epic.",
     "notFound": "Questo epic non esiste più.",
-    "deleteButton": "Elimina epic"
+    "deleteButton": "Elimina epic",
+    "noEpic": "Nessun epic"
   },
   "sprint": {
     "label": "Sprint",
@@ -172,5 +174,76 @@
     "editOrMoveSprint": "Clic per modificare, trascina per riordinare",
     "compact": "Compatto",
     "sprintDropLabel": "{{name}} · {{dates}}"
+  },
+  "fields": {
+    "title": "Campi",
+    "hint": "I campi descrivono i vostri elementi. I campi di sistema ci sono sempre, quelli predefiniti arrivano con l’app e potete aggiungerne di vostri.",
+    "new": "Nuovo campo",
+    "dialogNew": "Nuovo campo",
+    "dialogEdit": "Modifica campo",
+    "column": {
+      "name": "Campo",
+      "kind": "Genere",
+      "type": "Tipo",
+      "usedOn": "Usato per"
+    },
+    "kind": {
+      "system": "Sistema",
+      "builtin": "Predefinito",
+      "custom": "Personalizzato"
+    },
+    "type": {
+      "text": "Testo",
+      "long_text": "Testo lungo",
+      "number": "Numero",
+      "single_select": "Scelta singola",
+      "key": "Chiave",
+      "status": "Stato",
+      "epic": "Collegamento all’epic",
+      "points": "Punti",
+      "checklist": "Checklist",
+      "color": "Colore"
+    },
+    "builtin": {
+      "key": "Chiave",
+      "title": "Titolo",
+      "status": "Stato",
+      "description": "Descrizione",
+      "epic": "Epic",
+      "points": "Punti",
+      "criteria": "Criteri di accettazione",
+      "color": "Colore"
+    },
+    "itemType": {
+      "story": "Story",
+      "epic": "Epic"
+    },
+    "notUsed": "Non usato",
+    "label": "Nome",
+    "dataType": "Tipo",
+    "typeLocked": "Il tipo di un campo esistente non si può cambiare.",
+    "options": "Opzioni",
+    "option": "Opzione {{position}}",
+    "optionColor": "Colore dell’opzione {{position}}",
+    "addOption": "Aggiungi opzione",
+    "removeOption": "Rimuovi opzione {{position}}",
+    "usedOn": "Usato per",
+    "create": "Aggiungi campo",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "edit": "Modifica campo {{name}}",
+    "delete": "Elimina campo {{name}}",
+    "deleteConfirm_one": "Eliminare il campo {{name}}? {{count}} story perde il suo valore. L’operazione non si può annullare.",
+    "deleteConfirm_other": "Eliminare il campo {{name}}? {{count}} story perdono il loro valore. L’operazione non si può annullare.",
+    "deleteYes": "Elimina",
+    "deleteNo": "Mantieni il campo",
+    "error": {
+      "labelRequired": "Inserisci un nome.",
+      "labelTaken": "Esiste già un campo con questo nome.",
+      "optionsRequired": "Aggiungi almeno un’opzione.",
+      "optionLabelTaken": "Ogni opzione deve avere un nome diverso."
+    },
+    "noValue": "Nessun valore",
+    "invalidNumber": "Inserisci un numero."
   }
 }

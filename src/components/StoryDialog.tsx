@@ -7,10 +7,12 @@ import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
 import { EpicSelect } from './EpicSelect';
 import { EpicTag } from './EpicTag';
+import { FieldControl } from './FieldControl';
 import { SprintSelect } from './SprintSelect';
 import { GripIcon, TrashIcon } from './icons';
 import { useDragSensors } from '../dnd/dnd';
 import { criteriaProgress } from '../domain/board';
+import { customFieldsFor } from '../domain/fields';
 import { POINT_VALUES, STATUSES, type Criterion, type Status } from '../domain/types';
 import { useApp } from '../state/AppState';
 
@@ -93,6 +95,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
   }
 
   const epic = app.epics.find((item) => item.id === story.epicId);
+  const customFields = customFieldsFor('story', app.fields, app.assignments);
   const progress = criteriaProgress(story);
   const allAccepted = progress.total > 0 && progress.done === progress.total;
 
@@ -254,6 +257,14 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
               <SprintSelect id={`${uid}-sprint`} value={story.sprintId} onChange={(sprintId) => app.updateStory(story.id, { sprintId })} />
             </div>
+            {customFields.map((field) => (
+              <FieldControl
+                key={field.id}
+                field={field}
+                value={story.values[field.id]}
+                onChange={(value) => app.setFieldValue(story.id, field.id, value)}
+              />
+            ))}
           </div>
 
           <div className="danger">

@@ -1,6 +1,6 @@
 # Functional requirements
 
-Release 0.1 (app skeleton, including the PO feedback from the first test) and issue #2 (story map with sprints). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts` (unit), `src/App.test.tsx` (component).
+Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints) and issue #4 (configurable fields, in progress). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
 
 ## Board (BOARD)
 
@@ -46,7 +46,7 @@ As a team member, I want to create a story with title, description, epic and poi
 - Title is required, description optional, values are trimmed.
 - The new story gets the next free key (`S-<n>`), status "To do" and the end of the backlog.
 - The sprint field is prefilled: the running sprint from the board, "Not planned" from the backlog, the cell's sprint (and epic) on the story map.
-- A new epic can be created from the epic field.
+- The epic is optional: the dialog starts with "No epic" unless it is opened from a map cell. A new epic can be created from the epic field.
 
 Source: Vision, PO feedback · Status: Implemented · Verified by: App "creates a story in "To do" through a dialog", "closes the new story dialog without saving on cancel", "adds a new story below the sprint line from a dialog", "creates a story directly in a cell…", board.test "createStory"
 
@@ -119,9 +119,10 @@ Source: Vision (work items), PO feedback · Status: Implemented · Verified by: 
 ## Epics (EPIC)
 
 ### FR-EPIC-01 Epics group stories
-Every story belongs to one epic. The epic is shown with name and colour dot.
+A story belongs to one epic or to none. The epic is shown with name and colour dot; a story without an epic shows none.
+- The epic field in the story dialog and in the new story dialog offers "No epic".
 
-Source: Vision · Status: Implemented
+Source: Vision, #4 · Status: Implemented · Verified by: App "creates a story without an epic and clears the epic of a story", sqliteRepository.test "saves a story without an epic"
 
 ### FR-EPIC-02 Manage epics
 As a PO, I want to create, rename, recolour and delete epics.
@@ -132,6 +133,53 @@ As a PO, I want to create, rename, recolour and delete epics.
 - The epic field on the story page and in the new story form offers "+ New epic…".
 
 Source: Vision, PO feedback · Status: Implemented · Verified by: App "epics" tests, "creates a new epic from the epic field", epics.test
+
+## Fields (FIELD)
+
+Configurable fields, issue #4, data model in ADR 0003. Stage 1 of the feature: custom fields on stories.
+
+### FR-FIELD-01 Field library
+As a team, we want to see every field of the workspace, so that we know what our items carry.
+- Page "Fields" in the main navigation lists all fields with name, kind (System, Built-in, Custom), type and the item types that use them, or "Not used".
+- System fields: key, title, story status. Built-in fields: description, epic, points, acceptance criteria (stories), colour (epics). They cannot be edited or deleted yet.
+- Missing system and built-in fields are added automatically when data is loaded, also for data of release 0.1.
+
+Source: #4 · Status: Implemented · Verified by: App "lists system, built-in and custom fields…", "opens data of release 0.1…", fields.test "missingBuiltins", sqliteRepository.test "adds missing built-in fields…"
+
+### FR-FIELD-02 Create a custom field
+As a team, we want to add our own fields, so that stories carry the information we need.
+- "New field" opens a dialog with name, type (text, long text, number, single select) and the item types that use it (stories for now, ticked by default).
+- A single select field has ordered options, each with a name and one of eight colours. Options can be added and removed.
+- The name is required and unique among custom fields (ignoring case). A select field needs at least one option and no two options with the same name. Problems are shown in the dialog.
+
+Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "explains what is wrong with a new field", fields.test "validateField", "createField"
+
+### FR-FIELD-03 Edit and unassign a custom field
+As a team, we want to rename a field, change its options and choose where it is used.
+- The edit dialog changes name, options and item types. The type of an existing field cannot be changed.
+- Renaming an option keeps the values that use it. Removing an option removes these values.
+- Taking a field off stories hides it in the story dialog but keeps its values, so they come back when the field is used again.
+
+Source: #4 · Status: Implemented · Verified by: App "renames a field and removes an option…", "takes a field off stories without losing its values", fields.test "updateField", "dropRemovedOptions"
+
+### FR-FIELD-04 Delete a custom field
+As a team, we want to delete a field we no longer need.
+- A confirmation says how many stories lose a value. Deleting removes the field, its options, where it is used and all its values.
+
+Source: #4 · Status: Implemented · Verified by: App "deletes a field after saying how many stories lose a value", fields.test "deleteField", sqliteRepository.test "deletes a field…"
+
+### FR-FIELD-05 Custom field values in the story dialog
+As a team member, I want to fill in the custom fields of a story.
+- The story dialog shows the custom fields used on stories in the details panel, in their order.
+- Text and long text are edited in place like the description. A number field saves on Enter or when it is left; an entry that is not a number shows "Enter a number." and is not saved. Decimal comma and point are accepted. A select field offers its options and "No value".
+- Empty text or "No value" removes the value.
+
+Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "edits text and number values on the story page", fields.test "parseValue", sqliteRepository.test "sets, changes and clears values of every type"
+
+### FR-FIELD-06 Demo fields
+The demo data contains the custom fields "Priority" (single select: Must, Should, Could) and "Business value" (number) with values on several stories.
+
+Source: #4 · Status: Implemented · Verified by: sqliteRepository.test "stores the demo data with its fields and values"
 
 ## Settings (SET)
 
@@ -150,7 +198,9 @@ Source: ADR 0002 · Status: Implemented · Verified by: App "switches the theme 
 ### FR-DATA-01 Local storage
 All data is stored locally: in a SQLite file in the desktop app, in the browser's local storage in the browser build. Changes are saved immediately and in order.
 
-Source: Vision, ADR 0001 · Status: Implemented · Verified by: App tests (local storage); SQLite: manual check (integration tests open, TD-3)
+- Database migrations keep all existing stories and criteria (checked for migrations 003 and 004).
+
+Source: Vision, ADR 0001 · Status: Implemented · Verified by: App tests (local storage); sqliteRepository.test (SQLite in memory, migrations); the Tauri boundary: manual check (TD-3)
 
 ### FR-DATA-02 Demo data on first start
 On first start with an empty database, demo epics, two sprints (one running, one following) and stories are created so the board and the story map are not empty.
@@ -165,7 +215,7 @@ Source: — · Status: Implemented
 ## Navigation (NAV)
 
 ### FR-NAV-01 Main navigation
-Header with board, backlog, story map and epics; the current page is marked.
+Header with board, backlog, story map, epics and fields; the current page is marked.
 
 Source: Vision · Status: Implemented · Verified by: App "marks the current page", "parses known routes and falls back to the board"
 
@@ -189,13 +239,13 @@ Source: Issue #2 · Status: Implemented · Verified by: sprints.test "running sp
 
 ### FR-MAP-01 Show the story map
 As a PO, I want to see all stories in a grid of epics and sprints, so that I see which parts of the product are planned when.
-- One column per epic (by epic position), with name, colour stripe, number of stories and points.
+- One column per epic (by epic position), with name, colour stripe, number of stories and points. While a story has no epic, a last column "No epic" holds these stories; stories can be dragged into it and created in it (#4).
 - One row per running or future sprint in time order, with name, dates, number of stories and points; the running sprint is marked. Sprints that ended before today are not shown.
 - The last row is "Not planned", separated by a strong rule.
 - Each story is a card (key, title, points, status) in the cell of its epic and sprint, in backlog order.
 - Header row and sprint labels stay visible while the map scrolls.
 
-Source: Issue #2 (variant A) · Status: Implemented · Verified by: App "story map" tests, board.test "story map"
+Source: Issue #2 (variant A), #4 · Status: Implemented · Verified by: App "story map" tests, "shows stories without an epic in their own column on the story map", board.test "story map"
 
 ### FR-MAP-02 Plan on the map with drag and drop
 As a PO, I want to drag a story into another cell, so that I change its sprint and epic in one move.

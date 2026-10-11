@@ -569,6 +569,204 @@ describe('sprints on the board', () => {
   });
 });
 
+describe('fields', () => {
+  async function openFields(): Promise<LocalStorageRepository> {
+    const repository = await renderApp();
+    window.location.hash = '#/fields';
+    await screen.findByRole('heading', { level: 1, name: 'Fields' });
+    return repository;
+  }
+
+  async function openStory(code: RegExp): Promise<void> {
+    window.location.hash = '#/board';
+    const user = userEvent.setup();
+    await user.dblClick(await screen.findByRole('group', { name: code }));
+    await screen.findByRole('dialog', { name: code });
+  }
+
+  it('lists system, built-in and custom fields with their type and use', async () => {
+    await openFields();
+    const row = (name: string) => screen.getByRole('row', { name: new RegExp(`^${name} `) });
+    expect(within(row('Title')).getByText('System')).toBeInTheDocument();
+    expect(within(row('Title')).getByText('Stories, Epics')).toBeInTheDocument();
+    expect(within(row('Points')).getByText('Built-in')).toBeInTheDocument();
+    expect(within(row('Priority')).getByText('Custom')).toBeInTheDocument();
+    expect(within(row('Priority')).getByText('Single select')).toBeInTheDocument();
+    expect(within(row('Title')).queryByRole('button')).not.toBeInTheDocument();
+    expect(within(row('Priority')).getByRole('button', { name: 'Edit field Priority' })).toBeInTheDocument();
+  });
+
+  it('creates a select field that appears on the story page and saves its value', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'New field' }));
+    const dialog = screen.getByRole('dialog', { name: 'New field' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Risk');
+    await user.selectOptions(within(dialog).getByLabelText('Type'), 'single_select');
+    await user.type(within(dialog).getByRole('textbox', { name: 'Option 1' }), 'Low');
+    await user.click(within(dialog).getByRole('button', { name: 'Add option' }));
+    await user.type(within(dialog).getByRole('textbox', { name: 'Option 2' }), 'High');
+    await user.selectOptions(within(dialog).getByLabelText('Colour of option 2'), 'rose');
+    expect(within(dialog).getByRole('checkbox', { name: 'Stories' })).toBeChecked();
+    await user.click(within(dialog).getByRole('button', { name: 'Add field' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('row', { name: /^Risk / })).toBeInTheDocument();
+
+    await openStory(/S-3:/);
+    await user.selectOptions(await screen.findByLabelText('Risk'), 'High');
+    const saved = await repository.load();
+    const risk = saved.fields.find((field) => field.label === 'Risk');
+    expect(risk?.options.map((option) => [option.label, option.colorKey])).toEqual([
+      ['Low', 'blue'],
+      ['High', 'rose']
+    ]);
+    expect(saved.stories.find((s) => s.id === 'story-3')?.values[risk?.id ?? '']).toBe(risk?.options[1].id);
+  });
+
+  it('explains what is wrong with a new field', async () => {
+    const user = userEvent.setup();
+    await openFields();
+    await user.click(screen.getByRole('button', { name: 'New field' }));
+    const dialog = screen.getByRole('dialog', { name: 'New field' });
+    await user.click(within(dialog).getByRole('button', { name: 'Add field' }));
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Enter a name.');
+    await user.type(within(dialog).getByLabelText('Name'), 'priority');
+    await user.click(within(dialog).getByRole('button', { name: 'Add field' }));
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('A field with this name already exists.');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('renames a field and removes an option together with its values', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'Edit field Priority' }));
+    const dialog = screen.getByRole('dialog', { name: 'Edit field' });
+    expect(within(dialog).getByLabelText('Type')).toBeDisabled();
+    const name = within(dialog).getByLabelText('Name');
+    await user.clear(name);
+    await user.type(name, 'Importance');
+    await user.click(within(dialog).getByRole('button', { name: 'Remove option 3' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    expect(screen.getByRole('row', { name: /^Importance / })).toBeInTheDocument();
+    const saved = await repository.load();
+    const field = saved.fields.find((item) => item.id === 'field-demo-priority');
+    expect(field?.label).toBe('Importance');
+    expect(field?.options.map((option) => option.label)).toEqual(['Must', 'Should']);
+    expect(saved.stories.find((s) => s.id === 'story-6')?.values['field-demo-priority']).toBeUndefined();
+    expect(saved.stories.find((s) => s.id === 'story-1')?.values['field-demo-priority']).toBe('opt-must');
+  });
+
+  it('takes a field off stories without losing its values', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'Edit field Business value' }));
+    const dialog = screen.getByRole('dialog', { name: 'Edit field' });
+    await user.click(within(dialog).getByRole('checkbox', { name: 'Stories' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    expect(within(screen.getByRole('row', { name: /^Business value / })).getByText('Not used')).toBeInTheDocument();
+
+    await openStory(/S-1:/);
+    await screen.findByLabelText('Priority');
+    expect(screen.queryByLabelText('Business value')).not.toBeInTheDocument();
+    expect((await repository.load()).stories.find((s) => s.id === 'story-1')?.values['field-demo-value']).toBe(8);
+  });
+
+  it('deletes a field after saying how many stories lose a value', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'Delete field Priority' }));
+    const dialog = screen.getByRole('dialog', { name: 'Delete field Priority' });
+    expect(dialog).toHaveTextContent('5 stories lose their value');
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    expect(screen.queryByRole('row', { name: /^Priority / })).not.toBeInTheDocument();
+    const saved = await repository.load();
+    expect(saved.fields.some((field) => field.id === 'field-demo-priority')).toBe(false);
+    expect(saved.stories.every((story) => story.values['field-demo-priority'] === undefined)).toBe(true);
+  });
+
+  it('edits text and number values on the story page', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'New field' }));
+    const dialog = screen.getByRole('dialog', { name: 'New field' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Customer');
+    await user.click(within(dialog).getByRole('button', { name: 'Add field' }));
+
+    await openStory(/S-3:/);
+    await user.click(await screen.findByRole('button', { name: /edit Customer/ }));
+    await user.type(screen.getByRole('textbox', { name: 'Customer' }), ' ACME {Enter}');
+    const value = screen.getByLabelText('Business value');
+    expect(value).toHaveValue('5');
+    await user.clear(value);
+    await user.type(value, 'lots{Enter}');
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter a number.');
+    expect(value).toHaveAttribute('aria-invalid', 'true');
+    await user.clear(value);
+    await user.type(value, '7,5');
+    await user.tab();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    const saved = await repository.load();
+    const customer = saved.fields.find((field) => field.label === 'Customer');
+    expect(saved.stories.find((s) => s.id === 'story-3')?.values).toMatchObject({
+      [customer?.id ?? '']: 'ACME',
+      'field-demo-value': 7.5
+    });
+  });
+
+  it('creates a story without an epic and clears the epic of a story', async () => {
+    const user = userEvent.setup();
+    const repository = await renderApp();
+    await user.click(screen.getByRole('button', { name: 'New story' }));
+    const dialog = screen.getByRole('dialog', { name: 'New story' });
+    expect(within(dialog).getByLabelText('Epic')).toHaveValue('');
+    await user.type(within(dialog).getByLabelText('Title'), 'Loose story');
+    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+    expect(screen.getByRole('group', { name: 'S-8: Loose story' })).toBeInTheDocument();
+
+    await openStory(/S-3:/);
+    await user.selectOptions(await screen.findByLabelText('Epic'), 'No epic');
+    const saved = await repository.load();
+    expect(saved.stories.find((s) => s.code === 'S-8')?.epicId).toBeNull();
+    expect(saved.stories.find((s) => s.id === 'story-3')?.epicId).toBeNull();
+  });
+
+  it('shows stories without an epic in their own column on the story map', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await user.click(screen.getByRole('link', { name: 'Story Map' }));
+    await screen.findByRole('heading', { name: 'Story Map', level: 1 });
+    expect(screen.queryByText('No epic')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Plan releases on a story map' }));
+    await user.selectOptions(await screen.findByLabelText('Epic'), 'No epic');
+    await user.keyboard('{Escape}');
+    const cell = screen.getByRole('list', { name: 'Not planned No epic' });
+    expect(within(cell).getByRole('group', { name: 'S-7: Plan releases on a story map' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'New story in No epic, Not planned' })).toBeInTheDocument();
+  });
+
+  it('opens data of release 0.1 and adds the built-in fields', async () => {
+    const old = {
+      epics: [{ id: 'e', name: 'Old', colorKey: 'boards' }],
+      stories: [
+        { id: 's', code: 'S-1', title: 'Old story', description: '', epicId: 'e', points: 2, status: 'todo', inSprint: true, rank: 0, criteria: [] }
+      ]
+    };
+    window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify(old));
+    const repository = new LocalStorageRepository();
+    render(<App repository={repository} />);
+    expect(await screen.findByRole('group', { name: 'S-1: Old story' })).toBeInTheDocument();
+    const saved = await repository.load();
+    expect(saved.fields.map((field) => field.builtinKey)).toContain('points');
+    expect(saved.stories[0].values).toEqual({});
+  });
+});
+
 describe('header', () => {
   it('switches the language and the document language', async () => {
     const user = userEvent.setup();
@@ -600,6 +798,7 @@ describe('router', () => {
     expect(parseHash('#/backlog')).toEqual({ name: 'backlog' });
     expect(parseHash('#/epics')).toEqual({ name: 'epics' });
     expect(parseHash('#/map')).toEqual({ name: 'map' });
+    expect(parseHash('#/fields')).toEqual({ name: 'fields' });
     expect(parseHash('#/story/abc')).toEqual({ name: 'board' });
     expect(parseHash('')).toEqual({ name: 'board' });
     expect(parseHash('#/nonsense')).toEqual({ name: 'board' });

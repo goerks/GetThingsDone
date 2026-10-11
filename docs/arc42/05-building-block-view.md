@@ -16,13 +16,13 @@
 | Module | Path | Responsibility |
 |---|---|---|
 | Entry | `src/main.tsx`, `src/App.tsx` | Loads fonts and tokens, initialises i18n and theme, renders the shell |
-| Router | `src/router.ts` | Hash routes `#/board`, `#/backlog`, `#/map`, `#/epics`. Stories, epics and sprints have no route; they open in dialogs over the current page |
-| Pages | `src/pages/` | `BoardPage` (running sprint, drag and drop), `BacklogPage` (one section per sprint, drag and drop), `MapPage` (story map: epics × sprints, drag and drop of stories and upcoming sprints, compact switch, create dialogs), `EpicsPage` (list of epics, new-epic dialog) |
+| Router | `src/router.ts` | Hash routes `#/board`, `#/backlog`, `#/map`, `#/epics`, `#/fields`. Stories, epics and sprints have no route; they open in dialogs over the current page |
+| Pages | `src/pages/` | `BoardPage` (running sprint, drag and drop), `BacklogPage` (one section per sprint, drag and drop), `MapPage` (story map: epics × sprints, drag and drop of stories and upcoming sprints, compact switch, create dialogs), `EpicsPage` (list of epics, new-epic dialog), `FieldsPage` (field library, field dialog with options and item types, delete with confirmation) |
 | Detail dialogs | `src/state/Details.tsx`, `src/components/StoryDialog.tsx`, `EpicDialog.tsx`, `SprintDialog.tsx` | `DetailsProvider` keeps which item is open and renders its dialog over any page; `useDetails()` opens a story, epic or sprint |
-| Components | `src/components/` | `Header`, `BoardColumn`, `StoryCard`, `EpicTag`, `EpicDialogs` (colour picker, new epic), `SprintDialog`, `SprintSelect`, `sprintFormat` (date ranges), `EpicSelect` (with "new epic"), `EditableText` (click to edit), `Dialog` (native modal dialog), `NewStoryDialog`, icons |
+| Components | `src/components/` | `Header`, `BoardColumn`, `StoryCard`, `EpicTag`, `EpicDialogs` (colour picker, new epic), `SprintDialog`, `SprintSelect`, `sprintFormat` (date ranges), `EpicSelect` (with "new epic"), `EditableText` (click to edit), `Dialog` (native modal dialog), `NewStoryDialog`, `StoryDialog`, `FieldControl` (edits a custom field value by data type), `fieldLabel`, icons |
 | Drag and drop | `src/dnd/dnd.ts` | Shared sensors (whole card, Enter left free), placement from the pointer, drop target from the resulting list |
 | State | `src/state/AppState.tsx` | React context. Holds the snapshot, applies domain functions, queues writes to the repository in order, reports load and save errors |
-| Domain | `src/domain/` | Types (`Epic`, `Sprint`, `Story`, `Criterion`, `Status`) and pure operations: board drop, backlog drop between sprint sections, story map drop and cells, editing and deleting stories and criteria, criteria order, new story key (`board.ts`); epics with colour palette and order (`epics.ts`); sprint dates, running sprint, map rows, new-sprint defaults (`sprints.ts`); migration of stored release 0.1 data (`migrate.ts`) |
+| Domain | `src/domain/` | Types (`Epic`, `Sprint`, `Story`, `Criterion`, `Status`) and pure operations: board drop, backlog drop between sprint sections, story map drop and cells, editing and deleting stories and criteria, criteria order, new story key (`board.ts`); epics with colour palette and order (`epics.ts`); sprint dates, running sprint, map rows, new-sprint defaults (`sprints.ts`); migration of stored older data (`migrate.ts`); field library, assignments, validation and values of custom fields (`fields.ts`, ADR 0003) |
 | Data | `src/data/` | `Repository` interface, `SqliteRepository`, `LocalStorageRepository`, `createRepository` (picks one), demo `seed` |
 | i18n | `src/i18n/` | i18next set-up and the four language files |
 | Theme | `src/theme.ts`, `src/styles/app.css`, `docs/design/tokens.css` | Light and dark theme via `data-theme` and CSS custom properties |
@@ -32,7 +32,7 @@
 | Part | Path | Responsibility |
 |---|---|---|
 | Entry | `src-tauri/src/main.rs`, `lib.rs` | Starts the window, registers the SQL plugin and the migrations |
-| Migrations | `src-tauri/migrations/` | Schema of the SQLite database (`001_init.sql`), epic palette (`002_epic_palette.sql`), sprints and epic order (`003_sprints.sql`) |
+| Migrations | `src-tauri/migrations/` | Schema of the SQLite database (`001_init.sql`), epic palette (`002_epic_palette.sql`), sprints and epic order (`003_sprints.sql`), configurable fields and optional epic (`004_custom_fields.sql`) |
 | Capabilities | `src-tauri/capabilities/default.json` | Allows only the SQL commands load, select, execute and close |
 | Config | `src-tauri/tauri.conf.json` | Window, bundle (NSIS, current user, four installer languages) |
 
