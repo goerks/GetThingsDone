@@ -27,7 +27,7 @@ export function TitleButton({ story, className }: { story: Story; className: str
 
 /** Values of the custom fields chosen for the card. Select values keep their option colour. */
 export function CardFieldValues({ story }: { story: Story }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const app = useApp();
   const shown = cardFieldsFor('story', app.fields, app.assignments).filter((field) => story.values[field.id] !== undefined);
   if (shown.length === 0) return null;
@@ -35,13 +35,17 @@ export function CardFieldValues({ story }: { story: Story }) {
     <span className="card-fields">
       {shown.map((field) => {
         const value = story.values[field.id];
-        const option = field.dataType === 'single_select' ? field.options.find((item) => item.id === value) : undefined;
+        const ids = Array.isArray(value) ? value : [String(value)];
+        const colors = field.options.filter((item) => ids.includes(item.id)).map((item) => item.colorKey);
         const name = fieldLabel(t, field);
-        const text = formatValue(field, value);
+        // A ticked checkbox shows its name; every other value shows itself.
+        const text = field.dataType === 'checkbox' ? `✓ ${name}` : formatValue(field, value, i18n.resolvedLanguage);
         return (
-          <span key={field.id} className="card-field" title={`${name}: ${text}`}>
-            {option && <span className="epic__dot" style={{ background: `var(--epic-${option.colorKey})` }} aria-hidden="true" />}
-            <span className="sr-only">{name}: </span>
+          <span key={field.id} className="card-field" title={field.dataType === 'checkbox' ? name : `${name}: ${text}`}>
+            {colors.map((color) => (
+              <span key={color} className="epic__dot" style={{ background: `var(--epic-${color})` }} aria-hidden="true" />
+            ))}
+            {field.dataType !== 'checkbox' && <span className="sr-only">{name}: </span>}
             {text}
           </span>
         );

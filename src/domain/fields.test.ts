@@ -12,6 +12,11 @@ import {
   missingBuiltins,
   parseValue,
   CARD_FIELD_LIMIT,
+  canConvert,
+  convertValues,
+  isIsoDate,
+  normalizeUrl,
+  parseOptions,
   cardFieldsFor,
   createFieldsFor,
   defaultAsText,
@@ -344,5 +349,84 @@ describe('layout per item type', () => {
   it('formats values for cards', () => {
     expect(formatValue(select, 'must')).toBe('Must');
     expect(formatValue({ ...select, dataType: 'number', options: [] }, 8)).toBe('8');
+  });
+});
+
+describe('more data types', () => {
+  const field = (dataType: FieldDefinition['dataType']): FieldDefinition => ({ ...select, dataType, options: dataType.endsWith('select') ? select.options : [] });
+  const multi = field('multi_select');
+
+  it('accepts only real calendar days', () => {
+    expect(isIsoDate('2026-02-28')).toBe(true);
+    expect(isIsoDate('2026-02-30')).toBe(false);
+    expect(isIsoDate('28.02.2026')).toBe(false);
+    expect(parseValue(field('date'), '2026-12-24')).toBe('2026-12-24');
+    expect(parseValue(field('date'), '24.12.2026')).toBeNull();
+  });
+
+  it('accepts web links and adds https when it is missing', () => {
+    expect(normalizeUrl('example.com/spec')).toBe('https://example.com/spec');
+    expect(normalizeUrl('http://intranet.local')).toBe('http://intranet.local/');
+    expect(normalizeUrl('javascript:alert(1)')).toBeNull();
+    expect(normalizeUrl('not a link')).toBeNull();
+    expect(parseValue(field('url'), 'github.com')).toBe('https://github.com/');
+  });
+
+  it('stores a ticked checkbox as true and an unticked one as no value', () => {
+    expect(parseValue(field('checkbox'), 'true')).toBe(true);
+    expect(parseValue(field('checkbox'), '')).toBeNull();
+  });
+
+  it('keeps the chosen options of a multi select in option order', () => {
+    expect(parseOptions(multi, ['could', 'must'])).toEqual(['must', 'could']);
+    expect(parseOptions(multi, ['gone'])).toBeNull();
+    expect(parseValue(multi, 'could,must')).toEqual(['must', 'could']);
+  });
+
+  it('removes deleted options from multi select values', () => {
+    const stories = [story('a', { prio: ['must', 'gone'] }), story('b', { prio: ['gone'] })];
+    const after = dropRemovedOptions(stories, multi);
+    expect(after.map((item) => item.values)).toEqual([{ prio: ['must'] }, {}]);
+  });
+
+  it('reads defaults of the new types', () => {
+    const create = (input: Partial<FieldInput>) => createField([], [], { ...textInput, ...input }, ids())?.field;
+    expect(create({ dataType: 'checkbox', defaultValue: 'true' })?.defaultValue).toBe(true);
+    expect(create({ dataType: 'date', defaultValue: '2026-10-11' })?.defaultValue).toBe('2026-10-11');
+    expect(create({ dataType: 'url', defaultValue: 'example.com' })?.defaultValue).toBe('https://example.com/');
+    const labels = create({ dataType: 'multi_select', options: [{ label: 'A' }, { label: 'B' }], defaultValue: 'b, a' });
+    expect(labels?.defaultValue).toEqual(labels?.options.map((option) => option.id));
+    expect(defaultAsText(labels as FieldDefinition)).toBe('A, B');
+    expect(validateField([], { ...textInput, dataType: 'date', defaultValue: 'tomorrow' })).toBe('defaultInvalid');
+    expect(validateField([], { ...textInput, dataType: 'multi_select', options: [{ label: 'A' }], defaultValue: 'A, C' })).toBe('defaultInvalid');
+  });
+
+  it('formats dates, links, checkboxes and multi selects for cards', () => {
+    expect(formatValue(field('date'), '2026-12-24', 'de')).toBe('24. Dez. 2026');
+    expect(formatValue(field('url'), 'https://github.com/goerks')).toBe('github.com');
+    expect(formatValue(field('checkbox'), true)).toBe('');
+    expect(formatValue(multi, ['must', 'could'])).toBe('Must, Could');
+  });
+});
+
+describe('type changes', () => {
+  it('allows only changes that keep every value', () => {
+    expect(canConvert('text', 'long_text')).toBe(true);
+    expect(canConvert('single_select', 'multi_select')).toBe(true);
+    expect(canConvert('number', 'text')).toBe(true);
+    expect(canConvert('long_text', 'text')).toBe(false);
+    expect(canConvert('multi_select', 'single_select')).toBe(false);
+    expect(canConvert('text', 'number')).toBe(false);
+  });
+
+  it('changes the type and converts the values', () => {
+    const result = updateField([select], 'prio', { label: 'Priority', options: select.options, dataType: 'multi_select' }, ids());
+    expect(result?.field.dataType).toBe('multi_select');
+    expect(convertValues([story('a', { prio: 'must' })], 'prio', 'multi_select')[0].values).toEqual({ prio: ['must'] });
+    expect(convertValues([story('a', { n: 8 })], 'n', 'text')[0].values).toEqual({ n: '8' });
+  });
+
+  it('refuses a change that would lose values', () => {
+    expect(updateField([select], 'prio', { label: 'Priority', options: select.options, dataType: 'number' }, ids())).toBeNull();
   });
 });

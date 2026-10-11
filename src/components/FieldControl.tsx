@@ -1,11 +1,11 @@
 import { useEffect, useId, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { parseValue } from '../domain/fields';
+import { parseOptions, parseValue } from '../domain/fields';
 import type { FieldDefinition, FieldValue } from '../domain/types';
 import { EditableText } from './EditableText';
 import { fieldLabel } from './fieldLabel';
 
-type Problem = 'invalidNumber' | 'required';
+type Problem = 'invalidNumber' | 'invalidUrl' | 'required';
 
 interface Props {
   field: FieldDefinition;
@@ -87,7 +87,7 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
 
   const note = problem ? (
     <span id={noteId} className="field__error" role="alert">
-      {t(problem === 'required' ? 'fields.requiredError' : 'fields.invalidNumber')}
+      {t(`fields.${problem === 'required' ? 'requiredError' : problem}`)}
     </span>
   ) : missing ? (
     <span id={noteId} className="field__error">
@@ -159,6 +159,99 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
           {note}
         </div>
       );
+    case 'url': {
+      const link = typeof value === 'string' ? value : '';
+      if (mode === 'form') {
+        return (
+          <div className="field">
+            <label htmlFor={inputId}>{heading}</label>
+            <input
+              id={inputId}
+              className="input"
+              type="url"
+              inputMode="url"
+              value={link}
+              aria-invalid={missing || problem ? true : undefined}
+              aria-describedby={describedBy}
+              onChange={(event) => onChange(event.target.value.trim() ? event.target.value : null)}
+            />
+            {note}
+          </div>
+        );
+      }
+      return (
+        <div className="field">
+          <span className="field__label">{heading}</span>
+          <EditableText
+            value={link}
+            label={label}
+            placeholder={t('fields.noValue')}
+            onSave={(raw) => {
+              const parsed = parseValue(field, raw);
+              if (parsed === null && raw.trim() !== '') setProblem('invalidUrl');
+              else apply(parsed);
+            }}
+          />
+          {link && (
+            <a className="field__link" href={link} target="_blank" rel="noopener noreferrer">
+              {t('fields.openLink', { name: label })}
+            </a>
+          )}
+          {note}
+        </div>
+      );
+    }
+    case 'date':
+      return (
+        <div className="field">
+          <label htmlFor={inputId}>{heading}</label>
+          <input
+            id={inputId}
+            className="input"
+            type="date"
+            value={typeof value === 'string' ? value : ''}
+            aria-invalid={missing || problem ? true : undefined}
+            aria-describedby={describedBy}
+            onChange={(event) => apply(parseValue(field, event.target.value))}
+          />
+          {note}
+        </div>
+      );
+    case 'checkbox':
+      return (
+        <div className="field">
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={value === true}
+              aria-invalid={missing || problem ? true : undefined}
+              aria-describedby={describedBy}
+              onChange={(event) => apply(event.target.checked ? true : null)}
+            />
+            {heading}
+          </label>
+          {note}
+        </div>
+      );
+    case 'multi_select': {
+      const chosen = Array.isArray(value) ? value : [];
+      const toggle = (optionId: string, checked: boolean): void => {
+        apply(parseOptions(field, checked ? [...chosen, optionId] : chosen.filter((id) => id !== optionId)));
+      };
+      return (
+        <fieldset className="field field--choices" aria-describedby={describedBy}>
+          <legend>{heading}</legend>
+          {field.options.map((option) => (
+            <label key={option.id} className="check">
+              <input type="checkbox" checked={chosen.includes(option.id)} onChange={(event) => toggle(option.id, event.target.checked)} />
+              <span className="epic__dot" style={{ background: `var(--epic-${option.colorKey})` }} aria-hidden="true" />
+              {option.label}
+            </label>
+          ))}
+          {note}
+        </fieldset>
+      );
+    }
     case 'single_select':
       return (
         <div className="field">

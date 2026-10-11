@@ -195,7 +195,11 @@
       "epic": "Epic link",
       "points": "Points",
       "checklist": "Checklist",
-      "color": "Colour"
+      "color": "Colour",
+      "date": "Date",
+      "checkbox": "Checkbox",
+      "multi_select": "Multi select",
+      "url": "Link"
     },
     "builtin": {
       "key": "Key",
@@ -215,7 +219,7 @@
     },
     "label": "Name",
     "dataType": "Type",
-    "typeLocked": "The type of an existing field cannot be changed.",
+    "typeLocked": "The type of this field cannot change without losing values. Create a new field instead.",
     "options": "Options",
     "option": "Option {{position}}",
     "optionColor": "Colour of option {{position}}",
@@ -275,7 +279,11 @@
       "hintNoCard": "Drag custom fields to change their order in the dialog.",
       "noCustom": "No custom fields for this type yet. Tick them under Assignment.",
       "instructions": "Press space to pick up a field. Use the arrow keys to move it, space to drop it and escape to cancel."
-    }
+    },
+    "invalidUrl": "Enter a web address, for example example.com.",
+    "openLink": "Open {{name}}",
+    "typeConversions": "Only type changes that keep every value are offered.",
+    "defaultTicked": "Ticked by default"
   },
   "settings": {
     "title": "Settings",
