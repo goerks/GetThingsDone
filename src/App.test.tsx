@@ -64,18 +64,30 @@ describe('board', () => {
     expect(screen.getByText('6 stories · 23 points')).toBeInTheDocument();
   });
 
-  it('creates a story in "To do"', async () => {
+  it('creates a story in "To do" through a dialog', async () => {
     const user = userEvent.setup();
     const repository = await renderApp();
     await user.click(screen.getByRole('button', { name: 'New story' }));
-    await user.type(screen.getByLabelText('Title'), 'Export to CSV');
-    await user.click(screen.getByRole('button', { name: 'Add story' }));
+    const dialog = screen.getByRole('dialog', { name: 'New story' });
+    expect(within(dialog).getByRole('checkbox', { name: 'In Sprint 1' })).toBeChecked();
+    await user.type(within(dialog).getByLabelText('Title'), 'Export to CSV');
+    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
 
     const todo = screen.getByRole('region', { name: 'To do' });
     expect(within(todo).getByText('Export to CSV')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     const saved = await repository.load();
-    expect(saved.stories.some((s) => s.title === 'Export to CSV' && s.code === 'S-8')).toBe(true);
+    expect(saved.stories.some((s) => s.title === 'Export to CSV' && s.code === 'S-8' && s.inSprint)).toBe(true);
+  });
+
+  it('closes the new story dialog without saving on cancel', async () => {
+    const user = userEvent.setup();
+    const repository = await renderApp();
+    await user.click(screen.getByRole('button', { name: 'New story' }));
+    await user.type(screen.getByLabelText('Title'), 'Never saved');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect((await repository.load()).stories.some((s) => s.title === 'Never saved')).toBe(false);
   });
 });
 
@@ -106,10 +118,24 @@ describe('backlog', () => {
   it('has no move or sprint buttons, the rows are dragged instead', async () => {
     await openBacklog();
     const main = screen.getByRole('main');
-    expect(within(main).queryAllByRole('button')).toHaveLength(0);
+    expect(within(main).getAllByRole('button').map((b) => b.textContent)).toEqual(['New story']);
     const row = screen.getByRole('group', { name: /S-2: Tick off acceptance criteria/ });
     expect(row).toHaveAttribute('tabindex', '0');
     expect(row).toHaveAttribute('aria-roledescription', 'backlog story');
+  });
+
+  it('adds a new story below the sprint line from a dialog', async () => {
+    const user = userEvent.setup();
+    const repository = await openBacklog();
+    await user.click(screen.getByRole('button', { name: 'New story' }));
+    const dialog = screen.getByRole('dialog', { name: 'New story' });
+    expect(within(dialog).getByRole('checkbox', { name: 'In Sprint 1' })).not.toBeChecked();
+    await user.type(within(dialog).getByLabelText('Title'), 'Import from Jira');
+    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+
+    const rest = screen.getByRole('region', { name: 'Not planned' });
+    expect(within(rest).getByRole('group', { name: 'Rank 8, S-8: Import from Jira' })).toBeInTheDocument();
+    expect((await repository.load()).stories.find((s) => s.code === 'S-8')?.inSprint).toBe(false);
   });
 
   it('opens a story with Enter', async () => {
@@ -291,20 +317,44 @@ describe('epics', () => {
     expect(within(rows[0]).getByText('2 stories')).toBeInTheDocument();
   });
 
-  it('creates an epic with a chosen colour', async () => {
+  it('shows only the colour dot of an epic, the palette opens on click', async () => {
     const user = userEvent.setup();
     const repository = await openEpics();
-    await user.type(screen.getByLabelText('Name'), 'Reporting');
-    const picker = screen.getByRole('group', { name: 'Colour' });
-    await user.click(within(picker).getByRole('radio', { name: 'Slate' }));
-    await user.click(screen.getByRole('button', { name: 'Add epic' }));
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    const trigger = screen.getByRole('button', { name: 'Colour of Boards: Blue. Change colour' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    await user.click(within(screen.getByRole('group', { name: 'Colour of Boards' })).getByRole('radio', { name: 'Green' }));
 
-    expect(screen.getAllByRole('listitem')).toHaveLength(5);
-    const saved = await repository.load();
-    expect(saved.epics.find((e) => e.name === 'Reporting')?.colorKey).toBe('slate');
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Colour of Boards: Green. Change colour' })).toHaveFocus();
+    expect((await repository.load()).epics.find((e) => e.id === 'epic-boards')?.colorKey).toBe('green');
   });
 
-  it('renames and recolours an epic', async () => {
+  it('closes the palette with Escape without a change', async () => {
+    const user = userEvent.setup();
+    await openEpics();
+    await user.click(screen.getByRole('button', { name: /Colour of Backlog/ }));
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+  });
+
+  it('creates an epic with a chosen colour through a dialog', async () => {
+    const user = userEvent.setup();
+    const repository = await openEpics();
+    await user.click(screen.getByRole('button', { name: 'New epic' }));
+    const dialog = screen.getByRole('dialog', { name: 'New epic' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Reporting');
+    await user.click(within(within(dialog).getByRole('group', { name: 'Colour' })).getByRole('radio', { name: 'Slate' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Add epic' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(5);
+    expect((await repository.load()).epics.find((e) => e.name === 'Reporting')?.colorKey).toBe('slate');
+  });
+
+  it('renames an epic in place', async () => {
     const user = userEvent.setup();
     const repository = await openEpics();
     const row = screen.getAllByRole('listitem')[0];
@@ -312,10 +362,7 @@ describe('epics', () => {
     const field = within(row).getByRole('textbox', { name: 'Name' });
     await user.clear(field);
     await user.type(field, 'Board{Enter}');
-    await user.click(within(screen.getByRole('group', { name: 'Colour of Board' })).getByRole('radio', { name: 'Green' }));
-
-    const saved = await repository.load();
-    expect(saved.epics.find((e) => e.id === 'epic-boards')).toMatchObject({ name: 'Board', colorKey: 'green' });
+    expect((await repository.load()).epics.find((e) => e.id === 'epic-boards')?.name).toBe('Board');
   });
 
   it('does not delete an epic that still has stories, but deletes an empty one', async () => {
@@ -324,6 +371,7 @@ describe('epics', () => {
     expect(screen.getByRole('button', { name: 'Delete epic Boards' })).toBeDisabled();
     expect(screen.getAllByText('Used by 2 stories. Move them to another epic first.').length).toBeGreaterThan(0);
 
+    await user.click(screen.getByRole('button', { name: 'New epic' }));
     await user.type(screen.getByLabelText('Name'), 'Empty');
     await user.click(screen.getByRole('button', { name: 'Add epic' }));
     await user.click(screen.getByRole('button', { name: 'Delete epic Empty' }));

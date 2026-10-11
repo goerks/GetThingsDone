@@ -26,7 +26,8 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Sprint line | The sprint section sits on a `--column` surface; a 3 px rule in `--text` separates it from "Not planned" |
 | Drop line | 4 px `--accent` line in the gap where the item will land; in the backlog with an accent pill "becomes rank n" |
 | Editable text | Looks like text, shows a border on hover, turns into a field on click |
-| Epic swatches | Eight 18 px dots as a radio group; the selected one has a ring |
+| Epic swatches | Eight 18 px dots as a radio group; the selected one has a ring. On the epics page they appear in a popover under the epic's colour dot |
+| Dialog | Native modal `<dialog>`, 560 px wide, dimmed backdrop, title and form; used for new story and new epic. Primary actions on pages ("New story", "New epic") open a dialog instead of an inline form |
 | Acceptance criteria list | Drag handle, checkbox, editable text and delete button per criterion, progress bar, "all accepted" status message |
 | Details panel | Status, epic, points as selects, sprint as checkbox, "Delete story" with confirmation below a rule |
 

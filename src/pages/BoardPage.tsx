@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
 import { BoardColumn } from '../components/BoardColumn';
-import { NewStoryForm } from '../components/NewStoryForm';
+import { NewStoryDialog } from '../components/NewStoryDialog';
 import { OverlayCard } from '../components/StoryCard';
 import { dropTargetIn, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import { dropStory, parseColumnId, sprintPoints, sprintStories, storiesInColumn, type Placement } from '../domain/board';
@@ -85,23 +85,12 @@ export function BoardPage() {
       <div className="page-head">
         <h1>{t('board.title')}</h1>
         <span className="muted">{t('board.summary', { count: inSprint.length, points: sprintPoints(app.stories) })}</span>
-        {!creating && (
-          <button type="button" className="btn btn--primary page-head__action" onClick={() => setCreating(true)}>
-            {t('newStory.open')}
-          </button>
-        )}
+        <button type="button" className="btn btn--primary page-head__action" onClick={() => setCreating(true)}>
+          {t('newStory.open')}
+        </button>
       </div>
 
-      {creating && (
-        <NewStoryForm
-          epics={app.epics}
-          onCancel={() => setCreating(false)}
-          onCreate={(input) => {
-            app.createStory(input);
-            setCreating(false);
-          }}
-        />
-      )}
+      {creating && <NewStoryDialog inSprint onClose={() => setCreating(false)} />}
 
       <DndContext
         sensors={sensors}

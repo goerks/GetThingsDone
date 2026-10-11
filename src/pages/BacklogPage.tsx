@@ -13,6 +13,7 @@ import {
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { EpicTag } from '../components/EpicTag';
+import { NewStoryDialog } from '../components/NewStoryDialog';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import {
   backlogOrder,
@@ -148,6 +149,7 @@ export function BacklogPage() {
   const app = useApp();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
+  const [creating, setCreating] = useState(false);
   const sensors = useDragSensors();
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
 
@@ -223,7 +225,13 @@ export function BacklogPage() {
       <div className="page-head">
         <h1>{t('backlog.title')}</h1>
         <span className="muted">{t('backlog.hint')}</span>
+        <button type="button" className="btn btn--primary page-head__action" onClick={() => setCreating(true)}>
+          {t('newStory.open')}
+        </button>
       </div>
+
+      {creating && <NewStoryDialog inSprint={false} onClose={() => setCreating(false)} />}
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}

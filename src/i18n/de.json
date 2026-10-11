@@ -46,7 +46,8 @@
     "epic": "Epic",
     "points": "Punkte",
     "add": "Story hinzufügen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "dialogTitle": "Neue Story"
   },
   "backlog": {
     "title": "Backlog",
@@ -111,7 +112,7 @@
   },
   "epics": {
     "title": "Epics",
-    "hint": "Epics gruppieren Stories. Auf einen Namen klicken, um ihn umzubenennen.",
+    "hint": "Epics gruppieren Stories. Auf einen Namen klicken, um ihn umzubenennen, auf den Farbpunkt, um die Farbe zu ändern.",
     "none": "Noch keine Epics.",
     "new": "Neues Epic",
     "name": "Name",
@@ -133,6 +134,7 @@
     "storyCount_other": "{{count}} Stories",
     "delete": "Epic {{name}} löschen",
     "inUse_one": "Wird von {{count}} Story verwendet. Zuerst einem anderen Epic zuordnen.",
-    "inUse_other": "Wird von {{count}} Stories verwendet. Zuerst einem anderen Epic zuordnen."
+    "inUse_other": "Wird von {{count}} Stories verwendet. Zuerst einem anderen Epic zuordnen.",
+    "changeColor": "Farbe von {{name}}: {{color}}. Farbe ändern"
   }
 }

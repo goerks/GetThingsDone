@@ -209,6 +209,8 @@ export interface NewStoryInput {
   description: string;
   epicId: string;
   points: number;
+  /** Defaults to true. */
+  inSprint?: boolean;
 }
 
 export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'inSprint'>>;
@@ -228,7 +230,7 @@ export function deleteStory(stories: Story[], id: string): Story[] {
   return stories.filter((story) => story.id !== id);
 }
 
-/** Adds a story at the end of the backlog, in "To do", and in the sprint. */
+/** Adds a story at the end of the backlog, in "To do", and in the sprint unless asked otherwise. */
 export function createStory(stories: Story[], input: NewStoryInput, id: string): { stories: Story[]; story: Story } {
   const story: Story = {
     id,
@@ -238,7 +240,7 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string):
     epicId: input.epicId,
     points: input.points,
     status: 'todo',
-    inSprint: true,
+    inSprint: input.inSprint ?? true,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
     criteria: []
   };

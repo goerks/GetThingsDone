@@ -41,12 +41,14 @@ As a team member, I want to see the number of stories and the sum of points in t
 Source: Vision · Status: Implemented · Verified by: App "summarises the sprint", board.test "adds up the points of the sprint only"
 
 ### FR-BOARD-05 Create a story
-As a team member, I want to create a story with title, description, epic and points, so that I can capture new work.
+As a team member, I want to create a story with title, description, epic and points from the board or the backlog, so that I can capture new work.
+- "New story" on the board and in the backlog opens a dialog (not an inline form). Escape, "Cancel" or a click outside closes it without saving.
 - Title is required, description optional, values are trimmed.
-- The new story gets the next free key (`S-<n>`), status "To do", is in the sprint and at the end of the backlog.
+- The new story gets the next free key (`S-<n>`), status "To do" and the end of the backlog.
+- "In Sprint 1" is ticked when the dialog is opened from the board and unticked from the backlog, so a story from the backlog lands below the sprint line.
 - A new epic can be created from the epic field.
 
-Source: Vision · Status: Implemented · Verified by: App "creates a story in "To do"", board.test "createStory"
+Source: Vision, PO feedback · Status: Implemented · Verified by: App "creates a story in "To do" through a dialog", "closes the new story dialog without saving on cancel", "adds a new story below the sprint line from a dialog", board.test "createStory"
 
 ### FR-BOARD-06 Configurable columns
 As a team, we want to configure the board columns, so that the board fits our process.
@@ -120,9 +122,9 @@ Source: Vision · Status: Implemented
 
 ### FR-EPIC-02 Manage epics
 As a PO, I want to create, rename, recolour and delete epics.
-- Page "Epics" in the main navigation lists every epic with colour, name and number of stories.
-- A new epic gets a name and one of eight colours; the first unused colour is suggested.
-- The name is edited in place, the colour by clicking a swatch (a radio group, also by keyboard).
+- Page "Epics" in the main navigation lists every epic with its colour dot, name and number of stories.
+- "New epic" opens a dialog with name and one of eight colours; the first unused colour is suggested.
+- The name is edited in place. A click on the colour dot opens the palette (a radio group, also by keyboard); picking a colour saves it and closes the palette, Escape or a click outside closes it unchanged.
 - An epic that still has stories cannot be deleted; the page says how many stories use it.
 - The epic field on the story page and in the new story form offers "+ New epic…".
 
