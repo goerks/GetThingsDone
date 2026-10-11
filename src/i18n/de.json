@@ -195,7 +195,11 @@
       "epic": "Epic-Verknüpfung",
       "points": "Punkte",
       "checklist": "Checkliste",
-      "color": "Farbe"
+      "color": "Farbe",
+      "date": "Datum",
+      "checkbox": "Checkbox",
+      "multi_select": "Mehrfachauswahl",
+      "url": "Link"
     },
     "builtin": {
       "key": "Schlüssel",
@@ -215,7 +219,7 @@
     },
     "label": "Name",
     "dataType": "Typ",
-    "typeLocked": "Der Typ eines bestehenden Felds lässt sich nicht ändern.",
+    "typeLocked": "Der Typ dieses Felds lässt sich nicht ändern, ohne Werte zu verlieren. Lege stattdessen ein neues Feld an.",
     "options": "Optionen",
     "option": "Option {{position}}",
     "optionColor": "Farbe von Option {{position}}",
@@ -275,7 +279,11 @@
       "hintNoCard": "Eigene Felder ziehen, um ihre Reihenfolge im Dialog zu ändern.",
       "noCustom": "Noch keine eigenen Felder für diesen Typ. Unter Zuordnung anhaken.",
       "instructions": "Leertaste drücken, um ein Feld aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen."
-    }
+    },
+    "invalidUrl": "Bitte eine Webadresse eingeben, zum Beispiel example.com.",
+    "openLink": "{{name}} öffnen",
+    "typeConversions": "Angeboten werden nur Typwechsel, bei denen alle Werte erhalten bleiben.",
+    "defaultTicked": "Standardmässig angehakt"
   },
   "settings": {
     "title": "Einstellungen",

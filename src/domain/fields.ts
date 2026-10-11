@@ -8,7 +8,7 @@ import type {
   FieldValue,
   ItemType
 } from './types';
-import { EPIC_COLOR_KEYS } from './types';
+import { CUSTOM_DATA_TYPES, EPIC_COLOR_KEYS } from './types';
 
 interface BuiltinField {
   key: BuiltinKey;
@@ -74,7 +74,64 @@ export function missingBuiltins(
 }
 
 export function isCustomDataType(value: string): value is CustomDataType {
-  return value === 'text' || value === 'long_text' || value === 'number' || value === 'single_select';
+  return (CUSTOM_DATA_TYPES as readonly string[]).includes(value);
+}
+
+/** Single and multi select fields have options. */
+export function hasOptions(dataType: FieldDefinition['dataType']): boolean {
+  return dataType === 'single_select' || dataType === 'multi_select';
+}
+
+/** Type changes that keep every value; anything else needs a new field. */
+export const CONVERSIONS: Readonly<Record<CustomDataType, readonly CustomDataType[]>> = {
+  text: ['long_text'],
+  long_text: [],
+  number: ['text'],
+  date: ['text'],
+  checkbox: [],
+  single_select: ['multi_select'],
+  multi_select: [],
+  url: ['text']
+};
+
+/** Whether a field may change from one data type to another. */
+export function canConvert(from: FieldDefinition['dataType'], to: CustomDataType): boolean {
+  return from === to || (isCustomDataType(from) && CONVERSIONS[from].includes(to));
+}
+
+/** A value after a lossless type change. */
+export function convertValue(value: FieldValue, to: CustomDataType): FieldValue {
+  if (to === 'multi_select') return Array.isArray(value) ? value : [String(value)];
+  if (to === 'text' || to === 'long_text') return String(value);
+  return value;
+}
+
+/** Changes every value of a field to its new type. */
+export function convertValues<T extends WithValues>(items: T[], fieldId: string, to: CustomDataType): T[] {
+  return items.map((item) => {
+    const value = item.values[fieldId];
+    return value === undefined ? item : { ...item, values: { ...item.values, [fieldId]: convertValue(value, to) } };
+  });
+}
+
+/** A calendar day as `YYYY-MM-DD` that exists, for example not 2026-02-30. */
+export function isIsoDate(text: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return false;
+  const date = new Date(`${text}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === text;
+}
+
+/** A web link, with "https://" added when the scheme is missing. Null when it is not a valid http(s) link. */
+export function normalizeUrl(text: string): string | null {
+  const candidate = /^[a-z][a-z0-9+.-]*:/i.test(text) ? text : `https://${text}`;
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    if (!url.hostname.includes('.') && url.hostname !== 'localhost') return null;
+    return url.href;
+  } catch {
+    return null;
+  }
 }
 
 /** Item types a field is assigned to. */
@@ -137,17 +194,43 @@ export function validateField(
     (field) => field.id !== ownId && field.kind === 'custom' && field.label?.toLocaleLowerCase() === label.toLocaleLowerCase()
   );
   if (taken) return 'labelTaken';
-  if (input.dataType === 'single_select') {
+  if (hasOptions(input.dataType)) {
     const labels = input.options.map((option) => option.label.trim()).filter(Boolean);
     if (labels.length === 0) return 'optionsRequired';
     if (new Set(labels.map((item) => item.toLocaleLowerCase())).size !== labels.length) return 'optionLabelTaken';
   }
   const raw = input.defaultValue?.trim() ?? '';
   if (raw) {
-    if (input.dataType === 'number' && !Number.isFinite(Number(raw.replace(',', '.')))) return 'defaultInvalid';
-    if (input.dataType === 'single_select' && !input.options.some((option) => sameLabel(option.label, raw))) return 'defaultInvalid';
+    const known = (label: string): boolean => input.options.some((option) => sameLabel(option.label, label));
+    switch (input.dataType) {
+      case 'number':
+        if (!Number.isFinite(Number(raw.replace(',', '.')))) return 'defaultInvalid';
+        break;
+      case 'single_select':
+        if (!known(raw)) return 'defaultInvalid';
+        break;
+      case 'multi_select':
+        if (!splitLabels(raw).every(known)) return 'defaultInvalid';
+        break;
+      case 'date':
+        if (!isIsoDate(raw)) return 'defaultInvalid';
+        break;
+      case 'url':
+        if (normalizeUrl(raw) === null) return 'defaultInvalid';
+        break;
+      default:
+        break;
+    }
   }
   return null;
+}
+
+/** Option labels of a multi select default, written as "A, B". */
+function splitLabels(text: string): string[] {
+  return text
+    .split(',')
+    .map((label) => label.trim())
+    .filter(Boolean);
 }
 
 function sameLabel(a: string, b: string): boolean {
@@ -159,19 +242,29 @@ function resolveDefault(field: FieldDefinition, raw: string | undefined): FieldV
   const text = raw?.trim() ?? '';
   if (!text) return null;
   if (field.dataType === 'single_select') return field.options.find((option) => sameLabel(option.label, text))?.id ?? null;
+  if (field.dataType === 'multi_select') {
+    const ids = splitLabels(text).flatMap((label) => field.options.filter((option) => sameLabel(option.label, label)).map((option) => option.id));
+    return parseOptions(field, ids);
+  }
   return parseValue(field, text);
 }
 
-/** The default of a field as the field dialog shows it: text, a number, or an option label. */
+/** The default of a field as the field dialog shows it: text, a number, a date, "true", or option labels. */
 export function defaultAsText(field: FieldDefinition): string {
   if (field.defaultValue === null) return '';
-  if (field.dataType === 'single_select') return field.options.find((option) => option.id === field.defaultValue)?.label ?? '';
+  if (hasOptions(field.dataType)) {
+    const ids = Array.isArray(field.defaultValue) ? field.defaultValue : [String(field.defaultValue)];
+    return field.options
+      .filter((option) => ids.includes(option.id))
+      .map((option) => option.label)
+      .join(', ');
+  }
   return String(field.defaultValue);
 }
 
 /** Trims the options, drops empty ones and gives new ones an id and the next free colour. */
 function cleanOptions(input: FieldInput, newId: () => string): FieldOption[] {
-  if (input.dataType !== 'single_select') return [];
+  if (!hasOptions(input.dataType)) return [];
   const options: FieldOption[] = [];
   for (const option of input.options) {
     const label = option.label.trim();
@@ -225,12 +318,15 @@ export function createField(
   return { fields: [...fields, field], assignments: assignTo(assignments, field.id, input.itemTypes), field };
 }
 
-/** What the field dialog changes on an existing field. Item types are switched in the field table. */
-export type FieldPatch = Pick<FieldInput, 'label' | 'options' | 'defaultValue'>;
+/**
+ * What the field dialog changes on an existing field. Item types are switched in the field table.
+ * The data type may change only along `CONVERSIONS`; the values are converted with `convertValues`.
+ */
+export type FieldPatch = Pick<FieldInput, 'label' | 'options' | 'defaultValue'> & { dataType?: CustomDataType };
 
 /**
- * Changes label and options of a custom field. The data type stays.
- * Returns null when the field is unknown, not a custom field, or the input is invalid.
+ * Changes label, options, default and, where it keeps every value, the data type of a custom field.
+ * Returns null when the field is unknown, not a custom field, the type change loses values, or the input is invalid.
  */
 export function updateField(
   fields: readonly FieldDefinition[],
@@ -240,20 +336,28 @@ export function updateField(
 ): { fields: FieldDefinition[]; field: FieldDefinition } | null {
   const current = fields.find((field) => field.id === id);
   if (!current || current.kind !== 'custom' || !isCustomDataType(current.dataType)) return null;
-  const full: FieldInput = { ...input, dataType: current.dataType, itemTypes: [] };
+  const dataType = input.dataType ?? current.dataType;
+  if (!canConvert(current.dataType, dataType)) return null;
+  const full: FieldInput = { ...input, dataType, itemTypes: [] };
   if (validateField(fields, full, id) !== null) return null;
-  const draft: FieldDefinition = { ...current, label: input.label.trim(), options: cleanOptions(full, newId) };
+  const draft: FieldDefinition = { ...current, dataType, label: input.label.trim(), options: cleanOptions(full, newId) };
   const field: FieldDefinition = { ...draft, defaultValue: resolveDefault(draft, input.defaultValue) };
   return { fields: fields.map((item) => (item.id === id ? field : item)), field };
 }
 
 /** Removes values that point to options a select field no longer has. */
 export function dropRemovedOptions<T extends WithValues>(items: T[], field: FieldDefinition): T[] {
-  if (field.dataType !== 'single_select') return items;
+  if (!hasOptions(field.dataType)) return items;
   const valid = new Set(field.options.map((option) => option.id));
   return items.map((item) => {
     const value = item.values[field.id];
-    if (value === undefined || valid.has(String(value))) return item;
+    if (value === undefined) return item;
+    if (Array.isArray(value)) {
+      const kept = value.filter((id) => valid.has(id));
+      if (kept.length === value.length) return item;
+      return { ...item, values: kept.length > 0 ? { ...item.values, [field.id]: kept } : withoutKey(item.values, field.id) };
+    }
+    if (valid.has(String(value))) return item;
     return { ...item, values: withoutKey(item.values, field.id) };
   });
 }
@@ -301,8 +405,9 @@ export function setAssigned(
 }
 
 /**
- * Turns what the user typed or picked into a stored value. Text is trimmed, numbers must be finite,
- * select values must be an option of the field. Null means "no value".
+ * Turns what the user typed or picked into a stored value. Text is trimmed, numbers must be finite, dates must
+ * exist, links must be http(s), select values must be options of the field. Null means "no value".
+ * A multi select takes the chosen option ids, separated by commas; a checkbox takes "true".
  */
 export function parseValue(field: FieldDefinition, raw: string): FieldValue | null {
   const text = raw.trim();
@@ -315,11 +420,26 @@ export function parseValue(field: FieldDefinition, raw: string): FieldValue | nu
       const number = Number(text.replace(',', '.'));
       return Number.isFinite(number) ? number : null;
     }
+    case 'date':
+      return isIsoDate(text) ? text : null;
+    case 'checkbox':
+      return text === 'true' ? true : null;
+    case 'url':
+      return normalizeUrl(text);
     case 'single_select':
       return field.options.some((option) => option.id === text) ? text : null;
+    case 'multi_select':
+      return parseOptions(field, text.split(','));
     default:
       return null;
   }
+}
+
+/** The chosen options of a multi select in the order of the field's options; null when none is valid. */
+export function parseOptions(field: FieldDefinition, ids: readonly string[]): string[] | null {
+  const chosen = new Set(ids.map((id) => id.trim()));
+  const kept = field.options.filter((option) => chosen.has(option.id)).map((option) => option.id);
+  return kept.length > 0 ? kept : null;
 }
 
 /** Sets or clears the value of a field on one item. */
@@ -461,8 +581,33 @@ export function defaultValuesFor(
   return values;
 }
 
-/** A value as text for cards and lists: the option label, the number or the text. */
-export function formatValue(field: FieldDefinition, value: FieldValue): string {
-  if (field.dataType === 'single_select') return field.options.find((option) => option.id === value)?.label ?? '';
-  return String(value);
+/**
+ * A value as text for cards and lists: option labels, the number, the text, the date in the given locale, or the
+ * host of a link. A ticked checkbox has no text of its own; callers show the field name.
+ */
+export function formatValue(field: FieldDefinition, value: FieldValue, locale = 'en'): string {
+  switch (field.dataType) {
+    case 'single_select':
+    case 'multi_select': {
+      const ids = Array.isArray(value) ? value : [String(value)];
+      return field.options
+        .filter((option) => ids.includes(option.id))
+        .map((option) => option.label)
+        .join(', ');
+    }
+    case 'date':
+      return typeof value === 'string' && isIsoDate(value)
+        ? new Date(`${value}T00:00:00`).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
+        : String(value);
+    case 'url':
+      try {
+        return new URL(String(value)).host;
+      } catch {
+        return String(value);
+      }
+    case 'checkbox':
+      return '';
+    default:
+      return String(value);
+  }
 }

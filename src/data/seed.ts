@@ -25,15 +25,42 @@ const DEMO_FIELDS: FieldDefinition[] = [
     label: 'Business value',
     options: [],
     defaultValue: null
+  },
+  {
+    id: 'field-demo-labels',
+    builtinKey: null,
+    kind: 'custom',
+    dataType: 'multi_select',
+    label: 'Labels',
+    options: [
+      { id: 'opt-ui', label: 'UI', colorKey: 'blue' },
+      { id: 'opt-data', label: 'Data', colorKey: 'teal' },
+      { id: 'opt-a11y', label: 'Accessibility', colorKey: 'violet' }
+    ],
+    defaultValue: null
+  },
+  {
+    id: 'field-demo-spec',
+    builtinKey: null,
+    kind: 'custom',
+    dataType: 'url',
+    label: 'Spec',
+    options: [],
+    defaultValue: null
   }
 ];
 
 const DEMO_VALUES: Record<string, Record<string, FieldValue>> = {
-  'story-1': { 'field-demo-priority': 'opt-must', 'field-demo-value': 8 },
+  'story-1': {
+    'field-demo-priority': 'opt-must',
+    'field-demo-value': 8,
+    'field-demo-labels': ['opt-ui'],
+    'field-demo-spec': 'https://github.com/goerks/GetThingsDone/issues/4'
+  },
   'story-2': { 'field-demo-priority': 'opt-must', 'field-demo-value': 5 },
   'story-3': { 'field-demo-priority': 'opt-should', 'field-demo-value': 5 },
-  'story-4': { 'field-demo-priority': 'opt-must' },
-  'story-6': { 'field-demo-priority': 'opt-could', 'field-demo-value': 2 }
+  'story-4': { 'field-demo-priority': 'opt-must', 'field-demo-labels': ['opt-data'] },
+  'story-6': { 'field-demo-priority': 'opt-could', 'field-demo-value': 2, 'field-demo-labels': ['opt-ui', 'opt-a11y'] }
 };
 
 /**
@@ -45,10 +72,15 @@ export function seedSnapshot(today: string): Snapshot {
   const builtins = missingBuiltins([], []);
   let assignments = assignTo(builtins.assignments, 'field-demo-priority', ['story', 'epic']);
   assignments = assignTo(assignments, 'field-demo-value', ['story']);
-  // Priority shows on story cards and in the new story dialog, so the preview shows the layout settings.
-  assignments = assignments.map((item) =>
-    item.fieldId === 'field-demo-priority' && item.itemType === 'story' ? { ...item, onCard: true, inCreate: true } : item
-  );
+  assignments = assignTo(assignments, 'field-demo-labels', ['story']);
+  assignments = assignTo(assignments, 'field-demo-spec', ['story']);
+  // Priority and Labels show on story cards, Priority also in the new story dialog, so the preview shows the layout.
+  assignments = assignments.map((item) => {
+    if (item.itemType !== 'story') return item;
+    if (item.fieldId === 'field-demo-priority') return { ...item, onCard: true, inCreate: true };
+    if (item.fieldId === 'field-demo-labels') return { ...item, onCard: true };
+    return item;
+  });
   return {
     fields: [...builtins.fields, ...DEMO_FIELDS],
     assignments,

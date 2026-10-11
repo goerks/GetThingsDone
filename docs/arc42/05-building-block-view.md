@@ -32,7 +32,7 @@
 | Part | Path | Responsibility |
 |---|---|---|
 | Entry | `src-tauri/src/main.rs`, `lib.rs` | Starts the window, registers the SQL plugin and the migrations |
-| Migrations | `src-tauri/migrations/` | Schema of the SQLite database (`001_init.sql`), epic palette (`002_epic_palette.sql`), sprints and epic order (`003_sprints.sql`), configurable fields and optional epic (`004_custom_fields.sql`), default values of fields (`005_field_defaults.sql`) |
+| Migrations | `src-tauri/migrations/` | Schema of the SQLite database (`001_init.sql`), epic palette (`002_epic_palette.sql`), sprints and epic order (`003_sprints.sql`), configurable fields and optional epic (`004_custom_fields.sql`), default values of fields (`005_field_defaults.sql`), dates and multi select values (`006_more_field_types.sql`) |
 | Capabilities | `src-tauri/capabilities/default.json` | Allows only the SQL commands load, select, execute and close |
 | Config | `src-tauri/tauri.conf.json` | Window, bundle (NSIS, current user, four installer languages) |
 

@@ -87,16 +87,36 @@ interface AssignmentRow {
 interface ValueRow {
   item_id: string;
   field_id: string;
+  data_type: string;
   text_value: string | null;
   number_value: number | null;
+  date_value: string | null;
   option_id: string | null;
 }
 
-/** A stored value goes into the column that matches its type. */
-function valueColumns(field: Pick<FieldDefinition, 'dataType'>, value: FieldValue): [string | null, number | null, string | null] {
-  if (field.dataType === 'single_select') return [null, null, String(value)];
-  if (typeof value === 'number') return [null, value, null];
-  return [value, null, null];
+interface ValueOptionRow {
+  item_id: string;
+  field_id: string;
+  option_id: string;
+}
+
+type ValueColumns = { text: string | null; number: number | null; date: string | null; option: string | null };
+
+/** A stored value goes into the column that matches its type. Multi select values live in `field_value_options`. */
+function valueColumns(dataType: FieldDataType, value: FieldValue): ValueColumns {
+  const columns: ValueColumns = { text: null, number: null, date: null, option: null };
+  if (dataType === 'single_select') columns.option = String(value);
+  else if (dataType === 'checkbox') columns.number = value === true ? 1 : 0;
+  else if (dataType === 'date') columns.date = String(value);
+  else if (typeof value === 'number') columns.number = value;
+  else columns.text = String(value);
+  return columns;
+}
+
+/** Reads a stored value back by the field's type. */
+function rowValue(row: ValueRow): FieldValue | null {
+  if (row.data_type === 'checkbox') return row.number_value === 1 ? true : null;
+  return row.option_id ?? row.date_value ?? row.number_value ?? row.text_value;
 }
 
 /**
@@ -131,15 +151,28 @@ export class SqliteRepository implements Repository {
     }
 
     const valueRows = await this.db.select<ValueRow[]>(
-      'SELECT item_id, field_id, text_value, number_value, option_id FROM field_values'
+      `SELECT v.item_id, v.field_id, d.data_type, v.text_value, v.number_value, v.date_value, v.option_id
+       FROM field_values v JOIN field_definitions d ON d.id = v.field_id`
+    );
+    const optionRows = await this.db.select<ValueOptionRow[]>(
+      `SELECT v.item_id, v.field_id, v.option_id
+       FROM field_value_options v JOIN field_options o ON o.id = v.option_id
+       ORDER BY o.position`
     );
     const valuesByItem = new Map<string, Record<string, FieldValue>>();
+    const valuesOf = (itemId: string): Record<string, FieldValue> => {
+      const values = valuesByItem.get(itemId) ?? {};
+      valuesByItem.set(itemId, values);
+      return values;
+    };
     for (const row of valueRows) {
-      const value = row.option_id ?? row.number_value ?? row.text_value;
-      if (value === null) continue;
-      const values = valuesByItem.get(row.item_id) ?? {};
-      values[row.field_id] = value;
-      valuesByItem.set(row.item_id, values);
+      const value = rowValue(row);
+      if (value !== null) valuesOf(row.item_id)[row.field_id] = value;
+    }
+    for (const row of optionRows) {
+      const values = valuesOf(row.item_id);
+      const current = values[row.field_id];
+      values[row.field_id] = Array.isArray(current) ? [...current, row.option_id] : [row.option_id];
     }
 
     const epics: Epic[] = epicRows.map((row) => ({
@@ -214,6 +247,7 @@ export class SqliteRepository implements Repository {
   }
 
   async replaceAll(snapshot: Snapshot): Promise<void> {
+    await this.db.execute('DELETE FROM field_value_options');
     await this.db.execute('DELETE FROM field_values');
     await this.db.execute('DELETE FROM field_assignments');
     await this.db.execute('DELETE FROM field_options');
@@ -272,6 +306,7 @@ export class SqliteRepository implements Repository {
   }
 
   async deleteStory(storyId: string): Promise<void> {
+    await this.db.execute('DELETE FROM field_value_options WHERE item_id = $1', [storyId]);
     await this.db.execute('DELETE FROM field_values WHERE item_id = $1', [storyId]);
     await this.db.execute('DELETE FROM criteria WHERE story_id = $1', [storyId]);
     await this.db.execute('DELETE FROM stories WHERE id = $1', [storyId]);
@@ -327,6 +362,7 @@ export class SqliteRepository implements Repository {
   }
 
   async deleteEpic(epicId: string): Promise<void> {
+    await this.db.execute('DELETE FROM field_value_options WHERE item_id = $1', [epicId]);
     await this.db.execute('DELETE FROM field_values WHERE item_id = $1', [epicId]);
     await this.db.execute('DELETE FROM epics WHERE id = $1', [epicId]);
   }
@@ -352,7 +388,7 @@ export class SqliteRepository implements Repository {
   async saveField(field: FieldDefinition): Promise<void> {
     await this.db.execute(
       `INSERT INTO field_definitions (id, builtin_key, kind, data_type, label, default_value) VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (id) DO UPDATE SET label = excluded.label, default_value = excluded.default_value`,
+       ON CONFLICT (id) DO UPDATE SET label = excluded.label, data_type = excluded.data_type, default_value = excluded.default_value`,
       [field.id, field.builtinKey, field.kind, field.dataType, field.label, field.defaultValue === null ? null : JSON.stringify(field.defaultValue)]
     );
     const keep = field.options.map((option) => option.id);
@@ -371,6 +407,7 @@ export class SqliteRepository implements Repository {
   }
 
   async deleteField(fieldId: string): Promise<void> {
+    await this.db.execute('DELETE FROM field_value_options WHERE field_id = $1', [fieldId]);
     await this.db.execute('DELETE FROM field_values WHERE field_id = $1', [fieldId]);
     await this.db.execute('DELETE FROM field_assignments WHERE field_id = $1', [fieldId]);
     await this.db.execute('DELETE FROM field_options WHERE field_id = $1', [fieldId]);
@@ -392,24 +429,30 @@ export class SqliteRepository implements Repository {
   }
 
   async setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): Promise<void> {
+    // A value lives in exactly one place, so both are cleared first; this also covers a changed data type.
+    await this.db.execute('DELETE FROM field_value_options WHERE item_id = $1 AND field_id = $2', [itemId, fieldId]);
     if (value === null) {
       await this.db.execute('DELETE FROM field_values WHERE item_id = $1 AND field_id = $2', [itemId, fieldId]);
       return;
     }
-    await this.writeValue(itemId, fieldId, await this.fieldType(fieldId), value);
-  }
-
-  private async fieldType(fieldId: string): Promise<Pick<FieldDefinition, 'dataType'>> {
-    const rows = await this.db.select<{ data_type: string }[]>('SELECT data_type FROM field_definitions WHERE id = $1', [fieldId]);
-    return { dataType: (rows[0]?.data_type ?? 'text') as FieldDataType };
-  }
-
-  private async writeValue(itemId: string, fieldId: string, field: Pick<FieldDefinition, 'dataType'>, value: FieldValue): Promise<void> {
-    const [text, number, option] = valueColumns(field, value);
+    if (Array.isArray(value)) {
+      await this.db.execute('DELETE FROM field_values WHERE item_id = $1 AND field_id = $2', [itemId, fieldId]);
+      for (const optionId of value) {
+        await this.db.execute('INSERT INTO field_value_options (item_id, field_id, option_id) VALUES ($1, $2, $3)', [itemId, fieldId, optionId]);
+      }
+      return;
+    }
+    const columns = valueColumns(await this.fieldType(fieldId), value);
     await this.db.execute(
-      `INSERT INTO field_values (item_id, field_id, text_value, number_value, option_id) VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (item_id, field_id) DO UPDATE SET text_value = excluded.text_value, number_value = excluded.number_value, option_id = excluded.option_id`,
-      [itemId, fieldId, text, number, option]
+      `INSERT INTO field_values (item_id, field_id, text_value, number_value, date_value, option_id) VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (item_id, field_id) DO UPDATE SET text_value = excluded.text_value, number_value = excluded.number_value,
+         date_value = excluded.date_value, option_id = excluded.option_id`,
+      [itemId, fieldId, columns.text, columns.number, columns.date, columns.option]
     );
+  }
+
+  private async fieldType(fieldId: string): Promise<FieldDataType> {
+    const rows = await this.db.select<{ data_type: string }[]>('SELECT data_type FROM field_definitions WHERE id = $1', [fieldId]);
+    return (rows[0]?.data_type ?? 'text') as FieldDataType;
   }
 }

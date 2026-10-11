@@ -694,7 +694,9 @@ describe('fields', () => {
     const repository = await openFields();
     await user.click(screen.getByRole('button', { name: 'Edit field Priority' }));
     const dialog = screen.getByRole('dialog', { name: 'Edit field' });
-    expect(within(dialog).getByLabelText('Type')).toBeDisabled();
+    const type = within(dialog).getByLabelText('Type');
+    expect(within(type).getAllByRole('option').map((option) => option.textContent)).toEqual(['Single select', 'Multi select']);
+    expect(within(dialog).getByText('Only type changes that keep every value are offered.')).toBeInTheDocument();
     const name = within(dialog).getByLabelText('Name');
     await user.clear(name);
     await user.type(name, 'Importance');
@@ -824,6 +826,65 @@ describe('fields', () => {
     await user.type(within(dialog).getByLabelText('Default value'), '5');
     await user.click(within(dialog).getByRole('button', { name: 'Save' }));
     expect((await repository.load()).fields.find((field) => field.id === 'field-demo-value')?.defaultValue).toBe(5);
+  });
+
+  it('creates date, checkbox, multi select and link fields and fills them in', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    const create = async (name: string, type: string, options: string[] = []): Promise<void> => {
+      await user.click(screen.getByRole('button', { name: 'New field' }));
+      const dialog = screen.getByRole('dialog', { name: 'New field' });
+      await user.type(within(dialog).getByLabelText('Name'), name);
+      await user.selectOptions(within(dialog).getByLabelText('Type'), type);
+      for (const [index, option] of options.entries()) {
+        if (index > 0) await user.click(within(dialog).getByRole('button', { name: 'Add option' }));
+        await user.type(within(dialog).getByRole('textbox', { name: `Option ${index + 1}` }), option);
+      }
+      await user.click(within(dialog).getByRole('button', { name: 'Add field' }));
+    };
+    await create('Due', 'date');
+    await create('Reviewed', 'checkbox');
+    await create('Platforms', 'multi_select', ['Windows', 'Web']);
+    await create('Design', 'url');
+
+    await openStory(/S-3:/);
+    const dialog = screen.getByRole('dialog', { name: /S-3:/ });
+    await user.type(within(dialog).getByLabelText('Due'), '2026-12-24');
+    await user.click(within(dialog).getByRole('checkbox', { name: 'Reviewed' }));
+    const platforms = within(dialog).getByRole('group', { name: 'Platforms' });
+    await user.click(within(platforms).getByRole('checkbox', { name: 'Web' }));
+    await user.click(within(platforms).getByRole('checkbox', { name: 'Windows' }));
+    await user.click(within(dialog).getByRole('button', { name: /edit Design/ }));
+    await user.type(within(dialog).getByRole('textbox', { name: 'Design' }), 'not a link{Enter}');
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Enter a web address');
+    await user.click(within(dialog).getByRole('button', { name: /edit Design/ }));
+    await user.type(within(dialog).getByRole('textbox', { name: 'Design' }), 'figma.com/file/1{Enter}');
+    expect(within(dialog).getByRole('link', { name: 'Open Design' })).toHaveAttribute('href', 'https://figma.com/file/1');
+
+    const saved = await repository.load();
+    const id = (name: string) => saved.fields.find((field) => field.label === name)?.id ?? '';
+    const platformField = saved.fields.find((field) => field.label === 'Platforms');
+    expect(saved.stories.find((s) => s.id === 'story-3')?.values).toMatchObject({
+      [id('Due')]: '2026-12-24',
+      [id('Reviewed')]: true,
+      [id('Platforms')]: platformField?.options.map((option) => option.id),
+      [id('Design')]: 'https://figma.com/file/1'
+    });
+  });
+
+  it('turns a single select into a multi select and keeps the values', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'Edit field Priority' }));
+    const dialog = screen.getByRole('dialog', { name: 'Edit field' });
+    await user.selectOptions(within(dialog).getByLabelText('Type'), 'multi_select');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    const saved = await repository.load();
+    expect(saved.fields.find((field) => field.id === 'field-demo-priority')?.dataType).toBe('multi_select');
+    expect(saved.fields.find((field) => field.id === 'field-demo-priority')?.defaultValue).toEqual(['opt-should']);
+    expect(saved.stories.find((s) => s.id === 'story-1')?.values['field-demo-priority']).toEqual(['opt-must']);
+    expect(saved.epics.find((e) => e.id === 'epic-boards')?.values['field-demo-priority']).toEqual(['opt-must']);
   });
 
   it('creates a story without an epic and clears the epic of a story', async () => {
