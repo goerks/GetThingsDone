@@ -16,6 +16,8 @@ globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserv
 
 beforeEach(async () => {
   if (i18n.isInitialized) await i18n.changeLanguage('en');
+  // Storage tests run in the node environment without a DOM.
+  if (typeof window === 'undefined') return;
   window.localStorage.clear();
   window.location.hash = '';
   document.documentElement.dataset.theme = 'light';

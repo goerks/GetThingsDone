@@ -6,13 +6,12 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EpicSelect } from './EpicSelect';
 import { SprintSelect } from './SprintSelect';
-import { sortEpics } from '../domain/epics';
 
 interface Props {
   /** Prefilled sprint: the running one from the board, "not planned" from the backlog, the cell's on the map. */
   sprintId: string | null;
-  /** Prefilled epic (from a map cell); otherwise the first epic. */
-  epicId?: string;
+  /** Prefilled epic (from a map cell, null for the "No epic" column); otherwise no epic. */
+  epicId?: string | null;
   onClose: () => void;
 }
 
@@ -22,13 +21,13 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const uid = useId();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [epicId, setEpicId] = useState(initialEpicId ?? sortEpics(app.epics)[0]?.id ?? '');
+  const [epicId, setEpicId] = useState<string | null>(initialEpicId ?? null);
   const [points, setPoints] = useState(3);
   const [sprintId, setSprintId] = useState(initialSprintId);
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
-    if (!title.trim() || !epicId) return;
+    if (!title.trim()) return;
     const input: NewStoryInput = { title, description, epicId, points, sprintId };
     app.createStory(input);
     onClose();

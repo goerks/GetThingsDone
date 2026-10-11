@@ -1,6 +1,6 @@
 # ADR 0003: Configurable fields data model
 
-Status: Proposed (awaiting PO approval)
+Status: Accepted (PO approval in #4 and pull request #6, 2026-10-11)
 Date: 2026-10-11
 Issue: #4
 
@@ -40,7 +40,7 @@ Every field definition has a **kind**:
 
 Rank and sprint membership are positions on the backlog, board and story map. They are not fields and do not appear in the field library.
 
-### 2. Storage (SQLite, migration `003`)
+### 2. Storage (SQLite, migration `004_custom_fields.sql`)
 
 System and built-in fields keep their **native columns** (`stories.title`, `stories.points`, `stories.epic_id`, the `criteria` table, ...). The app's logic (board, backlog, sprint summary) keeps reading them directly. Their field definitions only carry the label, order and visibility.
 
@@ -48,12 +48,11 @@ Custom field values go into a **typed value table**:
 
 ```sql
 CREATE TABLE field_definitions (
-    id         TEXT PRIMARY KEY,
+    id          TEXT PRIMARY KEY,
     builtin_key TEXT UNIQUE,          -- 'title', 'status', 'points', ... ; NULL for custom fields
-    kind       TEXT NOT NULL,         -- 'system' | 'builtin' | 'custom'
-    data_type  TEXT NOT NULL,         -- 'text' | 'long_text' | 'number' | 'single_select' | ...
-    label      TEXT,                  -- NULL = translated default label (system and built-in only)
-    settings   TEXT NOT NULL DEFAULT '{}'  -- JSON: min, max, default value, ...
+    kind        TEXT NOT NULL,        -- 'system' | 'builtin' | 'custom'
+    data_type   TEXT NOT NULL,        -- 'text' | 'long_text' | 'number' | 'single_select' | ...
+    label       TEXT                  -- NULL = translated default label (system and built-in only)
 );
 
 CREATE TABLE field_options (
@@ -80,27 +79,23 @@ CREATE TABLE field_values (
     field_id     TEXT NOT NULL REFERENCES field_definitions (id) ON DELETE CASCADE,
     text_value   TEXT,
     number_value REAL,
-    date_value   TEXT,                -- ISO 8601 date
-    option_id    TEXT REFERENCES field_options (id) ON DELETE SET NULL,
+    option_id    TEXT REFERENCES field_options (id) ON DELETE CASCADE,
     PRIMARY KEY (item_id, field_id)
-);
-
-CREATE TABLE field_value_options (    -- multi select (stage 4)
-    item_id   TEXT NOT NULL,
-    field_id  TEXT NOT NULL REFERENCES field_definitions (id) ON DELETE CASCADE,
-    option_id TEXT NOT NULL REFERENCES field_options (id) ON DELETE CASCADE,
-    PRIMARY KEY (item_id, field_id, option_id)
 );
 ```
 
-The same migration makes `stories.epic_id` nullable (SQLite needs a table rebuild for that) and seeds the system and built-in field definitions and their assignments.
+Later data types extend this shape with their own migration: a `date_value` column for dates, a `field_value_options (item_id, field_id, option_id)` table for multi select, and a `settings` column on `field_definitions` for defaults and limits.
+
+The same migration makes `stories.epic_id` nullable. SQLite needs a table rebuild for that; the migration copies `stories` and `criteria`, drops `criteria` first and recreates both, because dropping `stories` while `criteria` references it would delete every criterion through `ON DELETE CASCADE`. The rebuild also drops `stories.in_sprint`, which migration 003 replaced by `sprint_id`.
+
+System and built-in field definitions and their assignments are **not** created by the migration. Both repositories add the missing ones on load (`missingBuiltins` in `src/domain/fields.ts`), so a later release can add a built-in field without a migration.
 
 Rules:
 
 - **Unassigning** a field deletes the assignment only. Values stay and come back when the field is assigned again.
 - **Deleting** a custom field cascades to its options, assignments and values.
 - **Deleting an item** deletes its values in the same transaction. There is no foreign key from `field_values` to the item tables, because one value table serves all item types.
-- A **select value** stores the option id, so renaming an option keeps every value.
+- A **select value** stores the option id, so renaming an option keeps every value. Removing an option deletes the values that use it.
 - A **new item type** (sprint, release) needs new assignment rows only, no schema change.
 
 ### 3. Labels
@@ -120,7 +115,7 @@ A system or built-in field with `label = NULL` shows its translated default labe
 - Custom values are typed, can be indexed, sorted and filtered later, and are changed one field at a time. This suits a later sync and tracker connectors.
 - Reading an item needs one more query (or join) for its custom values. At small-team scale this is not noticeable.
 - Integrity between `field_values.item_id` and the item tables is the repository's job and needs tests (closes part of TD-3).
-- Making `stories.epic_id` nullable touches every view that shows the epic of a story.
+- Making `stories.epic_id` nullable touches every view that shows the epic of a story; the story map gets a "No epic" column.
 
 ## Alternatives considered
 

@@ -134,7 +134,7 @@ export function BoardPage() {
           ))}
         </div>
         <DragOverlay>
-          {activeStory ? <OverlayCard story={activeStory} epic={epics.get(activeStory.epicId)} /> : null}
+          {activeStory ? <OverlayCard story={activeStory} epic={epics.get(activeStory.epicId ?? '')} /> : null}
         </DragOverlay>
       </DndContext>
     </>

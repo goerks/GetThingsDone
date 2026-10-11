@@ -1,4 +1,4 @@
-import type { Criterion, Epic, Snapshot, Sprint, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Snapshot, Sprint, Story } from '../domain/types';
 
 export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId'>;
 
@@ -7,6 +7,7 @@ export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 
  * the browser build uses a local fallback. Both implement this interface.
  */
 export interface Repository {
+  /** Loads everything. System and built-in fields that are missing are added and saved. */
   load(): Promise<Snapshot>;
   /** Replaces everything. Used for the demo data on first start. */
   replaceAll(snapshot: Snapshot): Promise<void>;
@@ -28,4 +29,12 @@ export interface Repository {
   deleteEpic(epicId: string): Promise<void>;
   addSprint(sprint: Sprint): Promise<void>;
   updateSprint(sprint: Sprint): Promise<void>;
+  /** Adds or changes a field with its options. Values of removed options are deleted. */
+  saveField(field: FieldDefinition): Promise<void>;
+  /** Deletes a field with its options, assignments and values. */
+  deleteField(fieldId: string): Promise<void>;
+  /** Replaces the assignments of one field. */
+  saveAssignments(fieldId: string, assignments: readonly FieldAssignment[]): Promise<void>;
+  /** Sets the value of a field on an item, or removes it when the value is null. */
+  setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): Promise<void>;
 }

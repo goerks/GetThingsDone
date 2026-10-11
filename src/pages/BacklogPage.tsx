@@ -132,7 +132,7 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
               key={story.id}
               story={story}
               rank={firstRank + index}
-              epic={epics.get(story.epicId)}
+              epic={epics.get(story.epicId ?? '')}
               dropLabel={drop?.beforeId === story.id ? drop.label : undefined}
             />
           ))}
@@ -270,7 +270,7 @@ export function BacklogPage() {
         <DragOverlay>
           {activeStory ? (
             <div className="backlog__row backlog__row--overlay" aria-hidden="true">
-              <RowContent story={activeStory} rank={activeIndex + 1} epic={epics.get(activeStory.epicId)} />
+              <RowContent story={activeStory} rank={activeIndex + 1} epic={epics.get(activeStory.epicId ?? '')} />
             </div>
           ) : null}
         </DragOverlay>

@@ -38,6 +38,9 @@ export function Header({ route, theme, onToggleTheme }: Props) {
         <a href={hrefs.epics} className="nav__link" aria-current={route.name === 'epics' ? 'page' : undefined}>
           {t('nav.epics')}
         </a>
+        <a href={hrefs.fields} className="nav__link" aria-current={route.name === 'fields' ? 'page' : undefined}>
+          {t('nav.fields')}
+        </a>
       </nav>
 
       <div className="header__tools">

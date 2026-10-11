@@ -19,7 +19,7 @@ import { NewStoryDialog } from '../components/NewStoryDialog';
 import { SprintDialog } from '../components/SprintDialog';
 import { formatSprintDates } from '../components/sprintFormat';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors } from '../dnd/dnd';
-import { backlogOrder, cellId, dropOnMap, storiesInCell, totalPoints, type Placement } from '../domain/board';
+import { NO_EPIC, backlogOrder, cellId, dropOnMap, storiesInCell, totalPoints, type Placement } from '../domain/board';
 import { sortEpics } from '../domain/epics';
 import { isRunning, isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints';
 import type { Epic, Sprint, Story } from '../domain/types';
@@ -28,8 +28,10 @@ import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
 
 const NOT_PLANNED = '-';
-/** Key of a cell: epic and sprint ("-" for not planned). */
-const cellKey = (epicId: string, sprintId: string | null): string => `${epicId}::${sprintId ?? NOT_PLANNED}`;
+/** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
+const cellKey = (epicId: string | null, sprintId: string | null): string => `${epicId ?? NO_EPIC}::${sprintId ?? NOT_PLANNED}`;
+/** Id of the column header, which labels the cells of a column. */
+const columnLabelId = (epic: Epic | null): string => `map-epic-${epic?.id ?? 'none'}`;
 const cellOf = (story: Story): string => cellKey(story.epicId, story.sprintId);
 
 interface Hover {
@@ -95,7 +97,8 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
 /* ---------- Cell ---------- */
 
 interface CellProps {
-  epic: Epic;
+  /** Null for the column of stories without an epic. */
+  epic: Epic | null;
   sprint: Sprint | null;
   stories: Story[];
   /** Set while a dragged story would land in this cell: in front of `beforeId`, or at the end when null. */
@@ -106,12 +109,14 @@ interface CellProps {
 
 function Cell({ epic, sprint, stories, drop, labelledBy, onAdd }: CellProps) {
   const { t } = useTranslation();
-  const { setNodeRef } = useDroppable({ id: cellId(epic.id, sprint?.id ?? null) });
+  const epicId = epic?.id ?? null;
+  const { setNodeRef } = useDroppable({ id: cellId(epicId, sprint?.id ?? null) });
   const classes = ['map-cell', drop && 'map-cell--target', !sprint && 'map-cell--unplanned'].filter(Boolean).join(' ');
   const sprintName = sprint ? sprint.name : t('sprint.notPlanned');
+  const epicName = epic ? epic.name : t('epics.noEpic');
 
   return (
-    <div className={classes} data-cell={cellKey(epic.id, sprint?.id ?? null)} data-drop-target={drop ? 'true' : undefined}>
+    <div className={classes} data-cell={cellKey(epicId, sprint?.id ?? null)} data-drop-target={drop ? 'true' : undefined}>
       <SortableContext items={stories.map((story) => story.id)} strategy={keepInPlace}>
         <ul ref={setNodeRef} className="map-cell__list" aria-labelledby={labelledBy}>
           {stories.map((story) => (
@@ -123,8 +128,8 @@ function Cell({ epic, sprint, stories, drop, labelledBy, onAdd }: CellProps) {
       <button
         type="button"
         className={`map-cell__add${stories.length === 0 ? ' map-cell__add--empty' : ''}`}
-        aria-label={t('map.newStoryIn', { epic: epic.name, sprint: sprintName })}
-        title={t('map.newStoryIn', { epic: epic.name, sprint: sprintName })}
+        aria-label={t('map.newStoryIn', { epic: epicName, sprint: sprintName })}
+        title={t('map.newStoryIn', { epic: epicName, sprint: sprintName })}
         onClick={onAdd}
       >
         +
@@ -227,7 +232,7 @@ const collision: CollisionDetection = (args) => {
 
 /* ---------- Page ---------- */
 
-type DialogState = { kind: 'story'; epicId: string; sprintId: string | null } | { kind: 'epic' } | { kind: 'sprint' } | null;
+type DialogState = { kind: 'story'; epicId: string | null; sprintId: string | null } | { kind: 'epic' } | { kind: 'sprint' } | null;
 
 export function MapPage() {
   const { t, i18n } = useTranslation();
@@ -252,6 +257,9 @@ export function MapPage() {
 
   const today = todayIso();
   const epics = useMemo(() => sortEpics(app.epics), [app.epics]);
+  // Stories without an epic get their own column at the end, shown only while there are such stories.
+  const hasLooseStories = app.stories.some((story) => story.epicId === null);
+  const columns = useMemo<Array<Epic | null>>(() => (hasLooseStories ? [...epics, null] : epics), [epics, hasLooseStories]);
   const sprints = mapSprints(app.sprints, today);
   const shownStories = app.stories.filter(
     (story) => story.sprintId === null || sprints.some((sprint) => sprint.id === story.sprintId)
@@ -301,7 +309,7 @@ export function MapPage() {
     return t(`map.dnd.${key}`, {
       title: story.title,
       sprint: app.sprints.find((sprint) => sprint.id === story.sprintId)?.name ?? t('sprint.notPlanned'),
-      epic: app.epics.find((epic) => epic.id === story.epicId)?.name ?? '',
+      epic: app.epics.find((epic) => epic.id === story.epicId)?.name ?? t('epics.noEpic'),
       position
     });
   };
@@ -400,15 +408,15 @@ export function MapPage() {
           </span>
         </div>
       )}
-      {epics.map((epic) => (
+      {columns.map((epic) => (
         <Cell
-          key={epic.id}
+          key={epic?.id ?? NO_EPIC}
           epic={epic}
           sprint={sprint}
-          stories={storiesInCell(app.stories, epic.id, sprint?.id ?? null)}
-          drop={target && target.group === cellKey(epic.id, sprint?.id ?? null) ? { beforeId: target.beforeId } : null}
-          labelledBy={`${labelId} map-epic-${epic.id}`}
-          onAdd={() => setDialog({ kind: 'story', epicId: epic.id, sprintId: sprint?.id ?? null })}
+          stories={storiesInCell(app.stories, epic?.id ?? null, sprint?.id ?? null)}
+          drop={target && target.group === cellKey(epic?.id ?? null, sprint?.id ?? null) ? { beforeId: target.beforeId } : null}
+          labelledBy={`${labelId} ${columnLabelId(epic)}`}
+          onAdd={() => setDialog({ kind: 'story', epicId: epic?.id ?? null, sprintId: sprint?.id ?? null })}
         />
       ))}
     </div>
@@ -417,7 +425,7 @@ export function MapPage() {
 
   const activeStory = activeId && !sprintDrag ? app.stories.find((story) => story.id === activeId) : undefined;
   const activeSprint = activeId && sprintDrag ? app.sprints.find((sprint) => sprint.id === sprintOfDragId(activeId)) : undefined;
-  const gridStyle = { '--map-columns': epics.length } as CSSProperties;
+  const gridStyle = { '--map-columns': columns.length } as CSSProperties;
 
   return (
     <>
@@ -469,7 +477,7 @@ export function MapPage() {
                     style={{ '--epic-color': `var(--epic-${epic.colorKey})` } as CSSProperties}
                     onClick={() => details.openEpic(epic.id)}
                   >
-                    <span id={`map-epic-${epic.id}`} className="map-epic__name">
+                    <span id={columnLabelId(epic)} className="map-epic__name">
                       {epic.name}
                     </span>
                     <span className="map-epic__sum">
@@ -478,6 +486,19 @@ export function MapPage() {
                   </button>
                 );
               })}
+              {hasLooseStories && (
+                <div className={`map-epic map-epic--none${targetEpic === NO_EPIC ? ' map-epic--target' : ''}`}>
+                  <span id={columnLabelId(null)} className="map-epic__name">
+                    {t('epics.noEpic')}
+                  </span>
+                  <span className="map-epic__sum">
+                    {t('map.storiesPoints', {
+                      count: shownStories.filter((story) => story.epicId === null).length,
+                      points: totalPoints(shownStories.filter((story) => story.epicId === null))
+                    })}
+                  </span>
+                </div>
+              )}
               <button
                 type="button"
                 className="map__add-epic"

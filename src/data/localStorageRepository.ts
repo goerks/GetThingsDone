@@ -1,6 +1,7 @@
+import { dropRemovedOptions, setStoryValue, withoutKey } from '../domain/fields';
 import { migrateSnapshot } from '../domain/migrate';
 import { todayIso } from '../domain/sprints';
-import type { Criterion, Epic, Snapshot, Sprint, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Snapshot, Sprint, Story } from '../domain/types';
 import type { Repository, StoryPosition } from './repository';
 
 const KEY = 'getitdone.snapshot.v1';
@@ -17,13 +18,13 @@ export class LocalStorageRepository implements Repository {
         const stored = JSON.parse(raw) as Parameters<typeof migrateSnapshot>[0];
         const snapshot = migrateSnapshot(stored, todayIso());
         // Store a migrated snapshot right away, so a migrated sprint keeps the dates it got today.
-        if (stored.sprints === undefined) this.write(snapshot);
+        if (stored.sprints === undefined || stored.fields === undefined) this.write(snapshot);
         return snapshot;
       }
     } catch {
       // fall through to an empty snapshot
     }
-    return { epics: [], sprints: [], stories: [] };
+    return migrateSnapshot({ sprints: [] }, todayIso());
   }
 
   private write(snapshot: Snapshot): void {
@@ -69,7 +70,9 @@ export class LocalStorageRepository implements Repository {
   }
 
   async updateStory(story: Story): Promise<void> {
-    this.changeStories((stories) => stories.map((item) => (item.id === story.id ? { ...story, criteria: item.criteria } : item)));
+    this.changeStories((stories) =>
+      stories.map((item) => (item.id === story.id ? { ...story, criteria: item.criteria, values: item.values } : item))
+    );
   }
 
   async deleteStory(storyId: string): Promise<void> {
@@ -129,4 +132,39 @@ export class LocalStorageRepository implements Repository {
   async updateSprint(sprint: Sprint): Promise<void> {
     this.changeSprints((sprints) => sprints.map((item) => (item.id === sprint.id ? sprint : item)));
   }
+
+  private changeFields(change: (snapshot: Snapshot) => Snapshot): void {
+    this.write(change(this.read()));
+  }
+
+  async saveField(field: FieldDefinition): Promise<void> {
+    this.changeFields((snapshot) => ({
+      ...snapshot,
+      fields: snapshot.fields.some((item) => item.id === field.id)
+        ? snapshot.fields.map((item) => (item.id === field.id ? field : item))
+        : [...snapshot.fields, field],
+      stories: dropRemovedOptions(snapshot.stories, field)
+    }));
+  }
+
+  async deleteField(fieldId: string): Promise<void> {
+    this.changeFields((snapshot) => ({
+      ...snapshot,
+      fields: snapshot.fields.filter((field) => field.id !== fieldId),
+      assignments: snapshot.assignments.filter((item) => item.fieldId !== fieldId),
+      stories: snapshot.stories.map((story) => ({ ...story, values: withoutKey(story.values, fieldId) }))
+    }));
+  }
+
+  async saveAssignments(fieldId: string, assignments: readonly FieldAssignment[]): Promise<void> {
+    this.changeFields((snapshot) => ({
+      ...snapshot,
+      assignments: [...snapshot.assignments.filter((item) => item.fieldId !== fieldId), ...assignments]
+    }));
+  }
+
+  async setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): Promise<void> {
+    this.changeStories((stories) => setStoryValue(stories, itemId, fieldId, value));
+  }
 }
+

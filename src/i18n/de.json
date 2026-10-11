@@ -7,7 +7,8 @@
     "board": "Board",
     "backlog": "Backlog",
     "storyMap": "Story Map",
-    "epics": "Epics"
+    "epics": "Epics",
+    "fields": "Felder"
   },
   "header": {
     "toDark": "Zum dunklen Design wechseln",
@@ -131,7 +132,8 @@
     "inUse_one": "Wird von {{count}} Story verwendet. Zuerst einem anderen Epic zuordnen.",
     "inUse_other": "Wird von {{count}} Stories verwendet. Zuerst einem anderen Epic zuordnen.",
     "notFound": "Dieses Epic existiert nicht mehr.",
-    "deleteButton": "Epic löschen"
+    "deleteButton": "Epic löschen",
+    "noEpic": "Kein Epic"
   },
   "sprint": {
     "label": "Sprint",
@@ -172,5 +174,76 @@
     "editOrMoveSprint": "Klicken zum Bearbeiten, ziehen zum Umsortieren",
     "compact": "Kompakt",
     "sprintDropLabel": "{{name}} · {{dates}}"
+  },
+  "fields": {
+    "title": "Felder",
+    "hint": "Felder beschreiben eure Items. Systemfelder sind immer da, mitgelieferte Felder bringt die App mit, und ihr könnt eigene hinzufügen.",
+    "new": "Neues Feld",
+    "dialogNew": "Neues Feld",
+    "dialogEdit": "Feld bearbeiten",
+    "column": {
+      "name": "Feld",
+      "kind": "Art",
+      "type": "Typ",
+      "usedOn": "Verwendet für"
+    },
+    "kind": {
+      "system": "System",
+      "builtin": "Mitgeliefert",
+      "custom": "Eigenes"
+    },
+    "type": {
+      "text": "Text",
+      "long_text": "Langer Text",
+      "number": "Zahl",
+      "single_select": "Einfachauswahl",
+      "key": "Schlüssel",
+      "status": "Status",
+      "epic": "Epic-Verknüpfung",
+      "points": "Punkte",
+      "checklist": "Checkliste",
+      "color": "Farbe"
+    },
+    "builtin": {
+      "key": "Schlüssel",
+      "title": "Titel",
+      "status": "Status",
+      "description": "Beschreibung",
+      "epic": "Epic",
+      "points": "Punkte",
+      "criteria": "Akzeptanzkriterien",
+      "color": "Farbe"
+    },
+    "itemType": {
+      "story": "Stories",
+      "epic": "Epics"
+    },
+    "notUsed": "Nicht verwendet",
+    "label": "Name",
+    "dataType": "Typ",
+    "typeLocked": "Der Typ eines bestehenden Felds lässt sich nicht ändern.",
+    "options": "Optionen",
+    "option": "Option {{position}}",
+    "optionColor": "Farbe von Option {{position}}",
+    "addOption": "Option hinzufügen",
+    "removeOption": "Option {{position}} entfernen",
+    "usedOn": "Verwendet für",
+    "create": "Feld hinzufügen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Feld {{name}} bearbeiten",
+    "delete": "Feld {{name}} löschen",
+    "deleteConfirm_one": "Feld {{name}} löschen? {{count}} Story verliert ihren Wert. Das lässt sich nicht rückgängig machen.",
+    "deleteConfirm_other": "Feld {{name}} löschen? {{count}} Stories verlieren ihren Wert. Das lässt sich nicht rückgängig machen.",
+    "deleteYes": "Löschen",
+    "deleteNo": "Feld behalten",
+    "error": {
+      "labelRequired": "Bitte einen Namen eingeben.",
+      "labelTaken": "Ein Feld mit diesem Namen gibt es schon.",
+      "optionsRequired": "Mindestens eine Option hinzufügen.",
+      "optionLabelTaken": "Jede Option braucht einen anderen Namen."
+    },
+    "noValue": "Kein Wert",
+    "invalidNumber": "Bitte eine Zahl eingeben."
   }
 }

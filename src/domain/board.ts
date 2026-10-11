@@ -185,18 +185,21 @@ export function dropInBacklog(
 export const CELL_PREFIX = 'cell:';
 
 /** Drop target id of a story map cell: one epic in one sprint (or "not planned" for null). */
-export const cellId = (epicId: string, sprintId: string | null): string =>
-  `${CELL_PREFIX}${epicId}::${sprintId ?? NOT_PLANNED}`;
+/** Marks the column of stories without an epic in a cell id. */
+export const NO_EPIC = '-';
 
-export function parseCellId(id: string): { epicId: string; sprintId: string | null } | null {
+export const cellId = (epicId: string | null, sprintId: string | null): string =>
+  `${CELL_PREFIX}${epicId ?? NO_EPIC}::${sprintId ?? NOT_PLANNED}`;
+
+export function parseCellId(id: string): { epicId: string | null; sprintId: string | null } | null {
   if (!id.startsWith(CELL_PREFIX)) return null;
   const [epicId, sprint] = id.slice(CELL_PREFIX.length).split('::');
   if (!epicId || sprint === undefined) return null;
-  return { epicId, sprintId: sprint === NOT_PLANNED ? null : sprint };
+  return { epicId: epicId === NO_EPIC ? null : epicId, sprintId: sprint === NOT_PLANNED ? null : sprint };
 }
 
-/** Stories in one cell of the map, in backlog order. */
-export function storiesInCell(stories: readonly Story[], epicId: string, sprintId: string | null): Story[] {
+/** Stories in one cell of the map, in backlog order. A null epic is the column of stories without an epic. */
+export function storiesInCell(stories: readonly Story[], epicId: string | null, sprintId: string | null): Story[] {
   return sortByRank(stories).filter((story) => story.epicId === epicId && story.sprintId === sprintId);
 }
 
@@ -312,7 +315,7 @@ export function nextCode(stories: readonly Story[]): string {
 export interface NewStoryInput {
   title: string;
   description: string;
-  epicId: string;
+  epicId: string | null;
   points: number;
   /** The sprint to plan the story in, or null for "not planned". */
   sprintId: string | null;
@@ -347,7 +350,8 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string):
     status: 'todo',
     sprintId: input.sprintId,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
-    criteria: []
+    criteria: [],
+    values: {}
   };
   return { stories: [...stories, story], story };
 }
