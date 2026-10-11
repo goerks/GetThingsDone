@@ -1,43 +1,11 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dialog } from '../components/Dialog';
 import { EditableText } from '../components/EditableText';
+import { ColorPicker, NewEpicDialog } from '../components/EpicDialogs';
 import { TrashIcon } from '../components/icons';
-import { nextColorKey, storiesInEpic } from '../domain/epics';
-import { EPIC_COLOR_KEYS, type Epic, type EpicColorKey } from '../domain/types';
+import { sortEpics, storiesInEpic } from '../domain/epics';
+import type { Epic } from '../domain/types';
 import { useApp } from '../state/AppState';
-
-interface ColorPickerProps {
-  name: string;
-  legend: string;
-  value: EpicColorKey;
-  onChange: (key: EpicColorKey) => void;
-  autoFocus?: boolean;
-}
-
-/** Colour swatches as a radio group, so arrow keys move between colours. Each colour has a written name. */
-function ColorPicker({ name, legend, value, onChange, autoFocus = false }: ColorPickerProps) {
-  const { t } = useTranslation();
-  return (
-    <fieldset className="swatches">
-      <legend className="sr-only">{legend}</legend>
-      {EPIC_COLOR_KEYS.map((key) => (
-        <label key={key} className="swatch" title={t(`epics.color.${key}`)}>
-          <input
-            type="radio"
-            name={name}
-            value={key}
-            checked={value === key}
-            onChange={() => onChange(key)}
-            autoFocus={autoFocus && value === key}
-          />
-          <span className="swatch__dot" style={{ background: `var(--epic-${key})` }} aria-hidden="true" />
-          <span className="sr-only">{t(`epics.color.${key}`)}</span>
-        </label>
-      ))}
-    </fieldset>
-  );
-}
 
 /** The colour dot of an epic. A click opens the palette; picking a colour, Escape or a click outside closes it. */
 function ColorButton({ epic }: { epic: Epic }) {
@@ -140,49 +108,6 @@ function EpicRow({ epic }: { epic: Epic }) {
   );
 }
 
-function NewEpicDialog({ onClose }: { onClose: () => void }) {
-  const { t } = useTranslation();
-  const app = useApp();
-  const uid = useId();
-  const [name, setName] = useState('');
-  const [colorKey, setColorKey] = useState<EpicColorKey>(() => nextColorKey(app.epics));
-
-  const submit = (event: FormEvent): void => {
-    event.preventDefault();
-    if (app.createEpic({ name, colorKey })) onClose();
-  };
-
-  return (
-    <Dialog title={t('epics.new')} onClose={onClose}>
-      <form className="form" onSubmit={submit}>
-        <div className="field">
-          <label htmlFor={`${uid}-name`}>{t('epics.name')}</label>
-          <input
-            id={`${uid}-name`}
-            className="input"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            required
-            autoFocus
-          />
-        </div>
-        <div className="field">
-          <span aria-hidden="true">{t('epics.colorLabel')}</span>
-          <ColorPicker name={`${uid}-color`} legend={t('epics.colorLabel')} value={colorKey} onChange={setColorKey} />
-        </div>
-        <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
-            {t('epics.add')}
-          </button>
-          <button type="button" className="btn" onClick={onClose}>
-            {t('newStory.cancel')}
-          </button>
-        </div>
-      </form>
-    </Dialog>
-  );
-}
-
 export function EpicsPage() {
   const { t } = useTranslation();
   const app = useApp();
@@ -203,7 +128,7 @@ export function EpicsPage() {
           <p className="muted">{t('epics.none')}</p>
         ) : (
           <ul className="epic-list">
-            {app.epics.map((epic) => (
+            {sortEpics(app.epics).map((epic) => (
               <EpicRow key={epic.id} epic={epic} />
             ))}
           </ul>

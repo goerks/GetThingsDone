@@ -14,7 +14,10 @@ import { BoardColumn } from '../components/BoardColumn';
 import { NewStoryDialog } from '../components/NewStoryDialog';
 import { OverlayCard } from '../components/StoryCard';
 import { dropTargetIn, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
-import { dropStory, parseColumnId, sprintPoints, sprintStories, storiesInColumn, type Placement } from '../domain/board';
+import { dropStory, parseColumnId, sprintStories, storiesInColumn, totalPoints, type Placement } from '../domain/board';
+import { runningSprint, todayIso } from '../domain/sprints';
+import { formatSprintDates } from '../components/sprintFormat';
+import { hrefs } from '../router';
 import { STATUSES, type Status } from '../domain/types';
 import { useApp } from '../state/AppState';
 
@@ -24,8 +27,10 @@ interface Hover {
 }
 
 export function BoardPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const app = useApp();
+  const sprint = runningSprint(app.sprints, todayIso());
+  const sprintId = sprint?.id ?? null;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
   const [creating, setCreating] = useState(false);
@@ -38,8 +43,8 @@ export function BoardPage() {
     if (!activeId || !hover || hover.overId === activeId) return null;
     const after = dropStory(app.stories, activeId, hover.overId, hover.placement);
     if (after === app.stories) return null;
-    return dropTargetIn(sprintStories(after), activeId, (story) => story.status);
-  }, [activeId, hover, app.stories]);
+    return dropTargetIn(sprintStories(after, sprintId), activeId, (story) => story.status);
+  }, [activeId, hover, app.stories, sprintId]);
 
   const titleOf = (id: UniqueIdentifier): string => app.stories.find((story) => story.id === id)?.title ?? '';
   const columnNameOf = (id: UniqueIdentifier): string => {
@@ -78,19 +83,34 @@ export function BoardPage() {
   };
 
   const activeStory = activeId ? app.stories.find((story) => story.id === activeId) : undefined;
-  const inSprint = sprintStories(app.stories);
+  const inSprint = sprintStories(app.stories, sprintId);
+
+  if (!sprint) {
+    return (
+      <>
+        <div className="page-head">
+          <h1>{t('board.noSprintTitle')}</h1>
+        </div>
+        <p className="muted">
+          {t('board.noSprint')} <a href={hrefs.map}>{t('board.toMap')}</a>
+        </p>
+      </>
+    );
+  }
 
   return (
     <>
       <div className="page-head">
-        <h1>{t('board.title')}</h1>
-        <span className="muted">{t('board.summary', { count: inSprint.length, points: sprintPoints(app.stories) })}</span>
+        <h1>{sprint.name}</h1>
+        <span className="muted">
+          {formatSprintDates(sprint, i18n.language)} · {t('board.summary', { count: inSprint.length, points: totalPoints(inSprint) })}
+        </span>
         <button type="button" className="btn btn--primary page-head__action" onClick={() => setCreating(true)}>
           {t('newStory.open')}
         </button>
       </div>
 
-      {creating && <NewStoryDialog inSprint onClose={() => setCreating(false)} />}
+      {creating && <NewStoryDialog sprintId={sprintId} onClose={() => setCreating(false)} />}
 
       <DndContext
         sensors={sensors}
@@ -107,7 +127,7 @@ export function BoardPage() {
             <BoardColumn
               key={status}
               status={status}
-              stories={storiesInColumn(app.stories, status)}
+              stories={storiesInColumn(app.stories, sprintId, status)}
               epics={epics}
               drop={target?.group === status ? { beforeId: target.beforeId } : undefined}
             />

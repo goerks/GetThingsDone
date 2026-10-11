@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { seedSnapshot } from '../data/seed';
-import { createEpic, deleteEpic, nextColorKey, normalizeColorKey, storiesInEpic, updateEpic } from './epics';
+import { createEpic, deleteEpic, nextColorKey, normalizeColorKey, sortEpics, storiesInEpic, updateEpic } from './epics';
 import { EPIC_COLOR_KEYS, type Epic } from './types';
 
 describe('epic colours', () => {
@@ -14,24 +14,24 @@ describe('epic colours', () => {
   });
 
   it('suggests the first unused colour', () => {
-    const { epics } = seedSnapshot();
+    const { epics } = seedSnapshot('2026-10-11');
     expect(nextColorKey(epics)).toBe('rose');
     expect(nextColorKey([])).toBe('blue');
   });
 
   it('suggests the least used colour once all are taken', () => {
-    const epics: Epic[] = EPIC_COLOR_KEYS.map((colorKey, index) => ({ id: `e${index}`, name: 'x', colorKey }));
-    epics.push({ id: 'extra', name: 'x', colorKey: 'blue' });
+    const epics: Epic[] = EPIC_COLOR_KEYS.map((colorKey, index) => ({ id: `e${index}`, name: 'x', colorKey, position: index }));
+    epics.push({ id: 'extra', name: 'x', colorKey: 'blue', position: 8 });
     expect(nextColorKey(epics)).toBe('amber');
   });
 });
 
 describe('managing epics', () => {
-  const { epics, stories } = seedSnapshot();
+  const { epics, stories } = seedSnapshot('2026-10-11');
 
   it('creates an epic with a trimmed name and the next free colour', () => {
     const result = createEpic(epics, { name: '  Reports ' }, 'epic-new');
-    expect(result?.epic).toEqual({ id: 'epic-new', name: 'Reports', colorKey: 'rose' });
+    expect(result?.epic).toEqual({ id: 'epic-new', name: 'Reports', colorKey: 'rose', position: 4 });
     expect(result?.epics).toHaveLength(epics.length + 1);
   });
 
@@ -45,8 +45,17 @@ describe('managing epics', () => {
 
   it('renames and recolours, but ignores an empty name', () => {
     const next = updateEpic(epics, 'epic-boards', { name: ' Board ', colorKey: 'green' });
-    expect(next.find((e) => e.id === 'epic-boards')).toEqual({ id: 'epic-boards', name: 'Board', colorKey: 'green' });
+    expect(next.find((e) => e.id === 'epic-boards')).toEqual({ id: 'epic-boards', name: 'Board', colorKey: 'green', position: 0 });
     expect(updateEpic(epics, 'epic-boards', { name: '' }).find((e) => e.id === 'epic-boards')?.name).toBe('Boards');
+  });
+
+  it('sorts epics by position, then name', () => {
+    const list: Epic[] = [
+      { id: 'b', name: 'B', colorKey: 'blue', position: 1 },
+      { id: 'a', name: 'A', colorKey: 'blue', position: 1 },
+      { id: 'c', name: 'C', colorKey: 'blue', position: 0 }
+    ];
+    expect(sortEpics(list).map((e) => e.id)).toEqual(['c', 'a', 'b']);
   });
 
   it('counts the stories of an epic', () => {
@@ -55,7 +64,7 @@ describe('managing epics', () => {
 
   it('deletes only an epic without stories', () => {
     expect(deleteEpic(epics, stories, 'epic-boards')).toBe(epics);
-    const empty = [...epics, { id: 'epic-empty', name: 'Empty', colorKey: 'cyan' as const }];
+    const empty = [...epics, { id: 'epic-empty', name: 'Empty', colorKey: 'cyan' as const, position: 4 }];
     expect(deleteEpic(empty, stories, 'epic-empty').map((e) => e.id)).not.toContain('epic-empty');
   });
 });

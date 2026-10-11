@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Get It Done is a free, local-first tool for agile software development in small teams (up to roughly 10 people). Release 1 covers epics, stories, acceptance criteria, a Kanban board and an ordered backlog. Release 2 adds a user story map. See [vision](../vision.md) and [requirements](../requirements/README.md).
+Get It Done is a free, local-first tool for agile software development in small teams (up to roughly 10 people). Release 1 covers epics, stories, acceptance criteria, a Kanban board and an ordered backlog. A user story map with sprints as slices was added with issue #2 (activities and release slices follow later). See [vision](../vision.md) and [requirements](../requirements/README.md).
 
 The product is also a showcase of "level 5 vibe coding": an AI develops it end to end, a human product owner sets the direction and accepts the result.
 

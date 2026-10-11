@@ -15,19 +15,17 @@ import { useTranslation } from 'react-i18next';
 import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
-import {
-  backlogOrder,
-  dropInBacklog,
-  parseSectionId,
-  sectionId,
-  type BacklogSection,
-  type Placement
-} from '../domain/board';
-import type { Epic, Story } from '../domain/types';
+import { formatSprintDates } from '../components/sprintFormat';
+import { backlogOrder, dropInBacklog, parseSectionId, sectionId, totalPoints, type Placement } from '../domain/board';
+import { isRunning, sortSprints, todayIso } from '../domain/sprints';
+import type { Epic, Sprint, Story } from '../domain/types';
 import { hrefs, openStory } from '../router';
 import { useApp } from '../state/AppState';
 
-const sectionOf = (story: Story): BacklogSection => (story.inSprint ? 'sprint' : 'backlog');
+/** Group key of a section: the sprint id, or "-" for the unplanned stories. */
+type SectionKey = string;
+const keyOf = (sprintId: string | null): SectionKey => sprintId ?? '-';
+const sectionOf = (story: Story): SectionKey => keyOf(story.sprintId);
 
 interface Hover {
   overId: string;
@@ -100,28 +98,33 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
 }
 
 interface SectionProps {
-  section: BacklogSection;
+  /** The sprint of this section, or null for the unplanned stories. */
+  sprint: Sprint | null;
   rows: Story[];
   firstRank: number;
   epics: Map<string, Epic>;
-  target: (DropTarget<BacklogSection> & { label: string }) | null;
+  target: (DropTarget<SectionKey> & { label: string }) | null;
 }
 
-function Section({ section, rows, firstRank, epics, target }: SectionProps) {
-  const { t } = useTranslation();
-  const { setNodeRef } = useDroppable({ id: sectionId(section) });
-  const headingId = `backlog-${section}`;
-  const drop = target?.group === section ? target : null;
-  const points = rows.reduce((sum, story) => sum + story.points, 0);
+function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
+  const { t, i18n } = useTranslation();
+  const key = keyOf(sprint?.id ?? null);
+  const { setNodeRef } = useDroppable({ id: sectionId(sprint?.id ?? null) });
+  const headingId = `backlog-${key}`;
+  const drop = target?.group === key ? target : null;
+  const running = sprint ? isRunning(sprint, todayIso()) : false;
+  const kind = sprint ? 'sprint' : 'backlog';
 
   return (
     <section
-      className={`backlog__section backlog__section--${section}${drop ? ' backlog__section--target' : ''}`}
+      className={`backlog__section backlog__section--${kind}${drop ? ' backlog__section--target' : ''}`}
       aria-labelledby={headingId}
     >
       <h2 className="backlog__heading">
-        <span id={headingId}>{t(`backlog.section.${section}`)}</span>
-        <span className="muted">{t('backlog.sectionSummary', { count: rows.length, points })}</span>
+        <span id={headingId}>{sprint ? sprint.name : t('sprint.notPlanned')}</span>
+        {running && <span className="badge-running">{t('sprint.running')}</span>}
+        {sprint && <span className="muted backlog__dates">{formatSprintDates(sprint, i18n.language)}</span>}
+        <span className="muted">{t('backlog.sectionSummary', { count: rows.length, points: totalPoints(rows) })}</span>
       </h2>
       <SortableContext items={rows.map((story) => story.id)} strategy={keepInPlace}>
         <ol ref={setNodeRef} className="backlog" start={firstRank}>
@@ -137,7 +140,11 @@ function Section({ section, rows, firstRank, epics, target }: SectionProps) {
           {drop && drop.beforeId === null && rows.length > 0 && (
             <li className="drop-line" data-drop-label={drop.label} aria-hidden="true" />
           )}
-          {rows.length === 0 && <li className="backlog__empty">{t(`backlog.empty.${section}`)}</li>}
+          {rows.length === 0 && (
+            <li className="backlog__empty">
+              {sprint ? t('backlog.empty.sprint', { name: sprint.name }) : t('backlog.empty.backlog')}
+            </li>
+          )}
         </ol>
       </SortableContext>
     </section>
@@ -153,15 +160,20 @@ export function BacklogPage() {
   const sensors = useDragSensors();
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
 
-  const ordered = backlogOrder(app.stories);
-  const sprintRows = ordered.filter((story) => story.inSprint);
-  const backlogRows = ordered.filter((story) => !story.inSprint);
+  const ordered = backlogOrder(app.stories, app.sprints);
+  const sections: Array<{ sprint: Sprint | null; rows: Story[]; firstRank: number }> = [];
+  let nextRank = 1;
+  for (const sprint of [...sortSprints(app.sprints), null]) {
+    const rows = ordered.filter((story) => story.sprintId === (sprint?.id ?? null));
+    sections.push({ sprint, rows, firstRank: nextRank });
+    nextRank += rows.length;
+  }
 
   /** The list a drop would produce, or null when nothing would change. */
   const preview = (active: string, over: string, placement?: Placement): Story[] | null => {
     if (active === over) return null;
-    const after = dropInBacklog(app.stories, active, over, placement);
-    return after === app.stories ? null : backlogOrder(after);
+    const after = dropInBacklog(app.stories, app.sprints, active, over, placement);
+    return after === app.stories ? null : backlogOrder(after, app.sprints);
   };
 
   const rankAfterDrop = (active: string, over: string, placement?: Placement): number | null => {
@@ -185,8 +197,10 @@ export function BacklogPage() {
     const rank = rankAfterDrop(String(active), String(over));
     if (rank === null) return undefined;
     const story = app.stories.find((item) => item.id === over);
-    const section = parseSectionId(String(over)) ?? (story && sectionOf(story));
-    return t('backlog.dnd.over', { title: titleOf(active), rank, section: section ? t(`backlog.section.${section}`) : '' });
+    const fromSection = parseSectionId(String(over));
+    const sprintId = fromSection !== undefined ? fromSection : (story?.sprintId ?? null);
+    const sprint = app.sprints.find((item) => item.id === sprintId);
+    return t('backlog.dnd.over', { title: titleOf(active), rank, section: sprint ? sprint.name : t('sprint.notPlanned') });
   };
 
   const announcements: Announcements = {
@@ -230,7 +244,7 @@ export function BacklogPage() {
         </button>
       </div>
 
-      {creating && <NewStoryDialog inSprint={false} onClose={() => setCreating(false)} />}
+      {creating && <NewStoryDialog sprintId={null} onClose={() => setCreating(false)} />}
 
       <DndContext
         sensors={sensors}
@@ -243,14 +257,16 @@ export function BacklogPage() {
         accessibility={{ announcements, screenReaderInstructions: { draggable: t('backlog.dnd.instructions') } }}
       >
         <div className="backlog-sections">
-          <Section section="sprint" rows={sprintRows} firstRank={1} epics={epics} target={target} />
-          <Section
-            section="backlog"
-            rows={backlogRows}
-            firstRank={sprintRows.length + 1}
-            epics={epics}
-            target={target}
-          />
+          {sections.map((section) => (
+            <Section
+              key={section.sprint?.id ?? 'not-planned'}
+              sprint={section.sprint}
+              rows={section.rows}
+              firstRank={section.firstRank}
+              epics={epics}
+              target={target}
+            />
+          ))}
         </div>
         <DragOverlay>
           {activeStory ? (

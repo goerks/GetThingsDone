@@ -9,6 +9,7 @@ import {
   deleteCriterion as deleteCriterionIn,
   deleteStory as deleteStoryIn,
   dropInBacklog,
+  dropOnMap,
   dropStory,
   moveCriterion as moveCriterionIn,
   toggleCriterion as toggleCriterionIn,
@@ -27,17 +28,29 @@ import {
   type NewEpicInput
 } from '../domain/epics';
 import { newId } from '../domain/ids';
-import type { Epic, Snapshot, Story } from '../domain/types';
+import {
+  createSprint as createSprintIn,
+  todayIso,
+  updateSprint as updateSprintIn,
+  type SprintInput
+} from '../domain/sprints';
+import type { Epic, Snapshot, Sprint, Story } from '../domain/types';
 
 interface AppApi {
   epics: Epic[];
+  sprints: Sprint[];
   stories: Story[];
   loading: boolean;
   error: string | null;
   /** Drag and drop on the board. */
   drop(activeId: string, overId: string, placement?: Placement): void;
-  /** Drag and drop in the backlog, including across the sprint line. */
+  /** Drag and drop in the backlog, including between sprint sections. */
   dropInBacklog(activeId: string, overId: string, placement?: Placement): void;
+  /** Drag and drop on the story map: changes sprint and epic. */
+  dropOnMap(activeId: string, overId: string, placement?: Placement): void;
+  /** Returns the id of the new sprint, or null when the input is invalid. */
+  createSprint(input: SprintInput): string | null;
+  updateSprint(id: string, input: SprintInput): void;
   createStory(input: NewStoryInput): string;
   updateStory(id: string, patch: StoryPatch): void;
   deleteStory(id: string): void;
@@ -68,12 +81,13 @@ interface Props {
 
 export function AppProvider({ repository, children }: Props) {
   const { t } = useTranslation();
-  const [snapshot, setSnapshot] = useState<Snapshot>({ epics: [], stories: [] });
+  const [snapshot, setSnapshot] = useState<Snapshot>({ epics: [], sprints: [], stories: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const repoRef = useRef<Repository | null>(null);
   const storiesRef = useRef<Story[]>([]);
   const epicsRef = useRef<Epic[]>([]);
+  const sprintsRef = useRef<Sprint[]>([]);
 
   const update = useCallback((stories: Story[]) => {
     storiesRef.current = stories;
@@ -83,6 +97,11 @@ export function AppProvider({ repository, children }: Props) {
   const updateEpics = useCallback((epics: Epic[]) => {
     epicsRef.current = epics;
     setSnapshot((current) => ({ ...current, epics }));
+  }, []);
+
+  const updateSprints = useCallback((sprints: Sprint[]) => {
+    sprintsRef.current = sprints;
+    setSnapshot((current) => ({ ...current, sprints }));
   }, []);
 
   // Writes run one after another so a quick series of changes is stored in the order it happened.
@@ -110,12 +129,13 @@ export function AppProvider({ repository, children }: Props) {
         repoRef.current = repo;
         let loaded = await repo.load();
         if (loaded.epics.length === 0 && loaded.stories.length === 0) {
-          loaded = seedSnapshot();
+          loaded = seedSnapshot(todayIso());
           await repo.replaceAll(loaded);
         }
         if (cancelled) return;
         storiesRef.current = loaded.stories;
         epicsRef.current = loaded.epics;
+        sprintsRef.current = loaded.sprints;
         setSnapshot(loaded);
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
@@ -134,6 +154,7 @@ export function AppProvider({ repository, children }: Props) {
   const api = useMemo<AppApi>(
     () => ({
       epics: snapshot.epics,
+      sprints: snapshot.sprints,
       stories: snapshot.stories,
       loading,
       error,
@@ -147,11 +168,34 @@ export function AppProvider({ repository, children }: Props) {
       },
       dropInBacklog(activeId, overId, placement) {
         const before = storiesRef.current;
-        const after = dropInBacklog(before, activeId, overId, placement);
+        const after = dropInBacklog(before, sprintsRef.current, activeId, overId, placement);
         if (after === before) return;
         update(after);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
+      },
+      dropOnMap(activeId, overId, placement) {
+        const before = storiesRef.current;
+        const after = dropOnMap(before, sprintsRef.current, activeId, overId, placement);
+        if (after === before) return;
+        update(after);
+        const changed = changedPositions(before, after);
+        persist((repo) => repo.savePositions(changed));
+      },
+      createSprint(input) {
+        const id = newId();
+        const result = createSprintIn(sprintsRef.current, input, id);
+        if (!result) return null;
+        updateSprints(result.sprints);
+        persist((repo) => repo.addSprint(result.sprint));
+        return id;
+      },
+      updateSprint(id, input) {
+        const after = updateSprintIn(sprintsRef.current, id, input);
+        const sprint = after.find((item) => item.id === id);
+        if (after === sprintsRef.current || !sprint) return;
+        updateSprints(after);
+        persist((repo) => repo.updateSprint(sprint));
       },
       createStory(input) {
         const id = newId();
@@ -229,7 +273,7 @@ export function AppProvider({ repository, children }: Props) {
         return true;
       }
     }),
-    [snapshot, loading, error, update, updateEpics, persist]
+    [snapshot, loading, error, update, updateEpics, updateSprints, persist]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

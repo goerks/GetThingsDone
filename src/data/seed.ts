@@ -1,13 +1,22 @@
+import { addDays } from '../domain/sprints';
 import type { Snapshot } from '../domain/types';
 
-/** Demo data shown on the first start so the board is not empty. */
-export function seedSnapshot(): Snapshot {
+/**
+ * Demo data shown on the first start so the board is not empty.
+ * Sprint 1 runs around `today`, Sprint 2 follows it, so the board and the story map always have content.
+ */
+export function seedSnapshot(today: string): Snapshot {
+  const sprint1Start = addDays(today, -7);
   return {
     epics: [
-      { id: 'epic-boards', name: 'Boards', colorKey: 'blue' },
-      { id: 'epic-backlog', name: 'Backlog', colorKey: 'amber' },
-      { id: 'epic-storage', name: 'Local storage', colorKey: 'teal' },
-      { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'violet' }
+      { id: 'epic-boards', name: 'Boards', colorKey: 'blue', position: 0 },
+      { id: 'epic-backlog', name: 'Backlog', colorKey: 'amber', position: 1 },
+      { id: 'epic-storage', name: 'Local storage', colorKey: 'teal', position: 2 },
+      { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'violet', position: 3 }
+    ],
+    sprints: [
+      { id: 'sprint-1', name: 'Sprint 1', startDate: sprint1Start, endDate: addDays(sprint1Start, 13) },
+      { id: 'sprint-2', name: 'Sprint 2', startDate: addDays(sprint1Start, 14), endDate: addDays(sprint1Start, 27) }
     ],
     stories: [
       {
@@ -18,7 +27,7 @@ export function seedSnapshot(): Snapshot {
         epicId: 'epic-boards',
         points: 3,
         status: 'in_progress',
-        inSprint: true,
+        sprintId: 'sprint-1',
         rank: 0,
         criteria: [
           { id: 'c-1-1', text: 'A story needs a title', done: true },
@@ -36,7 +45,7 @@ export function seedSnapshot(): Snapshot {
         epicId: 'epic-boards',
         points: 2,
         status: 'review',
-        inSprint: true,
+        sprintId: 'sprint-1',
         rank: 1,
         criteria: [
           { id: 'c-2-1', text: 'Every criterion has its own checkbox', done: true },
@@ -53,7 +62,7 @@ export function seedSnapshot(): Snapshot {
         epicId: 'epic-backlog',
         points: 5,
         status: 'todo',
-        inSprint: true,
+        sprintId: 'sprint-1',
         rank: 2,
         criteria: [
           { id: 'c-3-1', text: 'A story can move up and down', done: false },
@@ -69,7 +78,7 @@ export function seedSnapshot(): Snapshot {
         epicId: 'epic-storage',
         points: 5,
         status: 'in_progress',
-        inSprint: true,
+        sprintId: 'sprint-1',
         rank: 3,
         criteria: [
           { id: 'c-4-1', text: 'Data is stored in a SQLite file', done: true },
@@ -85,7 +94,7 @@ export function seedSnapshot(): Snapshot {
         epicId: 'epic-accessibility',
         points: 3,
         status: 'done',
-        inSprint: true,
+        sprintId: 'sprint-1',
         rank: 4,
         criteria: [
           { id: 'c-5-1', text: 'German, English, French and Italian are available', done: true },
@@ -101,7 +110,7 @@ export function seedSnapshot(): Snapshot {
         epicId: 'epic-accessibility',
         points: 5,
         status: 'todo',
-        inSprint: true,
+        sprintId: 'sprint-1',
         rank: 5,
         criteria: [
           { id: 'c-6-1', text: 'A story can be picked up with the space key', done: false },
@@ -118,7 +127,7 @@ export function seedSnapshot(): Snapshot {
         epicId: 'epic-backlog',
         points: 8,
         status: 'todo',
-        inSprint: false,
+        sprintId: null,
         rank: 6,
         criteria: []
       }

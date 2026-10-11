@@ -1,6 +1,6 @@
-import type { Criterion, Epic, Snapshot, Story } from '../domain/types';
+import type { Criterion, Epic, Snapshot, Sprint, Story } from '../domain/types';
 
-export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'inSprint'>;
+export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId'>;
 
 /**
  * Storage boundary of the app (see ADR 0001). The desktop app uses SQLite through Tauri,
@@ -26,4 +26,6 @@ export interface Repository {
   updateEpic(epic: Epic): Promise<void>;
   /** Deletes an epic. Callers make sure no story uses it. */
   deleteEpic(epicId: string): Promise<void>;
+  addSprint(sprint: Sprint): Promise<void>;
+  updateSprint(sprint: Sprint): Promise<void>;
 }
