@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feldzuordnung Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a mockup of the settings page. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; align-content: start; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+/* ---------- Mockup frame ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 820px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 42px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 14px; color: var(--muted); }
+.gear { margin-left: auto; width: 28px; height: 28px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); border-radius: 6px; display: grid; place-items: center; font-size: 14px; }
+.page { padding: 16px 18px 20px; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side span { padding: 6px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.side small { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 5px; }
+.content { display: grid; gap: 10px; min-width: 0; }
+.ph { display: flex; align-items: center; gap: 12px; }
+.ph b { font-size: 16px; }
+.ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; white-space: nowrap; }
+.badge--c { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+table.t { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); }
+.t th, .t td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.t thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.t tbody th { font-weight: 500; }
+.t tr:last-child td, .t tr:last-child th { border-bottom: 0; }
+.t .c { text-align: center; width: 76px; }
+.t .later { color: var(--muted); background: var(--pill); }
+.t thead .type { color: var(--text); }
+.t thead small { display: block; font-weight: 400; font-size: 10px; color: var(--muted); }
+.sep td, .sep th { background: var(--pill); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; padding: 4px 10px; }
+
+/* Checkbox states */
+.cb { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border); background: var(--surface); font-size: 12px; line-height: 1; vertical-align: middle; }
+.cb--on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.cb--lock { background: var(--pill); border-color: var(--border); color: var(--muted); }
+.na { color: var(--muted); }
+.lock { font-size: 11px; margin-left: 4px; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Variant B: one list per item type */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+.tabs span { padding: 6px 12px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; display: flex; gap: 6px; align-items: center; }
+.tabs .on { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.tabs .count { font-size: 11px; background: var(--pill); border-radius: 8px; padding: 0 6px; color: var(--muted); }
+.list { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+.item { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.item:last-child { border-bottom: 0; }
+.grip { color: var(--muted); letter-spacing: -2px; }
+.grip--off { opacity: .25; }
+.x { color: var(--muted); }
+.picker { position: absolute; right: 26px; top: 150px; width: 250px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; z-index: 2; }
+.picker span { padding: 6px 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+.picker .hi { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.picker .head { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+
+/* Variant C: dialog */
+.scrim { position: absolute; inset: 42px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); width: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 10px; z-index: 2; }
+.lbl { font-size: 12px; color: var(--muted); }
+.input { height: 30px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; }
+.checks { display: grid; gap: 6px; }
+.checks span { display: flex; align-items: center; gap: 8px; }
+.checks .off { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="intro">
+    <div class="meta"><span>Issue #4</span><span>Pull Request #6</span><span>Einstellungen · Felder</span></div>
+    <h1>Welches Feld gilt für welchen Typ?</h1>
+    <p class="muted">Heute wählt man im Feld-Dialog nur «Stories», weil Epics eigene Felder erst ab Stufe 2 anzeigen. Gesucht ist eine Darstellung, in der man für jedes Feld und jeden Typ (Story, Epic, später Sprint und Release) festlegt, ob das Feld dort vorkommt. Drei Varianten, alle mit denselben Regeln.</p>
+  </header>
+
+  <section class="variant" aria-labelledby="rules">
+    <h2 id="rules">Regeln für alle Varianten</h2>
+    <div class="rules">
+      <div class="box"><b>Systemfelder</b><span>Key, Titel, Status: immer an, nicht abwählbar (Schloss).</span></div>
+      <div class="box"><b>Mitgelieferte Felder</b><span>Beschreibung, Punkte, Epic, Akzeptanzkriterien, Farbe: abwählbar, dann im Typ ausgeblendet. Nur für den Typ, zu dem sie gehören; ihre Werte stehen in dessen Tabelle.</span></div>
+      <div class="box"><b>Eigene Felder</b><span>Für jeden Typ frei wählbar. Abwählen blendet aus und behält die Werte.</span></div>
+      <div class="box"><b>Sprint, Release</b><span>Als Spalte bzw. Reiter sichtbar, aber noch nicht wählbar: «geplant».</span></div>
+    </div>
+    <div class="legend">
+      <span><span class="cb cb--on">✓</span>verwendet</span>
+      <span><span class="cb"></span>nicht verwendet</span>
+      <span><span class="cb cb--lock">🔒</span>Systemfeld, fest</span>
+      <span><span class="na">–</span>gibt es für diesen Typ nicht</span>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="va">
+    <div class="variant__head">
+      <h3 id="va">A · Matrix: Felder × Typen</h3>
+      <span class="tag tag--rec">Empfehlung</span>
+    </div>
+    <p>Die Feldtabelle bekommt pro Typ eine Spalte mit einem Häkchen. Ein Klick ordnet zu oder ab und speichert sofort. Man sieht auf einen Blick, welcher Typ welche Felder hat. Name, Typ und Optionen bearbeitet man weiterhin im Dialog (Stift).</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante A: Tabelle mit einer Zeile pro Feld und je einer Häkchen-Spalte für Story, Epic, Sprint und Release">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></span><span class="gear">⚙</span></div>
+        <div class="page">
+          <div class="side"><span class="on">Felder</span><span>Status-Werte <small>geplant</small></span></div>
+          <div class="content">
+            <div class="ph"><b>Felder</b><span class="btn btn--p">Neues Feld</span></div>
+            <table class="t">
+              <thead><tr><th>Feld</th><th>Art</th><th>Typ</th><th class="c type">Story</th><th class="c type">Epic</th><th class="c later">Sprint<small>geplant</small></th><th class="c later">Release<small>geplant</small></th><th></th></tr></thead>
+              <tbody>
+                <tr class="sep"><th colspan="8">System</th></tr>
+                <tr><th>Key</th><td><span class="badge">System</span></td><td>Schlüssel</td><td class="c"><span class="cb cb--lock">🔒</span></td><td class="c na">–</td><td class="c later"></td><td class="c later"></td><td></td></tr>
+                <tr><th>Titel</th><td><span class="badge">System</span></td><td>Text</td><td class="c"><span class="cb cb--lock">🔒</span></td><td class="c"><span class="cb cb--lock">🔒</span></td><td class="c later"></td><td class="c later"></td><td></td></tr>
+                <tr><th>Status</th><td><span class="badge">System</span></td><td>Status</td><td class="c"><span class="cb cb--lock">🔒</span></td><td class="c na">–</td><td class="c later"></td><td class="c later"></td><td></td></tr>
+                <tr class="sep"><th colspan="8">Mitgeliefert</th></tr>
+                <tr><th>Beschreibung</th><td><span class="badge">Mitgeliefert</span></td><td>Langer Text</td><td class="c"><span class="cb cb--on">✓</span></td><td class="c na">–</td><td class="c later"></td><td class="c later"></td><td></td></tr>
+                <tr><th>Punkte</th><td><span class="badge">Mitgeliefert</span></td><td>Punkte</td><td class="c"><span class="cb cb--on">✓</span></td><td class="c na">–</td><td class="c later"></td><td class="c later"></td><td></td></tr>
+                <tr><th>Akzeptanzkriterien</th><td><span class="badge">Mitgeliefert</span></td><td>Checkliste</td><td class="c"><span class="cb cb--on">✓</span></td><td class="c na">–</td><td class="c later"></td><td class="c later"></td><td></td></tr>
+                <tr><th>Farbe</th><td><span class="badge">Mitgeliefert</span></td><td>Farbe</td><td class="c na">–</td><td class="c"><span class="cb cb--on">✓</span></td><td class="c later"></td><td class="c later"></td><td></td></tr>
+                <tr class="sep"><th colspan="8">Eigene</th></tr>
+                <tr><th>Priority</th><td><span class="badge badge--c">Eigenes</span></td><td>Einfachauswahl</td><td class="c"><span class="cb cb--on">✓</span></td><td class="c"><span class="cb cb--on">✓</span></td><td class="c later"></td><td class="c later"></td><td class="muted">✎ 🗑</td></tr>
+                <tr><th>Business value</th><td><span class="badge badge--c">Eigenes</span></td><td>Zahl</td><td class="c"><span class="cb cb--on">✓</span></td><td class="c"><span class="cb"></span></td><td class="c later"></td><td class="c later"></td><td class="muted">✎ 🗑</td></tr>
+                <tr><th>Kunde</th><td><span class="badge badge--c">Eigenes</span></td><td>Text</td><td class="c"><span class="cb"></span></td><td class="c"><span class="cb cb--on">✓</span></td><td class="c later"></td><td class="c later"></td><td class="muted">✎ 🗑</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Ganzes Bild auf einer Seite: alle Felder, alle Typen</li><li>Ein Klick pro Zuordnung, ohne Dialog</li><li>Neue Typen sind einfach eine weitere Spalte</li><li>Tastatur und Screenreader: echte Checkboxen, beschriftet z. B. «Priority für Epics»</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Mit vier Typen wird die Tabelle breit; auf dem Handy scrollt sie seitlich</li><li>Reihenfolge, Pflicht und «auf Karte» pro Typ (Stufe 3) passen nicht mehr in die Matrix und brauchen eine eigene Ansicht</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="vb">
+    <div class="variant__head">
+      <h3 id="vb">B · Pro Typ eine Liste</h3>
+      <span class="tag">gut für Stufe 3</span>
+    </div>
+    <p>Reiter für Story, Epic, später Sprint und Release. Jeder Reiter zeigt die Felder dieses Typs in ihrer Reihenfolge, Systemfelder oben und fest. «Feld hinzufügen» wählt aus der Feldbibliothek; das ✕ nimmt ein Feld weg. Später kommen hier Ziehen zum Sortieren, «Pflicht» und «auf Karte» dazu. Die Bibliothek mit Name und Typ bleibt eine eigene Liste.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante B: Reiter Story, Epic, Sprint und Release; im Reiter Epic eine Liste der Felder mit einem geöffneten Auswahlmenü Feld hinzufügen">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></span><span class="gear">⚙</span></div>
+        <div class="page">
+          <div class="side"><span class="on">Felder</span><span>Status-Werte <small>geplant</small></span></div>
+          <div class="content">
+            <div class="ph"><b>Felder</b><span class="btn">Feldbibliothek</span></div>
+            <div class="tabs"><span>Story <span class="count">9</span></span><span class="on">Epic <span class="count">3</span></span><span>Sprint <small class="badge">geplant</small></span><span>Release <small class="badge">geplant</small></span></div>
+            <div class="list">
+              <div class="item"><span class="grip grip--off">⋮⋮</span><span>Titel</span><span class="badge">System</span><span class="lock">🔒</span></div>
+              <div class="item"><span class="grip">⋮⋮</span><span>Farbe</span><span class="badge">Mitgeliefert</span><span class="x">✕</span></div>
+              <div class="item"><span class="grip">⋮⋮</span><span>Priority</span><span class="badge badge--c">Eigenes</span><span class="x">✕</span></div>
+              <div class="item"><span class="grip">⋮⋮</span><span>Kunde</span><span class="badge badge--c">Eigenes</span><span class="x">✕</span></div>
+            </div>
+            <div><span class="btn">+ Feld hinzufügen</span></div>
+          </div>
+        </div>
+        <div class="picker">
+          <span class="head">Noch nicht bei Epics</span>
+          <span class="hi">Business value <span class="muted">Zahl</span></span>
+          <span>Risiko <span class="muted">Einfachauswahl</span></span>
+          <span class="head">Neu</span>
+          <span>+ Neues Feld anlegen …</span>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Zeigt genau, wie eine Story oder ein Epic aussehen wird</li><li>Natürlicher Ort für Reihenfolge, Pflicht und «auf Karte» (Stufe 3)</li><li>Bleibt auch mit vielen Typen und Feldern schmal und handytauglich</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Kein Gesamtbild: Welche Typen ein Feld nutzt, sieht man nur in der Bibliothek</li><li>Zwei Orte: Bibliothek (Name, Typ, Optionen) und Typ-Listen (Zuordnung)</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="vc">
+    <div class="variant__head">
+      <h3 id="vc">C · Checkboxen im Feld-Dialog</h3>
+      <span class="tag">kleinste Änderung</span>
+    </div>
+    <p>Wie heute, nur mit allen Typen: Im Dialog eines Felds hakt man an, wo es verwendet wird. In der Tabelle steht «Verwendet für: Stories, Epics». Systemfelder öffnen keinen Dialog.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante C: Dialog Feld bearbeiten mit Checkboxen Stories, Epics und den deaktivierten Sprints und Releases">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></span><span class="gear">⚙</span></div>
+        <div class="page" style="min-height: 330px">
+          <div class="side"><span class="on">Felder</span><span>Status-Werte <small>geplant</small></span></div>
+          <div class="content"><div class="ph"><b>Felder</b></div></div>
+        </div>
+        <div class="scrim"></div>
+        <div class="dialog">
+          <b style="font-size:15px">Feld bearbeiten</b>
+          <span class="lbl">Name</span><span class="input">Priority</span>
+          <span class="lbl">Typ</span><span class="input muted">Einfachauswahl</span>
+          <span class="lbl">Verwendet für</span>
+          <div class="checks">
+            <span><span class="cb cb--on">✓</span>Stories</span>
+            <span><span class="cb cb--on">✓</span>Epics</span>
+            <span class="off"><span class="cb"></span>Sprints <small class="badge">geplant</small></span>
+            <span class="off"><span class="cb"></span>Releases <small class="badge">geplant</small></span>
+          </div>
+          <div style="display:flex; gap:8px"><span class="btn btn--p">Speichern</span><span class="btn">Abbrechen</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Kaum Aufwand, die Seite bleibt wie sie ist</li><li>Funktioniert überall gleich, auch auf dem Handy</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Jede Zuordnung braucht Öffnen, Haken, Speichern</li><li>Mitgelieferte Felder ausblenden geht so nicht, weil sie keinen Dialog haben</li><li>Kein Gesamtbild pro Typ</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="dec">
+    <h2 id="dec">Vorschlag</h2>
+    <div class="rules">
+      <div class="box"><b>Jetzt (mit Stufe 2)</b><span>Variante A: Matrix mit Story und Epic wählbar, Sprint und Release als «geplant». Zusammen mit der Anzeige der Felder im Epic-Dialog, damit ein Häkchen bei Epic sofort etwas bewirkt.</span></div>
+      <div class="box"><b>Stufe 3</b><span>Für Reihenfolge, Pflicht und «auf Karte» kommt die Ansicht pro Typ aus Variante B dazu, als zweiter Reiter «Anordnung». Die Matrix bleibt die Übersicht.</span></div>
+      <div class="box"><b>Stufe 5</b><span>Das Häkchen bei mitgelieferten Feldern (z. B. Punkte) blendet sie aus. Bis dahin ist es sichtbar, aber gesperrt.</span></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
