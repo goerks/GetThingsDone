@@ -6,7 +6,7 @@ import type { Repository } from './data/repository';
 import { BacklogPage } from './pages/BacklogPage';
 import { BoardPage } from './pages/BoardPage';
 import { EpicsPage } from './pages/EpicsPage';
-import { FieldsPage } from './pages/FieldsPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { MapPage } from './pages/MapPage';
 import { useRoute } from './router';
 import { AppProvider, useApp } from './state/AppState';
@@ -38,8 +38,8 @@ function Shell() {
           <MapPage />
         ) : route.name === 'epics' ? (
           <EpicsPage />
-        ) : route.name === 'fields' ? (
-          <FieldsPage />
+        ) : route.name === 'settings' ? (
+          <SettingsPage section={route.section} />
         ) : (
           <BoardPage />
         )}

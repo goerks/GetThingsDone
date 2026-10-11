@@ -572,8 +572,9 @@ describe('sprints on the board', () => {
 describe('fields', () => {
   async function openFields(): Promise<LocalStorageRepository> {
     const repository = await renderApp();
-    window.location.hash = '#/fields';
-    await screen.findByRole('heading', { level: 1, name: 'Fields' });
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('link', { name: 'Settings' }));
+    await screen.findByRole('heading', { level: 2, name: 'Fields' });
     return repository;
   }
 
@@ -583,6 +584,20 @@ describe('fields', () => {
     await user.dblClick(await screen.findByRole('group', { name: code }));
     await screen.findByRole('dialog', { name: code });
   }
+
+  it('opens the fields from the settings, not from the main navigation', async () => {
+    await openFields();
+    const main = screen.getByRole('navigation', { name: 'Main' });
+    expect(within(main).queryByRole('link', { name: 'Fields' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('aria-current', 'page');
+    expect(window.location.hash).toBe('#/settings/fields');
+    const sections = screen.getByRole('navigation', { name: 'Settings sections' });
+    expect(within(sections).getByRole('link', { name: 'Fields' })).toHaveAttribute('aria-current', 'page');
+    expect(within(sections).queryByRole('link', { name: /Status values/ })).not.toBeInTheDocument();
+    expect(within(sections).getByText('Status values')).toBeInTheDocument();
+    expect(within(sections).getByText('Planned')).toBeInTheDocument();
+  });
 
   it('lists system, built-in and custom fields with their type and use', async () => {
     await openFields();
@@ -798,7 +813,9 @@ describe('router', () => {
     expect(parseHash('#/backlog')).toEqual({ name: 'backlog' });
     expect(parseHash('#/epics')).toEqual({ name: 'epics' });
     expect(parseHash('#/map')).toEqual({ name: 'map' });
-    expect(parseHash('#/fields')).toEqual({ name: 'fields' });
+    expect(parseHash('#/settings')).toEqual({ name: 'settings', section: 'fields' });
+    expect(parseHash('#/settings/fields')).toEqual({ name: 'settings', section: 'fields' });
+    expect(parseHash('#/fields')).toEqual({ name: 'settings', section: 'fields' });
     expect(parseHash('#/story/abc')).toEqual({ name: 'board' });
     expect(parseHash('')).toEqual({ name: 'board' });
     expect(parseHash('#/nonsense')).toEqual({ name: 'board' });
