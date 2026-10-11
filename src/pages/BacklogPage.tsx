@@ -19,7 +19,8 @@ import { formatSprintDates } from '../components/sprintFormat';
 import { backlogOrder, dropInBacklog, parseSectionId, sectionId, totalPoints, type Placement } from '../domain/board';
 import { isRunning, sortSprints, todayIso } from '../domain/sprints';
 import type { Epic, Sprint, Story } from '../domain/types';
-import { hrefs, openStory } from '../router';
+import { TitleButton } from '../components/StoryCard';
+import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
 
 /** Group key of a section: the sprint id, or "-" for the unplanned stories. */
@@ -48,11 +49,8 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
         {rank}
       </span>
       <span className="card__code backlog__code">{story.code}</span>
-      {/* The row itself is the keyboard stop (Enter opens it), so the link is for the mouse only. */}
-      <a className="backlog__title" href={hrefs.story(story.id)} tabIndex={-1} draggable={false}>
-        {story.title}
-      </a>
-      <EpicTag epic={epic} />
+      <TitleButton story={story} className="backlog__title" />
+      <EpicTag epic={epic} inCard />
       <span className="pill" title={t('card.points', { count: story.points })}>
         {story.points}
       </span>
@@ -62,6 +60,7 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
 
 function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
   const { t } = useTranslation();
+  const details = useDetails();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('backlog.rowRole') }
@@ -70,7 +69,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     if (event.key === 'Enter' && !active && event.target === event.currentTarget) {
       event.preventDefault();
-      openStory(story.id);
+      details.openStory(story.id);
       return;
     }
     listeners?.onKeyDown?.(event);
@@ -90,7 +89,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
       aria-label={t('backlog.rowLabel', { rank, code: story.code, title: story.title })}
       {...listeners}
       onKeyDown={onKeyDown}
-      onDoubleClick={() => openStory(story.id)}
+      onDoubleClick={() => details.openStory(story.id)}
     >
       <RowContent story={story} rank={rank} epic={epic} />
     </li>

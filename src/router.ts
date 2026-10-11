@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 
-export type Route = { name: 'board' } | { name: 'backlog' } | { name: 'map' } | { name: 'epics' } | { name: 'story'; id: string };
+export type Route = { name: 'board' } | { name: 'backlog' } | { name: 'map' } | { name: 'epics' };
 
 export const hrefs = {
   board: '#/board',
   backlog: '#/backlog',
   map: '#/map',
-  epics: '#/epics',
-  story: (id: string): string => `#/story/${encodeURIComponent(id)}`
+  epics: '#/epics'
 };
 
 export function parseHash(hash: string): Route {
@@ -15,15 +14,7 @@ export function parseHash(hash: string): Route {
   if (path === 'backlog') return { name: 'backlog' };
   if (path === 'map') return { name: 'map' };
   if (path === 'epics') return { name: 'epics' };
-  if (path.startsWith('story/')) {
-    const id = decodeURIComponent(path.slice('story/'.length));
-    if (id) return { name: 'story', id };
-  }
   return { name: 'board' };
-}
-
-export function openStory(id: string): void {
-  window.location.hash = hrefs.story(id);
 }
 
 export function useRoute(): Route {

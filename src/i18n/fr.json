@@ -68,7 +68,6 @@
     }
   },
   "detail": {
-    "back": "Retour au tableau",
     "description": "Description",
     "noDescription": "Pas encore de description.",
     "criteria": "Critères d'acceptation",
@@ -95,7 +94,9 @@
       "instructions": "Appuyez sur espace pour saisir un critère. Déplacez-le avec les flèches, déposez-le avec espace, annulez avec échap.",
       "over": "{{title}} passe en position {{position}}.",
       "dropped": "{{title}} est maintenant en position {{position}}."
-    }
+    },
+    "notFoundTitle": "Story introuvable",
+    "close": "Fermer"
   },
   "state": {
     "loading": "Chargement…",
@@ -107,7 +108,7 @@
   },
   "epics": {
     "title": "Epics",
-    "hint": "Les epics regroupent les stories. Cliquez sur un nom pour le renommer, sur la pastille pour changer sa couleur.",
+    "hint": "Les epics regroupent les stories. Cliquez sur un epic pour le renommer, changer sa couleur ou le supprimer.",
     "none": "Aucun epic pour l’instant.",
     "new": "Nouvel epic",
     "name": "Nom",
@@ -127,10 +128,10 @@
     },
     "storyCount_one": "{{count}} story",
     "storyCount_other": "{{count}} stories",
-    "delete": "Supprimer l’epic {{name}}",
     "inUse_one": "Utilisé par {{count}} story. Attribuez-la d’abord à un autre epic.",
     "inUse_other": "Utilisé par {{count}} stories. Attribuez-les d’abord à un autre epic.",
-    "changeColor": "Couleur de {{name}} : {{color}}. Changer la couleur"
+    "notFound": "Cet epic n’existe plus.",
+    "deleteButton": "Supprimer l’epic"
   },
   "sprint": {
     "label": "Sprint",
@@ -163,7 +164,13 @@
     "dnd": {
       "instructions": "Appuyez sur espace pour saisir une story. Déplacez-la entre les cellules avec les flèches, déposez-la avec espace, annulez avec échap. Appuyez sur entrée pour ouvrir la story.",
       "over": "{{title}} va dans {{sprint}}, {{epic}}, position {{position}}.",
-      "dropped": "{{title}} est maintenant dans {{sprint}}, {{epic}}, position {{position}}."
-    }
+      "dropped": "{{title}} est maintenant dans {{sprint}}, {{epic}}, position {{position}}.",
+      "sprintOver": "{{name}} devient le sprint {{position}}, {{dates}}.",
+      "sprintDropped": "{{name}} est maintenant le sprint {{position}}, {{dates}}."
+    },
+    "sprintRole": "sprint",
+    "editOrMoveSprint": "Cliquer pour modifier, faire glisser pour réordonner",
+    "compact": "Compact",
+    "sprintDropLabel": "{{name}} · {{dates}}"
   }
 }

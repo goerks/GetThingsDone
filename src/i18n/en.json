@@ -68,7 +68,6 @@
     }
   },
   "detail": {
-    "back": "Back to board",
     "description": "Description",
     "noDescription": "No description yet.",
     "criteria": "Acceptance criteria",
@@ -95,7 +94,9 @@
       "instructions": "Press space to pick up a criterion. Use the arrow keys to move it, space to drop it and escape to cancel.",
       "over": "{{title}} moves to position {{position}}.",
       "dropped": "{{title}} is now at position {{position}}."
-    }
+    },
+    "notFoundTitle": "Story not found",
+    "close": "Close"
   },
   "state": {
     "loading": "Loading…",
@@ -107,7 +108,7 @@
   },
   "epics": {
     "title": "Epics",
-    "hint": "Epics group stories. Click a name to rename it, the colour dot to change its colour.",
+    "hint": "Epics group stories. Click an epic to rename it, change its colour or delete it.",
     "none": "No epics yet.",
     "new": "New epic",
     "name": "Name",
@@ -127,10 +128,10 @@
     },
     "storyCount_one": "{{count}} story",
     "storyCount_other": "{{count}} stories",
-    "delete": "Delete epic {{name}}",
     "inUse_one": "Used by {{count}} story. Move it to another epic first.",
     "inUse_other": "Used by {{count}} stories. Move them to another epic first.",
-    "changeColor": "Colour of {{name}}: {{color}}. Change colour"
+    "notFound": "This epic does not exist any more.",
+    "deleteButton": "Delete epic"
   },
   "sprint": {
     "label": "Sprint",
@@ -163,7 +164,13 @@
     "dnd": {
       "instructions": "Press space to pick up a story. Use the arrow keys to move it between cells, space to drop it and escape to cancel. Press enter to open the story.",
       "over": "{{title}} goes to {{sprint}}, {{epic}}, position {{position}}.",
-      "dropped": "{{title}} is now in {{sprint}}, {{epic}}, position {{position}}."
-    }
+      "dropped": "{{title}} is now in {{sprint}}, {{epic}}, position {{position}}.",
+      "sprintOver": "{{name}} becomes sprint {{position}}, {{dates}}.",
+      "sprintDropped": "{{name}} is now sprint {{position}}, {{dates}}."
+    },
+    "sprintRole": "sprint",
+    "editOrMoveSprint": "Click to edit, drag to reorder",
+    "compact": "Compact",
+    "sprintDropLabel": "{{name}} · {{dates}}"
   }
 }

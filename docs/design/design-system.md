@@ -28,8 +28,10 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Running badge | Small uppercase pill in `--accent-soft` / `--accent-soft-ink` |
 | Drop line | 4 px `--accent` line in the gap where the item will land; in the backlog with an accent pill "becomes rank n" |
 | Editable text | Looks like text, shows a border on hover, turns into a field on click |
-| Epic swatches | Eight 18 px dots as a radio group; the selected one has a ring. On the epics page they appear in a popover under the epic's colour dot |
-| Dialog | Native modal `<dialog>`, 560 px wide, dimmed backdrop, title and form; used for new story and new epic. Primary actions on pages ("New story", "New epic") open a dialog instead of an inline form |
+| Epic swatches | Eight 18 px dots as a radio group; the selected one has a ring. Shown in the new-epic and the epic dialog |
+| Compact cards | On the story map, a pressed "Compact" switch turns cards into one-line chips: key and title, ellipsis |
+| Sprint drop line | Reordering a sprint shows a 4 px accent line across the map row with a pill naming the sprint and its new dates |
+| Dialog | Native modal `<dialog>`, 560 px wide (detail dialogs 1040 px), dimmed backdrop, title and form; used for creating and for the details of stories, epics and sprints, which never get a page of their own. Primary actions on pages ("New story", "New epic") open a dialog instead of an inline form |
 | Acceptance criteria list | Drag handle, checkbox, editable text and delete button per criterion, progress bar, "all accepted" status message |
 | Details panel | Status, epic, points as selects, sprint as checkbox, "Delete story" with confirmation below a rule |
 

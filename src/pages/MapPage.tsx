@@ -2,8 +2,10 @@ import { useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react
 import {
   DndContext,
   DragOverlay,
+  closestCenter,
   closestCorners,
   useDroppable,
+  type CollisionDetection,
   type Announcements,
   type DragEndEvent,
   type DragMoveEvent,
@@ -19,9 +21,10 @@ import { formatSprintDates } from '../components/sprintFormat';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors } from '../dnd/dnd';
 import { backlogOrder, cellId, dropOnMap, storiesInCell, totalPoints, type Placement } from '../domain/board';
 import { sortEpics } from '../domain/epics';
-import { isRunning, mapSprints, runningSprint, todayIso } from '../domain/sprints';
+import { isRunning, isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints';
 import type { Epic, Sprint, Story } from '../domain/types';
-import { hrefs, openStory } from '../router';
+import { TitleButton } from '../components/StoryCard';
+import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
 
 const NOT_PLANNED = '-';
@@ -46,10 +49,7 @@ function CardContent({ story }: { story: Story }) {
           {story.points}
         </span>
       </span>
-      {/* The card itself is the keyboard stop (Enter opens it), so the link is for the mouse only. */}
-      <a className="map-card__title" href={hrefs.story(story.id)} tabIndex={-1} draggable={false}>
-        {story.title}
-      </a>
+      <TitleButton story={story} className="map-card__title" />
       <span className={`status-dot status-dot--${story.status}`}>{t(`status.${story.status}`)}</span>
     </>
   );
@@ -57,6 +57,7 @@ function CardContent({ story }: { story: Story }) {
 
 function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
   const { t } = useTranslation();
+  const details = useDetails();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -65,7 +66,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     if (event.key === 'Enter' && !active && event.target === event.currentTarget) {
       event.preventDefault();
-      openStory(story.id);
+      details.openStory(story.id);
       return;
     }
     listeners?.onKeyDown?.(event);
@@ -83,7 +84,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
         aria-label={`${story.code}: ${story.title}`}
         {...listeners}
         onKeyDown={onKeyDown}
-        onDoubleClick={() => openStory(story.id)}
+        onDoubleClick={() => details.openStory(story.id)}
       >
         <CardContent story={story} />
       </article>
@@ -132,13 +133,101 @@ function Cell({ epic, sprint, stories, drop, labelledBy, onAdd }: CellProps) {
   );
 }
 
+/* ---------- Sprint label ---------- */
+
+/** Drag id of a sprint label, kept apart from story ids. */
+const SPRINT_PREFIX = 'sprint:';
+const sprintDragId = (id: string): string => `${SPRINT_PREFIX}${id}`;
+const isSprintDragId = (id: UniqueIdentifier): boolean => String(id).startsWith(SPRINT_PREFIX);
+const sprintOfDragId = (id: UniqueIdentifier): string => String(id).slice(SPRINT_PREFIX.length);
+
+interface SprintLabelProps {
+  sprint: Sprint;
+  today: string;
+  stories: Story[];
+  labelId: string;
+  isTarget: boolean;
+}
+
+function SprintLabelContent({ sprint, today, stories, labelId }: Omit<SprintLabelProps, 'isTarget'>) {
+  const { t, i18n } = useTranslation();
+  return (
+    <>
+      {isRunning(sprint, today) && <span className="badge-running">{t('sprint.running')}</span>}
+      <span id={labelId} className="map-sprint__name">
+        {sprint.name}
+      </span>
+      <span className="map-sprint__dates">{formatSprintDates(sprint, i18n.language)}</span>
+      <span className="map-sprint__sum">{t('map.storiesPoints', { count: stories.length, points: totalPoints(stories) })}</span>
+    </>
+  );
+}
+
+/**
+ * The label of a sprint row. A click opens the sprint; a sprint that has not started yet can also be dragged
+ * up or down to reorder the upcoming sprints.
+ */
+function SprintLabel({ sprint, today, stories, labelId, isTarget }: SprintLabelProps) {
+  const { t, i18n } = useTranslation();
+  const details = useDetails();
+  const movable = isUpcoming(sprint, today);
+  const { attributes, listeners, setNodeRef, isDragging } = useSortable({
+    id: sprintDragId(sprint.id),
+    disabled: !movable,
+    attributes: { roleDescription: t('map.sprintRole') }
+  });
+  const classes = [
+    'map-sprint',
+    isRunning(sprint, today) && 'map-sprint--running',
+    movable && 'map-sprint--movable',
+    isTarget && 'map-sprint--target',
+    isDragging && 'map-sprint--dragging'
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    <button
+      ref={setNodeRef}
+      type="button"
+      className={classes}
+      {...(movable ? attributes : {})}
+      {...(movable ? listeners : {})}
+      onClick={() => details.openSprint(sprint.id)}
+      aria-label={[sprint.name, formatSprintDates(sprint, i18n.language), isRunning(sprint, today) ? t('sprint.running') : null]
+        .filter(Boolean)
+        .join(', ')}
+      aria-describedby={`${labelId}-edit`}
+      title={movable ? t('map.editOrMoveSprint') : t('map.editSprint')}
+    >
+      <SprintLabelContent sprint={sprint} today={today} stories={stories} labelId={labelId} />
+      <span id={`${labelId}-edit`} className="sr-only">
+        {movable ? t('map.editOrMoveSprint') : t('map.editSprint')}
+      </span>
+    </button>
+  );
+}
+
+const COMPACT_KEY = 'getitdone.mapCompact';
+
+function readCompact(): boolean {
+  try {
+    return window.localStorage.getItem(COMPACT_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/** Stories are dragged among cards and cells, sprint labels only among the upcoming sprint labels. */
+const collision: CollisionDetection = (args) => {
+  const sprint = isSprintDragId(args.active.id);
+  const droppableContainers = args.droppableContainers.filter((container) => isSprintDragId(container.id) === sprint);
+  return (sprint ? closestCenter : closestCorners)({ ...args, droppableContainers });
+};
+
 /* ---------- Page ---------- */
 
-type DialogState =
-  | { kind: 'story'; epicId?: string; sprintId: string | null }
-  | { kind: 'epic' }
-  | { kind: 'sprint'; sprint?: Sprint }
-  | null;
+type DialogState = { kind: 'story'; epicId: string; sprintId: string | null } | { kind: 'epic' } | { kind: 'sprint' } | null;
 
 export function MapPage() {
   const { t, i18n } = useTranslation();
@@ -147,11 +236,23 @@ export function MapPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
   const [dialog, setDialog] = useState<DialogState>(null);
+  const [compact, setCompact] = useState(readCompact);
+  const details = useDetails();
+
+  const toggleCompact = (): void => {
+    setCompact((value) => {
+      try {
+        window.localStorage.setItem(COMPACT_KEY, String(!value));
+      } catch {
+        // the choice just will not be remembered
+      }
+      return !value;
+    });
+  };
 
   const today = todayIso();
   const epics = useMemo(() => sortEpics(app.epics), [app.epics]);
   const sprints = mapSprints(app.sprints, today);
-  const running = runningSprint(app.sprints, today);
   const shownStories = app.stories.filter(
     (story) => story.sprintId === null || sprints.some((sprint) => sprint.id === story.sprintId)
   );
@@ -163,8 +264,30 @@ export function MapPage() {
     return after === app.stories ? null : backlogOrder(after, app.sprints);
   };
 
+  const sprintDrag = activeId !== null && isSprintDragId(activeId);
+
+  /** Where a dragged sprint would go: the sprint list after the move, or null when it would not change. */
+  const sprintPreview = (active: string, over: string, placement: Placement | undefined): Sprint[] | null => {
+    if (!isSprintDragId(active) || !isSprintDragId(over)) return null;
+    const from = sprints.findIndex((sprint) => sprint.id === sprintOfDragId(active));
+    const to = sprints.findIndex((sprint) => sprint.id === sprintOfDragId(over));
+    const side = placement ?? (from < to ? 'after' : 'before');
+    const after = moveSprint(app.sprints, today, sprintOfDragId(active), sprintOfDragId(over), side);
+    return after === app.sprints ? null : after;
+  };
+  const sprintTarget = (() => {
+    if (!sprintDrag || !hover) return null;
+    const after = sprintPreview(activeId, hover.overId, hover.placement);
+    if (!after) return null;
+    const moved = after.find((sprint) => sprint.id === sprintOfDragId(activeId));
+    const order = mapSprints(after, today);
+    const index = order.findIndex((sprint) => sprint.id === moved?.id);
+    const next = order[index + 1];
+    return moved ? { overId: sprintOfDragId(hover.overId), beforeId: next?.id ?? null, moved } : null;
+  })();
+
   const target = (() => {
-    if (!activeId || !hover) return null;
+    if (!activeId || !hover || sprintDrag) return null;
     const list = preview(activeId, hover.overId, hover.placement);
     return list ? dropTargetIn(list, activeId, cellOf) : null;
   })();
@@ -182,12 +305,31 @@ export function MapPage() {
       position
     });
   };
-  const titleOf = (id: UniqueIdentifier): string => app.stories.find((story) => story.id === id)?.title ?? '';
+  const describeSprint = (active: UniqueIdentifier, over: UniqueIdentifier, key: 'sprintOver' | 'sprintDropped'): string | undefined => {
+    const after = sprintPreview(String(active), String(over), undefined);
+    const moved = after?.find((sprint) => sprint.id === sprintOfDragId(active));
+    if (!after || !moved) return undefined;
+    const position = mapSprints(after, today).findIndex((sprint) => sprint.id === moved.id) + 1;
+    return t(`map.dnd.${key}`, { name: moved.name, position, dates: formatSprintDates(moved, i18n.language) });
+  };
+  const titleOf = (id: UniqueIdentifier): string =>
+    isSprintDragId(id)
+      ? (app.sprints.find((sprint) => sprint.id === sprintOfDragId(id))?.name ?? '')
+      : (app.stories.find((story) => story.id === id)?.title ?? '');
   const announcements: Announcements = {
     onDragStart: ({ active }) => t('board.dnd.pickedUp', { title: titleOf(active.id) }),
-    onDragOver: ({ active, over }) => (over ? describe(active.id, over.id, 'over') : undefined),
+    onDragOver: ({ active, over }) =>
+      over
+        ? isSprintDragId(active.id)
+          ? describeSprint(active.id, over.id, 'sprintOver')
+          : describe(active.id, over.id, 'over')
+        : undefined,
     onDragEnd: ({ active, over }) =>
-      (over && describe(active.id, over.id, 'dropped')) ?? t('board.dnd.cancelled', { title: titleOf(active.id) }),
+      (over &&
+        (isSprintDragId(active.id)
+          ? describeSprint(active.id, over.id, 'sprintDropped')
+          : describe(active.id, over.id, 'dropped'))) ??
+      t('board.dnd.cancelled', { title: titleOf(active.id) }),
     onDragCancel: ({ active }) => t('board.dnd.cancelled', { title: titleOf(active.id) })
   };
 
@@ -200,7 +342,17 @@ export function MapPage() {
   const onDragEnd = (event: DragEndEvent): void => {
     setActiveId(null);
     setHover(null);
-    if (event.over) app.dropOnMap(String(event.active.id), String(event.over.id), placementOf(event));
+    if (!event.over) return;
+    const active = String(event.active.id);
+    const over = String(event.over.id);
+    if (isSprintDragId(active)) {
+      if (!isSprintDragId(over)) return;
+      const from = sprints.findIndex((sprint) => sprint.id === sprintOfDragId(active));
+      const to = sprints.findIndex((sprint) => sprint.id === sprintOfDragId(over));
+      app.moveSprint(sprintOfDragId(active), sprintOfDragId(over), placementOf(event) ?? (from < to ? 'after' : 'before'));
+    } else {
+      app.dropOnMap(active, over, placementOf(event));
+    }
   };
   const onDragCancel = (): void => {
     setActiveId(null);
@@ -212,31 +364,32 @@ export function MapPage() {
   const labelId = `map-sprint-${key}`;
   const inSprint = shownStories.filter((story) => story.sprintId === (sprint?.id ?? null));
   const isTarget = targetSprint === key;
+  const dropBefore = Boolean(sprintTarget && sprint && sprintTarget.beforeId === sprint.id);
+  const dropAfter = Boolean(
+    sprintTarget && sprint && sprintTarget.beforeId === null && sprints[sprints.length - 1]?.id === sprint.id
+  );
   return (
-    <div key={key} className={`map__row${sprint ? '' : ' map__row--unplanned'}`}>
+    <div
+      key={key}
+      className={[
+        'map__row',
+        !sprint && 'map__row--unplanned',
+        dropBefore && 'map__row--drop-before',
+        dropAfter && 'map__row--drop-after'
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {sprintTarget && (dropBefore || dropAfter) && (
+        <span className="map-drop-pill" aria-hidden="true">
+          {t('map.sprintDropLabel', {
+            name: sprintTarget.moved.name,
+            dates: formatSprintDates(sprintTarget.moved, i18n.language)
+          })}
+        </span>
+      )}
       {sprint ? (
-        <button
-          type="button"
-          className={`map-sprint${isRunning(sprint, today) ? ' map-sprint--running' : ''}${isTarget ? ' map-sprint--target' : ''}`}
-          onClick={() => setDialog({ kind: 'sprint', sprint })}
-          aria-label={[sprint.name, formatSprintDates(sprint, i18n.language), isRunning(sprint, today) ? t('sprint.running') : null]
-            .filter(Boolean)
-            .join(', ')}
-          aria-describedby={`${labelId}-edit`}
-          title={t('map.editSprint')}
-        >
-          {isRunning(sprint, today) && <span className="badge-running">{t('sprint.running')}</span>}
-          <span id={labelId} className="map-sprint__name">
-            {sprint.name}
-          </span>
-          <span className="map-sprint__dates">{formatSprintDates(sprint, i18n.language)}</span>
-          <span className="map-sprint__sum">
-            {t('map.storiesPoints', { count: inSprint.length, points: totalPoints(inSprint) })}
-          </span>
-          <span id={`${labelId}-edit`} className="sr-only">
-            {t('map.editSprint')}
-          </span>
-        </button>
+        <SprintLabel sprint={sprint} today={today} stories={inSprint} labelId={labelId} isTarget={isTarget || sprintTarget?.overId === sprint.id} />
       ) : (
         <div className={`map-sprint map-sprint--unplanned${isTarget ? ' map-sprint--target' : ''}`}>
           <span id={labelId} className="map-sprint__name">
@@ -262,7 +415,8 @@ export function MapPage() {
   );
   };
 
-  const activeStory = activeId ? app.stories.find((story) => story.id === activeId) : undefined;
+  const activeStory = activeId && !sprintDrag ? app.stories.find((story) => story.id === activeId) : undefined;
+  const activeSprint = activeId && sprintDrag ? app.sprints.find((sprint) => sprint.id === sprintOfDragId(activeId)) : undefined;
   const gridStyle = { '--map-columns': epics.length } as CSSProperties;
 
   return (
@@ -272,18 +426,14 @@ export function MapPage() {
         <span className="muted">
           {t('map.summary', { epics: epics.length, sprints: sprints.length, stories: shownStories.length })}
         </span>
-        <div className="page-head__action map__actions">
-          <button type="button" className="btn" onClick={() => setDialog({ kind: 'sprint' })}>
-            {t('map.addSprint')}
-          </button>
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={() => setDialog({ kind: 'story', sprintId: running?.id ?? null })}
-          >
-            {t('newStory.open')}
-          </button>
-        </div>
+        <button
+          type="button"
+          className={`btn page-head__action${compact ? ' btn--pressed' : ''}`}
+          aria-pressed={compact}
+          onClick={toggleCompact}
+        >
+          {t('map.compact')}
+        </button>
       </div>
 
       {epics.length === 0 ? (
@@ -296,7 +446,7 @@ export function MapPage() {
       ) : (
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={collision}
           onDragStart={(event: DragStartEvent) => setActiveId(String(event.active.id))}
           onDragMove={onDragMove}
           onDragOver={onDragMove}
@@ -304,7 +454,7 @@ export function MapPage() {
           onDragCancel={onDragCancel}
           accessibility={{ announcements, screenReaderInstructions: { draggable: t('map.dnd.instructions') } }}
         >
-          <div className="map" style={gridStyle}>
+          <div className={`map${compact ? ' map--compact' : ''}`} style={gridStyle}>
             <div className="map__row map__row--head">
               <div className="map__corner" aria-hidden="true">
                 {t('map.corner')}
@@ -312,10 +462,12 @@ export function MapPage() {
               {epics.map((epic) => {
                 const inEpic = shownStories.filter((story) => story.epicId === epic.id);
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={epic.id}
                     className={`map-epic${targetEpic === epic.id ? ' map-epic--target' : ''}`}
                     style={{ '--epic-color': `var(--epic-${epic.colorKey})` } as CSSProperties}
+                    onClick={() => details.openEpic(epic.id)}
                   >
                     <span id={`map-epic-${epic.id}`} className="map-epic__name">
                       {epic.name}
@@ -323,7 +475,7 @@ export function MapPage() {
                     <span className="map-epic__sum">
                       {t('map.storiesPoints', { count: inEpic.length, points: totalPoints(inEpic) })}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
               <button
@@ -337,7 +489,9 @@ export function MapPage() {
               </button>
             </div>
 
-            {sprints.map((sprint) => renderRow(sprint))}
+            <SortableContext items={sprints.map((sprint) => sprintDragId(sprint.id))} strategy={keepInPlace}>
+              {sprints.map((sprint) => renderRow(sprint))}
+            </SortableContext>
             <div className="map__row map__row--add">
               <button type="button" className="map__add-sprint" onClick={() => setDialog({ kind: 'sprint' })}>
                 {t('map.addSprint')}
@@ -346,7 +500,16 @@ export function MapPage() {
             {renderRow(null)}
           </div>
           <DragOverlay>
-            {activeStory ? (
+            {activeSprint ? (
+              <div className="map-sprint map-sprint--overlay" aria-hidden="true">
+                <SprintLabelContent
+                  sprint={activeSprint}
+                  today={today}
+                  stories={shownStories.filter((story) => story.sprintId === activeSprint.id)}
+                  labelId="map-sprint-overlay"
+                />
+              </div>
+            ) : activeStory ? (
               <article className="map-card map-card--overlay" aria-hidden="true">
                 <CardContent story={activeStory} />
               </article>
@@ -359,7 +522,7 @@ export function MapPage() {
         <NewStoryDialog sprintId={dialog.sprintId} epicId={dialog.epicId} onClose={() => setDialog(null)} />
       )}
       {dialog?.kind === 'epic' && <NewEpicDialog onClose={() => setDialog(null)} />}
-      {dialog?.kind === 'sprint' && <SprintDialog sprint={dialog.sprint} onClose={() => setDialog(null)} />}
+      {dialog?.kind === 'sprint' && <SprintDialog onClose={() => setDialog(null)} />}
     </>
   );
 }

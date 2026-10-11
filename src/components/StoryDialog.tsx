@@ -3,15 +3,15 @@ import { DndContext, closestCenter, type Announcements, type DragEndEvent, type 
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
-import { EditableText } from '../components/EditableText';
-import { EpicSelect } from '../components/EpicSelect';
-import { EpicTag } from '../components/EpicTag';
-import { SprintSelect } from '../components/SprintSelect';
-import { GripIcon, TrashIcon } from '../components/icons';
+import { Dialog } from './Dialog';
+import { EditableText } from './EditableText';
+import { EpicSelect } from './EpicSelect';
+import { EpicTag } from './EpicTag';
+import { SprintSelect } from './SprintSelect';
+import { GripIcon, TrashIcon } from './icons';
 import { useDragSensors } from '../dnd/dnd';
 import { criteriaProgress } from '../domain/board';
 import { POINT_VALUES, STATUSES, type Criterion, type Status } from '../domain/types';
-import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
 
 interface CriterionProps {
@@ -69,7 +69,8 @@ function CriterionRow({ storyId, criterion }: CriterionProps) {
   );
 }
 
-export function StoryPage({ id }: { id: string }) {
+/** Details of a story in a dialog over the current page: everything is edited in place and saved at once. */
+export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const { t } = useTranslation();
   const app = useApp();
   const uid = useId();
@@ -80,12 +81,14 @@ export function StoryPage({ id }: { id: string }) {
   const story = app.stories.find((item) => item.id === id);
   if (!story) {
     return (
-      <>
-        <a className="back" href={hrefs.board}>
-          ← {t('detail.back')}
-        </a>
+      <Dialog title={t('detail.notFoundTitle')} onClose={onClose}>
         <p>{t('detail.notFound')}</p>
-      </>
+        <div className="form__actions">
+          <button type="button" className="btn" onClick={onClose}>
+            {t('detail.close')}
+          </button>
+        </div>
+      </Dialog>
     );
   }
 
@@ -121,14 +124,16 @@ export function StoryPage({ id }: { id: string }) {
 
   const remove = (): void => {
     app.deleteStory(story.id);
-    window.location.hash = hrefs.board;
+    onClose();
   };
 
   return (
-    <>
-      <a className="back" href={hrefs.board}>
-        ← {t('detail.back')}
-      </a>
+    <Dialog label={`${story.code}: ${story.title}`} wide onClose={onClose}>
+      <div className="detail-dialog__close">
+        <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('detail.close')} title={t('detail.close')} onClick={onClose}>
+          ×
+        </button>
+      </div>
       <div className="detail">
         <div className="detail__main">
           <div>
@@ -136,7 +141,7 @@ export function StoryPage({ id }: { id: string }) {
               <span className="card__code">{story.code}</span>
               <EpicTag epic={epic} />
             </div>
-            <h1>
+            <h2 className="detail__heading">
               <EditableText
                 value={story.title}
                 label={t('detail.title')}
@@ -144,7 +149,7 @@ export function StoryPage({ id }: { id: string }) {
                 className="detail__title"
                 onSave={(title) => app.updateStory(story.id, { title })}
               />
-            </h1>
+            </h2>
           </div>
 
           <section className="panel">
@@ -272,6 +277,6 @@ export function StoryPage({ id }: { id: string }) {
           </div>
         </aside>
       </div>
-    </>
+    </Dialog>
   );
 }

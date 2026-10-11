@@ -90,3 +90,58 @@ export function updateSprint(sprints: Sprint[], id: string, input: SprintInput):
     sprint.id === id ? { ...sprint, name: input.name.trim(), startDate: input.startDate, endDate: input.endDate } : sprint
   );
 }
+
+/** Sprints that have not started yet; only these can be reordered. */
+export const isUpcoming = (sprint: Sprint, today: string): boolean => sprint.startDate > today;
+
+/** Number of days between two calendar days. */
+function daysBetween(from: string, to: string): number {
+  const toTime = (day: string): number => {
+    const [year, month, date] = day.split('-').map(Number);
+    return Date.UTC(year, month - 1, date);
+  };
+  return Math.round((toTime(to) - toTime(from)) / DAY);
+}
+
+/**
+ * Moves an upcoming sprint before or after another upcoming sprint and recalculates the dates of all upcoming
+ * sprints: each keeps its length, and they follow each other without gaps from the end of the last sprint that
+ * has started (or from the first upcoming start when none has started). Running and past sprints never move.
+ * Returns the same list when the move is not allowed or changes nothing.
+ */
+export function moveSprint(
+  sprints: Sprint[],
+  today: string,
+  activeId: string,
+  overId: string,
+  placement: 'before' | 'after'
+): Sprint[] {
+  if (activeId === overId) return sprints;
+  const upcoming = sortSprints(sprints).filter((sprint) => isUpcoming(sprint, today));
+  const active = upcoming.find((sprint) => sprint.id === activeId);
+  if (!active || !upcoming.some((sprint) => sprint.id === overId)) return sprints;
+
+  const order = upcoming.filter((sprint) => sprint.id !== activeId);
+  const targetIndex = order.findIndex((sprint) => sprint.id === overId);
+  order.splice(placement === 'after' ? targetIndex + 1 : targetIndex, 0, active);
+
+  const started = sprints.filter((sprint) => !isUpcoming(sprint, today));
+  const lastStartedEnd = started.reduce<string | null>((max, s) => (max === null || s.endDate > max ? s.endDate : max), null);
+  let start = lastStartedEnd ? addDays(lastStartedEnd, 1) : upcoming[0].startDate;
+  if (start <= today) start = addDays(today, 1);
+
+  const moved = new Map<string, Sprint>();
+  for (const sprint of order) {
+    const length = daysBetween(sprint.startDate, sprint.endDate);
+    const next = { ...sprint, startDate: start, endDate: addDays(start, length) };
+    moved.set(sprint.id, next);
+    start = addDays(next.endDate, 1);
+  }
+  const unchanged = order.every((sprint, index) => sprint.id === upcoming[index].id) &&
+    upcoming.every((sprint) => {
+      const next = moved.get(sprint.id);
+      return next?.startDate === sprint.startDate && next.endDate === sprint.endDate;
+    });
+  if (unchanged) return sprints;
+  return sprints.map((sprint) => moved.get(sprint.id) ?? sprint);
+}

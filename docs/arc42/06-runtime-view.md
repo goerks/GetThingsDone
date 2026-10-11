@@ -28,11 +28,11 @@
 
 ## Sprints
 
-A sprint is created or edited in `SprintDialog` (from the map). The dialog prefills a new sprint with `newSprintDefaults` and checks the input with `validateSprint`. The board, the backlog and the map compute the running sprint and the visible sprints from today's date on every render, so a new day needs no stored state.
+An upcoming sprint is reordered by dragging its label on the map: `moveSprint` places it before or after another upcoming sprint and recalculates the dates of all upcoming sprints (each keeps its length, start dates follow each other from the end of the running sprint). Only changed sprints are saved. A sprint is created or edited in `SprintDialog` (from the map). The dialog prefills a new sprint with `newSprintDefaults` and checks the input with `validateSprint`. The board, the backlog and the map compute the running sprint and the visible sprints from today's date on every render, so a new day needs no stored state.
 
 ## Editing
 
-Fields on the story page save on their own: text when the field is left or with Enter (Ctrl+Enter for the description), selects and the sprint checkbox on change. Escape discards a text edit. Deleting a story asks for confirmation on the page and then returns to the board.
+Stories, epics and sprints open in dialogs over the current page (`DetailsProvider`). Fields on the story page save on their own: text when the field is left or with Enter (Ctrl+Enter for the description), selects and the sprint checkbox on change. Escape discards a text edit. Deleting a story asks for confirmation in the dialog and then closes it.
 
 ## Saving
 

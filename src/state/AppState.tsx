@@ -30,6 +30,7 @@ import {
 import { newId } from '../domain/ids';
 import {
   createSprint as createSprintIn,
+  moveSprint as moveSprintIn,
   todayIso,
   updateSprint as updateSprintIn,
   type SprintInput
@@ -51,6 +52,8 @@ interface AppApi {
   /** Returns the id of the new sprint, or null when the input is invalid. */
   createSprint(input: SprintInput): string | null;
   updateSprint(id: string, input: SprintInput): void;
+  /** Moves an upcoming sprint before or after another one; the dates of the upcoming sprints are recalculated. */
+  moveSprint(activeId: string, overId: string, placement: Placement): void;
   createStory(input: NewStoryInput): string;
   updateStory(id: string, patch: StoryPatch): void;
   deleteStory(id: string): void;
@@ -189,6 +192,16 @@ export function AppProvider({ repository, children }: Props) {
         updateSprints(result.sprints);
         persist((repo) => repo.addSprint(result.sprint));
         return id;
+      },
+      moveSprint(activeId, overId, placement) {
+        const before = sprintsRef.current;
+        const after = moveSprintIn(before, todayIso(), activeId, overId, placement);
+        if (after === before) return;
+        updateSprints(after);
+        const changed = after.filter((sprint, index) => sprint !== before[index]);
+        persist(async (repo) => {
+          for (const sprint of changed) await repo.updateSprint(sprint);
+        });
       },
       updateSprint(id, input) {
         const after = updateSprintIn(sprintsRef.current, id, input);
