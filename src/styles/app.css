@@ -1,0 +1,1065 @@
+/* Components read the design tokens from docs/design/tokens.css only. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------- Layout ---------- */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 28px 48px;
+}
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin-bottom: 20px;
+}
+
+.page-head h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.page-head__action {
+  margin-left: auto;
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 28px;
+  padding: 0 28px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0;
+  font-size: 16px;
+}
+
+.brand__logo {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--target-min);
+  padding: 0 12px;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+a.nav__link:hover {
+  color: var(--text);
+}
+
+.nav__link[aria-current='page'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.nav__link--disabled {
+  cursor: default;
+}
+
+.badge {
+  font-size: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+
+.header__tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+/* ---------- Controls ---------- */
+
+.btn,
+.icon-btn,
+.select,
+.input {
+  font: inherit;
+  color: var(--text);
+}
+
+.btn {
+  min-height: var(--target-min);
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: var(--muted);
+}
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 500;
+}
+
+.btn--primary:hover {
+  border-color: var(--accent);
+  filter: brightness(1.08);
+}
+
+
+
+.icon-btn {
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.icon-btn:hover:not(:disabled) {
+  border-color: var(--muted);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.select,
+.input {
+  min-height: var(--target-min);
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+textarea.input {
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+/* ---------- Panels and forms ---------- */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+
+.panel h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.panel p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.panel__head h2 {
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+
+.form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.form__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.field .input {
+  width: 100%;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.inline-form .input {
+  flex: 1 1 240px;
+}
+
+.notice {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-weight: 600;
+}
+
+.notice--error {
+  margin: 0 0 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ---------- Board ---------- */
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* Each column is its own surface, so the board reads as four lanes. */
+.column {
+  flex: 1 1 240px;
+  min-width: 0;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: var(--column);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+/* The column a dragged story would land in. */
+.column--target {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.column--target .column__title {
+  color: var(--accent-soft-ink);
+}
+
+.column__title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 2px 2px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.column__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.column__empty {
+  padding: 24px 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px 14px;
+  cursor: grab;
+  user-select: none;
+  touch-action: manipulation;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px var(--shadow);
+}
+
+.card--dragging {
+  opacity: 0.35;
+}
+
+.card--overlay {
+  cursor: grabbing;
+  opacity: 0.88;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.card__code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.card__title {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.card__title:hover {
+  text-decoration: underline;
+}
+
+.card__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card__count {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.card__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.drag-handle {
+  flex: none;
+  min-width: 32px;
+  min-height: var(--target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-handle:hover {
+  color: var(--text);
+  background: var(--pill);
+}
+
+/* ---------- Drop position ---------- */
+
+/* A line in the gap above the item a dragged story would be placed in front of. */
+.drop-before::before,
+.drop-line::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.drop-before::before {
+  top: -8px;
+}
+
+.drop-line {
+  position: relative;
+  height: 0;
+  list-style: none;
+}
+
+.drop-line::before {
+  top: -8px;
+}
+
+/* Rank the story would get, shown on the line in the backlog. */
+.drop-before[data-drop-label]::after,
+.drop-line[data-drop-label]::after {
+  content: attr(data-drop-label);
+  position: absolute;
+  right: 8px;
+  top: -16px;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  pointer-events: none;
+}
+
+.drop-line[data-drop-label]::after {
+  top: -16px;
+}
+
+.progress {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--track);
+}
+
+.progress--wide {
+  margin-bottom: 14px;
+}
+
+.progress__bar {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--pill);
+}
+
+.epic {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.epic__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ---------- Backlog ---------- */
+
+.backlog-sections {
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.backlog__section {
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.backlog__section--sprint {
+  background: var(--column);
+  border-color: var(--border);
+}
+
+/* The sprint line: a strong rule between the sprint and the rest of the backlog. */
+.backlog__section--backlog {
+  border-top: 3px solid var(--text);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.backlog__section--target {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.backlog__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.backlog__heading .muted {
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.backlog {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.backlog__row {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  min-height: var(--target-min);
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px var(--shadow);
+  cursor: grab;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.backlog__row--dragging {
+  opacity: 0.35;
+}
+
+.backlog__row--overlay {
+  /* Narrower than a row, so the drop line and its rank label stay visible on the right. */
+  width: min(520px, 60vw);
+  flex-wrap: nowrap;
+  cursor: grabbing;
+  opacity: 0.92;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.backlog__row--overlay .backlog__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.backlog__rank {
+  width: 24px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.backlog__code {
+  width: 40px;
+}
+
+.backlog__title {
+  flex: 1 1 260px;
+  min-width: 0;
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.backlog__title:hover {
+  text-decoration: underline;
+}
+
+.backlog__empty {
+  padding: 14px 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ---------- Story detail ---------- */
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+}
+
+.detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+  max-width: 1100px;
+}
+
+.detail__main {
+  flex: 999 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail__main h1 {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.detail__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.detail__side {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.criteria {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.criteria__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--target-min);
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.criteria__item--dragging {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.criteria__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.criteria__item:hover {
+  background: var(--pill);
+}
+
+.criteria__item input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+
+
+
+/* ---------- Editing ---------- */
+
+/* Text that turns into a field on click. It looks like text until hovered or focused. */
+.editable {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: text;
+}
+
+.editable:hover {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.editable--empty {
+  color: var(--muted);
+}
+
+.editable__input {
+  width: 100%;
+  font: inherit;
+}
+
+.detail__title.editable,
+.detail__title.editable__input {
+  margin-left: -7px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.detail__description.editable {
+  margin-left: -7px;
+  min-height: 2.5em;
+  line-height: 1.6;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--target-min);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.icon-btn--quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+
+.danger {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.danger__confirm p {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.btn--danger {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--surface);
+}
+
+.btn--danger-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn--danger-quiet:hover {
+  background: var(--danger-soft);
+}
+
+.epic-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.epic-select__new {
+  display: flex;
+  gap: 8px;
+}
+
+.epic-select__new .input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Epics ---------- */
+
+.epics {
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.epic-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.epic-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.epic-row__dot {
+  width: 12px;
+  height: 12px;
+}
+
+.epic-row__name {
+  flex: 1 1 200px;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.epic-row__count {
+  min-width: 80px;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.swatch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.swatch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.swatch__dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.swatch input:checked + .swatch__dot {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text);
+}
+
+.swatch input:focus-visible + .swatch__dot {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .column,
+  .backlog__section {
+    transition: none;
+  }
+}
+
+/* ---------- Dialog ---------- */
+
+.dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+}
+
+.dialog::backdrop {
+  background: rgba(15, 19, 24, 0.45);
+}
+
+.dialog__body {
+  padding: 22px 24px 24px;
+}
+
+.dialog__title {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ---------- Epic colour button ---------- */
+
+.color-button {
+  position: relative;
+}
+
+.color-button__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  margin: -6px 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.color-button__trigger:hover,
+.color-button__trigger[aria-expanded='true'] {
+  border-color: var(--border);
+  background: var(--pill);
+}
+
+.color-button__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.color-button__palette {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 168px;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
