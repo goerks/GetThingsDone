@@ -16,7 +16,7 @@ Early prototype (0.1). Working today:
 
 ## Try it
 
-Every pull request builds a Windows app. Open the "Windows build" workflow run, download the `GetItDone-windows` artifact (GitHub login required) and start `GetItDone-portable.exe` or the installer.
+Every push builds a Windows app. In the repository, open **Actions → Windows build**, pick the run for your branch, download the `GetItDone-windows` artifact at the bottom of the run page (GitHub login required) and unzip it. Start `GetItDone-portable.exe` directly, or run the installer `Get It Done_<version>_x64-setup.exe` (installs for the current user, no admin rights). The build is not code-signed yet, so Windows SmartScreen may warn: choose "More info" and "Run anyway".
 
 ## Develop
 
@@ -34,6 +34,8 @@ npm run tauri build  # installer and executable
 ## Documentation
 
 - [Vision and scope](docs/vision.md)
+- [Requirements](docs/requirements/README.md)
+- [Architecture (arc42)](docs/arc42/README.md)
 - [Definition of done](docs/definition-of-done.md)
 - [Architecture decisions](docs/adr)
 - [Design system](docs/design/design-system.md)

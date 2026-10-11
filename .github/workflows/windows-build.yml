@@ -1,11 +1,11 @@
 name: Windows build
 
 # Builds the desktop app on Windows so the product owner can download and test it.
+# Runs on every push to any branch, so each feature branch and its pull request have a downloadable build.
 on:
-  pull_request:
-  workflow_dispatch:
   push:
-    branches: [main]
+    branches: ['**']
+  workflow_dispatch:
 
 permissions:
   contents: read

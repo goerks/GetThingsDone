@@ -14,10 +14,14 @@ Code, comments, commit messages, issues, pull requests and documentation are in 
 ## Workflow
 
 1. Work from a GitHub issue written by the PO. Break it into stories as a comment on the issue and ask open questions there before building.
-2. One feature branch per feature: `feature/<issue-number>-<short-name>`. Never push to `main`.
-3. Open a pull request. Describe what changed and list the acceptance criteria as a checklist.
-4. CI deploys a public preview of the branch. The preview shows the acceptance criteria.
+2. One feature branch per feature, created from `main`: `feature/<issue-number>-<short-name>`. Never push to `main`.
+3. Open a pull request against `main`. Describe what changed and list the acceptance criteria as a checklist.
+4. CI builds the Windows app on every push (artifact `GetItDone-windows`) so the PO can test locally. A public browser preview of the branch is planned.
 5. The PO accepts in the pull request. Do not merge without PO approval.
+
+### Bootstrap exception (release 0.1 only)
+
+The app skeleton was built before `main` and the first issue existed, on `feature/app-skeleton-board`. No `main` branch is created separately: once the PO accepts the skeleton, `feature/app-skeleton-board` is renamed to `main` and made the default branch. From then on every feature follows the workflow above without exception.
 
 ## Definition of Done
 
