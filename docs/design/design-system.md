@@ -20,14 +20,16 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Component | Notes |
 |---|---|
 | App header | Logo, main navigation with underline for the current page, theme switch, language, user |
-| Board column | Uppercase title, count, vertical stack of cards |
-| Story card | ID (mono), title as link, criteria progress bar with count, epic dot and name, points pill, assignee, move buttons |
-| Backlog row | Rank, ID, title, epic, points, sprint tag, up and down buttons |
-| Acceptance criteria list | One checkbox per criterion inside a label, progress bar, "all accepted" status message |
-| Details panel | Definition list of fields, configurable later |
+| Board column | Own lane: `--column` background, border, header with a rule; as tall as the board. While dragging, the target column turns `--accent-soft` with an accent border |
+| Story card | ID (mono), title as link, criteria progress bar with count, epic dot and name, points pill. The whole card is the drag source (cursor `grab`); double click or Enter opens it |
+| Backlog row | Rank (mono), ID, title, epic, points. Dragged as a whole, no buttons |
+| Sprint line | The sprint section sits on a `--column` surface; a 3 px rule in `--text` separates it from "Not planned" |
+| Drop line | 4 px `--accent` line in the gap where the item will land; in the backlog with an accent pill "becomes rank n" |
+| Editable text | Looks like text, shows a border on hover, turns into a field on click |
+| Epic swatches | Eight 18 px dots as a radio group; the selected one has a ring |
+| Acceptance criteria list | Drag handle, checkbox, editable text and delete button per criterion, progress bar, "all accepted" status message |
+| Details panel | Status, epic, points as selects, sprint as checkbox, "Delete story" with confirmation below a rule |
 
 ## Open points
 
-- Focus ring style and keyboard drag-and-drop pattern for the board
-- Epic colour contrast check for each token pair
 - High contrast theme (later)

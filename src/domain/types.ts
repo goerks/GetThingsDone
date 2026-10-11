@@ -2,9 +2,9 @@ export type Status = 'todo' | 'in_progress' | 'review' | 'done';
 
 export const STATUSES: readonly Status[] = ['todo', 'in_progress', 'review', 'done'];
 
-export type EpicColorKey = 'boards' | 'backlog' | 'storage' | 'accessibility';
+export const EPIC_COLOR_KEYS = ['blue', 'amber', 'teal', 'violet', 'rose', 'green', 'cyan', 'slate'] as const;
 
-export const EPIC_COLOR_KEYS: readonly EpicColorKey[] = ['boards', 'backlog', 'storage', 'accessibility'];
+export type EpicColorKey = (typeof EPIC_COLOR_KEYS)[number];
 
 export const POINT_VALUES: readonly number[] = [1, 2, 3, 5, 8, 13];
 

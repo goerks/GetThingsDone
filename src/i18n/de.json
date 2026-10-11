@@ -8,7 +8,8 @@
     "backlog": "Backlog",
     "storyMap": "Story Map",
     "release2": "R2",
-    "storyMapNote": "Für Release 2 geplant"
+    "storyMapNote": "Für Release 2 geplant",
+    "epics": "Epics"
   },
   "header": {
     "toDark": "Zum dunklen Design wechseln",
@@ -25,14 +26,14 @@
     "title": "Sprint 1",
     "summary": "{{count}} Stories · {{points}} Punkte",
     "emptyColumn": "Story hier ablegen",
-    "dragHandle": "{{title}} verschieben",
     "dnd": {
-      "instructions": "Leertaste drücken, um eine Story aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen.",
+      "instructions": "Leertaste drücken, um eine Story aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen. Mit Enter die Story öffnen.",
       "pickedUp": "{{title}} aufgenommen.",
       "over": "{{title}} ist über {{target}}.",
       "dropped": "{{title}} in {{target}} abgelegt.",
       "cancelled": "Verschieben von {{title}} abgebrochen."
-    }
+    },
+    "cardRole": "Story-Karte"
   },
   "card": {
     "criteria": "{{done}} von {{total}} Kriterien abgenommen",
@@ -49,13 +50,25 @@
   },
   "backlog": {
     "title": "Backlog",
-    "hint": "Die Reihenfolge ist die Priorität. Stories im Sprint erscheinen auf dem Board.",
-    "rank": "Rang {{rank}}",
-    "moveUp": "{{title}} nach oben schieben",
-    "moveDown": "{{title}} nach unten schieben",
-    "inSprint": "Sprint 1",
-    "notInSprint": "Backlog",
-    "sprintToggle": "Sprint 1"
+    "hint": "Die Reihenfolge ist die Priorität. Eine Story ziehen, um sie zu verschieben, oder über die Sprint-Linie, um sie in den Sprint aufzunehmen oder herauszunehmen.",
+    "rowRole": "Backlog-Story",
+    "rowLabel": "Rang {{rank}}, {{code}}: {{title}}",
+    "section": {
+      "sprint": "Sprint 1",
+      "backlog": "Nicht geplant"
+    },
+    "sectionSummary_one": "{{count}} Story · {{points}} Punkte",
+    "sectionSummary_other": "{{count}} Stories · {{points}} Punkte",
+    "empty": {
+      "sprint": "Stories hierher ziehen, um sie in den Sprint aufzunehmen.",
+      "backlog": "Alle Stories sind im Sprint. Eine Story hierher ziehen, um sie herauszunehmen."
+    },
+    "dropLabel": "wird Rang {{rank}}",
+    "dnd": {
+      "instructions": "Leertaste drücken, um eine Story aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen. Mit Enter die Story öffnen.",
+      "over": "{{title}} würde Rang {{rank}} in {{section}}.",
+      "dropped": "{{title}} ist jetzt Rang {{rank}}."
+    }
   },
   "detail": {
     "back": "Zurück zum Board",
@@ -71,12 +84,55 @@
     "status": "Status",
     "epic": "Epic",
     "points": "Punkte",
-    "sprint": "Sprint",
-    "notFound": "Diese Story existiert nicht."
+    "notFound": "Diese Story existiert nicht.",
+    "title": "Titel",
+    "criterionText": "Kriterium",
+    "moveCriterion": "Kriterium verschieben: {{text}}",
+    "deleteCriterion": "Kriterium löschen: {{text}}",
+    "inSprint": "In Sprint 1",
+    "delete": "Story löschen",
+    "deleteConfirm_one": "{{code}} mit {{count}} Kriterium löschen? Das lässt sich nicht rückgängig machen.",
+    "deleteConfirm_other": "{{code}} mit {{count}} Kriterien löschen? Das lässt sich nicht rückgängig machen.",
+    "deleteYes": "Löschen",
+    "deleteNo": "Story behalten",
+    "dnd": {
+      "instructions": "Leertaste drücken, um ein Kriterium aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen.",
+      "over": "{{title}} kommt an Position {{position}}.",
+      "dropped": "{{title}} ist jetzt an Position {{position}}."
+    }
   },
   "state": {
     "loading": "Lädt…",
     "saveFailed": "Speichern fehlgeschlagen: {{message}}",
     "loadFailed": "Laden fehlgeschlagen: {{message}}"
+  },
+  "edit": {
+    "action": "{{field}} bearbeiten"
+  },
+  "epics": {
+    "title": "Epics",
+    "hint": "Epics gruppieren Stories. Auf einen Namen klicken, um ihn umzubenennen.",
+    "none": "Noch keine Epics.",
+    "new": "Neues Epic",
+    "name": "Name",
+    "add": "Epic hinzufügen",
+    "newInSelect": "+ Neues Epic…",
+    "colorLabel": "Farbe",
+    "colorOf": "Farbe von {{name}}",
+    "color": {
+      "blue": "Blau",
+      "amber": "Bernstein",
+      "teal": "Petrol",
+      "violet": "Violett",
+      "rose": "Rosa",
+      "green": "Grün",
+      "cyan": "Cyan",
+      "slate": "Schiefer"
+    },
+    "storyCount_one": "{{count}} Story",
+    "storyCount_other": "{{count}} Stories",
+    "delete": "Epic {{name}} löschen",
+    "inUse_one": "Wird von {{count}} Story verwendet. Zuerst einem anderen Epic zuordnen.",
+    "inUse_other": "Wird von {{count}} Stories verwendet. Zuerst einem anderen Epic zuordnen."
   }
 }

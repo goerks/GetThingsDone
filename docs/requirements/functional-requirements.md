@@ -1,25 +1,34 @@
 # Functional requirements
 
-Release 0.1 (app skeleton). Tests: `src/domain/board.test.ts` (unit), `src/App.test.tsx` (component).
+Release 0.1 (app skeleton, including the PO feedback from the first test). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts` (unit), `src/App.test.tsx` (component).
 
 ## Board (BOARD)
 
 ### FR-BOARD-01 Show the sprint on a board
 As a team member, I want to see the stories of the current sprint in columns by status, so that I know the state of the work.
 - Columns "To do", "In progress", "Review" and "Done", each with its count.
+- Each column is a clearly separated lane with its own background, border and header line, as tall as the board.
 - Only stories in the sprint are shown, ordered by backlog priority.
 - An empty column shows a drop hint.
 - A card shows key, title (link to the detail), criteria progress, epic and points.
 
-Source: Vision · Status: Implemented · Verified by: App "shows the demo stories in their columns", "does not show stories that are not in the sprint"
+Source: Vision, PO feedback · Status: Implemented · Verified by: App "shows the demo stories in their columns", "does not show stories that are not in the sprint", "shows each column as its own lane"
 
 ### FR-BOARD-02 Move stories with drag and drop
 As a team member, I want to drag a story to another column or position, so that the board reflects the progress.
-- Works with mouse, touch and keyboard (space to pick up, arrow keys, space to drop, escape to cancel).
-- Dropping on a card places the story next to it; dropping on a column appends it to that column.
+- The whole card can be dragged, with mouse, touch and keyboard (focus the card, space to pick up, arrow keys, space to drop, escape to cancel). There is no separate handle.
+- While dragging, the target column is highlighted and a line shows where the story will land.
+- Dropping in the upper half of a card places the story before it, in the lower half after it; dropping on a column appends it to that column.
 - The move updates the status and the backlog priority, and is saved.
 
-Source: Vision · Status: Implemented · Verified by: board.test "dropStory" (all cases), App "offers a keyboard accessible drag handle for every card"
+Source: Vision, PO feedback · Status: Implemented · Verified by: board.test "dropStory" (all cases), App "makes the whole card a keyboard stop…"; highlight and line: manual check in Chromium
+
+### FR-BOARD-07 Open a story from the board
+As a team member, I want to open a story by double-clicking its card.
+- Double click on the card, Enter on the focused card or a click on the title opens the story.
+- A single click on the card surface does nothing, so grabbing a card never opens it by accident.
+
+Source: PO feedback · Status: Implemented · Verified by: App "opens a story on double click", "makes the whole card a keyboard stop…"
 
 ### FR-BOARD-03 Announce drag and drop to screen readers
 As a screen reader user, I want each drag step to be announced in my language, so that I can move stories without seeing the board.
@@ -35,6 +44,7 @@ Source: Vision · Status: Implemented · Verified by: App "summarises the sprint
 As a team member, I want to create a story with title, description, epic and points, so that I can capture new work.
 - Title is required, description optional, values are trimmed.
 - The new story gets the next free key (`S-<n>`), status "To do", is in the sprint and at the end of the backlog.
+- A new epic can be created from the epic field.
 
 Source: Vision · Status: Implemented · Verified by: App "creates a story in "To do"", board.test "createStory"
 
@@ -46,26 +56,31 @@ Source: Vision (MVP scope) · Status: Open (see technical debt TD-4)
 ## Backlog (BACKLOG)
 
 ### FR-BACKLOG-01 Ordered backlog
-As a PO, I want to see all stories in priority order with rank, key, title, epic, points and sprint membership.
+As a PO, I want to see all stories in priority order with rank, key, title, epic and points.
+- Ranks are numbered across the whole backlog.
+- Enter on a focused row, double click or a click on the title opens the story.
 
-Source: Vision · Status: Implemented · Verified by: App "backlog" tests
+Source: Vision · Status: Implemented · Verified by: App "numbers the ranks across both sections", "opens a story with Enter"
 
-### FR-BACKLOG-02 Reorder the backlog
-As a PO, I want to move a story up or down, so that the order expresses the priority.
-- The first story cannot move up, the last cannot move down.
+### FR-BACKLOG-02 Reorder the backlog with drag and drop
+As a PO, I want to drag a story to a new position, so that the order expresses the priority.
+- The whole row is dragged, with mouse, touch or keyboard. There are no up and down buttons.
+- While dragging, a line shows where the story will land, labelled with the rank it will get ("becomes rank 3").
 - The new order is saved and also changes the board order.
 
-Source: Vision · Status: Implemented · Verified by: App "moves a story up and stores the new order", board.test "moveInBacklog"
+Source: Vision, PO feedback · Status: Implemented · Verified by: board.test "backlog" (all cases), App "has no move or sprint buttons…"; line and label: manual check in Chromium
 
 ### FR-BACKLOG-03 Sprint membership
 As a PO, I want to add a story to the sprint or remove it, so that I can plan the sprint.
+- Drag a story across the sprint line, or use the sprint checkbox on the story page.
 
-Source: Vision · Status: Implemented · Verified by: App "adds a story to the sprint", board.test "sprint"
+Source: Vision · Status: Implemented · Verified by: board.test "plans a story into the sprint…", "takes a story out of the sprint…", App "changes status, epic, points and sprint membership"
 
 ### FR-BACKLOG-04 Sprint line
 As a PO, I want a visible line in the backlog that separates the sprint from the rest.
+- The sprint is shown above the line with its number of stories and points, the other stories below it under "Not planned".
 
-Source: Vision (MVP scope) · Status: Partial (membership shown per row as a tag, no line yet)
+Source: Vision (MVP scope), PO feedback · Status: Implemented · Verified by: App "separates the sprint from the rest with the sprint line"
 
 ## Story detail and acceptance criteria (STORY)
 
@@ -89,20 +104,29 @@ Source: Vision · Status: Implemented · Verified by: App "adds a criterion", bo
 
 ### FR-STORY-04 Edit and delete stories and criteria
 As a team member, I want to change or delete stories and criteria.
+- Title and description are edited in place: click the text, Enter (Ctrl+Enter for the description) or leaving the field saves, Escape discards. An empty title is not saved.
+- Status, epic, points and sprint membership are fields on the story page and save on change.
+- A criterion's text can be edited in place, the criterion can be deleted and reordered by drag and drop (handle, keyboard).
+- A story is deleted only after a confirmation on the page; afterwards the board is shown.
 
-Source: Vision (work items) · Status: Open
+Source: Vision (work items), PO feedback · Status: Implemented · Verified by: App "edits the title…", "discards an edit…", "edits the description…", "changes status, epic, points…", "edits and deletes acceptance criteria", "deletes a story only after confirmation", board.test "editing stories", "moves a criterion…"
 
 ## Epics (EPIC)
 
 ### FR-EPIC-01 Epics group stories
 Every story belongs to one epic. The epic is shown with name and colour dot.
 
-Source: Vision · Status: Implemented (epics come from the demo data)
+Source: Vision · Status: Implemented
 
 ### FR-EPIC-02 Manage epics
-As a PO, I want to create, rename and delete epics.
+As a PO, I want to create, rename, recolour and delete epics.
+- Page "Epics" in the main navigation lists every epic with colour, name and number of stories.
+- A new epic gets a name and one of eight colours; the first unused colour is suggested.
+- The name is edited in place, the colour by clicking a swatch (a radio group, also by keyboard).
+- An epic that still has stories cannot be deleted; the page says how many stories use it.
+- The epic field on the story page and in the new story form offers "+ New epic…".
 
-Source: Vision · Status: Open
+Source: Vision, PO feedback · Status: Implemented · Verified by: App "epics" tests, "creates a new epic from the epic field", epics.test
 
 ## Settings (SET)
 
@@ -136,7 +160,7 @@ Source: — · Status: Implemented
 ## Navigation (NAV)
 
 ### FR-NAV-01 Main navigation
-Header with board and backlog; the current page is marked. "Story Map" is shown as planned for release 2.
+Header with board, backlog and epics; the current page is marked. "Story Map" is shown as planned for release 2.
 
 Source: Vision · Status: Implemented · Verified by: App "marks the current page", "parses known routes and falls back to the board"
 

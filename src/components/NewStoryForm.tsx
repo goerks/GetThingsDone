@@ -1,6 +1,7 @@
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { POINT_VALUES, type Epic } from '../domain/types';
+import { EpicSelect } from './EpicSelect';
 
 interface Props {
   epics: Epic[];
@@ -48,13 +49,7 @@ export function NewStoryForm({ epics, onCreate, onCancel }: Props) {
       <div className="form__row">
         <div className="field">
           <label htmlFor={`${uid}-epic`}>{t('newStory.epic')}</label>
-          <select id={`${uid}-epic`} className="select" value={epicId} onChange={(event) => setEpicId(event.target.value)}>
-            {epics.map((epic) => (
-              <option key={epic.id} value={epic.id}>
-                {epic.name}
-              </option>
-            ))}
-          </select>
+          <EpicSelect id={`${uid}-epic`} value={epicId} onChange={setEpicId} />
         </div>
         <div className="field">
           <label htmlFor={`${uid}-points`}>{t('newStory.points')}</label>

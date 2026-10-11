@@ -14,11 +14,19 @@
   --track: #e6e9ee;
   --pill: #eef0f4;
   --shadow: rgba(20, 24, 31, 0.05);
+  --column: #eceff3;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
 
-  --epic-boards: #2457d6;
-  --epic-backlog: #b45309;
-  --epic-storage: #0f766e;
-  --epic-accessibility: #7c3aed;
+  /* Epic palette: at least 3:1 against --surface and --column, the name is always written next to it. */
+  --epic-blue: #2457d6;
+  --epic-amber: #b45309;
+  --epic-teal: #0f766e;
+  --epic-violet: #7c3aed;
+  --epic-rose: #be123c;
+  --epic-green: #15803d;
+  --epic-cyan: #0e7490;
+  --epic-slate: #475569;
 }
 
 :root[data-theme="dark"] {
@@ -34,11 +42,18 @@
   --track: #2b3340;
   --pill: #232b36;
   --shadow: rgba(0, 0, 0, 0.3);
+  --column: #13181e;
+  --danger: #ff8a7a;
+  --danger-soft: #3a1d1a;
 
-  --epic-boards: #7aa2ff;
-  --epic-backlog: #f0a050;
-  --epic-storage: #3fd0b8;
-  --epic-accessibility: #b69cff;
+  --epic-blue: #7aa2ff;
+  --epic-amber: #f0a050;
+  --epic-teal: #3fd0b8;
+  --epic-violet: #b69cff;
+  --epic-rose: #fb7185;
+  --epic-green: #6ee7a0;
+  --epic-cyan: #5fd4ef;
+  --epic-slate: #a3b1c6;
 }
 
 :root {

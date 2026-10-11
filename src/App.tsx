@@ -5,6 +5,7 @@ import { createRepository } from './data/createRepository';
 import type { Repository } from './data/repository';
 import { BacklogPage } from './pages/BacklogPage';
 import { BoardPage } from './pages/BoardPage';
+import { EpicsPage } from './pages/EpicsPage';
 import { StoryPage } from './pages/StoryPage';
 import { useRoute } from './router';
 import { AppProvider, useApp } from './state/AppState';
@@ -31,6 +32,8 @@ function Shell() {
           </p>
         ) : route.name === 'backlog' ? (
           <BacklogPage />
+        ) : route.name === 'epics' ? (
+          <EpicsPage />
         ) : route.name === 'story' ? (
           <StoryPage id={route.id} />
         ) : (

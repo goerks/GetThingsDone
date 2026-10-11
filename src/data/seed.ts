@@ -4,10 +4,10 @@ import type { Snapshot } from '../domain/types';
 export function seedSnapshot(): Snapshot {
   return {
     epics: [
-      { id: 'epic-boards', name: 'Boards', colorKey: 'boards' },
-      { id: 'epic-backlog', name: 'Backlog', colorKey: 'backlog' },
-      { id: 'epic-storage', name: 'Local storage', colorKey: 'storage' },
-      { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'accessibility' }
+      { id: 'epic-boards', name: 'Boards', colorKey: 'blue' },
+      { id: 'epic-backlog', name: 'Backlog', colorKey: 'amber' },
+      { id: 'epic-storage', name: 'Local storage', colorKey: 'teal' },
+      { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'violet' }
     ],
     stories: [
       {

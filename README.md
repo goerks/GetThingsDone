@@ -8,8 +8,10 @@ This project is a showcase for "level 5 vibe coding". The product is built end t
 
 Early prototype (0.1). Working today:
 
-- Board with drag and drop (mouse, touch and keyboard)
-- Backlog with priority order and sprint membership
+- Board with drag and drop of whole cards (mouse, touch and keyboard), highlighted target column and drop line
+- Backlog with drag and drop, sprint line and rank preview
+- Story page with in-place editing of story and acceptance criteria, delete with confirmation
+- Epics page: create, rename, recolour, delete
 - Story detail with acceptance criteria you can tick off
 - Light and dark theme, German, English, French and Italian
 - Local SQLite storage in the desktop app

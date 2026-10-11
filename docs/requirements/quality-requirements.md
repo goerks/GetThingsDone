@@ -7,7 +7,7 @@ How the architecture meets these requirements: [arc42 chapter 10](../arc42/10-qu
 | QR-01 | Accessibility | Automated accessibility checks pass for every page | axe in UI tests, zero violations | Open (no UI tests yet) |
 | QR-02 | Accessibility | Every function works with the keyboard alone | Manual check per feature, keyboard drag and drop on the board | Implemented |
 | QR-03 | Accessibility | Interactive targets are at least 44 by 44 px, with a visible focus ring | Design tokens, review | Implemented |
-| QR-04 | Accessibility | Text contrast at least 4.5:1 in both themes; colour never carries meaning alone | Token check | Partial (epic colour pairs not yet checked) |
+| QR-04 | Accessibility | Text contrast at least 4.5:1 in both themes; colour never carries meaning alone | Token check | Implemented (epic colours at least 4.3:1 against cards and columns, shown with the name) |
 | QR-05 | Multilingual | All UI text in DE, EN, FR and IT, no hard-coded user-facing strings | Every key exists in all four files | Implemented |
 | QR-06 | Local first | Works fully offline; no network calls, no telemetry | No network code, fonts bundled | Implemented |
 | QR-07 | Reliability | No change is lost or reordered when saving | Writes run in order; errors are shown | Partial (no transactions, no retry: TD-5, TD-6) |

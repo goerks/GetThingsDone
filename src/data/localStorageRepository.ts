@@ -1,5 +1,6 @@
-import type { Criterion, Snapshot, Story } from '../domain/types';
-import type { Repository } from './repository';
+import { normalizeColorKey } from '../domain/epics';
+import type { Criterion, Epic, Snapshot, Story } from '../domain/types';
+import type { Repository, StoryPosition } from './repository';
 
 const KEY = 'getitdone.snapshot.v1';
 
@@ -11,7 +12,11 @@ export class LocalStorageRepository implements Repository {
   private read(): Snapshot {
     try {
       const raw = window.localStorage.getItem(KEY);
-      if (raw) return JSON.parse(raw) as Snapshot;
+      if (raw) {
+        const snapshot = JSON.parse(raw) as Snapshot;
+        snapshot.epics = snapshot.epics.map((epic) => ({ ...epic, colorKey: normalizeColorKey(epic.colorKey) }));
+        return snapshot;
+      }
     } catch {
       // fall through to an empty snapshot
     }
@@ -22,6 +27,22 @@ export class LocalStorageRepository implements Repository {
     window.localStorage.setItem(KEY, JSON.stringify(snapshot));
   }
 
+  private changeStories(change: (stories: Story[]) => Story[]): void {
+    const snapshot = this.read();
+    snapshot.stories = change(snapshot.stories);
+    this.write(snapshot);
+  }
+
+  private changeCriteria(change: (criteria: Criterion[], story: Story) => Criterion[]): void {
+    this.changeStories((stories) => stories.map((story) => ({ ...story, criteria: change(story.criteria, story) })));
+  }
+
+  private changeEpics(change: (epics: Epic[]) => Epic[]): void {
+    const snapshot = this.read();
+    snapshot.epics = change(snapshot.epics);
+    this.write(snapshot);
+  }
+
   async load(): Promise<Snapshot> {
     return this.read();
   }
@@ -30,45 +51,65 @@ export class LocalStorageRepository implements Repository {
     this.write(snapshot);
   }
 
-  async savePositions(positions: ReadonlyArray<Pick<Story, 'id' | 'status' | 'rank'>>): Promise<void> {
-    const snapshot = this.read();
+  async savePositions(positions: readonly StoryPosition[]): Promise<void> {
     const byId = new Map(positions.map((position) => [position.id, position]));
-    snapshot.stories = snapshot.stories.map((story) => {
-      const position = byId.get(story.id);
-      return position ? { ...story, status: position.status, rank: position.rank } : story;
-    });
-    this.write(snapshot);
-  }
-
-  async setCriterionDone(criterionId: string, done: boolean): Promise<void> {
-    const snapshot = this.read();
-    snapshot.stories = snapshot.stories.map((story) => ({
-      ...story,
-      criteria: story.criteria.map((criterion) => (criterion.id === criterionId ? { ...criterion, done } : criterion))
-    }));
-    this.write(snapshot);
-  }
-
-  async addCriterion(storyId: string, criterion: Criterion, position: number): Promise<void> {
-    const snapshot = this.read();
-    snapshot.stories = snapshot.stories.map((story) => {
-      if (story.id !== storyId) return story;
-      const criteria = [...story.criteria];
-      criteria.splice(position, 0, criterion);
-      return { ...story, criteria };
-    });
-    this.write(snapshot);
-  }
-
-  async setInSprint(storyId: string, value: boolean): Promise<void> {
-    const snapshot = this.read();
-    snapshot.stories = snapshot.stories.map((story) => (story.id === storyId ? { ...story, inSprint: value } : story));
-    this.write(snapshot);
+    this.changeStories((stories) =>
+      stories.map((story) => {
+        const position = byId.get(story.id);
+        return position ? { ...story, ...position } : story;
+      })
+    );
   }
 
   async addStory(story: Story): Promise<void> {
-    const snapshot = this.read();
-    snapshot.stories = [...snapshot.stories, story];
-    this.write(snapshot);
+    this.changeStories((stories) => [...stories, story]);
+  }
+
+  async updateStory(story: Story): Promise<void> {
+    this.changeStories((stories) => stories.map((item) => (item.id === story.id ? { ...story, criteria: item.criteria } : item)));
+  }
+
+  async deleteStory(storyId: string): Promise<void> {
+    this.changeStories((stories) => stories.filter((story) => story.id !== storyId));
+  }
+
+  async addCriterion(storyId: string, criterion: Criterion, position: number): Promise<void> {
+    this.changeCriteria((criteria, story) => {
+      if (story.id !== storyId) return criteria;
+      const list = [...criteria];
+      list.splice(position, 0, criterion);
+      return list;
+    });
+  }
+
+  async setCriterionDone(criterionId: string, done: boolean): Promise<void> {
+    this.changeCriteria((criteria) => criteria.map((item) => (item.id === criterionId ? { ...item, done } : item)));
+  }
+
+  async setCriterionText(criterionId: string, text: string): Promise<void> {
+    this.changeCriteria((criteria) => criteria.map((item) => (item.id === criterionId ? { ...item, text } : item)));
+  }
+
+  async deleteCriterion(criterionId: string): Promise<void> {
+    this.changeCriteria((criteria) => criteria.filter((item) => item.id !== criterionId));
+  }
+
+  async saveCriteriaOrder(storyId: string, criterionIds: readonly string[]): Promise<void> {
+    const order = new Map(criterionIds.map((id, index) => [id, index]));
+    this.changeCriteria((criteria, story) =>
+      story.id !== storyId ? criteria : [...criteria].sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
+    );
+  }
+
+  async addEpic(epic: Epic): Promise<void> {
+    this.changeEpics((epics) => [...epics, epic]);
+  }
+
+  async updateEpic(epic: Epic): Promise<void> {
+    this.changeEpics((epics) => epics.map((item) => (item.id === epic.id ? epic : item)));
+  }
+
+  async deleteEpic(epicId: string): Promise<void> {
+    this.changeEpics((epics) => epics.filter((epic) => epic.id !== epicId));
   }
 }
