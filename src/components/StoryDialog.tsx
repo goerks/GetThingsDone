@@ -12,7 +12,7 @@ import { SprintSelect } from './SprintSelect';
 import { GripIcon, TrashIcon } from './icons';
 import { useDragSensors } from '../dnd/dnd';
 import { criteriaProgress } from '../domain/board';
-import { customFieldsFor } from '../domain/fields';
+import { customFieldsFor, isRequired } from '../domain/fields';
 import { POINT_VALUES, STATUSES, type Criterion, type Status } from '../domain/types';
 import { useApp } from '../state/AppState';
 
@@ -262,6 +262,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
                 key={field.id}
                 field={field}
                 value={story.values[field.id]}
+                required={isRequired('story', app.assignments, field.id)}
                 onChange={(value) => app.setFieldValue(story.id, field.id, value)}
               />
             ))}

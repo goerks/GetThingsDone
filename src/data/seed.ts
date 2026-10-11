@@ -14,9 +14,18 @@ const DEMO_FIELDS: FieldDefinition[] = [
       { id: 'opt-must', label: 'Must', colorKey: 'rose' },
       { id: 'opt-should', label: 'Should', colorKey: 'amber' },
       { id: 'opt-could', label: 'Could', colorKey: 'slate' }
-    ]
+    ],
+    defaultValue: 'opt-should'
   },
-  { id: 'field-demo-value', builtinKey: null, kind: 'custom', dataType: 'number', label: 'Business value', options: [] }
+  {
+    id: 'field-demo-value',
+    builtinKey: null,
+    kind: 'custom',
+    dataType: 'number',
+    label: 'Business value',
+    options: [],
+    defaultValue: null
+  }
 ];
 
 const DEMO_VALUES: Record<string, Record<string, FieldValue>> = {
@@ -36,6 +45,10 @@ export function seedSnapshot(today: string): Snapshot {
   const builtins = missingBuiltins([], []);
   let assignments = assignTo(builtins.assignments, 'field-demo-priority', ['story', 'epic']);
   assignments = assignTo(assignments, 'field-demo-value', ['story']);
+  // Priority shows on story cards and in the new story dialog, so the preview shows the layout settings.
+  assignments = assignments.map((item) =>
+    item.fieldId === 'field-demo-priority' && item.itemType === 'story' ? { ...item, onCard: true, inCreate: true } : item
+  );
   return {
     fields: [...builtins.fields, ...DEMO_FIELDS],
     assignments,

@@ -23,7 +23,7 @@ import { NO_EPIC, backlogOrder, cellId, dropOnMap, storiesInCell, totalPoints, t
 import { sortEpics } from '../domain/epics';
 import { isRunning, isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints';
 import type { Epic, Sprint, Story } from '../domain/types';
-import { TitleButton } from '../components/StoryCard';
+import { CardFieldValues, TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
 
@@ -52,6 +52,7 @@ function CardContent({ story }: { story: Story }) {
         </span>
       </span>
       <TitleButton story={story} className="map-card__title" />
+      <CardFieldValues story={story} />
       <span className={`status-dot status-dot--${story.status}`}>{t(`status.${story.status}`)}</span>
     </>
   );

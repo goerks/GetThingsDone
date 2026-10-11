@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { nextColorKey } from '../domain/epics';
 import { EPIC_COLOR_KEYS, type EpicColorKey } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
 
 interface ColorPickerProps {
@@ -44,10 +45,14 @@ export function NewEpicDialog({ onClose, onCreated }: { onClose: () => void; onC
   const uid = useId();
   const [name, setName] = useState('');
   const [colorKey, setColorKey] = useState<EpicColorKey>(() => nextColorKey(app.epics));
+  const custom = useCreateFields('epic');
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
-    const id = app.createEpic({ name, colorKey });
+    if (!name.trim()) return;
+    const values = custom.collect();
+    if (!values) return;
+    const id = app.createEpic({ name, colorKey, values });
     if (!id) return;
     onCreated?.(id);
     onClose();
@@ -71,6 +76,7 @@ export function NewEpicDialog({ onClose, onCreated }: { onClose: () => void; onC
           <span aria-hidden="true">{t('epics.colorLabel')}</span>
           <ColorPicker name={`${uid}-color`} legend={t('epics.colorLabel')} value={colorKey} onChange={setColorKey} />
         </div>
+        {custom.fields}
         <div className="form__actions">
           <button type="submit" className="btn btn--primary">
             {t('epics.add')}

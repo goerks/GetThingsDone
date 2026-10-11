@@ -30,6 +30,12 @@ pub fn run() {
             sql: include_str!("../migrations/004_custom_fields.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 5,
+            description: "field_defaults",
+            sql: include_str!("../migrations/005_field_defaults.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

@@ -233,7 +233,8 @@
       "labelRequired": "Saisissez un nom.",
       "labelTaken": "Un champ portant ce nom existe déjà.",
       "optionsRequired": "Ajoutez au moins une option.",
-      "optionLabelTaken": "Chaque option doit avoir un nom différent."
+      "optionLabelTaken": "Chaque option doit avoir un nom différent.",
+      "defaultInvalid": "La valeur par défaut ne correspond pas au type du champ."
     },
     "noValue": "Aucune valeur",
     "invalidNumber": "Saisissez un nombre.",
@@ -250,7 +251,31 @@
     "loseStories_one": "{{count}} story perd sa valeur.",
     "loseStories_other": "{{count}} stories perdent leur valeur.",
     "loseEpics_one": "{{count}} epic perd sa valeur.",
-    "loseEpics_other": "{{count}} epics perdent leur valeur."
+    "loseEpics_other": "{{count}} epics perdent leur valeur.",
+    "requiredError": "Ce champ est obligatoire.",
+    "requiredMissing": "Obligatoire, pas encore rempli.",
+    "requiredMark": "(obligatoire)",
+    "fillRequired": "Veuillez remplir : {{names}}",
+    "defaultValue": "Valeur par défaut",
+    "noDefault": "Aucune valeur par défaut",
+    "views": "Vues des champs",
+    "view": {
+      "assign": "Attribution",
+      "layout": "Disposition"
+    },
+    "layout": {
+      "types": "Types",
+      "fixed": "Position fixe",
+      "move": "Déplacer le champ : {{name}}",
+      "required": "Obligatoire",
+      "inCreate": "Dans la création",
+      "onCard": "Sur la carte",
+      "cardFull": "Au plus {{count}} champs tiennent sur une carte",
+      "hint": "Faites glisser les champs personnalisés pour changer leur ordre dans les dialogues. Au plus {{count}} champs apparaissent sur une carte.",
+      "hintNoCard": "Faites glisser les champs personnalisés pour changer leur ordre dans le dialogue.",
+      "noCustom": "Pas encore de champ personnalisé pour ce type. Cochez-les sous Attribution.",
+      "instructions": "Appuyez sur espace pour saisir un champ. Déplacez-le avec les flèches, déposez-le avec espace, annulez avec échap."
+    }
   },
   "settings": {
     "title": "Paramètres",

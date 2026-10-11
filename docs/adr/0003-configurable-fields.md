@@ -84,7 +84,7 @@ CREATE TABLE field_values (
 );
 ```
 
-Later data types extend this shape with their own migration: a `date_value` column for dates, a `field_value_options (item_id, field_id, option_id)` table for multi select, and a `settings` column on `field_definitions` for defaults and limits.
+Later stages extend this shape with their own migration: migration 005 adds `field_definitions.default_value` (JSON of the value; for a select field the option id). Planned: a `date_value` column for dates and a `field_value_options (item_id, field_id, option_id)` table for multi select. The flags `required`, `on_card` and `in_create` and the `position` of `field_assignments` are used from stage 3 on.
 
 The same migration makes `stories.epic_id` nullable. SQLite needs a table rebuild for that; the migration copies `stories` and `criteria`, drops `criteria` first and recreates both, because dropping `stories` while `criteria` references it would delete every criterion through `ON DELETE CASCADE`. The rebuild also drops `stories.in_sprint`, which migration 003 replaced by `sprint_id`.
 

@@ -64,6 +64,7 @@ interface FieldRow {
   kind: string;
   data_type: string;
   label: string | null;
+  default_value: string | null;
 }
 
 interface OptionRow {
@@ -178,7 +179,7 @@ export class SqliteRepository implements Repository {
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
-    const fieldRows = await this.db.select<FieldRow[]>('SELECT id, builtin_key, kind, data_type, label FROM field_definitions ORDER BY rowid');
+    const fieldRows = await this.db.select<FieldRow[]>('SELECT id, builtin_key, kind, data_type, label, default_value FROM field_definitions ORDER BY rowid');
     const optionRows = await this.db.select<OptionRow[]>(
       'SELECT id, field_id, label, color_key FROM field_options ORDER BY field_id, position'
     );
@@ -197,7 +198,8 @@ export class SqliteRepository implements Repository {
       kind: row.kind as FieldKind,
       dataType: row.data_type as FieldDataType,
       label: row.label,
-      options: optionsByField.get(row.id) ?? []
+      options: optionsByField.get(row.id) ?? [],
+      defaultValue: row.default_value === null ? null : (JSON.parse(row.default_value) as FieldValue)
     }));
     const assignments: FieldAssignment[] = assignmentRows.map((row) => ({
       itemType: row.item_type as ItemType,
@@ -349,9 +351,9 @@ export class SqliteRepository implements Repository {
 
   async saveField(field: FieldDefinition): Promise<void> {
     await this.db.execute(
-      `INSERT INTO field_definitions (id, builtin_key, kind, data_type, label) VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (id) DO UPDATE SET label = excluded.label`,
-      [field.id, field.builtinKey, field.kind, field.dataType, field.label]
+      `INSERT INTO field_definitions (id, builtin_key, kind, data_type, label, default_value) VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (id) DO UPDATE SET label = excluded.label, default_value = excluded.default_value`,
+      [field.id, field.builtinKey, field.kind, field.dataType, field.label, field.defaultValue === null ? null : JSON.stringify(field.defaultValue)]
     );
     const keep = field.options.map((option) => option.id);
     const stored = await this.db.select<{ id: string }[]>('SELECT id FROM field_options WHERE field_id = $1', [field.id]);

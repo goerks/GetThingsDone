@@ -69,6 +69,8 @@ export interface FieldDefinition {
   label: string | null;
   /** Ordered options of a single select field, empty otherwise. */
   options: FieldOption[];
+  /** Value a new item starts with, or null. For a select field the id of an option. */
+  defaultValue: FieldValue | null;
 }
 
 /** Puts a field on an item type. */

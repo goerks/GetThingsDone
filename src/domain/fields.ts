@@ -55,7 +55,15 @@ export function missingBuiltins(
   for (const builtin of BUILTIN_FIELDS) {
     const id = builtinFieldId(builtin.key);
     if (known.has(id)) continue;
-    addedFields.push({ id, builtinKey: builtin.key, kind: builtin.kind, dataType: builtin.dataType, label: null, options: [] });
+    addedFields.push({
+      id,
+      builtinKey: builtin.key,
+      kind: builtin.kind,
+      dataType: builtin.dataType,
+      label: null,
+      options: [],
+      defaultValue: null
+    });
     for (const itemType of builtin.itemTypes) {
       const position = BUILTIN_FIELDS.filter((item) => item.itemTypes.includes(itemType)).indexOf(builtin);
       const taken = assignments.some((item) => item.itemType === itemType && item.fieldId === id);
@@ -111,9 +119,11 @@ export interface FieldInput {
   dataType: CustomDataType;
   options: readonly OptionInput[];
   itemTypes: readonly ItemType[];
+  /** Default as typed: text, a number, or the label of an option. Empty means no default. */
+  defaultValue?: string;
 }
 
-export type FieldError = 'labelRequired' | 'labelTaken' | 'optionsRequired' | 'optionLabelTaken';
+export type FieldError = 'labelRequired' | 'labelTaken' | 'optionsRequired' | 'optionLabelTaken' | 'defaultInvalid';
 
 /** Checks a new or changed custom field. Returns null when it is valid. */
 export function validateField(
@@ -132,7 +142,31 @@ export function validateField(
     if (labels.length === 0) return 'optionsRequired';
     if (new Set(labels.map((item) => item.toLocaleLowerCase())).size !== labels.length) return 'optionLabelTaken';
   }
+  const raw = input.defaultValue?.trim() ?? '';
+  if (raw) {
+    if (input.dataType === 'number' && !Number.isFinite(Number(raw.replace(',', '.')))) return 'defaultInvalid';
+    if (input.dataType === 'single_select' && !input.options.some((option) => sameLabel(option.label, raw))) return 'defaultInvalid';
+  }
   return null;
+}
+
+function sameLabel(a: string, b: string): boolean {
+  return a.trim().toLocaleLowerCase() === b.trim().toLocaleLowerCase();
+}
+
+/** Turns the typed default into a stored value; a select default is looked up by option label. */
+function resolveDefault(field: FieldDefinition, raw: string | undefined): FieldValue | null {
+  const text = raw?.trim() ?? '';
+  if (!text) return null;
+  if (field.dataType === 'single_select') return field.options.find((option) => sameLabel(option.label, text))?.id ?? null;
+  return parseValue(field, text);
+}
+
+/** The default of a field as the field dialog shows it: text, a number, or an option label. */
+export function defaultAsText(field: FieldDefinition): string {
+  if (field.defaultValue === null) return '';
+  if (field.dataType === 'single_select') return field.options.find((option) => option.id === field.defaultValue)?.label ?? '';
+  return String(field.defaultValue);
 }
 
 /** Trims the options, drops empty ones and gives new ones an id and the next free colour. */
@@ -178,19 +212,21 @@ export function createField(
   newId: () => string
 ): FieldChange | null {
   if (validateField(fields, input) !== null) return null;
-  const field: FieldDefinition = {
+  const draft: FieldDefinition = {
     id: newId(),
     builtinKey: null,
     kind: 'custom',
     dataType: input.dataType,
     label: input.label.trim(),
-    options: cleanOptions(input, newId)
+    options: cleanOptions(input, newId),
+    defaultValue: null
   };
+  const field: FieldDefinition = { ...draft, defaultValue: resolveDefault(draft, input.defaultValue) };
   return { fields: [...fields, field], assignments: assignTo(assignments, field.id, input.itemTypes), field };
 }
 
 /** What the field dialog changes on an existing field. Item types are switched in the field table. */
-export type FieldPatch = Pick<FieldInput, 'label' | 'options'>;
+export type FieldPatch = Pick<FieldInput, 'label' | 'options' | 'defaultValue'>;
 
 /**
  * Changes label and options of a custom field. The data type stays.
@@ -206,7 +242,8 @@ export function updateField(
   if (!current || current.kind !== 'custom' || !isCustomDataType(current.dataType)) return null;
   const full: FieldInput = { ...input, dataType: current.dataType, itemTypes: [] };
   if (validateField(fields, full, id) !== null) return null;
-  const field: FieldDefinition = { ...current, label: input.label.trim(), options: cleanOptions(full, newId) };
+  const draft: FieldDefinition = { ...current, label: input.label.trim(), options: cleanOptions(full, newId) };
+  const field: FieldDefinition = { ...draft, defaultValue: resolveDefault(draft, input.defaultValue) };
   return { fields: fields.map((item) => (item.id === id ? field : item)), field };
 }
 
@@ -291,4 +328,141 @@ export function setItemValue<T extends WithValues>(items: T[], itemId: string, f
     if (item.id !== itemId) return item;
     return { ...item, values: value === null ? withoutKey(item.values, fieldId) : { ...item.values, [fieldId]: value } };
   });
+}
+
+/* ---------- Layout per item type (stage 3) ---------- */
+
+/** At most this many fields show on a card, so cards stay small. */
+export const CARD_FIELD_LIMIT = 3;
+
+export interface LayoutEntry {
+  field: FieldDefinition;
+  assignment: FieldAssignment;
+}
+
+/** All fields of an item type with their assignment, in their order. Hidden ones are included. */
+export function layoutFor(
+  itemType: ItemType,
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[]
+): LayoutEntry[] {
+  const byId = new Map(fields.map((field) => [field.id, field]));
+  return assignments
+    .filter((item) => item.itemType === itemType)
+    .sort((a, b) => a.position - b.position)
+    .flatMap((assignment) => {
+      const field = byId.get(assignment.fieldId);
+      return field ? [{ field, assignment }] : [];
+    });
+}
+
+/**
+ * Moves a custom field before or after another custom field of the same item type.
+ * System and built-in fields keep their places; positions are renumbered without gaps.
+ */
+export function moveInLayout(
+  itemType: ItemType,
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[],
+  activeId: string,
+  overId: string
+): FieldAssignment[] {
+  if (activeId === overId) return [...assignments];
+  const layout = layoutFor(itemType, fields, assignments);
+  const custom = layout.filter((entry) => entry.field.kind === 'custom');
+  const from = custom.findIndex((entry) => entry.field.id === activeId);
+  const to = custom.findIndex((entry) => entry.field.id === overId);
+  if (from < 0 || to < 0) return [...assignments];
+  const moved = [...custom];
+  const [entry] = moved.splice(from, 1);
+  moved.splice(to, 0, entry);
+  const fixed = layout.filter((item) => item.field.kind !== 'custom');
+  const order = [...fixed, ...moved].map((item) => item.field.id);
+  return assignments.map((item) =>
+    item.itemType === itemType && order.includes(item.fieldId) ? { ...item, position: order.indexOf(item.fieldId) } : item
+  );
+}
+
+export type LayoutPatch = Partial<Pick<FieldAssignment, 'required' | 'onCard' | 'inCreate'>>;
+
+/**
+ * Changes how a custom field behaves on an item type. A required field is always in the create dialog.
+ * Returns null for system and built-in fields, unknown assignments, and a card that is already full.
+ */
+export function updateLayout(
+  itemType: ItemType,
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[],
+  fieldId: string,
+  patch: LayoutPatch
+): FieldAssignment[] | null {
+  const field = fields.find((item) => item.id === fieldId);
+  const current = assignments.find((item) => item.itemType === itemType && item.fieldId === fieldId);
+  if (!field || field.kind !== 'custom' || !current) return null;
+  if (patch.onCard && !current.onCard && cardFieldsFor(itemType, fields, assignments).length >= CARD_FIELD_LIMIT) return null;
+  const next: FieldAssignment = { ...current, ...patch };
+  if (next.required) next.inCreate = true;
+  return assignments.map((item) => (item === current ? next : item));
+}
+
+/** Visible custom fields of an item type that the user ticked for the card, at most `CARD_FIELD_LIMIT`. */
+export function cardFieldsFor(
+  itemType: ItemType,
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[]
+): FieldDefinition[] {
+  return layoutFor(itemType, fields, assignments)
+    .filter((entry) => entry.field.kind === 'custom' && entry.assignment.onCard && !entry.assignment.hidden)
+    .slice(0, CARD_FIELD_LIMIT)
+    .map((entry) => entry.field);
+}
+
+/** Visible custom fields of an item type for the create dialog: the ticked ones and every required one. */
+export function createFieldsFor(
+  itemType: ItemType,
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[]
+): LayoutEntry[] {
+  return layoutFor(itemType, fields, assignments).filter(
+    (entry) => entry.field.kind === 'custom' && !entry.assignment.hidden && (entry.assignment.inCreate || entry.assignment.required)
+  );
+}
+
+/** Whether a field is required on an item type. */
+export function isRequired(itemType: ItemType, assignments: readonly FieldAssignment[], fieldId: string): boolean {
+  return assignments.some((item) => item.itemType === itemType && item.fieldId === fieldId && item.required);
+}
+
+/** Required custom fields of an item type that have no value. */
+export function missingRequired(
+  itemType: ItemType,
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[],
+  values: Record<string, FieldValue>
+): FieldDefinition[] {
+  return layoutFor(itemType, fields, assignments)
+    .filter((entry) => entry.field.kind === 'custom' && !entry.assignment.hidden && entry.assignment.required)
+    .filter((entry) => values[entry.field.id] === undefined)
+    .map((entry) => entry.field);
+}
+
+/** Values a new item of a type starts with: the defaults of its visible custom fields. */
+export function defaultValuesFor(
+  itemType: ItemType,
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[]
+): Record<string, FieldValue> {
+  const values: Record<string, FieldValue> = {};
+  for (const entry of layoutFor(itemType, fields, assignments)) {
+    if (entry.field.kind === 'custom' && !entry.assignment.hidden && entry.field.defaultValue !== null) {
+      values[entry.field.id] = entry.field.defaultValue;
+    }
+  }
+  return values;
+}
+
+/** A value as text for cards and lists: the option label, the number or the text. */
+export function formatValue(field: FieldDefinition, value: FieldValue): string {
+  if (field.dataType === 'single_select') return field.options.find((option) => option.id === value)?.label ?? '';
+  return String(value);
 }

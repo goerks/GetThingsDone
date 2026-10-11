@@ -31,12 +31,15 @@ import {
   createField as createFieldIn,
   deleteField as deleteFieldIn,
   dropRemovedOptions,
+  moveInLayout,
   setAssigned,
   setItemValue,
+  updateLayout,
   updateField as updateFieldIn,
   withoutField,
   type FieldInput,
-  type FieldPatch
+  type FieldPatch,
+  type LayoutPatch
 } from '../domain/fields';
 import { newId } from '../domain/ids';
 import {
@@ -87,6 +90,10 @@ interface AppApi {
   deleteField(id: string): void;
   /** Uses a custom field on an item type or stops using it there; values are kept. */
   setFieldUsed(fieldId: string, itemType: ItemType, used: boolean): void;
+  /** Moves a custom field before or after another one in the layout of an item type. */
+  moveFieldInLayout(itemType: ItemType, activeId: string, overId: string): void;
+  /** Changes required, on card and in create dialog of a field on an item type. Returns false when refused. */
+  updateFieldLayout(itemType: ItemType, fieldId: string, patch: LayoutPatch): boolean;
   /** Sets or clears (null) the value of a custom field on a story or an epic. */
   setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): void;
 }
@@ -354,6 +361,26 @@ export function AppProvider({ repository, children }: Props) {
         updateFields(fields, after);
         const own = after.filter((item) => item.fieldId === fieldId);
         persist((repo) => repo.saveAssignments(fieldId, own));
+      },
+      moveFieldInLayout(itemType, activeId, overId) {
+        const { fields, assignments } = fieldsRef.current;
+        const after = moveInLayout(itemType, fields, assignments, activeId, overId);
+        const changed = after.filter((item, index) => item.position !== assignments[index].position).map((item) => item.fieldId);
+        if (changed.length === 0) return;
+        updateFields(fields, after);
+        persist(async (repo) => {
+          for (const fieldId of new Set(changed)) {
+            await repo.saveAssignments(fieldId, after.filter((item) => item.fieldId === fieldId));
+          }
+        });
+      },
+      updateFieldLayout(itemType, fieldId, patch) {
+        const { fields, assignments } = fieldsRef.current;
+        const after = updateLayout(itemType, fields, assignments, fieldId, patch);
+        if (!after) return false;
+        updateFields(fields, after);
+        persist((repo) => repo.saveAssignments(fieldId, after.filter((item) => item.fieldId === fieldId)));
+        return true;
       },
       setFieldValue(itemId, fieldId, value) {
         if (storiesRef.current.some((story) => story.id === itemId)) update(setItemValue(storiesRef.current, itemId, fieldId, value));

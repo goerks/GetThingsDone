@@ -233,7 +233,8 @@
       "labelRequired": "Enter a name.",
       "labelTaken": "A field with this name already exists.",
       "optionsRequired": "Add at least one option.",
-      "optionLabelTaken": "Each option needs a different name."
+      "optionLabelTaken": "Each option needs a different name.",
+      "defaultInvalid": "The default value does not fit the type of the field."
     },
     "noValue": "No value",
     "invalidNumber": "Enter a number.",
@@ -250,7 +251,31 @@
     "loseStories_one": "{{count}} story loses its value.",
     "loseStories_other": "{{count}} stories lose their value.",
     "loseEpics_one": "{{count}} epic loses its value.",
-    "loseEpics_other": "{{count}} epics lose their value."
+    "loseEpics_other": "{{count}} epics lose their value.",
+    "requiredError": "This field is required.",
+    "requiredMissing": "Required, not filled in yet.",
+    "requiredMark": "(required)",
+    "fillRequired": "Please fill in: {{names}}",
+    "defaultValue": "Default value",
+    "noDefault": "No default",
+    "views": "Field views",
+    "view": {
+      "assign": "Assignment",
+      "layout": "Layout"
+    },
+    "layout": {
+      "types": "Item types",
+      "fixed": "Fixed position",
+      "move": "Move field: {{name}}",
+      "required": "Required",
+      "inCreate": "In create dialog",
+      "onCard": "On card",
+      "cardFull": "At most {{count}} fields fit on a card",
+      "hint": "Drag custom fields to change their order in the dialogs. At most {{count}} fields show on a card.",
+      "hintNoCard": "Drag custom fields to change their order in the dialog.",
+      "noCustom": "No custom fields for this type yet. Tick them under Assignment.",
+      "instructions": "Press space to pick up a field. Use the arrow keys to move it, space to drop it and escape to cancel."
+    }
   },
   "settings": {
     "title": "Settings",

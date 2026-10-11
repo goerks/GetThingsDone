@@ -11,8 +11,18 @@ import {
   dropRemovedOptions,
   missingBuiltins,
   parseValue,
+  CARD_FIELD_LIMIT,
+  cardFieldsFor,
+  createFieldsFor,
+  defaultAsText,
+  defaultValuesFor,
+  formatValue,
+  layoutFor,
+  missingRequired,
+  moveInLayout,
   setAssigned,
   setItemValue,
+  updateLayout,
   updateField,
   withoutField,
   validateField,
@@ -55,7 +65,8 @@ const select: FieldDefinition = {
   options: [
     { id: 'must', label: 'Must', colorKey: 'rose' },
     { id: 'could', label: 'Could', colorKey: 'slate' }
-  ]
+  ],
+  defaultValue: null
 };
 
 const textInput: FieldInput = { label: 'Customer', dataType: 'text', options: [], itemTypes: ['story'] };
@@ -112,7 +123,7 @@ describe('validateField', () => {
 describe('createField', () => {
   it('adds a trimmed custom field and assigns it after the existing fields', () => {
     const result = createField(builtins.fields, builtins.assignments, { ...textInput, label: ' Customer ' }, ids());
-    expect(result?.field).toEqual({ id: 'id-1', builtinKey: null, kind: 'custom', dataType: 'text', label: 'Customer', options: [] });
+    expect(result?.field).toEqual({ id: 'id-1', builtinKey: null, kind: 'custom', dataType: 'text', label: 'Customer', options: [], defaultValue: null });
     const own = result?.assignments.find((item) => item.fieldId === 'id-1');
     expect(own).toMatchObject({ itemType: 'story', position: 7, hidden: false, required: false });
   });
@@ -254,5 +265,84 @@ describe('values on stories', () => {
     stories = setItemValue(stories, 'a', 'prio', null);
     expect(stories[0].values).toEqual({});
     expect(countValues(stories, 'prio')).toBe(0);
+  });
+});
+
+describe('default values', () => {
+  it('stores a number default and rejects one that is not a number', () => {
+    const input: FieldInput = { ...textInput, label: 'Value', dataType: 'number', defaultValue: '2,5' };
+    expect(createField([], [], input, ids())?.field.defaultValue).toBe(2.5);
+    expect(validateField([], { ...input, defaultValue: 'many' })).toBe('defaultInvalid');
+  });
+
+  it('finds a select default by option label and shows it as the label again', () => {
+    const input: FieldInput = { ...textInput, dataType: 'single_select', options: [{ label: 'Low' }, { label: 'High' }], defaultValue: 'high' };
+    const field = createField([], [], input, ids())?.field as FieldDefinition;
+    expect(field.defaultValue).toBe(field.options[1].id);
+    expect(defaultAsText(field)).toBe('High');
+    expect(validateField([], { ...input, defaultValue: 'Medium' })).toBe('defaultInvalid');
+  });
+
+  it('keeps a select default when its option is renamed', () => {
+    const field = { ...select, defaultValue: 'must' };
+    const result = updateField([field], 'prio', { label: 'Priority', options: [{ id: 'must', label: 'Must have' }, { id: 'could', label: 'Could' }], defaultValue: 'Must have' }, ids());
+    expect(result?.field.defaultValue).toBe('must');
+  });
+
+  it('gives a new item the defaults of the visible custom fields of its type', () => {
+    const fields = [...builtins.fields, { ...select, defaultValue: 'could' }];
+    const assignments = assignTo(builtins.assignments, 'prio', ['story']);
+    expect(defaultValuesFor('story', fields, assignments)).toEqual({ prio: 'could' });
+    expect(defaultValuesFor('epic', fields, assignments)).toEqual({});
+  });
+});
+
+describe('layout per item type', () => {
+  const second: FieldDefinition = { ...select, id: 'second', label: 'Second' };
+  const third: FieldDefinition = { ...select, id: 'third', label: 'Third' };
+  const fourth: FieldDefinition = { ...select, id: 'fourth', label: 'Fourth' };
+  const fields = [...builtins.fields, select, second, third, fourth];
+  let assignments = builtins.assignments;
+  for (const id of ['prio', 'second', 'third', 'fourth']) assignments = assignTo(assignments, id, ['story']);
+  const customOrder = (list: FieldAssignment[]): string[] =>
+    layoutFor('story', fields, list).filter((entry) => entry.field.kind === 'custom').map((entry) => entry.field.id);
+
+  it('lists the fields of a type in their order, built-in fields first', () => {
+    const layout = layoutFor('story', fields, assignments);
+    expect(layout[0].field.builtinKey).toBe('key');
+    expect(customOrder(assignments)).toEqual(['prio', 'second', 'third', 'fourth']);
+  });
+
+  it('moves a custom field and keeps the fixed fields in place', () => {
+    const after = moveInLayout('story', fields, assignments, 'fourth', 'prio');
+    expect(customOrder(after)).toEqual(['fourth', 'prio', 'second', 'third']);
+    expect(layoutFor('story', fields, after).slice(0, 7).map((entry) => entry.field.kind)).not.toContain('custom');
+    expect(moveInLayout('story', fields, assignments, builtinFieldId('title'), 'prio')).toEqual(assignments);
+  });
+
+  it('puts a required field into the create dialog and lists it as missing', () => {
+    const after = updateLayout('story', fields, assignments, 'second', { required: true }) as FieldAssignment[];
+    const entry = after.find((item) => item.fieldId === 'second' && item.itemType === 'story');
+    expect(entry).toMatchObject({ required: true, inCreate: true });
+    expect(createFieldsFor('story', fields, after).map((item) => item.field.id)).toEqual(['second']);
+    expect(missingRequired('story', fields, after, {}).map((field) => field.id)).toEqual(['second']);
+    expect(missingRequired('story', fields, after, { second: 'must' })).toEqual([]);
+  });
+
+  it('allows at most a few fields on a card', () => {
+    let list = assignments;
+    for (const id of ['prio', 'second', 'third']) list = updateLayout('story', fields, list, id, { onCard: true }) as FieldAssignment[];
+    expect(cardFieldsFor('story', fields, list)).toHaveLength(CARD_FIELD_LIMIT);
+    expect(updateLayout('story', fields, list, 'fourth', { onCard: true })).toBeNull();
+    expect(updateLayout('story', fields, list, 'prio', { onCard: false })).not.toBeNull();
+  });
+
+  it('does not change system or built-in fields', () => {
+    expect(updateLayout('story', fields, assignments, builtinFieldId('points'), { required: true })).toBeNull();
+  });
+
+  it('formats values for cards', () => {
+    expect(formatValue(select, 'must')).toBe('Must');
+    expect(formatValue({ ...select, dataType: 'number', options: [] }, 8)).toBe('8');
   });
 });
