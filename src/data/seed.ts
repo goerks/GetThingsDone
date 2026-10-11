@@ -34,15 +34,16 @@ const DEMO_VALUES: Record<string, Record<string, FieldValue>> = {
 export function seedSnapshot(today: string): Snapshot {
   const sprint1Start = addDays(today, -7);
   const builtins = missingBuiltins([], []);
-  const assignments = DEMO_FIELDS.reduce((list, field) => assignTo(list, field.id, ['story']), builtins.assignments);
+  let assignments = assignTo(builtins.assignments, 'field-demo-priority', ['story', 'epic']);
+  assignments = assignTo(assignments, 'field-demo-value', ['story']);
   return {
     fields: [...builtins.fields, ...DEMO_FIELDS],
     assignments,
     epics: [
-      { id: 'epic-boards', name: 'Boards', colorKey: 'blue', position: 0 },
-      { id: 'epic-backlog', name: 'Backlog', colorKey: 'amber', position: 1 },
-      { id: 'epic-storage', name: 'Local storage', colorKey: 'teal', position: 2 },
-      { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'violet', position: 3 }
+      { id: 'epic-boards', name: 'Boards', colorKey: 'blue', position: 0, values: { 'field-demo-priority': 'opt-must' } },
+      { id: 'epic-backlog', name: 'Backlog', colorKey: 'amber', position: 1, values: { 'field-demo-priority': 'opt-should' } },
+      { id: 'epic-storage', name: 'Local storage', colorKey: 'teal', position: 2, values: {} },
+      { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'violet', position: 3, values: {} }
     ],
     sprints: [
       { id: 'sprint-1', name: 'Sprint 1', startDate: sprint1Start, endDate: addDays(sprint1Start, 13) },

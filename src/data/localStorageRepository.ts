@@ -1,4 +1,4 @@
-import { dropRemovedOptions, setStoryValue, withoutKey } from '../domain/fields';
+import { dropRemovedOptions, setItemValue, withoutField } from '../domain/fields';
 import { migrateSnapshot } from '../domain/migrate';
 import { todayIso } from '../domain/sprints';
 import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Snapshot, Sprint, Story } from '../domain/types';
@@ -112,7 +112,7 @@ export class LocalStorageRepository implements Repository {
   }
 
   async updateEpic(epic: Epic): Promise<void> {
-    this.changeEpics((epics) => epics.map((item) => (item.id === epic.id ? epic : item)));
+    this.changeEpics((epics) => epics.map((item) => (item.id === epic.id ? { ...epic, values: item.values } : item)));
   }
 
   async deleteEpic(epicId: string): Promise<void> {
@@ -143,7 +143,8 @@ export class LocalStorageRepository implements Repository {
       fields: snapshot.fields.some((item) => item.id === field.id)
         ? snapshot.fields.map((item) => (item.id === field.id ? field : item))
         : [...snapshot.fields, field],
-      stories: dropRemovedOptions(snapshot.stories, field)
+      stories: dropRemovedOptions(snapshot.stories, field),
+      epics: dropRemovedOptions(snapshot.epics, field)
     }));
   }
 
@@ -152,7 +153,8 @@ export class LocalStorageRepository implements Repository {
       ...snapshot,
       fields: snapshot.fields.filter((field) => field.id !== fieldId),
       assignments: snapshot.assignments.filter((item) => item.fieldId !== fieldId),
-      stories: snapshot.stories.map((story) => ({ ...story, values: withoutKey(story.values, fieldId) }))
+      stories: withoutField(snapshot.stories, fieldId),
+      epics: withoutField(snapshot.epics, fieldId)
     }));
   }
 
@@ -164,7 +166,11 @@ export class LocalStorageRepository implements Repository {
   }
 
   async setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): Promise<void> {
-    this.changeStories((stories) => setStoryValue(stories, itemId, fieldId, value));
+    this.changeFields((snapshot) => ({
+      ...snapshot,
+      stories: setItemValue(snapshot.stories, itemId, fieldId, value),
+      epics: setItemValue(snapshot.epics, itemId, fieldId, value)
+    }));
   }
 }
 

@@ -35,7 +35,7 @@ export function createEpic(epics: Epic[], input: NewEpicInput, id: string): { ep
   const name = input.name.trim();
   if (!name) return null;
   const position = epics.reduce((max, epic) => Math.max(max, epic.position), -1) + 1;
-  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics), position };
+  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics), position, values: {} };
   return { epics: [...epics, epic], epic };
 }
 

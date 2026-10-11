@@ -14,6 +14,8 @@ export interface Epic {
   colorKey: EpicColorKey;
   /** Column order on the story map and order in lists, 0 first. */
   position: number;
+  /** Values of custom fields by field id. */
+  values: Record<string, FieldValue>;
 }
 
 /** A time box. Dates are local calendar days as `YYYY-MM-DD`; both days belong to the sprint. */

@@ -10,6 +10,6 @@ Rules for all variants: system fields (key, title, status) are always on and loc
 
 | Variant | Idea | Outcome |
 |---|---|---|
-| A · Matrix | The field table gets one checkbox column per item type; a click assigns or unassigns and saves at once. | Proposed, together with stage 2 |
-| B · List per type | Tabs per item type, each listing its fields in order; "Add field" picks from the library. | Proposed as an additional "Layout" view in stage 3 (order, required, on card) |
+| A · Matrix | The field table gets one checkbox column per item type; a click assigns or unassigns and saves at once. | **Chosen**, built with stage 2 |
+| B · List per type | Tabs per item type, each listing its fields in order; "Add field" picks from the library. | Planned as an additional "Layout" view in stage 3 (order, required, on card) |
 | C · Checkboxes in the field dialog | The current dialog, with all item types. | Smallest change; not proposed |

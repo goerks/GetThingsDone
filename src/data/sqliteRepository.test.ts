@@ -173,6 +173,20 @@ describe('SqliteRepository', () => {
     expect(db.prepare("SELECT COUNT(*) AS count FROM field_options WHERE field_id = 'field-demo-priority'").get()).toEqual({ count: 0 });
   });
 
+  it('stores values of epics and deletes them with the epic', async () => {
+    const { db, repository } = await freshRepository();
+    expect((await repository.load()).epics.find((epic) => epic.id === 'epic-boards')?.values).toEqual({
+      'field-demo-priority': 'opt-must'
+    });
+    await repository.addEpic({ id: 'epic-empty', name: 'Empty', colorKey: 'cyan', position: 4, values: { 'field-demo-priority': 'opt-should' } });
+    await repository.setFieldValue('epic-empty', 'field-demo-priority', 'opt-could');
+    expect((await repository.load()).epics.find((epic) => epic.id === 'epic-empty')?.values).toEqual({
+      'field-demo-priority': 'opt-could'
+    });
+    await repository.deleteEpic('epic-empty');
+    expect(db.prepare("SELECT COUNT(*) AS count FROM field_values WHERE item_id = 'epic-empty'").get()).toEqual({ count: 0 });
+  });
+
   it('deletes the values of a deleted story', async () => {
     const { db, repository } = await freshRepository();
     await repository.deleteStory('story-1');
