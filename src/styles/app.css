@@ -1019,51 +1019,6 @@ textarea.input {
   font-weight: 600;
 }
 
-/* ---------- Epic colour button ---------- */
-
-.color-button {
-  position: relative;
-}
-
-.color-button__trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--target-min);
-  height: var(--target-min);
-  margin: -6px 0;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  cursor: pointer;
-}
-
-.color-button__trigger:hover,
-.color-button__trigger[aria-expanded='true'] {
-  border-color: var(--border);
-  background: var(--pill);
-}
-
-.color-button__dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-}
-
-.color-button__palette {
-  position: absolute;
-  z-index: 10;
-  top: calc(100% + 8px);
-  left: 0;
-  width: 168px;
-  padding: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-}
-
 /* ---------- Sprints ---------- */
 
 .badge-running {
@@ -1406,4 +1361,221 @@ button.map-sprint:hover .map-sprint__name {
   .map-cell {
     transition: none;
   }
+}
+
+/* ---------- Detail dialogs ---------- */
+
+.dialog--wide {
+  width: min(1040px, calc(100vw - 32px));
+}
+
+.dialog--wide .detail {
+  max-width: none;
+}
+
+.detail-dialog__close {
+  display: flex;
+  justify-content: flex-end;
+  margin: -10px -12px 0 0;
+}
+
+.detail__heading {
+  margin: 0;
+}
+
+.dialog__footer {
+  align-items: center;
+  margin-top: 8px;
+}
+
+.dialog__footer-end {
+  margin-left: auto;
+}
+
+/* A title that looks like a link and opens the story in a dialog. */
+.title-button {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.title-button:hover {
+  text-decoration: underline;
+}
+
+.epic--button {
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.epic--button:hover {
+  background: var(--pill);
+  text-decoration: underline;
+}
+
+.epic-dialog__name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.epic-dialog__dot {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.epic-dialog__title {
+  flex: 1;
+  margin: 0;
+}
+
+/* Epics page: each row is one button that opens the epic. */
+.epic-list .epic-row {
+  width: 100%;
+  min-height: var(--target-min);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.epic-list .epic-row:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- Story map: epic header, sprint reorder, compact ---------- */
+
+button.map-epic {
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.map-epic:hover .map-epic__name {
+  text-decoration: underline;
+}
+
+.map-sprint--movable {
+  cursor: grab;
+  touch-action: manipulation;
+}
+
+.map-sprint--dragging {
+  opacity: 0.35;
+}
+
+.map-sprint--overlay {
+  width: var(--map-label, 180px);
+  cursor: grabbing;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Drop line for a reordered sprint: across the whole row, with a pill naming the sprint and its new dates. */
+.map__row--drop-before,
+.map__row--drop-after {
+  position: relative;
+}
+
+.map__row--drop-before::before,
+.map__row--drop-after::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.map__row--drop-before::before {
+  top: calc(-0.5 * var(--map-gap) - 2px);
+}
+
+.map__row--drop-after::after {
+  bottom: calc(-0.5 * var(--map-gap) - 2px);
+}
+
+.map-drop-pill {
+  position: absolute;
+  left: calc(var(--map-label) + 16px);
+  z-index: 5;
+  padding: 1px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.map__row--drop-before > .map-drop-pill {
+  top: calc(-0.5 * var(--map-gap) - 11px);
+}
+
+.map__row--drop-after > .map-drop-pill {
+  bottom: calc(-0.5 * var(--map-gap) - 11px);
+}
+
+.btn--pressed {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-soft-ink);
+  font-weight: 600;
+}
+
+/* Compact: every card becomes a one-line chip with key and title. */
+.map--compact .map-cell {
+  min-height: 56px;
+  gap: 4px;
+  padding: 6px;
+}
+
+.map--compact .map-cell__list {
+  gap: 4px;
+}
+
+.map--compact .map-card {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 8px;
+}
+
+.map--compact .map-card__top {
+  flex: none;
+}
+
+.map--compact .map-card .pill,
+.map--compact .map-card .status-dot {
+  display: none;
+}
+
+.map--compact .map-card__title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map--compact .map-cell__add {
+  min-height: 24px;
+  font-size: 15px;
 }

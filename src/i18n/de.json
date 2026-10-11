@@ -68,7 +68,6 @@
     }
   },
   "detail": {
-    "back": "Zurück zum Board",
     "description": "Beschreibung",
     "noDescription": "Noch keine Beschreibung.",
     "criteria": "Akzeptanzkriterien",
@@ -95,7 +94,9 @@
       "instructions": "Leertaste drücken, um ein Kriterium aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen.",
       "over": "{{title}} kommt an Position {{position}}.",
       "dropped": "{{title}} ist jetzt an Position {{position}}."
-    }
+    },
+    "notFoundTitle": "Story nicht gefunden",
+    "close": "Schliessen"
   },
   "state": {
     "loading": "Lädt…",
@@ -107,7 +108,7 @@
   },
   "epics": {
     "title": "Epics",
-    "hint": "Epics gruppieren Stories. Auf einen Namen klicken, um ihn umzubenennen, auf den Farbpunkt, um die Farbe zu ändern.",
+    "hint": "Epics gruppieren Stories. Auf ein Epic klicken, um es umzubenennen, die Farbe zu ändern oder es zu löschen.",
     "none": "Noch keine Epics.",
     "new": "Neues Epic",
     "name": "Name",
@@ -127,10 +128,10 @@
     },
     "storyCount_one": "{{count}} Story",
     "storyCount_other": "{{count}} Stories",
-    "delete": "Epic {{name}} löschen",
     "inUse_one": "Wird von {{count}} Story verwendet. Zuerst einem anderen Epic zuordnen.",
     "inUse_other": "Wird von {{count}} Stories verwendet. Zuerst einem anderen Epic zuordnen.",
-    "changeColor": "Farbe von {{name}}: {{color}}. Farbe ändern"
+    "notFound": "Dieses Epic existiert nicht mehr.",
+    "deleteButton": "Epic löschen"
   },
   "sprint": {
     "label": "Sprint",
@@ -163,7 +164,13 @@
     "dnd": {
       "instructions": "Leertaste drücken, um eine Story aufzunehmen. Mit den Pfeiltasten zwischen den Zellen verschieben, mit der Leertaste ablegen, mit Escape abbrechen. Mit Enter die Story öffnen.",
       "over": "{{title}} kommt nach {{sprint}}, {{epic}}, Position {{position}}.",
-      "dropped": "{{title}} ist jetzt in {{sprint}}, {{epic}}, Position {{position}}."
-    }
+      "dropped": "{{title}} ist jetzt in {{sprint}}, {{epic}}, Position {{position}}.",
+      "sprintOver": "{{name}} wird Sprint {{position}}, {{dates}}.",
+      "sprintDropped": "{{name}} ist jetzt Sprint {{position}}, {{dates}}."
+    },
+    "sprintRole": "Sprint",
+    "editOrMoveSprint": "Klicken zum Bearbeiten, ziehen zum Umsortieren",
+    "compact": "Kompakt",
+    "sprintDropLabel": "{{name}} · {{dates}}"
   }
 }

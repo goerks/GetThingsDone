@@ -3,8 +3,24 @@ import { useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { criteriaProgress } from '../domain/board';
 import type { Epic, Story } from '../domain/types';
-import { hrefs, openStory } from '../router';
+import { useDetails } from '../state/Details';
 import { EpicTag } from './EpicTag';
+
+/** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
+export function TitleButton({ story, className }: { story: Story; className: string }) {
+  const details = useDetails();
+  return (
+    <button
+      type="button"
+      className={`title-button ${className}`}
+      tabIndex={-1}
+      onClick={() => details.openStory(story.id)}
+      onDoubleClick={(event) => event.stopPropagation()}
+    >
+      {story.title}
+    </button>
+  );
+}
 
 function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) {
   const { t } = useTranslation();
@@ -12,10 +28,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
   return (
     <>
       <span className="card__code">{story.code}</span>
-      {/* The card itself is the keyboard stop (Enter opens it), so the link is for the mouse only. */}
-      <a className="card__title" href={hrefs.story(story.id)} tabIndex={-1} draggable={false}>
-        {story.title}
-      </a>
+      <TitleButton story={story} className="card__title" />
       <div className="card__progress">
         <div
           className="progress"
@@ -29,7 +42,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
         </span>
       </div>
       <div className="card__bottom">
-        <EpicTag epic={epic} />
+        <EpicTag epic={epic} inCard />
         <span className="pill" title={t('card.points', { count: story.points })}>
           {story.points}
         </span>
@@ -51,6 +64,7 @@ interface SortableProps {
  */
 export function SortableStoryCard({ story, epic, dropBefore = false }: SortableProps) {
   const { t } = useTranslation();
+  const details = useDetails();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -59,7 +73,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false }: SortableP
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     if (event.key === 'Enter' && !active && event.target === event.currentTarget) {
       event.preventDefault();
-      openStory(story.id);
+      details.openStory(story.id);
       return;
     }
     listeners?.onKeyDown?.(event);
@@ -76,7 +90,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false }: SortableP
       aria-label={`${story.code}: ${story.title}`}
       {...listeners}
       onKeyDown={onKeyDown}
-      onDoubleClick={() => openStory(story.id)}
+      onDoubleClick={() => details.openStory(story.id)}
     >
       <CardContent story={story} epic={epic} />
     </article>

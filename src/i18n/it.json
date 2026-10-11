@@ -68,7 +68,6 @@
     }
   },
   "detail": {
-    "back": "Torna alla board",
     "description": "Descrizione",
     "noDescription": "Ancora nessuna descrizione.",
     "criteria": "Criteri di accettazione",
@@ -95,7 +94,9 @@
       "instructions": "Premi spazio per prendere un criterio. Spostalo con le frecce, rilascialo con spazio, annulla con esc.",
       "over": "{{title}} va in posizione {{position}}.",
       "dropped": "{{title}} è ora in posizione {{position}}."
-    }
+    },
+    "notFoundTitle": "Story non trovata",
+    "close": "Chiudi"
   },
   "state": {
     "loading": "Caricamento…",
@@ -107,7 +108,7 @@
   },
   "epics": {
     "title": "Epic",
-    "hint": "Gli epic raggruppano le story. Fai clic su un nome per rinominarlo, sul pallino per cambiarne il colore.",
+    "hint": "Gli epic raggruppano le story. Fai clic su un epic per rinominarlo, cambiarne il colore o eliminarlo.",
     "none": "Ancora nessun epic.",
     "new": "Nuovo epic",
     "name": "Nome",
@@ -127,10 +128,10 @@
     },
     "storyCount_one": "{{count}} story",
     "storyCount_other": "{{count}} story",
-    "delete": "Elimina epic {{name}}",
     "inUse_one": "Usato da {{count}} story. Assegnala prima a un altro epic.",
     "inUse_other": "Usato da {{count}} story. Assegnale prima a un altro epic.",
-    "changeColor": "Colore di {{name}}: {{color}}. Cambia colore"
+    "notFound": "Questo epic non esiste più.",
+    "deleteButton": "Elimina epic"
   },
   "sprint": {
     "label": "Sprint",
@@ -163,7 +164,13 @@
     "dnd": {
       "instructions": "Premi spazio per prendere una story. Spostala tra le celle con le frecce, rilasciala con spazio, annulla con esc. Premi invio per aprire la story.",
       "over": "{{title}} va in {{sprint}}, {{epic}}, posizione {{position}}.",
-      "dropped": "{{title}} è ora in {{sprint}}, {{epic}}, posizione {{position}}."
-    }
+      "dropped": "{{title}} è ora in {{sprint}}, {{epic}}, posizione {{position}}.",
+      "sprintOver": "{{name}} diventa lo sprint {{position}}, {{dates}}.",
+      "sprintDropped": "{{name}} è ora lo sprint {{position}}, {{dates}}."
+    },
+    "sprintRole": "sprint",
+    "editOrMoveSprint": "Clic per modificare, trascina per riordinare",
+    "compact": "Compatto",
+    "sprintDropLabel": "{{name}} · {{dates}}"
   }
 }
