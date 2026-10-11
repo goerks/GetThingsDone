@@ -14,7 +14,7 @@ Code, comments, commit messages, issues, pull requests and documentation are in 
 ## Workflow
 
 1. Work from a GitHub issue written by the PO. Break it into stories as a comment on the issue and ask open questions there before building.
-2. One feature branch per feature, created from the latest `main`: `feature/<issue-number>-<short-name>`. Never push to `main` directly.
+2. One feature branch per feature, created from the latest `main`: `feature/<issue-number>-<short-name>`. Never push to `main` directly. Technical details such as branch names are the AI's decision; do not ask the PO.
 3. Open a pull request against `main`. Describe what changed, list the acceptance criteria as a checklist and say whether the PO also needs to test the Windows app (storage or desktop specific changes) or whether the web preview is enough.
 4. Every pull request gets two ways to test:
    - **Web preview:** Render builds a public static site per pull request (Pull Request Previews). It runs the browser build with demo data in `localStorage`. The address of pull request `<n>` is `https://getthingsdone-pr-<n>.onrender.com` (`main` is at `https://getthingsdone.onrender.com`). Post this address in the conversation and in the pull request description whenever a pull request is ready for review.
