@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { EditableText } from '../components/EditableText';
 import { EpicSelect } from '../components/EpicSelect';
 import { EpicTag } from '../components/EpicTag';
+import { SprintSelect } from '../components/SprintSelect';
 import { GripIcon, TrashIcon } from '../components/icons';
 import { useDragSensors } from '../dnd/dnd';
 import { criteriaProgress } from '../domain/board';
@@ -244,14 +245,10 @@ export function StoryPage({ id }: { id: string }) {
                 ))}
               </select>
             </div>
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={story.inSprint}
-                onChange={(event) => app.updateStory(story.id, { inSprint: event.target.checked })}
-              />
-              {t('detail.inSprint')}
-            </label>
+            <div className="field">
+              <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
+              <SprintSelect id={`${uid}-sprint`} value={story.sprintId} onChange={(sprintId) => app.updateStory(story.id, { sprintId })} />
+            </div>
           </div>
 
           <div className="danger">

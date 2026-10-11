@@ -18,6 +18,12 @@ pub fn run() {
             sql: include_str!("../migrations/002_epic_palette.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "sprints",
+            sql: include_str!("../migrations/003_sprints.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

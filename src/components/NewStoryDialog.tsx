@@ -5,27 +5,31 @@ import { POINT_VALUES } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EpicSelect } from './EpicSelect';
+import { SprintSelect } from './SprintSelect';
+import { sortEpics } from '../domain/epics';
 
 interface Props {
-  /** Whether the "In Sprint 1" box starts ticked: yes from the board, no from the backlog. */
-  inSprint: boolean;
+  /** Prefilled sprint: the running one from the board, "not planned" from the backlog, the cell's on the map. */
+  sprintId: string | null;
+  /** Prefilled epic (from a map cell); otherwise the first epic. */
+  epicId?: string;
   onClose: () => void;
 }
 
-export function NewStoryDialog({ inSprint: initialInSprint, onClose }: Props) {
+export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicId, onClose }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   const uid = useId();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [epicId, setEpicId] = useState(app.epics[0]?.id ?? '');
+  const [epicId, setEpicId] = useState(initialEpicId ?? sortEpics(app.epics)[0]?.id ?? '');
   const [points, setPoints] = useState(3);
-  const [inSprint, setInSprint] = useState(initialInSprint);
+  const [sprintId, setSprintId] = useState(initialSprintId);
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     if (!title.trim() || !epicId) return;
-    const input: NewStoryInput = { title, description, epicId, points, inSprint };
+    const input: NewStoryInput = { title, description, epicId, points, sprintId };
     app.createStory(input);
     onClose();
   };
@@ -75,10 +79,10 @@ export function NewStoryDialog({ inSprint: initialInSprint, onClose }: Props) {
             </select>
           </div>
         </div>
-        <label className="check">
-          <input type="checkbox" checked={inSprint} onChange={(event) => setInSprint(event.target.checked)} />
-          {t('detail.inSprint')}
-        </label>
+        <div className="field">
+          <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
+          <SprintSelect id={`${uid}-sprint`} value={sprintId} onChange={setSprintId} />
+        </div>
         <div className="form__actions">
           <button type="submit" className="btn btn--primary">
             {t('newStory.add')}

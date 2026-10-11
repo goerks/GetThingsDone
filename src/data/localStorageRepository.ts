@@ -1,5 +1,6 @@
-import { normalizeColorKey } from '../domain/epics';
-import type { Criterion, Epic, Snapshot, Story } from '../domain/types';
+import { migrateSnapshot } from '../domain/migrate';
+import { todayIso } from '../domain/sprints';
+import type { Criterion, Epic, Snapshot, Sprint, Story } from '../domain/types';
 import type { Repository, StoryPosition } from './repository';
 
 const KEY = 'getitdone.snapshot.v1';
@@ -13,14 +14,16 @@ export class LocalStorageRepository implements Repository {
     try {
       const raw = window.localStorage.getItem(KEY);
       if (raw) {
-        const snapshot = JSON.parse(raw) as Snapshot;
-        snapshot.epics = snapshot.epics.map((epic) => ({ ...epic, colorKey: normalizeColorKey(epic.colorKey) }));
+        const stored = JSON.parse(raw) as Parameters<typeof migrateSnapshot>[0];
+        const snapshot = migrateSnapshot(stored, todayIso());
+        // Store a migrated snapshot right away, so a migrated sprint keeps the dates it got today.
+        if (stored.sprints === undefined) this.write(snapshot);
         return snapshot;
       }
     } catch {
       // fall through to an empty snapshot
     }
-    return { epics: [], stories: [] };
+    return { epics: [], sprints: [], stories: [] };
   }
 
   private write(snapshot: Snapshot): void {
@@ -111,5 +114,19 @@ export class LocalStorageRepository implements Repository {
 
   async deleteEpic(epicId: string): Promise<void> {
     this.changeEpics((epics) => epics.filter((epic) => epic.id !== epicId));
+  }
+
+  private changeSprints(change: (sprints: Sprint[]) => Sprint[]): void {
+    const snapshot = this.read();
+    snapshot.sprints = change(snapshot.sprints);
+    this.write(snapshot);
+  }
+
+  async addSprint(sprint: Sprint): Promise<void> {
+    this.changeSprints((sprints) => [...sprints, sprint]);
+  }
+
+  async updateSprint(sprint: Sprint): Promise<void> {
+    this.changeSprints((sprints) => sprints.map((item) => (item.id === sprint.id ? sprint : item)));
   }
 }

@@ -9,7 +9,7 @@
 | TD-3 | No integration tests for `SqliteRepository` and the Tauri boundary, no UI tests with axe. Drag and drop with real layout was checked in Chromium by hand, not in CI. | Definition of done is not fully met for the skeleton. | Add with the next storage or UI feature. |
 | TD-4 | Board columns are fixed to four statuses; the MVP scope asks for configurable columns. | Requirement FR-BOARD-06 is open. | Own feature issue. |
 | TD-5 | Failed writes are reported but not retried or rolled back. | UI and database can differ until restart. | Retry or reload on error. |
-| TD-6 | Several SQL statements per operation run without a transaction (for example `replaceAll`, `savePositions`, `deleteStory`, `saveCriteriaOrder`). | A crash mid-way can leave partial data. | Wrap in transactions. |
+| TD-6 | Several SQL statements per operation run without a transaction (for example `replaceAll`, `savePositions`, `deleteStory`, `saveCriteriaOrder`, migration 003). | A crash mid-way can leave partial data. | Wrap in transactions. |
 
 ## Risks
 

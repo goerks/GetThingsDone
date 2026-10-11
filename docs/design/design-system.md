@@ -23,7 +23,9 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Board column | Own lane: `--column` background, border, header with a rule; as tall as the board. While dragging, the target column turns `--accent-soft` with an accent border |
 | Story card | ID (mono), title as link, criteria progress bar with count, epic dot and name, points pill. The whole card is the drag source (cursor `grab`); double click or Enter opens it |
 | Backlog row | Rank (mono), ID, title, epic, points. Dragged as a whole, no buttons |
-| Sprint line | The sprint section sits on a `--column` surface; a 3 px rule in `--text` separates it from "Not planned" |
+| Backlog sections | One section per sprint on a `--column` surface with name, dates and a "running" badge; a 3 px rule in `--text` separates "Not planned" |
+| Story map | Variant A of `story-map.md`: epic headers with a 4 px colour stripe, sticky sprint labels (running sprint with a 4 px accent edge), cells in `--column`, compact cards with a status dot and the status name. "Not planned" row dashed below a 3 px rule. While dragging: target cell in `--accent-soft`, epic header and sprint label with an accent ring (crosshair), drop line |
+| Running badge | Small uppercase pill in `--accent-soft` / `--accent-soft-ink` |
 | Drop line | 4 px `--accent` line in the gap where the item will land; in the backlog with an accent pill "becomes rank n" |
 | Editable text | Looks like text, shows a border on hover, turns into a field on click |
 | Epic swatches | Eight 18 px dots as a radio group; the selected one has a ring. On the epics page they appear in a popover under the epic's colour dot |

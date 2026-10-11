@@ -3,19 +3,21 @@
 ## Domain model
 
 ```
-Epic 1 ──── * Story 1 ──── * Criterion
+Epic   1 ──── * Story 1 ──── * Criterion
+Sprint 1 ──── * Story          (a story has one sprint or none)
 ```
 
-- **Epic**: id, name, colour key from a palette of eight (`blue`, `amber`, `teal`, `violet`, `rose`, `green`, `cyan`, `slate`). An epic that still has stories cannot be deleted.
-- **Story**: id, key (`S-<n>`), title, description, epic, points (1, 2, 3, 5, 8, 13), status (`todo`, `in_progress`, `review`, `done`), sprint membership, rank.
+- **Epic**: id, name, colour key from a palette of eight (`blue`, `amber`, `teal`, `violet`, `rose`, `green`, `cyan`, `slate`), position (column order on the story map). An epic that still has stories cannot be deleted.
+- **Sprint**: id, name, start date, end date (local calendar days `YYYY-MM-DD`, both included). The running sprint is computed from today's date (`runningSprint`).
+- **Story**: id, key (`S-<n>`), title, description, epic, points (1, 2, 3, 5, 8, 13), status (`todo`, `in_progress`, `review`, `done`), sprint (one or none), rank.
 - **Criterion**: id, text, done, position within the story.
 
-`rank` is one global priority (0 is the most important). The backlog shows the sprint stories first and then the others, each by rank; a backlog drop stores exactly that order. The board shows the stories in the sprint by rank, grouped by status. Deleting a story can leave a gap in the ranks; a new story always gets the highest rank plus one.
+`rank` is one global priority (0 is the most important). The backlog shows one section per sprint in time order and then the unplanned stories, each by rank (`backlogOrder`); backlog and story map drops store exactly that order, so the ranks stay grouped by sprint. The board shows the stories of the running sprint by rank, grouped by status. A map cell shows the stories of one epic and one sprint by rank. Deleting a story can leave a gap in the ranks; a new story always gets the highest rank plus one.
 
 ## Persistence
 
 - The `Repository` interface (`src/data/repository.ts`) is the only storage boundary. It offers coarse, intention-revealing operations (`savePositions`, `updateStory`, `setCriterionText`, `saveCriteriaOrder`, `addEpic`, ...) instead of generic CRUD, so each UI action maps to one call.
-- SQLite schema: tables `epics`, `stories`, `criteria` with foreign keys and indexes on `rank` and `(story_id, position)`. Schema changes are new numbered migrations in `src-tauri/migrations/`, registered in `lib.rs`. Never edit a released migration.
+- SQLite schema: tables `epics`, `sprints`, `stories`, `criteria` with foreign keys and indexes on `rank` and `(story_id, position)`. Schema changes are new numbered migrations in `src-tauri/migrations/`, registered in `lib.rs`. Never edit a released migration. Browser data in `localStorage` is migrated in code when it is read (`src/domain/migrate.ts`) and written back at once, so a migrated sprint keeps its dates.
 - Keys are generated in the frontend (`src/domain/ids.ts`), so the UI can update before the write finishes.
 
 ## Internationalisation
@@ -28,7 +30,7 @@ Epic 1 ──── * Story 1 ──── * Criterion
 
 - Real `button`, `a` and form controls, each at least 44 by 44 px, with a visible focus ring.
 - Board cards and backlog rows are dragged as a whole. Each is one keyboard stop (`role="group"` with a translated role description): space picks it up, arrow keys move it, space drops it, Escape cancels, Enter opens the story. The title link is kept for the mouse but taken out of the tab order, so there is no nested interactive element.
-- The drop target is shown by a highlighted column or section and a line at the exact position (in the backlog with the future rank). The same domain function computes the preview and the drop.
+- The drop target is shown by a highlighted column, section or map cell and a line at the exact position (in the backlog with the future rank; on the map the epic header and sprint label are highlighted as well). The same domain function computes the preview and the drop.
 - Criteria rows contain a checkbox and editable text, so they are dragged by a handle button.
 - Text is edited in place: a button shows the text, a click turns it into a field. Focus returns to the button after Enter or Escape.
 - Colour never carries meaning alone: epic names, status names and criteria counts are written out.

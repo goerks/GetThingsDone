@@ -1,6 +1,6 @@
 # Functional requirements
 
-Release 0.1 (app skeleton, including the PO feedback from the first test). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts` (unit), `src/App.test.tsx` (component).
+Release 0.1 (app skeleton, including the PO feedback from the first test) and issue #2 (story map with sprints). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts` (unit), `src/App.test.tsx` (component).
 
 ## Board (BOARD)
 
@@ -36,19 +36,19 @@ As a screen reader user, I want each drag step to be announced in my language, s
 Source: Vision (accessibility) · Status: Implemented · Verified by: manual check (automated check open, see QR-01)
 
 ### FR-BOARD-04 Sprint summary
-As a team member, I want to see the number of stories and the sum of points in the sprint.
+As a team member, I want to see the name and dates of the sprint on the board, with the number of stories and the sum of points.
 
-Source: Vision · Status: Implemented · Verified by: App "summarises the sprint", board.test "adds up the points of the sprint only"
+Source: Vision, issue #2 · Status: Implemented · Verified by: App "summarises the sprint", board.test "adds up points"
 
 ### FR-BOARD-05 Create a story
 As a team member, I want to create a story with title, description, epic and points from the board or the backlog, so that I can capture new work.
 - "New story" on the board and in the backlog opens a dialog (not an inline form). Escape, "Cancel" or a click outside closes it without saving.
 - Title is required, description optional, values are trimmed.
 - The new story gets the next free key (`S-<n>`), status "To do" and the end of the backlog.
-- "In Sprint 1" is ticked when the dialog is opened from the board and unticked from the backlog, so a story from the backlog lands below the sprint line.
+- The sprint field is prefilled: the running sprint from the board, "Not planned" from the backlog, the cell's sprint (and epic) on the story map.
 - A new epic can be created from the epic field.
 
-Source: Vision, PO feedback · Status: Implemented · Verified by: App "creates a story in "To do" through a dialog", "closes the new story dialog without saving on cancel", "adds a new story below the sprint line from a dialog", board.test "createStory"
+Source: Vision, PO feedback · Status: Implemented · Verified by: App "creates a story in "To do" through a dialog", "closes the new story dialog without saving on cancel", "adds a new story below the sprint line from a dialog", "creates a story directly in a cell…", board.test "createStory"
 
 ### FR-BOARD-06 Configurable columns
 As a team, we want to configure the board columns, so that the board fits our process.
@@ -73,16 +73,17 @@ As a PO, I want to drag a story to a new position, so that the order expresses t
 Source: Vision, PO feedback · Status: Implemented · Verified by: board.test "backlog" (all cases), App "has no move or sprint buttons…"; line and label: manual check in Chromium
 
 ### FR-BACKLOG-03 Sprint membership
-As a PO, I want to add a story to the sprint or remove it, so that I can plan the sprint.
-- Drag a story across the sprint line, or use the sprint checkbox on the story page.
+As a PO, I want to plan a story into a sprint or take it out, so that I can plan sprints.
+- Drag a story into another sprint section, or choose the sprint on the story page, in the new story dialog or on the story map.
 
 Source: Vision · Status: Implemented · Verified by: board.test "plans a story into the sprint…", "takes a story out of the sprint…", App "changes status, epic, points and sprint membership"
 
-### FR-BACKLOG-04 Sprint line
-As a PO, I want a visible line in the backlog that separates the sprint from the rest.
-- The sprint is shown above the line with its number of stories and points, the other stories below it under "Not planned".
+### FR-BACKLOG-04 Sprint sections
+As a PO, I want the backlog grouped by sprint, so that I see what is planned when.
+- One section per sprint in time order (past sprints included) with name, dates, "running" mark, number of stories and points; then "Not planned", separated by a strong rule.
+- Ranks are numbered across all sections.
 
-Source: Vision (MVP scope), PO feedback · Status: Implemented · Verified by: App "separates the sprint from the rest with the sprint line"
+Source: Vision (MVP scope), PO feedback · Status: Implemented · Verified by: App "shows one section per sprint and the unplanned stories last"
 
 ## Story detail and acceptance criteria (STORY)
 
@@ -150,7 +151,7 @@ All data is stored locally: in a SQLite file in the desktop app, in the browser'
 Source: Vision, ADR 0001 · Status: Implemented · Verified by: App tests (local storage); SQLite: manual check (integration tests open, TD-3)
 
 ### FR-DATA-02 Demo data on first start
-On first start with an empty database, demo epics and stories are created so the board is not empty.
+On first start with an empty database, demo epics, two sprints (one running, one following) and stories are created so the board and the story map are not empty.
 
 Source: Vision · Status: Implemented
 
@@ -162,13 +163,58 @@ Source: — · Status: Implemented
 ## Navigation (NAV)
 
 ### FR-NAV-01 Main navigation
-Header with board, backlog and epics; the current page is marked. "Story Map" is shown as planned for release 2.
+Header with board, backlog, story map and epics; the current page is marked.
 
 Source: Vision · Status: Implemented · Verified by: App "marks the current page", "parses known routes and falls back to the board"
 
-## Release 2 (planned)
+## Sprints (SPRINT)
+
+### FR-SPRINT-01 Sprints with dates
+As a PO, I want to plan several sprints, each with a name, a start date and an end date (both days included).
+- A story belongs to one sprint or to none ("Not planned").
+- A new sprint is prefilled: "Sprint n", starting the day after the last sprint ends (or today), two weeks long.
+- The end date cannot be before the start date; the name is required.
+- The single "Sprint 1" of release 0.1 is migrated to a real sprint running from the day of the update for two weeks.
+
+Source: Issue #2 · Status: Implemented · Verified by: sprints.test, migrate.test, App "adds a sprint…", "refuses a sprint…", "migrates browser data of release 0.1…"
+
+### FR-SPRINT-02 Running sprint on the board
+The board shows the running sprint: the sprint whose dates include today; if none runs, the next upcoming one; otherwise the last one. Without any sprint, the board asks to create one on the story map.
+
+Source: Issue #2 · Status: Implemented · Verified by: sprints.test "running sprint", App "asks to create a sprint when there is none"
+
+## Story map (MAP)
+
+### FR-MAP-01 Show the story map
+As a PO, I want to see all stories in a grid of epics and sprints, so that I see which parts of the product are planned when.
+- One column per epic (by epic position), with name, colour stripe, number of stories and points.
+- One row per running or future sprint in time order, with name, dates, number of stories and points; the running sprint is marked. Sprints that ended before today are not shown.
+- The last row is "Not planned", separated by a strong rule.
+- Each story is a card (key, title, points, status) in the cell of its epic and sprint, in backlog order.
+- Header row and sprint labels stay visible while the map scrolls.
+
+Source: Issue #2 (variant A) · Status: Implemented · Verified by: App "story map" tests, board.test "story map"
+
+### FR-MAP-02 Plan on the map with drag and drop
+As a PO, I want to drag a story into another cell, so that I change its sprint and epic in one move.
+- The whole card is dragged with mouse, touch or keyboard (space, arrow keys between cells, space; Escape cancels; Enter and double click open the story).
+- While dragging, the target cell is highlighted, and so are its epic header and sprint label (crosshair). A line shows the position in the cell.
+- Dropping changes epic and sprint and is saved; the backlog stays grouped by sprint.
+- Moves are announced in DE, EN, FR and IT ("… goes to Sprint 2, Backlog, position 1").
+
+Source: Issue #2 · Status: Implemented · Verified by: board.test "story map"; highlight, crosshair and keyboard drag: manual check in Chromium
+
+### FR-MAP-03 Create sprints, epics and stories on the map
+- "+ Sprint" (page head and below the last sprint) opens the sprint dialog, prefilled.
+- A click on a sprint label edits its name and dates.
+- "+" at the end of the epic headers opens "New epic".
+- "+" in a cell opens "New story" with that epic and sprint prefilled.
+
+Source: Issue #2 · Status: Implemented · Verified by: App "adds a sprint…", "edits a sprint…", "adds an epic as a new column", "creates a story directly in a cell…"
+
+## Later
 
 | ID | Requirement | Status |
 |---|---|---|
-| FR-MAP-01 | User story map with activities, activity steps, release and sprint slices | Open |
-| FR-MAP-02 | Sprint planning on the map | Open |
+| FR-MAP-04 | Activities above epics on the map | Open (out of scope of #2) |
+| FR-MAP-05 | Release slices in addition to sprints | Open (out of scope of #2) |

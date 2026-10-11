@@ -1,4 +1,5 @@
-import type { Criterion, Story, Status } from './types';
+import { sortSprints } from './sprints';
+import type { Criterion, Sprint, Story, Status } from './types';
 
 /** Where a dragged item goes relative to the item it is over. Without a value the move direction decides. */
 export type Placement = 'before' | 'after';
@@ -19,16 +20,23 @@ function reindex(list: Story[]): Story[] {
   return list.map((story, index) => (story.rank === index ? story : { ...story, rank: index }));
 }
 
-export function sprintStories(stories: readonly Story[]): Story[] {
-  return sortByRank(stories).filter((story) => story.inSprint);
+/** Position of a sprint in time order; stories without a sprint come last. */
+function sprintOrder(sprints: readonly Sprint[]): (sprintId: string | null) => number {
+  const index = new Map(sortSprints(sprints).map((sprint, position) => [sprint.id, position]));
+  return (sprintId) => (sprintId === null ? Number.MAX_SAFE_INTEGER : (index.get(sprintId) ?? Number.MAX_SAFE_INTEGER - 1));
 }
 
-export function storiesInColumn(stories: readonly Story[], status: Status): Story[] {
-  return sprintStories(stories).filter((story) => story.status === status);
+/** Stories of one sprint (or the unplanned ones for null) by rank. */
+export function sprintStories(stories: readonly Story[], sprintId: string | null): Story[] {
+  return sortByRank(stories).filter((story) => story.sprintId === sprintId);
+}
+
+export function storiesInColumn(stories: readonly Story[], sprintId: string | null, status: Status): Story[] {
+  return sprintStories(stories, sprintId).filter((story) => story.status === status);
 }
 
 /**
- * Moves a story as the result of a drag and drop.
+ * Moves a story on the board as the result of a drag and drop.
  * `overId` is either another story id (drop next to it) or a column id (drop at the end of that column).
  * `placement` says on which side of the target story it lands; without it, a story moving down inside its
  * column goes after the target and every other move goes before it.
@@ -50,7 +58,7 @@ export function dropStory(stories: Story[], activeId: string, overId: string, pl
     targetStatus = columnStatus;
     let last = -1;
     without.forEach((story, index) => {
-      if (story.inSprint && story.status === columnStatus) last = index;
+      if (story.sprintId === active.sprintId && story.status === columnStatus) last = index;
     });
     insertAt = last >= 0 ? last + 1 : without.length;
   } else {
@@ -67,71 +75,168 @@ export function dropStory(stories: Story[], activeId: string, overId: string, pl
   return reindex([...without.slice(0, insertAt), moved, ...without.slice(insertAt)]);
 }
 
-/** Stories whose status, rank or sprint membership differs between two lists (what has to be saved). */
+/** Stories whose status, rank, sprint or epic differs between two lists (what has to be saved). */
 export function changedPositions(before: readonly Story[], after: readonly Story[]): Story[] {
   const previous = new Map(before.map((story) => [story.id, story]));
   return after.filter((story) => {
     const old = previous.get(story.id);
-    return !old || old.status !== story.status || old.rank !== story.rank || old.inSprint !== story.inSprint;
+    return (
+      !old ||
+      old.status !== story.status ||
+      old.rank !== story.rank ||
+      old.sprintId !== story.sprintId ||
+      old.epicId !== story.epicId
+    );
   });
 }
 
 /* ---------- Backlog ---------- */
 
-export type BacklogSection = 'sprint' | 'backlog';
-
 export const SECTION_PREFIX = 'section:';
+const NOT_PLANNED = '-';
 
-export const sectionId = (section: BacklogSection): string => `${SECTION_PREFIX}${section}`;
+/** Drop target id of a backlog section: a sprint, or "not planned" for null. */
+export const sectionId = (sprintId: string | null): string => `${SECTION_PREFIX}${sprintId ?? NOT_PLANNED}`;
 
-export function parseSectionId(id: string): BacklogSection | null {
-  if (!id.startsWith(SECTION_PREFIX)) return null;
-  const section = id.slice(SECTION_PREFIX.length);
-  return section === 'sprint' || section === 'backlog' ? section : null;
+/** The sprint of a section id (null for "not planned"), or undefined when the id is no section. */
+export function parseSectionId(id: string): string | null | undefined {
+  if (!id.startsWith(SECTION_PREFIX)) return undefined;
+  const value = id.slice(SECTION_PREFIX.length);
+  return value === NOT_PLANNED ? null : value;
 }
 
-/** The backlog as shown: the sprint above the sprint line, everything else below, each part by rank. */
-export function backlogOrder(stories: readonly Story[]): Story[] {
-  const sorted = sortByRank(stories);
-  return [...sorted.filter((story) => story.inSprint), ...sorted.filter((story) => !story.inSprint)];
+/** The backlog as shown: one section per sprint in time order, then the unplanned stories, each by rank. */
+export function backlogOrder(stories: readonly Story[], sprints: readonly Sprint[]): Story[] {
+  const order = sprintOrder(sprints);
+  return [...stories].sort((a, b) => order(a.sprintId) - order(b.sprintId) || a.rank - b.rank);
+}
+
+/**
+ * Inserts a moved story into the backlog order and stores that order as ranks.
+ * Without an explicit index, the story goes to the end of `group`, or of its sprint, or in front of the
+ * first later sprint, so the list stays grouped by sprint.
+ */
+function insertMoved(
+  without: Story[],
+  moved: Story,
+  sprints: readonly Sprint[],
+  group: (story: Story) => boolean
+): Story[] {
+  const order = sprintOrder(sprints);
+  const lastIndex = (match: (story: Story) => boolean): number => {
+    let last = -1;
+    without.forEach((story, index) => {
+      if (match(story)) last = index;
+    });
+    return last;
+  };
+  let insertAt = lastIndex(group);
+  if (insertAt < 0) insertAt = lastIndex((story) => story.sprintId === moved.sprintId);
+  if (insertAt >= 0) insertAt += 1;
+  else {
+    const later = without.findIndex((story) => order(story.sprintId) > order(moved.sprintId));
+    insertAt = later >= 0 ? later : without.length;
+  }
+  return reindex([...without.slice(0, insertAt), moved, ...without.slice(insertAt)]);
+}
+
+/** Places a moved story directly before or after a target story and stores the order as ranks. */
+function insertNextTo(without: Story[], moved: Story, targetId: string, after: boolean): Story[] {
+  const targetIndex = without.findIndex((story) => story.id === targetId);
+  const insertAt = after ? targetIndex + 1 : targetIndex;
+  return reindex([...without.slice(0, insertAt), moved, ...without.slice(insertAt)]);
 }
 
 /**
  * Moves a story in the backlog as the result of a drag and drop.
  * `overId` is another story id or a section id (drop at the end of that section).
- * Crossing the sprint line changes the sprint membership. Ranks follow the shown order afterwards.
+ * Moving into another section changes the sprint. Ranks follow the shown order afterwards.
  */
-export function dropInBacklog(stories: Story[], activeId: string, overId: string, placement?: Placement): Story[] {
+export function dropInBacklog(
+  stories: Story[],
+  sprints: readonly Sprint[],
+  activeId: string,
+  overId: string,
+  placement?: Placement
+): Story[] {
   if (activeId === overId) return stories;
-  const list = backlogOrder(stories);
+  const list = backlogOrder(stories, sprints);
   const from = list.findIndex((story) => story.id === activeId);
   if (from < 0) return stories;
   const active = list[from];
   const without = list.filter((story) => story.id !== activeId);
 
-  let inSprint: boolean;
-  let insertAt: number;
-
   const section = parseSectionId(overId);
-  if (section) {
-    inSprint = section === 'sprint';
-    insertAt = inSprint ? without.filter((story) => story.inSprint).length : without.length;
-  } else {
-    const to = list.findIndex((story) => story.id === overId);
-    if (to < 0) return stories;
-    const target = list[to];
-    inSprint = target.inSprint;
-    const targetIndex = without.findIndex((story) => story.id === overId);
-    const after = placement ? placement === 'after' : target.inSprint === active.inSprint && from < to;
-    insertAt = after ? targetIndex + 1 : targetIndex;
+  if (section !== undefined) {
+    if (section !== null && !sprints.some((sprint) => sprint.id === section)) return stories;
+    const moved: Story = { ...active, sprintId: section };
+    return insertMoved(without, moved, sprints, (story) => story.sprintId === section);
   }
 
-  const moved: Story = { ...active, inSprint };
-  return reindex([...without.slice(0, insertAt), moved, ...without.slice(insertAt)]);
+  const to = list.findIndex((story) => story.id === overId);
+  if (to < 0) return stories;
+  const target = list[to];
+  const after = placement ? placement === 'after' : target.sprintId === active.sprintId && from < to;
+  return insertNextTo(without, { ...active, sprintId: target.sprintId }, overId, after);
 }
 
-export function setInSprint(stories: Story[], id: string, value: boolean): Story[] {
-  return stories.map((story) => (story.id === id ? { ...story, inSprint: value } : story));
+/* ---------- Story map ---------- */
+
+export const CELL_PREFIX = 'cell:';
+
+/** Drop target id of a story map cell: one epic in one sprint (or "not planned" for null). */
+export const cellId = (epicId: string, sprintId: string | null): string =>
+  `${CELL_PREFIX}${epicId}::${sprintId ?? NOT_PLANNED}`;
+
+export function parseCellId(id: string): { epicId: string; sprintId: string | null } | null {
+  if (!id.startsWith(CELL_PREFIX)) return null;
+  const [epicId, sprint] = id.slice(CELL_PREFIX.length).split('::');
+  if (!epicId || sprint === undefined) return null;
+  return { epicId, sprintId: sprint === NOT_PLANNED ? null : sprint };
+}
+
+/** Stories in one cell of the map, in backlog order. */
+export function storiesInCell(stories: readonly Story[], epicId: string, sprintId: string | null): Story[] {
+  return sortByRank(stories).filter((story) => story.epicId === epicId && story.sprintId === sprintId);
+}
+
+/**
+ * Moves a story on the story map as the result of a drag and drop.
+ * `overId` is another story id (drop next to it) or a cell id (drop at the end of that cell).
+ * The story takes the epic and sprint of the target. Ranks follow the backlog order afterwards.
+ */
+export function dropOnMap(
+  stories: Story[],
+  sprints: readonly Sprint[],
+  activeId: string,
+  overId: string,
+  placement?: Placement
+): Story[] {
+  if (activeId === overId) return stories;
+  const list = backlogOrder(stories, sprints);
+  const from = list.findIndex((story) => story.id === activeId);
+  if (from < 0) return stories;
+  const active = list[from];
+  const without = list.filter((story) => story.id !== activeId);
+
+  const cell = parseCellId(overId);
+  if (cell) {
+    if (cell.sprintId !== null && !sprints.some((sprint) => sprint.id === cell.sprintId)) return stories;
+    const moved: Story = { ...active, epicId: cell.epicId, sprintId: cell.sprintId };
+    return insertMoved(
+      without,
+      moved,
+      sprints,
+      (story) => story.epicId === cell.epicId && story.sprintId === cell.sprintId
+    );
+  }
+
+  const to = list.findIndex((story) => story.id === overId);
+  if (to < 0) return stories;
+  const target = list[to];
+  const sameCell = target.epicId === active.epicId && target.sprintId === active.sprintId;
+  const after = placement ? placement === 'after' : sameCell && from < to;
+  return insertNextTo(without, { ...active, epicId: target.epicId, sprintId: target.sprintId }, overId, after);
 }
 
 export function toggleCriterion(stories: Story[], storyId: string, criterionId: string): Story[] {
@@ -192,8 +297,8 @@ export function criteriaProgress(story: Pick<Story, 'criteria'>): Progress {
   return { done, total, percent: total === 0 ? 0 : Math.round((done / total) * 100) };
 }
 
-export function sprintPoints(stories: readonly Story[]): number {
-  return sprintStories(stories).reduce((sum, story) => sum + story.points, 0);
+export function totalPoints(stories: readonly Story[]): number {
+  return stories.reduce((sum, story) => sum + story.points, 0);
 }
 
 export function nextCode(stories: readonly Story[]): string {
@@ -209,11 +314,11 @@ export interface NewStoryInput {
   description: string;
   epicId: string;
   points: number;
-  /** Defaults to true. */
-  inSprint?: boolean;
+  /** The sprint to plan the story in, or null for "not planned". */
+  sprintId: string | null;
 }
 
-export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'inSprint'>>;
+export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId'>>;
 
 /** Changes the editable fields of a story. Text is trimmed and an empty title is ignored. */
 export function updateStory(stories: Story[], id: string, patch: StoryPatch): Story[] {
@@ -230,7 +335,7 @@ export function deleteStory(stories: Story[], id: string): Story[] {
   return stories.filter((story) => story.id !== id);
 }
 
-/** Adds a story at the end of the backlog, in "To do", and in the sprint unless asked otherwise. */
+/** Adds a story in "To do", at the end of its sprint (or of the unplanned stories) in the backlog. */
 export function createStory(stories: Story[], input: NewStoryInput, id: string): { stories: Story[]; story: Story } {
   const story: Story = {
     id,
@@ -240,7 +345,7 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string):
     epicId: input.epicId,
     points: input.points,
     status: 'todo',
-    inSprint: input.inSprint ?? true,
+    sprintId: input.sprintId,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
     criteria: []
   };
