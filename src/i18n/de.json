@@ -8,7 +8,7 @@
     "backlog": "Backlog",
     "storyMap": "Story Map",
     "epics": "Epics",
-    "fields": "Felder"
+    "settings": "Einstellungen"
   },
   "header": {
     "toDark": "Zum dunklen Design wechseln",
@@ -245,5 +245,12 @@
     },
     "noValue": "Kein Wert",
     "invalidNumber": "Bitte eine Zahl eingeben."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "sections": "Bereiche der Einstellungen",
+    "statusValues": "Status-Werte",
+    "planned": "Geplant",
+    "plannedNote": "für ein späteres Release geplant"
   }
 }

@@ -219,7 +219,8 @@ function DeleteFieldDialog({ field, onClose }: { field: FieldDefinition; onClose
 
 type Open = { kind: 'new' } | { kind: 'edit'; field: FieldDefinition } | { kind: 'delete'; field: FieldDefinition } | null;
 
-export function FieldsPage() {
+/** The fields section of the settings page. */
+export function FieldsSection() {
   const { t } = useTranslation();
   const app = useApp();
   const [open, setOpen] = useState<Open>(null);
@@ -227,8 +228,8 @@ export function FieldsPage() {
 
   return (
     <>
-      <div className="page-head">
-        <h1>{t('fields.title')}</h1>
+      <div className="page-head page-head--section">
+        <h2>{t('fields.title')}</h2>
         <span className="muted">{t('fields.hint')}</span>
         <button type="button" className="btn btn--primary page-head__action" onClick={() => setOpen({ kind: 'new' })}>
           {t('fields.new')}

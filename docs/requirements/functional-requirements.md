@@ -140,7 +140,7 @@ Configurable fields, issue #4, data model in ADR 0003. Stage 1 of the feature: c
 
 ### FR-FIELD-01 Field library
 As a team, we want to see every field of the workspace, so that we know what our items carry.
-- Page "Fields" in the main navigation lists all fields with name, kind (System, Built-in, Custom), type and the item types that use them, or "Not used".
+- The section "Fields" of the settings (FR-SET-03) lists all fields with name, kind (System, Built-in, Custom), type and the item types that use them, or "Not used".
 - System fields: key, title, story status. Built-in fields: description, epic, points, acceptance criteria (stories), colour (epics). They cannot be edited or deleted yet.
 - Missing system and built-in fields are added automatically when data is loaded, also for data of release 0.1.
 
@@ -193,6 +193,14 @@ As a user, I want to switch between a light and a dark theme. The choice is reme
 
 Source: ADR 0002 · Status: Implemented · Verified by: App "switches the theme and remembers it"
 
+### FR-SET-03 Settings page
+As a team, we want the workspace settings in one place that stays out of the way of the daily work.
+- A gear button next to theme and language opens the settings (`#/settings/fields`); it is marked while the settings are open. The main navigation holds only the working views.
+- The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section. "Status values" (#5) is shown as planned and cannot be opened yet.
+- The former address `#/fields` opens the fields section.
+
+Source: #4, PO feedback (variant A in `docs/design/settings.md`) · Status: Implemented · Verified by: App "opens the fields from the settings, not from the main navigation", "parses known routes…"
+
 ## Storage (DATA)
 
 ### FR-DATA-01 Local storage
@@ -215,7 +223,7 @@ Source: — · Status: Implemented
 ## Navigation (NAV)
 
 ### FR-NAV-01 Main navigation
-Header with board, backlog, story map, epics and fields; the current page is marked.
+Header with board, backlog, story map and epics, plus a gear button for the settings; the current page is marked.
 
 Source: Vision · Status: Implemented · Verified by: App "marks the current page", "parses known routes and falls back to the board"
 

@@ -8,7 +8,7 @@
     "backlog": "Backlog",
     "storyMap": "Story Map",
     "epics": "Epics",
-    "fields": "Fields"
+    "settings": "Settings"
   },
   "header": {
     "toDark": "Switch to dark theme",
@@ -245,5 +245,12 @@
     },
     "noValue": "No value",
     "invalidNumber": "Enter a number."
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": "Settings sections",
+    "statusValues": "Status values",
+    "planned": "Planned",
+    "plannedNote": "planned for a later release"
   }
 }
