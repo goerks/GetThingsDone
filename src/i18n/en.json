@@ -1,0 +1,140 @@
+{
+  "app": {
+    "name": "Get It Done"
+  },
+  "nav": {
+    "main": "Main",
+    "board": "Board",
+    "backlog": "Backlog",
+    "storyMap": "Story Map",
+    "release2": "R2",
+    "storyMapNote": "Planned for release 2",
+    "epics": "Epics"
+  },
+  "header": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme",
+    "language": "Language"
+  },
+  "status": {
+    "todo": "To do",
+    "in_progress": "In progress",
+    "review": "Review",
+    "done": "Done"
+  },
+  "board": {
+    "title": "Sprint 1",
+    "summary": "{{count}} stories · {{points}} points",
+    "emptyColumn": "Drop a story here",
+    "dnd": {
+      "instructions": "Press space to pick up a story. Use the arrow keys to move it, space to drop it and escape to cancel. Press enter to open the story.",
+      "pickedUp": "Picked up {{title}}.",
+      "over": "{{title}} is over {{target}}.",
+      "dropped": "{{title}} dropped in {{target}}.",
+      "cancelled": "Moving {{title}} cancelled."
+    },
+    "cardRole": "story card"
+  },
+  "card": {
+    "criteria": "{{done}} of {{total}} criteria accepted",
+    "points": "{{count}} points"
+  },
+  "newStory": {
+    "open": "New story",
+    "title": "Title",
+    "description": "Description",
+    "epic": "Epic",
+    "points": "Points",
+    "add": "Add story",
+    "cancel": "Cancel",
+    "dialogTitle": "New story"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "hint": "The order is the priority. Drag a story to change it, or across the sprint line to plan it in or out of the sprint.",
+    "rowRole": "backlog story",
+    "rowLabel": "Rank {{rank}}, {{code}}: {{title}}",
+    "section": {
+      "sprint": "Sprint 1",
+      "backlog": "Not planned"
+    },
+    "sectionSummary_one": "{{count}} story · {{points}} points",
+    "sectionSummary_other": "{{count}} stories · {{points}} points",
+    "empty": {
+      "sprint": "Drag stories here to plan them into the sprint.",
+      "backlog": "Every story is in the sprint. Drag a story here to take it out."
+    },
+    "dropLabel": "becomes rank {{rank}}",
+    "dnd": {
+      "instructions": "Press space to pick up a story. Use the arrow keys to move it, space to drop it and escape to cancel. Press enter to open the story.",
+      "over": "{{title}} would become rank {{rank}} in {{section}}.",
+      "dropped": "{{title}} is now rank {{rank}}."
+    }
+  },
+  "detail": {
+    "back": "Back to board",
+    "description": "Description",
+    "noDescription": "No description yet.",
+    "criteria": "Acceptance criteria",
+    "noCriteria": "No acceptance criteria yet.",
+    "progress": "{{done}} of {{total}} accepted",
+    "allAccepted": "All criteria accepted. Ready to merge into main.",
+    "newCriterion": "New criterion",
+    "addCriterion": "Add criterion",
+    "details": "Details",
+    "status": "Status",
+    "epic": "Epic",
+    "points": "Points",
+    "notFound": "This story does not exist.",
+    "title": "Title",
+    "criterionText": "Criterion",
+    "moveCriterion": "Move criterion: {{text}}",
+    "deleteCriterion": "Delete criterion: {{text}}",
+    "inSprint": "In Sprint 1",
+    "delete": "Delete story",
+    "deleteConfirm_one": "Delete {{code}} and its {{count}} criterion? This cannot be undone.",
+    "deleteConfirm_other": "Delete {{code}} and its {{count}} criteria? This cannot be undone.",
+    "deleteYes": "Delete",
+    "deleteNo": "Keep story",
+    "dnd": {
+      "instructions": "Press space to pick up a criterion. Use the arrow keys to move it, space to drop it and escape to cancel.",
+      "over": "{{title}} moves to position {{position}}.",
+      "dropped": "{{title}} is now at position {{position}}."
+    }
+  },
+  "state": {
+    "loading": "Loading…",
+    "saveFailed": "Saving failed: {{message}}",
+    "loadFailed": "Loading failed: {{message}}"
+  },
+  "edit": {
+    "action": "edit {{field}}"
+  },
+  "epics": {
+    "title": "Epics",
+    "hint": "Epics group stories. Click a name to rename it, the colour dot to change its colour.",
+    "none": "No epics yet.",
+    "new": "New epic",
+    "name": "Name",
+    "add": "Add epic",
+    "newInSelect": "+ New epic…",
+    "colorLabel": "Colour",
+    "colorOf": "Colour of {{name}}",
+    "color": {
+      "blue": "Blue",
+      "amber": "Amber",
+      "teal": "Teal",
+      "violet": "Violet",
+      "rose": "Rose",
+      "green": "Green",
+      "cyan": "Cyan",
+      "slate": "Slate"
+    },
+    "storyCount_one": "{{count}} story",
+    "storyCount_other": "{{count}} stories",
+    "delete": "Delete epic {{name}}",
+    "inUse_one": "Used by {{count}} story. Move it to another epic first.",
+    "inUse_other": "Used by {{count}} stories. Move them to another epic first.",
+    "changeColor": "Colour of {{name}}: {{color}}. Change colour"
+  }
+}

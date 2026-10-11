@@ -1,0 +1,140 @@
+{
+  "app": {
+    "name": "Get It Done"
+  },
+  "nav": {
+    "main": "Navigazione principale",
+    "board": "Board",
+    "backlog": "Backlog",
+    "storyMap": "Story Map",
+    "release2": "R2",
+    "storyMapNote": "Prevista per la release 2",
+    "epics": "Epic"
+  },
+  "header": {
+    "toDark": "Passa al tema scuro",
+    "toLight": "Passa al tema chiaro",
+    "language": "Lingua"
+  },
+  "status": {
+    "todo": "Da fare",
+    "in_progress": "In corso",
+    "review": "Revisione",
+    "done": "Completato"
+  },
+  "board": {
+    "title": "Sprint 1",
+    "summary": "{{count}} storie · {{points}} punti",
+    "emptyColumn": "Rilascia qui una storia",
+    "dnd": {
+      "instructions": "Premi spazio per prendere una story. Spostala con le frecce, rilasciala con spazio, annulla con esc. Premi invio per aprire la story.",
+      "pickedUp": "{{title}} presa.",
+      "over": "{{title}} è sopra {{target}}.",
+      "dropped": "{{title}} rilasciata in {{target}}.",
+      "cancelled": "Spostamento di {{title}} annullato."
+    },
+    "cardRole": "scheda story"
+  },
+  "card": {
+    "criteria": "{{done}} criteri accettati su {{total}}",
+    "points": "{{count}} punti"
+  },
+  "newStory": {
+    "open": "Nuova storia",
+    "title": "Titolo",
+    "description": "Descrizione",
+    "epic": "Epic",
+    "points": "Punti",
+    "add": "Aggiungi storia",
+    "cancel": "Annulla",
+    "dialogTitle": "Nuova story"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "hint": "L’ordine è la priorità. Trascina una story per spostarla, oppure oltre la linea dello sprint per aggiungerla allo sprint o toglierla.",
+    "rowRole": "story del backlog",
+    "rowLabel": "Posizione {{rank}}, {{code}}: {{title}}",
+    "section": {
+      "sprint": "Sprint 1",
+      "backlog": "Non pianificato"
+    },
+    "sectionSummary_one": "{{count}} story · {{points}} punti",
+    "sectionSummary_other": "{{count}} story · {{points}} punti",
+    "empty": {
+      "sprint": "Trascina qui le story per pianificarle nello sprint.",
+      "backlog": "Tutte le story sono nello sprint. Trascina qui una story per toglierla."
+    },
+    "dropLabel": "diventa posizione {{rank}}",
+    "dnd": {
+      "instructions": "Premi spazio per prendere una story. Spostala con le frecce, rilasciala con spazio, annulla con esc. Premi invio per aprire la story.",
+      "over": "{{title}} diventerebbe posizione {{rank}} in {{section}}.",
+      "dropped": "{{title}} è ora in posizione {{rank}}."
+    }
+  },
+  "detail": {
+    "back": "Torna alla board",
+    "description": "Descrizione",
+    "noDescription": "Ancora nessuna descrizione.",
+    "criteria": "Criteri di accettazione",
+    "noCriteria": "Ancora nessun criterio di accettazione.",
+    "progress": "{{done}} accettati su {{total}}",
+    "allAccepted": "Tutti i criteri sono accettati. Pronto per il merge in main.",
+    "newCriterion": "Nuovo criterio",
+    "addCriterion": "Aggiungi criterio",
+    "details": "Dettagli",
+    "status": "Stato",
+    "epic": "Epic",
+    "points": "Punti",
+    "notFound": "Questa storia non esiste.",
+    "title": "Titolo",
+    "criterionText": "Criterio",
+    "moveCriterion": "Sposta criterio: {{text}}",
+    "deleteCriterion": "Elimina criterio: {{text}}",
+    "inSprint": "Nello Sprint 1",
+    "delete": "Elimina story",
+    "deleteConfirm_one": "Eliminare {{code}} con {{count}} criterio? L’operazione non si può annullare.",
+    "deleteConfirm_other": "Eliminare {{code}} con {{count}} criteri? L’operazione non si può annullare.",
+    "deleteYes": "Elimina",
+    "deleteNo": "Mantieni la story",
+    "dnd": {
+      "instructions": "Premi spazio per prendere un criterio. Spostalo con le frecce, rilascialo con spazio, annulla con esc.",
+      "over": "{{title}} va in posizione {{position}}.",
+      "dropped": "{{title}} è ora in posizione {{position}}."
+    }
+  },
+  "state": {
+    "loading": "Caricamento…",
+    "saveFailed": "Salvataggio non riuscito: {{message}}",
+    "loadFailed": "Caricamento non riuscito: {{message}}"
+  },
+  "edit": {
+    "action": "modifica {{field}}"
+  },
+  "epics": {
+    "title": "Epic",
+    "hint": "Gli epic raggruppano le story. Fai clic su un nome per rinominarlo, sul pallino per cambiarne il colore.",
+    "none": "Ancora nessun epic.",
+    "new": "Nuovo epic",
+    "name": "Nome",
+    "add": "Aggiungi epic",
+    "newInSelect": "+ Nuovo epic…",
+    "colorLabel": "Colore",
+    "colorOf": "Colore di {{name}}",
+    "color": {
+      "blue": "Blu",
+      "amber": "Ambra",
+      "teal": "Verde acqua",
+      "violet": "Viola",
+      "rose": "Rosa",
+      "green": "Verde",
+      "cyan": "Ciano",
+      "slate": "Ardesia"
+    },
+    "storyCount_one": "{{count}} story",
+    "storyCount_other": "{{count}} story",
+    "delete": "Elimina epic {{name}}",
+    "inUse_one": "Usato da {{count}} story. Assegnala prima a un altro epic.",
+    "inUse_other": "Usato da {{count}} story. Assegnale prima a un altro epic.",
+    "changeColor": "Colore di {{name}}: {{color}}. Cambia colore"
+  }
+}

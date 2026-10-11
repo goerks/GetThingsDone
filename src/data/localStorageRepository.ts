@@ -1,0 +1,115 @@
+import { normalizeColorKey } from '../domain/epics';
+import type { Criterion, Epic, Snapshot, Story } from '../domain/types';
+import type { Repository, StoryPosition } from './repository';
+
+const KEY = 'getitdone.snapshot.v1';
+
+/**
+ * Browser fallback and test double. Keeps the data in localStorage.
+ * The desktop app uses SqliteRepository instead.
+ */
+export class LocalStorageRepository implements Repository {
+  private read(): Snapshot {
+    try {
+      const raw = window.localStorage.getItem(KEY);
+      if (raw) {
+        const snapshot = JSON.parse(raw) as Snapshot;
+        snapshot.epics = snapshot.epics.map((epic) => ({ ...epic, colorKey: normalizeColorKey(epic.colorKey) }));
+        return snapshot;
+      }
+    } catch {
+      // fall through to an empty snapshot
+    }
+    return { epics: [], stories: [] };
+  }
+
+  private write(snapshot: Snapshot): void {
+    window.localStorage.setItem(KEY, JSON.stringify(snapshot));
+  }
+
+  private changeStories(change: (stories: Story[]) => Story[]): void {
+    const snapshot = this.read();
+    snapshot.stories = change(snapshot.stories);
+    this.write(snapshot);
+  }
+
+  private changeCriteria(change: (criteria: Criterion[], story: Story) => Criterion[]): void {
+    this.changeStories((stories) => stories.map((story) => ({ ...story, criteria: change(story.criteria, story) })));
+  }
+
+  private changeEpics(change: (epics: Epic[]) => Epic[]): void {
+    const snapshot = this.read();
+    snapshot.epics = change(snapshot.epics);
+    this.write(snapshot);
+  }
+
+  async load(): Promise<Snapshot> {
+    return this.read();
+  }
+
+  async replaceAll(snapshot: Snapshot): Promise<void> {
+    this.write(snapshot);
+  }
+
+  async savePositions(positions: readonly StoryPosition[]): Promise<void> {
+    const byId = new Map(positions.map((position) => [position.id, position]));
+    this.changeStories((stories) =>
+      stories.map((story) => {
+        const position = byId.get(story.id);
+        return position ? { ...story, ...position } : story;
+      })
+    );
+  }
+
+  async addStory(story: Story): Promise<void> {
+    this.changeStories((stories) => [...stories, story]);
+  }
+
+  async updateStory(story: Story): Promise<void> {
+    this.changeStories((stories) => stories.map((item) => (item.id === story.id ? { ...story, criteria: item.criteria } : item)));
+  }
+
+  async deleteStory(storyId: string): Promise<void> {
+    this.changeStories((stories) => stories.filter((story) => story.id !== storyId));
+  }
+
+  async addCriterion(storyId: string, criterion: Criterion, position: number): Promise<void> {
+    this.changeCriteria((criteria, story) => {
+      if (story.id !== storyId) return criteria;
+      const list = [...criteria];
+      list.splice(position, 0, criterion);
+      return list;
+    });
+  }
+
+  async setCriterionDone(criterionId: string, done: boolean): Promise<void> {
+    this.changeCriteria((criteria) => criteria.map((item) => (item.id === criterionId ? { ...item, done } : item)));
+  }
+
+  async setCriterionText(criterionId: string, text: string): Promise<void> {
+    this.changeCriteria((criteria) => criteria.map((item) => (item.id === criterionId ? { ...item, text } : item)));
+  }
+
+  async deleteCriterion(criterionId: string): Promise<void> {
+    this.changeCriteria((criteria) => criteria.filter((item) => item.id !== criterionId));
+  }
+
+  async saveCriteriaOrder(storyId: string, criterionIds: readonly string[]): Promise<void> {
+    const order = new Map(criterionIds.map((id, index) => [id, index]));
+    this.changeCriteria((criteria, story) =>
+      story.id !== storyId ? criteria : [...criteria].sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
+    );
+  }
+
+  async addEpic(epic: Epic): Promise<void> {
+    this.changeEpics((epics) => [...epics, epic]);
+  }
+
+  async updateEpic(epic: Epic): Promise<void> {
+    this.changeEpics((epics) => epics.map((item) => (item.id === epic.id ? epic : item)));
+  }
+
+  async deleteEpic(epicId: string): Promise<void> {
+    this.changeEpics((epics) => epics.filter((epic) => epic.id !== epicId));
+  }
+}

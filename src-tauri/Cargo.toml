@@ -1,0 +1,24 @@
+[package]
+name = "get-it-done"
+version = "0.1.0"
+description = "Get It Done: a free, local-first tool for agile software development in small teams"
+license = "Apache-2.0"
+edition = "2021"
+
+[lib]
+name = "get_it_done_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
