@@ -1,9 +1,11 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { storiesInEpic } from '../domain/epics';
+import { customFieldsFor } from '../domain/fields';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
+import { FieldControl } from './FieldControl';
 import { ColorPicker } from './EpicDialogs';
 
 /** Details of an epic in a dialog: name and colour are saved at once; an epic without stories can be deleted. */
@@ -26,6 +28,7 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
   }
 
   const count = storiesInEpic(app.stories, epic.id);
+  const customFields = customFieldsFor('epic', app.fields, app.assignments);
   const remove = (): void => {
     if (app.deleteEpic(epic.id)) onClose();
   };
@@ -48,6 +51,14 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
             onChange={(colorKey) => app.updateEpic(epic.id, { colorKey })}
           />
         </div>
+        {customFields.map((field) => (
+          <FieldControl
+            key={field.id}
+            field={field}
+            value={epic.values[field.id]}
+            onChange={(value) => app.setFieldValue(epic.id, field.id, value)}
+          />
+        ))}
         <p className="muted">{t('epics.storyCount', { count })}</p>
         <div className="form__actions dialog__footer">
           <button type="button" className="btn btn--danger-quiet" disabled={count > 0} onClick={remove} aria-describedby={count > 0 ? `${uid}-in-use` : undefined}>

@@ -183,14 +183,7 @@
     "dialogEdit": "Edit field",
     "column": {
       "name": "Field",
-      "kind": "Kind",
-      "type": "Type",
-      "usedOn": "Used on"
-    },
-    "kind": {
-      "system": "System",
-      "builtin": "Built-in",
-      "custom": "Custom"
+      "type": "Type"
     },
     "type": {
       "text": "Text",
@@ -216,9 +209,10 @@
     },
     "itemType": {
       "story": "Stories",
-      "epic": "Epics"
+      "epic": "Epics",
+      "sprint": "Sprints",
+      "release": "Releases"
     },
-    "notUsed": "Not used",
     "label": "Name",
     "dataType": "Type",
     "typeLocked": "The type of an existing field cannot be changed.",
@@ -233,8 +227,6 @@
     "cancel": "Cancel",
     "edit": "Edit field {{name}}",
     "delete": "Delete field {{name}}",
-    "deleteConfirm_one": "Delete the field {{name}}? {{count}} story loses its value. This cannot be undone.",
-    "deleteConfirm_other": "Delete the field {{name}}? {{count}} stories lose their value. This cannot be undone.",
     "deleteYes": "Delete",
     "deleteNo": "Keep field",
     "error": {
@@ -244,7 +236,21 @@
       "optionLabelTaken": "Each option needs a different name."
     },
     "noValue": "No value",
-    "invalidNumber": "Enter a number."
+    "invalidNumber": "Enter a number.",
+    "group": {
+      "system": "System fields",
+      "builtin": "Built-in fields",
+      "custom": "Custom fields"
+    },
+    "useOn": "{{name}} for {{type}}",
+    "locked": "System field, always used",
+    "hideLater": "Built-in fields can be hidden in a later stage",
+    "notAvailable": "{{name}} does not exist for {{type}}",
+    "deleteQuestion": "Delete the field {{name}}? This cannot be undone.",
+    "loseStories_one": "{{count}} story loses its value.",
+    "loseStories_other": "{{count}} stories lose their value.",
+    "loseEpics_one": "{{count}} epic loses its value.",
+    "loseEpics_other": "{{count}} epics lose their value."
   },
   "settings": {
     "title": "Settings",

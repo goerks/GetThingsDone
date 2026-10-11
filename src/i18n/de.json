@@ -183,14 +183,7 @@
     "dialogEdit": "Feld bearbeiten",
     "column": {
       "name": "Feld",
-      "kind": "Art",
-      "type": "Typ",
-      "usedOn": "Verwendet für"
-    },
-    "kind": {
-      "system": "System",
-      "builtin": "Mitgeliefert",
-      "custom": "Eigenes"
+      "type": "Typ"
     },
     "type": {
       "text": "Text",
@@ -216,9 +209,10 @@
     },
     "itemType": {
       "story": "Stories",
-      "epic": "Epics"
+      "epic": "Epics",
+      "sprint": "Sprints",
+      "release": "Releases"
     },
-    "notUsed": "Nicht verwendet",
     "label": "Name",
     "dataType": "Typ",
     "typeLocked": "Der Typ eines bestehenden Felds lässt sich nicht ändern.",
@@ -233,8 +227,6 @@
     "cancel": "Abbrechen",
     "edit": "Feld {{name}} bearbeiten",
     "delete": "Feld {{name}} löschen",
-    "deleteConfirm_one": "Feld {{name}} löschen? {{count}} Story verliert ihren Wert. Das lässt sich nicht rückgängig machen.",
-    "deleteConfirm_other": "Feld {{name}} löschen? {{count}} Stories verlieren ihren Wert. Das lässt sich nicht rückgängig machen.",
     "deleteYes": "Löschen",
     "deleteNo": "Feld behalten",
     "error": {
@@ -244,7 +236,21 @@
       "optionLabelTaken": "Jede Option braucht einen anderen Namen."
     },
     "noValue": "Kein Wert",
-    "invalidNumber": "Bitte eine Zahl eingeben."
+    "invalidNumber": "Bitte eine Zahl eingeben.",
+    "group": {
+      "system": "Systemfelder",
+      "builtin": "Mitgelieferte Felder",
+      "custom": "Eigene Felder"
+    },
+    "useOn": "{{name}} für {{type}}",
+    "locked": "Systemfeld, immer verwendet",
+    "hideLater": "Mitgelieferte Felder lassen sich in einer späteren Stufe ausblenden",
+    "notAvailable": "{{name}} gibt es für {{type}} nicht",
+    "deleteQuestion": "Feld {{name}} löschen? Das lässt sich nicht rückgängig machen.",
+    "loseStories_one": "{{count}} Story verliert ihren Wert.",
+    "loseStories_other": "{{count}} Stories verlieren ihren Wert.",
+    "loseEpics_one": "{{count}} Epic verliert seinen Wert.",
+    "loseEpics_other": "{{count}} Epics verlieren ihren Wert."
   },
   "settings": {
     "title": "Einstellungen",

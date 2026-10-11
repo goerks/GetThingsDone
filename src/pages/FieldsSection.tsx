@@ -2,20 +2,26 @@ import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../components/Dialog';
 import { fieldLabel } from '../components/fieldLabel';
-import { PencilIcon, TrashIcon } from '../components/icons';
-import { assignedTypes, countValues, validateField, type FieldError, type FieldInput } from '../domain/fields';
+import { LockIcon, PencilIcon, TrashIcon } from '../components/icons';
+import { BUILTIN_FIELDS, countValues, validateField, type FieldError, type FieldInput } from '../domain/fields';
 import {
   CUSTOM_DATA_TYPES,
   EPIC_COLOR_KEYS,
   type CustomDataType,
   type EpicColorKey,
   type FieldDefinition,
+  type FieldKind,
   type ItemType
 } from '../domain/types';
 import { useApp } from '../state/AppState';
 
-/** Item types that already show custom fields. */
-const FIELD_ITEM_TYPES: readonly ItemType[] = ['story'];
+/** Item types that show custom fields, one column each in the field table. */
+const FIELD_ITEM_TYPES: readonly ItemType[] = ['story', 'epic'];
+
+/** Item types that get fields later; shown as planned columns. */
+const PLANNED_ITEM_TYPES = ['sprint', 'release'] as const;
+
+const KIND_ORDER: readonly FieldKind[] = ['system', 'builtin', 'custom'];
 
 interface OptionDraft {
   /** Stable React key, also for options that are not saved yet. */
@@ -52,7 +58,8 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
       ? field.options.map((option) => ({ key: option.id, id: option.id, label: option.label, colorKey: option.colorKey }))
       : [emptyOption(0)]
   );
-  const [itemTypes, setItemTypes] = useState<ItemType[]>(() => (field ? assignedTypes(app.assignments, field.id) : ['story']));
+  // Only a new field picks its item types here; later they are switched in the field table.
+  const [itemTypes, setItemTypes] = useState<ItemType[]>(['story']);
   const [error, setError] = useState<FieldError | null>(null);
 
   const changeOption = (key: string, patch: Partial<OptionDraft>): void =>
@@ -158,19 +165,21 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
             </div>
           </fieldset>
         )}
-        <fieldset className="field">
-          <legend>{t('fields.usedOn')}</legend>
-          {FIELD_ITEM_TYPES.map((itemType) => (
-            <label key={itemType} className="check">
-              <input
-                type="checkbox"
-                checked={itemTypes.includes(itemType)}
-                onChange={(event) => toggleType(itemType, event.target.checked)}
-              />
-              {t(`fields.itemType.${itemType}`)}
-            </label>
-          ))}
-        </fieldset>
+        {!field && (
+          <fieldset className="field">
+            <legend>{t('fields.usedOn')}</legend>
+            {FIELD_ITEM_TYPES.map((itemType) => (
+              <label key={itemType} className="check">
+                <input
+                  type="checkbox"
+                  checked={itemTypes.includes(itemType)}
+                  onChange={(event) => toggleType(itemType, event.target.checked)}
+                />
+                {t(`fields.itemType.${itemType}`)}
+              </label>
+            ))}
+          </fieldset>
+        )}
         {error && (
           <div role="alert" className="notice notice--error">
             {t(`fields.error.${error}`)}
@@ -193,11 +202,14 @@ function DeleteFieldDialog({ field, onClose }: { field: FieldDefinition; onClose
   const { t } = useTranslation();
   const app = useApp();
   const name = fieldLabel(t, field);
-  const count = countValues(app.stories, field.id);
+  const stories = countValues(app.stories, field.id);
+  const epics = countValues(app.epics, field.id);
 
   return (
     <Dialog title={t('fields.delete', { name })} onClose={onClose}>
-      <p>{t('fields.deleteConfirm', { name, count })}</p>
+      <p>{t('fields.deleteQuestion', { name })}</p>
+      {stories > 0 && <p>{t('fields.loseStories', { count: stories })}</p>}
+      {epics > 0 && <p>{t('fields.loseEpics', { count: epics })}</p>}
       <div className="form__actions">
         <button
           type="button"
@@ -214,6 +226,83 @@ function DeleteFieldDialog({ field, onClose }: { field: FieldDefinition; onClose
         </button>
       </div>
     </Dialog>
+  );
+}
+
+interface UseCellProps {
+  field: FieldDefinition;
+  itemType: ItemType;
+  name: string;
+}
+
+/** One cell of the matrix: whether a field is used on an item type. */
+function UseCell({ field, itemType, name }: UseCellProps) {
+  const { t } = useTranslation();
+  const app = useApp();
+  const typeName = t(`fields.itemType.${itemType}`);
+  const builtin = BUILTIN_FIELDS.find((item) => item.key === field.builtinKey);
+  if (builtin && !builtin.itemTypes.includes(itemType)) {
+    return (
+      <td className="field-table__use">
+        <span aria-hidden="true">–</span>
+        <span className="sr-only">{t('fields.notAvailable', { name, type: typeName })}</span>
+      </td>
+    );
+  }
+  const used = app.assignments.some((item) => item.fieldId === field.id && item.itemType === itemType);
+  const label = t('fields.useOn', { name, type: typeName });
+  if (field.kind !== 'custom') {
+    const note = field.kind === 'system' ? t('fields.locked') : t('fields.hideLater');
+    return (
+      <td className="field-table__use">
+        <span className="field-table__fixed" title={note}>
+          <input type="checkbox" checked={used} disabled aria-label={`${label}. ${note}`} readOnly />
+          {field.kind === 'system' && <LockIcon />}
+        </span>
+      </td>
+    );
+  }
+  return (
+    <td className="field-table__use">
+      <input type="checkbox" checked={used} aria-label={label} onChange={(event) => app.setFieldUsed(field.id, itemType, event.target.checked)} />
+    </td>
+  );
+}
+
+interface FieldRowProps {
+  field: FieldDefinition;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+function FieldRow({ field, onEdit, onDelete }: FieldRowProps) {
+  const { t } = useTranslation();
+  const name = fieldLabel(t, field);
+  return (
+    <tr>
+      <th scope="row" className="field-table__name">
+        {name}
+      </th>
+      <td>{t(`fields.type.${field.dataType}`)}</td>
+      {FIELD_ITEM_TYPES.map((itemType) => (
+        <UseCell key={itemType} field={field} itemType={itemType} name={name} />
+      ))}
+      {PLANNED_ITEM_TYPES.map((itemType) => (
+        <td key={itemType} className="field-table__planned" />
+      ))}
+      <td className="field-table__actions">
+        {field.kind === 'custom' && (
+          <>
+            <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('fields.edit', { name })} title={t('fields.edit', { name })} onClick={onEdit}>
+              <PencilIcon />
+            </button>
+            <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('fields.delete', { name })} title={t('fields.delete', { name })} onClick={onDelete}>
+              <TrashIcon />
+            </button>
+          </>
+        )}
+      </td>
+    </tr>
   );
 }
 
@@ -243,60 +332,37 @@ export function FieldsSection() {
           <thead>
             <tr>
               <th scope="col">{t('fields.column.name')}</th>
-              <th scope="col">{t('fields.column.kind')}</th>
               <th scope="col">{t('fields.column.type')}</th>
-              <th scope="col">{t('fields.column.usedOn')}</th>
+              {FIELD_ITEM_TYPES.map((itemType) => (
+                <th key={itemType} scope="col" className="field-table__type">
+                  {t(`fields.itemType.${itemType}`)}
+                </th>
+              ))}
+              {PLANNED_ITEM_TYPES.map((itemType) => (
+                <th key={itemType} scope="col" className="field-table__type field-table__planned">
+                  {t(`fields.itemType.${itemType}`)}
+                  <small>{t('settings.planned')}</small>
+                </th>
+              ))}
               <td />
             </tr>
           </thead>
-          <tbody>
-            {app.fields.map((field) => {
-              const name = fieldLabel(t, field);
-              const types = assignedTypes(app.assignments, field.id);
-              return (
-                <tr key={field.id}>
-                  <th scope="row" className="field-table__name">
-                    {name}
+          {KIND_ORDER.map((kind) => {
+            const group = app.fields.filter((field) => field.kind === kind);
+            if (group.length === 0) return null;
+            return (
+              <tbody key={kind}>
+                <tr className="field-table__group">
+                  <th scope="colgroup" colSpan={3 + FIELD_ITEM_TYPES.length + PLANNED_ITEM_TYPES.length}>
+                    {t(`fields.group.${kind}`)}
                   </th>
-                  <td>
-                    <span className={`badge badge--${field.kind}`}>{t(`fields.kind.${field.kind}`)}</span>
-                  </td>
-                  <td>{t(`fields.type.${field.dataType}`)}</td>
-                  <td>
-                    {types.length > 0 ? (
-                      types.map((type) => t(`fields.itemType.${type}`)).join(', ')
-                    ) : (
-                      <span className="muted">{t('fields.notUsed')}</span>
-                    )}
-                  </td>
-                  <td className="field-table__actions">
-                    {field.kind === 'custom' && (
-                      <button
-                        type="button"
-                        className="icon-btn icon-btn--quiet"
-                        aria-label={t('fields.edit', { name })}
-                        title={t('fields.edit', { name })}
-                        onClick={() => setOpen({ kind: 'edit', field })}
-                      >
-                        <PencilIcon />
-                      </button>
-                    )}
-                    {field.kind === 'custom' && (
-                      <button
-                        type="button"
-                        className="icon-btn icon-btn--quiet"
-                        aria-label={t('fields.delete', { name })}
-                        title={t('fields.delete', { name })}
-                        onClick={() => setOpen({ kind: 'delete', field })}
-                      >
-                        <TrashIcon />
-                      </button>
-                    )}
-                  </td>
                 </tr>
-              );
-            })}
-          </tbody>
+                {group.map((field) => (
+                  <FieldRow key={field.id} field={field} onEdit={() => setOpen({ kind: 'edit', field })} onDelete={() => setOpen({ kind: 'delete', field })} />
+                ))}
+              </tbody>
+            );
+          })}
         </table>
       </div>
     </>

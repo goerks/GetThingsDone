@@ -599,16 +599,52 @@ describe('fields', () => {
     expect(within(sections).getByText('Planned')).toBeInTheDocument();
   });
 
-  it('lists system, built-in and custom fields with their type and use', async () => {
+  it('shows a matrix of fields and item types with fixed system and built-in fields', async () => {
     await openFields();
-    const row = (name: string) => screen.getByRole('row', { name: new RegExp(`^${name} `) });
-    expect(within(row('Title')).getByText('System')).toBeInTheDocument();
-    expect(within(row('Title')).getByText('Stories, Epics')).toBeInTheDocument();
-    expect(within(row('Points')).getByText('Built-in')).toBeInTheDocument();
-    expect(within(row('Priority')).getByText('Custom')).toBeInTheDocument();
-    expect(within(row('Priority')).getByText('Single select')).toBeInTheDocument();
-    expect(within(row('Title')).queryByRole('button')).not.toBeInTheDocument();
-    expect(within(row('Priority')).getByRole('button', { name: 'Edit field Priority' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Stories' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Epics' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /^Sprints\s*Planned/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: /^Releases\s*Planned/ })).toBeInTheDocument();
+    expect(screen.getByText('System fields')).toBeInTheDocument();
+    expect(screen.getByText('Custom fields')).toBeInTheDocument();
+
+    const titleForEpics = screen.getByRole('checkbox', { name: 'Title for Epics. System field, always used' });
+    expect(titleForEpics).toBeChecked();
+    expect(titleForEpics).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: /^Points for Stories\. Built-in fields can be hidden/ })).toBeDisabled();
+    expect(screen.queryByRole('checkbox', { name: /^Points for Epics/ })).not.toBeInTheDocument();
+    expect(screen.getByText('Points does not exist for Epics')).toBeInTheDocument();
+
+    expect(screen.getByRole('checkbox', { name: 'Priority for Stories' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Priority for Epics' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Business value for Epics' })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Business value for Epics' })).toBeEnabled();
+    const title = screen.getByRole('row', { name: /^Title / });
+    expect(within(title).queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit field Priority' })).toBeInTheDocument();
+  });
+
+  it('puts a field on epics and edits its value in the epic dialog', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('checkbox', { name: 'Business value for Epics' }));
+    expect(screen.getByRole('checkbox', { name: 'Business value for Epics' })).toBeChecked();
+
+    await user.click(screen.getByRole('link', { name: 'Epics' }));
+    await user.click(await screen.findByRole('button', { name: /Local storage/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Local storage' });
+    expect(within(dialog).getByLabelText('Priority')).toHaveValue('');
+    await user.selectOptions(within(dialog).getByLabelText('Priority'), 'Could');
+    const value = within(dialog).getByLabelText('Business value');
+    await user.type(value, '13');
+    await user.tab();
+
+    const saved = await repository.load();
+    expect(saved.assignments.some((item) => item.fieldId === 'field-demo-value' && item.itemType === 'epic')).toBe(true);
+    expect(saved.epics.find((epic) => epic.id === 'epic-storage')?.values).toEqual({
+      'field-demo-priority': 'opt-could',
+      'field-demo-value': 13
+    });
   });
 
   it('creates a select field that appears on the story page and saves its value', async () => {
@@ -677,11 +713,8 @@ describe('fields', () => {
   it('takes a field off stories without losing its values', async () => {
     const user = userEvent.setup();
     const repository = await openFields();
-    await user.click(screen.getByRole('button', { name: 'Edit field Business value' }));
-    const dialog = screen.getByRole('dialog', { name: 'Edit field' });
-    await user.click(within(dialog).getByRole('checkbox', { name: 'Stories' }));
-    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
-    expect(within(screen.getByRole('row', { name: /^Business value / })).getByText('Not used')).toBeInTheDocument();
+    await user.click(screen.getByRole('checkbox', { name: 'Business value for Stories' }));
+    expect(screen.getByRole('checkbox', { name: 'Business value for Stories' })).not.toBeChecked();
 
     await openStory(/S-1:/);
     await screen.findByLabelText('Priority');
@@ -694,7 +727,8 @@ describe('fields', () => {
     const repository = await openFields();
     await user.click(screen.getByRole('button', { name: 'Delete field Priority' }));
     const dialog = screen.getByRole('dialog', { name: 'Delete field Priority' });
-    expect(dialog).toHaveTextContent('5 stories lose their value');
+    expect(dialog).toHaveTextContent('5 stories lose their value.');
+    expect(dialog).toHaveTextContent('2 epics lose their value.');
     await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
 
     expect(screen.queryByRole('row', { name: /^Priority / })).not.toBeInTheDocument();
