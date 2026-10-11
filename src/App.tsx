@@ -7,9 +7,9 @@ import { BacklogPage } from './pages/BacklogPage';
 import { BoardPage } from './pages/BoardPage';
 import { EpicsPage } from './pages/EpicsPage';
 import { MapPage } from './pages/MapPage';
-import { StoryPage } from './pages/StoryPage';
 import { useRoute } from './router';
 import { AppProvider, useApp } from './state/AppState';
+import { DetailsProvider } from './state/Details';
 import { useTheme } from './theme';
 
 function Shell() {
@@ -37,8 +37,6 @@ function Shell() {
           <MapPage />
         ) : route.name === 'epics' ? (
           <EpicsPage />
-        ) : route.name === 'story' ? (
-          <StoryPage id={route.id} />
         ) : (
           <BoardPage />
         )}
@@ -51,7 +49,9 @@ export default function App({ repository }: { repository?: Promise<Repository> |
   const source = useMemo(() => repository ?? createRepository(), [repository]);
   return (
     <AppProvider repository={source}>
-      <Shell />
+      <DetailsProvider>
+        <Shell />
+      </DetailsProvider>
     </AppProvider>
   );
 }

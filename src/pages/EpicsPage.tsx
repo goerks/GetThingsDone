@@ -1,116 +1,15 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EditableText } from '../components/EditableText';
-import { ColorPicker, NewEpicDialog } from '../components/EpicDialogs';
-import { TrashIcon } from '../components/icons';
+import { NewEpicDialog } from '../components/EpicDialogs';
 import { sortEpics, storiesInEpic } from '../domain/epics';
-import type { Epic } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { useDetails } from '../state/Details';
 
-/** The colour dot of an epic. A click opens the palette; picking a colour, Escape or a click outside closes it. */
-function ColorButton({ epic }: { epic: Epic }) {
-  const { t } = useTranslation();
-  const app = useApp();
-  const uid = useId();
-  const [open, setOpen] = useState(false);
-  const wrapper = useRef<HTMLDivElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (event: MouseEvent): void => {
-      if (!wrapper.current?.contains(event.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onPointerDown);
-    return () => document.removeEventListener('mousedown', onPointerDown);
-  }, [open]);
-
-  const close = (): void => {
-    setOpen(false);
-    button.current?.focus();
-  };
-
-  return (
-    <div
-      ref={wrapper}
-      className="color-button"
-      onKeyDown={(event) => {
-        if (open && event.key === 'Escape') {
-          event.preventDefault();
-          close();
-        }
-      }}
-    >
-      <button
-        ref={button}
-        type="button"
-        className="color-button__trigger"
-        aria-label={t('epics.changeColor', { name: epic.name, color: t(`epics.color.${epic.colorKey}`) })}
-        aria-expanded={open}
-        aria-controls={open ? `${uid}-palette` : undefined}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <span className="color-button__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
-      </button>
-      {open && (
-        <div id={`${uid}-palette`} className="color-button__palette">
-          <ColorPicker
-            name={`${uid}-color`}
-            legend={t('epics.colorOf', { name: epic.name })}
-            value={epic.colorKey}
-            autoFocus
-            onChange={(colorKey) => {
-              app.updateEpic(epic.id, { colorKey });
-              close();
-            }}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function EpicRow({ epic }: { epic: Epic }) {
-  const { t } = useTranslation();
-  const app = useApp();
-  const uid = useId();
-  const count = storiesInEpic(app.stories, epic.id);
-
-  return (
-    <li className="epic-row">
-      <ColorButton epic={epic} />
-      <div className="epic-row__name">
-        <EditableText
-          value={epic.name}
-          label={t('epics.name')}
-          required
-          onSave={(name) => app.updateEpic(epic.id, { name })}
-        />
-      </div>
-      <span className="muted epic-row__count">{t('epics.storyCount', { count })}</span>
-      <button
-        type="button"
-        className="icon-btn icon-btn--quiet"
-        aria-label={t('epics.delete', { name: epic.name })}
-        title={count > 0 ? t('epics.inUse', { count }) : t('epics.delete', { name: epic.name })}
-        disabled={count > 0}
-        aria-describedby={count > 0 ? `${uid}-in-use` : undefined}
-        onClick={() => app.deleteEpic(epic.id)}
-      >
-        <TrashIcon />
-      </button>
-      {count > 0 && (
-        <span id={`${uid}-in-use`} className="sr-only">
-          {t('epics.inUse', { count })}
-        </span>
-      )}
-    </li>
-  );
-}
-
+/** List of all epics; a click opens the epic in a dialog. */
 export function EpicsPage() {
   const { t } = useTranslation();
   const app = useApp();
+  const details = useDetails();
   const [creating, setCreating] = useState(false);
 
   return (
@@ -129,7 +28,18 @@ export function EpicsPage() {
         ) : (
           <ul className="epic-list">
             {sortEpics(app.epics).map((epic) => (
-              <EpicRow key={epic.id} epic={epic} />
+              <li key={epic.id}>
+                <button
+                  type="button"
+                  className="epic-row"
+                  onClick={() => details.openEpic(epic.id)}
+                  onDoubleClick={() => details.openEpic(epic.id)}
+                >
+                  <span className="epic__dot epic-row__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
+                  <span className="epic-row__name">{epic.name}</span>
+                  <span className="muted epic-row__count">{t('epics.storyCount', { count: storiesInEpic(app.stories, epic.id) })}</span>
+                </button>
+              </li>
             ))}
           </ul>
         )}

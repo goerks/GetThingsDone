@@ -1,7 +1,11 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 
 interface Props {
-  title: string;
+  /** Visible heading. Without it, `label` names the dialog for assistive technology. */
+  title?: string;
+  label?: string;
+  /** Wider dialog for detail views. */
+  wide?: boolean;
   onClose: () => void;
   children: ReactNode;
 }
@@ -10,7 +14,7 @@ interface Props {
  * Modal dialog on the native <dialog> element: focus stays inside, Escape closes it,
  * and focus returns to the element that opened it.
  */
-export function Dialog({ title, onClose, children }: Props) {
+export function Dialog({ title, label, wide = false, onClose, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
@@ -30,8 +34,9 @@ export function Dialog({ title, onClose, children }: Props) {
   return (
     <dialog
       ref={ref}
-      className="dialog"
-      aria-labelledby={titleId}
+      className={`dialog${wide ? ' dialog--wide' : ''}`}
+      aria-labelledby={title ? titleId : undefined}
+      aria-label={title ? undefined : label}
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -42,9 +47,11 @@ export function Dialog({ title, onClose, children }: Props) {
       }}
     >
       <div className="dialog__body">
-        <h2 id={titleId} className="dialog__title">
-          {title}
-        </h2>
+        {title && (
+          <h2 id={titleId} className="dialog__title">
+            {title}
+          </h2>
+        )}
         {children}
       </div>
     </dialog>

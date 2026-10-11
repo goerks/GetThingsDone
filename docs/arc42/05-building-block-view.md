@@ -16,8 +16,9 @@
 | Module | Path | Responsibility |
 |---|---|---|
 | Entry | `src/main.tsx`, `src/App.tsx` | Loads fonts and tokens, initialises i18n and theme, renders the shell |
-| Router | `src/router.ts` | Hash routes `#/board`, `#/backlog`, `#/map`, `#/epics`, `#/story/<id>` |
-| Pages | `src/pages/` | `BoardPage` (running sprint, drag and drop), `BacklogPage` (one section per sprint, drag and drop), `MapPage` (story map: epics × sprints, drag and drop, dialogs for sprint, epic and story), `StoryPage` (edit story and criteria, delete), `EpicsPage` (new-epic dialog, rename, colour palette on the dot, delete) |
+| Router | `src/router.ts` | Hash routes `#/board`, `#/backlog`, `#/map`, `#/epics`. Stories, epics and sprints have no route; they open in dialogs over the current page |
+| Pages | `src/pages/` | `BoardPage` (running sprint, drag and drop), `BacklogPage` (one section per sprint, drag and drop), `MapPage` (story map: epics × sprints, drag and drop of stories and upcoming sprints, compact switch, create dialogs), `EpicsPage` (list of epics, new-epic dialog) |
+| Detail dialogs | `src/state/Details.tsx`, `src/components/StoryDialog.tsx`, `EpicDialog.tsx`, `SprintDialog.tsx` | `DetailsProvider` keeps which item is open and renders its dialog over any page; `useDetails()` opens a story, epic or sprint |
 | Components | `src/components/` | `Header`, `BoardColumn`, `StoryCard`, `EpicTag`, `EpicDialogs` (colour picker, new epic), `SprintDialog`, `SprintSelect`, `sprintFormat` (date ranges), `EpicSelect` (with "new epic"), `EditableText` (click to edit), `Dialog` (native modal dialog), `NewStoryDialog`, icons |
 | Drag and drop | `src/dnd/dnd.ts` | Shared sensors (whole card, Enter left free), placement from the pointer, drop target from the resulting list |
 | State | `src/state/AppState.tsx` | React context. Holds the snapshot, applies domain functions, queues writes to the repository in order, reports load and save errors |

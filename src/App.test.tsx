@@ -43,15 +43,16 @@ describe('board', () => {
     expect(screen.queryByRole('button', { name: /^Move / })).not.toBeInTheDocument();
     card.focus();
     await user.keyboard('{Enter}');
-    expect(window.location.hash).toBe('#/story/story-3');
-    expect(await screen.findByRole('heading', { level: 1, name: /Reorder the backlog by priority/ })).toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog', { name: 'S-3: Reorder the backlog by priority' });
+    expect(within(dialog).getByRole('heading', { level: 2, name: /Reorder the backlog by priority/ })).toBeInTheDocument();
+    expect(window.location.hash).toBe('');
   });
 
   it('opens a story on double click', async () => {
     const user = userEvent.setup();
     await renderApp();
     await user.dblClick(screen.getByRole('group', { name: 'S-4: Keep all data in a local database' }));
-    expect(window.location.hash).toBe('#/story/story-4');
+    expect(screen.getByRole('dialog', { name: 'S-4: Keep all data in a local database' })).toBeInTheDocument();
   });
 
   it('shows each column as its own lane without a drop target at rest', async () => {
@@ -125,8 +126,8 @@ describe('backlog', () => {
 
   it('has no move or sprint buttons, the rows are dragged instead', async () => {
     await openBacklog();
-    const main = screen.getByRole('main');
-    expect(within(main).getAllByRole('button').map((b) => b.textContent)).toEqual(['New story']);
+    expect(screen.queryByRole('button', { name: /^Move .* (up|down)$/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Sprint 1 –/ })).not.toBeInTheDocument();
     const row = screen.getByRole('group', { name: /S-2: Tick off acceptance criteria/ });
     expect(row).toHaveAttribute('tabindex', '0');
     expect(row).toHaveAttribute('aria-roledescription', 'backlog story');
@@ -151,7 +152,7 @@ describe('backlog', () => {
     await openBacklog();
     screen.getByRole('group', { name: /S-7: Plan releases on a story map/ }).focus();
     await user.keyboard('{Enter}');
-    expect(window.location.hash).toBe('#/story/story-7');
+    expect(screen.getByRole('dialog', { name: 'S-7: Plan releases on a story map' })).toBeInTheDocument();
   });
 });
 
@@ -159,7 +160,7 @@ describe('story detail', () => {
   it('ticks a criterion and updates the progress', async () => {
     const user = userEvent.setup();
     const repository = await renderApp();
-    await user.click(screen.getByRole('link', { name: 'Create a story with title and description' }));
+    await user.click(screen.getByRole('button', { name: 'Create a story with title and description' }));
 
     expect(await screen.findByText('2 of 4 accepted')).toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: 'A new story appears in "To do"' }));
@@ -171,7 +172,7 @@ describe('story detail', () => {
   it('announces when every criterion is accepted', async () => {
     const user = userEvent.setup();
     await renderApp();
-    await user.click(screen.getByRole('link', { name: 'Tick off acceptance criteria' }));
+    await user.click(screen.getByRole('button', { name: 'Tick off acceptance criteria' }));
     expect(screen.queryByText(/All criteria accepted/)).not.toBeInTheDocument();
     await user.click(await screen.findByRole('checkbox', { name: /marked as ready to merge/ }));
     expect(screen.getByText(/All criteria accepted/)).toHaveAttribute('role', 'status');
@@ -180,7 +181,7 @@ describe('story detail', () => {
   it('adds a criterion', async () => {
     const user = userEvent.setup();
     await renderApp();
-    await user.click(screen.getByRole('link', { name: 'Reorder the backlog by priority' }));
+    await user.click(screen.getByRole('button', { name: 'Reorder the backlog by priority' }));
     await user.type(await screen.findByLabelText('New criterion'), 'Works with 500 stories');
     await user.click(screen.getByRole('button', { name: 'Add criterion' }));
     expect(screen.getByRole('checkbox', { name: 'Works with 500 stories' })).toBeInTheDocument();
@@ -195,7 +196,7 @@ describe('story detail', () => {
     await user.clear(field);
     await user.type(field, 'Prioritise the backlog{Enter}');
 
-    expect(screen.getByRole('heading', { level: 1, name: /Prioritise the backlog/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /Prioritise the backlog/ })).toBeInTheDocument();
     const saved = await repository.load();
     expect(saved.stories.find((s) => s.id === 'story-3')?.title).toBe('Prioritise the backlog');
   });
@@ -206,12 +207,12 @@ describe('story detail', () => {
     await user.dblClick(screen.getByRole('group', { name: /S-3:/ }));
     await user.click(await screen.findByRole('button', { name: /edit Title/ }));
     await user.type(screen.getByRole('textbox', { name: 'Title' }), ' changed{Escape}');
-    expect(screen.getByRole('heading', { level: 1, name: /^Reorder the backlog by priority/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /^Reorder the backlog by priority/ })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /edit Title/ }));
     await user.clear(screen.getByRole('textbox', { name: 'Title' }));
     await user.keyboard('{Enter}');
-    expect(screen.getByRole('heading', { level: 1, name: /^Reorder the backlog by priority/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /^Reorder the backlog by priority/ })).toBeInTheDocument();
   });
 
   it('edits the description, saved when the field is left', async () => {
@@ -257,7 +258,7 @@ describe('story detail', () => {
   it('edits and deletes acceptance criteria', async () => {
     const user = userEvent.setup();
     const repository = await renderApp();
-    await user.click(screen.getByRole('link', { name: 'Create a story with title and description' }));
+    await user.click(screen.getByRole('button', { name: 'Create a story with title and description' }));
     const editButtons = await screen.findAllByRole('button', { name: /edit Criterion/ });
     await user.click(editButtons[0]);
     const field = screen.getByRole('textbox', { name: 'Criterion' });
@@ -280,7 +281,7 @@ describe('story detail', () => {
   it('offers a keyboard handle to reorder criteria', async () => {
     const user = userEvent.setup();
     await renderApp();
-    await user.click(screen.getByRole('link', { name: 'Create a story with title and description' }));
+    await user.click(screen.getByRole('button', { name: 'Create a story with title and description' }));
     expect(await screen.findByRole('button', { name: 'Move criterion: A story needs a title' })).toBeInTheDocument();
   });
 
@@ -295,16 +296,30 @@ describe('story detail', () => {
 
     await user.click(screen.getByRole('button', { name: 'Delete story' }));
     await user.click(screen.getByRole('button', { name: 'Delete' }));
-    expect(window.location.hash).toBe('#/board');
-    expect(await screen.findByRole('heading', { name: 'Sprint 1', level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sprint 1', level: 1 })).toBeInTheDocument();
     expect(screen.queryByText('Reorder the backlog by priority')).not.toBeInTheDocument();
     expect((await repository.load()).stories.some((s) => s.id === 'story-3')).toBe(false);
   });
 
-  it('shows a message for an unknown story', async () => {
-    window.location.hash = '#/story/unknown';
-    render(<App repository={new LocalStorageRepository()} />);
-    expect(await screen.findByText('This story does not exist.')).toBeInTheDocument();
+  it('opens a story over the current page and returns there when closed', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await user.click(screen.getByRole('link', { name: 'Backlog' }));
+    await user.click(await screen.findByRole('button', { name: 'Tick off acceptance criteria' }));
+    const dialog = screen.getByRole('dialog', { name: 'S-2: Tick off acceptance criteria' });
+    expect(screen.getByRole('heading', { name: 'Backlog', level: 1 })).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(window.location.hash).toBe('#/backlog');
+  });
+
+  it('opens the epic of a story from its epic name', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    const card = screen.getByRole('group', { name: /S-4/ });
+    await user.click(within(card).getByRole('button', { name: 'Local storage' }));
+    expect(screen.getByRole('dialog', { name: 'Local storage' })).toBeInTheDocument();
   });
 });
 
@@ -321,30 +336,7 @@ describe('epics', () => {
     await openEpics();
     const rows = screen.getAllByRole('listitem');
     expect(rows).toHaveLength(4);
-    expect(within(rows[0]).getByText('Boards')).toBeInTheDocument();
-    expect(within(rows[0]).getByText('2 stories')).toBeInTheDocument();
-  });
-
-  it('shows only the colour dot of an epic, the palette opens on click', async () => {
-    const user = userEvent.setup();
-    const repository = await openEpics();
-    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
-    const trigger = screen.getByRole('button', { name: 'Colour of Boards: Blue. Change colour' });
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    await user.click(trigger);
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    await user.click(within(screen.getByRole('group', { name: 'Colour of Boards' })).getByRole('radio', { name: 'Green' }));
-
-    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Colour of Boards: Green. Change colour' })).toHaveFocus();
-    expect((await repository.load()).epics.find((e) => e.id === 'epic-boards')?.colorKey).toBe('green');
-  });
-
-  it('closes the palette with Escape without a change', async () => {
-    const user = userEvent.setup();
-    await openEpics();
-    await user.click(screen.getByRole('button', { name: /Colour of Backlog/ }));
-    await user.keyboard('{Escape}');
+    expect(within(rows[0]).getByRole('button', { name: /Boards.*2 stories/ })).toBeInTheDocument();
     expect(screen.queryByRole('radio')).not.toBeInTheDocument();
   });
 
@@ -362,28 +354,39 @@ describe('epics', () => {
     expect((await repository.load()).epics.find((e) => e.name === 'Reporting')?.colorKey).toBe('slate');
   });
 
-  it('renames an epic in place', async () => {
+  it('renames and recolours an epic in its dialog', async () => {
     const user = userEvent.setup();
     const repository = await openEpics();
-    const row = screen.getAllByRole('listitem')[0];
-    await user.click(within(row).getByRole('button', { name: /edit Name/ }));
-    const field = within(row).getByRole('textbox', { name: 'Name' });
+    await user.click(screen.getByRole('button', { name: /^Boards/ }));
+    const dialog = screen.getByRole('dialog', { name: 'Boards' });
+    await user.click(within(dialog).getByRole('button', { name: /edit Name/ }));
+    const field = within(dialog).getByRole('textbox', { name: 'Name' });
     await user.clear(field);
     await user.type(field, 'Board{Enter}');
-    expect((await repository.load()).epics.find((e) => e.id === 'epic-boards')?.name).toBe('Board');
+    await user.click(within(within(dialog).getByRole('group', { name: 'Colour of Board' })).getByRole('radio', { name: 'Green' }));
+
+    const saved = await repository.load();
+    expect(saved.epics.find((e) => e.id === 'epic-boards')).toMatchObject({ name: 'Board', colorKey: 'green' });
   });
 
   it('does not delete an epic that still has stories, but deletes an empty one', async () => {
     const user = userEvent.setup();
     const repository = await openEpics();
-    expect(screen.getByRole('button', { name: 'Delete epic Boards' })).toBeDisabled();
-    expect(screen.getAllByText('Used by 2 stories. Move them to another epic first.').length).toBeGreaterThan(0);
+    await user.click(screen.getByRole('button', { name: /^Boards/ }));
+    let dialog = screen.getByRole('dialog', { name: 'Boards' });
+    expect(within(dialog).getByRole('button', { name: 'Delete epic' })).toBeDisabled();
+    expect(within(dialog).getByText('Used by 2 stories. Move them to another epic first.')).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
 
     await user.click(screen.getByRole('button', { name: 'New epic' }));
-    await user.type(screen.getByLabelText('Name'), 'Empty');
-    await user.click(screen.getByRole('button', { name: 'Add epic' }));
-    await user.click(screen.getByRole('button', { name: 'Delete epic Empty' }));
-    expect(screen.queryByText('Empty')).not.toBeInTheDocument();
+    dialog = screen.getByRole('dialog', { name: 'New epic' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Empty');
+    await user.click(within(dialog).getByRole('button', { name: 'Add epic' }));
+    await user.click(screen.getByRole('button', { name: /^Empty/ }));
+    await user.click(within(screen.getByRole('dialog', { name: 'Empty' })).getByRole('button', { name: 'Delete epic' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Empty/ })).not.toBeInTheDocument();
     expect((await repository.load()).epics.some((e) => e.name === 'Empty')).toBe(false);
   });
 });
@@ -418,7 +421,7 @@ describe('story map', () => {
     expect(card).toHaveAttribute('tabindex', '0');
     card.focus();
     await user.keyboard('{Enter}');
-    expect(window.location.hash).toBe('#/story/story-4');
+    expect(screen.getByRole('dialog', { name: 'S-4: Keep all data in a local database' })).toBeInTheDocument();
   });
 
   it('adds a sprint after the last one, prefilled for two weeks', async () => {
@@ -498,6 +501,40 @@ describe('story map', () => {
     });
   });
 
+  it('has no "New story" or "+ Sprint" buttons at the top, only in the map', async () => {
+    await openMap();
+    const head = screen.getByRole('heading', { name: 'Story Map', level: 1 }).parentElement as HTMLElement;
+    expect(within(head).queryByRole('button', { name: 'New story' })).not.toBeInTheDocument();
+    expect(within(head).queryByRole('button', { name: '+ Sprint' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: '+ Sprint' })).toHaveLength(1);
+  });
+
+  it('opens an epic from its column header', async () => {
+    const user = userEvent.setup();
+    await openMap();
+    await user.click(screen.getByRole('button', { name: /^Local storage1 story/ }));
+    expect(screen.getByRole('dialog', { name: 'Local storage' })).toBeInTheDocument();
+  });
+
+  it('switches to compact cards and remembers the choice', async () => {
+    const user = userEvent.setup();
+    await openMap();
+    const toggle = screen.getByRole('button', { name: 'Compact' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(document.querySelector('.map--compact')).not.toBeNull();
+    expect(window.localStorage.getItem('getitdone.mapCompact')).toBe('true');
+    await user.click(toggle);
+    expect(document.querySelector('.map--compact')).toBeNull();
+  });
+
+  it('lets only sprints that have not started be dragged', async () => {
+    await openMap();
+    expect(screen.getByRole('button', { name: /^Sprint 2/ })).toHaveAttribute('aria-roledescription', 'sprint');
+    expect(screen.getByRole('button', { name: /^Sprint 1/ })).not.toHaveAttribute('aria-roledescription');
+  });
+
   it('marks nothing as a drop target at rest', async () => {
     await openMap();
     expect(document.querySelector('[data-drop-target]')).toBeNull();
@@ -563,7 +600,7 @@ describe('router', () => {
     expect(parseHash('#/backlog')).toEqual({ name: 'backlog' });
     expect(parseHash('#/epics')).toEqual({ name: 'epics' });
     expect(parseHash('#/map')).toEqual({ name: 'map' });
-    expect(parseHash('#/story/abc')).toEqual({ name: 'story', id: 'abc' });
+    expect(parseHash('#/story/abc')).toEqual({ name: 'board' });
     expect(parseHash('')).toEqual({ name: 'board' });
     expect(parseHash('#/nonsense')).toEqual({ name: 'board' });
   });

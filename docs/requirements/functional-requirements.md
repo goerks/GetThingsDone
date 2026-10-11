@@ -87,11 +87,13 @@ Source: Vision (MVP scope), PO feedback · Status: Implemented · Verified by: A
 
 ## Story detail and acceptance criteria (STORY)
 
-### FR-STORY-01 Story detail
-As a team member, I want to open a story and see its description, status, epic, points and sprint membership.
-- An unknown story id shows a message instead of an error.
+### FR-STORY-01 Story detail in a dialog
+As a team member, I want to open a story and see its description, status, epic, points and sprint, without leaving the page I am on.
+- Double click on a card or row, Enter on a focused card or a click on its title opens the story in a dialog over the current page (board, backlog or story map). The address does not change.
+- Escape, the close button or a click outside closes the dialog and returns focus to the card.
+- The same applies to epics (click on an epic name, an epic header on the map or a row of the Epics page) and sprints (click on a sprint label on the map); releases will follow the same pattern.
 
-Source: Vision · Status: Implemented · Verified by: App "shows a message for an unknown story"
+Source: Vision, PO feedback on #2 · Status: Implemented · Verified by: App "makes the whole card a keyboard stop…", "opens a story on double click", "opens a story over the current page…", "opens the epic of a story from its epic name", "opens an epic from its column header"
 
 ### FR-STORY-02 Tick off acceptance criteria
 As a PO, I want to tick off each criterion and see the progress, so that I can accept the story.
@@ -123,10 +125,10 @@ Source: Vision · Status: Implemented
 
 ### FR-EPIC-02 Manage epics
 As a PO, I want to create, rename, recolour and delete epics.
-- Page "Epics" in the main navigation lists every epic with its colour dot, name and number of stories.
+- Page "Epics" in the main navigation lists every epic with its colour dot, name and number of stories. A click on an epic opens it in a dialog.
 - "New epic" opens a dialog with name and one of eight colours; the first unused colour is suggested.
-- The name is edited in place. A click on the colour dot opens the palette (a radio group, also by keyboard); picking a colour saves it and closes the palette, Escape or a click outside closes it unchanged.
-- An epic that still has stories cannot be deleted; the page says how many stories use it.
+- In the epic dialog the name is edited in place and the colour is picked from the palette (a radio group, also by keyboard); both are saved at once.
+- An epic that still has stories cannot be deleted; the dialog says how many stories use it.
 - The epic field on the story page and in the new story form offers "+ New epic…".
 
 Source: Vision, PO feedback · Status: Implemented · Verified by: App "epics" tests, "creates a new epic from the epic field", epics.test
@@ -205,16 +207,30 @@ As a PO, I want to drag a story into another cell, so that I change its sprint a
 Source: Issue #2 · Status: Implemented · Verified by: board.test "story map"; highlight, crosshair and keyboard drag: manual check in Chromium
 
 ### FR-MAP-03 Create sprints, epics and stories on the map
-- "+ Sprint" (page head and below the last sprint) opens the sprint dialog, prefilled.
+- There are no create buttons in the page head: everything is created where it belongs on the map.
+- "+ Sprint" below the last sprint opens the sprint dialog, prefilled.
 - A click on a sprint label edits its name and dates.
 - "+" at the end of the epic headers opens "New epic".
 - "+" in a cell opens "New story" with that epic and sprint prefilled.
 
-Source: Issue #2 · Status: Implemented · Verified by: App "adds a sprint…", "edits a sprint…", "adds an epic as a new column", "creates a story directly in a cell…"
+Source: Issue #2, PO feedback · Status: Implemented · Verified by: App "adds a sprint…", "edits a sprint…", "adds an epic as a new column", "creates a story directly in a cell…", "has no "New story" or "+ Sprint" buttons at the top…"
+
+### FR-MAP-04 Reorder upcoming sprints
+As a PO, I want to drag a sprint that has not started yet up or down, so that I can change the order of the coming sprints.
+- Only sprints whose start date is after today can be dragged (mouse, touch, keyboard). They cannot be dropped above the running sprint or below "Not planned".
+- While dragging, a line shows the new position with the sprint's new dates.
+- After the drop, every upcoming sprint keeps its length and the start dates follow each other without gaps from the end of the running sprint.
+
+Source: PO feedback on #2 · Status: Implemented · Verified by: sprints.test "reordering upcoming sprints", App "lets only sprints that have not started be dragged"; drag with line and dates: manual check in Chromium
+
+### FR-MAP-05 Compact cards
+As a PO, I want to collapse the cards on the map to one line (key and title) and back, so that I see more of the plan at once. The switch "Compact" is in the page head and is remembered.
+
+Source: PO feedback on #2 · Status: Implemented · Verified by: App "switches to compact cards and remembers the choice"
 
 ## Later
 
 | ID | Requirement | Status |
 |---|---|---|
-| FR-MAP-04 | Activities above epics on the map | Open (out of scope of #2) |
-| FR-MAP-05 | Release slices in addition to sprints | Open (out of scope of #2) |
+| FR-MAP-06 | Activities above epics on the map | Open (out of scope of #2) |
+| FR-MAP-07 | Release slices in addition to sprints | Open (out of scope of #2) |

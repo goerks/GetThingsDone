@@ -4,6 +4,7 @@ import {
   createSprint,
   isValidDay,
   mapSprints,
+  moveSprint,
   newSprintDefaults,
   runningSprint,
   sortSprints,
@@ -105,5 +106,55 @@ describe('new sprint', () => {
     expect(changed[0]).toEqual({ id: 'now', name: 'Kick-off', startDate: '2026-10-06', endDate: '2026-10-19' });
     const list = [now];
     expect(updateSprint(list, 'now', { name: 'x', startDate: '2026-10-19', endDate: '2026-10-06' })).toBe(list);
+  });
+});
+
+describe('reordering upcoming sprints', () => {
+  // today 2026-10-11: "now" runs until 10-18; next, later and last are upcoming.
+  const later = sprint('later', '2026-11-02', '2026-11-08', 'Sprint 4'); // one week
+  const last = sprint('last', '2026-11-09', '2026-11-22', 'Sprint 5');
+  const all = [past, now, next, later, last];
+  const dates = (list: Sprint[]): Array<[string, string, string]> =>
+    sortSprints(list).map((s) => [s.id, s.startDate, s.endDate]);
+
+  it('moves a sprint up and recalculates dates without gaps, each sprint keeping its length', () => {
+    expect(dates(moveSprint(all, '2026-10-11', 'last', 'next', 'before'))).toEqual([
+      ['past', '2026-09-21', '2026-10-04'],
+      ['now', '2026-10-05', '2026-10-18'],
+      ['last', '2026-10-19', '2026-11-01'],
+      ['next', '2026-11-02', '2026-11-15'],
+      ['later', '2026-11-16', '2026-11-22']
+    ]);
+  });
+
+  it('moves a sprint down', () => {
+    expect(dates(moveSprint(all, '2026-10-11', 'next', 'later', 'after')).map(([id]) => id)).toEqual([
+      'past',
+      'now',
+      'later',
+      'next',
+      'last'
+    ]);
+  });
+
+  it('closes a gap after the running sprint', () => {
+    const gap = [now, sprint('far', '2026-12-01', '2026-12-14')];
+    const other = sprint('other', '2027-01-01', '2027-01-14');
+    expect(dates(moveSprint([...gap, other], '2026-10-11', 'other', 'far', 'before'))).toEqual([
+      ['now', '2026-10-05', '2026-10-18'],
+      ['other', '2026-10-19', '2026-11-01'],
+      ['far', '2026-11-02', '2026-11-15']
+    ]);
+  });
+
+  it('never moves the running sprint or a sprint above it', () => {
+    expect(moveSprint(all, '2026-10-11', 'now', 'last', 'after')).toBe(all);
+    expect(moveSprint(all, '2026-10-11', 'last', 'now', 'before')).toBe(all);
+    expect(moveSprint(all, '2026-10-11', 'last', 'past', 'before')).toBe(all);
+  });
+
+  it('returns the same list when nothing changes', () => {
+    expect(moveSprint(all, '2026-10-11', 'next', 'later', 'before')).toBe(all);
+    expect(moveSprint(all, '2026-10-11', 'next', 'next', 'after')).toBe(all);
   });
 });
