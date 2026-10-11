@@ -17,6 +17,7 @@ Code, comments, commit messages, issues, pull requests and documentation are in 
 2. One feature branch per feature, created from `main`: `feature/<issue-number>-<short-name>`. Never push to `main`.
 3. Open a pull request against `main`. Describe what changed and list the acceptance criteria as a checklist.
 4. CI builds the Windows app on every push (artifact `GetItDone-windows`) so the PO can test locally. A public browser preview of the branch is planned.
+   After every push that changes the app, wait for the Windows build and post the test link in the conversation: the direct artifact download (`https://github.com/<owner>/<repo>/actions/runs/<run-id>/artifacts/<artifact-id>`) and the run page, with the commit it was built from. If the build fails, fix it first.
 5. The PO accepts in the pull request. Do not merge without PO approval.
 
 ### Bootstrap exception (release 0.1 only)
