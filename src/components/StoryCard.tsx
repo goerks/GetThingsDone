@@ -1,41 +1,19 @@
-import type { ReactNode } from 'react';
+import type { KeyboardEvent } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { criteriaProgress } from '../domain/board';
 import type { Epic, Story } from '../domain/types';
-import { hrefs } from '../router';
+import { hrefs, openStory } from '../router';
 import { EpicTag } from './EpicTag';
 
-interface ContentProps {
-  story: Story;
-  epic: Epic | undefined;
-  handle: ReactNode;
-}
-
-function GripIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-      <circle cx="5" cy="3" r="1.4" />
-      <circle cx="11" cy="3" r="1.4" />
-      <circle cx="5" cy="8" r="1.4" />
-      <circle cx="11" cy="8" r="1.4" />
-      <circle cx="5" cy="13" r="1.4" />
-      <circle cx="11" cy="13" r="1.4" />
-    </svg>
-  );
-}
-
-function CardContent({ story, epic, handle }: ContentProps) {
+function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) {
   const { t } = useTranslation();
   const progress = criteriaProgress(story);
   return (
     <>
-      <div className="card__top">
-        <span className="card__code">{story.code}</span>
-        {handle}
-      </div>
-      <a className="card__title" href={hrefs.story(story.id)}>
+      <span className="card__code">{story.code}</span>
+      {/* The card itself is the keyboard stop (Enter opens it), so the link is for the mouse only. */}
+      <a className="card__title" href={hrefs.story(story.id)} tabIndex={-1} draggable={false}>
         {story.title}
       </a>
       <div className="card__progress">
@@ -60,36 +38,47 @@ function CardContent({ story, epic, handle }: ContentProps) {
   );
 }
 
-/** A card that can be dragged with mouse, touch or keyboard through its handle. */
-export function SortableStoryCard({ story, epic }: { story: Story; epic: Epic | undefined }) {
+interface SortableProps {
+  story: Story;
+  epic: Epic | undefined;
+  /** Shows the drop line above this card. */
+  dropBefore?: boolean;
+}
+
+/**
+ * A card that is dragged as a whole with mouse, touch or keyboard.
+ * Double click or Enter opens the story.
+ */
+export function SortableStoryCard({ story, epic, dropBefore = false }: SortableProps) {
   const { t } = useTranslation();
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
-    id: story.id
+  const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
+    id: story.id,
+    attributes: { role: 'group', roleDescription: t('board.cardRole') }
   });
+
+  const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
+    if (event.key === 'Enter' && !active && event.target === event.currentTarget) {
+      event.preventDefault();
+      openStory(story.id);
+      return;
+    }
+    listeners?.onKeyDown?.(event);
+  };
+
+  const classes = ['card', isDragging && 'card--dragging', dropBefore && 'drop-before'].filter(Boolean).join(' ');
 
   return (
     <article
       ref={setNodeRef}
-      className={`card${isDragging ? ' card--dragging' : ''}`}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={classes}
       data-story-id={story.id}
+      {...attributes}
+      aria-label={`${story.code}: ${story.title}`}
+      {...listeners}
+      onKeyDown={onKeyDown}
+      onDoubleClick={() => openStory(story.id)}
     >
-      <CardContent
-        story={story}
-        epic={epic}
-        handle={
-          <button
-            type="button"
-            ref={setActivatorNodeRef}
-            className="drag-handle"
-            aria-label={t('board.dragHandle', { title: story.title })}
-            {...attributes}
-            {...listeners}
-          >
-            <GripIcon />
-          </button>
-        }
-      />
+      <CardContent story={story} epic={epic} />
     </article>
   );
 }
@@ -97,16 +86,8 @@ export function SortableStoryCard({ story, epic }: { story: Story; epic: Epic | 
 /** The card that follows the pointer while dragging. */
 export function OverlayCard({ story, epic }: { story: Story; epic: Epic | undefined }) {
   return (
-    <article className="card card--overlay">
-      <CardContent
-        story={story}
-        epic={epic}
-        handle={
-          <span className="drag-handle" aria-hidden="true">
-            <GripIcon />
-          </span>
-        }
-      />
+    <article className="card card--overlay" aria-hidden="true">
+      <CardContent story={story} epic={epic} />
     </article>
   );
 }

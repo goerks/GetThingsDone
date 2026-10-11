@@ -32,6 +32,9 @@ export function Header({ route, theme, onToggleTheme }: Props) {
         <a href={hrefs.backlog} className="nav__link" aria-current={route.name === 'backlog' ? 'page' : undefined}>
           {t('nav.backlog')}
         </a>
+        <a href={hrefs.epics} className="nav__link" aria-current={route.name === 'epics' ? 'page' : undefined}>
+          {t('nav.epics')}
+        </a>
         <span className="nav__link nav__link--disabled">
           {t('nav.storyMap')}
           <span className="badge" aria-hidden="true">
