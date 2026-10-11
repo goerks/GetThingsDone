@@ -7,7 +7,8 @@
     "board": "Board",
     "backlog": "Backlog",
     "storyMap": "Story Map",
-    "epics": "Epics"
+    "epics": "Epics",
+    "fields": "Fields"
   },
   "header": {
     "toDark": "Switch to dark theme",
@@ -131,7 +132,8 @@
     "inUse_one": "Used by {{count}} story. Move it to another epic first.",
     "inUse_other": "Used by {{count}} stories. Move them to another epic first.",
     "notFound": "This epic does not exist any more.",
-    "deleteButton": "Delete epic"
+    "deleteButton": "Delete epic",
+    "noEpic": "No epic"
   },
   "sprint": {
     "label": "Sprint",
@@ -172,5 +174,76 @@
     "editOrMoveSprint": "Click to edit, drag to reorder",
     "compact": "Compact",
     "sprintDropLabel": "{{name}} · {{dates}}"
+  },
+  "fields": {
+    "title": "Fields",
+    "hint": "Fields describe your items. System fields are always there, built-in fields come with the app, and you can add your own.",
+    "new": "New field",
+    "dialogNew": "New field",
+    "dialogEdit": "Edit field",
+    "column": {
+      "name": "Field",
+      "kind": "Kind",
+      "type": "Type",
+      "usedOn": "Used on"
+    },
+    "kind": {
+      "system": "System",
+      "builtin": "Built-in",
+      "custom": "Custom"
+    },
+    "type": {
+      "text": "Text",
+      "long_text": "Long text",
+      "number": "Number",
+      "single_select": "Single select",
+      "key": "Key",
+      "status": "Status",
+      "epic": "Epic link",
+      "points": "Points",
+      "checklist": "Checklist",
+      "color": "Colour"
+    },
+    "builtin": {
+      "key": "Key",
+      "title": "Title",
+      "status": "Status",
+      "description": "Description",
+      "epic": "Epic",
+      "points": "Points",
+      "criteria": "Acceptance criteria",
+      "color": "Colour"
+    },
+    "itemType": {
+      "story": "Stories",
+      "epic": "Epics"
+    },
+    "notUsed": "Not used",
+    "label": "Name",
+    "dataType": "Type",
+    "typeLocked": "The type of an existing field cannot be changed.",
+    "options": "Options",
+    "option": "Option {{position}}",
+    "optionColor": "Colour of option {{position}}",
+    "addOption": "Add option",
+    "removeOption": "Remove option {{position}}",
+    "usedOn": "Used on",
+    "create": "Add field",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit field {{name}}",
+    "delete": "Delete field {{name}}",
+    "deleteConfirm_one": "Delete the field {{name}}? {{count}} story loses its value. This cannot be undone.",
+    "deleteConfirm_other": "Delete the field {{name}}? {{count}} stories lose their value. This cannot be undone.",
+    "deleteYes": "Delete",
+    "deleteNo": "Keep field",
+    "error": {
+      "labelRequired": "Enter a name.",
+      "labelTaken": "A field with this name already exists.",
+      "optionsRequired": "Add at least one option.",
+      "optionLabelTaken": "Each option needs a different name."
+    },
+    "noValue": "No value",
+    "invalidNumber": "Enter a number."
   }
 }

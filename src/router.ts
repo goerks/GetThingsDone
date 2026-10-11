@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 
-export type Route = { name: 'board' } | { name: 'backlog' } | { name: 'map' } | { name: 'epics' };
+export type Route = { name: 'board' } | { name: 'backlog' } | { name: 'map' } | { name: 'epics' } | { name: 'fields' };
 
 export const hrefs = {
   board: '#/board',
   backlog: '#/backlog',
   map: '#/map',
-  epics: '#/epics'
+  epics: '#/epics',
+  fields: '#/fields'
 };
 
 export function parseHash(hash: string): Route {
@@ -14,6 +15,7 @@ export function parseHash(hash: string): Route {
   if (path === 'backlog') return { name: 'backlog' };
   if (path === 'map') return { name: 'map' };
   if (path === 'epics') return { name: 'epics' };
+  if (path === 'fields') return { name: 'fields' };
   return { name: 'board' };
 }
 

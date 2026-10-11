@@ -7,7 +7,8 @@
     "board": "Tableau",
     "backlog": "Backlog",
     "storyMap": "Story Map",
-    "epics": "Epics"
+    "epics": "Epics",
+    "fields": "Champs"
   },
   "header": {
     "toDark": "Passer au thème sombre",
@@ -131,7 +132,8 @@
     "inUse_one": "Utilisé par {{count}} story. Attribuez-la d’abord à un autre epic.",
     "inUse_other": "Utilisé par {{count}} stories. Attribuez-les d’abord à un autre epic.",
     "notFound": "Cet epic n’existe plus.",
-    "deleteButton": "Supprimer l’epic"
+    "deleteButton": "Supprimer l’epic",
+    "noEpic": "Aucun epic"
   },
   "sprint": {
     "label": "Sprint",
@@ -172,5 +174,76 @@
     "editOrMoveSprint": "Cliquer pour modifier, faire glisser pour réordonner",
     "compact": "Compact",
     "sprintDropLabel": "{{name}} · {{dates}}"
+  },
+  "fields": {
+    "title": "Champs",
+    "hint": "Les champs décrivent vos éléments. Les champs système sont toujours présents, les champs intégrés sont fournis par l’application et vous pouvez ajouter les vôtres.",
+    "new": "Nouveau champ",
+    "dialogNew": "Nouveau champ",
+    "dialogEdit": "Modifier le champ",
+    "column": {
+      "name": "Champ",
+      "kind": "Genre",
+      "type": "Type",
+      "usedOn": "Utilisé pour"
+    },
+    "kind": {
+      "system": "Système",
+      "builtin": "Intégré",
+      "custom": "Personnalisé"
+    },
+    "type": {
+      "text": "Texte",
+      "long_text": "Texte long",
+      "number": "Nombre",
+      "single_select": "Choix unique",
+      "key": "Clé",
+      "status": "Statut",
+      "epic": "Lien vers l’epic",
+      "points": "Points",
+      "checklist": "Liste de contrôle",
+      "color": "Couleur"
+    },
+    "builtin": {
+      "key": "Clé",
+      "title": "Titre",
+      "status": "Statut",
+      "description": "Description",
+      "epic": "Epic",
+      "points": "Points",
+      "criteria": "Critères d’acceptation",
+      "color": "Couleur"
+    },
+    "itemType": {
+      "story": "Stories",
+      "epic": "Epics"
+    },
+    "notUsed": "Non utilisé",
+    "label": "Nom",
+    "dataType": "Type",
+    "typeLocked": "Le type d’un champ existant ne peut pas être modifié.",
+    "options": "Options",
+    "option": "Option {{position}}",
+    "optionColor": "Couleur de l’option {{position}}",
+    "addOption": "Ajouter une option",
+    "removeOption": "Retirer l’option {{position}}",
+    "usedOn": "Utilisé pour",
+    "create": "Ajouter le champ",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier le champ {{name}}",
+    "delete": "Supprimer le champ {{name}}",
+    "deleteConfirm_one": "Supprimer le champ {{name}} ? {{count}} story perd sa valeur. Cette action est définitive.",
+    "deleteConfirm_other": "Supprimer le champ {{name}} ? {{count}} stories perdent leur valeur. Cette action est définitive.",
+    "deleteYes": "Supprimer",
+    "deleteNo": "Garder le champ",
+    "error": {
+      "labelRequired": "Saisissez un nom.",
+      "labelTaken": "Un champ portant ce nom existe déjà.",
+      "optionsRequired": "Ajoutez au moins une option.",
+      "optionLabelTaken": "Chaque option doit avoir un nom différent."
+    },
+    "noValue": "Aucune valeur",
+    "invalidNumber": "Saisissez un nombre."
   }
 }
