@@ -6,8 +6,7 @@ import type {
   FieldDefinition,
   FieldOption,
   FieldValue,
-  ItemType,
-  Story
+  ItemType
 } from './types';
 import { EPIC_COLOR_KEYS } from './types';
 
@@ -89,9 +88,15 @@ export function customFieldsFor(
     .filter((field): field is FieldDefinition => field !== undefined && field.kind === 'custom');
 }
 
-/** Number of stories that have a value for the field. */
-export function countValues(stories: readonly Story[], fieldId: string): number {
-  return stories.filter((story) => story.values[fieldId] !== undefined).length;
+/** Anything that carries values of custom fields: stories and epics, later sprints and releases. */
+export interface WithValues {
+  id: string;
+  values: Record<string, FieldValue>;
+}
+
+/** Number of items that have a value for the field. */
+export function countValues(items: readonly WithValues[], fieldId: string): number {
+  return items.filter((item) => item.values[fieldId] !== undefined).length;
 }
 
 export interface OptionInput {
@@ -184,37 +189,35 @@ export function createField(
   return { fields: [...fields, field], assignments: assignTo(assignments, field.id, input.itemTypes), field };
 }
 
+/** What the field dialog changes on an existing field. Item types are switched in the field table. */
+export type FieldPatch = Pick<FieldInput, 'label' | 'options'>;
+
 /**
- * Changes label, options and item types of a custom field. The data type stays.
+ * Changes label and options of a custom field. The data type stays.
  * Returns null when the field is unknown, not a custom field, or the input is invalid.
  */
 export function updateField(
   fields: readonly FieldDefinition[],
-  assignments: readonly FieldAssignment[],
   id: string,
-  input: Omit<FieldInput, 'dataType'>,
+  input: FieldPatch,
   newId: () => string
-): FieldChange | null {
+): { fields: FieldDefinition[]; field: FieldDefinition } | null {
   const current = fields.find((field) => field.id === id);
   if (!current || current.kind !== 'custom' || !isCustomDataType(current.dataType)) return null;
-  const full: FieldInput = { ...input, dataType: current.dataType };
+  const full: FieldInput = { ...input, dataType: current.dataType, itemTypes: [] };
   if (validateField(fields, full, id) !== null) return null;
   const field: FieldDefinition = { ...current, label: input.label.trim(), options: cleanOptions(full, newId) };
-  return {
-    fields: fields.map((item) => (item.id === id ? field : item)),
-    assignments: assignTo(assignments, id, input.itemTypes),
-    field
-  };
+  return { fields: fields.map((item) => (item.id === id ? field : item)), field };
 }
 
 /** Removes values that point to options a select field no longer has. */
-export function dropRemovedOptions(stories: Story[], field: FieldDefinition): Story[] {
-  if (field.dataType !== 'single_select') return stories;
+export function dropRemovedOptions<T extends WithValues>(items: T[], field: FieldDefinition): T[] {
+  if (field.dataType !== 'single_select') return items;
   const valid = new Set(field.options.map((option) => option.id));
-  return stories.map((story) => {
-    const value = story.values[field.id];
-    if (value === undefined || valid.has(String(value))) return story;
-    return { ...story, values: withoutKey(story.values, field.id) };
+  return items.map((item) => {
+    const value = item.values[field.id];
+    if (value === undefined || valid.has(String(value))) return item;
+    return { ...item, values: withoutKey(item.values, field.id) };
   });
 }
 
@@ -224,20 +227,40 @@ export function withoutKey(values: Record<string, FieldValue>, key: string): Rec
   return next;
 }
 
-/** Removes a custom field with its assignments and values. System and built-in fields are kept. */
+/** Removes a custom field with its assignments. System and built-in fields are kept. Values: see `withoutField`. */
 export function deleteField(
   fields: readonly FieldDefinition[],
   assignments: readonly FieldAssignment[],
-  stories: Story[],
   id: string
-): { fields: FieldDefinition[]; assignments: FieldAssignment[]; stories: Story[] } | null {
+): { fields: FieldDefinition[]; assignments: FieldAssignment[] } | null {
   const field = fields.find((item) => item.id === id);
   if (!field || field.kind !== 'custom') return null;
   return {
     fields: fields.filter((item) => item.id !== id),
-    assignments: assignments.filter((item) => item.fieldId !== id),
-    stories: stories.map((story) => (story.values[id] === undefined ? story : { ...story, values: withoutKey(story.values, id) }))
+    assignments: assignments.filter((item) => item.fieldId !== id)
   };
+}
+
+/** Removes every value of a field from the items. */
+export function withoutField<T extends WithValues>(items: T[], fieldId: string): T[] {
+  return items.map((item) => (item.values[fieldId] === undefined ? item : { ...item, values: withoutKey(item.values, fieldId) }));
+}
+
+/**
+ * Uses a custom field on an item type or stops using it there. Values stay when the field is taken off.
+ * Returns null for system and built-in fields, which cannot be switched yet.
+ */
+export function setAssigned(
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[],
+  fieldId: string,
+  itemType: ItemType,
+  used: boolean
+): FieldAssignment[] | null {
+  const field = fields.find((item) => item.id === fieldId);
+  if (!field || field.kind !== 'custom') return null;
+  const types = assignedTypes(assignments, fieldId).filter((type) => type !== itemType);
+  return assignTo(assignments, fieldId, used ? [...types, itemType] : types);
 }
 
 /**
@@ -262,10 +285,10 @@ export function parseValue(field: FieldDefinition, raw: string): FieldValue | nu
   }
 }
 
-/** Sets or clears the value of a field on a story. */
-export function setStoryValue(stories: Story[], storyId: string, fieldId: string, value: FieldValue | null): Story[] {
-  return stories.map((story) => {
-    if (story.id !== storyId) return story;
-    return { ...story, values: value === null ? withoutKey(story.values, fieldId) : { ...story.values, [fieldId]: value } };
+/** Sets or clears the value of a field on one item. */
+export function setItemValue<T extends WithValues>(items: T[], itemId: string, fieldId: string, value: FieldValue | null): T[] {
+  return items.map((item) => {
+    if (item.id !== itemId) return item;
+    return { ...item, values: value === null ? withoutKey(item.values, fieldId) : { ...item.values, [fieldId]: value } };
   });
 }

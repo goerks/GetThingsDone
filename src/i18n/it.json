@@ -183,14 +183,7 @@
     "dialogEdit": "Modifica campo",
     "column": {
       "name": "Campo",
-      "kind": "Genere",
-      "type": "Tipo",
-      "usedOn": "Usato per"
-    },
-    "kind": {
-      "system": "Sistema",
-      "builtin": "Predefinito",
-      "custom": "Personalizzato"
+      "type": "Tipo"
     },
     "type": {
       "text": "Testo",
@@ -216,9 +209,10 @@
     },
     "itemType": {
       "story": "Story",
-      "epic": "Epic"
+      "epic": "Epic",
+      "sprint": "Sprint",
+      "release": "Release"
     },
-    "notUsed": "Non usato",
     "label": "Nome",
     "dataType": "Tipo",
     "typeLocked": "Il tipo di un campo esistente non si può cambiare.",
@@ -233,8 +227,6 @@
     "cancel": "Annulla",
     "edit": "Modifica campo {{name}}",
     "delete": "Elimina campo {{name}}",
-    "deleteConfirm_one": "Eliminare il campo {{name}}? {{count}} story perde il suo valore. L’operazione non si può annullare.",
-    "deleteConfirm_other": "Eliminare il campo {{name}}? {{count}} story perdono il loro valore. L’operazione non si può annullare.",
     "deleteYes": "Elimina",
     "deleteNo": "Mantieni il campo",
     "error": {
@@ -244,7 +236,21 @@
       "optionLabelTaken": "Ogni opzione deve avere un nome diverso."
     },
     "noValue": "Nessun valore",
-    "invalidNumber": "Inserisci un numero."
+    "invalidNumber": "Inserisci un numero.",
+    "group": {
+      "system": "Campi di sistema",
+      "builtin": "Campi predefiniti",
+      "custom": "Campi personalizzati"
+    },
+    "useOn": "{{name}} per {{type}}",
+    "locked": "Campo di sistema, sempre usato",
+    "hideLater": "I campi predefiniti si potranno nascondere in una fase successiva",
+    "notAvailable": "{{name}} non esiste per {{type}}",
+    "deleteQuestion": "Eliminare il campo {{name}}? L’operazione non si può annullare.",
+    "loseStories_one": "{{count}} story perde il suo valore.",
+    "loseStories_other": "{{count}} story perdono il loro valore.",
+    "loseEpics_one": "{{count}} epic perde il suo valore.",
+    "loseEpics_other": "{{count}} epic perdono il loro valore."
   },
   "settings": {
     "title": "Impostazioni",

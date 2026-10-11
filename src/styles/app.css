@@ -1628,12 +1628,6 @@ button.map-epic:hover .map-epic__name {
   text-align: right;
 }
 
-.badge--custom {
-  border-color: var(--accent);
-  color: var(--accent-soft-ink);
-  background: var(--accent-soft);
-}
-
 .field__label {
   font-size: 14px;
 }
@@ -1766,4 +1760,57 @@ a.settings__link:hover {
   .settings__link[aria-current='page'] {
     border-color: transparent;
   }
+}
+
+/* Field matrix: one column per item type. */
+.field-table__type,
+.field-table__use {
+  width: 84px;
+  text-align: center !important;
+}
+
+.field-table__use input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.field-table__use input {
+  accent-color: var(--accent);
+}
+
+/* The lock sits beside the checkbox without shifting it, so every column stays aligned. */
+.field-table__fixed {
+  position: relative;
+  display: inline-flex;
+  color: var(--muted);
+}
+
+.field-table__fixed svg {
+  position: absolute;
+  left: calc(100% + 4px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.field-table__planned {
+  background: var(--pill);
+  color: var(--muted);
+}
+
+.field-table__planned small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.field-table__group th {
+  background: var(--pill);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding-block: 4px;
 }

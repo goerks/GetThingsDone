@@ -38,8 +38,8 @@ describe('migrating a snapshot of release 0.1', () => {
   it('gives epics their list order as position and maps old colour keys', () => {
     const snapshot = migrateSnapshot(old, '2026-10-11');
     expect(snapshot.epics).toEqual([
-      { id: 'e1', name: 'Boards', colorKey: 'blue', position: 0 },
-      { id: 'e2', name: 'Storage', colorKey: 'teal', position: 1 }
+      { id: 'e1', name: 'Boards', colorKey: 'blue', position: 0, values: {} },
+      { id: 'e2', name: 'Storage', colorKey: 'teal', position: 1, values: {} }
     ]);
   });
 
@@ -55,7 +55,7 @@ describe('migrating a snapshot of release 0.1', () => {
     };
     const snapshot = migrateSnapshot(current, '2026-10-11');
     expect(snapshot.sprints).toEqual(current.sprints);
-    expect(snapshot.epics[0]).toEqual({ id: 'e1', name: 'Boards', colorKey: 'rose', position: 3 });
+    expect(snapshot.epics[0]).toEqual({ id: 'e1', name: 'Boards', colorKey: 'rose', position: 3, values: {} });
     expect(snapshot.stories[0].sprintId).toBe('s9');
   });
 });

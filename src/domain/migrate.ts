@@ -8,7 +8,7 @@ import type { Epic, FieldAssignment, FieldDefinition, Snapshot, Sprint, Story } 
  * a position. Before configurable fields (#4): no field library, no values, and every story has an epic.
  */
 interface StoredSnapshot {
-  epics?: Array<Omit<Epic, 'position' | 'colorKey'> & { position?: number; colorKey: string }>;
+  epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
   sprints?: Sprint[];
   stories?: Array<
     Omit<Story, 'sprintId' | 'values'> & { sprintId?: string | null; inSprint?: boolean; values?: Story['values'] }
@@ -28,7 +28,8 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     id: epic.id,
     name: epic.name,
     colorKey: normalizeColorKey(epic.colorKey),
-    position: epic.position ?? index
+    position: epic.position ?? index,
+    values: epic.values ?? {}
   }));
   const rawStories = stored.stories ?? [];
   let sprints: Sprint[] = stored.sprints ?? [];

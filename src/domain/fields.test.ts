@@ -11,8 +11,10 @@ import {
   dropRemovedOptions,
   missingBuiltins,
   parseValue,
-  setStoryValue,
+  setAssigned,
+  setItemValue,
   updateField,
+  withoutField,
   validateField,
   type FieldInput
 } from './fields';
@@ -139,14 +141,11 @@ describe('createField', () => {
 });
 
 describe('updateField', () => {
-  const assignments: FieldAssignment[] = assignTo([], 'prio', ['story']);
-
   it('renames the field, keeps option ids and adds new options', () => {
     const result = updateField(
       [select],
-      assignments,
       'prio',
-      { label: 'Importance', options: [{ id: 'must', label: 'Must have', colorKey: 'rose' }, { label: 'Nice' }], itemTypes: ['story'] },
+      { label: 'Importance', options: [{ id: 'must', label: 'Must have', colorKey: 'rose' }, { label: 'Nice' }] },
       ids()
     );
     expect(result?.field.label).toBe('Importance');
@@ -154,15 +153,30 @@ describe('updateField', () => {
     expect(result?.field.dataType).toBe('single_select');
   });
 
-  it('unassigns a field without touching other fields', () => {
-    const both = assignTo(assignments, 'other', ['story']);
-    const result = updateField([select], both, 'prio', { label: 'Priority', options: select.options, itemTypes: [] }, ids());
-    expect(result?.assignments.map((item) => item.fieldId)).toEqual(['other']);
-  });
-
   it('does not change system or built-in fields', () => {
     const title = builtins.fields.find((field) => field.builtinKey === 'title') as FieldDefinition;
-    expect(updateField(builtins.fields, builtins.assignments, title.id, { label: 'Name', options: [], itemTypes: ['story'] }, ids())).toBeNull();
+    expect(updateField(builtins.fields, title.id, { label: 'Name', options: [] }, ids())).toBeNull();
+  });
+});
+
+describe('setAssigned', () => {
+  const assignments: FieldAssignment[] = assignTo([], 'prio', ['story']);
+
+  it('adds an item type at the end of its fields', () => {
+    const before = assignTo(assignments, 'other', ['epic']);
+    const after = setAssigned([select], before, 'prio', 'epic', true);
+    expect(after?.find((item) => item.fieldId === 'prio' && item.itemType === 'epic')?.position).toBe(1);
+    expect(after?.filter((item) => item.fieldId === 'prio').map((item) => item.itemType).sort()).toEqual(['epic', 'story']);
+  });
+
+  it('takes a field off one item type without touching other fields', () => {
+    const both = assignTo(assignments, 'other', ['story']);
+    expect(setAssigned([select], both, 'prio', 'story', false)?.map((item) => item.fieldId)).toEqual(['other']);
+  });
+
+  it('does not switch system or built-in fields', () => {
+    expect(setAssigned(builtins.fields, builtins.assignments, builtinFieldId('points'), 'story', false)).toBeNull();
+    expect(setAssigned(builtins.fields, builtins.assignments, builtinFieldId('title'), 'epic', false)).toBeNull();
   });
 });
 
@@ -187,12 +201,13 @@ describe('dropRemovedOptions', () => {
 describe('deleteField', () => {
   it('removes the field, its assignments and its values', () => {
     const stories = [story('a', { prio: 'must', other: 'x' })];
-    const result = deleteField([select], assignTo([], 'prio', ['story']), stories, 'prio');
-    expect(result).toEqual({ fields: [], assignments: [], stories: [story('a', { other: 'x' })] });
+    const result = deleteField([select], assignTo([], 'prio', ['story']), 'prio');
+    expect(result).toEqual({ fields: [], assignments: [] });
+    expect(withoutField(stories, 'prio')).toEqual([story('a', { other: 'x' })]);
   });
 
   it('keeps system and built-in fields', () => {
-    expect(deleteField(builtins.fields, builtins.assignments, [], builtinFieldId('points'))).toBeNull();
+    expect(deleteField(builtins.fields, builtins.assignments, builtinFieldId('points'))).toBeNull();
   });
 });
 
@@ -233,10 +248,10 @@ describe('parseValue', () => {
 describe('values on stories', () => {
   it('sets, replaces and clears a value', () => {
     let stories = [story('a'), story('b')];
-    stories = setStoryValue(stories, 'a', 'prio', 'must');
+    stories = setItemValue(stories, 'a', 'prio', 'must');
     expect(stories[0].values).toEqual({ prio: 'must' });
     expect(countValues(stories, 'prio')).toBe(1);
-    stories = setStoryValue(stories, 'a', 'prio', null);
+    stories = setItemValue(stories, 'a', 'prio', null);
     expect(stories[0].values).toEqual({});
     expect(countValues(stories, 'prio')).toBe(0);
   });

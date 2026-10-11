@@ -136,37 +136,37 @@ Source: Vision, PO feedback · Status: Implemented · Verified by: App "epics" t
 
 ## Fields (FIELD)
 
-Configurable fields, issue #4, data model in ADR 0003. Stage 1 of the feature: custom fields on stories.
+Configurable fields, issue #4, data model in ADR 0003. Stages 1 and 2 of the feature: custom fields on stories and epics.
 
-### FR-FIELD-01 Field library
-As a team, we want to see every field of the workspace, so that we know what our items carry.
-- The section "Fields" of the settings (FR-SET-03) lists all fields with name, kind (System, Built-in, Custom), type and the item types that use them, or "Not used".
-- System fields: key, title, story status. Built-in fields: description, epic, points, acceptance criteria (stories), colour (epics). They cannot be edited or deleted yet.
-- Missing system and built-in fields are added automatically when data is loaded, also for data of release 0.1.
+### FR-FIELD-01 Field library as a matrix
+As a team, we want to see every field of the workspace and the item types that use it, so that we know what our items carry.
+- The section "Fields" of the settings (FR-SET-03) lists all fields with name and type, grouped into system, built-in and custom fields, with one checkbox column per item type: Stories, Epics. Sprints and Releases are shown as planned columns.
+- System fields (key, title, story status) are ticked and locked. Built-in fields (description, epic, points, acceptance criteria on stories; colour on epics) are ticked and cannot be switched off yet (stage 5). A field that does not exist for a type shows "–".
+- A click on the checkbox of a custom field uses it on that type or takes it off, and is saved at once. Taking a field off hides it in that type's dialog but keeps its values, so they come back when the field is used again.
+- System and built-in fields cannot be edited or deleted yet. Missing ones are added automatically when data is loaded, also for data of release 0.1.
 
-Source: #4 · Status: Implemented · Verified by: App "lists system, built-in and custom fields…", "opens data of release 0.1…", fields.test "missingBuiltins", sqliteRepository.test "adds missing built-in fields…"
+Source: #4, PO feedback (variant A in `docs/design/field-assignment.md`) · Status: Implemented · Verified by: App "shows a matrix of fields and item types…", "puts a field on epics…", "takes a field off stories without losing its values", "opens data of release 0.1…", fields.test "missingBuiltins", "setAssigned", sqliteRepository.test "adds missing built-in fields…"
 
 ### FR-FIELD-02 Create a custom field
 As a team, we want to add our own fields, so that stories carry the information we need.
-- "New field" opens a dialog with name, type (text, long text, number, single select) and the item types that use it (stories for now, ticked by default).
+- "New field" opens a dialog with name, type (text, long text, number, single select) and the item types that use it (Stories ticked by default, Epics).
 - A single select field has ordered options, each with a name and one of eight colours. Options can be added and removed.
 - The name is required and unique among custom fields (ignoring case). A select field needs at least one option and no two options with the same name. Problems are shown in the dialog.
 
 Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "explains what is wrong with a new field", fields.test "validateField", "createField"
 
-### FR-FIELD-03 Edit and unassign a custom field
-As a team, we want to rename a field, change its options and choose where it is used.
-- The edit dialog changes name, options and item types. The type of an existing field cannot be changed.
-- Renaming an option keeps the values that use it. Removing an option removes these values.
-- Taking a field off stories hides it in the story dialog but keeps its values, so they come back when the field is used again.
+### FR-FIELD-03 Edit a custom field
+As a team, we want to rename a field and change its options.
+- The edit dialog changes name and options. The type of an existing field cannot be changed. Where the field is used is switched in the matrix (FR-FIELD-01).
+- Renaming an option keeps the values that use it. Removing an option removes these values on stories and epics.
 
-Source: #4 · Status: Implemented · Verified by: App "renames a field and removes an option…", "takes a field off stories without losing its values", fields.test "updateField", "dropRemovedOptions"
+Source: #4 · Status: Implemented · Verified by: App "renames a field and removes an option…", fields.test "updateField", "dropRemovedOptions"
 
 ### FR-FIELD-04 Delete a custom field
 As a team, we want to delete a field we no longer need.
-- A confirmation says how many stories lose a value. Deleting removes the field, its options, where it is used and all its values.
+- A confirmation says how many stories and how many epics lose a value. Deleting removes the field, its options, where it is used and all its values.
 
-Source: #4 · Status: Implemented · Verified by: App "deletes a field after saying how many stories lose a value", fields.test "deleteField", sqliteRepository.test "deletes a field…"
+Source: #4 · Status: Implemented · Verified by: App "deletes a field after saying how many stories lose a value", fields.test "deleteField", "withoutField", sqliteRepository.test "deletes a field…"
 
 ### FR-FIELD-05 Custom field values in the story dialog
 As a team member, I want to fill in the custom fields of a story.
@@ -177,9 +177,16 @@ As a team member, I want to fill in the custom fields of a story.
 Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "edits text and number values on the story page", fields.test "parseValue", sqliteRepository.test "sets, changes and clears values of every type"
 
 ### FR-FIELD-06 Demo fields
-The demo data contains the custom fields "Priority" (single select: Must, Should, Could) and "Business value" (number) with values on several stories.
+The demo data contains the custom fields "Priority" (single select: Must, Should, Could; used on stories and epics) and "Business value" (number; used on stories) with values on several stories and epics.
 
-Source: #4 · Status: Implemented · Verified by: sqliteRepository.test "stores the demo data with its fields and values"
+Source: #4 · Status: Implemented · Verified by: sqliteRepository.test "stores the demo data with its fields and values", "stores values of epics…"
+
+### FR-FIELD-07 Custom field values in the epic dialog
+As a PO, I want to fill in the custom fields of an epic.
+- The epic dialog shows the custom fields used on epics below the colour, with the same controls as the story dialog (FR-FIELD-05).
+- The values of an epic are deleted together with the epic.
+
+Source: #4 · Status: Implemented · Verified by: App "puts a field on epics and edits its value in the epic dialog", sqliteRepository.test "stores values of epics and deletes them with the epic"
 
 ## Settings (SET)
 

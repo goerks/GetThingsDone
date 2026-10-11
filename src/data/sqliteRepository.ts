@@ -145,7 +145,8 @@ export class SqliteRepository implements Repository {
       id: row.id,
       name: row.name,
       colorKey: normalizeColorKey(row.color_key),
-      position: row.position
+      position: row.position,
+      values: valuesByItem.get(row.id) ?? {}
     }));
     const sprints: Sprint[] = sprintRows.map((row) => ({
       id: row.id,
@@ -309,6 +310,9 @@ export class SqliteRepository implements Repository {
       epic.colorKey,
       epic.position
     ]);
+    for (const [fieldId, value] of Object.entries(epic.values)) {
+      await this.setFieldValue(epic.id, fieldId, value);
+    }
   }
 
   async updateEpic(epic: Epic): Promise<void> {
@@ -321,6 +325,7 @@ export class SqliteRepository implements Repository {
   }
 
   async deleteEpic(epicId: string): Promise<void> {
+    await this.db.execute('DELETE FROM field_values WHERE item_id = $1', [epicId]);
     await this.db.execute('DELETE FROM epics WHERE id = $1', [epicId]);
   }
 

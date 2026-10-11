@@ -31,9 +31,12 @@ import {
   createField as createFieldIn,
   deleteField as deleteFieldIn,
   dropRemovedOptions,
-  setStoryValue,
+  setAssigned,
+  setItemValue,
   updateField as updateFieldIn,
-  type FieldInput
+  withoutField,
+  type FieldInput,
+  type FieldPatch
 } from '../domain/fields';
 import { newId } from '../domain/ids';
 import {
@@ -43,7 +46,7 @@ import {
   updateSprint as updateSprintIn,
   type SprintInput
 } from '../domain/sprints';
-import type { Epic, FieldAssignment, FieldDefinition, FieldValue, Snapshot, Sprint, Story } from '../domain/types';
+import type { Epic, FieldAssignment, FieldDefinition, FieldValue, ItemType, Snapshot, Sprint, Story } from '../domain/types';
 
 interface AppApi {
   epics: Epic[];
@@ -79,11 +82,13 @@ interface AppApi {
   deleteEpic(id: string): boolean;
   /** Returns the id of the new field, or null when the input is invalid. */
   createField(input: FieldInput): string | null;
-  /** Changes label, options and item types of a custom field. Returns false when the input is invalid. */
-  updateField(id: string, input: Omit<FieldInput, 'dataType'>): boolean;
+  /** Changes label and options of a custom field. Returns false when the input is invalid. */
+  updateField(id: string, input: FieldPatch): boolean;
   deleteField(id: string): void;
-  /** Sets or clears (null) the value of a custom field on a story. */
-  setFieldValue(storyId: string, fieldId: string, value: FieldValue | null): void;
+  /** Uses a custom field on an item type or stops using it there; values are kept. */
+  setFieldUsed(fieldId: string, itemType: ItemType, used: boolean): void;
+  /** Sets or clears (null) the value of a custom field on a story or an epic. */
+  setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): void;
 }
 
 const AppContext = createContext<AppApi | null>(null);
@@ -325,28 +330,35 @@ export function AppProvider({ repository, children }: Props) {
       },
       updateField(id, input) {
         const { fields, assignments } = fieldsRef.current;
-        const result = updateFieldIn(fields, assignments, id, input, newId);
+        const result = updateFieldIn(fields, id, input, newId);
         if (!result) return false;
-        updateFields(result.fields, result.assignments);
+        updateFields(result.fields, assignments);
         update(dropRemovedOptions(storiesRef.current, result.field));
-        const own = result.assignments.filter((item) => item.fieldId === id);
-        persist(async (repo) => {
-          await repo.saveField(result.field);
-          await repo.saveAssignments(id, own);
-        });
+        updateEpics(dropRemovedOptions(epicsRef.current, result.field));
+        persist((repo) => repo.saveField(result.field));
         return true;
       },
       deleteField(id) {
         const { fields, assignments } = fieldsRef.current;
-        const result = deleteFieldIn(fields, assignments, storiesRef.current, id);
+        const result = deleteFieldIn(fields, assignments, id);
         if (!result) return;
         updateFields(result.fields, result.assignments);
-        update(result.stories);
+        update(withoutField(storiesRef.current, id));
+        updateEpics(withoutField(epicsRef.current, id));
         persist((repo) => repo.deleteField(id));
       },
-      setFieldValue(storyId, fieldId, value) {
-        update(setStoryValue(storiesRef.current, storyId, fieldId, value));
-        persist((repo) => repo.setFieldValue(storyId, fieldId, value));
+      setFieldUsed(fieldId, itemType, used) {
+        const { fields, assignments } = fieldsRef.current;
+        const after = setAssigned(fields, assignments, fieldId, itemType, used);
+        if (!after) return;
+        updateFields(fields, after);
+        const own = after.filter((item) => item.fieldId === fieldId);
+        persist((repo) => repo.saveAssignments(fieldId, own));
+      },
+      setFieldValue(itemId, fieldId, value) {
+        if (storiesRef.current.some((story) => story.id === itemId)) update(setItemValue(storiesRef.current, itemId, fieldId, value));
+        else updateEpics(setItemValue(epicsRef.current, itemId, fieldId, value));
+        persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
     [snapshot, loading, error, update, updateEpics, updateSprints, updateFields, persist]
