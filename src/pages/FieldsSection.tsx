@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Dialog } from '../components/Dialog';
 import { fieldLabel } from '../components/fieldLabel';
 import { LockIcon, PencilIcon, TrashIcon } from '../components/icons';
-import { BUILTIN_FIELDS, countValues, defaultAsText, validateField, type FieldError, type FieldInput } from '../domain/fields';
+import { BUILTIN_FIELDS, CONVERSIONS, countValues, defaultAsText, hasOptions, validateField, type FieldError, type FieldInput } from '../domain/fields';
 import {
   CUSTOM_DATA_TYPES,
   EPIC_COLOR_KEYS,
@@ -62,12 +62,24 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
   // Only a new field picks its item types here; later they are switched in the field table.
   const [itemTypes, setItemTypes] = useState<ItemType[]>(['story']);
   // Text and number defaults as typed; a select default follows its option even when the option is renamed.
-  const [defaultText, setDefaultText] = useState(() => (field && field.dataType !== 'single_select' ? defaultAsText(field) : ''));
-  const [defaultOption, setDefaultOption] = useState(() => (field?.dataType === 'single_select' ? String(field.defaultValue ?? '') : ''));
+  const [defaultText, setDefaultText] = useState(() => (field && !hasOptions(field.dataType) ? defaultAsText(field) : ''));
+  const [defaultOptions, setDefaultOptions] = useState<string[]>(() => {
+    if (!field || !hasOptions(field.dataType) || field.defaultValue === null) return [];
+    return Array.isArray(field.defaultValue) ? field.defaultValue : [String(field.defaultValue)];
+  });
   const [error, setError] = useState<FieldError | null>(null);
   const namedOptions = options.filter((option) => option.label.trim());
-  const defaultValue =
-    dataType === 'single_select' ? (namedOptions.find((option) => option.key === defaultOption)?.label ?? '') : defaultText;
+  const defaultValue = hasOptions(dataType)
+    ? namedOptions
+        .filter((option) => defaultOptions.includes(option.key))
+        .map((option) => option.label.trim())
+        .slice(0, dataType === 'single_select' ? 1 : undefined)
+        .join(', ')
+    : defaultText;
+  // An existing field offers only the type changes that keep every value.
+  const typeChoices: readonly CustomDataType[] = field
+    ? [field.dataType as CustomDataType, ...CONVERSIONS[field.dataType as CustomDataType]]
+    : CUSTOM_DATA_TYPES;
 
   const changeOption = (key: string, patch: Partial<OptionDraft>): void =>
     setOptions((list) => list.map((option) => (option.key === key ? { ...option, ...patch } : option)));
@@ -111,11 +123,18 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
             id={`${uid}-type`}
             className="select"
             value={dataType}
-            disabled={field !== undefined}
+            disabled={typeChoices.length === 1}
             aria-describedby={field ? `${uid}-type-locked` : undefined}
-            onChange={(event) => setDataType(event.target.value as CustomDataType)}
+            onChange={(event) => {
+              setDataType(event.target.value as CustomDataType);
+              // A new field starts its default over; an existing one keeps it, since conversions keep values.
+              if (!field) {
+                setDefaultText('');
+                setDefaultOptions([]);
+              }
+            }}
           >
-            {CUSTOM_DATA_TYPES.map((type) => (
+            {typeChoices.map((type) => (
               <option key={type} value={type}>
                 {t(`fields.type.${type}`)}
               </option>
@@ -123,11 +142,11 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
           </select>
           {field && (
             <span id={`${uid}-type-locked`} className="muted">
-              {t('fields.typeLocked')}
+              {typeChoices.length === 1 ? t('fields.typeLocked') : t('fields.typeConversions')}
             </span>
           )}
         </div>
-        {dataType === 'single_select' && (
+        {hasOptions(dataType) && (
           <fieldset className="field option-list">
             <legend>{t('fields.options')}</legend>
             <ol className="option-list__items">
@@ -173,33 +192,57 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
             </div>
           </fieldset>
         )}
-        <div className="field">
-          <label htmlFor={`${uid}-default`}>{t('fields.defaultValue')}</label>
-          {dataType === 'single_select' ? (
-            <select
-              id={`${uid}-default`}
-              className="select"
-              value={namedOptions.some((option) => option.key === defaultOption) ? defaultOption : ''}
-              onChange={(event) => setDefaultOption(event.target.value)}
-            >
-              <option value="">{t('fields.noDefault')}</option>
-              {namedOptions.map((option) => (
-                <option key={option.key} value={option.key}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              id={`${uid}-default`}
-              className="input"
-              inputMode={dataType === 'number' ? 'decimal' : undefined}
-              placeholder={t('fields.noDefault')}
-              value={defaultText}
-              onChange={(event) => setDefaultText(event.target.value)}
-            />
-          )}
-        </div>
+        {dataType === 'multi_select' ? (
+          <fieldset className="field field--choices">
+            <legend>{t('fields.defaultValue')}</legend>
+            {namedOptions.map((option) => (
+              <label key={option.key} className="check">
+                <input
+                  type="checkbox"
+                  checked={defaultOptions.includes(option.key)}
+                  onChange={(event) =>
+                    setDefaultOptions((list) => (event.target.checked ? [...list, option.key] : list.filter((key) => key !== option.key)))
+                  }
+                />
+                {option.label}
+              </label>
+            ))}
+          </fieldset>
+        ) : dataType === 'checkbox' ? (
+          <label className="check">
+            <input type="checkbox" checked={defaultText === 'true'} onChange={(event) => setDefaultText(event.target.checked ? 'true' : '')} />
+            {t('fields.defaultTicked')}
+          </label>
+        ) : (
+          <div className="field">
+            <label htmlFor={`${uid}-default`}>{t('fields.defaultValue')}</label>
+            {dataType === 'single_select' ? (
+              <select
+                id={`${uid}-default`}
+                className="select"
+                value={namedOptions.find((option) => defaultOptions.includes(option.key))?.key ?? ''}
+                onChange={(event) => setDefaultOptions(event.target.value ? [event.target.value] : [])}
+              >
+                <option value="">{t('fields.noDefault')}</option>
+                {namedOptions.map((option) => (
+                  <option key={option.key} value={option.key}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id={`${uid}-default`}
+                className="input"
+                type={dataType === 'date' ? 'date' : 'text'}
+                inputMode={dataType === 'number' ? 'decimal' : dataType === 'url' ? 'url' : undefined}
+                placeholder={t('fields.noDefault')}
+                value={defaultText}
+                onChange={(event) => setDefaultText(event.target.value)}
+              />
+            )}
+          </div>
+        )}
         {!field && (
           <fieldset className="field">
             <legend>{t('fields.usedOn')}</legend>

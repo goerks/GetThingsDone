@@ -38,9 +38,26 @@ export type ItemType = 'epic' | 'story';
 export const ITEM_TYPES: readonly ItemType[] = ['story', 'epic'];
 
 /** Data types a team can choose for its own fields. */
-export type CustomDataType = 'text' | 'long_text' | 'number' | 'single_select';
+export type CustomDataType =
+  | 'text'
+  | 'long_text'
+  | 'number'
+  | 'date'
+  | 'checkbox'
+  | 'single_select'
+  | 'multi_select'
+  | 'url';
 
-export const CUSTOM_DATA_TYPES: readonly CustomDataType[] = ['text', 'long_text', 'number', 'single_select'];
+export const CUSTOM_DATA_TYPES: readonly CustomDataType[] = [
+  'text',
+  'long_text',
+  'number',
+  'date',
+  'checkbox',
+  'single_select',
+  'multi_select',
+  'url'
+];
 
 /** Data types that only system and built-in fields have. */
 export type BuiltinDataType = 'key' | 'status' | 'epic' | 'points' | 'checklist' | 'color';
@@ -84,8 +101,11 @@ export interface FieldAssignment {
   inCreate: boolean;
 }
 
-/** Text, a number, or the id of a select option. A missing entry means no value. */
-export type FieldValue = string | number;
+/**
+ * Text, a number, a date (`YYYY-MM-DD`), a link, `true` for a ticked checkbox, the id of a select option,
+ * or the ids of the chosen options of a multi select. A missing entry means no value.
+ */
+export type FieldValue = string | number | boolean | string[];
 
 export interface Story {
   id: string;

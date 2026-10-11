@@ -136,7 +136,7 @@ Source: Vision, PO feedback · Status: Implemented · Verified by: App "epics" t
 
 ## Fields (FIELD)
 
-Configurable fields, issue #4, data model in ADR 0003. Stages 1 to 3 of the feature: custom fields on stories and epics, layout per item type.
+Configurable fields, issue #4, data model in ADR 0003. Stages 1 to 4 of the feature: custom fields on stories and epics, layout per item type, eight data types.
 
 ### FR-FIELD-01 Field library as a matrix
 As a team, we want to see every field of the workspace and the item types that use it, so that we know what our items carry.
@@ -149,19 +149,20 @@ Source: #4, PO feedback (variant A in `docs/design/field-assignment.md`) · Stat
 
 ### FR-FIELD-02 Create a custom field
 As a team, we want to add our own fields, so that stories carry the information we need.
-- "New field" opens a dialog with name, type (text, long text, number, single select) and the item types that use it (Stories ticked by default, Epics).
-- A single select field has ordered options, each with a name and one of eight colours. Options can be added and removed.
-- An optional default value (text, number, or one of the options) fills in new stories and epics; a default that does not fit the type is refused.
+- "New field" opens a dialog with name, type (text, long text, number, date, checkbox, single select, multi select, link) and the item types that use it (Stories ticked by default, Epics).
+- Single and multi select fields have ordered options, each with a name and one of eight colours. Options can be added and removed.
+- An optional default value fills in new stories and epics: text, a number, a date, a link, "ticked" for a checkbox, one option or several options. A default that does not fit the type is refused.
 - The name is required and unique among custom fields (ignoring case). A select field needs at least one option and no two options with the same name. Problems are shown in the dialog.
 
 Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "explains what is wrong with a new field", fields.test "validateField", "createField"
 
 ### FR-FIELD-03 Edit a custom field
 As a team, we want to rename a field and change its options.
-- The edit dialog changes name and options. The type of an existing field cannot be changed. Where the field is used is switched in the matrix (FR-FIELD-01).
+- The edit dialog changes name, options and default. Where the field is used is switched in the matrix (FR-FIELD-01).
+- The type can change only where every value is kept: text → long text, number → text, date → text, link → text, single select → multi select. The dialog offers only these; for any other type the type is locked with a hint to create a new field. Values and the default are converted.
 - Renaming an option keeps the values that use it. Removing an option removes these values on stories and epics.
 
-Source: #4 · Status: Implemented · Verified by: App "renames a field and removes an option…", fields.test "updateField", "dropRemovedOptions"
+Source: #4 · Status: Implemented · Verified by: App "renames a field and removes an option…", "turns a single select into a multi select…", fields.test "updateField", "type changes", "dropRemovedOptions", sqliteRepository.test "moves values to the storage of their new type…"
 
 ### FR-FIELD-04 Delete a custom field
 As a team, we want to delete a field we no longer need.
@@ -173,12 +174,14 @@ Source: #4 · Status: Implemented · Verified by: App "deletes a field after say
 As a team member, I want to fill in the custom fields of a story.
 - The story dialog shows the custom fields used on stories in the details panel, in their order.
 - Text and long text are edited in place like the description. A number field saves on Enter or when it is left; an entry that is not a number shows "Enter a number." and is not saved. Decimal comma and point are accepted. A select field offers its options and "No value".
+- A date uses the date picker of the system. A checkbox saves when ticked or unticked. A multi select shows one checkbox per option with its colour. A link is edited in place, gets "https://" when the scheme is missing, accepts only http(s) addresses ("Enter a web address…" otherwise) and offers "Open …" in a new tab.
+- On cards, a ticked checkbox shows "✓ name", a date shows in the UI language, a link shows its host, a multi select its option labels with their colours.
 - Empty text or "No value" removes the value.
 
-Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "edits text and number values on the story page", fields.test "parseValue", sqliteRepository.test "sets, changes and clears values of every type"
+Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "edits text and number values on the story page", "creates date, checkbox, multi select and link fields…", fields.test "parseValue", "more data types", sqliteRepository.test "sets, changes and clears values of every type", "stores dates, checkboxes, links and multi selects…"
 
 ### FR-FIELD-06 Demo fields
-The demo data contains the custom fields "Priority" (single select: Must, Should, Could; used on stories and epics) and "Business value" (number; used on stories) with values on several stories and epics.
+The demo data contains the custom fields "Priority" (single select: Must, Should, Could; used on stories and epics), "Business value" (number), "Labels" (multi select: UI, Data, Accessibility) and "Spec" (link), the last three on stories, with values on several stories and epics.
 
 Source: #4 · Status: Implemented · Verified by: sqliteRepository.test "stores the demo data with its fields and values", "stores values of epics…"
 

@@ -7,7 +7,7 @@ import { builtinFieldId } from '../domain/fields';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -96,8 +96,11 @@ describe('SqliteRepository', () => {
     );
     expect(snapshot.stories.find((story) => story.id === 'story-1')?.values).toEqual({
       'field-demo-priority': 'opt-must',
-      'field-demo-value': 8
+      'field-demo-value': 8,
+      'field-demo-labels': ['opt-ui'],
+      'field-demo-spec': 'https://github.com/goerks/GetThingsDone/issues/4'
     });
+    expect(snapshot.stories.find((story) => story.id === 'story-6')?.values['field-demo-labels']).toEqual(['opt-ui', 'opt-a11y']);
   });
 
   it('adds missing built-in fields when loading an existing database', async () => {
@@ -152,8 +155,41 @@ describe('SqliteRepository', () => {
     const saved = snapshot.fields.find((field) => field.id === 'field-demo-priority');
     expect(saved?.label).toBe('Importance');
     expect(saved?.options.map((option) => option.label)).toEqual(['Should have', 'Must have']);
-    expect(snapshot.stories.find((story) => story.id === 'story-6')?.values).toEqual({ 'field-demo-value': 2 });
+    expect(snapshot.stories.find((story) => story.id === 'story-6')?.values).toEqual({
+      'field-demo-value': 2,
+      'field-demo-labels': ['opt-ui', 'opt-a11y']
+    });
     expect(snapshot.stories.find((story) => story.id === 'story-1')?.values['field-demo-priority']).toBe('opt-must');
+  });
+
+  it('stores dates, checkboxes, links and multi selects and clears them', async () => {
+    const { repository } = await freshRepository();
+    await repository.saveField({ id: 'due', builtinKey: null, kind: 'custom', dataType: 'date', label: 'Due', options: [], defaultValue: null });
+    await repository.saveField({ id: 'ok', builtinKey: null, kind: 'custom', dataType: 'checkbox', label: 'OK', options: [], defaultValue: true });
+    await repository.setFieldValue('story-7', 'due', '2026-12-24');
+    await repository.setFieldValue('story-7', 'ok', true);
+    await repository.setFieldValue('story-7', 'field-demo-labels', ['opt-a11y', 'opt-ui']);
+    await repository.setFieldValue('story-7', 'field-demo-spec', 'https://example.com/');
+    let values = (await repository.load()).stories.find((story) => story.id === 'story-7')?.values;
+    // Options come back in the order of the field's options.
+    expect(values).toEqual({ due: '2026-12-24', ok: true, 'field-demo-labels': ['opt-ui', 'opt-a11y'], 'field-demo-spec': 'https://example.com/' });
+    expect((await repository.load()).fields.find((field) => field.id === 'ok')?.defaultValue).toBe(true);
+
+    await repository.setFieldValue('story-7', 'field-demo-labels', ['opt-data']);
+    await repository.setFieldValue('story-7', 'ok', null);
+    values = (await repository.load()).stories.find((story) => story.id === 'story-7')?.values;
+    expect(values).toEqual({ due: '2026-12-24', 'field-demo-labels': ['opt-data'], 'field-demo-spec': 'https://example.com/' });
+  });
+
+  it('moves values to the storage of their new type when a field changes type', async () => {
+    const { repository } = await freshRepository();
+    const priority = (await repository.load()).fields.find((field) => field.id === 'field-demo-priority');
+    if (!priority) throw new Error('demo field missing');
+    await repository.saveField({ ...priority, dataType: 'multi_select' });
+    await repository.setFieldValue('story-1', 'field-demo-priority', ['opt-must']);
+    const snapshot = await repository.load();
+    expect(snapshot.fields.find((field) => field.id === 'field-demo-priority')?.dataType).toBe('multi_select');
+    expect(snapshot.stories.find((story) => story.id === 'story-1')?.values['field-demo-priority']).toEqual(['opt-must']);
   });
 
   it('stores default values of fields', async () => {

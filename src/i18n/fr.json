@@ -195,7 +195,11 @@
       "epic": "Lien vers l’epic",
       "points": "Points",
       "checklist": "Liste de contrôle",
-      "color": "Couleur"
+      "color": "Couleur",
+      "date": "Date",
+      "checkbox": "Case à cocher",
+      "multi_select": "Choix multiple",
+      "url": "Lien"
     },
     "builtin": {
       "key": "Clé",
@@ -215,7 +219,7 @@
     },
     "label": "Nom",
     "dataType": "Type",
-    "typeLocked": "Le type d’un champ existant ne peut pas être modifié.",
+    "typeLocked": "Le type de ce champ ne peut pas changer sans perdre de valeurs. Créez plutôt un nouveau champ.",
     "options": "Options",
     "option": "Option {{position}}",
     "optionColor": "Couleur de l’option {{position}}",
@@ -275,7 +279,11 @@
       "hintNoCard": "Faites glisser les champs personnalisés pour changer leur ordre dans le dialogue.",
       "noCustom": "Pas encore de champ personnalisé pour ce type. Cochez-les sous Attribution.",
       "instructions": "Appuyez sur espace pour saisir un champ. Déplacez-le avec les flèches, déposez-le avec espace, annulez avec échap."
-    }
+    },
+    "invalidUrl": "Saisissez une adresse web, par exemple example.com.",
+    "openLink": "Ouvrir {{name}}",
+    "typeConversions": "Seuls les changements de type qui gardent toutes les valeurs sont proposés.",
+    "defaultTicked": "Cochée par défaut"
   },
   "settings": {
     "title": "Paramètres",

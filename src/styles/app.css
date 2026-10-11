@@ -1953,3 +1953,17 @@ a.settings__link:hover {
   gap: 4px 16px;
   margin-left: auto;
 }
+
+/* Multi select and checkbox lists in fields. */
+fieldset.field--choices {
+  gap: 4px;
+}
+
+.field--choices .check {
+  gap: 8px;
+}
+
+.field__link {
+  align-self: flex-start;
+  font-size: 13px;
+}

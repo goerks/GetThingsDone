@@ -28,6 +28,7 @@ import {
   type NewEpicInput
 } from '../domain/epics';
 import {
+  convertValues,
   createField as createFieldIn,
   deleteField as deleteFieldIn,
   dropRemovedOptions,
@@ -85,7 +86,7 @@ interface AppApi {
   deleteEpic(id: string): boolean;
   /** Returns the id of the new field, or null when the input is invalid. */
   createField(input: FieldInput): string | null;
-  /** Changes label and options of a custom field. Returns false when the input is invalid. */
+  /** Changes label, options, default and (where no value is lost) the type of a custom field. False when refused. */
   updateField(id: string, input: FieldPatch): boolean;
   deleteField(id: string): void;
   /** Uses a custom field on an item type or stops using it there; values are kept. */
@@ -337,12 +338,29 @@ export function AppProvider({ repository, children }: Props) {
       },
       updateField(id, input) {
         const { fields, assignments } = fieldsRef.current;
+        const before = fields.find((field) => field.id === id);
         const result = updateFieldIn(fields, id, input, newId);
-        if (!result) return false;
+        if (!result || !before) return false;
+        const { field } = result;
+        const converted = field.dataType !== before.dataType && field.kind === 'custom';
+        const adapt = <T extends Story | Epic>(items: T[]): T[] => {
+          const changed = converted ? convertValues(items, id, field.dataType as FieldInput['dataType']) : items;
+          return dropRemovedOptions(changed, field);
+        };
+        const stories = adapt(storiesRef.current);
+        const epics = adapt(epicsRef.current);
         updateFields(result.fields, assignments);
-        update(dropRemovedOptions(storiesRef.current, result.field));
-        updateEpics(dropRemovedOptions(epicsRef.current, result.field));
-        persist((repo) => repo.saveField(result.field));
+        update(stories);
+        updateEpics(epics);
+        persist(async (repo) => {
+          await repo.saveField(field);
+          if (!converted) return;
+          // Each value moves to the storage of its new type.
+          for (const item of [...stories, ...epics]) {
+            const value = item.values[id];
+            if (value !== undefined) await repo.setFieldValue(item.id, id, value);
+          }
+        });
         return true;
       },
       deleteField(id) {

@@ -195,7 +195,11 @@
       "epic": "Collegamento all’epic",
       "points": "Punti",
       "checklist": "Checklist",
-      "color": "Colore"
+      "color": "Colore",
+      "date": "Data",
+      "checkbox": "Casella di controllo",
+      "multi_select": "Scelta multipla",
+      "url": "Link"
     },
     "builtin": {
       "key": "Chiave",
@@ -215,7 +219,7 @@
     },
     "label": "Nome",
     "dataType": "Tipo",
-    "typeLocked": "Il tipo di un campo esistente non si può cambiare.",
+    "typeLocked": "Il tipo di questo campo non può cambiare senza perdere valori. Crea invece un nuovo campo.",
     "options": "Opzioni",
     "option": "Opzione {{position}}",
     "optionColor": "Colore dell’opzione {{position}}",
@@ -275,7 +279,11 @@
       "hintNoCard": "Trascina i campi personalizzati per cambiarne l’ordine nel dialogo.",
       "noCustom": "Ancora nessun campo personalizzato per questo tipo. Spuntali in Assegnazione.",
       "instructions": "Premi spazio per prendere un campo. Spostalo con le frecce, rilascialo con spazio, annulla con esc."
-    }
+    },
+    "invalidUrl": "Inserisci un indirizzo web, per esempio example.com.",
+    "openLink": "Apri {{name}}",
+    "typeConversions": "Sono proposti solo i cambi di tipo che conservano tutti i valori.",
+    "defaultTicked": "Spuntata per impostazione predefinita"
   },
   "settings": {
     "title": "Impostazioni",
