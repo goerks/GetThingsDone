@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Story Map Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column with wide, horizontally scrollable map mockups. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --track: #e6e9ee; --column: #eceff3; --shadow: rgba(20,24,31,.06);
+  --ok: #11713a; --ok-soft: #e1f3e8; --warn: #8a5a00; --warn-soft: #fbf0d9;
+  --e-blue: #2457d6; --e-amber: #b45309; --e-teal: #0f766e; --e-violet: #7c3aed; --e-rose: #be123c;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --track: #2b3340; --column: #13181e; --shadow: rgba(0,0,0,.3);
+  --ok: #6fd69a; --ok-soft: #133222; --warn: #f0b860; --warn-soft: #3a2c12;
+  --e-blue: #7aa2ff; --e-amber: #f0a050; --e-teal: #3fd0b8; --e-violet: #b69cff; --e-rose: #fb7185;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --track: #2b3340; --column: #13181e; --shadow: rgba(0,0,0,.3);
+  --ok: #6fd69a; --ok-soft: #133222; --warn: #f0b860; --warn-soft: #3a2c12;
+  --e-blue: #7aa2ff; --e-amber: #f0a050; --e-teal: #3fd0b8; --e-violet: #b69cff; --e-rose: #fb7185;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 44px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; }
+ul { margin: 0; padding-left: 20px; }
+li { max-width: 72ch; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+header { display: grid; gap: 12px; }
+
+.decisions { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.dec { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.dec b { font-size: 14px; }
+.dec span { font-size: 14px; color: var(--muted); }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.pc { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.pc div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; min-width: 0; }
+.pc b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+.pc ul { font-size: 14px; }
+
+/* ---------- Mock app frame ---------- */
+.frame { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px var(--shadow); }
+.frame__bar { display: flex; align-items: center; gap: 18px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 13px; }
+.frame__bar b { font-weight: 600; }
+.frame__bar .nav { display: flex; gap: 14px; color: var(--muted); }
+.frame__bar .nav .on { color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); padding-bottom: 2px; }
+.frame__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 14px 16px 6px; }
+.frame__head h4 { margin: 0; font-size: 18px; font-weight: 600; }
+.frame__head .btns { margin-left: auto; display: flex; gap: 8px; }
+.btn { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.scroll { overflow-x: auto; padding: 8px 16px 16px; }
+
+/* ---------- Shared card ---------- */
+.card { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px 7px; font-size: 12.5px; line-height: 1.3; display: grid; gap: 3px; box-shadow: 0 1px 2px var(--shadow); cursor: grab; }
+.card .top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.card .code { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+.card .pts { font-size: 10.5px; font-weight: 600; background: var(--pill); border-radius: 8px; padding: 0 6px; }
+.st { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; color: var(--muted); }
+.st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--track); border: 1px solid var(--muted); }
+.st--prog::before { background: var(--accent); border-color: var(--accent); }
+.st--rev::before { background: var(--warn); border-color: var(--warn); }
+.st--done::before { background: var(--ok); border-color: var(--ok); }
+.card--ghost { opacity: .35; }
+.card--lift { position: absolute; z-index: 3; width: 150px; box-shadow: 0 10px 24px rgba(0,0,0,.22); transform: rotate(-2deg); border-color: var(--accent); }
+.drop { position: relative; height: 0; }
+.drop::before { content: ""; position: absolute; left: -2px; right: -2px; top: -5px; height: 4px; border-radius: 2px; background: var(--accent); }
+
+/* ---------- Variant A: grid with sticky header row and label column ---------- */
+.gridA { display: grid; grid-template-columns: 150px repeat(5, minmax(150px, 1fr)) 44px; gap: 6px; min-width: 1000px; }
+.corner { font-size: 11px; color: var(--muted); padding: 6px 4px; display: flex; align-items: flex-end; }
+.epic { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--c); border-radius: 6px; padding: 7px 9px; display: grid; gap: 2px; }
+.epic b { font-size: 13px; font-weight: 600; }
+.epic span { font-size: 11px; color: var(--muted); }
+.epic--hl { outline: 2px solid var(--accent); outline-offset: 1px; }
+.add { display: flex; align-items: center; justify-content: center; border: 1px dashed var(--border); border-radius: 6px; color: var(--muted); font-size: 18px; min-height: 40px; }
+.sprint { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: grid; gap: 2px; align-content: start; font-size: 12px; }
+.sprint b { font-size: 13px; }
+.sprint .dates { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); }
+.sprint .sum { color: var(--muted); }
+.sprint--now { border-left: 4px solid var(--accent); }
+.sprint--hl { outline: 2px solid var(--accent); outline-offset: 1px; }
+.badge { justify-self: start; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-soft-ink); }
+.badge--past { background: var(--pill); color: var(--muted); }
+.cell { background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 6px; display: grid; gap: 6px; align-content: start; min-height: 74px; position: relative; }
+.cell--target { background: var(--accent-soft); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cell--empty::after { content: "+"; color: var(--muted); opacity: .5; font-size: 16px; justify-self: center; align-self: center; }
+.rowsep { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 4px 0 0; }
+.rowsep::after { content: ""; flex: 1; border-top: 3px solid var(--text); }
+.sprint--backlog { background: transparent; border-style: dashed; }
+.cell--backlog { background: transparent; border-style: dashed; }
+
+/* ---------- Variant B: sprint bands ---------- */
+.bandsB { display: grid; gap: 10px; min-width: 940px; }
+.headB { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)) 44px; gap: 6px; }
+.band { border: 1px solid var(--border); border-radius: 8px; background: var(--column); overflow: hidden; }
+.band--now { border-color: var(--accent); }
+.band__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 7px 12px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 12.5px; }
+.band__bar b { font-size: 13.5px; }
+.band__bar .dates { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.band__bar .cap { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11.5px; }
+.cap__track { width: 120px; height: 5px; border-radius: 3px; background: var(--track); overflow: hidden; }
+.cap__fill { height: 100%; background: var(--accent); }
+.band__cells { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)) 44px; gap: 6px; padding: 8px; }
+.band__cells .cell { background: var(--surface); }
+.band__cells .cell--target { background: var(--accent-soft); }
+.band--collapsed .band__bar { border-bottom: 0; }
+.chev { font-size: 11px; color: var(--muted); }
+
+/* ---------- Variant C: compact ---------- */
+.gridC { display: grid; grid-template-columns: 130px repeat(5, minmax(140px, 1fr)); gap: 0; min-width: 860px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.gridC > div { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.gridC .h { padding: 6px 8px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; background: var(--column); }
+.gridC .h i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); display: inline-block; }
+.gridC .l { padding: 6px 8px; font-size: 12px; background: var(--column); display: grid; gap: 1px; }
+.gridC .l b { font-size: 12.5px; }
+.gridC .l .dates { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.gridC .c { padding: 4px; display: grid; gap: 3px; align-content: start; min-height: 46px; }
+.chip { display: flex; align-items: center; gap: 6px; font-size: 11.5px; padding: 3px 6px; border-radius: 4px; background: var(--pill); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip .code { font-family: var(--font-mono); font-size: 10px; color: var(--muted); flex: none; }
+.chip .t { overflow: hidden; text-overflow: ellipsis; }
+.gridC .c--target { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent); }
+.gridC .now { box-shadow: inset 4px 0 0 var(--accent); }
+
+/* ---------- Flow and stories ---------- */
+.stories { display: grid; gap: 8px; counter-reset: s; }
+.story { display: grid; grid-template-columns: 54px 1fr auto; gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; }
+.story .k { font-family: var(--font-mono); font-size: 13px; color: var(--muted); padding-top: 1px; }
+.story b { display: block; font-size: 15px; }
+.story p { font-size: 14px; color: var(--muted); }
+.qs { display: grid; gap: 10px; }
+.q { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 4px; }
+.q b { font-size: 15px; }
+.q .rec { font-size: 14px; }
+.q .rec strong { color: var(--ok); }
+@media (max-width: 600px) { .story { grid-template-columns: 1fr; gap: 4px; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="meta"><span>Get It Done</span><span>Issue #2</span><span>User Story Map</span><span>Designvorschläge</span></div>
+    <h1>User Story Map: drei Entwürfe</h1>
+    <p class="muted">Epics als Spalten oben, Sprints zeitlich untereinander links, die Stories im Raster dazwischen. Alle drei Entwürfe nutzen dieselben Bausteine wie das Board: abgegrenzte Flächen, hervorgehobene Zielzelle und eine Linie an der Stelle, wo die Story landet. Sie unterscheiden sich darin, wie Sprints dargestellt werden und wie viel auf einen Bildschirm passt.</p>
+  </header>
+
+  <section class="variant" aria-labelledby="dec">
+    <h2 id="dec">Entscheidungen aus deinen Antworten</h2>
+    <div class="decisions">
+      <div class="dec"><b>Kopfzeile: nur Epics</b><span>Jedes Epic ist eine Spalte. Neue Epics lassen sich mit «+» am Ende der Kopfzeile einfügen.</span></div>
+      <div class="dec"><b>Sprints untereinander</b><span>Nach Startdatum sortiert, der älteste oben. Neue Sprints mit «+ Sprint» unter dem letzten.</span></div>
+      <div class="dec"><b>Sprint = Name, Start, Ende</b><span>Vorschlag beim Anlegen: «Sprint n», Start am Tag nach dem letzten Sprint, Dauer 2 Wochen.</span></div>
+      <div class="dec"><b>Board zeigt den laufenden Sprint</b><span>Der Sprint, in dessen Zeitraum heute liegt. Läuft keiner, der nächste kommende, sonst der letzte.</span></div>
+      <div class="dec"><b>Backlog: ein Abschnitt pro Sprint</b><span>Sprint 1, Sprint 2, … und «Nicht geplant». Ziehen zwischen Abschnitten ändert den Sprint.</span></div>
+    </div>
+  </section>
+
+  <!-- ===================== Variant A ===================== -->
+  <section class="variant" aria-labelledby="va">
+    <div class="variant__head"><h3 id="va">A · Raster wie das Board</h3><span class="tag tag--rec">Empfehlung</span></div>
+    <p>Die Map ist eine Tabelle aus Flächen. Oben die Epic-Köpfe mit Farbstreifen, links die Sprint-Etiketten, dazwischen Zellen in der Spaltenfarbe des Boards. Kopfzeile und linke Spalte bleiben beim Scrollen stehen. Beim Ziehen leuchten die Zielzelle sowie der zugehörige Epic-Kopf und das Sprint-Etikett auf, wie ein Fadenkreuz. Die Linie zeigt die Position in der Zelle.</p>
+    <div class="frame" role="img" aria-label="Skizze Variante A: Raster mit Epics als Spalten und Sprints als Zeilen; S-9 wird nach Sprint 2, Epic Backlog gezogen">
+      <div class="frame__bar"><b>Get It Done</b><div class="nav"><span>Board</span><span>Backlog</span><span class="on">Story Map</span><span>Epics</span></div></div>
+      <div class="frame__head"><h4>Story Map</h4><span class="muted" style="font-size:13px">5 Epics · 3 Sprints · 14 Stories</span><div class="btns"><span class="btn">+ Sprint</span><span class="btn btn--primary">Neue Story</span></div></div>
+      <div class="scroll">
+        <div class="gridA">
+          <div class="corner">Sprint ↓ · Epic →</div>
+          <div class="epic" style="--c:var(--e-blue)"><b>Boards</b><span>4 Stories · 13 P</span></div>
+          <div class="epic epic--hl" style="--c:var(--e-amber)"><b>Backlog</b><span>3 Stories · 13 P</span></div>
+          <div class="epic" style="--c:var(--e-teal)"><b>Local storage</b><span>2 Stories · 10 P</span></div>
+          <div class="epic" style="--c:var(--e-violet)"><b>Accessibility</b><span>3 Stories · 10 P</span></div>
+          <div class="epic" style="--c:var(--e-rose)"><b>Reporting</b><span>2 Stories · 8 P</span></div>
+          <div class="add" title="Epic hinzufügen">+</div>
+
+          <div class="sprint sprint--now"><span class="badge">läuft</span><b>Sprint 1</b><span class="dates">06.10.–19.10.</span><span class="sum">6 Stories · 23 P</span></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-1</span><span class="pts">3</span></div>Create a story<span class="st st--prog">In Arbeit</span></div><div class="card"><div class="top"><span class="code">S-2</span><span class="pts">2</span></div>Tick off criteria<span class="st st--rev">Review</span></div></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-3</span><span class="pts">5</span></div>Reorder the backlog<span class="st">Zu erledigen</span></div></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-4</span><span class="pts">5</span></div>Local database<span class="st st--prog">In Arbeit</span></div></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-5</span><span class="pts">3</span></div>Switch language<span class="st st--done">Erledigt</span></div><div class="card"><div class="top"><span class="code">S-6</span><span class="pts">5</span></div>Keyboard only<span class="st">Zu erledigen</span></div></div>
+          <div class="cell cell--empty"></div>
+          <div></div>
+
+          <div class="sprint sprint--hl"><span class="badge badge--past">geplant</span><b>Sprint 2</b><span class="dates">20.10.–02.11.</span><span class="sum">4 Stories · 16 P</span></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-8</span><span class="pts">3</span></div>Configurable columns<span class="st">Zu erledigen</span></div></div>
+          <div class="cell cell--target"><div class="card"><div class="top"><span class="code">S-10</span><span class="pts">3</span></div>Sprint line<span class="st">Zu erledigen</span></div><div class="drop" aria-hidden="true"></div><div class="card"><div class="top"><span class="code">S-11</span><span class="pts">2</span></div>Filter by epic<span class="st">Zu erledigen</span></div><div class="card card--lift" style="left:52px;top:46px"><div class="top"><span class="code">S-9</span><span class="pts">5</span></div>Plan on the map<span class="st">Zu erledigen</span></div></div>
+          <div class="cell cell--empty"></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-12</span><span class="pts">5</span></div>Screen reader test<span class="st">Zu erledigen</span></div></div>
+          <div class="cell cell--empty"></div>
+          <div></div>
+
+          <div class="sprint"><b>Sprint 3</b><span class="dates">03.11.–16.11.</span><span class="sum">2 Stories · 13 P</span></div>
+          <div class="cell cell--empty"></div>
+          <div class="cell cell--empty"></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-13</span><span class="pts">5</span></div>SQLite in browser<span class="st">Zu erledigen</span></div></div>
+          <div class="cell cell--empty"></div>
+          <div class="cell"><div class="card"><div class="top"><span class="code">S-14</span><span class="pts">8</span></div>Sprint report<span class="st">Zu erledigen</span></div></div>
+          <div></div>
+
+          <div class="rowsep">Nicht geplant</div>
+          <div class="sprint sprint--backlog"><b>Nicht geplant</b><span class="sum">2 Stories · 13 P</span></div>
+          <div class="cell cell--backlog"><div class="card card--ghost"><div class="top"><span class="code">S-9</span><span class="pts">5</span></div>Plan on the map<span class="st">Zu erledigen</span></div></div>
+          <div class="cell cell--backlog"></div>
+          <div class="cell cell--backlog"></div>
+          <div class="cell cell--backlog"></div>
+          <div class="cell cell--backlog"><div class="card"><div class="top"><span class="code">S-7</span><span class="pts">8</span></div>Export to CSV<span class="st">Zu erledigen</span></div></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+    <div class="pc">
+      <div><b>Stärken</b><ul><li>Fühlt sich an wie das Board: gleiche Flächen, gleiche Karten, gleiche Drop-Linie.</li><li>Das Fadenkreuz (Zelle, Epic-Kopf, Sprint-Etikett) zeigt eindeutig, welche zwei Dinge sich ändern.</li><li>Ein einfacher Klick auf eine leere Zelle kann direkt eine Story mit diesem Epic und Sprint anlegen.</li></ul></div>
+      <div><b>Schwächen</b><ul><li>Die linke Spalte kostet 150 px Breite.</li><li>Bei vielen Sprints wird die Map hoch. Vergangene Sprints lassen sich zuklappen (siehe Frage 2).</li></ul></div>
+    </div>
+  </section>
+
+  <!-- ===================== Variant B ===================== -->
+  <section class="variant" aria-labelledby="vb">
+    <div class="variant__head"><h3 id="vb">B · Sprint-Bänder</h3><span class="tag">Alternative</span></div>
+    <p>Jeder Sprint ist ein waagrechtes Band mit einer Kopfleiste über die ganze Breite: Name, Daten, Punkte und ein Füllbalken für die Kapazität. Das Band lässt sich zuklappen. Die Epic-Köpfe stehen einmal oben und bleiben beim Scrollen sichtbar. Ohne linke Spalte bleibt mehr Breite für die Karten.</p>
+    <div class="frame" role="img" aria-label="Skizze Variante B: Sprints als Bänder mit Kopfleiste, Sprint 3 zugeklappt">
+      <div class="frame__bar"><b>Get It Done</b><div class="nav"><span>Board</span><span>Backlog</span><span class="on">Story Map</span><span>Epics</span></div></div>
+      <div class="frame__head"><h4>Story Map</h4><div class="btns"><span class="btn">+ Sprint</span><span class="btn btn--primary">Neue Story</span></div></div>
+      <div class="scroll">
+        <div class="bandsB">
+          <div class="headB">
+            <div class="epic" style="--c:var(--e-blue)"><b>Boards</b><span>4 Stories</span></div>
+            <div class="epic" style="--c:var(--e-amber)"><b>Backlog</b><span>3 Stories</span></div>
+            <div class="epic" style="--c:var(--e-teal)"><b>Local storage</b><span>2 Stories</span></div>
+            <div class="epic" style="--c:var(--e-violet)"><b>Accessibility</b><span>3 Stories</span></div>
+            <div class="epic" style="--c:var(--e-rose)"><b>Reporting</b><span>2 Stories</span></div>
+            <div class="add">+</div>
+          </div>
+          <div class="band band--now">
+            <div class="band__bar"><span class="chev">▾</span><b>Sprint 1</b><span class="badge">läuft</span><span class="dates">06.10.–19.10.</span><span class="cap">23 von 25 P<span class="cap__track"><span class="cap__fill" style="display:block;width:92%"></span></span></span></div>
+            <div class="band__cells">
+              <div class="cell"><div class="card"><div class="top"><span class="code">S-1</span><span class="pts">3</span></div>Create a story<span class="st st--prog">In Arbeit</span></div><div class="card"><div class="top"><span class="code">S-2</span><span class="pts">2</span></div>Tick off criteria<span class="st st--rev">Review</span></div></div>
+              <div class="cell"><div class="card"><div class="top"><span class="code">S-3</span><span class="pts">5</span></div>Reorder the backlog<span class="st">Zu erledigen</span></div></div>
+              <div class="cell"><div class="card"><div class="top"><span class="code">S-4</span><span class="pts">5</span></div>Local database<span class="st st--prog">In Arbeit</span></div></div>
+              <div class="cell"><div class="card"><div class="top"><span class="code">S-5</span><span class="pts">3</span></div>Switch language<span class="st st--done">Erledigt</span></div></div>
+              <div class="cell cell--empty"></div><div></div>
+            </div>
+          </div>
+          <div class="band">
+            <div class="band__bar"><span class="chev">▾</span><b>Sprint 2</b><span class="dates">20.10.–02.11.</span><span class="cap">16 von 25 P<span class="cap__track"><span class="cap__fill" style="display:block;width:64%"></span></span></span></div>
+            <div class="band__cells">
+              <div class="cell"><div class="card"><div class="top"><span class="code">S-8</span><span class="pts">3</span></div>Configurable columns<span class="st">Zu erledigen</span></div></div>
+              <div class="cell cell--target"><div class="drop" aria-hidden="true"></div><div class="card"><div class="top"><span class="code">S-10</span><span class="pts">3</span></div>Sprint line<span class="st">Zu erledigen</span></div></div>
+              <div class="cell cell--empty"></div>
+              <div class="cell"><div class="card"><div class="top"><span class="code">S-12</span><span class="pts">5</span></div>Screen reader test<span class="st">Zu erledigen</span></div></div>
+              <div class="cell cell--empty"></div><div></div>
+            </div>
+          </div>
+          <div class="band band--collapsed">
+            <div class="band__bar"><span class="chev">▸</span><b>Sprint 3</b><span class="dates">03.11.–16.11.</span><span class="muted">2 Stories zugeklappt</span><span class="cap">13 von 25 P<span class="cap__track"><span class="cap__fill" style="display:block;width:52%"></span></span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc">
+      <div><b>Stärken</b><ul><li>Mehr Breite für Karten, weil die linke Spalte fehlt.</li><li>Kapazitätsbalken pro Sprint zeigt Über- und Unterplanung auf einen Blick.</li><li>Zuklappen pro Sprint ist natürlich.</li></ul></div>
+      <div><b>Schwächen</b><ul><li>Weniger klassische Story Map: der Sprint steht nicht neben, sondern über der Zeile.</li><li>Kapazität braucht ein neues Feld pro Sprint (nicht im Umfang, Nachfolge-Feature).</li></ul></div>
+    </div>
+  </section>
+
+  <!-- ===================== Variant C ===================== -->
+  <section class="variant" aria-labelledby="vc">
+    <div class="variant__head"><h3 id="vc">C · Kompakte Übersicht</h3><span class="tag">Alternative</span></div>
+    <p>Eine dichte Tabelle mit Linien statt Flächen. Jede Story ist eine einzeilige Marke mit Schlüssel und Titel. Passt viele Sprints und Epics auf einen Bildschirm und eignet sich als Planungsübersicht. Als Schalter «Kompakt» lässt sich diese Ansicht auch zusätzlich zu A anbieten.</p>
+    <div class="frame" role="img" aria-label="Skizze Variante C: kompakte Tabelle mit einzeiligen Story-Marken">
+      <div class="scroll" style="padding-top:16px">
+        <div class="gridC">
+          <div class="h" style="background:var(--surface)"></div>
+          <div class="h" style="--c:var(--e-blue)"><i></i>Boards</div>
+          <div class="h" style="--c:var(--e-amber)"><i></i>Backlog</div>
+          <div class="h" style="--c:var(--e-teal)"><i></i>Local storage</div>
+          <div class="h" style="--c:var(--e-violet)"><i></i>Accessibility</div>
+          <div class="h" style="--c:var(--e-rose)"><i></i>Reporting</div>
+
+          <div class="l now"><b>Sprint 1</b><span class="dates">06.10.–19.10.</span></div>
+          <div class="c"><span class="chip"><span class="code">S-1</span><span class="t">Create a story</span></span><span class="chip"><span class="code">S-2</span><span class="t">Tick off criteria</span></span></div>
+          <div class="c"><span class="chip"><span class="code">S-3</span><span class="t">Reorder the backlog</span></span></div>
+          <div class="c"><span class="chip"><span class="code">S-4</span><span class="t">Local database</span></span></div>
+          <div class="c"><span class="chip"><span class="code">S-5</span><span class="t">Switch language</span></span><span class="chip"><span class="code">S-6</span><span class="t">Keyboard only</span></span></div>
+          <div class="c"></div>
+
+          <div class="l"><b>Sprint 2</b><span class="dates">20.10.–02.11.</span></div>
+          <div class="c"><span class="chip"><span class="code">S-8</span><span class="t">Configurable columns</span></span></div>
+          <div class="c c--target"><span class="chip"><span class="code">S-10</span><span class="t">Sprint line</span></span><span class="chip"><span class="code">S-11</span><span class="t">Filter by epic</span></span></div>
+          <div class="c"></div>
+          <div class="c"><span class="chip"><span class="code">S-12</span><span class="t">Screen reader test</span></span></div>
+          <div class="c"></div>
+
+          <div class="l"><b>Sprint 3</b><span class="dates">03.11.–16.11.</span></div>
+          <div class="c"></div><div class="c"></div>
+          <div class="c"><span class="chip"><span class="code">S-13</span><span class="t">SQLite in browser</span></span></div>
+          <div class="c"></div>
+          <div class="c"><span class="chip"><span class="code">S-14</span><span class="t">Sprint report</span></span></div>
+
+          <div class="l" style="font-style:italic"><b>Nicht geplant</b></div>
+          <div class="c"><span class="chip"><span class="code">S-9</span><span class="t">Plan on the map</span></span></div>
+          <div class="c"></div><div class="c"></div><div class="c"></div>
+          <div class="c"><span class="chip"><span class="code">S-7</span><span class="t">Export to CSV</span></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="pc">
+      <div><b>Stärken</b><ul><li>Sehr dicht, gut für grosse Backlogs und lange Planungen.</li><li>Ruhiges Bild ohne Kartenschatten.</li></ul></div>
+      <div><b>Schwächen</b><ul><li>Fühlt sich weniger wie das Board an, die Abgrenzung ist schwächer.</li><li>Status und Punkte sind nicht sichtbar, Titel werden gekürzt.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="ia">
+    <h2 id="ia">Bedienung (für alle Varianten gleich)</h2>
+    <div class="pc">
+      <div><b>Ziehen</b><ul><li>Ganze Karte ziehen, wie auf dem Board.</li><li>Zielzelle leuchtet auf; die Linie zeigt die Position in der Zelle.</li><li>Ablegen ändert Sprint und Epic; die Reihenfolge in der Zelle folgt der Backlog-Priorität.</li><li>Ziehen nach «Nicht geplant» nimmt die Story aus jedem Sprint.</li></ul></div>
+      <div><b>Tastatur und Screenreader</b><ul><li>Karte fokussieren, Leertaste, Pfeiltasten zwischen Zellen, Leertaste ablegen, Escape abbrechen, Enter öffnet.</li><li>Ansage z. B. «S-9 kommt nach Sprint 2, Backlog, Position 2».</li></ul></div>
+      <div><b>Anlegen</b><ul><li>«+» am Ende der Epic-Köpfe: Dialog «Neues Epic».</li><li>«+ Sprint»: Dialog mit Name, Start, Ende (vorausgefüllt).</li><li>Klick auf das Sprint-Etikett: Name und Daten bearbeiten.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="st">
+    <h2 id="st">Vorgeschlagene Stories</h2>
+    <div class="stories">
+      <div class="story"><span class="k">MAP-1</span><div><b>Sprints als eigene Objekte</b><p>Sprint mit Name, Start und Ende. Stories gehören zu einem Sprint oder zu keinem. Der heutige «Sprint 1» wird beim Update übernommen (Migration).</p></div><span class="tag">Daten</span></div>
+      <div class="story"><span class="k">MAP-2</span><div><b>Board zeigt den laufenden Sprint</b><p>Sprint, in dessen Zeitraum heute liegt; sonst der nächste kommende, sonst der letzte. Titel und Zusammenfassung zeigen seinen Namen.</p></div><span class="tag">Board</span></div>
+      <div class="story"><span class="k">MAP-3</span><div><b>Backlog mit einem Abschnitt pro Sprint</b><p>Abschnitte in Sprint-Reihenfolge plus «Nicht geplant». Ziehen zwischen Abschnitten ändert den Sprint. Der Dialog «Neue Story» bekommt eine Sprint-Auswahl statt des Kästchens.</p></div><span class="tag">Backlog</span></div>
+      <div class="story"><span class="k">MAP-4</span><div><b>Story Map anzeigen</b><p>Epics als Spalten, Sprints als Zeilen, «Nicht geplant» als letzte Zeile, Stories als Karten in den Zellen.</p></div><span class="tag">Map</span></div>
+      <div class="story"><span class="k">MAP-5</span><div><b>Stories auf der Map verschieben</b><p>Drag and Drop mit Zielzelle, Linie, Fadenkreuz, Tastatur und Ansagen in vier Sprachen.</p></div><span class="tag">Map</span></div>
+      <div class="story"><span class="k">MAP-6</span><div><b>Sprints und Epics auf der Map anlegen und bearbeiten</b><p>«+ Sprint» und «+» bei den Epics öffnen Dialoge; Klick auf ein Sprint-Etikett bearbeitet Name und Daten.</p></div><span class="tag">Map</span></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="oq">
+    <h2 id="oq">Offen für deinen Review</h2>
+    <div class="qs">
+      <div class="q"><b>1. Welche Variante?</b><p class="rec"><strong>Empfehlung:</strong> A, weil sie sich am meisten wie das Board anfühlt. C kann später als Schalter «Kompakt» dazukommen.</p></div>
+      <div class="q"><b>2. Vergangene Sprints zuklappen?</b><p class="rec"><strong>Empfehlung:</strong> Ja, abgeschlossene Sprints (Ende vor heute) sind zugeklappt und lassen sich aufklappen. So beginnt die Map beim laufenden Sprint.</p></div>
+      <div class="q"><b>3. Story direkt in einer Zelle anlegen?</b><p class="rec"><strong>Empfehlung:</strong> Ja, Klick auf «+» in einer leeren Zelle öffnet «Neue Story» mit Epic und Sprint vorausgefüllt.</p></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
