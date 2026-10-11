@@ -46,7 +46,8 @@
     "epic": "Epic",
     "points": "Points",
     "add": "Add story",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "dialogTitle": "New story"
   },
   "backlog": {
     "title": "Backlog",
@@ -111,7 +112,7 @@
   },
   "epics": {
     "title": "Epics",
-    "hint": "Epics group stories. Click a name to rename it.",
+    "hint": "Epics group stories. Click a name to rename it, the colour dot to change its colour.",
     "none": "No epics yet.",
     "new": "New epic",
     "name": "Name",
@@ -133,6 +134,7 @@
     "storyCount_other": "{{count}} stories",
     "delete": "Delete epic {{name}}",
     "inUse_one": "Used by {{count}} story. Move it to another epic first.",
-    "inUse_other": "Used by {{count}} stories. Move them to another epic first."
+    "inUse_other": "Used by {{count}} stories. Move them to another epic first.",
+    "changeColor": "Colour of {{name}}: {{color}}. Change colour"
   }
 }

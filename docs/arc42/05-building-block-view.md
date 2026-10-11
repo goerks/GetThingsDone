@@ -17,8 +17,8 @@
 |---|---|---|
 | Entry | `src/main.tsx`, `src/App.tsx` | Loads fonts and tokens, initialises i18n and theme, renders the shell |
 | Router | `src/router.ts` | Hash routes `#/board`, `#/backlog`, `#/epics`, `#/story/<id>` |
-| Pages | `src/pages/` | `BoardPage` (drag and drop), `BacklogPage` (drag and drop, sprint line), `StoryPage` (edit story and criteria, delete), `EpicsPage` (create, rename, recolour, delete epics) |
-| Components | `src/components/` | `Header`, `BoardColumn`, `StoryCard`, `NewStoryForm`, `EpicTag`, `EpicSelect` (with "new epic"), `EditableText` (click to edit), icons |
+| Pages | `src/pages/` | `BoardPage` (drag and drop), `BacklogPage` (drag and drop, sprint line), `StoryPage` (edit story and criteria, delete), `EpicsPage` (new-epic dialog, rename, colour palette on the dot, delete) |
+| Components | `src/components/` | `Header`, `BoardColumn`, `StoryCard`, `NewStoryForm`, `EpicTag`, `EpicSelect` (with "new epic"), `EditableText` (click to edit), `Dialog` (native modal dialog), `NewStoryDialog`, icons |
 | Drag and drop | `src/dnd/dnd.ts` | Shared sensors (whole card, Enter left free), placement from the pointer, drop target from the resulting list |
 | State | `src/state/AppState.tsx` | React context. Holds the snapshot, applies domain functions, queues writes to the repository in order, reports load and save errors |
 | Domain | `src/domain/` | Types (`Epic`, `Story`, `Criterion`, `Status`) and pure operations: board drop, backlog drop across the sprint line, editing and deleting stories and criteria, criteria order, new story key (`board.ts`); epics with colour palette (`epics.ts`) |
