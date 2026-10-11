@@ -767,6 +767,65 @@ describe('fields', () => {
     });
   });
 
+  it('makes a field required, so the new story dialog asks for it, with defaults filled in', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('tab', { name: 'Layout' }));
+    expect(screen.getByRole('tab', { name: 'Stories' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getAllByText('Fixed position').length).toBeGreaterThan(0);
+    const custom = screen.getByRole('list', { name: 'Custom fields' });
+    const value = within(custom).getAllByRole('listitem')[1];
+    expect(value).toHaveTextContent('Business value');
+    await user.click(within(value).getByRole('checkbox', { name: 'Required' }));
+    expect(within(value).getByRole('checkbox', { name: 'In create dialog' })).toBeDisabled();
+    expect(within(value).getByRole('checkbox', { name: 'In create dialog' })).toBeChecked();
+
+    window.location.hash = '#/board';
+    await user.click(await screen.findByRole('button', { name: 'New story' }));
+    const dialog = screen.getByRole('dialog', { name: 'New story' });
+    expect(within(dialog).getByLabelText('Priority')).toHaveDisplayValue('Should');
+    await user.type(within(dialog).getByLabelText('Title'), 'Needs a value');
+    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Please fill in: Business value');
+    await user.type(within(dialog).getByLabelText(/^Business value/), '3');
+    await user.tab();
+    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    const saved = (await repository.load()).stories.find((story) => story.title === 'Needs a value');
+    expect(saved?.values).toEqual({ 'field-demo-priority': 'opt-should', 'field-demo-value': 3 });
+  });
+
+  it('does not let a required field be cleared in the story dialog', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('tab', { name: 'Layout' }));
+    const custom = screen.getByRole('list', { name: 'Custom fields' });
+    await user.click(within(within(custom).getAllByRole('listitem')[0]).getByRole('checkbox', { name: 'Required' }));
+
+    await openStory(/S-1:/);
+    await user.selectOptions(screen.getByLabelText(/^Priority/), 'No value');
+    expect(screen.getByRole('alert')).toHaveTextContent('This field is required.');
+    expect((await repository.load()).stories.find((s) => s.id === 'story-1')?.values['field-demo-priority']).toBe('opt-must');
+  });
+
+  it('shows the values of the fields chosen for the card', async () => {
+    await renderApp();
+    const card = screen.getByRole('group', { name: 'S-1: Create a story with title and description' });
+    expect(within(card).getByText('Must')).toBeInTheDocument();
+    expect(within(card).getByText('Priority:')).toHaveClass('sr-only');
+  });
+
+  it('sets a default value in the field dialog', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'Edit field Business value' }));
+    const dialog = screen.getByRole('dialog', { name: 'Edit field' });
+    await user.type(within(dialog).getByLabelText('Default value'), '5');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    expect((await repository.load()).fields.find((field) => field.id === 'field-demo-value')?.defaultValue).toBe(5);
+  });
+
   it('creates a story without an epic and clears the epic of a story', async () => {
     const user = userEvent.setup();
     const repository = await renderApp();

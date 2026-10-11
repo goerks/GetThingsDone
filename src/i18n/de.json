@@ -233,7 +233,8 @@
       "labelRequired": "Bitte einen Namen eingeben.",
       "labelTaken": "Ein Feld mit diesem Namen gibt es schon.",
       "optionsRequired": "Mindestens eine Option hinzufügen.",
-      "optionLabelTaken": "Jede Option braucht einen anderen Namen."
+      "optionLabelTaken": "Jede Option braucht einen anderen Namen.",
+      "defaultInvalid": "Der Standardwert passt nicht zum Typ des Felds."
     },
     "noValue": "Kein Wert",
     "invalidNumber": "Bitte eine Zahl eingeben.",
@@ -250,7 +251,31 @@
     "loseStories_one": "{{count}} Story verliert ihren Wert.",
     "loseStories_other": "{{count}} Stories verlieren ihren Wert.",
     "loseEpics_one": "{{count}} Epic verliert seinen Wert.",
-    "loseEpics_other": "{{count}} Epics verlieren ihren Wert."
+    "loseEpics_other": "{{count}} Epics verlieren ihren Wert.",
+    "requiredError": "Dieses Feld ist Pflicht.",
+    "requiredMissing": "Pflichtfeld, noch nicht ausgefüllt.",
+    "requiredMark": "(Pflicht)",
+    "fillRequired": "Bitte ausfüllen: {{names}}",
+    "defaultValue": "Standardwert",
+    "noDefault": "Kein Standardwert",
+    "views": "Ansichten der Felder",
+    "view": {
+      "assign": "Zuordnung",
+      "layout": "Anordnung"
+    },
+    "layout": {
+      "types": "Typen",
+      "fixed": "Feste Position",
+      "move": "Feld verschieben: {{name}}",
+      "required": "Pflicht",
+      "inCreate": "Im Erstellen-Dialog",
+      "onCard": "Auf Karte",
+      "cardFull": "Höchstens {{count}} Felder passen auf eine Karte",
+      "hint": "Eigene Felder ziehen, um ihre Reihenfolge in den Dialogen zu ändern. Höchstens {{count}} Felder erscheinen auf einer Karte.",
+      "hintNoCard": "Eigene Felder ziehen, um ihre Reihenfolge im Dialog zu ändern.",
+      "noCustom": "Noch keine eigenen Felder für diesen Typ. Unter Zuordnung anhaken.",
+      "instructions": "Leertaste drücken, um ein Feld aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen."
+    }
   },
   "settings": {
     "title": "Einstellungen",

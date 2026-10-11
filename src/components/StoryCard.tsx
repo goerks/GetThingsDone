@@ -2,8 +2,11 @@ import type { KeyboardEvent } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { criteriaProgress } from '../domain/board';
+import { cardFieldsFor, formatValue } from '../domain/fields';
 import type { Epic, Story } from '../domain/types';
+import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
+import { fieldLabel } from './fieldLabel';
 import { EpicTag } from './EpicTag';
 
 /** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
@@ -22,6 +25,31 @@ export function TitleButton({ story, className }: { story: Story; className: str
   );
 }
 
+/** Values of the custom fields chosen for the card. Select values keep their option colour. */
+export function CardFieldValues({ story }: { story: Story }) {
+  const { t } = useTranslation();
+  const app = useApp();
+  const shown = cardFieldsFor('story', app.fields, app.assignments).filter((field) => story.values[field.id] !== undefined);
+  if (shown.length === 0) return null;
+  return (
+    <span className="card-fields">
+      {shown.map((field) => {
+        const value = story.values[field.id];
+        const option = field.dataType === 'single_select' ? field.options.find((item) => item.id === value) : undefined;
+        const name = fieldLabel(t, field);
+        const text = formatValue(field, value);
+        return (
+          <span key={field.id} className="card-field" title={`${name}: ${text}`}>
+            {option && <span className="epic__dot" style={{ background: `var(--epic-${option.colorKey})` }} aria-hidden="true" />}
+            <span className="sr-only">{name}: </span>
+            {text}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) {
   const { t } = useTranslation();
   const progress = criteriaProgress(story);
@@ -29,6 +57,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
     <>
       <span className="card__code">{story.code}</span>
       <TitleButton story={story} className="card__title" />
+      <CardFieldValues story={story} />
       <div className="card__progress">
         <div
           className="progress"

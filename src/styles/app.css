@@ -1814,3 +1814,142 @@ a.settings__link:hover {
   text-transform: uppercase;
   padding-block: 4px;
 }
+
+/* Values of custom fields on cards. */
+.card-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.card-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--pill);
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map--compact .card-fields {
+  display: none;
+}
+
+.field__required {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ---------- Field views and layout ---------- */
+
+.view-tabs,
+.type-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.view-tabs__tab,
+.type-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--target-min);
+  padding: 0 14px;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.view-tabs__tab[aria-selected='true'],
+.type-tabs__tab[aria-selected='true'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.type-tabs__tab--planned {
+  cursor: default;
+}
+
+.layout {
+  max-width: 900px;
+}
+
+.layout__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.layout-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.layout-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-height: var(--target-min);
+  padding: 2px 12px 2px 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.layout-row--fixed {
+  padding-left: 12px;
+  background: var(--pill);
+}
+
+.layout-row--dragging {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 6px 18px var(--shadow);
+}
+
+.layout-row__lock {
+  display: inline-flex;
+  width: 20px;
+  color: var(--muted);
+}
+
+.layout-row__name {
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.layout-row__type {
+  min-width: 110px;
+  font-size: 13px;
+}
+
+.layout-row__note {
+  margin-left: auto;
+  font-size: 13px;
+}
+
+.layout-row__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-left: auto;
+}

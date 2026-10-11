@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { storiesInEpic } from '../domain/epics';
-import { customFieldsFor } from '../domain/fields';
+import { customFieldsFor, isRequired } from '../domain/fields';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
@@ -56,6 +56,7 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
             key={field.id}
             field={field}
             value={epic.values[field.id]}
+            required={isRequired('epic', app.assignments, field.id)}
             onChange={(value) => app.setFieldValue(epic.id, field.id, value)}
           />
         ))}

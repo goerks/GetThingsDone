@@ -7,7 +7,7 @@ import { builtinFieldId } from '../domain/fields';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -119,7 +119,7 @@ describe('SqliteRepository', () => {
 
   it('sets, changes and clears values of every type', async () => {
     const { repository } = await freshRepository();
-    await repository.saveField({ id: 'notes', builtinKey: null, kind: 'custom', dataType: 'long_text', label: 'Notes', options: [] });
+    await repository.saveField({ id: 'notes', builtinKey: null, kind: 'custom', dataType: 'long_text', label: 'Notes', options: [], defaultValue: null });
     await repository.setFieldValue('story-7', 'notes', 'Line one\nLine two');
     await repository.setFieldValue('story-7', 'field-demo-value', 2.5);
     await repository.setFieldValue('story-7', 'field-demo-priority', 'opt-could');
@@ -154,6 +154,17 @@ describe('SqliteRepository', () => {
     expect(saved?.options.map((option) => option.label)).toEqual(['Should have', 'Must have']);
     expect(snapshot.stories.find((story) => story.id === 'story-6')?.values).toEqual({ 'field-demo-value': 2 });
     expect(snapshot.stories.find((story) => story.id === 'story-1')?.values['field-demo-priority']).toBe('opt-must');
+  });
+
+  it('stores default values of fields', async () => {
+    const { repository } = await freshRepository();
+    await repository.saveField({ id: 'n', builtinKey: null, kind: 'custom', dataType: 'number', label: 'N', options: [], defaultValue: 2.5 });
+    await repository.saveField({ id: 't', builtinKey: null, kind: 'custom', dataType: 'text', label: 'T', options: [], defaultValue: 'ACME' });
+    const fields = (await repository.load()).fields;
+    expect(fields.find((field) => field.id === 'n')?.defaultValue).toBe(2.5);
+    expect(fields.find((field) => field.id === 't')?.defaultValue).toBe('ACME');
+    expect(fields.find((field) => field.id === 'field-demo-priority')?.defaultValue).toBe('opt-should');
+    expect(fields.find((field) => field.builtinKey === 'title')?.defaultValue).toBeNull();
   });
 
   it('replaces the assignments of a field', async () => {

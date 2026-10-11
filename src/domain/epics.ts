@@ -28,6 +28,8 @@ export function nextColorKey(epics: readonly Epic[]): EpicColorKey {
 export interface NewEpicInput {
   name: string;
   colorKey?: EpicColorKey;
+  /** Values of custom fields, from the create dialog. */
+  values?: Epic['values'];
 }
 
 /** Adds an epic. Returns null when the trimmed name is empty. */
@@ -35,7 +37,7 @@ export function createEpic(epics: Epic[], input: NewEpicInput, id: string): { ep
   const name = input.name.trim();
   if (!name) return null;
   const position = epics.reduce((max, epic) => Math.max(max, epic.position), -1) + 1;
-  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics), position, values: {} };
+  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics), position, values: input.values ?? {} };
   return { epics: [...epics, epic], epic };
 }
 
