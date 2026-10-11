@@ -233,7 +233,8 @@
       "labelRequired": "Inserisci un nome.",
       "labelTaken": "Esiste già un campo con questo nome.",
       "optionsRequired": "Aggiungi almeno un’opzione.",
-      "optionLabelTaken": "Ogni opzione deve avere un nome diverso."
+      "optionLabelTaken": "Ogni opzione deve avere un nome diverso.",
+      "defaultInvalid": "Il valore predefinito non corrisponde al tipo del campo."
     },
     "noValue": "Nessun valore",
     "invalidNumber": "Inserisci un numero.",
@@ -250,7 +251,31 @@
     "loseStories_one": "{{count}} story perde il suo valore.",
     "loseStories_other": "{{count}} story perdono il loro valore.",
     "loseEpics_one": "{{count}} epic perde il suo valore.",
-    "loseEpics_other": "{{count}} epic perdono il loro valore."
+    "loseEpics_other": "{{count}} epic perdono il loro valore.",
+    "requiredError": "Questo campo è obbligatorio.",
+    "requiredMissing": "Obbligatorio, non ancora compilato.",
+    "requiredMark": "(obbligatorio)",
+    "fillRequired": "Compila: {{names}}",
+    "defaultValue": "Valore predefinito",
+    "noDefault": "Nessun valore predefinito",
+    "views": "Viste dei campi",
+    "view": {
+      "assign": "Assegnazione",
+      "layout": "Disposizione"
+    },
+    "layout": {
+      "types": "Tipi",
+      "fixed": "Posizione fissa",
+      "move": "Sposta campo: {{name}}",
+      "required": "Obbligatorio",
+      "inCreate": "Nella creazione",
+      "onCard": "Sulla scheda",
+      "cardFull": "Al massimo {{count}} campi stanno su una scheda",
+      "hint": "Trascina i campi personalizzati per cambiarne l’ordine nei dialoghi. Al massimo {{count}} campi appaiono su una scheda.",
+      "hintNoCard": "Trascina i campi personalizzati per cambiarne l’ordine nel dialogo.",
+      "noCustom": "Ancora nessun campo personalizzato per questo tipo. Spuntali in Assegnazione.",
+      "instructions": "Premi spazio per prendere un campo. Spostalo con le frecce, rilascialo con spazio, annulla con esc."
+    }
   },
   "settings": {
     "title": "Impostazioni",

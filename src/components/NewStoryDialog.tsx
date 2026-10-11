@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { NewStoryInput } from '../domain/board';
 import { POINT_VALUES } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
 import { EpicSelect } from './EpicSelect';
 import { SprintSelect } from './SprintSelect';
@@ -24,11 +25,14 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const [epicId, setEpicId] = useState<string | null>(initialEpicId ?? null);
   const [points, setPoints] = useState(3);
   const [sprintId, setSprintId] = useState(initialSprintId);
+  const custom = useCreateFields('story');
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     if (!title.trim()) return;
-    const input: NewStoryInput = { title, description, epicId, points, sprintId };
+    const values = custom.collect();
+    if (!values) return;
+    const input: NewStoryInput = { title, description, epicId, points, sprintId, values };
     app.createStory(input);
     onClose();
   };
@@ -82,6 +86,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
           <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
           <SprintSelect id={`${uid}-sprint`} value={sprintId} onChange={setSprintId} />
         </div>
+        {custom.fields}
         <div className="form__actions">
           <button type="submit" className="btn btn--primary">
             {t('newStory.add')}

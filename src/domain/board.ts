@@ -1,5 +1,5 @@
 import { sortSprints } from './sprints';
-import type { Criterion, Sprint, Story, Status } from './types';
+import type { Criterion, FieldValue, Sprint, Story, Status } from './types';
 
 /** Where a dragged item goes relative to the item it is over. Without a value the move direction decides. */
 export type Placement = 'before' | 'after';
@@ -319,6 +319,8 @@ export interface NewStoryInput {
   points: number;
   /** The sprint to plan the story in, or null for "not planned". */
   sprintId: string | null;
+  /** Values of custom fields, from the create dialog. */
+  values?: Record<string, FieldValue>;
 }
 
 export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId'>>;
@@ -351,7 +353,7 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string):
     sprintId: input.sprintId,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
     criteria: [],
-    values: {}
+    values: input.values ?? {}
   };
   return { stories: [...stories, story], story };
 }

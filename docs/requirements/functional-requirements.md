@@ -136,7 +136,7 @@ Source: Vision, PO feedback · Status: Implemented · Verified by: App "epics" t
 
 ## Fields (FIELD)
 
-Configurable fields, issue #4, data model in ADR 0003. Stages 1 and 2 of the feature: custom fields on stories and epics.
+Configurable fields, issue #4, data model in ADR 0003. Stages 1 to 3 of the feature: custom fields on stories and epics, layout per item type.
 
 ### FR-FIELD-01 Field library as a matrix
 As a team, we want to see every field of the workspace and the item types that use it, so that we know what our items carry.
@@ -151,6 +151,7 @@ Source: #4, PO feedback (variant A in `docs/design/field-assignment.md`) · Stat
 As a team, we want to add our own fields, so that stories carry the information we need.
 - "New field" opens a dialog with name, type (text, long text, number, single select) and the item types that use it (Stories ticked by default, Epics).
 - A single select field has ordered options, each with a name and one of eight colours. Options can be added and removed.
+- An optional default value (text, number, or one of the options) fills in new stories and epics; a default that does not fit the type is refused.
 - The name is required and unique among custom fields (ignoring case). A select field needs at least one option and no two options with the same name. Problems are shown in the dialog.
 
 Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "explains what is wrong with a new field", fields.test "validateField", "createField"
@@ -187,6 +188,23 @@ As a PO, I want to fill in the custom fields of an epic.
 - The values of an epic are deleted together with the epic.
 
 Source: #4 · Status: Implemented · Verified by: App "puts a field on epics and edits its value in the epic dialog", sqliteRepository.test "stores values of epics and deletes them with the epic"
+
+### FR-FIELD-08 Layout per item type
+As a team, we want to decide the order of our fields, which ones are required, and which ones appear when creating an item and on its card.
+- The fields section has two tabs: "Assignment" (the matrix, FR-FIELD-01) and "Layout". Layout has a tab per item type (Stories, Epics; Sprints and Releases planned).
+- System and built-in fields are listed first with "Fixed position". Custom fields are reordered by drag and drop with a handle (mouse, touch, keyboard, announced to screen readers); the order applies to the story and epic dialogs and the create dialogs.
+- Per custom field: "Required", "In create dialog", and for stories "On card". A required field is always in the create dialog. At most 3 fields show on a card; further "On card" boxes are disabled.
+- Card: the values of the "On card" fields show as small chips on board and story map cards (select values with their colour; hidden in compact mode).
+
+Source: #4, PO feedback (variant B in `docs/design/field-assignment.md`) · Status: Implemented · Verified by: App "makes a field required…", "shows the values of the fields chosen for the card", fields.test "layout per item type"; drag with mouse and keyboard: manual check in Chromium
+
+### FR-FIELD-09 Required fields and default values when creating and editing
+As a team member, I want new items to start with sensible values and required fields to be filled in.
+- The new story and new epic dialogs show the custom fields marked "In create dialog" and every required one, prefilled with the default values. Defaults also apply to fields that are not in the dialog.
+- Creating is refused while a required field is empty: "Please fill in: …" names the fields and they are marked.
+- In the story and epic dialogs a required field is marked "(required)"; an empty one says "Required, not filled in yet", and clearing it is refused with "This field is required."
+
+Source: #4 · Status: Implemented · Verified by: App "makes a field required, so the new story dialog asks for it, with defaults filled in", "does not let a required field be cleared…", "sets a default value in the field dialog", fields.test "default values", sqliteRepository.test "stores default values of fields"
 
 ## Settings (SET)
 

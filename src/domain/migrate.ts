@@ -13,7 +13,7 @@ interface StoredSnapshot {
   stories?: Array<
     Omit<Story, 'sprintId' | 'values'> & { sprintId?: string | null; inSprint?: boolean; values?: Story['values'] }
   >;
-  fields?: FieldDefinition[];
+  fields?: Array<Omit<FieldDefinition, 'defaultValue'> & { defaultValue?: FieldDefinition['defaultValue'] }>;
   assignments?: FieldAssignment[];
 }
 
@@ -45,7 +45,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     sprintId: sprintId !== undefined ? sprintId : inSprint && needsSprint ? MIGRATED_SPRINT_ID : null,
     values: story.values ?? {}
   }));
-  const fields = stored.fields ?? [];
+  const fields: FieldDefinition[] = (stored.fields ?? []).map((field) => ({ ...field, defaultValue: field.defaultValue ?? null }));
   const assignments = stored.assignments ?? [];
   const missing = missingBuiltins(fields, assignments);
   return {

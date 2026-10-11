@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Dialog } from '../components/Dialog';
 import { fieldLabel } from '../components/fieldLabel';
 import { LockIcon, PencilIcon, TrashIcon } from '../components/icons';
-import { BUILTIN_FIELDS, countValues, validateField, type FieldError, type FieldInput } from '../domain/fields';
+import { BUILTIN_FIELDS, countValues, defaultAsText, validateField, type FieldError, type FieldInput } from '../domain/fields';
 import {
   CUSTOM_DATA_TYPES,
   EPIC_COLOR_KEYS,
@@ -14,6 +14,7 @@ import {
   type ItemType
 } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { FieldLayout } from './FieldLayout';
 
 /** Item types that show custom fields, one column each in the field table. */
 const FIELD_ITEM_TYPES: readonly ItemType[] = ['story', 'epic'];
@@ -60,7 +61,13 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
   );
   // Only a new field picks its item types here; later they are switched in the field table.
   const [itemTypes, setItemTypes] = useState<ItemType[]>(['story']);
+  // Text and number defaults as typed; a select default follows its option even when the option is renamed.
+  const [defaultText, setDefaultText] = useState(() => (field && field.dataType !== 'single_select' ? defaultAsText(field) : ''));
+  const [defaultOption, setDefaultOption] = useState(() => (field?.dataType === 'single_select' ? String(field.defaultValue ?? '') : ''));
   const [error, setError] = useState<FieldError | null>(null);
+  const namedOptions = options.filter((option) => option.label.trim());
+  const defaultValue =
+    dataType === 'single_select' ? (namedOptions.find((option) => option.key === defaultOption)?.label ?? '') : defaultText;
 
   const changeOption = (key: string, patch: Partial<OptionDraft>): void =>
     setOptions((list) => list.map((option) => (option.key === key ? { ...option, ...patch } : option)));
@@ -74,7 +81,8 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
       label,
       dataType,
       options: options.map(({ id, label: optionLabel, colorKey }) => ({ id, label: optionLabel, colorKey })),
-      itemTypes
+      itemTypes,
+      defaultValue
     };
     const problem = validateField(app.fields, input, field?.id ?? null);
     setError(problem);
@@ -165,6 +173,33 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
             </div>
           </fieldset>
         )}
+        <div className="field">
+          <label htmlFor={`${uid}-default`}>{t('fields.defaultValue')}</label>
+          {dataType === 'single_select' ? (
+            <select
+              id={`${uid}-default`}
+              className="select"
+              value={namedOptions.some((option) => option.key === defaultOption) ? defaultOption : ''}
+              onChange={(event) => setDefaultOption(event.target.value)}
+            >
+              <option value="">{t('fields.noDefault')}</option>
+              {namedOptions.map((option) => (
+                <option key={option.key} value={option.key}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id={`${uid}-default`}
+              className="input"
+              inputMode={dataType === 'number' ? 'decimal' : undefined}
+              placeholder={t('fields.noDefault')}
+              value={defaultText}
+              onChange={(event) => setDefaultText(event.target.value)}
+            />
+          )}
+        </div>
         {!field && (
           <fieldset className="field">
             <legend>{t('fields.usedOn')}</legend>
@@ -313,6 +348,7 @@ export function FieldsSection() {
   const { t } = useTranslation();
   const app = useApp();
   const [open, setOpen] = useState<Open>(null);
+  const [view, setView] = useState<'assign' | 'layout'>('assign');
   const close = (): void => setOpen(null);
 
   return (
@@ -327,44 +363,62 @@ export function FieldsSection() {
       {open?.kind === 'new' && <FieldDialog onClose={close} />}
       {open?.kind === 'edit' && <FieldDialog field={open.field} onClose={close} />}
       {open?.kind === 'delete' && <DeleteFieldDialog field={open.field} onClose={close} />}
-      <div className="fields">
-        <table className="field-table">
-          <thead>
-            <tr>
-              <th scope="col">{t('fields.column.name')}</th>
-              <th scope="col">{t('fields.column.type')}</th>
-              {FIELD_ITEM_TYPES.map((itemType) => (
-                <th key={itemType} scope="col" className="field-table__type">
-                  {t(`fields.itemType.${itemType}`)}
-                </th>
-              ))}
-              {PLANNED_ITEM_TYPES.map((itemType) => (
-                <th key={itemType} scope="col" className="field-table__type field-table__planned">
-                  {t(`fields.itemType.${itemType}`)}
-                  <small>{t('settings.planned')}</small>
-                </th>
-              ))}
-              <td />
-            </tr>
-          </thead>
-          {KIND_ORDER.map((kind) => {
-            const group = app.fields.filter((field) => field.kind === kind);
-            if (group.length === 0) return null;
-            return (
-              <tbody key={kind}>
-                <tr className="field-table__group">
-                  <th scope="colgroup" colSpan={3 + FIELD_ITEM_TYPES.length + PLANNED_ITEM_TYPES.length}>
-                    {t(`fields.group.${kind}`)}
-                  </th>
-                </tr>
-                {group.map((field) => (
-                  <FieldRow key={field.id} field={field} onEdit={() => setOpen({ kind: 'edit', field })} onDelete={() => setOpen({ kind: 'delete', field })} />
-                ))}
-              </tbody>
-            );
-          })}
-        </table>
+      <div className="view-tabs" role="tablist" aria-label={t('fields.views')}>
+        {(['assign', 'layout'] as const).map((item) => (
+          <button
+            key={item}
+            type="button"
+            role="tab"
+            aria-selected={view === item}
+            className="view-tabs__tab"
+            onClick={() => setView(item)}
+          >
+            {t(`fields.view.${item}`)}
+          </button>
+        ))}
       </div>
+      {view === 'layout' ? (
+        <FieldLayout />
+      ) : (
+        <div className="fields">
+          <table className="field-table">
+            <thead>
+              <tr>
+                <th scope="col">{t('fields.column.name')}</th>
+                <th scope="col">{t('fields.column.type')}</th>
+                {FIELD_ITEM_TYPES.map((itemType) => (
+                  <th key={itemType} scope="col" className="field-table__type">
+                    {t(`fields.itemType.${itemType}`)}
+                  </th>
+                ))}
+                {PLANNED_ITEM_TYPES.map((itemType) => (
+                  <th key={itemType} scope="col" className="field-table__type field-table__planned">
+                    {t(`fields.itemType.${itemType}`)}
+                    <small>{t('settings.planned')}</small>
+                  </th>
+                ))}
+                <td />
+              </tr>
+            </thead>
+            {KIND_ORDER.map((kind) => {
+              const group = app.fields.filter((field) => field.kind === kind);
+              if (group.length === 0) return null;
+              return (
+                <tbody key={kind}>
+                  <tr className="field-table__group">
+                    <th scope="colgroup" colSpan={3 + FIELD_ITEM_TYPES.length + PLANNED_ITEM_TYPES.length}>
+                      {t(`fields.group.${kind}`)}
+                    </th>
+                  </tr>
+                  {group.map((field) => (
+                    <FieldRow key={field.id} field={field} onEdit={() => setOpen({ kind: 'edit', field })} onDelete={() => setOpen({ kind: 'delete', field })} />
+                  ))}
+                </tbody>
+              );
+            })}
+          </table>
+        </div>
+      )}
     </>
   );
 }
