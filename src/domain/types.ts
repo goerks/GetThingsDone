@@ -12,6 +12,16 @@ export interface Epic {
   id: string;
   name: string;
   colorKey: EpicColorKey;
+  /** Column order on the story map and order in lists, 0 first. */
+  position: number;
+}
+
+/** A time box. Dates are local calendar days as `YYYY-MM-DD`; both days belong to the sprint. */
+export interface Sprint {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface Criterion {
@@ -29,7 +39,8 @@ export interface Story {
   epicId: string;
   points: number;
   status: Status;
-  inSprint: boolean;
+  /** The sprint the story is planned in, or null when it is not planned. */
+  sprintId: string | null;
   /** Global priority, 0 is the most important. Board order is this order filtered by column. */
   rank: number;
   criteria: Criterion[];
@@ -37,5 +48,6 @@ export interface Story {
 
 export interface Snapshot {
   epics: Epic[];
+  sprints: Sprint[];
   stories: Story[];
 }

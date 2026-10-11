@@ -5,6 +5,8 @@ import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { initI18n } from './i18n';
 import { parseHash } from './router';
+import { seedSnapshot } from './data/seed';
+import { addDays } from './domain/sprints';
 
 beforeAll(() => {
   initI18n('en');
@@ -61,7 +63,7 @@ describe('board', () => {
 
   it('summarises the sprint', async () => {
     await renderApp();
-    expect(screen.getByText('6 stories · 23 points')).toBeInTheDocument();
+    expect(screen.getByText(/6 stories · 23 points/)).toBeInTheDocument();
   });
 
   it('creates a story in "To do" through a dialog', async () => {
@@ -69,7 +71,7 @@ describe('board', () => {
     const repository = await renderApp();
     await user.click(screen.getByRole('button', { name: 'New story' }));
     const dialog = screen.getByRole('dialog', { name: 'New story' });
-    expect(within(dialog).getByRole('checkbox', { name: 'In Sprint 1' })).toBeChecked();
+    expect(within(dialog).getByLabelText('Sprint')).toHaveDisplayValue(/^Sprint 1/);
     await user.type(within(dialog).getByLabelText('Title'), 'Export to CSV');
     await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
 
@@ -77,7 +79,7 @@ describe('board', () => {
     expect(within(todo).getByText('Export to CSV')).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     const saved = await repository.load();
-    expect(saved.stories.some((s) => s.title === 'Export to CSV' && s.code === 'S-8' && s.inSprint)).toBe(true);
+    expect(saved.stories.some((s) => s.title === 'Export to CSV' && s.code === 'S-8' && s.sprintId === 'sprint-1')).toBe(true);
   });
 
   it('closes the new story dialog without saving on cancel', async () => {
@@ -100,10 +102,16 @@ describe('backlog', () => {
     return repository;
   }
 
-  it('separates the sprint from the rest with the sprint line', async () => {
+  it('shows one section per sprint and the unplanned stories last', async () => {
     await openBacklog();
+    const names = screen
+      .getAllByRole('region')
+      .map((section) => document.getElementById(section.getAttribute('aria-labelledby') ?? '')?.textContent);
+    expect(names).toEqual(['Sprint 1', 'Sprint 2', 'Not planned']);
     const sprint = screen.getByRole('region', { name: 'Sprint 1' });
     const rest = screen.getByRole('region', { name: 'Not planned' });
+    expect(within(sprint).getByText('running')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Sprint 2' })).getByText('Drag stories here to plan them into Sprint 2.')).toBeInTheDocument();
     expect(within(sprint).getAllByRole('group')).toHaveLength(6);
     expect(within(sprint).getByText('6 stories · 23 points')).toBeInTheDocument();
     expect(within(rest).getByRole('group', { name: 'Rank 7, S-7: Plan releases on a story map' })).toBeInTheDocument();
@@ -129,13 +137,13 @@ describe('backlog', () => {
     const repository = await openBacklog();
     await user.click(screen.getByRole('button', { name: 'New story' }));
     const dialog = screen.getByRole('dialog', { name: 'New story' });
-    expect(within(dialog).getByRole('checkbox', { name: 'In Sprint 1' })).not.toBeChecked();
+    expect(within(dialog).getByLabelText('Sprint')).toHaveDisplayValue('Not planned');
     await user.type(within(dialog).getByLabelText('Title'), 'Import from Jira');
     await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
 
     const rest = screen.getByRole('region', { name: 'Not planned' });
     expect(within(rest).getByRole('group', { name: 'Rank 8, S-8: Import from Jira' })).toBeInTheDocument();
-    expect((await repository.load()).stories.find((s) => s.code === 'S-8')?.inSprint).toBe(false);
+    expect((await repository.load()).stories.find((s) => s.code === 'S-8')?.sprintId).toBeNull();
   });
 
   it('opens a story with Enter', async () => {
@@ -227,10 +235,10 @@ describe('story detail', () => {
     await user.selectOptions(await screen.findByLabelText('Status'), 'review');
     await user.selectOptions(screen.getByLabelText('Epic'), 'epic-storage');
     await user.selectOptions(screen.getByLabelText('Points'), '8');
-    await user.click(screen.getByRole('checkbox', { name: 'In Sprint 1' }));
+    await user.selectOptions(screen.getByLabelText('Sprint'), 'Not planned');
 
     const saved = (await repository.load()).stories.find((s) => s.id === 'story-3');
-    expect(saved).toMatchObject({ status: 'review', epicId: 'epic-storage', points: 8, inSprint: false });
+    expect(saved).toMatchObject({ status: 'review', epicId: 'epic-storage', points: 8, sprintId: null });
   });
 
   it('creates a new epic from the epic field', async () => {
@@ -380,6 +388,150 @@ describe('epics', () => {
   });
 });
 
+describe('story map', () => {
+  async function openMap(): Promise<LocalStorageRepository> {
+    const user = userEvent.setup();
+    const repository = await renderApp();
+    await user.click(screen.getByRole('link', { name: 'Story Map' }));
+    await screen.findByRole('heading', { name: 'Story Map', level: 1 });
+    return repository;
+  }
+  const cell = (sprint: string, epic: string): HTMLElement => screen.getByRole('list', { name: `${sprint} ${epic}` });
+
+  it('shows epics as columns and the running and future sprints as rows, with "Not planned" last', async () => {
+    await openMap();
+    expect(screen.getByText('4 epics · 2 sprints · 7 stories')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Sprint 1, .+, running$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Sprint 2/ })).toBeInTheDocument();
+    expect(within(cell('Sprint 1', 'Boards')).getAllByRole('group').map((card) => card.getAttribute('aria-label'))).toEqual([
+      'S-1: Create a story with title and description',
+      'S-2: Tick off acceptance criteria'
+    ]);
+    expect(within(cell('Not planned', 'Backlog')).getByRole('group', { name: 'S-7: Plan releases on a story map' })).toBeInTheDocument();
+    expect(within(cell('Sprint 2', 'Boards')).queryAllByRole('group')).toHaveLength(0);
+  });
+
+  it('makes every card a keyboard stop that opens with Enter', async () => {
+    const user = userEvent.setup();
+    await openMap();
+    const card = within(cell('Sprint 1', 'Local storage')).getByRole('group', { name: /S-4/ });
+    expect(card).toHaveAttribute('tabindex', '0');
+    card.focus();
+    await user.keyboard('{Enter}');
+    expect(window.location.hash).toBe('#/story/story-4');
+  });
+
+  it('adds a sprint after the last one, prefilled for two weeks', async () => {
+    const user = userEvent.setup();
+    const repository = await openMap();
+    await user.click(screen.getAllByRole('button', { name: '+ Sprint' })[0]);
+    const dialog = screen.getByRole('dialog', { name: 'New sprint' });
+    expect(within(dialog).getByLabelText('Name')).toHaveValue('Sprint 3');
+    const sprint2 = (await repository.load()).sprints.find((sprint) => sprint.id === 'sprint-2');
+    expect(within(dialog).getByLabelText('Start')).toHaveValue(addDays(sprint2?.endDate ?? '', 1));
+    await user.click(within(dialog).getByRole('button', { name: 'Add sprint' }));
+
+    expect(screen.getByRole('button', { name: /^Sprint 3/ })).toBeInTheDocument();
+    expect((await repository.load()).sprints.map((sprint) => sprint.name)).toContain('Sprint 3');
+  });
+
+  it('refuses a sprint that ends before it starts', async () => {
+    const user = userEvent.setup();
+    await openMap();
+    await user.click(screen.getAllByRole('button', { name: '+ Sprint' })[0]);
+    const dialog = screen.getByRole('dialog', { name: 'New sprint' });
+    const end = within(dialog).getByLabelText('End');
+    await user.clear(end);
+    await user.type(end, '2000-01-01');
+    await user.click(within(dialog).getByRole('button', { name: 'Add sprint' }));
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('the end cannot be before the start');
+  });
+
+  it('edits a sprint from its label and hides it once it is over', async () => {
+    const user = userEvent.setup();
+    const repository = await openMap();
+    await user.click(screen.getByRole('button', { name: /^Sprint 2/ }));
+    const dialog = screen.getByRole('dialog', { name: 'Edit sprint' });
+    await user.clear(within(dialog).getByLabelText('Name'));
+    await user.type(within(dialog).getByLabelText('Name'), 'Release prep');
+    await user.clear(within(dialog).getByLabelText('Start'));
+    await user.type(within(dialog).getByLabelText('Start'), '2020-01-06');
+    await user.clear(within(dialog).getByLabelText('End'));
+    await user.type(within(dialog).getByLabelText('End'), '2020-01-19');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    expect(screen.queryByRole('button', { name: /Release prep/ })).not.toBeInTheDocument();
+    expect((await repository.load()).sprints.find((sprint) => sprint.id === 'sprint-2')).toMatchObject({
+      name: 'Release prep',
+      startDate: '2020-01-06',
+      endDate: '2020-01-19'
+    });
+    await user.click(screen.getByRole('link', { name: 'Backlog' }));
+    expect(await screen.findByRole('region', { name: 'Release prep' })).toBeInTheDocument();
+  });
+
+  it('adds an epic as a new column', async () => {
+    const user = userEvent.setup();
+    const repository = await openMap();
+    await user.click(screen.getByRole('button', { name: 'Add epic' }));
+    const dialog = screen.getByRole('dialog', { name: 'New epic' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Reporting');
+    await user.click(within(dialog).getByRole('button', { name: 'Add epic' }));
+    expect(cell('Sprint 1', 'Reporting')).toBeInTheDocument();
+    expect((await repository.load()).epics.find((epic) => epic.name === 'Reporting')?.position).toBe(4);
+  });
+
+  it('creates a story directly in a cell with epic and sprint prefilled', async () => {
+    const user = userEvent.setup();
+    const repository = await openMap();
+    await user.click(screen.getByRole('button', { name: 'New story in Local storage, Sprint 2' }));
+    const dialog = screen.getByRole('dialog', { name: 'New story' });
+    expect(within(dialog).getByLabelText('Epic')).toHaveDisplayValue('Local storage');
+    expect(within(dialog).getByLabelText('Sprint')).toHaveDisplayValue(/^Sprint 2/);
+    await user.type(within(dialog).getByLabelText('Title'), 'Back up the database');
+    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+
+    expect(within(cell('Sprint 2', 'Local storage')).getByRole('group', { name: 'S-8: Back up the database' })).toBeInTheDocument();
+    expect((await repository.load()).stories.find((story) => story.code === 'S-8')).toMatchObject({
+      epicId: 'epic-storage',
+      sprintId: 'sprint-2'
+    });
+  });
+
+  it('marks nothing as a drop target at rest', async () => {
+    await openMap();
+    expect(document.querySelector('[data-drop-target]')).toBeNull();
+    expect(document.querySelector('.map-epic--target, .map-sprint--target')).toBeNull();
+  });
+});
+
+describe('sprints on the board', () => {
+  it('asks to create a sprint when there is none', async () => {
+    const snapshot = seedSnapshot('2026-10-11');
+    window.localStorage.setItem(
+      'getitdone.snapshot.v1',
+      JSON.stringify({ ...snapshot, sprints: [], stories: snapshot.stories.map((story) => ({ ...story, sprintId: null })) })
+    );
+    render(<App repository={new LocalStorageRepository()} />);
+    expect(await screen.findByRole('heading', { name: 'No sprint yet', level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Create one on the story map' })).toHaveAttribute('href', '#/map');
+  });
+
+  it('migrates browser data of release 0.1 to a running "Sprint 1"', async () => {
+    const snapshot = seedSnapshot('2026-10-11');
+    const old = {
+      epics: snapshot.epics.map(({ position: _position, ...epic }) => ({ ...epic, colorKey: 'boards' })),
+      stories: snapshot.stories.map(({ sprintId, ...story }) => ({ ...story, inSprint: sprintId !== null }))
+    };
+    window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify(old));
+    render(<App repository={new LocalStorageRepository()} />);
+    expect(await screen.findByRole('heading', { name: 'Sprint 1', level: 1 })).toBeInTheDocument();
+    expect(screen.getByText(/6 stories · 23 points/)).toBeInTheDocument();
+    const stored = JSON.parse(window.localStorage.getItem('getitdone.snapshot.v1') ?? '{}');
+    expect(stored.sprints).toHaveLength(1);
+  });
+});
+
 describe('header', () => {
   it('switches the language and the document language', async () => {
     const user = userEvent.setup();
@@ -410,6 +562,7 @@ describe('router', () => {
   it('parses known routes and falls back to the board', () => {
     expect(parseHash('#/backlog')).toEqual({ name: 'backlog' });
     expect(parseHash('#/epics')).toEqual({ name: 'epics' });
+    expect(parseHash('#/map')).toEqual({ name: 'map' });
     expect(parseHash('#/story/abc')).toEqual({ name: 'story', id: 'abc' });
     expect(parseHash('')).toEqual({ name: 'board' });
     expect(parseHash('#/nonsense')).toEqual({ name: 'board' });

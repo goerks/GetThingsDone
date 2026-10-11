@@ -1,6 +1,6 @@
 # Get It Done
 
-A free, local-first tool for agile software development in small teams: board, backlog and acceptance criteria today, user story map next.
+A free, local-first tool for agile software development in small teams: board, backlog, acceptance criteria and a user story map with sprints.
 
 This project is a showcase for "level 5 vibe coding". The product is built end to end by AI, a human product owner sets vision and features and accepts the result. See [docs/vision.md](docs/vision.md) and [CLAUDE.md](CLAUDE.md).
 
@@ -9,7 +9,9 @@ This project is a showcase for "level 5 vibe coding". The product is built end t
 Early prototype (0.1). Working today:
 
 - Board with drag and drop of whole cards (mouse, touch and keyboard), highlighted target column and drop line
-- Backlog with drag and drop, sprint line, rank preview and new stories
+- Backlog with one section per sprint, drag and drop, rank preview and new stories
+- Story map: epics as columns, sprints as rows, plan stories by drag and drop, add sprints, epics and stories on the map
+- Sprints with dates; the board shows the running sprint
 - Story page with in-place editing of story and acceptance criteria, delete with confirmation
 - Epics page: create, rename, recolour, delete
 - Story detail with acceptance criteria you can tick off

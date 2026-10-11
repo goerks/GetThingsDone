@@ -16,9 +16,19 @@
 
 ## Moving a story in the backlog
 
-1. The backlog shows the sprint above the sprint line and the other stories below it, each by rank (`backlogOrder`).
+1. The backlog shows one section per sprint in time order and the unplanned stories last, each by rank (`backlogOrder`).
 2. Rows are dragged like cards. The drop line shows the rank the story would get.
-3. `dropInBacklog` places the story, sets its sprint membership from the side of the sprint line it lands on and reindexes all ranks in the shown order. The board follows because it uses the same ranks.
+3. `dropInBacklog` places the story, sets its sprint from the section it lands in and reindexes all ranks in the shown order. The board follows because it uses the same ranks.
+
+## Planning on the story map
+
+1. `MapPage` shows the epics (by position) as columns and the running and future sprints (`mapSprints`) plus "Not planned" as rows. Each cell is a drop target with the id `cell:<epic>::<sprint>`.
+2. While dragging, the page runs `dropOnMap` on a copy and derives the target cell and the card the story would land in front of. The cell, its epic header and its sprint label are highlighted; a line marks the position.
+3. On drop, `dropOnMap` sets the story's epic and sprint, inserts it next to the target card (or at the end of the cell, or of its sprint when the cell is empty) and reindexes all ranks in backlog order. `changedPositions` saves status, rank, sprint and epic of the changed stories.
+
+## Sprints
+
+A sprint is created or edited in `SprintDialog` (from the map). The dialog prefills a new sprint with `newSprintDefaults` and checks the input with `validateSprint`. The board, the backlog and the map compute the running sprint and the visible sprints from today's date on every render, so a new day needs no stored state.
 
 ## Editing
 

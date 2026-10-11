@@ -1063,3 +1063,347 @@ textarea.input {
   border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
+
+/* ---------- Sprints ---------- */
+
+.badge-running {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.backlog__dates {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 14px;
+}
+
+/* ---------- Story map ---------- */
+
+.map__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/*
+ * Grid of epics (columns) and sprints (rows). The header row and the sprint labels stay in place while
+ * the map scrolls inside its own box.
+ */
+.map {
+  --map-label: 180px;
+  --map-col: 220px;
+  --map-gap: 8px;
+  max-height: calc(100vh - 170px);
+  overflow: auto;
+  padding: 0 0 12px;
+}
+
+.map__row {
+  display: grid;
+  grid-template-columns: var(--map-label) repeat(var(--map-columns), minmax(var(--map-col), 1fr)) 48px;
+  gap: var(--map-gap);
+  min-width: calc(var(--map-label) + var(--map-columns) * (var(--map-col) + var(--map-gap)) + 48px + var(--map-gap));
+  margin-bottom: var(--map-gap);
+}
+
+.map__row--head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding-bottom: var(--map-gap);
+  margin-bottom: 0;
+  background: var(--bg);
+}
+
+.map__corner {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  padding: 6px 4px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.map-epic {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--epic-color);
+  border-radius: var(--radius-md);
+  transition: box-shadow 120ms ease;
+}
+
+.map-epic__name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.map-epic__sum,
+.map-sprint__sum {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Crosshair: the epic and the sprint a dragged story would move to. */
+.map-epic--target,
+.map-sprint--target {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.map__add-epic,
+.map__add-sprint {
+  min-height: var(--target-min);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.map__add-epic {
+  font-size: 20px;
+}
+
+.map__add-epic:hover,
+.map__add-sprint:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.map__add-sprint {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg);
+}
+
+.map-sprint {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  /* Covers the gap so cards scrolling sideways do not show between label and first cell. */
+  box-shadow: calc(-1 * var(--map-gap)) 0 0 var(--bg), var(--map-gap) 0 0 var(--bg);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+button.map-sprint {
+  cursor: pointer;
+}
+
+button.map-sprint:hover .map-sprint__name {
+  text-decoration: underline;
+}
+
+.map-sprint--running {
+  border-left: 4px solid var(--accent);
+}
+
+.map-sprint--target {
+  box-shadow: 0 0 0 2px var(--accent), var(--map-gap) 0 0 var(--bg);
+}
+
+.map-sprint__name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.map-sprint__dates {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.map__row--add {
+  margin-bottom: 4px;
+}
+
+/* "Not planned": separated by a strong rule, dashed and transparent like an unplanned area. */
+.map__row--unplanned {
+  padding-top: 12px;
+  border-top: 3px solid var(--text);
+}
+
+.map-sprint--unplanned {
+  background: var(--bg);
+  border-style: dashed;
+}
+
+.map-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 96px;
+  padding: 8px;
+  background: var(--column);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.map-cell--unplanned {
+  background: transparent;
+  border-style: dashed;
+}
+
+.map-cell--target {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  border-style: solid;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.map-cell__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* "+" to create a story in this cell: always visible in an empty cell, otherwise on hover or focus. */
+.map-cell__add {
+  align-self: stretch;
+  min-height: 32px;
+  border: 1px dashed transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.map-cell:hover .map-cell__add,
+.map-cell__add:focus-visible,
+.map-cell__add--empty {
+  opacity: 1;
+  border-color: var(--border);
+}
+
+.map-cell__add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.map-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px var(--shadow);
+  cursor: grab;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.map-card--dragging {
+  opacity: 0.35;
+}
+
+.map-card--overlay {
+  width: var(--map-col, 220px);
+  cursor: grabbing;
+  opacity: 0.9;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.map-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.map-card__title {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.map-card__title:hover {
+  text-decoration: underline;
+}
+
+/* Status as a dot plus its name, so colour is never the only signal. */
+.status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.status-dot::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+}
+
+.status-dot--in_progress::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.status-dot--review::before {
+  background: var(--epic-amber);
+  border-color: var(--epic-amber);
+}
+
+.status-dot--done::before {
+  background: var(--epic-green);
+  border-color: var(--epic-green);
+}
+
+.map-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-epic,
+  .map-cell {
+    transition: none;
+  }
+}

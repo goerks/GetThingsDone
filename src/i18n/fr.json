@@ -7,8 +7,6 @@
     "board": "Tableau",
     "backlog": "Backlog",
     "storyMap": "Story Map",
-    "release2": "R2",
-    "storyMapNote": "Prévu pour la version 2",
     "epics": "Epics"
   },
   "header": {
@@ -23,7 +21,6 @@
     "done": "Terminé"
   },
   "board": {
-    "title": "Sprint 1",
     "summary": "{{count}} stories · {{points}} points",
     "emptyColumn": "Déposez une story ici",
     "dnd": {
@@ -33,7 +30,10 @@
       "dropped": "{{title}} déposée dans {{target}}.",
       "cancelled": "Déplacement de {{title}} annulé."
     },
-    "cardRole": "carte de story"
+    "cardRole": "carte de story",
+    "noSprintTitle": "Pas encore de sprint",
+    "noSprint": "Le tableau affiche le sprint en cours. Il n’y a pas encore de sprint.",
+    "toMap": "En créer un sur la story map"
   },
   "card": {
     "criteria": "{{done}} critères acceptés sur {{total}}",
@@ -51,18 +51,14 @@
   },
   "backlog": {
     "title": "Backlog",
-    "hint": "L’ordre est la priorité. Faites glisser une story pour la déplacer, ou au-delà de la ligne du sprint pour l’ajouter au sprint ou l’en retirer.",
+    "hint": "L’ordre est la priorité. Faites glisser une story pour la déplacer, ou dans un autre sprint pour l’y planifier.",
     "rowRole": "story du backlog",
     "rowLabel": "Rang {{rank}}, {{code}} : {{title}}",
-    "section": {
-      "sprint": "Sprint 1",
-      "backlog": "Non planifié"
-    },
     "sectionSummary_one": "{{count}} story · {{points}} points",
     "sectionSummary_other": "{{count}} stories · {{points}} points",
     "empty": {
-      "sprint": "Faites glisser des stories ici pour les planifier dans le sprint.",
-      "backlog": "Toutes les stories sont dans le sprint. Faites glisser une story ici pour la retirer."
+      "sprint": "Faites glisser des stories ici pour les planifier dans {{name}}.",
+      "backlog": "Toutes les stories sont planifiées. Faites glisser une story ici pour la retirer de son sprint."
     },
     "dropLabel": "devient rang {{rank}}",
     "dnd": {
@@ -90,7 +86,6 @@
     "criterionText": "Critère",
     "moveCriterion": "Déplacer le critère : {{text}}",
     "deleteCriterion": "Supprimer le critère : {{text}}",
-    "inSprint": "Dans le Sprint 1",
     "delete": "Supprimer la story",
     "deleteConfirm_one": "Supprimer {{code}} et son {{count}} critère ? Cette action est définitive.",
     "deleteConfirm_other": "Supprimer {{code}} et ses {{count}} critères ? Cette action est définitive.",
@@ -136,5 +131,39 @@
     "inUse_one": "Utilisé par {{count}} story. Attribuez-la d’abord à un autre epic.",
     "inUse_other": "Utilisé par {{count}} stories. Attribuez-les d’abord à un autre epic.",
     "changeColor": "Couleur de {{name}} : {{color}}. Changer la couleur"
+  },
+  "sprint": {
+    "label": "Sprint",
+    "notPlanned": "Non planifié",
+    "running": "en cours",
+    "defaultName": "Sprint {{number}}",
+    "new": "Nouveau sprint",
+    "edit": "Modifier le sprint",
+    "name": "Nom",
+    "start": "Début",
+    "end": "Fin",
+    "add": "Ajouter le sprint",
+    "save": "Enregistrer",
+    "problem": {
+      "name": "Donnez un nom au sprint.",
+      "dates": "Saisissez une date de début et de fin ; la fin ne peut pas précéder le début."
+    }
+  },
+  "map": {
+    "title": "Story Map",
+    "summary": "{{epics}} epics · {{sprints}} sprints · {{stories}} stories",
+    "corner": "Sprint ↓ · Epic →",
+    "addSprint": "+ Sprint",
+    "addEpic": "Ajouter un epic",
+    "editSprint": "Modifier le nom et les dates",
+    "newStoryIn": "Nouvelle story dans {{epic}}, {{sprint}}",
+    "noEpics": "La story map a une colonne par epic. Créez le premier epic pour commencer.",
+    "storiesPoints_one": "{{count}} story · {{points}} points",
+    "storiesPoints_other": "{{count}} stories · {{points}} points",
+    "dnd": {
+      "instructions": "Appuyez sur espace pour saisir une story. Déplacez-la entre les cellules avec les flèches, déposez-la avec espace, annulez avec échap. Appuyez sur entrée pour ouvrir la story.",
+      "over": "{{title}} va dans {{sprint}}, {{epic}}, position {{position}}.",
+      "dropped": "{{title}} est maintenant dans {{sprint}}, {{epic}}, position {{position}}."
+    }
   }
 }

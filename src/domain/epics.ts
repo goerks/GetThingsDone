@@ -34,7 +34,8 @@ export interface NewEpicInput {
 export function createEpic(epics: Epic[], input: NewEpicInput, id: string): { epics: Epic[]; epic: Epic } | null {
   const name = input.name.trim();
   if (!name) return null;
-  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics) };
+  const position = epics.reduce((max, epic) => Math.max(max, epic.position), -1) + 1;
+  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics), position };
   return { epics: [...epics, epic], epic };
 }
 
@@ -48,6 +49,11 @@ export function updateEpic(epics: Epic[], id: string, patch: EpicPatch): Epic[] 
     if (!clean.name) delete clean.name;
   }
   return epics.map((epic) => (epic.id === id ? { ...epic, ...clean } : epic));
+}
+
+/** Epics in their column order. */
+export function sortEpics(epics: readonly Epic[]): Epic[] {
+  return [...epics].sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
 }
 
 export function storiesInEpic(stories: readonly Story[], epicId: string): number {

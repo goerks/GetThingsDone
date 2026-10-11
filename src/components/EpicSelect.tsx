@@ -1,5 +1,6 @@
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { sortEpics } from '../domain/epics';
 import { useApp } from '../state/AppState';
 
 const NEW_EPIC = '__new__';
@@ -51,7 +52,7 @@ export function EpicSelect({ id, value, onChange }: Props) {
           }
         }}
       >
-        {app.epics.map((epic) => (
+        {sortEpics(app.epics).map((epic) => (
           <option key={epic.id} value={epic.id}>
             {epic.name}
           </option>

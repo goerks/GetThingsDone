@@ -7,8 +7,6 @@
     "board": "Board",
     "backlog": "Backlog",
     "storyMap": "Story Map",
-    "release2": "R2",
-    "storyMapNote": "Prevista per la release 2",
     "epics": "Epic"
   },
   "header": {
@@ -23,7 +21,6 @@
     "done": "Completato"
   },
   "board": {
-    "title": "Sprint 1",
     "summary": "{{count}} storie · {{points}} punti",
     "emptyColumn": "Rilascia qui una storia",
     "dnd": {
@@ -33,7 +30,10 @@
       "dropped": "{{title}} rilasciata in {{target}}.",
       "cancelled": "Spostamento di {{title}} annullato."
     },
-    "cardRole": "scheda story"
+    "cardRole": "scheda story",
+    "noSprintTitle": "Ancora nessuno sprint",
+    "noSprint": "La board mostra lo sprint in corso. Non c’è ancora nessuno sprint.",
+    "toMap": "Creane uno sulla story map"
   },
   "card": {
     "criteria": "{{done}} criteri accettati su {{total}}",
@@ -51,18 +51,14 @@
   },
   "backlog": {
     "title": "Backlog",
-    "hint": "L’ordine è la priorità. Trascina una story per spostarla, oppure oltre la linea dello sprint per aggiungerla allo sprint o toglierla.",
+    "hint": "L’ordine è la priorità. Trascina una story per spostarla, oppure in un altro sprint per pianificarla lì.",
     "rowRole": "story del backlog",
     "rowLabel": "Posizione {{rank}}, {{code}}: {{title}}",
-    "section": {
-      "sprint": "Sprint 1",
-      "backlog": "Non pianificato"
-    },
     "sectionSummary_one": "{{count}} story · {{points}} punti",
     "sectionSummary_other": "{{count}} story · {{points}} punti",
     "empty": {
-      "sprint": "Trascina qui le story per pianificarle nello sprint.",
-      "backlog": "Tutte le story sono nello sprint. Trascina qui una story per toglierla."
+      "sprint": "Trascina qui le story per pianificarle in {{name}}.",
+      "backlog": "Tutte le story sono pianificate. Trascina qui una story per toglierla dal suo sprint."
     },
     "dropLabel": "diventa posizione {{rank}}",
     "dnd": {
@@ -90,7 +86,6 @@
     "criterionText": "Criterio",
     "moveCriterion": "Sposta criterio: {{text}}",
     "deleteCriterion": "Elimina criterio: {{text}}",
-    "inSprint": "Nello Sprint 1",
     "delete": "Elimina story",
     "deleteConfirm_one": "Eliminare {{code}} con {{count}} criterio? L’operazione non si può annullare.",
     "deleteConfirm_other": "Eliminare {{code}} con {{count}} criteri? L’operazione non si può annullare.",
@@ -136,5 +131,39 @@
     "inUse_one": "Usato da {{count}} story. Assegnala prima a un altro epic.",
     "inUse_other": "Usato da {{count}} story. Assegnale prima a un altro epic.",
     "changeColor": "Colore di {{name}}: {{color}}. Cambia colore"
+  },
+  "sprint": {
+    "label": "Sprint",
+    "notPlanned": "Non pianificato",
+    "running": "in corso",
+    "defaultName": "Sprint {{number}}",
+    "new": "Nuovo sprint",
+    "edit": "Modifica sprint",
+    "name": "Nome",
+    "start": "Inizio",
+    "end": "Fine",
+    "add": "Aggiungi sprint",
+    "save": "Salva",
+    "problem": {
+      "name": "Dai un nome allo sprint.",
+      "dates": "Inserisci una data di inizio e di fine; la fine non può precedere l’inizio."
+    }
+  },
+  "map": {
+    "title": "Story Map",
+    "summary": "{{epics}} epic · {{sprints}} sprint · {{stories}} story",
+    "corner": "Sprint ↓ · Epic →",
+    "addSprint": "+ Sprint",
+    "addEpic": "Aggiungi epic",
+    "editSprint": "Modifica nome e date",
+    "newStoryIn": "Nuova story in {{epic}}, {{sprint}}",
+    "noEpics": "La story map ha una colonna per ogni epic. Crea il primo epic per iniziare.",
+    "storiesPoints_one": "{{count}} story · {{points}} punti",
+    "storiesPoints_other": "{{count}} story · {{points}} punti",
+    "dnd": {
+      "instructions": "Premi spazio per prendere una story. Spostala tra le celle con le frecce, rilasciala con spazio, annulla con esc. Premi invio per aprire la story.",
+      "over": "{{title}} va in {{sprint}}, {{epic}}, posizione {{position}}.",
+      "dropped": "{{title}} è ora in {{sprint}}, {{epic}}, posizione {{position}}."
+    }
   }
 }

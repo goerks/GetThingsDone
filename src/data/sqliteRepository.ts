@@ -1,12 +1,20 @@
 import Database from '@tauri-apps/plugin-sql';
 import { normalizeColorKey } from '../domain/epics';
-import type { Criterion, Epic, Snapshot, Status, Story } from '../domain/types';
+import type { Criterion, Epic, Snapshot, Sprint, Status, Story } from '../domain/types';
 import type { Repository, StoryPosition } from './repository';
 
 interface EpicRow {
   id: string;
   name: string;
   color_key: string;
+  position: number;
+}
+
+interface SprintRow {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
 }
 
 interface StoryRow {
@@ -17,7 +25,7 @@ interface StoryRow {
   epic_id: string;
   points: number;
   status: string;
-  in_sprint: number;
+  sprint_id: string | null;
   rank: number;
 }
 
@@ -41,9 +49,12 @@ export class SqliteRepository implements Repository {
   }
 
   async load(): Promise<Snapshot> {
-    const epicRows = await this.db.select<EpicRow[]>('SELECT id, name, color_key FROM epics ORDER BY name');
+    const epicRows = await this.db.select<EpicRow[]>('SELECT id, name, color_key, position FROM epics ORDER BY position, name');
+    const sprintRows = await this.db.select<SprintRow[]>(
+      'SELECT id, name, start_date, end_date FROM sprints ORDER BY start_date, name'
+    );
     const storyRows = await this.db.select<StoryRow[]>(
-      'SELECT id, code, title, description, epic_id, points, status, in_sprint, rank FROM stories ORDER BY rank'
+      'SELECT id, code, title, description, epic_id, points, status, sprint_id, rank FROM stories ORDER BY rank'
     );
     const criterionRows = await this.db.select<CriterionRow[]>(
       'SELECT id, story_id, text, done FROM criteria ORDER BY story_id, position'
@@ -56,7 +67,18 @@ export class SqliteRepository implements Repository {
       criteriaByStory.set(row.story_id, list);
     }
 
-    const epics: Epic[] = epicRows.map((row) => ({ id: row.id, name: row.name, colorKey: normalizeColorKey(row.color_key) }));
+    const epics: Epic[] = epicRows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      colorKey: normalizeColorKey(row.color_key),
+      position: row.position
+    }));
+    const sprints: Sprint[] = sprintRows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      startDate: row.start_date,
+      endDate: row.end_date
+    }));
     const stories: Story[] = storyRows.map((row) => ({
       id: row.id,
       code: row.code,
@@ -65,19 +87,23 @@ export class SqliteRepository implements Repository {
       epicId: row.epic_id,
       points: row.points,
       status: row.status as Status,
-      inSprint: row.in_sprint === 1,
+      sprintId: row.sprint_id,
       rank: row.rank,
       criteria: criteriaByStory.get(row.id) ?? []
     }));
-    return { epics, stories };
+    return { epics, sprints, stories };
   }
 
   async replaceAll(snapshot: Snapshot): Promise<void> {
     await this.db.execute('DELETE FROM criteria');
     await this.db.execute('DELETE FROM stories');
+    await this.db.execute('DELETE FROM sprints');
     await this.db.execute('DELETE FROM epics');
     for (const epic of snapshot.epics) {
       await this.addEpic(epic);
+    }
+    for (const sprint of snapshot.sprints) {
+      await this.addSprint(sprint);
     }
     for (const story of snapshot.stories) {
       await this.addStory(story);
@@ -86,10 +112,11 @@ export class SqliteRepository implements Repository {
 
   async savePositions(positions: readonly StoryPosition[]): Promise<void> {
     for (const position of positions) {
-      await this.db.execute('UPDATE stories SET status = $1, rank = $2, in_sprint = $3 WHERE id = $4', [
+      await this.db.execute('UPDATE stories SET status = $1, rank = $2, sprint_id = $3, epic_id = $4 WHERE id = $5', [
         position.status,
         position.rank,
-        position.inSprint ? 1 : 0,
+        position.sprintId,
+        position.epicId,
         position.id
       ]);
     }
@@ -97,8 +124,19 @@ export class SqliteRepository implements Repository {
 
   async addStory(story: Story): Promise<void> {
     await this.db.execute(
-      'INSERT INTO stories (id, code, title, description, epic_id, points, status, in_sprint, rank) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.inSprint ? 1 : 0, story.rank]
+      'INSERT INTO stories (id, code, title, description, epic_id, points, status, in_sprint, sprint_id, rank) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [
+        story.id,
+        story.code,
+        story.title,
+        story.description,
+        story.epicId,
+        story.points,
+        story.status,
+        story.sprintId ? 1 : 0,
+        story.sprintId,
+        story.rank
+      ]
     );
     for (const [position, criterion] of story.criteria.entries()) {
       await this.addCriterion(story.id, criterion, position);
@@ -107,8 +145,8 @@ export class SqliteRepository implements Repository {
 
   async updateStory(story: Story): Promise<void> {
     await this.db.execute(
-      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, in_sprint = $6, rank = $7 WHERE id = $8',
-      [story.title, story.description, story.epicId, story.points, story.status, story.inSprint ? 1 : 0, story.rank, story.id]
+      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, rank = $7 WHERE id = $8',
+      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.rank, story.id]
     );
   }
 
@@ -146,14 +184,42 @@ export class SqliteRepository implements Repository {
   }
 
   async addEpic(epic: Epic): Promise<void> {
-    await this.db.execute('INSERT INTO epics (id, name, color_key) VALUES ($1, $2, $3)', [epic.id, epic.name, epic.colorKey]);
+    await this.db.execute('INSERT INTO epics (id, name, color_key, position) VALUES ($1, $2, $3, $4)', [
+      epic.id,
+      epic.name,
+      epic.colorKey,
+      epic.position
+    ]);
   }
 
   async updateEpic(epic: Epic): Promise<void> {
-    await this.db.execute('UPDATE epics SET name = $1, color_key = $2 WHERE id = $3', [epic.name, epic.colorKey, epic.id]);
+    await this.db.execute('UPDATE epics SET name = $1, color_key = $2, position = $3 WHERE id = $4', [
+      epic.name,
+      epic.colorKey,
+      epic.position,
+      epic.id
+    ]);
   }
 
   async deleteEpic(epicId: string): Promise<void> {
     await this.db.execute('DELETE FROM epics WHERE id = $1', [epicId]);
+  }
+
+  async addSprint(sprint: Sprint): Promise<void> {
+    await this.db.execute('INSERT INTO sprints (id, name, start_date, end_date) VALUES ($1, $2, $3, $4)', [
+      sprint.id,
+      sprint.name,
+      sprint.startDate,
+      sprint.endDate
+    ]);
+  }
+
+  async updateSprint(sprint: Sprint): Promise<void> {
+    await this.db.execute('UPDATE sprints SET name = $1, start_date = $2, end_date = $3 WHERE id = $4', [
+      sprint.name,
+      sprint.startDate,
+      sprint.endDate,
+      sprint.id
+    ]);
   }
 }
