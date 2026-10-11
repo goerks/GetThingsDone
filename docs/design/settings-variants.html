@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Einstellungen Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a small app window mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --e-rose: #be123c; --e-amber: #b45309; --e-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.tag--now { background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+/* ---------- App window mockup ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 760px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.nav .flag { color: var(--bad); font-weight: 600; border-bottom-color: var(--bad); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); position: relative; }
+.ibtn svg { width: 15px; height: 15px; }
+.ibtn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.sel { height: 30px; padding: 0 22px 0 8px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; color: var(--text); background: var(--surface); }
+.hint { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: baseline; gap: 12px; }
+.ph b { font-size: 17px; }
+.ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+
+table.ft { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.ft th, .ft td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ft thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.ft tr:last-child td, .ft tr:last-child th { border-bottom: 0; }
+.ft tbody th { font-weight: 500; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; }
+.badge--c { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+/* Settings layout of variant A */
+.settings { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 0 10px 6px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.side .later { opacity: .7; }
+.side small { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 5px; }
+
+/* Board ghost behind menus and dialogs */
+.ghost { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 150px; }
+.lane i { font-style: normal; color: var(--muted); font-size: 11px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; height: 38px; }
+
+/* Variant B menu */
+.menu { position: absolute; top: 42px; right: 52px; width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; z-index: 2; }
+.menu span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+.menu .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu .later { color: var(--muted); }
+.menu hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* Variant C dialog */
+.scrim { position: absolute; inset: 46px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 640px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 12px; z-index: 2; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+.tabs span { padding: 6px 12px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs .on { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.x { margin-left: auto; color: var(--muted); }
+.stack { position: absolute; top: 160px; left: 50%; transform: translateX(-38%); width: 360px; background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 14px 16px; display: grid; gap: 8px; z-index: 3; }
+.field { height: 26px; border: 1px solid var(--border); border-radius: 5px; }
+
+/* Phone mockup of variant A */
+.phone { width: 300px; border: 1px solid var(--border); border-radius: 18px; background: var(--bg); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); font-size: 12px; justify-self: start; }
+.phone .bar { height: auto; flex-wrap: wrap; padding: 8px 12px; gap: 6px 10px; }
+.phone .nav { height: 30px; }
+.phone .nav span { padding: 0 6px; }
+.chips { display: flex; gap: 6px; overflow: hidden; }
+.chips span { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; color: var(--muted); }
+.chips .on { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: transparent; font-weight: 600; }
+.row { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.rows .row:last-child { border-bottom: 0; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+</svg>
+
+<main class="wrap">
+  <header class="intro">
+    <div class="meta"><span>Issue #4</span><span>Pull Request #6</span><span>Stufe 1, Nachbesserung</span></div>
+    <h1>Wohin mit den Feldern?</h1>
+    <p class="muted">Die Seite «Felder» steht heute gleichwertig neben Board, Backlog, Story Map und Epics in der Hauptnavigation. Sie wird aber selten gebraucht: Felder richtet ein Team einmal ein. Drei Varianten, sie in die Einstellungen zu verschieben. Der Inhalt der Felder-Seite bleibt in allen Varianten gleich.</p>
+  </header>
+
+  <section class="variant" aria-labelledby="now">
+    <div class="variant__head">
+      <h3 id="now">Heute</h3>
+      <span class="tag tag--now">zu prominent</span>
+    </div>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Heutiger Stand: Felder als fünfter Eintrag in der Hauptnavigation">
+        <div class="bar">
+          <span class="brand"><span class="logo">✓</span>Get It Done</span>
+          <div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span class="flag">Felder</span></div>
+          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span></div>
+        </div>
+        <div class="page">
+          <div class="ph"><b>Felder</b><span class="muted">Felder beschreiben eure Items …</span><span class="btn btn--p">Neues Feld</span></div>
+          <table class="ft">
+            <thead><tr><th>Feld</th><th>Art</th><th>Typ</th><th>Verwendet für</th></tr></thead>
+            <tbody>
+              <tr><th>Titel</th><td><span class="badge">System</span></td><td>Text</td><td>Stories, Epics</td></tr>
+              <tr><th>Punkte</th><td><span class="badge">Mitgeliefert</span></td><td>Punkte</td><td>Stories</td></tr>
+              <tr><th>Priority</th><td><span class="badge badge--c">Eigenes</span></td><td>Einfachauswahl</td><td>Stories</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="va">
+    <div class="variant__head">
+      <h3 id="va">A · Zahnrad öffnet eine Einstellungsseite</h3>
+      <span class="tag tag--rec">Empfehlung</span>
+    </div>
+    <p>Ein Zahnrad neben Theme und Sprache führt auf <code>#/settings/fields</code>. Links stehen die Bereiche der Einstellungen, rechts der Inhalt. Heute gibt es nur «Felder»; die Status-Werte aus #5 kommen später als zweiter Bereich dazu. Die Hauptnavigation enthält nur noch die Arbeitsansichten. Das Zahnrad ist markiert, solange man in den Einstellungen ist.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante A: Einstellungsseite mit Bereichsliste links und Feldern rechts, erreichbar über ein Zahnrad im Header">
+        <div class="bar">
+          <span class="brand"><span class="logo">✓</span>Get It Done</span>
+          <div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
+          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on" title="Einstellungen"><svg><use href="#gear"/></svg></span></div>
+        </div>
+        <div class="page">
+          <div class="ph"><b>Einstellungen</b></div>
+          <div class="settings">
+            <div class="side">
+              <span class="lbl">Arbeitsbereich</span>
+              <span class="on">Felder</span>
+              <span class="later">Status-Werte <small>#5</small></span>
+            </div>
+            <div style="display:grid; gap:10px; min-width:0">
+              <div class="ph"><b>Felder</b><span class="btn btn--p">Neues Feld</span></div>
+              <table class="ft">
+                <thead><tr><th>Feld</th><th>Art</th><th>Typ</th><th>Verwendet für</th></tr></thead>
+                <tbody>
+                  <tr><th>Titel</th><td><span class="badge">System</span></td><td>Text</td><td>Stories, Epics</td></tr>
+                  <tr><th>Punkte</th><td><span class="badge">Mitgeliefert</span></td><td>Punkte</td><td>Stories</td></tr>
+                  <tr><th>Priority</th><td><span class="badge badge--c">Eigenes</span></td><td>Einfachauswahl</td><td>Stories</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pair">
+      <div class="proscons">
+        <div class="box"><b>Dafür</b><ul><li>Hauptnavigation nur noch für die tägliche Arbeit</li><li>Wächst mit: Status-Werte, später Export oder Sync, ohne neue Navigation</li><li>Volle Seitenbreite für die Feldtabelle und ihre Dialoge</li><li>Eigene Adresse, im Browser verlinkbar</li></ul></div>
+        <div class="box"><b>Dagegen</b><ul><li>Mit nur einem Bereich wirkt die Liste links noch leer</li><li>Ein Symbol ohne Text: braucht Tooltip und Screenreader-Beschriftung «Einstellungen»</li></ul></div>
+      </div>
+      <div class="phone" role="img" aria-label="Variante A auf dem Handy: Bereiche als Chips über dem Inhalt">
+        <div class="bar">
+          <span class="brand"><span class="logo">✓</span>Get It Done</span>
+          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div>
+          <div class="nav"><span>Board</span><span>Backlog</span><span>Map</span><span>Epics</span></div>
+        </div>
+        <div class="page" style="padding:12px">
+          <b style="font-size:15px">Einstellungen</b>
+          <div class="chips"><span class="on">Felder</span><span>Status-Werte</span></div>
+          <div class="rows"><div class="row"><span>Titel</span><span class="badge">System</span></div><div class="row"><span>Punkte</span><span class="badge">Mitgeliefert</span></div><div class="row"><span>Priority</span><span class="badge badge--c">Eigenes</span></div></div>
+          <span class="muted" style="font-size:11px">Schmal: Bereiche als Chips oben</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="vb">
+    <div class="variant__head">
+      <h3 id="vb">B · Zahnrad öffnet ein Menü</h3>
+      <span class="tag">möglich, später</span>
+    </div>
+    <p>Das Zahnrad klappt ein Menü auf. Jeder Eintrag führt auf seine eigene Seite, «Felder» auf die heutige Felder-Seite. Sprache und Theme könnten ebenfalls in dieses Menü wandern.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante B: aufgeklapptes Menü unter dem Zahnrad mit den Einträgen Felder und Status-Werte über dem Board">
+        <div class="bar">
+          <span class="brand"><span class="logo">✓</span>Get It Done</span>
+          <div class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
+          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div>
+        </div>
+        <div class="menu">
+          <span class="on">Felder</span>
+          <span class="later">Status-Werte <small class="muted">#5</small></span>
+          <hr>
+          <span class="later">Über Get It Done</span>
+        </div>
+        <div class="page">
+          <div class="ph"><b>Sprint 1</b><span class="muted">6 Stories · 23 Punkte</span></div>
+          <div class="ghost"><div class="lane"><i>Zu erledigen</i><div class="card"></div><div class="card"></div></div><div class="lane"><i>In Arbeit</i><div class="card"></div></div><div class="lane"><i>Review</i><div class="card"></div></div><div class="lane"><i>Erledigt</i><div class="card"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Header bleibt aufgeräumt, auch wenn später viele Einstellungen dazukommen</li><li>Platz für Einträge wie «Über» oder «Export»</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Heute ein Klick mehr für einen einzigen Eintrag</li><li>Ein Menü braucht eigene Tastatur- und Screenreader-Logik</li><li>Die Felder-Seite steht trotzdem allein, ohne Rahmen «Einstellungen»</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="vc">
+    <div class="variant__head">
+      <h3 id="vc">C · Einstellungen als Dialog</h3>
+      <span class="tag">nicht empfohlen</span>
+    </div>
+    <p>Das Zahnrad öffnet einen grossen Dialog über der aktuellen Seite, mit Reitern für die Bereiche. Ein neues Feld öffnet einen zweiten Dialog darüber.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante C: Einstellungsdialog mit Reitern über dem Board, darüber ein zweiter Dialog Neues Feld">
+        <div class="bar">
+          <span class="brand"><span class="logo">✓</span>Get It Done</span>
+          <div class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
+          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div>
+        </div>
+        <div class="page">
+          <div class="ph"><b>Sprint 1</b></div>
+          <div class="ghost"><div class="lane"></div><div class="lane"></div><div class="lane"></div><div class="lane" style="min-height:250px"></div></div>
+        </div>
+        <div class="scrim"></div>
+        <div class="dialog">
+          <div style="display:flex"><b style="font-size:15px">Einstellungen</b><span class="x">✕</span></div>
+          <div class="tabs"><span class="on">Felder</span><span>Status-Werte</span></div>
+          <table class="ft">
+            <tbody>
+              <tr><th>Titel</th><td><span class="badge">System</span></td><td>Text</td></tr>
+              <tr><th>Punkte</th><td><span class="badge">Mitgeliefert</span></td><td>Punkte</td></tr>
+              <tr><th>Priority</th><td><span class="badge badge--c">Eigenes</span></td><td>Einfachauswahl</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="stack">
+          <b>Neues Feld</b>
+          <span class="muted">Name</span><div class="field"></div>
+          <span class="muted">Typ</span><div class="field"></div>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Man verlässt die aktuelle Ansicht nicht</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Dialog im Dialog: Fokus und Escape werden für Tastatur und Screenreader verwirrend</li><li>Wenig Platz für die Tabelle und spätere Optionslisten</li><li>Keine eigene Adresse</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="dec">
+    <h2 id="dec">Vorschlag</h2>
+    <div class="proscons">
+      <div class="box"><b>Bauen</b><span>Variante A, als Nachbesserung zu Stufe 1 im Pull Request #6. <code>#/fields</code> leitet auf <code>#/settings/fields</code> um.</span></div>
+      <div class="box"><b>Bleibt im Header</b><span>Theme und Sprache, weil man sie schnell umschalten will.</span></div>
+      <div class="box"><b>Später</b><span>Wenn die Einstellungen viele Bereiche haben, kann aus dem Zahnrad ein Menü werden (Variante B), das auf dieselbe Seite führt.</span></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
