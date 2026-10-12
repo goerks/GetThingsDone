@@ -482,7 +482,6 @@
     },
     "noDatesNote": "Start and end are optional. Without them, reports have no target line.",
     "addStory": "Add a story",
-    "addStoryPlaceholder": "Add a story…",
     "noStoriesToAdd": "Every story already has a release.",
     "noStories": "No stories in this release yet. Add some above or on the story map.",
     "remove": "Remove {{code}} from this release",
@@ -505,6 +504,15 @@
     "afterEnd_one": "{{count}} story is planned in a sprint that ends after {{date}}: {{codes}}.",
     "afterEnd_other": "{{count}} stories are planned in sprints that end after {{date}}: {{codes}}.",
     "sprintAfter": "{{sprint}} ends on {{sprintEnd}}, after the end of {{release}} ({{releaseEnd}}).",
-    "onCard": "Release: {{title}}"
+    "onCard": "Release: {{title}}",
+    "picker": {
+      "placeholder": "Search by key or title…",
+      "results_one": "{{count}} story found. Use the arrow keys and Enter to add it.",
+      "results_other": "{{count}} stories found. Use the arrow keys and Enter to add one.",
+      "none": "No story without a release matches \"{{query}}\".",
+      "more_one": "{{count}} more. Keep typing to narrow the list.",
+      "more_other": "{{count}} more. Keep typing to narrow the list.",
+      "added": "{{code}} was added to the release."
+    }
   }
 }
