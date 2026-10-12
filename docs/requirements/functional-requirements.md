@@ -10,7 +10,7 @@ As a team member, I want to see the stories of the current sprint in columns by 
 - Each column is a clearly separated lane with its own background, border and header line, as tall as the board.
 - Only stories in the sprint are shown, ordered by backlog priority.
 - An empty column shows a drop hint.
-- A card shows key, title (link to the detail), criteria progress, epic and points.
+- A card shows key, title (link to the detail), criteria progress, epic and points. Hidden built-in fields (FR-FIELD-10) are left out.
 
 Source: Vision, PO feedback · Status: Implemented · Verified by: App "shows the demo stories in their columns", "does not show stories that are not in the sprint", "shows each column as its own lane"
 
@@ -36,7 +36,7 @@ As a screen reader user, I want each drag step to be announced in my language, s
 Source: Vision (accessibility) · Status: Implemented · Verified by: manual check (automated check open, see QR-01)
 
 ### FR-BOARD-04 Sprint summary
-As a team member, I want to see the name and dates of the sprint on the board, with the number of stories and the sum of points.
+As a team member, I want to see the name and dates of the sprint on the board, with the number of stories and the sum of points. When points are hidden (FR-FIELD-10), the summary shows the number of stories only.
 
 Source: Vision, issue #2 · Status: Implemented · Verified by: App "summarises the sprint", board.test "adds up points"
 
@@ -136,14 +136,14 @@ Source: Vision, PO feedback · Status: Implemented · Verified by: App "epics" t
 
 ## Fields (FIELD)
 
-Configurable fields, issue #4, data model in ADR 0003. Stages 1 to 4 of the feature: custom fields on stories and epics, layout per item type, eight data types.
+Configurable fields, issue #4, data model in ADR 0003. Stages 1 to 5 of the feature: custom fields on stories and epics, layout per item type, eight data types, renaming and hiding system and built-in fields. Sprints and releases as item types follow in #9.
 
 ### FR-FIELD-01 Field library as a matrix
 As a team, we want to see every field of the workspace and the item types that use it, so that we know what our items carry.
 - The section "Fields" of the settings (FR-SET-03) lists all fields with name and type, grouped into system, built-in and custom fields, with one checkbox column per item type: Stories, Epics. Sprints and Releases are shown as planned columns.
-- System fields (key, title, story status) are ticked and locked. Built-in fields (description, epic, points, acceptance criteria on stories; colour on epics) are ticked and cannot be switched off yet (stage 5). A field that does not exist for a type shows "–".
+- System fields (key, title, story status) are ticked and locked. Built-in fields (description, epic, points, acceptance criteria on stories; colour on epics) can be switched off (hidden), except the epic, which stays locked for now (FR-FIELD-10). A field that does not exist for a type shows "–".
 - A click on the checkbox of a custom field uses it on that type or takes it off, and is saved at once. Taking a field off hides it in that type's dialog but keeps its values, so they come back when the field is used again.
-- System and built-in fields cannot be edited or deleted yet. Missing ones are added automatically when data is loaded, also for data of release 0.1.
+- System and built-in fields cannot be deleted; they can be renamed (FR-FIELD-10). Missing ones are added automatically when data is loaded, also for data of release 0.1.
 
 Source: #4, PO feedback (variant A in `docs/design/field-assignment.md`) · Status: Implemented · Verified by: App "shows a matrix of fields and item types…", "puts a field on epics…", "takes a field off stories without losing its values", "opens data of release 0.1…", fields.test "missingBuiltins", "setAssigned", sqliteRepository.test "adds missing built-in fields…"
 
@@ -208,6 +208,14 @@ As a team member, I want new items to start with sensible values and required fi
 - In the story and epic dialogs a required field is marked "(required)"; an empty one says "Required, not filled in yet", and clearing it is refused with "This field is required."
 
 Source: #4 · Status: Implemented · Verified by: App "makes a field required, so the new story dialog asks for it, with defaults filled in", "does not let a required field be cleared…", "sets a default value in the field dialog", fields.test "default values", sqliteRepository.test "stores default values of fields"
+
+### FR-FIELD-10 Rename and hide system and built-in fields
+As a team, we want to call the fields by our own names and switch off the built-in fields we do not use.
+- Every system and built-in field except the key has "Rename field …" in the matrix. The new name is one label shown in every language; the dialog names the translated default, and "Reset to …" brings it back. An empty name also resets it. The name is used in the story, epic and create dialogs, on the matrix and layout, and for points in the sprint, backlog and story map summaries ("12 Effort").
+- Description, points and acceptance criteria (stories) and colour (epics) can be hidden by unticking them in the matrix. A hidden field disappears from the dialogs, create dialogs, cards and summaries; colour also from epic tags and the story map stripe. Values stay and come back when the field is shown again.
+- Key, title and status cannot be hidden ("System field, always used"). The epic of a story cannot be hidden for now ("The epic cannot be hidden for now"; PO decision in #4).
+
+Source: #4, PO decision 2026-10-11 · Status: Implemented · Verified by: App "hides points, so the board, cards and dialogs leave them out…", "hides acceptance criteria, description and epic colour", "renames built-in and system fields with one label and resets them", fields.test "renaming and hiding built-in fields", sqliteRepository.test "keeps the label and hidden state of a built-in field"
 
 ## Settings (SET)
 

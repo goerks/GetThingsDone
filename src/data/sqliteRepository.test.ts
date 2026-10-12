@@ -211,6 +211,22 @@ describe('SqliteRepository', () => {
     expect(snapshot.stories.find((story) => story.id === 'story-1')?.values['field-demo-value']).toBe(8);
   });
 
+  it('keeps the label and hidden state of a built-in field', async () => {
+    const { repository } = await freshRepository();
+    const before = await repository.load();
+    const points = before.fields.find((field) => field.builtinKey === 'points');
+    if (!points) throw new Error('points field missing');
+    await repository.saveField({ ...points, label: 'Effort' });
+    await repository.saveAssignments(
+      points.id,
+      before.assignments.filter((item) => item.fieldId === points.id).map((item) => ({ ...item, hidden: true }))
+    );
+    const after = await repository.load();
+    expect(after.fields.find((field) => field.id === points.id)?.label).toBe('Effort');
+    expect(after.assignments.find((item) => item.fieldId === points.id && item.itemType === 'story')?.hidden).toBe(true);
+    expect(after.stories.find((story) => story.id === 'story-1')?.points).toBe(before.stories.find((story) => story.id === 'story-1')?.points);
+  });
+
   it('deletes a field with its options, assignments and values', async () => {
     const { db, repository } = await freshRepository();
     await repository.deleteField('field-demo-priority');

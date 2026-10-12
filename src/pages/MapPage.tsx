@@ -26,6 +26,7 @@ import type { Epic, Sprint, Story } from '../domain/types';
 import { CardFieldValues, TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
+import { useBuiltin } from '../components/useBuiltin';
 
 const NOT_PLANNED = '-';
 /** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
@@ -43,13 +44,16 @@ interface Hover {
 
 function CardContent({ story }: { story: Story }) {
   const { t } = useTranslation();
+  const builtin = useBuiltin();
   return (
     <>
       <span className="map-card__top">
         <span className="card__code">{story.code}</span>
-        <span className="pill" title={t('card.points', { count: story.points })}>
-          {story.points}
-        </span>
+        {builtin.shown('story', 'points') && (
+          <span className="pill" title={builtin.pointsTitle(story.points)}>
+            {story.points}
+          </span>
+        )}
       </span>
       <TitleButton story={story} className="map-card__title" />
       <CardFieldValues story={story} />
@@ -157,6 +161,7 @@ interface SprintLabelProps {
 
 function SprintLabelContent({ sprint, today, stories, labelId }: Omit<SprintLabelProps, 'isTarget'>) {
   const { t, i18n } = useTranslation();
+  const builtin = useBuiltin();
   return (
     <>
       {isRunning(sprint, today) && <span className="badge-running">{t('sprint.running')}</span>}
@@ -164,7 +169,7 @@ function SprintLabelContent({ sprint, today, stories, labelId }: Omit<SprintLabe
         {sprint.name}
       </span>
       <span className="map-sprint__dates">{formatSprintDates(sprint, i18n.language)}</span>
-      <span className="map-sprint__sum">{t('map.storiesPoints', { count: stories.length, points: totalPoints(stories) })}</span>
+      <span className="map-sprint__sum">{builtin.summary(stories.length, totalPoints(stories))}</span>
     </>
   );
 }
@@ -238,6 +243,8 @@ type DialogState = { kind: 'story'; epicId: string | null; sprintId: string | nu
 export function MapPage() {
   const { t, i18n } = useTranslation();
   const app = useApp();
+  const builtin = useBuiltin();
+  const colorShown = builtin.shown('epic', 'color');
   const sensors = useDragSensors();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
@@ -405,7 +412,7 @@ export function MapPage() {
             {t('sprint.notPlanned')}
           </span>
           <span className="map-sprint__sum">
-            {t('map.storiesPoints', { count: inSprint.length, points: totalPoints(inSprint) })}
+            {builtin.summary(inSprint.length, totalPoints(inSprint))}
           </span>
         </div>
       )}
@@ -475,14 +482,14 @@ export function MapPage() {
                     type="button"
                     key={epic.id}
                     className={`map-epic${targetEpic === epic.id ? ' map-epic--target' : ''}`}
-                    style={{ '--epic-color': `var(--epic-${epic.colorKey})` } as CSSProperties}
+                    style={{ '--epic-color': colorShown ? `var(--epic-${epic.colorKey})` : 'var(--border)' } as CSSProperties}
                     onClick={() => details.openEpic(epic.id)}
                   >
                     <span id={columnLabelId(epic)} className="map-epic__name">
                       {epic.name}
                     </span>
                     <span className="map-epic__sum">
-                      {t('map.storiesPoints', { count: inEpic.length, points: totalPoints(inEpic) })}
+                      {builtin.summary(inEpic.length, totalPoints(inEpic))}
                     </span>
                   </button>
                 );
@@ -493,10 +500,10 @@ export function MapPage() {
                     {t('epics.noEpic')}
                   </span>
                   <span className="map-epic__sum">
-                    {t('map.storiesPoints', {
-                      count: shownStories.filter((story) => story.epicId === null).length,
-                      points: totalPoints(shownStories.filter((story) => story.epicId === null))
-                    })}
+                    {builtin.summary(
+                      shownStories.filter((story) => story.epicId === null).length,
+                      totalPoints(shownStories.filter((story) => story.epicId === null))
+                    )}
                   </span>
                 </div>
               )}

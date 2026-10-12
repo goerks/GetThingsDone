@@ -5,6 +5,7 @@ import { EPIC_COLOR_KEYS, type EpicColorKey } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
+import { useBuiltin } from './useBuiltin';
 
 interface ColorPickerProps {
   name: string;
@@ -46,6 +47,7 @@ export function NewEpicDialog({ onClose, onCreated }: { onClose: () => void; onC
   const [name, setName] = useState('');
   const [colorKey, setColorKey] = useState<EpicColorKey>(() => nextColorKey(app.epics));
   const custom = useCreateFields('epic');
+  const builtin = useBuiltin();
 
   const submit = (event: FormEvent): void => {
     event.preventDefault();
@@ -62,7 +64,7 @@ export function NewEpicDialog({ onClose, onCreated }: { onClose: () => void; onC
     <Dialog title={t('epics.new')} onClose={onClose}>
       <form className="form" onSubmit={submit}>
         <div className="field">
-          <label htmlFor={`${uid}-name`}>{t('epics.name')}</label>
+          <label htmlFor={`${uid}-name`}>{builtin.label('title', t('epics.name'))}</label>
           <input
             id={`${uid}-name`}
             className="input"
@@ -72,10 +74,17 @@ export function NewEpicDialog({ onClose, onCreated }: { onClose: () => void; onC
             autoFocus
           />
         </div>
-        <div className="field">
-          <span aria-hidden="true">{t('epics.colorLabel')}</span>
-          <ColorPicker name={`${uid}-color`} legend={t('epics.colorLabel')} value={colorKey} onChange={setColorKey} />
-        </div>
+        {builtin.shown('epic', 'color') && (
+          <div className="field">
+            <span aria-hidden="true">{builtin.label('color', t('epics.colorLabel'))}</span>
+            <ColorPicker
+              name={`${uid}-color`}
+              legend={builtin.label('color', t('epics.colorLabel'))}
+              value={colorKey}
+              onChange={setColorKey}
+            />
+          </div>
+        )}
         {custom.fields}
         <div className="form__actions">
           <button type="submit" className="btn btn--primary">

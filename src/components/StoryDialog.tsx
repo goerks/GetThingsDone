@@ -15,6 +15,7 @@ import { criteriaProgress } from '../domain/board';
 import { customFieldsFor, isRequired } from '../domain/fields';
 import { POINT_VALUES, STATUSES, type Criterion, type Status } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { useBuiltin } from './useBuiltin';
 
 interface CriterionProps {
   storyId: string;
@@ -75,6 +76,7 @@ function CriterionRow({ storyId, criterion }: CriterionProps) {
 export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const { t } = useTranslation();
   const app = useApp();
+  const builtin = useBuiltin();
   const uid = useId();
   const sensors = useDragSensors();
   const [draft, setDraft] = useState('');
@@ -147,7 +149,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
             <h2 className="detail__heading">
               <EditableText
                 value={story.title}
-                label={t('detail.title')}
+                label={builtin.label('title', t('detail.title'))}
                 required
                 className="detail__title"
                 onSave={(title) => app.updateStory(story.id, { title })}
@@ -155,72 +157,76 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
             </h2>
           </div>
 
-          <section className="panel">
-            <h2>{t('detail.description')}</h2>
-            <EditableText
-              value={story.description}
-              label={t('detail.description')}
-              multiline
-              placeholder={t('detail.noDescription')}
-              className="detail__description"
-              onSave={(description) => app.updateStory(story.id, { description })}
-            />
-          </section>
-
-          <section className="panel">
-            <div className="panel__head">
-              <h2>{t('detail.criteria')}</h2>
-              <span className="muted">{t('detail.progress', { done: progress.done, total: progress.total })}</span>
-            </div>
-            <div className="progress progress--wide" aria-hidden="true">
-              <div className="progress__bar" style={{ width: `${progress.percent}%` }} />
-            </div>
-            {story.criteria.length === 0 ? (
-              <p className="muted">{t('detail.noCriteria')}</p>
-            ) : (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={onCriterionDrop}
-                accessibility={{ announcements, screenReaderInstructions: { draggable: t('detail.dnd.instructions') } }}
-              >
-                <SortableContext items={story.criteria.map((criterion) => criterion.id)} strategy={verticalListSortingStrategy}>
-                  <ul className="criteria">
-                    {story.criteria.map((criterion) => (
-                      <CriterionRow key={criterion.id} storyId={story.id} criterion={criterion} />
-                    ))}
-                  </ul>
-                </SortableContext>
-              </DndContext>
-            )}
-            {allAccepted && (
-              <div role="status" className="notice">
-                {t('detail.allAccepted')}
-              </div>
-            )}
-            <form className="inline-form" onSubmit={submit}>
-              <label htmlFor={`${uid}-criterion`} className="sr-only">
-                {t('detail.newCriterion')}
-              </label>
-              <input
-                id={`${uid}-criterion`}
-                className="input"
-                placeholder={t('detail.newCriterion')}
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
+          {builtin.shown('story', 'description') && (
+            <section className="panel">
+              <h2>{builtin.label('description', t('detail.description'))}</h2>
+              <EditableText
+                value={story.description}
+                label={builtin.label('description', t('detail.description'))}
+                multiline
+                placeholder={t('detail.noDescription')}
+                className="detail__description"
+                onSave={(description) => app.updateStory(story.id, { description })}
               />
-              <button type="submit" className="btn">
-                {t('detail.addCriterion')}
-              </button>
-            </form>
-          </section>
+            </section>
+          )}
+
+          {builtin.shown('story', 'criteria') && (
+            <section className="panel">
+              <div className="panel__head">
+                <h2>{builtin.label('criteria', t('detail.criteria'))}</h2>
+                <span className="muted">{t('detail.progress', { done: progress.done, total: progress.total })}</span>
+              </div>
+              <div className="progress progress--wide" aria-hidden="true">
+                <div className="progress__bar" style={{ width: `${progress.percent}%` }} />
+              </div>
+              {story.criteria.length === 0 ? (
+                <p className="muted">{t('detail.noCriteria')}</p>
+              ) : (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={onCriterionDrop}
+                  accessibility={{ announcements, screenReaderInstructions: { draggable: t('detail.dnd.instructions') } }}
+                >
+                  <SortableContext items={story.criteria.map((criterion) => criterion.id)} strategy={verticalListSortingStrategy}>
+                    <ul className="criteria">
+                      {story.criteria.map((criterion) => (
+                        <CriterionRow key={criterion.id} storyId={story.id} criterion={criterion} />
+                      ))}
+                    </ul>
+                  </SortableContext>
+                </DndContext>
+              )}
+              {allAccepted && (
+                <div role="status" className="notice">
+                  {t('detail.allAccepted')}
+                </div>
+              )}
+              <form className="inline-form" onSubmit={submit}>
+                <label htmlFor={`${uid}-criterion`} className="sr-only">
+                  {t('detail.newCriterion')}
+                </label>
+                <input
+                  id={`${uid}-criterion`}
+                  className="input"
+                  placeholder={t('detail.newCriterion')}
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                />
+                <button type="submit" className="btn">
+                  {t('detail.addCriterion')}
+                </button>
+              </form>
+            </section>
+          )}
         </div>
 
         <aside className="panel detail__side">
           <h2>{t('detail.details')}</h2>
           <div className="form">
             <div className="field">
-              <label htmlFor={`${uid}-status`}>{t('detail.status')}</label>
+              <label htmlFor={`${uid}-status`}>{builtin.label('status', t('detail.status'))}</label>
               <select
                 id={`${uid}-status`}
                 className="select"
@@ -235,24 +241,26 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               </select>
             </div>
             <div className="field">
-              <label htmlFor={`${uid}-epic`}>{t('detail.epic')}</label>
+              <label htmlFor={`${uid}-epic`}>{builtin.label('epic', t('detail.epic'))}</label>
               <EpicSelect id={`${uid}-epic`} value={story.epicId} onChange={(epicId) => app.updateStory(story.id, { epicId })} />
             </div>
-            <div className="field">
-              <label htmlFor={`${uid}-points`}>{t('detail.points')}</label>
-              <select
-                id={`${uid}-points`}
-                className="select"
-                value={story.points}
-                onChange={(event) => app.updateStory(story.id, { points: Number(event.target.value) })}
-              >
-                {POINT_VALUES.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {builtin.shown('story', 'points') && (
+              <div className="field">
+                <label htmlFor={`${uid}-points`}>{builtin.label('points', t('detail.points'))}</label>
+                <select
+                  id={`${uid}-points`}
+                  className="select"
+                  value={story.points}
+                  onChange={(event) => app.updateStory(story.id, { points: Number(event.target.value) })}
+                >
+                  {POINT_VALUES.map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="field">
               <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
               <SprintSelect id={`${uid}-sprint`} value={story.sprintId} onChange={(sprintId) => app.updateStory(story.id, { sprintId })} />

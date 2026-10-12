@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import type { Epic } from '../domain/types';
 import { DetailsContextForTag } from '../state/Details';
+import { useBuiltin } from './useBuiltin';
 
 interface Props {
   epic: Epic | undefined;
@@ -11,10 +12,13 @@ interface Props {
 /** Epic name with a small colour dot; a click opens the epic. The name is always shown, colour never carries meaning alone. */
 export function EpicTag({ epic, inCard = false }: Props) {
   const details = useContext(DetailsContextForTag);
+  const builtin = useBuiltin();
   if (!epic) return null;
   const content = (
     <>
-      <span className="epic__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
+      {builtin.shown('epic', 'color') && (
+        <span className="epic__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
+      )}
       {epic.name}
     </>
   );

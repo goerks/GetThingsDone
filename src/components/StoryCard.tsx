@@ -8,6 +8,7 @@ import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
 import { fieldLabel } from './fieldLabel';
 import { EpicTag } from './EpicTag';
+import { useBuiltin } from './useBuiltin';
 
 /** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
 export function TitleButton({ story, className }: { story: Story; className: string }) {
@@ -56,29 +57,34 @@ export function CardFieldValues({ story }: { story: Story }) {
 
 function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) {
   const { t } = useTranslation();
+  const builtin = useBuiltin();
   const progress = criteriaProgress(story);
   return (
     <>
       <span className="card__code">{story.code}</span>
       <TitleButton story={story} className="card__title" />
       <CardFieldValues story={story} />
-      <div className="card__progress">
-        <div
-          className="progress"
-          role="img"
-          aria-label={t('card.criteria', { done: progress.done, total: progress.total })}
-        >
-          <div className="progress__bar" style={{ width: `${progress.percent}%` }} />
+      {builtin.shown('story', 'criteria') && (
+        <div className="card__progress">
+          <div
+            className="progress"
+            role="img"
+            aria-label={t('card.criteria', { done: progress.done, total: progress.total })}
+          >
+            <div className="progress__bar" style={{ width: `${progress.percent}%` }} />
+          </div>
+          <span className="card__count" aria-hidden="true">
+            {progress.done}/{progress.total}
+          </span>
         </div>
-        <span className="card__count" aria-hidden="true">
-          {progress.done}/{progress.total}
-        </span>
-      </div>
+      )}
       <div className="card__bottom">
         <EpicTag epic={epic} inCard />
-        <span className="pill" title={t('card.points', { count: story.points })}>
-          {story.points}
-        </span>
+        {builtin.shown('story', 'points') && (
+          <span className="pill" title={builtin.pointsTitle(story.points)}>
+            {story.points}
+          </span>
+        )}
       </div>
     </>
   );

@@ -249,7 +249,6 @@
     },
     "useOn": "{{name}} per {{type}}",
     "locked": "Campo di sistema, sempre usato",
-    "hideLater": "I campi predefiniti si potranno nascondere in una fase successiva",
     "notAvailable": "{{name}} non esiste per {{type}}",
     "deleteQuestion": "Eliminare il campo {{name}}? L’operazione non si può annullare.",
     "loseStories_one": "{{count}} story perde il suo valore.",
@@ -283,7 +282,12 @@
     "invalidUrl": "Inserisci un indirizzo web, per esempio example.com.",
     "openLink": "Apri {{name}}",
     "typeConversions": "Sono proposti solo i cambi di tipo che conservano tutti i valori.",
-    "defaultTicked": "Spuntata per impostazione predefinita"
+    "defaultTicked": "Spuntata per impostazione predefinita",
+    "epicFixed": "Per ora l’epic non si può nascondere",
+    "rename": "Rinomina campo {{name}}",
+    "renameTitle": "Rinomina campo",
+    "renameHint": "Il nuovo nome appare in tutte le lingue. Il predefinito è «{{name}}».",
+    "resetLabel": "Ripristina «{{name}}»"
   },
   "settings": {
     "title": "Impostazioni",
@@ -291,5 +295,11 @@
     "statusValues": "Valori di stato",
     "planned": "Previsto",
     "plannedNote": "previsto per una release successiva"
+  },
+  "summary": {
+    "stories_one": "{{count}} story",
+    "stories_other": "{{count}} storie",
+    "points_one": "{{count}} punto",
+    "points_other": "{{count}} punti"
   }
 }

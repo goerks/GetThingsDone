@@ -13,6 +13,11 @@ import {
   parseValue,
   CARD_FIELD_LIMIT,
   canConvert,
+  canHide,
+  canRename,
+  isBuiltinShown,
+  renameBuiltin,
+  setBuiltinHidden,
   convertValues,
   isIsoDate,
   normalizeUrl,
@@ -428,5 +433,52 @@ describe('type changes', () => {
 
   it('refuses a change that would lose values', () => {
     expect(updateField([select], 'prio', { label: 'Priority', options: select.options, dataType: 'number' }, ids())).toBeNull();
+  });
+});
+
+describe('renaming and hiding built-in fields', () => {
+  const byKey = (key: string): FieldDefinition => builtins.fields.find((field) => field.builtinKey === key) as FieldDefinition;
+
+  it('renames every system and built-in field except the key', () => {
+    expect(canRename(byKey('key'))).toBe(false);
+    expect(['title', 'status', 'description', 'epic', 'points', 'criteria', 'color'].every((key) => canRename(byKey(key)))).toBe(true);
+  });
+
+  it('hides description, points, criteria and colour, but not the epic or system fields', () => {
+    expect(['description', 'points', 'criteria', 'color'].every((key) => canHide(byKey(key)))).toBe(true);
+    expect(['key', 'title', 'status', 'epic'].some((key) => canHide(byKey(key)))).toBe(false);
+    expect(canHide(select)).toBe(false);
+  });
+
+  it('hides a built-in field on one item type and shows it again', () => {
+    const points = builtinFieldId('points');
+    expect(isBuiltinShown('story', 'points', builtins.assignments)).toBe(true);
+    const hidden = setBuiltinHidden(builtins.fields, builtins.assignments, points, 'story', true);
+    expect(hidden).not.toBeNull();
+    expect(isBuiltinShown('story', 'points', hidden ?? [])).toBe(false);
+    expect(isBuiltinShown('story', 'title', hidden ?? [])).toBe(true);
+    const shown = setBuiltinHidden(builtins.fields, hidden ?? [], points, 'story', false);
+    expect(isBuiltinShown('story', 'points', shown ?? [])).toBe(true);
+  });
+
+  it('refuses to hide the epic, a system field or a field the item type does not have', () => {
+    expect(setBuiltinHidden(builtins.fields, builtins.assignments, builtinFieldId('epic'), 'story', true)).toBeNull();
+    expect(setBuiltinHidden(builtins.fields, builtins.assignments, builtinFieldId('title'), 'story', true)).toBeNull();
+    expect(setBuiltinHidden(builtins.fields, builtins.assignments, builtinFieldId('points'), 'epic', true)).toBeNull();
+    expect(isBuiltinShown('epic', 'points', builtins.assignments)).toBe(false);
+  });
+
+  it('stores one trimmed label and resets to the default with null or an empty label', () => {
+    const points = builtinFieldId('points');
+    const renamed = renameBuiltin(builtins.fields, points, '  Effort ');
+    expect(renamed?.field.label).toBe('Effort');
+    expect(renamed?.fields.find((field) => field.id === points)?.label).toBe('Effort');
+    expect(renameBuiltin(renamed?.fields ?? [], points, null)?.field.label).toBeNull();
+    expect(renameBuiltin(renamed?.fields ?? [], points, '   ')?.field.label).toBeNull();
+  });
+
+  it('does not rename the key or custom fields', () => {
+    expect(renameBuiltin(builtins.fields, builtinFieldId('key'), 'Id')).toBeNull();
+    expect(renameBuiltin([...builtins.fields, select], 'prio', 'Urgency')).toBeNull();
   });
 });

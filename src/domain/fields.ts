@@ -611,3 +611,56 @@ export function formatValue(field: FieldDefinition, value: FieldValue, locale = 
       return String(value);
   }
 }
+
+/* ---------- System and built-in fields as configuration (stage 5) ---------- */
+
+/** Built-in fields a team can hide. The epic stays visible for now (PO decision in #4). */
+export const HIDEABLE_BUILTINS: readonly BuiltinKey[] = ['description', 'points', 'criteria', 'color'];
+
+/** Every system and built-in field can be renamed except the key, which is an identifier. */
+export function canRename(field: FieldDefinition): boolean {
+  return field.builtinKey !== 'key';
+}
+
+export function canHide(field: FieldDefinition): boolean {
+  return field.builtinKey !== null && HIDEABLE_BUILTINS.includes(field.builtinKey);
+}
+
+/** Whether a system or built-in field shows on an item type: it belongs to the type and is not hidden. */
+export function isBuiltinShown(
+  itemType: ItemType,
+  key: BuiltinKey,
+  assignments: readonly FieldAssignment[]
+): boolean {
+  const assignment = assignments.find((item) => item.itemType === itemType && item.fieldId === builtinFieldId(key));
+  return assignment !== undefined && !assignment.hidden;
+}
+
+/** Hides or shows a built-in field on an item type; its values stay. Null when the field cannot be hidden. */
+export function setBuiltinHidden(
+  fields: readonly FieldDefinition[],
+  assignments: readonly FieldAssignment[],
+  fieldId: string,
+  itemType: ItemType,
+  hidden: boolean
+): FieldAssignment[] | null {
+  const field = fields.find((item) => item.id === fieldId);
+  const current = assignments.find((item) => item.itemType === itemType && item.fieldId === fieldId);
+  if (!field || !canHide(field) || !current) return null;
+  return assignments.map((item) => (item === current ? { ...item, hidden } : item));
+}
+
+/**
+ * Renames a system or built-in field with one label for all languages; null or an empty label brings back the
+ * translated default. Null when the field cannot be renamed.
+ */
+export function renameBuiltin(
+  fields: readonly FieldDefinition[],
+  fieldId: string,
+  label: string | null
+): { fields: FieldDefinition[]; field: FieldDefinition } | null {
+  const current = fields.find((item) => item.id === fieldId);
+  if (!current || current.kind === 'custom' || !canRename(current)) return null;
+  const field: FieldDefinition = { ...current, label: label?.trim() || null };
+  return { fields: fields.map((item) => (item.id === fieldId ? field : item)), field };
+}
