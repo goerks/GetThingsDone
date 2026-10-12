@@ -5,7 +5,7 @@ import type { Release, ReleaseEvent } from './types';
 const release: Release = { id: 'r1', title: 'One', description: '', startDate: '2026-10-05', endDate: '2026-10-15' };
 const event = (day: string, kind: ReleaseEvent['kind'], storyId: string, points: number, done = false): ReleaseEvent => ({
   id: `${day}-${kind}-${storyId}`,
-  at: `${day}T12:00:00.000Z`,
+  at: new Date(`${day}T12:00:00`).toISOString(),
   releaseId: 'r1',
   storyId,
   code: storyId.toUpperCase(),

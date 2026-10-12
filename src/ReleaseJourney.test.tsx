@@ -5,6 +5,7 @@ import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
 import { initI18n } from './i18n';
+import { dayOf } from './domain/history';
 import type { Story } from './domain/types';
 
 beforeAll(() => {
@@ -126,7 +127,7 @@ describe('a release from planning to the last day', () => {
     // What was recorded, in order.
     await waitFor(async () => {
       const events = (await repository.load()).events;
-      expect(events.map((event) => `${event.at.slice(0, 10)} ${event.kind} ${event.code} ${event.points}`)).toEqual([
+      expect(events.map((event) => `${dayOf(event.at)} ${event.kind} ${event.code} ${event.points}`)).toEqual([
         '2026-10-05 added S-1 5',
         '2026-10-05 added S-2 3',
         '2026-10-05 added S-3 2',
