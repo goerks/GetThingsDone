@@ -35,8 +35,7 @@ type Entry =
   | { key: string; type: 'history'; index: number }
   | { key: string; type: 'recent'; item: RecentItem }
   | { key: string; type: 'relax'; field: FilterField; count: number }
-  | { key: string; type: 'reset' }
-  | { key: string; type: 'widen'; count: number };
+  | { key: string; type: 'reset' };
 
 interface Section {
   id: string;
@@ -84,7 +83,7 @@ export function SearchBox() {
   // The field stays on one line: badges that do not fit are cut off and counted.
   const badgesRef = useRef<HTMLDivElement>(null);
   const [hiddenBadges, setHiddenBadges] = useState(0);
-  const { query, results, history, snapshot, labels, open, page, scope, effective, parsed } = search;
+  const { query, results, history, snapshot, labels, open, page, effective, parsed } = search;
   const searching = isActive(effective) || query.text.trim() !== '';
   const usedFields = new Set(effective.filters.map((filter) => filter.field));
 
@@ -171,8 +170,7 @@ export function SearchBox() {
       list.push({ id: group.kind, label: t(`search.group.${group.kind}`), count: group.results.length, entries });
     }
     if (results.length === 0 && isActive(effective)) {
-      const elsewhere = search.allResults.length;
-      const entries: Entry[] = elsewhere > 0 ? [{ key: 'widen', type: 'widen', count: elsewhere }] : [];
+      const entries: Entry[] = [];
       entries.push(...relaxations(snapshot, effective).map((item) => ({
         key: `relax:${item.field}`,
         type: 'relax',
@@ -185,7 +183,7 @@ export function SearchBox() {
     return list;
     // `recent` is derived from history and snapshot, which are listed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searching, completion, history, snapshot, query, effective, results, search.allResults, expanded, labels, t]);
+  }, [searching, completion, history, snapshot, query, effective, results, expanded, labels, t]);
 
   const entries = useMemo(() => sections.flatMap((section) => section.entries), [sections]);
   const activeEntry = entries.find((entry) => entry.key === active) ?? null;
@@ -329,10 +327,6 @@ export function SearchBox() {
         setQuery(EMPTY_QUERY);
         focusInput();
         return;
-      case 'widen':
-        search.setScope('all');
-        focusInput();
-        return;
     }
   };
 
@@ -456,7 +450,7 @@ export function SearchBox() {
         const result = results[entry.index];
         return (
           <li key={entry.key} {...common}>
-            <ResultRow result={result} snapshot={snapshot} onPage={scope === 'all' && page ? isOnPage(result, page.items) : false} />
+            <ResultRow result={result} snapshot={snapshot} onPage={page ? isOnPage(result, page.items) : false} />
           </li>
         );
       }
@@ -537,13 +531,6 @@ export function SearchBox() {
         return (
           <li key={entry.key} {...common}>
             <span className="search-option__action">{t('search.reset')}</span>
-          </li>
-        );
-      case 'widen':
-        return (
-          <li key={entry.key} {...common}>
-            <span className="search-option__action">{t('search.searchEverywhere')}</span>
-            <span className="pill">{t('search.resultCount', { count: entry.count })}</span>
           </li>
         );
     }
@@ -670,19 +657,6 @@ export function SearchBox() {
             </div>
           )}
 
-          {page && (
-            <fieldset className="segmented search__scope">
-              <legend className="sr-only">{t('search.scopeLabel')}</legend>
-              <label className={scope === 'all' ? 'segmented__on' : undefined}>
-                <input type="radio" name={`${uid}-scope`} checked={scope === 'all'} onChange={() => search.setScope('all')} />
-                {t('search.everywhere')}
-              </label>
-              <label className={scope === 'page' ? 'segmented__on' : undefined}>
-                <input type="radio" name={`${uid}-scope`} checked={scope === 'page'} onChange={() => search.setScope('page')} />
-                {t('search.onlyPage', { page: page.label })}
-              </label>
-            </fieldset>
-          )}
 
           <ul id={listboxId} className="search__list" role="listbox" aria-label={t('search.results')}>
             {sections.map((section) => (

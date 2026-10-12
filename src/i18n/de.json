@@ -378,10 +378,6 @@
       "back": "Zurück zur Suche"
     },
     "onPage": "Auf dieser Seite",
-    "everywhere": "Überall",
-    "onlyPage": "Nur {{page}}",
-    "scopeLabel": "Wo suchen",
-    "searchEverywhere": "Treffer von überall zeigen",
     "showOnPage": "Auf {{page}} zeigen",
     "badge": "{{field}} = {{value}}",
     "fieldsGroup": "Felder",

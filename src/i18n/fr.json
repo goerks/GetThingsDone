@@ -378,10 +378,6 @@
       "back": "Retour à la recherche"
     },
     "onPage": "Sur cette page",
-    "everywhere": "Partout",
-    "onlyPage": "Seulement {{page}}",
-    "scopeLabel": "Où chercher",
-    "searchEverywhere": "Afficher les résultats de partout",
     "showOnPage": "Afficher sur {{page}}",
     "badge": "{{field}} = {{value}}",
     "fieldsGroup": "Champs",
