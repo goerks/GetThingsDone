@@ -409,19 +409,15 @@ describe('keyboard in the dialog and on the page', () => {
     expect(screen.getByRole('search').querySelector('.search-chip')).toBeNull();
   });
 
-  it('filters by key, title and description', async () => {
+  it('filters by description and leaves key and title to the free text', async () => {
     const user = await renderApp();
-    await user.type(field(), 'key:s-4 ');
-    expect(within(listbox()).getByRole('group', { name: 'Stories' })).toHaveTextContent('S-4');
-    expect(within(within(listbox()).getByRole('group', { name: 'Stories' })).getAllByRole('option')).toHaveLength(1);
-    await user.keyboard('{Backspace}');
-    await user.type(field(), 'title:"local database" ');
-    expect(within(within(listbox()).getByRole('group', { name: 'Stories' })).getAllByRole('option')).toHaveLength(1);
-    await user.keyboard('{Backspace}');
     await user.type(field(), '@');
     const fields = within(listbox()).getByRole('group', { name: 'Fields' });
-    expect(fields).toHaveTextContent('Key');
-    expect(fields).toHaveTextContent('Title');
     expect(fields).toHaveTextContent('Description');
+    expect(within(fields).queryByRole('option', { name: /^Key/ })).not.toBeInTheDocument();
+    expect(within(fields).queryByRole('option', { name: /^Title/ })).not.toBeInTheDocument();
+    await user.clear(field());
+    await user.type(field(), 'key:s-4');
+    expect(screen.getByRole('note')).toHaveTextContent('key');
   });
 });
