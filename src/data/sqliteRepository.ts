@@ -406,7 +406,10 @@ export class SqliteRepository implements Repository {
     }
   }
 
+  /** Deletes a custom field with everything that belongs to it. System and built-in fields are never deleted. */
   async deleteField(fieldId: string): Promise<void> {
+    const rows = await this.db.select<{ kind: string }[]>('SELECT kind FROM field_definitions WHERE id = $1', [fieldId]);
+    if (rows[0]?.kind !== 'custom') return;
     await this.db.execute('DELETE FROM field_value_options WHERE field_id = $1', [fieldId]);
     await this.db.execute('DELETE FROM field_values WHERE field_id = $1', [fieldId]);
     await this.db.execute('DELETE FROM field_assignments WHERE field_id = $1', [fieldId]);
