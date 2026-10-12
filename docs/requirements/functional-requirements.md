@@ -219,7 +219,7 @@ Source: #4, PO decision 2026-10-11 · Status: Implemented · Verified by: App "h
 
 ## Releases (REL)
 
-Release planning, issue #10; design in `docs/design/release-planning.md`. Phase 1 of the feature: releases, assigning stories, the release field. Phase 2 adds the story map rows, phase 3 the history and the scope report. The burndown follows in the next phase of the same pull request.
+Release planning, issue #10; design in `docs/design/release-planning.md`. Phase 1 of the feature: releases, assigning stories, the release field. Phase 2 adds the story map rows, phase 3 the history and the scope report, phase 4 the burndown.
 
 ### FR-REL-01 Releases
 As a PO, I want to plan releases, so that I see which stories belong to a release and how big it is.
@@ -292,9 +292,14 @@ Every change of a story that matters for a release is appended to the history of
 Source: Issue #10 · Status: Implemented · Verified by: history.test "releaseEventsFor", "baselineEvents", ReleaseHistory.test "recording the history", sqliteRepository.test, localStorageRepository.test
 
 ### FR-REL-11 Burndown
-Remaining tickets and points over time with an ideal line when start and end are set. It uses the history of FR-REL-12 (the done entries).
+As a PO, I want to see how much of a release is left and whether it will make its end date.
+- The release dialog has a fourth tab "Burndown" with the same unit switch as the scope report (points or tickets, remembered).
+- Three figures: what is left now (scope minus done), what is done of the scope, and where the release stands against the target line ("6 P behind", "2 P ahead", "on the line", or "–" without a line).
+- A chart of what is left per calendar day from the first recorded day to today, or to the end date when that is later. The line rises when stories are added and falls when stories are removed or finished; each change of the scope is marked and signed (`+8`, `−3`) like in the scope report. A dashed line marks today. The same numbers are available as a table ("Show as table") for screen readers; colour never carries the meaning alone.
+- **Target line:** with a start and an end date it runs straight from what was left on the start day (when the history starts later: on the first recorded day) to nothing on the end day. Without both dates there is no line and the tab says what is missing. Without a history, or with less than two days of it, the tab says so like the scope report.
+- It uses the history of FR-REL-12 and counts what is done by the status of the stories at that time.
 
-Source: Issue #10 · Status: Planned (phase 4)
+Source: Issue #10, PO decisions · Status: Implemented · Verified by: burndown.test, ReleaseHistory.test "burndown"
 
 ## Settings (SET)
 

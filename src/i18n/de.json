@@ -470,7 +470,8 @@
       "label": "Ansichten des Releases",
       "details": "Details",
       "stories": "Stories ({{count}})",
-      "scope": "Umfang"
+      "scope": "Umfang",
+      "burndown": "Burndown"
     },
     "edit": "Release bearbeiten",
     "close": "Schliessen",
@@ -558,6 +559,32 @@
         "removed": "Entfernt",
         "points": "Punkte {{from}} → {{to}} ({{diff}})"
       }
+    },
+    "burndown": {
+      "kpi": {
+        "remaining": "Verbleibend",
+        "done": "Erledigt",
+        "target": "Gegenüber der Soll-Linie"
+      },
+      "doneOf": "{{done}} von {{scope}}",
+      "against": {
+        "behind": "{{amount}} im Rückstand",
+        "ahead": "{{amount}} voraus",
+        "on": "auf der Linie"
+      },
+      "legend": {
+        "remaining": "Verbleibend",
+        "ideal": "Soll-Linie"
+      },
+      "today": "heute",
+      "noLine": "Ohne Start- und Enddatum gibt es keine Soll-Linie. Trage beide im Reiter Details ein.",
+      "chartLabel": "Burndown in {{unit}}: heute {{remaining}} verbleibend, {{done}} von {{scope}} erledigt",
+      "table": {
+        "remaining": "Verbleibend",
+        "ideal": "Soll-Linie",
+        "change": "Umfangsänderung"
+      },
+      "explain": "Die Linie steigt, wenn Stories dazukommen, und fällt, wenn Stories entfernt oder erledigt werden. Die Soll-Linie läuft geradlinig vom Stand am Starttag auf null am Endtag."
     }
   }
 }

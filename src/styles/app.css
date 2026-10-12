@@ -3184,3 +3184,22 @@ mark {
   font-size: 13px;
   color: var(--muted);
 }
+
+/* ---------- Burndown (#10, phase 4) ---------- */
+
+.scope-chart__ideal {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+.scope-chart__today {
+  stroke: var(--text);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.scope__key--ideal::before {
+  border-top: 2px dashed var(--muted);
+}
