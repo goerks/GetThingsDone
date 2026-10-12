@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   addFilterValue,
+  viewFor,
+  whereShown,
   arrangeForPage,
   findRanges,
   fold,
@@ -307,5 +309,39 @@ describe('custom fields', () => {
   it('does not search checkboxes and leaves custom fields out when only titles are searched', () => {
     expect(ids(search(withFields, query('true')))).toEqual([]);
     expect(ids(search(withFields, query('vendor', [{ field: 'scope', values: ['title'], negate: false }])))).toEqual([]);
+  });
+});
+
+describe('where a result is shown', () => {
+  // Sprint 1 runs from 6 to 19 October, Sprint 2 follows.
+  const today = '2026-10-10';
+
+  it('shows a story of the running sprint on the board first, then backlog and map', () => {
+    expect(whereShown(snapshot, 'story', '1', today)).toEqual(['board', 'backlog', 'map']);
+  });
+
+  it('shows a story of a later sprint or without sprint in the backlog and on the map', () => {
+    expect(whereShown(snapshot, 'story', '12', today)).toEqual(['backlog', 'map']);
+    expect(whereShown(snapshot, 'story', '3', today)).toEqual(['backlog', 'map']);
+  });
+
+  it('keeps stories of past sprints to the backlog', () => {
+    expect(whereShown(snapshot, 'story', '1', '2026-10-25')).toEqual(['backlog']);
+  });
+
+  it('shows epics on the epics page and the map, sprints on board, map and backlog', () => {
+    expect(whereShown(snapshot, 'epic', 'e1', today)).toEqual(['epics', 'map']);
+    expect(whereShown(snapshot, 'sprint', 's1', today)).toEqual(['board', 'map', 'backlog']);
+    expect(whereShown(snapshot, 'sprint', 's2', today)).toEqual(['map', 'backlog']);
+  });
+
+  it('knows nothing about items that do not exist', () => {
+    expect(whereShown(snapshot, 'story', 'gone', today)).toEqual([]);
+  });
+
+  it('prefers the current page, then the first page that shows the item, else none', () => {
+    expect(viewFor('backlog', ['board', 'backlog'])).toBe('backlog');
+    expect(viewFor('epics', ['board', 'backlog'])).toBe('board');
+    expect(viewFor('settings', [])).toBeNull();
   });
 });

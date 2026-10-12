@@ -207,6 +207,7 @@ function SprintLabel({ sprint, today, stories, labelId, isTarget }: SprintLabelP
       ref={setNodeRef}
       type="button"
       className={classes}
+      data-sprint-id={sprint.id}
       {...(movable ? attributes : {})}
       {...(movable ? listeners : {})}
       onClick={() => details.openSprint(sprint.id)}
@@ -495,6 +496,7 @@ export function MapPage() {
                     type="button"
                     key={epic.id}
                     className={`map-epic${targetEpic === epic.id ? ' map-epic--target' : ''}${matches?.ids.epic.has(epic.id) ? ' map-epic--match' : ''}`}
+                    data-epic-id={epic.id}
                     style={{ '--epic-color': colorShown ? `var(--epic-${epic.colorKey})` : 'var(--border)' } as CSSProperties}
                     onClick={() => details.openEpic(epic.id)}
                   >

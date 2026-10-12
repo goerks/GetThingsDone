@@ -315,3 +315,55 @@ describe('languages', () => {
     expect(screen.getByRole('button', { name: /^Status/ })).toBeInTheDocument();
   });
 });
+
+describe('opening a result where it is shown', () => {
+  it('opens a story on the current page there and marks and focuses its card', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'offline');
+    await user.keyboard('{Enter}');
+    expect(window.location.hash).not.toBe('#/backlog');
+    const card = screen.getByRole('group', { name: 'S-4: Keep all data in a local database' });
+    expect(card).toHaveAttribute('data-located', 'true');
+    expect(screen.getByRole('dialog', { name: /S-4/ })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(card).toHaveFocus();
+  });
+
+  it('switches to another page that shows the story when it is not on the current one', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'releases');
+    await user.keyboard('{Enter}');
+    expect(window.location.hash).toBe('#/backlog');
+    expect(await screen.findByRole('dialog', { name: /S-7/ })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /S-7: Plan releases on a story map/ })).toHaveAttribute('data-located', 'true');
+  });
+
+  it('goes from the epics page to the board for a story of the running sprint', async () => {
+    const user = await renderApp();
+    await user.click(screen.getByRole('link', { name: 'Epics' }));
+    await user.type(field(), 'offline');
+    await user.keyboard('{Enter}');
+    expect(await screen.findByRole('dialog', { name: /S-4/ })).toBeInTheDocument();
+    expect(window.location.hash).toBe('#/board');
+  });
+
+  it('shows an epic on the epics page', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'accessib');
+    // The first result is a story with the label "Accessibility"; the epic follows.
+    await user.keyboard('{ArrowDown}');
+    expect(selected()).toHaveTextContent('Epic');
+    await user.keyboard('{Enter}');
+    expect(await screen.findByRole('dialog', { name: 'Accessibility' })).toBeInTheDocument();
+    expect(window.location.hash).toBe('#/epics');
+  });
+
+  it('removes the mark when the search is cleared', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'offline');
+    await user.keyboard('{Enter}');
+    await user.keyboard('{Escape}');
+    await user.click(within(screen.getByRole('search')).getByRole('button', { name: 'Clear search' }));
+    expect(document.querySelector('[data-located]')).toBeNull();
+  });
+});
