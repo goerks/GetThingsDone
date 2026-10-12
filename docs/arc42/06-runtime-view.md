@@ -34,6 +34,15 @@ An upcoming sprint is reordered by dragging its label on the map: `moveSprint` p
 
 Stories, epics and sprints open in dialogs over the current page (`DetailsProvider`). Fields on the story page save on their own: text when the field is left or with Enter (Ctrl+Enter for the description), selects and the sprint checkbox on change. Escape discards a text edit. Deleting a story asks for confirmation in the dialog and then closes it.
 
+## Searching
+
+1. `Ctrl+F` (or a click) focuses the `SearchBox` in the header; an open detail dialog is closed first, because the page behind a modal dialog cannot take focus.
+2. Every change of text or chips sets the query in `SearchProvider`, which runs `search(snapshot, query)` on the snapshot the app already holds in memory. The search therefore works the same with SQLite and localStorage and needs no storage call. `SearchBox` groups the results, limits each group to five and adds "Use as filter" suggestions (`suggestFilters`) or, without results, the chips that could be dropped (`relaxations`).
+3. Filter menus show `valueCounts`: the number of results if the field had just that value, with the text and the other chips applied.
+4. `Enter` calls `openResult`: the query goes into the history, the dropdown closes and `DetailsProvider` opens the item with a `DetailNav`. Previous and next open the neighbouring result in the same way; "Back to search" closes the dialog and focuses the field, which marks the result again (`returnKey`).
+5. Each page registers what it shows with `useSearchPage` (board: running sprint; backlog: all stories and sprints; map: shown stories, epics and sprints; epics page: epics). `arrangeForPage` puts results on the page first or, with the scope "Only <page>", keeps only those. While a query is active, cards and rows ask `useMatchClass` whether they match; the matches are recomputed from the current snapshot, so moving or editing a story updates the highlighting at once. `Ctrl+Enter` closes the list and scrolls to the first match.
+6. The history (last 5 searches and opened items) is written to the webview's `localStorage` on every change. `DetailsProvider` exposes the open item, so items opened from anywhere are remembered.
+
 ## Saving
 
 All writes go through one promise queue in `AppState`, so a fast series of changes is stored in the order it happened. If a write fails, the UI keeps the change and shows a "saving failed" alert. There is no automatic retry yet (see [chapter 11](11-risks-and-technical-debt.md)).

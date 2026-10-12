@@ -9,6 +9,7 @@ import { useDetails } from '../state/Details';
 import { fieldLabel } from './fieldLabel';
 import { EpicTag } from './EpicTag';
 import { useBuiltin } from './useBuiltin';
+import { useMatchClass } from './search/HighlightBar';
 
 /** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
 export function TitleButton({ story, className }: { story: Story; className: string }) {
@@ -118,7 +119,8 @@ export function SortableStoryCard({ story, epic, dropBefore = false }: SortableP
     listeners?.onKeyDown?.(event);
   };
 
-  const classes = ['card', isDragging && 'card--dragging', dropBefore && 'drop-before'].filter(Boolean).join(' ');
+  const match = useMatchClass(story.id, 'card');
+  const classes = ['card', isDragging && 'card--dragging', dropBefore && 'drop-before', match].filter(Boolean).join(' ');
 
   return (
     <article

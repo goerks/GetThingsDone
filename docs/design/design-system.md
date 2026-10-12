@@ -19,7 +19,7 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 
 | Component | Notes |
 |---|---|
-| App header | Logo, main navigation with underline for the current page, theme switch, language, user |
+| App header | Logo, main navigation with underline for the current page, search field, theme switch, language, user |
 | Board column | Own lane: `--column` background, border, header with a rule; as tall as the board. While dragging, the target column turns `--accent-soft` with an accent border |
 | Story card | ID (mono), title as link, criteria progress bar with count, epic dot and name, points pill. The whole card is the drag source (cursor `grab`); double click or Enter opens it |
 | Backlog row | Rank (mono), ID, title, epic, points. Dragged as a whole, no buttons |
@@ -34,6 +34,10 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Dialog | Native modal `<dialog>`, 560 px wide (detail dialogs 1040 px), dimmed backdrop, title and form; used for creating and for the details of stories, epics and sprints, which never get a page of their own. Primary actions on pages ("New story", "New epic") open a dialog instead of an inline form |
 | Acceptance criteria list | Drag handle, checkbox, editable text and delete button per criterion, progress bar, "all accepted" status message |
 | Details panel | Status, epic, points as selects, sprint as checkbox, "Delete story" with confirmation below a rule |
+| Search field | See `search.md`. 300 px in the header with a search icon and a `Ctrl+F` hint; 420 px with an accent ring while open. Chips inside the field in `--accent-soft` ("is not" in `--danger-soft`), each with a ✕ |
+| Search dropdown | 560 px panel below the field: filter buttons (dashed pills, solid when used), value menu on `--bg`, grouped results with uppercase group labels, marked option in `--accent-soft` with a 3 px accent edge, matches in `--mark`, footer with key hints and "Highlight on the page" |
+| Result bar | Bar in `--accent-soft` at the top of a detail dialog opened from the search: query, "Result n of m", previous, next, "Back to search" |
+| Highlighting | While a search is active, matching cards, rows, epic headers and sprint labels get an accent border with an `--accent-soft` ring; non-matching cards and rows drop to 38 % opacity (80 % on hover or focus). A bar in `--accent-soft` above the page content names the count and offers "Clear search". Results on the current page carry an "On this page" pill in `--accent-soft` |
 
 ## Open points
 

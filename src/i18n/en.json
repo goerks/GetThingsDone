@@ -301,5 +301,103 @@
     "stories_other": "{{count}} stories",
     "points_one": "{{count}} point",
     "points_other": "{{count}} points"
+  },
+  "search": {
+    "label": "Search",
+    "placeholder": "Search or filter…",
+    "placeholderMore": "Type more or filter…",
+    "clear": "Clear search",
+    "filters": "Filters",
+    "results": "Search results",
+    "field": {
+      "status": "Status",
+      "epic": "Epic",
+      "sprint": "Sprint",
+      "type": "Type",
+      "points": "Points",
+      "criteria": "Criteria",
+      "scope": "Search in"
+    },
+    "kind": {
+      "story": "Story",
+      "epic": "Epic",
+      "sprint": "Sprint"
+    },
+    "group": {
+      "story": "Stories",
+      "epic": "Epics",
+      "sprint": "Sprints"
+    },
+    "more": {
+      "story_one": "+ {{count}} more story",
+      "story_other": "+ {{count}} more stories",
+      "epic_one": "+ {{count}} more epic",
+      "epic_other": "+ {{count}} more epics",
+      "sprint_one": "+ {{count}} more sprint",
+      "sprint_other": "+ {{count}} more sprints"
+    },
+    "pointsValue_one": "{{count}} point",
+    "pointsValue_other": "{{count}} points",
+    "criteriaState": {
+      "all": "All accepted",
+      "open": "Open criteria",
+      "none": "No criteria"
+    },
+    "scope": {
+      "title": "Key and title",
+      "description": "Description",
+      "criteria": "Acceptance criteria"
+    },
+    "or": "or",
+    "chip": "{{field}}: {{values}}",
+    "chipNot": "{{field}} is not {{values}}",
+    "criteriaCount": "{{done}}/{{total}} criteria",
+    "foundIn": {
+      "description": "Description",
+      "criterion": "Criterion"
+    },
+    "storiesAndPoints_one": "{{count}} story · {{points}} points",
+    "storiesAndPoints_other": "{{count}} stories · {{points}} points",
+    "menuLabel": "Filter: {{field}}",
+    "matchLabel": "Match",
+    "is": "is",
+    "isNot": "is not",
+    "narrow": "Find {{field}}…",
+    "resultCount_one": "{{count}} result",
+    "resultCount_other": "{{count}} results",
+    "removeFilter": "Remove filter {{filter}}",
+    "editFilter": "Change filter {{filter}}",
+    "done": "Done",
+    "moreFilters": "Filter",
+    "recentSearches": "Recent searches",
+    "recentlyOpened": "Recently opened",
+    "useAsFilter": "Use as filter",
+    "noResults": "No results",
+    "noResultsStatus": "No results. You can drop a filter or start over.",
+    "forget": "Remove from history",
+    "withoutFilter": "Search without {{filter}}",
+    "reset": "Clear everything and start over",
+    "emptyHint": "Type to search stories, epics and sprints, or pick a filter.",
+    "keys": {
+      "move": "move",
+      "open": "open",
+      "close": "close"
+    },
+    "clearHistory": "Clear history",
+    "highlightSummary_one": "{{matches}} of {{count}} story here matches",
+    "highlightSummary_other": "{{matches}} of {{count}} stories here match",
+    "nav": {
+      "label": "Search results",
+      "position": "Result {{position}} of {{total}}",
+      "previous": "Previous result",
+      "next": "Next result",
+      "back": "Back to search"
+    },
+    "onPage": "On this page",
+    "everywhere": "Everywhere",
+    "onlyPage": "Only {{page}}",
+    "scopeLabel": "Search where",
+    "searchEverywhere": "Show results from everywhere",
+    "showOnPage": "Show on {{page}}"
   }
 }

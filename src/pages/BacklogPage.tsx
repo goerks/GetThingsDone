@@ -23,6 +23,8 @@ import { TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
+import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
+import { useSearchPage } from '../state/Search';
 
 /** Group key of a section: the sprint id, or "-" for the unplanned stories. */
 type SectionKey = string;
@@ -78,7 +80,8 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
     listeners?.onKeyDown?.(event);
   };
 
-  const classes = ['backlog__row', isDragging && 'backlog__row--dragging', dropLabel && 'drop-before']
+  const match = useMatchClass(story.id, 'backlog__row');
+  const classes = ['backlog__row', isDragging && 'backlog__row--dragging', dropLabel && 'drop-before', match]
     .filter(Boolean)
     .join(' ');
 
@@ -164,6 +167,7 @@ export function BacklogPage() {
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
 
   const ordered = backlogOrder(app.stories, app.sprints);
+  useSearchPage(t('nav.backlog'), { story: ordered.map((story) => story.id), sprint: app.sprints.map((sprint) => sprint.id) });
   const sections: Array<{ sprint: Sprint | null; rows: Story[]; firstRank: number }> = [];
   let nextRank = 1;
   for (const sprint of [...sortSprints(app.sprints), null]) {
@@ -246,6 +250,8 @@ export function BacklogPage() {
           {t('newStory.open')}
         </button>
       </div>
+
+      <HighlightBar storyIds={app.stories.map((story) => story.id)} />
 
       {creating && <NewStoryDialog sprintId={null} onClose={() => setCreating(false)} />}
 

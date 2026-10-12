@@ -24,6 +24,7 @@ Sprint 1 ──── * Story          (a story has one sprint or none)
 
 - All user-facing text comes from `src/i18n/<lang>.json`. Every key exists in all four languages.
 - Language detection: stored choice, else browser language, else English. The `lang` attribute of the document follows the choice.
+- Search ignores case and accents (Unicode decomposition without combining marks), so the same query works in all four languages. Filter suggestions compare with the value names in the current language.
 - Screen reader announcements for drag and drop are translated too.
 
 ## Accessibility
@@ -35,6 +36,7 @@ Sprint 1 ──── * Story          (a story has one sprint or none)
 - Text is edited in place: a button shows the text, a click turns it into a field. Focus returns to the button after Enter or Escape.
 - Colour never carries meaning alone: epic names, status names and criteria counts are written out.
 - Status changes such as "all criteria accepted" are announced through live regions.
+- The search follows the combobox pattern: focus stays in the input, `aria-activedescendant` points to the marked option in a grouped listbox, the number of results is announced in a live region. Filter chips are two buttons (change, remove). Menus are labelled groups of radio buttons and checkboxes.
 
 ## Theming
 
@@ -49,7 +51,7 @@ Load and save errors are caught in `AppState` and shown as a translated alert wi
 | Level | Tool | Where |
 |---|---|---|
 | Unit | Vitest | `src/domain/*.test.ts` |
-| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, with `LocalStorageRepository` as test double |
+| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, with `LocalStorageRepository` as test double |
 | Integration (data, Tauri boundary) | – | Planned |
 | UI and accessibility (axe) | – | Planned |
 

@@ -17,6 +17,9 @@
   --column: #eceff3;
   --danger: #b42318;
   --danger-soft: #fdecea;
+  /* Search: matched text. */
+  --mark: #fff1b8;
+  --mark-ink: #14181f;
 
   /* Epic palette: at least 3:1 against --surface and --column, the name is always written next to it. */
   --epic-blue: #2457d6;
@@ -45,6 +48,8 @@
   --column: #13181e;
   --danger: #ff8a7a;
   --danger-soft: #3a1d1a;
+  --mark: #5a4a12;
+  --mark-ink: #fff4cc;
 
   --epic-blue: #7aa2ff;
   --epic-amber: #f0a050;
