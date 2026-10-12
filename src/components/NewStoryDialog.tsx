@@ -1,11 +1,13 @@
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NewStoryInput } from '../domain/board';
+import { releaseLayout } from '../domain/fields';
 import { POINT_VALUES } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
 import { EpicSelect } from './EpicSelect';
+import { ReleaseSelect } from './ReleaseSelect';
 import { SprintSelect } from './SprintSelect';
 import { useBuiltin } from './useBuiltin';
 
@@ -14,10 +16,12 @@ interface Props {
   sprintId: string | null;
   /** Prefilled epic (from a map cell, null for the "No epic" column); otherwise no epic. */
   epicId?: string | null;
+  /** Prefilled release (from a release row of the story map); otherwise none. */
+  releaseId?: string | null;
   onClose: () => void;
 }
 
-export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicId, onClose }: Props) {
+export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicId, releaseId: initialReleaseId, onClose }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   const builtin = useBuiltin();
@@ -27,6 +31,9 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const [epicId, setEpicId] = useState<string | null>(initialEpicId ?? null);
   const [points, setPoints] = useState(3);
   const [sprintId, setSprintId] = useState(initialSprintId);
+  const [releaseId, setReleaseId] = useState<string | null>(initialReleaseId ?? null);
+  // The release shows when the team put it into the create dialog, or when the caller prefilled one.
+  const releaseShown = releaseLayout(app.assignments).inCreate || initialReleaseId !== undefined;
   const custom = useCreateFields('story');
 
   const submit = (event: FormEvent): void => {
@@ -34,7 +41,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
     if (!title.trim()) return;
     const values = custom.collect();
     if (!values) return;
-    const input: NewStoryInput = { title, description, epicId, points, sprintId, values };
+    const input: NewStoryInput = { title, description, epicId, points, sprintId, releaseId, values };
     app.createStory(input);
     onClose();
   };
@@ -92,6 +99,12 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
           <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
           <SprintSelect id={`${uid}-sprint`} value={sprintId} onChange={setSprintId} />
         </div>
+        {releaseShown && (
+          <div className="field">
+            <label htmlFor={`${uid}-release`}>{builtin.label('release', t('releases.label'))}</label>
+            <ReleaseSelect id={`${uid}-release`} value={releaseId} onChange={setReleaseId} />
+          </div>
+        )}
         {custom.fields}
         <div className="form__actions">
           <button type="submit" className="btn btn--primary">

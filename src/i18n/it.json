@@ -9,7 +9,8 @@
     "storyMap": "Story Map",
     "epics": "Epic",
     "settings": "Impostazioni",
-    "closeSettings": "Chiudi impostazioni"
+    "closeSettings": "Chiudi impostazioni",
+    "releases": "Release"
   },
   "header": {
     "toDark": "Passa al tema scuro",
@@ -200,7 +201,8 @@
       "date": "Data",
       "checkbox": "Casella di controllo",
       "multi_select": "Scelta multipla",
-      "url": "Link"
+      "url": "Link",
+      "release": "Collegamento a una release"
     },
     "builtin": {
       "key": "Chiave",
@@ -210,7 +212,10 @@
       "epic": "Epic",
       "points": "Punti",
       "criteria": "Criteri di accettazione",
-      "color": "Colore"
+      "color": "Colore",
+      "release": "Release",
+      "start": "Inizio",
+      "end": "Fine"
     },
     "itemType": {
       "story": "Story",
@@ -288,7 +293,9 @@
     "rename": "Rinomina campo {{name}}",
     "renameTitle": "Rinomina campo",
     "renameHint": "Il nuovo nome appare in tutte le lingue. Il predefinito è «{{name}}».",
-    "resetLabel": "Ripristina «{{name}}»"
+    "resetLabel": "Ripristina «{{name}}»",
+    "alwaysOn": "Sempre visibile per questo tipo",
+    "customOnReleases": "I campi personalizzati sulle release sono previsti per una versione successiva"
   },
   "settings": {
     "title": "Impostazioni",
@@ -388,5 +395,82 @@
     "no": "no",
     "moreBadges_one": "+{{count}} altro filtro",
     "moreBadges_other": "+{{count}} altri filtri"
+  },
+  "releases": {
+    "title": "Release",
+    "hint": "Una release raggruppa le storie e mostra quanto è grande e quanto è completato. Fai clic su una release per aprirla.",
+    "count_one": "{{count}} release",
+    "count_other": "{{count}} release",
+    "none": "Nessuna release finora. Una release raggruppa le storie e mostra quanto è grande e quanto è completato.",
+    "new": "Nuova release",
+    "add": "Aggiungi release",
+    "newCard": "+ Release",
+    "shortcut": "Ctrl+N",
+    "create": "Crea una release",
+    "name": "Titolo",
+    "description": "Descrizione",
+    "noDescription": "Ancora nessuna descrizione.",
+    "start": "Inizio",
+    "end": "Fine",
+    "label": "Release",
+    "noRelease": "Nessuna release",
+    "period": {
+      "none": "Nessun periodo",
+      "from": "Dal {{start}}",
+      "until": "Fino al {{end}}",
+      "range": "{{start}} – {{end}}"
+    },
+    "state": {
+      "planned": "Pianificata",
+      "running": "In corso",
+      "done": "Completata"
+    },
+    "stat": {
+      "stories": "Storie",
+      "points": "Punti",
+      "donePoints": "Punti completati"
+    },
+    "progress": "{{done}} punti su {{total}} completati",
+    "progressStories": "{{done}} storie su {{total}} completate",
+    "tabs": {
+      "label": "Viste della release",
+      "details": "Dettagli",
+      "stories": "Storie ({{count}})"
+    },
+    "edit": "Modifica release",
+    "close": "Chiudi",
+    "notFound": "Questa release non esiste più.",
+    "problem": {
+      "titleRequired": "Dai un titolo alla release.",
+      "startInvalid": "L'inizio non è una data valida.",
+      "endInvalid": "La fine non è una data valida.",
+      "endBeforeStart": "La fine non può precedere l'inizio."
+    },
+    "noDatesNote": "Inizio e fine sono facoltativi. Senza di essi i rapporti non hanno una linea obiettivo.",
+    "addStory": "Aggiungi una storia",
+    "addStoryPlaceholder": "Aggiungi una storia…",
+    "noStoriesToAdd": "Ogni storia ha già una release.",
+    "noStories": "Ancora nessuna storia in questa release. Aggiungine sopra o nella story map.",
+    "remove": "Rimuovi {{code}} da questa release",
+    "removeShort": "Rimuovi",
+    "open": "Apri {{code}}",
+    "column": {
+      "key": "Chiave",
+      "title": "Titolo",
+      "epic": "Epic",
+      "sprint": "Sprint",
+      "points": "Punti",
+      "status": "Stato"
+    },
+    "delete": "Elimina release",
+    "deleteConfirm_one": "Eliminare «{{title}}»? La sua {{count}} storia resta e perde la release. L'operazione non è reversibile.",
+    "deleteConfirm_other": "Eliminare «{{title}}»? Le sue {{count}} storie restano e perdono la release. L'operazione non è reversibile.",
+    "deleteConfirmEmpty": "Eliminare «{{title}}»? L'operazione non è reversibile.",
+    "deleteYes": "Elimina",
+    "deleteNo": "Tieni la release",
+    "afterEnd_one": "{{count}} storia è pianificata in uno sprint che termina dopo il {{date}}: {{codes}}.",
+    "afterEnd_other": "{{count}} storie sono pianificate in sprint che terminano dopo il {{date}}: {{codes}}.",
+    "sprintAfter": "{{sprint}} termina il {{sprintEnd}}, dopo la fine di {{release}} ({{releaseEnd}}).",
+    "onCard": "Release: {{title}}"
   }
 }

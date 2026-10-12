@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LocalStorageRepository } from './localStorageRepository';
+import { seedSnapshot } from './seed';
 
 describe('LocalStorageRepository', () => {
   it('never deletes a system or built-in field', async () => {
@@ -42,5 +43,32 @@ describe('LocalStorageRepository', () => {
     const after = await new LocalStorageRepository().load();
     expect(after.fields.find((field) => field.id === points.id)?.label).toBe('Effort');
     expect(after.assignments.find((item) => item.fieldId === points.id)?.hidden).toBe(true);
+  });
+
+  it('stores releases, assigns stories and frees them when a release is deleted', async () => {
+    const repository = new LocalStorageRepository();
+    await repository.replaceAll(seedSnapshot('2026-10-12'));
+    await repository.addRelease({ id: 'r3', title: 'Release 1.2', description: '', startDate: null, endDate: null });
+    const story = (await repository.load()).stories[0];
+    await repository.updateStory({ ...story, releaseId: 'r3' });
+    expect((await new LocalStorageRepository().load()).stories[0].releaseId).toBe('r3');
+    await repository.updateRelease({ id: 'r3', title: 'Release 1.2 – Fixes', description: 'x', startDate: '2026-12-01', endDate: null });
+    expect((await repository.load()).releases.find((release) => release.id === 'r3')?.title).toBe('Release 1.2 – Fixes');
+    await repository.deleteRelease('r3');
+    const after = await repository.load();
+    expect(after.releases.some((release) => release.id === 'r3')).toBe(false);
+    expect(after.stories[0].releaseId).toBeNull();
+    expect(after.stories).toHaveLength(seedSnapshot('2026-10-12').stories.length);
+  });
+
+  it('migrates browser data without releases', async () => {
+    window.localStorage.setItem(
+      'getitdone.snapshot.v1',
+      JSON.stringify({ epics: [], sprints: [], stories: [{ id: 's1', code: 'S-1', title: 'A', description: '', epicId: null, points: 1, status: 'todo', sprintId: null, rank: 0, criteria: [], values: {} }], fields: [], assignments: [] })
+    );
+    const snapshot = await new LocalStorageRepository().load();
+    expect(snapshot.releases).toEqual([]);
+    expect(snapshot.stories[0].releaseId).toBeNull();
+    expect(snapshot.assignments.some((item) => item.itemType === 'release')).toBe(true);
   });
 });

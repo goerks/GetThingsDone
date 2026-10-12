@@ -8,7 +8,7 @@ import type { CustomDataType, FieldDefinition } from '../domain/types';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -83,6 +83,83 @@ describe('migration 004', () => {
     db.exec("UPDATE stories SET epic_id = NULL WHERE id = 's2'");
     db.exec("DELETE FROM stories WHERE id = 's2'");
     expect(db.prepare("SELECT COUNT(*) AS count FROM criteria WHERE story_id = 's2'").get()).toEqual({ count: 0 });
+  });
+});
+
+describe('migration 007', () => {
+  it('keeps every story and gives it no release', () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 6));
+    db.exec(`
+      INSERT INTO stories (id, code, title, description, epic_id, points, status, rank)
+        VALUES ('s1', 'S-1', 'First', '', NULL, 3, 'todo', 0), ('s2', 'S-2', 'Second', '', NULL, 5, 'done', 1);
+    `);
+
+    migrate(db, MIGRATIONS.slice(6));
+
+    expect(db.prepare('SELECT id, points, release_id FROM stories ORDER BY rank').all()).toEqual([
+      { id: 's1', points: 3, release_id: null },
+      { id: 's2', points: 5, release_id: null }
+    ]);
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  });
+
+  it('refuses a story that points to a release that does not exist', () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS);
+    expect(() =>
+      db.exec("INSERT INTO stories (id, code, title, description, points, status, rank, release_id) VALUES ('s1', 'S-1', 'A', '', 1, 'todo', 0, 'nope')")
+    ).toThrow();
+  });
+});
+
+describe('releases', () => {
+  it('stores the demo releases with the release of each story', async () => {
+    const { repository } = await freshRepository();
+    const snapshot = await repository.load();
+    expect(snapshot.releases.map((release) => release.id)).toEqual(['release-beta', 'release-map']);
+    expect(snapshot.releases[1]).toMatchObject({ startDate: null, endDate: null });
+    expect(snapshot.stories.find((story) => story.id === 'story-1')?.releaseId).toBe('release-beta');
+    expect(snapshot.stories.find((story) => story.id === 'story-7')?.releaseId).toBe('release-map');
+  });
+
+  it('adds, changes and keeps a release with and without dates', async () => {
+    const { repository } = await freshRepository();
+    await repository.addRelease({ id: 'r3', title: 'Release 1.2', description: '', startDate: '2026-12-01', endDate: null });
+    await repository.updateRelease({ id: 'r3', title: 'Release 1.2 – Fixes', description: 'Text', startDate: null, endDate: '2026-12-31' });
+    const release = (await repository.load()).releases.find((item) => item.id === 'r3');
+    expect(release).toEqual({ id: 'r3', title: 'Release 1.2 – Fixes', description: 'Text', startDate: null, endDate: '2026-12-31' });
+  });
+
+  it('saves the release of a story and clears it', async () => {
+    const { repository } = await freshRepository();
+    const story = (await repository.load()).stories.find((item) => item.id === 'story-7');
+    if (!story) throw new Error('story missing');
+    await repository.updateStory({ ...story, releaseId: 'release-beta' });
+    expect((await repository.load()).stories.find((item) => item.id === 'story-7')?.releaseId).toBe('release-beta');
+    await repository.updateStory({ ...story, releaseId: null });
+    expect((await repository.load()).stories.find((item) => item.id === 'story-7')?.releaseId).toBeNull();
+  });
+
+  it('deletes a release and keeps its stories without a release', async () => {
+    const { db, repository } = await freshRepository();
+    const before = await repository.load();
+    const inRelease = before.stories.filter((story) => story.releaseId === 'release-beta').length;
+    expect(inRelease).toBeGreaterThan(0);
+    await repository.deleteRelease('release-beta');
+    const after = await repository.load();
+    expect(after.releases.map((release) => release.id)).toEqual(['release-map']);
+    expect(after.stories).toHaveLength(before.stories.length);
+    expect(after.stories.filter((story) => story.releaseId === 'release-beta')).toEqual([]);
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  });
+
+  it('adds the title and description of releases to a library of release 0.2', async () => {
+    const { db, repository } = await freshRepository();
+    db.exec("DELETE FROM field_assignments WHERE item_type = 'release'");
+    const snapshot = await repository.load();
+    const releaseFields = snapshot.assignments.filter((item) => item.itemType === 'release').map((item) => item.fieldId);
+    expect(releaseFields.sort()).toEqual(['field-description', 'field-end', 'field-start', 'field-title']);
   });
 });
 

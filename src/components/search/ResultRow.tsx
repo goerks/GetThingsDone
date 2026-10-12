@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { criteriaProgress, totalPoints } from '../../domain/board';
 import type { SearchResult } from '../../domain/search';
-import type { Snapshot } from '../../domain/types';
+import type { SearchSnapshot } from '../../domain/types';
 import { formatSprintDates } from '../sprintFormat';
 import { Highlighted } from './Highlighted';
 
 const ICON = { story: 'S', epic: 'E', sprint: 'SP' } as const;
 
 /** One search result: what it is, its name with the match marked, and where it stands. */
-export function ResultRow({ result, snapshot, onPage = false }: { result: SearchResult; snapshot: Snapshot; onPage?: boolean }) {
+export function ResultRow({ result, snapshot, onPage = false }: { result: SearchResult; snapshot: SearchSnapshot; onPage?: boolean }) {
   const { t, i18n } = useTranslation();
   const badge = onPage ? <span className="result__here">{t('search.onPage')}</span> : null;
 

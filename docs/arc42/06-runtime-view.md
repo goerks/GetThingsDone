@@ -46,3 +46,7 @@ Stories, epics and sprints open in dialogs over the current page (`DetailsProvid
 ## Saving
 
 All writes go through one promise queue in `AppState`, so a fast series of changes is stored in the order it happened. If a write fails, the UI keeps the change and shows a "saving failed" alert. There is no automatic retry yet (see [chapter 11](11-risks-and-technical-debt.md)).
+
+## Releases
+
+`ReleasesPage` lists the releases in `sortReleases` order with `releaseStats` and the derived `releaseState`. A release is created in `NewReleaseDialog` (checked by `validateRelease`; opened by the last card or by Ctrl+N through `useNewShortcut`, which ignores the key while a dialog is open) and edited in `ReleaseDialog`, which saves each change at once through `updateRelease`. A story gets or loses its release through `updateStory({ releaseId })`; the repository stores it in `stories.release_id`. `deleteRelease` clears the release of the stories in memory, and the repository does the same in storage before it removes the row.

@@ -8,6 +8,7 @@ export type Route =
   | { name: 'backlog' }
   | { name: 'map' }
   | { name: 'epics' }
+  | { name: 'releases' }
   | { name: 'settings'; section: SettingsSection };
 
 export const hrefs = {
@@ -15,6 +16,7 @@ export const hrefs = {
   backlog: '#/backlog',
   map: '#/map',
   epics: '#/epics',
+  releases: '#/releases',
   settings: '#/settings/fields'
 };
 
@@ -23,6 +25,7 @@ export function parseHash(hash: string): Route {
   if (path === 'backlog') return { name: 'backlog' };
   if (path === 'map') return { name: 'map' };
   if (path === 'epics') return { name: 'epics' };
+  if (path === 'releases') return { name: 'releases' };
   // "#/fields" was the address of the fields page before it moved into the settings.
   if (path === 'settings' || path === 'settings/fields' || path === 'fields') return { name: 'settings', section: 'fields' };
   return { name: 'board' };

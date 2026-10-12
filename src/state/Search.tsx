@@ -22,7 +22,7 @@ import {
   type SearchHistory
 } from '../domain/searchHistory';
 import { todayIso } from '../domain/sprints';
-import type { Snapshot } from '../domain/types';
+import type { SearchSnapshot } from '../domain/types';
 import { hrefs, parseHash } from '../router';
 import { useApp } from './AppState';
 import { useDetails } from './Details';
@@ -63,7 +63,7 @@ export interface PageMatches {
 }
 
 interface SearchApi {
-  snapshot: Snapshot;
+  snapshot: SearchSnapshot;
   labels: SearchLabels;
   query: SearchQuery;
   setQuery(query: SearchQuery): void;
@@ -159,7 +159,7 @@ export function useSearchPage(label: string, items: { story?: readonly string[];
 export function SearchProvider({ children }: { children: ReactNode }) {
   const app = useApp();
   const details = useDetails();
-  const snapshot = useMemo<Snapshot>(
+  const snapshot = useMemo<SearchSnapshot>(
     () => ({ epics: app.epics, sprints: app.sprints, stories: app.stories, fields: app.fields, assignments: app.assignments }),
     [app.epics, app.sprints, app.stories, app.fields, app.assignments]
   );
@@ -184,8 +184,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
   // Everything opened in a detail dialog counts as recently opened, also from the board or the map.
   const current = details.current;
+  // Releases are not searched, so opening one is not remembered.
   useEffect(() => {
-    if (current) changeHistory((history) => rememberOpened(history, current));
+    if (!current || current.kind === 'release') return;
+    const item = { kind: current.kind, id: current.id };
+    changeHistory((history) => rememberOpened(history, item));
   }, [current, changeHistory]);
 
   const focus = useCallback((options: { select?: boolean } = {}) => {

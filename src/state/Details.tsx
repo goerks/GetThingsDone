@@ -1,11 +1,12 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { EpicDialog } from '../components/EpicDialog';
+import { ReleaseDialog } from '../components/ReleaseDialog';
 import { SprintDialog } from '../components/SprintDialog';
 import { StoryDialog } from '../components/StoryDialog';
 import { useApp } from './AppState';
 import { DetailNavContext, type DetailNav } from './detailNav';
 
-export type DetailKind = 'story' | 'epic' | 'sprint';
+export type DetailKind = 'story' | 'epic' | 'sprint' | 'release';
 
 interface Detail {
   kind: DetailKind;
@@ -19,6 +20,7 @@ interface DetailsApi {
   openStory(id: string): void;
   openEpic(id: string): void;
   openSprint(id: string): void;
+  openRelease(id: string): void;
   open(kind: DetailKind, id: string, nav?: DetailNav): void;
   close(): void;
 }
@@ -28,7 +30,7 @@ const DetailsContext = createContext<DetailsApi | null>(null);
 /** The same context for components that also render outside the provider (they then stay plain). */
 export const DetailsContextForTag = DetailsContext;
 
-/** Opens stories, epics and sprints in a dialog over the current page. */
+/** Opens stories, epics, sprints and releases in a dialog over the current page. */
 export function useDetails(): DetailsApi {
   const value = useContext(DetailsContext);
   if (!value) throw new Error('useDetails must be used inside DetailsProvider');
@@ -45,6 +47,7 @@ export function DetailsProvider({ children }: { children: ReactNode }) {
       openStory: (id) => setDetail({ kind: 'story', id, nav: null }),
       openEpic: (id) => setDetail({ kind: 'epic', id, nav: null }),
       openSprint: (id) => setDetail({ kind: 'sprint', id, nav: null }),
+      openRelease: (id) => setDetail({ kind: 'release', id, nav: null }),
       open: (kind, id, nav) => setDetail({ kind, id, nav: nav ?? null }),
       close: () => setDetail(null)
     }),
@@ -61,6 +64,9 @@ export function DetailsProvider({ children }: { children: ReactNode }) {
         {detail?.kind === 'story' && <StoryDialog key={detail.id} id={detail.id} onClose={close} />}
         {detail?.kind === 'epic' && <EpicDialog key={detail.id} id={detail.id} onClose={close} />}
         {sprint && <SprintDialog key={sprint.id} sprint={sprint} onClose={close} />}
+        {detail?.kind === 'release' && (
+          <ReleaseDialog key={detail.id} id={detail.id} onClose={close} onOpenStory={(storyId) => setDetail({ kind: 'story', id: storyId, nav: null })} />
+        )}
       </DetailNavContext.Provider>
     </DetailsContext.Provider>
   );

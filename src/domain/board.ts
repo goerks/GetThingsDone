@@ -319,11 +319,13 @@ export interface NewStoryInput {
   points: number;
   /** The sprint to plan the story in, or null for "not planned". */
   sprintId: string | null;
+  /** The release of the story, or null / missing for none. */
+  releaseId?: string | null;
   /** Values of custom fields, from the create dialog. */
   values?: Record<string, FieldValue>;
 }
 
-export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId'>>;
+export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId' | 'releaseId'>>;
 
 /** Changes the editable fields of a story. Text is trimmed and an empty title is ignored. */
 export function updateStory(stories: Story[], id: string, patch: StoryPatch): Story[] {
@@ -351,6 +353,7 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string):
     points: input.points,
     status: 'todo',
     sprintId: input.sprintId,
+    releaseId: input.releaseId ?? null,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
     criteria: [],
     values: input.values ?? {}

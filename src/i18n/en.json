@@ -9,7 +9,8 @@
     "storyMap": "Story Map",
     "epics": "Epics",
     "settings": "Settings",
-    "closeSettings": "Close settings"
+    "closeSettings": "Close settings",
+    "releases": "Releases"
   },
   "header": {
     "toDark": "Switch to dark theme",
@@ -200,7 +201,8 @@
       "date": "Date",
       "checkbox": "Checkbox",
       "multi_select": "Multi select",
-      "url": "Link"
+      "url": "Link",
+      "release": "Release link"
     },
     "builtin": {
       "key": "Key",
@@ -210,7 +212,10 @@
       "epic": "Epic",
       "points": "Points",
       "criteria": "Acceptance criteria",
-      "color": "Colour"
+      "color": "Colour",
+      "release": "Release",
+      "start": "Start",
+      "end": "End"
     },
     "itemType": {
       "story": "Stories",
@@ -288,7 +293,9 @@
     "rename": "Rename field {{name}}",
     "renameTitle": "Rename field",
     "renameHint": "The new name is shown in every language. The default is \"{{name}}\".",
-    "resetLabel": "Reset to \"{{name}}\""
+    "resetLabel": "Reset to \"{{name}}\"",
+    "alwaysOn": "Always shown on this type",
+    "customOnReleases": "Custom fields on releases are planned for a later release"
   },
   "settings": {
     "title": "Settings",
@@ -388,5 +395,82 @@
     "no": "no",
     "moreBadges_one": "+{{count}} more filter",
     "moreBadges_other": "+{{count}} more filters"
+  },
+  "releases": {
+    "title": "Releases",
+    "hint": "A release groups stories and shows how big it is and how much is done. Click a release to open it.",
+    "count_one": "{{count}} release",
+    "count_other": "{{count}} releases",
+    "none": "No release yet. A release groups stories and shows how big it is and how much is done.",
+    "new": "New release",
+    "add": "Add release",
+    "newCard": "+ Release",
+    "shortcut": "Ctrl+N",
+    "create": "Create a release",
+    "name": "Title",
+    "description": "Description",
+    "noDescription": "No description yet.",
+    "start": "Start",
+    "end": "End",
+    "label": "Release",
+    "noRelease": "No release",
+    "period": {
+      "none": "No period",
+      "from": "From {{start}}",
+      "until": "Until {{end}}",
+      "range": "{{start}} – {{end}}"
+    },
+    "state": {
+      "planned": "Planned",
+      "running": "Running",
+      "done": "Done"
+    },
+    "stat": {
+      "stories": "Stories",
+      "points": "Points",
+      "donePoints": "Points done"
+    },
+    "progress": "{{done}} of {{total}} points done",
+    "progressStories": "{{done}} of {{total}} stories done",
+    "tabs": {
+      "label": "Release views",
+      "details": "Details",
+      "stories": "Stories ({{count}})"
+    },
+    "edit": "Edit release",
+    "close": "Close",
+    "notFound": "This release does not exist any more.",
+    "problem": {
+      "titleRequired": "Give the release a title.",
+      "startInvalid": "The start is not a valid date.",
+      "endInvalid": "The end is not a valid date.",
+      "endBeforeStart": "The end cannot be before the start."
+    },
+    "noDatesNote": "Start and end are optional. Without them, reports have no target line.",
+    "addStory": "Add a story",
+    "addStoryPlaceholder": "Add a story…",
+    "noStoriesToAdd": "Every story already has a release.",
+    "noStories": "No stories in this release yet. Add some above or on the story map.",
+    "remove": "Remove {{code}} from this release",
+    "removeShort": "Remove",
+    "open": "Open {{code}}",
+    "column": {
+      "key": "Key",
+      "title": "Title",
+      "epic": "Epic",
+      "sprint": "Sprint",
+      "points": "Points",
+      "status": "Status"
+    },
+    "delete": "Delete release",
+    "deleteConfirm_one": "Delete \"{{title}}\"? Its {{count}} story stays and loses its release. This cannot be undone.",
+    "deleteConfirm_other": "Delete \"{{title}}\"? Its {{count}} stories stay and lose their release. This cannot be undone.",
+    "deleteConfirmEmpty": "Delete \"{{title}}\"? This cannot be undone.",
+    "deleteYes": "Delete",
+    "deleteNo": "Keep release",
+    "afterEnd_one": "{{count}} story is planned in a sprint that ends after {{date}}: {{codes}}.",
+    "afterEnd_other": "{{count}} stories are planned in sprints that end after {{date}}: {{codes}}.",
+    "sprintAfter": "{{sprint}} ends on {{sprintEnd}}, after the end of {{release}} ({{releaseEnd}}).",
+    "onCard": "Release: {{title}}"
   }
 }

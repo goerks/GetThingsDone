@@ -1,7 +1,7 @@
 import { criteriaProgress, sortByRank } from './board';
 import { formatValue } from './fields';
 import { mapSprints, runningSprint, sortSprints } from './sprints';
-import type { Epic, FieldDefinition, FieldValue, Snapshot, Sprint, Status, Story } from './types';
+import type { Epic, FieldDefinition, FieldValue, SearchSnapshot, Sprint, Status, Story } from './types';
 
 /** What a result is. The order is the order of the groups in the result list. */
 export const RESULT_KINDS = ['story', 'epic', 'sprint'] as const;
@@ -190,14 +190,14 @@ function customMatches(field: FieldDefinition, raw: FieldValue | undefined, valu
 type Item = { kind: 'story'; story: Story } | { kind: 'epic'; epic: Epic } | { kind: 'sprint'; sprint: Sprint };
 
 /** Whether a custom field is on an item type; without any assignments a field counts as a story field. */
-function hasField(snapshot: Snapshot, fieldId: string, kind: ResultKind): boolean {
+function hasField(snapshot: SearchSnapshot, fieldId: string, kind: ResultKind): boolean {
   const assignments = (snapshot.assignments ?? []).filter((assignment) => assignment.fieldId === fieldId);
   if (assignments.length === 0) return kind === 'story';
   return assignments.some((assignment) => assignment.itemType === kind);
 }
 
 /** Whether an item passes a filter. A filter on a field the item does not have excludes the item. */
-function passes(item: Item, filter: Filter, snapshot: Snapshot): boolean {
+function passes(item: Item, filter: Filter, snapshot: SearchSnapshot): boolean {
   const customId = customFieldId(filter.field);
   if (customId !== null) {
     const field = (snapshot.fields ?? []).find((candidate) => candidate.id === customId);
@@ -291,7 +291,7 @@ function matchName(name: string, terms: readonly string[]): Range[] | null {
  * (see `parseQueryText` for typed filters). Returns the results grouped by kind, best match first within a group.
  * A query without text and without filters returns nothing.
  */
-export function search(snapshot: Snapshot, query: SearchQuery): SearchResult[] {
+export function search(snapshot: SearchSnapshot, query: SearchQuery): SearchResult[] {
   if (!isActive(query)) return [];
   const terms = parseTerms(query.text);
   const fields = snapshot.fields ?? [];
@@ -342,7 +342,7 @@ export function removeFilter(filters: readonly Filter[], field: FilterField): Fi
 }
 
 /** Possible values of a field, in display order. Free-text custom fields offer the values used so far. */
-export function fieldValues(snapshot: Snapshot, field: FilterField): string[] {
+export function fieldValues(snapshot: SearchSnapshot, field: FilterField): string[] {
   const customId = customFieldId(field);
   if (customId !== null) {
     const definition = (snapshot.fields ?? []).find((item) => item.id === customId);
@@ -378,7 +378,7 @@ export function fieldValues(snapshot: Snapshot, field: FilterField): string[] {
 }
 
 /** For a query without results: how many results there would be without each filter. Only filters that help are listed. */
-export function relaxations(snapshot: Snapshot, query: SearchQuery): { field: FilterField; count: number }[] {
+export function relaxations(snapshot: SearchSnapshot, query: SearchQuery): { field: FilterField; count: number }[] {
   return query.filters
     .map((filter) => ({
       field: filter.field,
@@ -563,7 +563,7 @@ export type View = 'board' | 'backlog' | 'map' | 'epics';
  * a story on the board (running sprint), in the backlog, on the story map (running and future sprints, not planned);
  * an epic on the epics page and the story map; a sprint on the board (running), the story map and in the backlog.
  */
-export function whereShown(snapshot: Snapshot, kind: ResultKind, id: string, today: string): View[] {
+export function whereShown(snapshot: SearchSnapshot, kind: ResultKind, id: string, today: string): View[] {
   const running = runningSprint(snapshot.sprints, today);
   const onMap = new Set(mapSprints(snapshot.sprints, today).map((sprint) => sprint.id));
   if (kind === 'story') {
