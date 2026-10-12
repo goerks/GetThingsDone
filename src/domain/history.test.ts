@@ -93,7 +93,7 @@ describe('scopeReport', () => {
   const release: Release = { id: 'r1', title: 'One', description: '', startDate: '2026-10-05', endDate: '2026-11-20' };
   const event = (day: string, kind: ReleaseEvent['kind'], storyId: string, points: number, done = false): ReleaseEvent => ({
     id: `${day}-${kind}-${storyId}`,
-    at: `${day}T12:00:00.000Z`,
+    at: new Date(`${day}T12:00:00`).toISOString(),
     releaseId: 'r1',
     storyId,
     code: storyId.toUpperCase(),
@@ -177,11 +177,11 @@ describe('scopeReport', () => {
 
   it('orders entries of one day by the time they were recorded', () => {
     const list = [event('2026-10-08', 'removed', 'a', 5), event('2026-10-08', 'added', 'a', 5)];
-    const same = list.map((item, index) => ({ ...item, at: `2026-10-08T12:00:0${index}.000Z` }));
+    const same = list.map((item, index) => ({ ...item, at: new Date(`2026-10-08T12:00:0${index}`).toISOString() }));
     expect(eventsOfRelease([...same].reverse(), 'r1').map((item) => item.kind)).toEqual(['removed', 'added']);
   });
 
   it('knows the day of a timestamp', () => {
-    expect(dayOf('2026-10-08T12:00:00.000Z')).toBe('2026-10-08');
+    expect(dayOf(new Date('2026-10-08T12:00:00').toISOString())).toBe('2026-10-08');
   });
 });
