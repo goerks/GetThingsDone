@@ -4,6 +4,8 @@ import {
   arrangeForPage,
   isActive,
   search,
+  viewFor,
+  whereShown,
   type PageItems,
   type SearchQuery,
   type SearchResult
@@ -18,7 +20,9 @@ import {
   type RecentItem,
   type SearchHistory
 } from '../domain/searchHistory';
+import { todayIso } from '../domain/sprints';
 import type { Snapshot } from '../domain/types';
+import { hrefs, parseHash } from '../router';
 import { useApp } from './AppState';
 import { useDetails } from './Details';
 import { useSearchLabels, type SearchLabels } from './searchLabels';
@@ -105,6 +109,37 @@ interface SearchApi {
 }
 
 const SearchContext = createContext<SearchApi | null>(null);
+
+const LOCATED = 'data-located';
+
+/** The element of an item on the current page: card, row, epic or sprint header. */
+function elementOf(kind: SearchResult['kind'], id: string): HTMLElement | null {
+  const value = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(id) : id.replace(/"/g, '\\"');
+  return document.querySelector<HTMLElement>(`main [data-${kind}-id="${value}"]`);
+}
+
+/** Removes the mark of the item a search result was last shown at. */
+function clearLocated(): void {
+  document.querySelectorAll(`[${LOCATED}]`).forEach((element) => element.removeAttribute(LOCATED));
+}
+
+/**
+ * Marks an item on the page, scrolls it into view and focuses it, so the dialog opened next returns focus to it.
+ * The page may still be rendering after a page change, so the element is looked for a few times.
+ */
+function locate(kind: SearchResult['kind'], id: string, then: () => void, tries = 20): void {
+  const element = elementOf(kind, id);
+  if (!element) {
+    if (tries > 0) window.setTimeout(() => locate(kind, id, then, tries - 1), 25);
+    else then();
+    return;
+  }
+  clearLocated();
+  element.setAttribute(LOCATED, 'true');
+  element.scrollIntoView?.({ block: 'center', inline: 'center' });
+  if (element.tabIndex >= 0) element.focus({ preventScroll: true });
+  then();
+}
 
 export function useSearch(): SearchApi {
   const value = useContext(SearchContext);
@@ -202,12 +237,23 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   }, [focus, hasDetail, closeDetails]);
 
   const openDetail = details.open;
+  /** Shows an item where it is: on this page if it is here, else on the first page that shows it; then runs `then`. */
+  const reveal = useCallback(
+    (kind: SearchResult['kind'], id: string, then: () => void) => {
+      const current = parseHash(window.location.hash).name;
+      const view = viewFor(current, whereShown(snapshot, kind, id, todayIso()));
+      if (view && view !== current) window.location.hash = hrefs[view];
+      locate(kind, id, then);
+    },
+    [snapshot]
+  );
+
   const openAt = useCallback(
     (list: SearchResult[], index: number, label: string) => {
       const result = list[index];
       if (!result) return;
       setReturnKey(`${result.kind}:${result.id}`);
-      openDetail(result.kind, result.id, {
+      reveal(result.kind, result.id, () => openDetail(result.kind, result.id, {
         label,
         position: index + 1,
         total: list.length,
@@ -217,9 +263,9 @@ export function SearchProvider({ children }: { children: ReactNode }) {
           closeDetails();
           window.setTimeout(() => focus(), 0);
         }
-      });
+      }));
     },
-    [openDetail, closeDetails, focus]
+    [reveal, openDetail, closeDetails, focus]
   );
 
   const openResult = useCallback(
@@ -235,10 +281,14 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     (item: RecentItem) => {
       setOpen(false);
       setReturnKey(null);
-      openDetail(item.kind, item.id);
+      reveal(item.kind, item.id, () => openDetail(item.kind, item.id));
     },
-    [openDetail]
+    [reveal, openDetail]
   );
+
+  useEffect(() => {
+    if (!isActive(query)) clearLocated();
+  }, [query]);
 
   const matches = useMemo<PageMatches | null>(() => {
     if (!isActive(query)) return null;

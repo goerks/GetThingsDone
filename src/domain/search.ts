@@ -1,6 +1,6 @@
 import { criteriaProgress, sortByRank } from './board';
 import { formatValue } from './fields';
-import { sortSprints } from './sprints';
+import { mapSprints, runningSprint, sortSprints } from './sprints';
 import type { Epic, FieldDefinition, Snapshot, Sprint, Status, Story } from './types';
 
 /** What a result is. The order is the order of the groups in the result list. */
@@ -450,4 +450,41 @@ export function arrangeForPage(results: readonly SearchResult[], page: PageItems
     const group = results.filter((result) => result.kind === kind);
     return [...group.filter((result) => isOnPage(result, page)), ...group.filter((result) => !isOnPage(result, page))];
   });
+}
+
+// ---------- Where an item is shown ----------
+
+/** The pages that show stories, epics or sprints. */
+export type View = 'board' | 'backlog' | 'map' | 'epics';
+
+/**
+ * The pages an item appears on, in the order a result should be shown in when it is not on the current page:
+ * a story on the board (running sprint), in the backlog, on the story map (running and future sprints, not planned);
+ * an epic on the epics page and the story map; a sprint on the board (running), the story map and in the backlog.
+ */
+export function whereShown(snapshot: Snapshot, kind: ResultKind, id: string, today: string): View[] {
+  const running = runningSprint(snapshot.sprints, today);
+  const onMap = new Set(mapSprints(snapshot.sprints, today).map((sprint) => sprint.id));
+  if (kind === 'story') {
+    const story = snapshot.stories.find((item) => item.id === id);
+    if (!story) return [];
+    const views: View[] = [];
+    if (running && story.sprintId === running.id) views.push('board');
+    views.push('backlog');
+    if (story.sprintId === null || onMap.has(story.sprintId)) views.push('map');
+    return views;
+  }
+  if (kind === 'epic') return snapshot.epics.some((epic) => epic.id === id) ? ['epics', 'map'] : [];
+  if (!snapshot.sprints.some((sprint) => sprint.id === id)) return [];
+  const views: View[] = [];
+  if (running?.id === id) views.push('board');
+  if (onMap.has(id)) views.push('map');
+  views.push('backlog');
+  return views;
+}
+
+/** The page to show a result on: the current page if it shows the item, else the first page that does, else none. */
+export function viewFor(current: string, shownOn: readonly View[]): View | null {
+  if ((shownOn as readonly string[]).includes(current)) return current as View;
+  return shownOn[0] ?? null;
 }

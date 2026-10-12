@@ -2593,3 +2593,9 @@ mark {
 .epic-row--dimmed:focus-visible {
   opacity: 0.8;
 }
+
+/* The item a search result was opened at: marked until the search is cleared. */
+[data-located='true'] {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
