@@ -13,6 +13,8 @@
 | Item type | A kind of item that can carry fields: story and epic; later sprint and release. |
 | Rank | Global priority of a story, 0 is the most important. |
 | Repository | The storage interface of the frontend (`src/data/repository.ts`). |
+| Search chip | A filter in the search field: a field with one or more values, "is" or "is not". |
+| Highlighting | Showing the results of a search on the current page: matching items marked, the others dimmed. |
 | Snapshot | All epics, sprints, stories, fields and assignments loaded at once. |
 | Sprint | A time box with name, start and end date. A story is planned in one sprint or in none. |
 | System field | A field the app depends on (key, title, story status). Cannot be removed. |

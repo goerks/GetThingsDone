@@ -27,6 +27,8 @@ import { CardFieldValues, TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
+import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
+import { usePageMatches, useSearchPage } from '../state/Search';
 
 const NOT_PLANNED = '-';
 /** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
@@ -79,7 +81,8 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
     listeners?.onKeyDown?.(event);
   };
 
-  const classes = ['map-card', isDragging && 'map-card--dragging', dropBefore && 'drop-before'].filter(Boolean).join(' ');
+  const match = useMatchClass(story.id, 'map-card');
+  const classes = ['map-card', isDragging && 'map-card--dragging', dropBefore && 'drop-before', match].filter(Boolean).join(' ');
 
   return (
     <li>
@@ -187,8 +190,10 @@ function SprintLabel({ sprint, today, stories, labelId, isTarget }: SprintLabelP
     disabled: !movable,
     attributes: { roleDescription: t('map.sprintRole') }
   });
+  const match = useMatchClass(sprint.id, 'map-sprint', 'sprint', false);
   const classes = [
     'map-sprint',
+    match,
     isRunning(sprint, today) && 'map-sprint--running',
     movable && 'map-sprint--movable',
     isTarget && 'map-sprint--target',
@@ -272,6 +277,12 @@ export function MapPage() {
   const shownStories = app.stories.filter(
     (story) => story.sprintId === null || sprints.some((sprint) => sprint.id === story.sprintId)
   );
+  const matches = usePageMatches();
+  useSearchPage(t('nav.storyMap'), {
+    story: shownStories.map((story) => story.id),
+    epic: epics.map((epic) => epic.id),
+    sprint: sprints.map((sprint) => sprint.id)
+  });
 
   /** The backlog order a drop would produce, or null when nothing would change. */
   const preview = (active: string, over: string, placement?: Placement): Story[] | null => {
@@ -452,6 +463,8 @@ export function MapPage() {
         </button>
       </div>
 
+      <HighlightBar storyIds={shownStories.map((story) => story.id)} />
+
       {epics.length === 0 ? (
         <div className="map-empty">
           <p className="muted">{t('map.noEpics')}</p>
@@ -481,7 +494,7 @@ export function MapPage() {
                   <button
                     type="button"
                     key={epic.id}
-                    className={`map-epic${targetEpic === epic.id ? ' map-epic--target' : ''}`}
+                    className={`map-epic${targetEpic === epic.id ? ' map-epic--target' : ''}${matches?.ids.epic.has(epic.id) ? ' map-epic--match' : ''}`}
                     style={{ '--epic-color': colorShown ? `var(--epic-${epic.colorKey})` : 'var(--border)' } as CSSProperties}
                     onClick={() => details.openEpic(epic.id)}
                   >

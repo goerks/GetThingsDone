@@ -322,9 +322,56 @@ As a PO, I want to collapse the cards on the map to one line (key and title) and
 
 Source: PO feedback on #2 · Status: Implemented · Verified by: App "switches to compact cards and remembers the choice"
 
+## Search (SEARCH)
+
+### FR-SEARCH-01 Search from every page
+As a team member, I want to search from every page with `Ctrl+F` (`Cmd+F`), so that I find a story, epic or sprint without knowing where it is.
+- The search field is in the header. `Ctrl+F` / `Cmd+F` focuses it and selects the text; an open detail dialog closes first.
+- Results appear while typing in a dropdown, grouped into stories, epics and sprints, at most five per group with "+ n more".
+- Free text is found in the key, title, description and acceptance criteria of stories and in the names of epics and sprints. Case and accents are ignored, several words must all occur, double quotes search an exact phrase.
+- The match is marked. A match outside the title shows where it was found (description, criterion) and a snippet.
+- An exact key (`S-12`) comes first, then matches in key or title, then other matches; within these, backlog order.
+
+Source: #7 · Status: Implemented · Verified by: search.test, Search.test "search field"
+
+### FR-SEARCH-02 Filter with chips
+As a PO, I want to combine free text with filters, so that I find for example all open stories of an epic.
+- Status, Epic and Sprint have their own button; Type, Points, Criteria (all accepted, open, none) and "Search in" (key and title, description, criteria) are under "+ Filter".
+- A field's menu lists its values as checkboxes with the number of results and offers "is" or "is not". A click on a chip opens its menu, ✕ on a chip removes it.
+- Different fields are combined with AND, values of one field with OR. Filters work without text.
+- Text that names a status, epic or sprint is offered as "Use as filter"; `Tab` turns it into a chip.
+
+Source: #7 · Status: Implemented · Verified by: search.test "chips", Search.test "filters"
+
+### FR-SEARCH-03 Keyboard and opening a result
+- Focus stays in the field; `↑`/`↓` move through the results, `Enter` opens, `Esc` closes the menu and then the list. `⌫` at the start of the field marks the last chip, a second `⌫` removes it.
+- A result opens in its detail dialog. A bar shows "Result n of m" with previous, next and "Back to search"; back reopens the list with the same result marked.
+- Screen readers get a combobox with a grouped listbox and hear the number of results.
+
+Source: #7 · Status: Implemented · Verified by: Search.test "search field"
+
+### FR-SEARCH-04 History and starting over
+- An empty field shows the last 5 searches with their chips and the 5 items opened last, also those opened from board or map. A search is remembered when a result is opened from it or it is shown on the page with `Ctrl+Enter`.
+- An entry is removed with ✕ or `Delete`; "Clear history" removes all. The history stays on the device.
+- ✕ in the field clears text and chips. Without results, the list offers to search without one of the chips, with the number of results, or to start over.
+
+Source: #7 · Status: Implemented · Verified by: searchHistory.test, Search.test "history", "suggests dropping a filter…"
+
+### FR-SEARCH-05 Results on the current page
+As a team member, I want to see search matches where they are on the page I am looking at, so that I keep the context.
+- While a search is active, matching stories on board, backlog and story map get an accent border and the others are dimmed, already while typing. On the story map matching epic headers and sprint labels are marked too; on the epics page matching epics.
+- A bar above the page shows "n of m stories here match" with the query and "Clear search".
+- In the result list, items shown on the current page come first in their group and carry "On this page".
+- A switch "Everywhere / Only <page>" limits the results to the current page; the choice is remembered. With no results on the page, the list offers "Show results from everywhere" with the count.
+- "Show on <page>" or `Ctrl+Enter` closes the list and scrolls to the first match.
+
+Source: #7 (variant D), PO feedback on #8 · Status: Implemented · Verified by: search.test "current page", Search.test "the current page"
+
 ## Later
 
 | ID | Requirement | Status |
 |---|---|---|
 | FR-MAP-06 | Activities above epics on the map | Open (out of scope of #2) |
 | FR-MAP-07 | Release slices in addition to sprints | Open (out of scope of #2) |
+| FR-SEARCH-06 | Search in a side panel next to the board (rest of variant D) | Open (out of scope of #7) |
+| FR-SEARCH-07 | Saved searches with a name | Proposed (PO undecided) |

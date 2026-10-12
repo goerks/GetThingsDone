@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suche Detaildesign A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column, six questions; each = spec text left, state mockup(s) right (stacked on narrow). Tokens = app "Focus" design system. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --track: #e6e9ee; --pill: #eef0f4; --shadow: rgba(20,24,31,.12); --column: #eceff3;
+  --mark: #fff1b8; --mark-ink: #14181f; --ok: #15803d; --neg: #b42318; --neg-soft: #fdecea;
+  --epic-blue: #2457d6; --epic-amber: #b45309; --epic-teal: #0f766e; --epic-violet: #7c3aed;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r-sm: 6px; --r-md: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --track: #2b3340; --pill: #232b36; --shadow: rgba(0,0,0,.45); --column: #13181e;
+  --mark: #5a4a12; --mark-ink: #fff4cc; --ok: #6ee7a0; --neg: #ff8a7a; --neg-soft: #3a1d1a;
+  --epic-blue: #7aa2ff; --epic-amber: #f0a050; --epic-teal: #3fd0b8; --epic-violet: #b69cff;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --track: #2b3340; --pill: #232b36; --shadow: rgba(0,0,0,.45); --column: #13181e;
+  --mark: #5a4a12; --mark-ink: #fff4cc; --ok: #6ee7a0; --neg: #ff8a7a; --neg-soft: #3a1d1a;
+  --epic-blue: #7aa2ff; --epic-amber: #f0a050; --epic-teal: #3fd0b8; --epic-violet: #b69cff;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 15px; line-height: 1.5; }
+.page { max-width: 1180px; margin: 0 auto; padding: 40px 20px 64px; display: grid; gap: 64px; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+kbd { font-family: var(--font-mono); font-size: 11.5px; padding: 0 5px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); color: var(--text); white-space: nowrap; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+.intro { display: grid; gap: 14px; max-width: 72ch; }
+.intro h1 { font-size: 28px; font-weight: 600; }
+.lead { color: var(--muted); font-size: 16px; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc a { text-decoration: none; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 5px 13px; font-size: 14px; }
+.toc a:hover { border-color: var(--accent); }
+
+.q { display: grid; gap: 22px; scroll-margin-top: 16px; }
+.q__head { display: grid; gap: 6px; max-width: 76ch; }
+.q__head .num { font-family: var(--font-mono); font-size: 13px; color: var(--accent); }
+.q__head h2 { font-size: 23px; font-weight: 600; }
+.answer { font-size: 16px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: start; }
+.spec { display: grid; gap: 14px; min-width: 0; font-size: 14.5px; }
+.spec h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.spec ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; }
+.spec .why { color: var(--muted); font-size: 14px; border-left: 2px solid var(--border); padding-left: 12px; }
+.states { display: grid; gap: 18px; min-width: 0; }
+.state { display: grid; gap: 6px; min-width: 0; }
+.state-label { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: baseline; }
+.state-label b { font-family: var(--font-mono); font-weight: 500; color: var(--text); }
+@media (max-width: 880px) { .split { grid-template-columns: 1fr; } }
+
+/* Mock primitives */
+.mock-scroll { overflow-x: auto; }
+.mock { min-width: 500px; background: var(--column); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-size: 13px; position: relative; }
+.field { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 38px; padding: 4px 8px; border: 1px solid var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); border-radius: var(--r-sm); background: var(--surface); }
+.field .icon { color: var(--muted); padding: 0 2px; }
+.field .txt { flex: 1; min-width: 60px; white-space: nowrap; }
+.field .ph { color: var(--muted); }
+.field .clear { color: var(--muted); font-size: 12px; border: 1px solid var(--border); border-radius: 4px; padding: 0 6px; }
+.caret { display: inline-block; width: 1px; height: 14px; background: var(--text); vertical-align: -2px; margin-left: 1px; }
+.fchip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 8px; border-radius: 5px; background: var(--accent-soft); color: var(--accent-soft-ink); font-size: 12px; white-space: nowrap; }
+.fchip .k { opacity: .8; }
+.fchip .v { font-weight: 600; }
+.fchip .x { opacity: .7; padding: 0 3px; }
+.fchip.neg { background: var(--neg-soft); color: var(--neg); }
+.fchip.focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.dd { margin-top: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: 0 12px 30px var(--shadow); overflow: hidden; }
+.bar-filters { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid var(--border); align-items: center; }
+.addf { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border: 1px dashed var(--border); border-radius: 999px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.addf.on { border-style: solid; border-color: var(--accent); color: var(--accent); }
+.grp { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 9px 12px 3px; display: flex; justify-content: space-between; gap: 8px; }
+.grp a { text-transform: none; letter-spacing: 0; font-weight: 500; text-decoration: none; }
+.row { display: grid; grid-template-columns: 22px minmax(0,1fr) auto; gap: 1px 9px; align-items: center; padding: 6px 12px; }
+.row.sel { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.row .t { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .sub { grid-column: 2 / 4; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+.row .right { display: flex; gap: 5px; align-items: center; color: var(--muted); font-size: 11.5px; }
+.ico { width: 22px; height: 22px; border-radius: 5px; display: grid; place-items: center; font-size: 10px; font-weight: 600; font-family: var(--font-mono); background: var(--pill); color: var(--muted); }
+.ico.hist { background: transparent; border: 1px solid var(--border); }
+.ico.sug { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.code { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 0 7px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; }
+.prog { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 11px; }
+.prog i { width: 28px; height: 4px; border-radius: 3px; background: var(--track); display: inline-block; overflow: hidden; }
+.prog i b { display: block; height: 100%; background: var(--accent); }
+mark { background: var(--mark); color: var(--mark-ink); border-radius: 2px; padding: 0 1px; }
+.foot { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; padding: 7px 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11.5px; background: var(--bg); }
+.foot .r { margin-left: auto; color: var(--accent); font-weight: 500; }
+.pop { position: absolute; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: 0 12px 30px var(--shadow); width: 220px; overflow: hidden; }
+.pop .ph-row { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+.opt { display: flex; align-items: center; gap: 8px; padding: 5px 10px; font-size: 12.5px; }
+.opt.sel { background: var(--accent-soft); }
+.opt .n { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.opt .hint { margin-left: auto; font-size: 11px; color: var(--muted); }
+.box { width: 13px; height: 13px; border: 1.5px solid var(--muted); border-radius: 3px; flex: none; }
+.box.ok { background: var(--accent); border-color: var(--accent); }
+.seg { display: flex; border: 1px solid var(--border); border-radius: 5px; margin: 8px 10px 4px; overflow: hidden; font-size: 11.5px; }
+.seg span { flex: 1; text-align: center; padding: 2px 0; color: var(--muted); }
+.seg span.on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.empty { padding: 18px 14px; display: grid; gap: 8px; }
+.empty b { font-size: 14px; }
+.sugbtn { display: flex; gap: 8px; align-items: center; padding: 5px 0; color: var(--accent); }
+
+/* Story page with search context */
+.ctxbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 7px 12px; background: var(--accent-soft); color: var(--accent-soft-ink); border-radius: var(--r-sm); font-size: 12.5px; }
+.ctxbar .btn { border: 1px solid currentColor; border-radius: 4px; padding: 0 7px; opacity: .9; }
+.ctxbar .sp { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.story { margin-top: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px; display: grid; gap: 8px; }
+.story h4 { font-size: 16px; font-weight: 600; }
+.crit { display: grid; gap: 4px; font-size: 12.5px; }
+.crit div { display: flex; gap: 7px; align-items: center; }
+.crit .hl { background: var(--mark); color: var(--mark-ink); border-radius: 3px; padding: 1px 4px; }
+
+/* Anatomy */
+.anat { display: grid; gap: 10px; }
+.legend { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 13.5px; }
+.legend .n { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+.callout { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 9.5px; font-family: var(--font-mono); font-weight: 600; vertical-align: 1px; }
+
+/* Tables */
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 13.5px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
+th, td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+tbody tr:last-child td { border-bottom: 0; }
+td:first-child { white-space: nowrap; }
+
+.decide { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: var(--r-md); padding: 20px 22px; display: grid; gap: 10px; max-width: 84ch; }
+.decide h2 { font-size: 20px; font-weight: 600; }
+.decide ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.note { color: var(--muted); font-size: 13.5px; max-width: 84ch; }
+@media (max-width: 600px) { .intro h1 { font-size: 23px; } .page { gap: 48px; } }
+</style>
+</head>
+<body>
+
+<main class="page">
+  <header class="intro">
+    <span class="eyebrow">Issue #7 · Variante A · Detaildesign</span>
+    <h1>Suche im Header: wie sie sich bedienen lässt</h1>
+    <p class="lead">Antworten auf deine sechs Fragen, je mit Regel und Mockup. Die Suche öffnet sich mit <kbd>Ctrl</kbd>+<kbd>F</kbd> als Dropdown unter dem Suchfeld. Die Elemente sind so gewählt, dass sie später unverändert in die Seitenleiste mit Board-Hervorhebung (Variante D) wandern können.</p>
+    <nav class="toc" aria-label="Fragen">
+      <a href="#q1">1 · Freitext oder Felder</a>
+      <a href="#q2">2 · Felder und Werte wählen</a>
+      <a href="#q3">3 · Und / Oder</a>
+      <a href="#q4">4 · Was ein Treffer zeigt</a>
+      <a href="#q5">5 · Navigieren und öffnen</a>
+      <a href="#q6">6 · Verlauf und Neustart</a>
+      <a href="#offen">Offene Punkte</a>
+    </nav>
+  </header>
+
+  <!-- ============ 1 ============ -->
+  <section class="q" id="q1">
+    <div class="q__head">
+      <span class="num">Frage 1</span>
+      <h2>Freitext oder strukturiert mit Feldern?</h2>
+      <p class="answer"><strong>Beides in einem Feld.</strong> Man tippt einfach los (Freitext). Felder kommen als Filter-Chips in dasselbe Eingabefeld. Wer nur tippt, braucht nichts über Felder zu wissen.</p>
+    </div>
+    <div class="split">
+      <div class="spec">
+        <h3>Regeln</h3>
+        <ul>
+          <li>Freitext sucht in allen Textfeldern: Nummer, Titel, Beschreibung, Akzeptanzkriterien, Epic-Name, später Sprint- und Release-Name.</li>
+          <li>Erkennt die Suche, dass der Text einem Feldwert entspricht (z.B. «review» = Status Review, «boards» = Epic Boards), bietet sie zuoberst an: <em>«Als Filter verwenden: Status = Review»</em>. Mit <kbd>Tab</kbd> oder Klick wird daraus ein Chip.</li>
+          <li>Ein Chip ist ein strukturierter Filter: Feld + Wert(e). Er filtert exakt, ohne Unschärfe.</li>
+          <li>Keine Syntax wie <code>status:review</code> nötig. Sie kommt bei Bedarf später als Abkürzung für Power-User dazu, übersetzt in alle 4 Sprachen.</li>
+        </ul>
+        <p class="why">Warum: Freitext ist für «wo war nochmal die Story mit dem Login?» am schnellsten. Strukturierte Filter braucht man für Fragen wie «alle offenen Stories von Epic Boards». Ein gemeinsames Feld vermeidet zwei Bedienkonzepte.</p>
+      </div>
+      <div class="states">
+        <div class="state">
+          <div class="state-label"><b>Zustand 1a</b> Freitext «review»: Vorschlag, daraus einen Filter zu machen</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Suchfeld mit Text review, darunter Vorschlag Status Review als Filter und Treffer">
+            <div class="field"><span class="icon">⌕</span><span class="txt">review<span class="caret"></span></span><span class="clear">✕</span></div>
+            <div class="dd">
+              <div class="grp"><span>Als Filter verwenden</span></div>
+              <div class="row sel"><span class="ico sug">⇥</span><span class="t">Status = <strong>Review</strong></span><span class="right"><kbd>Tab</kbd></span><span class="sub">2 Stories</span></div>
+              <div class="grp"><span>Stories · Text enthält «review»</span><span>3</span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-2</span> Akzeptanzkriterien abhaken</span><span class="right"><span class="pill">Review</span></span><span class="sub">Status: <mark>Review</mark></span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-15</span> Code-<mark>Review</mark>-Checkliste anzeigen</span><span class="right"><span class="pill">Zu erledigen</span></span></div>
+              <div class="foot"><span><kbd>Tab</kbd> Filter übernehmen</span><span><kbd>Enter</kbd> Treffer öffnen</span></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="state">
+          <div class="state-label"><b>Zustand 1b</b> Nach <kbd>Tab</kbd>: Chip im Feld, Freitext ist leer</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Suchfeld mit Chip Status Review">
+            <div class="field"><span class="icon">⌕</span><span class="fchip"><span class="k">Status</span><span class="v">Review</span><span class="x">✕</span></span><span class="txt ph">Weiter tippen oder filtern …<span class="caret"></span></span><span class="clear">✕</span></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 ============ -->
+  <section class="q" id="q2">
+    <div class="q__head">
+      <span class="num">Frage 2</span>
+      <h2>Wie werden Felder und ihre Werte ausgewählt?</h2>
+      <p class="answer"><strong>Über eine Filterleiste im Dropdown</strong> mit den häufigsten Feldern als Knöpfe und «+ Filter» für alle weiteren. Jedes Feld öffnet ein Auswahlmenü, das zum Feldtyp passt.</p>
+    </div>
+    <div class="split">
+      <div class="spec">
+        <h3>Felder und Eingabe</h3>
+        <div class="tbl"><table>
+          <thead><tr><th>Feld</th><th>Typ</th><th>Auswahl</th></tr></thead>
+          <tbody>
+            <tr><td>Typ</td><td>Aufzählung</td><td>Checkboxen: Story, Epic, Sprint, Release</td></tr>
+            <tr><td>Status</td><td>Aufzählung</td><td>Checkboxen mit Trefferzahl, in Reihenfolge der Board-Spalten</td></tr>
+            <tr><td>Epic</td><td>Liste (endlich)</td><td>Checkboxen mit Farbpunkt, eigenes Suchfeld ab 8 Epics</td></tr>
+            <tr><td>Sprint</td><td>Liste (endlich)</td><td>Aktueller Sprint, Nicht eingeplant, später benannte Sprints</td></tr>
+            <tr><td>Punkte</td><td>Zahl aus Skala</td><td>Checkboxen 1, 2, 3, 5, 8, 13 oder «ohne Punkte»</td></tr>
+            <tr><td>Kriterien</td><td>Zustand</td><td>Alle akzeptiert, Offene vorhanden, Keine erfasst</td></tr>
+            <tr><td>Suchen in</td><td>Bereich</td><td>Überall (Standard), Titel, Beschreibung, Kriterien</td></tr>
+          </tbody>
+        </table></div>
+        <ul>
+          <li>Status, Epic und Sprint stehen direkt in der Leiste, weil sie am häufigsten gebraucht werden. Alles weitere unter «+ Filter».</li>
+          <li>Die Zahl hinter jedem Wert zeigt, wie viele Treffer mit diesem Wert übrig blieben. Werte mit 0 Treffern bleiben wählbar, aber grau.</li>
+          <li>Oben im Menü wählt man «ist» oder «ist nicht».</li>
+          <li>Tastatur: Pfeile bewegen, <kbd>Leertaste</kbd> setzt Häkchen, <kbd>Enter</kbd> übernimmt und schliesst, Buchstaben tippen springt zum Wert.</li>
+          <li>Klick auf einen bestehenden Chip öffnet dasselbe Menü zum Ändern.</li>
+          <li>Später: eigene Felder aus #4 erscheinen automatisch unter «+ Filter», mit der Auswahl passend zu ihrem Typ.</li>
+        </ul>
+      </div>
+      <div class="states">
+        <div class="state">
+          <div class="state-label"><b>Zustand 2a</b> Filterleiste, «+ Filter» geöffnet</div>
+          <div class="mock-scroll"><div class="mock" style="min-height:290px" role="img" aria-label="Filterleiste mit geöffneter Feldliste">
+            <div class="field"><span class="icon">⌕</span><span class="txt ph">Suchen oder filtern …<span class="caret"></span></span></div>
+            <div class="dd">
+              <div class="bar-filters"><span class="addf">Status ▾</span><span class="addf">Epic ▾</span><span class="addf">Sprint ▾</span><span class="addf on">+ Filter</span></div>
+              <div style="height:200px"></div>
+            </div>
+            <div class="pop" style="top:96px;left:262px">
+              <div class="ph-row">Feld suchen …</div>
+              <div class="opt sel">Typ</div>
+              <div class="opt">Punkte</div>
+              <div class="opt">Kriterien</div>
+              <div class="opt">Suchen in<span class="hint">Überall</span></div>
+              <div class="opt" style="color:var(--muted)">Release<span class="hint">ab Release 2</span></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="state">
+          <div class="state-label"><b>Zustand 2b</b> Status-Menü: Mehrfachauswahl mit Zahlen</div>
+          <div class="mock-scroll"><div class="mock" style="min-height:280px" role="img" aria-label="Status-Menü mit Checkboxen und Trefferzahlen">
+            <div class="field"><span class="icon">⌕</span><span class="fchip"><span class="k">Epic</span><span class="v">Boards</span><span class="x">✕</span></span><span class="txt ph"><span class="caret"></span></span></div>
+            <div class="dd">
+              <div class="bar-filters"><span class="addf on">Status ▾</span><span class="addf">Sprint ▾</span><span class="addf">+ Filter</span></div>
+              <div style="height:190px"></div>
+            </div>
+            <div class="pop" style="top:96px;left:26px">
+              <div class="seg"><span class="on">ist</span><span>ist nicht</span></div>
+              <div class="opt"><span class="box"></span>Zu erledigen<span class="n">2</span></div>
+              <div class="opt sel"><span class="box ok"></span>In Arbeit<span class="n">3</span></div>
+              <div class="opt"><span class="box ok"></span>Review<span class="n">1</span></div>
+              <div class="opt" style="color:var(--muted)"><span class="box"></span>Erledigt<span class="n">0</span></div>
+              <div class="foot" style="margin-top:4px"><span><kbd>␣</kbd> wählen</span><span class="r">Übernehmen ↵</span></div>
+            </div>
+            <div class="pop" style="top:96px;left:262px">
+              <div class="ph-row">Epic suchen …</div>
+              <div class="opt"><span class="box ok"></span><span class="dot" style="background:var(--epic-blue)"></span>Boards<span class="n">6</span></div>
+              <div class="opt"><span class="box"></span><span class="dot" style="background:var(--epic-amber)"></span>Backlog<span class="n">4</span></div>
+              <div class="opt"><span class="box"></span><span class="dot" style="background:var(--epic-teal)"></span>Lokale Speicherung<span class="n">3</span></div>
+              <div class="opt"><span class="box"></span><span class="dot" style="background:var(--epic-violet)"></span>Barrierefreiheit<span class="n">2</span></div>
+            </div>
+          </div></div>
+          <p class="note">Rechts zum Vergleich das Epic-Menü (bereits als Chip gesetzt): gleiche Bedienung, mit Farbpunkt und eigener Suche.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3 ============ -->
+  <section class="q" id="q3">
+    <div class="q__head">
+      <span class="num">Frage 3</span>
+      <h2>Wie werden Felder kombiniert (Und / Oder)?</h2>
+      <p class="answer"><strong>Feste, einfache Regeln, ohne eigene Operatoren:</strong> Verschiedene Felder werden mit <em>und</em> verknüpft, mehrere Werte im selben Feld mit <em>oder</em>. Der Chip schreibt die Logik aus, damit sie lesbar bleibt.</p>
+    </div>
+    <div class="split">
+      <div class="spec">
+        <h3>Regeln</h3>
+        <div class="tbl"><table>
+          <thead><tr><th>Kombination</th><th>Logik</th><th>Beispiel</th></tr></thead>
+          <tbody>
+            <tr><td>Verschiedene Felder</td><td>und</td><td>Status Review <em>und</em> Epic Boards</td></tr>
+            <tr><td>Werte im selben Feld</td><td>oder</td><td>Status In Arbeit <em>oder</em> Review</td></tr>
+            <tr><td>Mehrere Wörter</td><td>und, beliebige Reihenfolge</td><td>«login fehler» findet «Fehler beim Login»</td></tr>
+            <tr><td>Text in Anführungszeichen</td><td>genaue Wortfolge</td><td>«"beim Login"»</td></tr>
+            <tr><td>«ist nicht»</td><td>ausschliessen</td><td>Status ist nicht Erledigt</td></tr>
+            <tr><td>Freitext + Chips</td><td>und</td><td>Text «speicher» und Sprint aktuell</td></tr>
+          </tbody>
+        </table></div>
+        <ul>
+          <li>Ein Feld kommt höchstens einmal als Chip vor. Ein weiterer Wert landet im bestehenden Chip.</li>
+          <li>Ein freies «oder» zwischen verschiedenen Feldern (Status Review <em>oder</em> Epic Boards) gibt es nicht.</li>
+        </ul>
+        <p class="why">Warum: Diese Regeln decken die üblichen Fragen eines kleinen Teams ab und sind die gleichen wie in GitHub, Jira-Filtern und Online-Shops. Freie Und/Oder-Klammern machen die Bedienung für alle schwerer, um einen seltenen Fall abzudecken. Falls er doch gebraucht wird, lösen das später gespeicherte Suchen oder eine Abfragesyntax.</p>
+      </div>
+      <div class="states">
+        <div class="state">
+          <div class="state-label"><b>Zustand 3</b> Kombinierte Suche, Logik im Chip ausgeschrieben</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Suchfeld mit drei Chips und Freitext kriterium">
+            <div class="field"><span class="icon">⌕</span>
+              <span class="fchip"><span class="k">Status</span><span class="v">In Arbeit</span><span class="k">oder</span><span class="v">Review</span><span class="x">✕</span></span>
+              <span class="fchip"><span class="k">Epic</span><span class="v">Boards</span><span class="x">✕</span></span>
+              <span class="fchip neg"><span class="k">Kriterien</span><span class="v">ist nicht</span><span class="k">alle akzeptiert</span><span class="x">✕</span></span>
+              <span class="txt">kriterium<span class="caret"></span></span><span class="clear">✕</span>
+            </div>
+            <div class="dd">
+              <div class="grp"><span>Stories</span><span>2</span></div>
+              <div class="row sel"><span class="ico">S</span><span class="t"><span class="code">S-2</span> Akzeptanz<mark>kriterien</mark> abhaken</span><span class="right"><span class="pill">Review</span></span><span class="sub"><span class="prog"><i><b style="width:75%"></b></i>3/4</span><span>Titel</span></span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-1</span> Story mit Titel und Beschreibung erfassen</span><span class="right"><span class="pill">In Arbeit</span></span><span class="sub"><span class="prog"><i><b style="width:50%"></b></i>2/4</span><span>Kriterium: Neue Stories ohne Akzeptanz<mark>kriterium</mark> zeigen einen Hinweis</span></span></div>
+              <div class="foot"><span>Alle Bedingungen gelten zusammen (und)</span></div>
+            </div>
+          </div></div>
+          <p class="note">Gelesen: Status ist In Arbeit oder Review, <em>und</em> Epic ist Boards, <em>und</em> nicht alle Kriterien akzeptiert, <em>und</em> Text enthält «kriterium». Ausschliessende Chips sind rot eingefärbt und tragen «ist nicht» im Text, damit es nicht nur an der Farbe hängt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4 ============ -->
+  <section class="q" id="q4">
+    <div class="q__head">
+      <span class="num">Frage 4</span>
+      <h2>Was wird pro Suchtreffer angezeigt?</h2>
+      <p class="answer"><strong>Zwei Zeilen pro Treffer:</strong> oben erkennen (was ist es, wie heisst es, wo steht es), unten verstehen, warum es gefunden wurde. Die Treffer sind nach Typ gruppiert, pro Gruppe höchstens 5, mit «+ n weitere».</p>
+    </div>
+    <div class="split">
+      <div class="spec anat">
+        <h3>Aufbau eines Story-Treffers</h3>
+        <div class="legend">
+          <span class="n">1</span><span>Typ-Symbol (S = Story, E = Epic, SP = Sprint, R = Release)</span>
+          <span class="n">2</span><span>Nummer in Monospace, Titel mit hervorgehobenem Treffer</span>
+          <span class="n">3</span><span>Status als Pill, ausgeschrieben</span>
+          <span class="n">4</span><span>Epic mit Farbpunkt und Namen, Punkte</span>
+          <span class="n">5</span><span>Fortschritt der Akzeptanzkriterien (Balken + 2/4)</span>
+          <span class="n">6</span><span>Fundort und Textausschnitt, wenn der Treffer nicht im Titel liegt (z.B. «Kriterium: … »), rund 40 Zeichen um den Treffer</span>
+          <span class="n">7</span><span>Sprint-Markierung, falls die Story im aktuellen Sprint ist</span>
+        </div>
+        <h3>Andere Typen</h3>
+        <ul>
+          <li><strong>Epic:</strong> Farbpunkt, Name, Anzahl Stories, Summe Punkte, Fortschritt (erledigte / alle Stories).</li>
+          <li><strong>Sprint</strong> (sobald vorhanden): Name, Zeitraum, Punkte erledigt / geplant.</li>
+          <li><strong>Release</strong> (sobald vorhanden): Name, Datum, Anzahl Stories.</li>
+        </ul>
+        <h3>Reihenfolge</h3>
+        <ul>
+          <li>Gruppen: Stories, Epics, Sprints, Releases. Leere Gruppen fehlen.</li>
+          <li>Innerhalb: genaue Nummer zuerst (S-12), dann Treffer im Titel, dann in Beschreibung oder Kriterien, bei Gleichstand nach Backlog-Rang.</li>
+        </ul>
+      </div>
+      <div class="states">
+        <div class="state">
+          <div class="state-label"><b>Zustand 4</b> Treffer mit allen Bestandteilen</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Trefferliste mit Story-, Epic- und Sprint-Treffern und nummerierten Bestandteilen">
+            <div class="field"><span class="icon">⌕</span><span class="txt">offline<span class="caret"></span></span><span class="clear">✕</span></div>
+            <div class="dd">
+              <div class="bar-filters"><span class="addf">Status ▾</span><span class="addf">Epic ▾</span><span class="addf">Sprint ▾</span><span class="addf">+ Filter</span></div>
+              <div class="grp"><span>Stories</span><span>7</span></div>
+              <div class="row sel"><span class="ico">S</span><span class="t"><span class="callout">1</span> <span class="code">S-4</span> Alle Daten lokal speichern <span class="callout">2</span></span><span class="right"><span class="callout">3</span><span class="pill">In Arbeit</span></span>
+                <span class="sub"><span class="callout">4</span><span class="dot" style="background:var(--epic-teal)"></span>Lokale Speicherung · 5 P <span class="callout">5</span><span class="prog"><i><b style="width:33%"></b></i>1/3</span><span class="callout">7</span><span class="pill">Sprint</span></span>
+                <span class="sub"><span class="callout">6</span>Kriterium: Die App funktioniert <mark>offline</mark> ohne Netzwerk</span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-12</span> Konflikte beim Sync anzeigen</span><span class="right"><span class="pill">Zu erledigen</span></span>
+                <span class="sub"><span class="dot" style="background:var(--epic-teal)"></span>Lokale Speicherung · 8 P <span class="prog"><i><b style="width:0"></b></i>0/4</span></span>
+                <span class="sub">Beschreibung: … Änderungen, die <mark>offline</mark> gemacht wurden, …</span></div>
+              <div class="grp"><a href="#q4">+ 5 weitere Stories</a></div>
+              <div class="grp"><span>Epics</span><span>1</span></div>
+              <div class="row"><span class="ico">E</span><span class="t"><span class="dot" style="background:var(--epic-teal)"></span> <mark>Offline</mark> &amp; Sync</span><span class="right">8 Stories · 29 P</span><span class="sub"><span class="prog"><i><b style="width:25%"></b></i>2/8 erledigt</span></span></div>
+              <div class="grp"><span>Sprints</span><span>1</span></div>
+              <div class="row"><span class="ico">SP</span><span class="t">Sprint 4 · «<mark>Offline</mark> first»</span><span class="right"><span class="pill">aktuell</span></span><span class="sub">13.–24. Okt. · 11 von 21 Punkten erledigt</span></div>
+              <div class="foot"><span>9 Treffer</span><span class="r">Auf dem Board hervorheben →</span></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5 ============ -->
+  <section class="q" id="q5">
+    <div class="q__head">
+      <span class="num">Frage 5</span>
+      <h2>Wie navigiere ich, wie wähle ich aus, was passiert danach?</h2>
+      <p class="answer"><strong>Der Fokus bleibt im Suchfeld,</strong> die Pfeiltasten bewegen die Markierung durch die Treffer. <kbd>Enter</kbd> öffnet den Treffer. Danach bleibt die Suche erhalten: Eine Leiste auf der Story-Seite führt zum nächsten oder vorherigen Treffer und zurück zur Liste.</p>
+    </div>
+    <div class="split">
+      <div class="spec">
+        <h3>Tastatur</h3>
+        <div class="tbl"><table>
+          <thead><tr><th>Taste</th><th>Wirkung</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Suche öffnen, letzte Suche markiert (tippen ersetzt sie)</td></tr>
+            <tr><td><kbd>↓</kbd> <kbd>↑</kbd></td><td>Nächster / vorheriger Treffer, über Gruppen hinweg</td></tr>
+            <tr><td><kbd>Enter</kbd></td><td>Markierten Treffer öffnen</td></tr>
+            <tr><td><kbd>Tab</kbd></td><td>Vorschlag als Filter übernehmen; sonst weiter zur Filterleiste</td></tr>
+            <tr><td><kbd>←</kbd> / <kbd>⌫</kbd> am Feldanfang</td><td>Letzten Chip markieren; nochmals <kbd>⌫</kbd> entfernt ihn</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>Dropdown schliessen, Suche bleibt erhalten; zweites <kbd>Esc</kbd> verlässt das Feld</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Enter</kbd></td><td>Später (Variante D): alle Treffer auf Board oder Backlog hervorheben</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Nach dem Öffnen</h3>
+        <ul>
+          <li><strong>Story:</strong> öffnet die Story-Seite. Der Treffer im Text ist dort kurz hervorgehoben und in den sichtbaren Bereich gescrollt.</li>
+          <li><strong>Epic:</strong> öffnet die Epics-Seite mit diesem Epic markiert.</li>
+          <li><strong>Sprint / Release:</strong> öffnet Board bzw. Story Map mit diesem Sprint.</li>
+          <li>Eine Leiste «Treffer 1 von 7» mit <kbd>‹</kbd> <kbd>›</kbd> erlaubt, die Treffer der Reihe nach durchzugehen, ohne die Suche neu zu öffnen. «Zurück zur Suche» öffnet das Dropdown wieder mit gleicher Markierung.</li>
+          <li>Maus: Überfahren markiert, Klick öffnet. Screenreader: Combobox mit Listbox, Ansage «7 Treffer» und des markierten Treffers.</li>
+        </ul>
+      </div>
+      <div class="states">
+        <div class="state">
+          <div class="state-label"><b>Zustand 5a</b> Markierung bewegt sich mit <kbd>↓</kbd>, Fokus bleibt im Feld</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Trefferliste, zweiter Treffer markiert">
+            <div class="field"><span class="icon">⌕</span><span class="fchip focus"><span class="k">Sprint</span><span class="v">aktuell</span><span class="x">✕</span></span><span class="txt">speicher<span class="caret"></span></span><span class="clear">✕</span></div>
+            <div class="dd">
+              <div class="grp"><span>Stories</span><span>3</span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-4</span> Alle Daten lokal <mark>speicher</mark>n</span><span class="right"><span class="pill">In Arbeit</span></span></div>
+              <div class="row sel"><span class="ico">S</span><span class="t"><span class="code">S-11</span> Datenbank-Pfad wählen</span><span class="right"><span class="pill">Zu erledigen</span></span><span class="sub">Kriterium: Der <mark>Speicher</mark>ort lässt sich ändern</span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-13</span> Fehler beim <mark>Speicher</mark>n melden</span><span class="right"><span class="pill">Review</span></span></div>
+              <div class="foot"><span><kbd>↑</kbd><kbd>↓</kbd> wählen</span><span><kbd>Enter</kbd> öffnen</span><span><kbd>⌫</kbd> Chip entfernen</span><span><kbd>Esc</kbd> schliessen</span></div>
+            </div>
+          </div></div>
+          <p class="note">Der Chip «Sprint aktuell» ist hier per <kbd>←</kbd> markiert; ein weiteres <kbd>⌫</kbd> würde ihn entfernen.</p>
+        </div>
+        <div class="state">
+          <div class="state-label"><b>Zustand 5b</b> Nach <kbd>Enter</kbd>: Story-Seite mit Suchleiste</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Story-Seite mit Leiste Treffer 2 von 3">
+            <div class="ctxbar"><span>⌕ «speicher» · Sprint aktuell</span><span class="sp"><span>Treffer 2 von 3</span><span class="btn">‹</span><span class="btn">›</span><span class="btn">Zurück zur Suche</span><span class="btn">✕</span></span></div>
+            <div class="story">
+              <span class="code">S-11 · Lokale Speicherung · 3 Punkte · Zu erledigen</span>
+              <h4>Datenbank-Pfad wählen</h4>
+              <div class="crit">
+                <div><span class="box"></span><span class="hl">Der Speicherort lässt sich in den Einstellungen ändern</span></div>
+                <div><span class="box"></span>Ein ungültiger Pfad zeigt eine Fehlermeldung</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6 ============ -->
+  <section class="q" id="q6">
+    <div class="q__head">
+      <span class="num">Frage 6</span>
+      <h2>Vorherige Suchen wiederverwenden und von vorne beginnen</h2>
+      <p class="answer"><strong>Ja, beides.</strong> Ein leeres Suchfeld zeigt die letzten Suchen und zuletzt geöffneten Einträge. Ein Klick auf ✕ oder <kbd>Ctrl</kbd>+<kbd>F</kbd> mit sofortigem Tippen startet neu.</p>
+    </div>
+    <div class="split">
+      <div class="spec">
+        <h3>Verlauf</h3>
+        <ul>
+          <li><strong>Letzte Suchen:</strong> die 5 letzten, jeweils mit Text <em>und</em> Chips. Gespeichert wird eine Suche, wenn man daraus einen Treffer öffnet; Tippfehler-Zwischenstände landen so nicht im Verlauf.</li>
+          <li><strong>Zuletzt geöffnet:</strong> die 5 zuletzt geöffneten Stories oder Epics, egal ob über die Suche oder das Board.</li>
+          <li>Jeder Eintrag hat ein ✕ zum Entfernen; «Verlauf löschen» leert alles.</li>
+          <li>Der Verlauf bleibt lokal auf dem Gerät (App: in der Datenbank; Web-Vorschau: im Browser) und wird nirgends hingeschickt.</li>
+        </ul>
+        <h3>Neu beginnen</h3>
+        <ul>
+          <li><kbd>Ctrl</kbd>+<kbd>F</kbd> öffnet die letzte Suche markiert: Weitertippen ersetzt sie komplett, <kbd>→</kbd> setzt sie fort.</li>
+          <li>✕ rechts im Feld entfernt Text und alle Chips in einem Schritt.</li>
+          <li>✕ auf einem Chip entfernt nur diesen Filter.</li>
+          <li><strong>Keine Treffer:</strong> Die Suche schlägt vor, welchen Filter man entfernen könnte, und zeigt, wie viele Treffer es dann gäbe.</li>
+        </ul>
+      </div>
+      <div class="states">
+        <div class="state">
+          <div class="state-label"><b>Zustand 6a</b> Leeres Feld: Verlauf und Schnellfilter</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Leeres Suchfeld mit letzten Suchen und zuletzt geöffneten Stories">
+            <div class="field"><span class="icon">⌕</span><span class="txt ph">Suchen oder filtern …<span class="caret"></span></span></div>
+            <div class="dd">
+              <div class="bar-filters"><span class="addf">Status ▾</span><span class="addf">Epic ▾</span><span class="addf">Sprint ▾</span><span class="addf">+ Filter</span></div>
+              <div class="grp"><span>Letzte Suchen</span><a href="#q6">Verlauf löschen</a></div>
+              <div class="row sel"><span class="ico hist">↺</span><span class="t" style="display:flex;gap:6px;align-items:center">speicher <span class="fchip"><span class="k">Sprint</span><span class="v">aktuell</span></span></span><span class="right">✕</span></div>
+              <div class="row"><span class="ico hist">↺</span><span class="t" style="display:flex;gap:6px;align-items:center"><span class="fchip"><span class="k">Status</span><span class="v">Review</span></span><span class="fchip"><span class="k">Epic</span><span class="v">Boards</span></span></span><span class="right">✕</span></div>
+              <div class="row"><span class="ico hist">↺</span><span class="t">login fehler</span><span class="right">✕</span></div>
+              <div class="grp"><span>Zuletzt geöffnet</span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-11</span> Datenbank-Pfad wählen</span><span class="right"><span class="pill">Zu erledigen</span></span></div>
+              <div class="row"><span class="ico">S</span><span class="t"><span class="code">S-2</span> Akzeptanzkriterien abhaken</span><span class="right"><span class="pill">Review</span></span></div>
+              <div class="row"><span class="ico">E</span><span class="t"><span class="dot" style="background:var(--epic-blue)"></span> Boards</span><span class="right">6 Stories</span></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="state">
+          <div class="state-label"><b>Zustand 6b</b> Keine Treffer: Ausweg anbieten</div>
+          <div class="mock-scroll"><div class="mock" role="img" aria-label="Keine Treffer mit Vorschlägen, Filter zu entfernen">
+            <div class="field"><span class="icon">⌕</span><span class="fchip"><span class="k">Status</span><span class="v">Erledigt</span><span class="x">✕</span></span><span class="fchip"><span class="k">Epic</span><span class="v">Backlog</span><span class="x">✕</span></span><span class="txt">export<span class="caret"></span></span><span class="clear">✕</span></div>
+            <div class="dd">
+              <div class="empty">
+                <b>Keine Treffer für «export» mit diesen Filtern</b>
+                <span class="sugbtn">✕ Ohne «Status Erledigt» suchen <span class="pill">3 Treffer</span></span>
+                <span class="sugbtn">✕ Ohne «Epic Backlog» suchen <span class="pill">1 Treffer</span></span>
+                <span class="sugbtn">↺ Alles zurücksetzen und neu beginnen</span>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Open points ============ -->
+  <section class="decide" id="offen">
+    <span class="eyebrow">Für deine Entscheidung</span>
+    <h2>Offene Punkte</h2>
+    <ol>
+      <li><strong>Feldvorschläge aus Freitext (1a):</strong> Soll die Suche Feldwerte erkennen und als Filter anbieten, oder sollen Filter nur über die Leiste kommen? Ich empfehle die Erkennung, sie macht Filter auffindbar.</li>
+      <li><strong>Treffer-Leiste nach dem Öffnen (5b):</strong> Im ersten Inkrement, oder später zusammen mit Variante D? Ich empfehle das erste Inkrement; sie ist klein und hilft beim Durchgehen.</li>
+      <li><strong>Verlauf:</strong> Reichen 5 letzte Suchen und 5 zuletzt geöffnete Einträge?</li>
+      <li><strong>Gespeicherte Suchen mit Namen</strong> («Meine offenen Reviews»): Für dieses Feature oder als eigenes Ticket?</li>
+      <li><strong>Reihenfolge der Umsetzung:</strong> Freitext mit Trefferliste → Filter-Chips → Verlauf und Treffer-Leiste → Hervorhebung auf Board und Backlog (Variante D). Was nicht fertig wird, kommt in ein neues Ticket.</li>
+    </ol>
+  </section>
+
+  <p class="note">Mockups mit Beispieldaten im Design-System «Focus» der App. Sprints, Releases und Stories ab S-8 sind erfunden und zeigen den Endausbau. Die UI erscheint hier auf Deutsch, alle Texte werden in DE, EN, FR und IT umgesetzt.</p>
+</main>
+</body>
+</html>

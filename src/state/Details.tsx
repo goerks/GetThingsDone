@@ -3,13 +3,24 @@ import { EpicDialog } from '../components/EpicDialog';
 import { SprintDialog } from '../components/SprintDialog';
 import { StoryDialog } from '../components/StoryDialog';
 import { useApp } from './AppState';
+import { DetailNavContext, type DetailNav } from './detailNav';
 
-type Detail = { kind: 'story' | 'epic' | 'sprint'; id: string } | null;
+export type DetailKind = 'story' | 'epic' | 'sprint';
+
+interface Detail {
+  kind: DetailKind;
+  id: string;
+  nav: DetailNav | null;
+}
 
 interface DetailsApi {
+  /** The item whose dialog is open, or null. */
+  current: { kind: DetailKind; id: string } | null;
   openStory(id: string): void;
   openEpic(id: string): void;
   openSprint(id: string): void;
+  open(kind: DetailKind, id: string, nav?: DetailNav): void;
+  close(): void;
 }
 
 const DetailsContext = createContext<DetailsApi | null>(null);
@@ -26,14 +37,18 @@ export function useDetails(): DetailsApi {
 
 export function DetailsProvider({ children }: { children: ReactNode }) {
   const app = useApp();
-  const [detail, setDetail] = useState<Detail>(null);
+  const [detail, setDetail] = useState<Detail | null>(null);
+  const current = useMemo(() => (detail ? { kind: detail.kind, id: detail.id } : null), [detail?.kind, detail?.id]);
   const api = useMemo<DetailsApi>(
     () => ({
-      openStory: (id) => setDetail({ kind: 'story', id }),
-      openEpic: (id) => setDetail({ kind: 'epic', id }),
-      openSprint: (id) => setDetail({ kind: 'sprint', id })
+      current,
+      openStory: (id) => setDetail({ kind: 'story', id, nav: null }),
+      openEpic: (id) => setDetail({ kind: 'epic', id, nav: null }),
+      openSprint: (id) => setDetail({ kind: 'sprint', id, nav: null }),
+      open: (kind, id, nav) => setDetail({ kind, id, nav: nav ?? null }),
+      close: () => setDetail(null)
     }),
-    []
+    [current]
   );
   const close = (): void => setDetail(null);
   const sprint = detail?.kind === 'sprint' ? app.sprints.find((item) => item.id === detail.id) : undefined;
@@ -42,9 +57,11 @@ export function DetailsProvider({ children }: { children: ReactNode }) {
     <DetailsContext.Provider value={api}>
       {children}
       {/* The key gives each opened item a fresh dialog, so focus and drafts never leak between items. */}
-      {detail?.kind === 'story' && <StoryDialog key={detail.id} id={detail.id} onClose={close} />}
-      {detail?.kind === 'epic' && <EpicDialog key={detail.id} id={detail.id} onClose={close} />}
-      {sprint && <SprintDialog key={sprint.id} sprint={sprint} onClose={close} />}
+      <DetailNavContext.Provider value={detail?.nav ?? null}>
+        {detail?.kind === 'story' && <StoryDialog key={detail.id} id={detail.id} onClose={close} />}
+        {detail?.kind === 'epic' && <EpicDialog key={detail.id} id={detail.id} onClose={close} />}
+        {sprint && <SprintDialog key={sprint.id} sprint={sprint} onClose={close} />}
+      </DetailNavContext.Provider>
     </DetailsContext.Provider>
   );
 }
