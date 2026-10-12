@@ -50,7 +50,7 @@ export function ResultRow({ result, snapshot, onPage = false }: { result: Search
           </span>
           {result.snippet && (
             <span className="result__snippet">
-              {t(`search.foundIn.${result.snippet.field}`)}: {result.snippet.cutStart && '… '}
+              {result.snippet.field === 'custom' ? result.snippet.fieldName : t(`search.foundIn.${result.snippet.field}`)}: {result.snippet.cutStart && '… '}
               <Highlighted text={result.snippet.text} ranges={result.snippet.ranges} />
               {result.snippet.cutEnd && ' …'}
             </span>

@@ -271,3 +271,41 @@ describe('current page', () => {
     expect(arrangeForPage(results, null, true)).toEqual(results);
   });
 });
+
+describe('custom fields', () => {
+  const withFields: Snapshot = {
+    ...snapshot,
+    fields: [
+      { id: 'f-risk', builtinKey: null, kind: 'custom', dataType: 'text', label: 'Risk', options: [], defaultValue: null },
+      {
+        id: 'f-prio',
+        builtinKey: null,
+        kind: 'custom',
+        dataType: 'single_select',
+        label: 'Priority',
+        options: [{ id: 'o-must', label: 'Must', colorKey: 'rose' }],
+        defaultValue: null
+      },
+      { id: 'f-done', builtinKey: null, kind: 'custom', dataType: 'checkbox', label: 'Checked', options: [], defaultValue: null }
+    ],
+    stories: snapshot.stories.map((item) =>
+      item.id === '3' ? { ...item, values: { 'f-risk': 'Vendor lock-in', 'f-prio': 'o-must', 'f-done': true } } : item
+    )
+  };
+
+  it('finds stories by the text of custom field values and names the field', () => {
+    const [result] = search(withFields, query('vendor'));
+    expect(result.id).toBe('3');
+    expect(result.kind === 'story' && result.snippet).toMatchObject({ field: 'custom', fieldName: 'Risk', text: 'Vendor lock-in' });
+  });
+
+  it('finds the label of a selected option, not its id', () => {
+    expect(ids(search(withFields, query('must')))).toEqual(['story:3']);
+    expect(ids(search(withFields, query('o-must')))).toEqual([]);
+  });
+
+  it('does not search checkboxes and leaves custom fields out when only titles are searched', () => {
+    expect(ids(search(withFields, query('true')))).toEqual([]);
+    expect(ids(search(withFields, query('vendor', [{ field: 'scope', values: ['title'], negate: false }])))).toEqual([]);
+  });
+});
