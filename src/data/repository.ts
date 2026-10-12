@@ -1,6 +1,6 @@
-import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, Snapshot, Sprint, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, Settings, Snapshot, Sprint, Story } from '../domain/types';
 
-export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId'>;
+export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId' | 'releaseId'>;
 
 /**
  * Storage boundary of the app (see ADR 0001). The desktop app uses SQLite through Tauri,
@@ -33,6 +33,8 @@ export interface Repository {
   updateRelease(release: Release): Promise<void>;
   /** Deletes a release. Its stories stay and lose their release. */
   deleteRelease(releaseId: string): Promise<void>;
+  /** Stores the settings of the workspace. */
+  saveSettings(settings: Settings): Promise<void>;
   /** Adds or changes a field with its options. Values of removed options are deleted. */
   saveField(field: FieldDefinition): Promise<void>;
   /** Deletes a field with its options, assignments and values. */

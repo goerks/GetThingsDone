@@ -151,6 +151,14 @@ export interface Story {
   values: Record<string, FieldValue>;
 }
 
+/** What the rows of the story map are. */
+export type MapRows = 'sprints' | 'releases';
+
+/** Settings of the workspace, shared by the whole team. */
+export interface Settings {
+  mapRows: MapRows;
+}
+
 export interface Snapshot {
   epics: Epic[];
   sprints: Sprint[];
@@ -158,6 +166,7 @@ export interface Snapshot {
   stories: Story[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
+  settings: Settings;
 }
 
 /** What the search reads: the items and the fields, not the releases' history or the settings. */

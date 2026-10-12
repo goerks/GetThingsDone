@@ -1,5 +1,5 @@
 import { sortSprints } from './sprints';
-import type { Criterion, FieldValue, Sprint, Story, Status } from './types';
+import type { Criterion, FieldValue, Release, Sprint, Story, Status } from './types';
 
 /** Where a dragged item goes relative to the item it is over. Without a value the move direction decides. */
 export type Placement = 'before' | 'after';
@@ -75,7 +75,7 @@ export function dropStory(stories: Story[], activeId: string, overId: string, pl
   return reindex([...without.slice(0, insertAt), moved, ...without.slice(insertAt)]);
 }
 
-/** Stories whose status, rank, sprint or epic differs between two lists (what has to be saved). */
+/** Stories whose status, rank, sprint, epic or release differs between two lists (what has to be saved). */
 export function changedPositions(before: readonly Story[], after: readonly Story[]): Story[] {
   const previous = new Map(before.map((story) => [story.id, story]));
   return after.filter((story) => {
@@ -85,7 +85,8 @@ export function changedPositions(before: readonly Story[], after: readonly Story
       old.status !== story.status ||
       old.rank !== story.rank ||
       old.sprintId !== story.sprintId ||
-      old.epicId !== story.epicId
+      old.epicId !== story.epicId ||
+      old.releaseId !== story.releaseId
     );
   });
 }
@@ -240,6 +241,71 @@ export function dropOnMap(
   const sameCell = target.epicId === active.epicId && target.sprintId === active.sprintId;
   const after = placement ? placement === 'after' : sameCell && from < to;
   return insertNextTo(without, { ...active, epicId: target.epicId, sprintId: target.sprintId }, overId, after);
+}
+
+/* ---------- Story map with releases as rows (#10) ---------- */
+
+export const RELEASE_CELL_PREFIX = 'rcell:';
+/** Marks the row of stories without a release in a cell id. */
+export const NO_RELEASE = '-';
+
+/** Drop target id of a story map cell in release mode: one epic in one release (or "no release" for null). */
+export const releaseCellId = (epicId: string | null, releaseId: string | null): string =>
+  `${RELEASE_CELL_PREFIX}${epicId ?? NO_EPIC}::${releaseId ?? NO_RELEASE}`;
+
+export function parseReleaseCellId(id: string): { epicId: string | null; releaseId: string | null } | null {
+  if (!id.startsWith(RELEASE_CELL_PREFIX)) return null;
+  const [epicId, release] = id.slice(RELEASE_CELL_PREFIX.length).split('::');
+  if (!epicId || release === undefined) return null;
+  return { epicId: epicId === NO_EPIC ? null : epicId, releaseId: release === NO_RELEASE ? null : release };
+}
+
+/** Stories in one cell of the map in release mode, in backlog order. */
+export function storiesInReleaseCell(stories: readonly Story[], epicId: string | null, releaseId: string | null): Story[] {
+  return sortByRank(stories).filter((story) => story.epicId === epicId && story.releaseId === releaseId);
+}
+
+/**
+ * Moves a story on the story map in release mode. `overId` is another story id (drop next to it) or a release cell id.
+ * The story takes the epic and the release of the target and keeps its sprint, so the ranks stay grouped by
+ * sprint: next to a target of the same sprint it lands there, otherwise at the end of its cell within its sprint.
+ */
+export function dropOnReleaseMap(
+  stories: Story[],
+  sprints: readonly Sprint[],
+  releases: readonly Release[],
+  activeId: string,
+  overId: string,
+  placement?: Placement
+): Story[] {
+  if (activeId === overId) return stories;
+  const list = backlogOrder(stories, sprints);
+  const from = list.findIndex((story) => story.id === activeId);
+  if (from < 0) return stories;
+  const active = list[from];
+  const without = list.filter((story) => story.id !== activeId);
+  const endOfCell = (moved: Story): Story[] =>
+    insertMoved(
+      without,
+      moved,
+      sprints,
+      (story) => story.epicId === moved.epicId && story.releaseId === moved.releaseId && story.sprintId === moved.sprintId
+    );
+
+  const cell = parseReleaseCellId(overId);
+  if (cell) {
+    if (cell.releaseId !== null && !releases.some((release) => release.id === cell.releaseId)) return stories;
+    return endOfCell({ ...active, epicId: cell.epicId, releaseId: cell.releaseId });
+  }
+
+  const to = list.findIndex((story) => story.id === overId);
+  if (to < 0) return stories;
+  const target = list[to];
+  const moved: Story = { ...active, epicId: target.epicId, releaseId: target.releaseId };
+  if (target.sprintId !== active.sprintId) return endOfCell(moved);
+  const sameCell = target.epicId === active.epicId && target.releaseId === active.releaseId;
+  const after = placement ? placement === 'after' : sameCell && from < to;
+  return insertNextTo(without, moved, overId, after);
 }
 
 export function toggleCriterion(stories: Story[], storyId: string, criterionId: string): Story[] {

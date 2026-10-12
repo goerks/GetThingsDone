@@ -1,6 +1,7 @@
 import Database from '@tauri-apps/plugin-sql';
 import { normalizeColorKey } from '../domain/epics';
 import { missingBuiltins } from '../domain/fields';
+import { normalizeSettings } from '../domain/settings';
 import type {
   BuiltinKey,
   Criterion,
@@ -13,6 +14,7 @@ import type {
   FieldValue,
   ItemType,
   Release,
+  Settings,
   Snapshot,
   Sprint,
   Status,
@@ -229,7 +231,9 @@ export class SqliteRepository implements Repository {
     for (const item of missing.assignments) await this.insertAssignment(item);
     fields = [...fields, ...missing.fields];
     assignments = [...assignments, ...missing.assignments];
-    return { epics, sprints, releases, stories, fields, assignments };
+    const settingRows = await this.db.select<{ key: string; value: string }[]>('SELECT key, value FROM settings');
+    const settings = normalizeSettings({ mapRows: settingRows.find((row) => row.key === 'map_rows')?.value });
+    return { epics, sprints, releases, stories, fields, assignments, settings };
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
@@ -268,6 +272,7 @@ export class SqliteRepository implements Repository {
   }
 
   async replaceAll(snapshot: Snapshot): Promise<void> {
+    await this.db.execute('DELETE FROM settings');
     await this.db.execute('DELETE FROM field_value_options');
     await this.db.execute('DELETE FROM field_values');
     await this.db.execute('DELETE FROM field_assignments');
@@ -290,6 +295,7 @@ export class SqliteRepository implements Repository {
     for (const sprint of snapshot.sprints) {
       await this.addSprint(sprint);
     }
+    await this.saveSettings(snapshot.settings);
     for (const release of snapshot.releases) {
       await this.addRelease(release);
     }
@@ -300,11 +306,12 @@ export class SqliteRepository implements Repository {
 
   async savePositions(positions: readonly StoryPosition[]): Promise<void> {
     for (const position of positions) {
-      await this.db.execute('UPDATE stories SET status = $1, rank = $2, sprint_id = $3, epic_id = $4 WHERE id = $5', [
+      await this.db.execute('UPDATE stories SET status = $1, rank = $2, sprint_id = $3, epic_id = $4, release_id = $5 WHERE id = $6', [
         position.status,
         position.rank,
         position.sprintId,
         position.epicId,
+        position.releaseId,
         position.id
       ]);
     }
@@ -408,6 +415,13 @@ export class SqliteRepository implements Repository {
       sprint.endDate,
       sprint.id
     ]);
+  }
+
+  async saveSettings(settings: Settings): Promise<void> {
+    await this.db.execute(
+      'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = excluded.value',
+      ['map_rows', settings.mapRows]
+    );
   }
 
   async addRelease(release: Release): Promise<void> {

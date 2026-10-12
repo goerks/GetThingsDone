@@ -71,4 +71,16 @@ describe('LocalStorageRepository', () => {
     expect(snapshot.stories[0].releaseId).toBeNull();
     expect(snapshot.assignments.some((item) => item.itemType === 'release')).toBe(true);
   });
+
+  it('keeps the settings and the release of a moved story', async () => {
+    const repository = new LocalStorageRepository();
+    await repository.replaceAll(seedSnapshot('2026-10-12'));
+    await repository.saveSettings({ mapRows: 'releases' });
+    const story = (await repository.load()).stories.find((item) => item.id === 'story-7');
+    if (!story) throw new Error('story missing');
+    await repository.savePositions([{ ...story, releaseId: 'release-beta' }]);
+    const after = await new LocalStorageRepository().load();
+    expect(after.settings).toEqual({ mapRows: 'releases' });
+    expect(after.stories.find((item) => item.id === 'story-7')?.releaseId).toBe('release-beta');
+  });
 });

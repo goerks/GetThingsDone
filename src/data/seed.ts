@@ -1,4 +1,5 @@
 import { assignTo, missingBuiltins } from '../domain/fields';
+import { DEFAULT_SETTINGS } from '../domain/settings';
 import { addDays } from '../domain/sprints';
 import type { FieldDefinition, FieldValue, Snapshot, Story } from '../domain/types';
 
@@ -93,6 +94,7 @@ export function seedSnapshot(today: string): Snapshot {
     return item;
   });
   return {
+    settings: DEFAULT_SETTINGS,
     fields: [...builtins.fields, ...DEMO_FIELDS],
     assignments,
     epics: [

@@ -30,7 +30,7 @@ All new and changed views are mocked up in [`release-planning-variants.html`](re
 | Sprint after release end | A hint, never a blocker | 2026-10-12 |
 | Scope change | Every assignment after the start is an increase, every removal a decrease, a points change counts as the difference; status changes never change the scope | 2026-10-12 |
 | Releases page | Cards (the table was the alternative) | 2026-10-12 |
-| New release from the keyboard | Ctrl+N creates a release on the releases page (many browsers keep Ctrl+N for a new window, so it works in the desktop app) | 2026-10-12 |
+| Ctrl+N | Creates what the page is about: a story on board, backlog and story map, an epic on the epics page, a release on the releases page; nothing in the settings (many browsers keep Ctrl+N for a new window, so it works in the desktop app) | 2026-10-12 |
 | Reports | Tabs in the release dialog (the alternative was charts on the page) | 2026-10-12 |
 | "Release" on cards and in the new-story dialog | Off by default | 2026-10-12 |
 
