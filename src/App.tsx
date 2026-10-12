@@ -11,6 +11,7 @@ import { MapPage } from './pages/MapPage';
 import { useRoute } from './router';
 import { AppProvider, useApp } from './state/AppState';
 import { DetailsProvider } from './state/Details';
+import { SearchProvider } from './state/Search';
 import { useTheme } from './theme';
 
 function Shell() {
@@ -53,7 +54,9 @@ export default function App({ repository }: { repository?: Promise<Repository> |
   return (
     <AppProvider repository={source}>
       <DetailsProvider>
-        <Shell />
+        <SearchProvider>
+          <Shell />
+        </SearchProvider>
       </DetailsProvider>
     </AppProvider>
   );

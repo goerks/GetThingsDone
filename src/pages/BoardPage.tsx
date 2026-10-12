@@ -21,6 +21,8 @@ import { hrefs } from '../router';
 import { STATUSES, type Status } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
+import { HighlightBar } from '../components/search/HighlightBar';
+import { useSearchPage } from '../state/Search';
 
 interface Hover {
   overId: string;
@@ -86,6 +88,7 @@ export function BoardPage() {
 
   const activeStory = activeId ? app.stories.find((story) => story.id === activeId) : undefined;
   const inSprint = sprintStories(app.stories, sprintId);
+  useSearchPage(t('nav.board'), { story: inSprint.map((story) => story.id), sprint: sprintId ? [sprintId] : [] });
 
   if (!sprint) {
     return (
@@ -111,6 +114,8 @@ export function BoardPage() {
           {t('newStory.open')}
         </button>
       </div>
+
+      <HighlightBar storyIds={inSprint.map((story) => story.id)} />
 
       {creating && <NewStoryDialog sprintId={sprintId} onClose={() => setCreating(false)} />}
 

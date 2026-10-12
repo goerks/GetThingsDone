@@ -301,5 +301,103 @@
     "stories_other": "{{count}} Stories",
     "points_one": "{{count}} Punkt",
     "points_other": "{{count}} Punkte"
+  },
+  "search": {
+    "label": "Suche",
+    "placeholder": "Suchen oder filtern …",
+    "placeholderMore": "Weiter tippen oder filtern …",
+    "clear": "Suche leeren",
+    "filters": "Filter",
+    "results": "Suchergebnisse",
+    "field": {
+      "status": "Status",
+      "epic": "Epic",
+      "sprint": "Sprint",
+      "type": "Typ",
+      "points": "Punkte",
+      "criteria": "Kriterien",
+      "scope": "Suchen in"
+    },
+    "kind": {
+      "story": "Story",
+      "epic": "Epic",
+      "sprint": "Sprint"
+    },
+    "group": {
+      "story": "Stories",
+      "epic": "Epics",
+      "sprint": "Sprints"
+    },
+    "more": {
+      "story_one": "+ {{count}} weitere Story",
+      "story_other": "+ {{count}} weitere Stories",
+      "epic_one": "+ {{count}} weiteres Epic",
+      "epic_other": "+ {{count}} weitere Epics",
+      "sprint_one": "+ {{count}} weiterer Sprint",
+      "sprint_other": "+ {{count}} weitere Sprints"
+    },
+    "pointsValue_one": "{{count}} Punkt",
+    "pointsValue_other": "{{count}} Punkte",
+    "criteriaState": {
+      "all": "Alle akzeptiert",
+      "open": "Offene Kriterien",
+      "none": "Keine Kriterien"
+    },
+    "scope": {
+      "title": "Nummer und Titel",
+      "description": "Beschreibung",
+      "criteria": "Akzeptanzkriterien"
+    },
+    "or": "oder",
+    "chip": "{{field}}: {{values}}",
+    "chipNot": "{{field}} ist nicht {{values}}",
+    "criteriaCount": "{{done}}/{{total}} Kriterien",
+    "foundIn": {
+      "description": "Beschreibung",
+      "criterion": "Kriterium"
+    },
+    "storiesAndPoints_one": "{{count}} Story · {{points}} Punkte",
+    "storiesAndPoints_other": "{{count}} Stories · {{points}} Punkte",
+    "menuLabel": "Filter: {{field}}",
+    "matchLabel": "Bedingung",
+    "is": "ist",
+    "isNot": "ist nicht",
+    "narrow": "{{field}} suchen …",
+    "resultCount_one": "{{count}} Treffer",
+    "resultCount_other": "{{count}} Treffer",
+    "removeFilter": "Filter {{filter}} entfernen",
+    "editFilter": "Filter {{filter}} ändern",
+    "done": "Fertig",
+    "moreFilters": "Filter",
+    "recentSearches": "Letzte Suchen",
+    "recentlyOpened": "Zuletzt geöffnet",
+    "useAsFilter": "Als Filter verwenden",
+    "noResults": "Keine Treffer",
+    "noResultsStatus": "Keine Treffer. Du kannst einen Filter entfernen oder neu beginnen.",
+    "forget": "Aus dem Verlauf entfernen",
+    "withoutFilter": "Ohne {{filter}} suchen",
+    "reset": "Alles zurücksetzen und neu beginnen",
+    "emptyHint": "Tippen, um Stories, Epics und Sprints zu suchen, oder einen Filter wählen.",
+    "keys": {
+      "move": "wählen",
+      "open": "öffnen",
+      "close": "schliessen"
+    },
+    "clearHistory": "Verlauf löschen",
+    "highlightSummary_one": "{{matches}} von {{count}} Story hier passt",
+    "highlightSummary_other": "{{matches}} von {{count}} Stories hier passen",
+    "nav": {
+      "label": "Suchergebnisse",
+      "position": "Treffer {{position}} von {{total}}",
+      "previous": "Vorheriger Treffer",
+      "next": "Nächster Treffer",
+      "back": "Zurück zur Suche"
+    },
+    "onPage": "Auf dieser Seite",
+    "everywhere": "Überall",
+    "onlyPage": "Nur {{page}}",
+    "scopeLabel": "Wo suchen",
+    "searchEverywhere": "Treffer von überall zeigen",
+    "showOnPage": "Auf {{page}} zeigen"
   }
 }

@@ -301,5 +301,103 @@
     "stories_other": "{{count}} stories",
     "points_one": "{{count}} point",
     "points_other": "{{count}} points"
+  },
+  "search": {
+    "label": "Recherche",
+    "placeholder": "Rechercher ou filtrer…",
+    "placeholderMore": "Continuer à saisir ou filtrer…",
+    "clear": "Effacer la recherche",
+    "filters": "Filtres",
+    "results": "Résultats de recherche",
+    "field": {
+      "status": "Statut",
+      "epic": "Epic",
+      "sprint": "Sprint",
+      "type": "Type",
+      "points": "Points",
+      "criteria": "Critères",
+      "scope": "Rechercher dans"
+    },
+    "kind": {
+      "story": "Story",
+      "epic": "Epic",
+      "sprint": "Sprint"
+    },
+    "group": {
+      "story": "Stories",
+      "epic": "Epics",
+      "sprint": "Sprints"
+    },
+    "more": {
+      "story_one": "+ {{count}} autre story",
+      "story_other": "+ {{count}} autres stories",
+      "epic_one": "+ {{count}} autre epic",
+      "epic_other": "+ {{count}} autres epics",
+      "sprint_one": "+ {{count}} autre sprint",
+      "sprint_other": "+ {{count}} autres sprints"
+    },
+    "pointsValue_one": "{{count}} point",
+    "pointsValue_other": "{{count}} points",
+    "criteriaState": {
+      "all": "Tous acceptés",
+      "open": "Critères ouverts",
+      "none": "Aucun critère"
+    },
+    "scope": {
+      "title": "Clé et titre",
+      "description": "Description",
+      "criteria": "Critères d’acceptation"
+    },
+    "or": "ou",
+    "chip": "{{field}} : {{values}}",
+    "chipNot": "{{field}} n’est pas {{values}}",
+    "criteriaCount": "{{done}}/{{total}} critères",
+    "foundIn": {
+      "description": "Description",
+      "criterion": "Critère"
+    },
+    "storiesAndPoints_one": "{{count}} story · {{points}} points",
+    "storiesAndPoints_other": "{{count}} stories · {{points}} points",
+    "menuLabel": "Filtre : {{field}}",
+    "matchLabel": "Condition",
+    "is": "est",
+    "isNot": "n’est pas",
+    "narrow": "Chercher {{field}}…",
+    "resultCount_one": "{{count}} résultat",
+    "resultCount_other": "{{count}} résultats",
+    "removeFilter": "Retirer le filtre {{filter}}",
+    "editFilter": "Modifier le filtre {{filter}}",
+    "done": "Terminé",
+    "moreFilters": "Filtre",
+    "recentSearches": "Recherches récentes",
+    "recentlyOpened": "Ouverts récemment",
+    "useAsFilter": "Utiliser comme filtre",
+    "noResults": "Aucun résultat",
+    "noResultsStatus": "Aucun résultat. Vous pouvez retirer un filtre ou recommencer.",
+    "forget": "Retirer de l’historique",
+    "withoutFilter": "Rechercher sans {{filter}}",
+    "reset": "Tout effacer et recommencer",
+    "emptyHint": "Saisissez du texte pour chercher des stories, epics et sprints, ou choisissez un filtre.",
+    "keys": {
+      "move": "choisir",
+      "open": "ouvrir",
+      "close": "fermer"
+    },
+    "clearHistory": "Effacer l’historique",
+    "highlightSummary_one": "{{matches}} story sur {{count}} correspond ici",
+    "highlightSummary_other": "{{matches}} stories sur {{count}} correspondent ici",
+    "nav": {
+      "label": "Résultats de recherche",
+      "position": "Résultat {{position}} sur {{total}}",
+      "previous": "Résultat précédent",
+      "next": "Résultat suivant",
+      "back": "Retour à la recherche"
+    },
+    "onPage": "Sur cette page",
+    "everywhere": "Partout",
+    "onlyPage": "Seulement {{page}}",
+    "scopeLabel": "Où chercher",
+    "searchEverywhere": "Afficher les résultats de partout",
+    "showOnPage": "Afficher sur {{page}}"
   }
 }

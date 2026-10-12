@@ -3,6 +3,7 @@ import { LANGUAGES, setLanguage, type LanguageCode } from '../i18n';
 import { hrefs, type Route } from '../router';
 import type { Theme } from '../theme';
 import { GearIcon } from './icons';
+import { SearchBox } from './search/SearchBox';
 
 interface Props {
   route: Route;
@@ -42,6 +43,7 @@ export function Header({ route, theme, onToggleTheme }: Props) {
       </nav>
 
       <div className="header__tools">
+        <SearchBox />
         <button
           type="button"
           className="icon-btn"
