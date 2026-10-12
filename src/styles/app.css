@@ -2918,3 +2918,63 @@ mark {
 .choice__rows {
   font-size: 12px;
 }
+
+/* ---------- Story picker: search in key and title (#10) ---------- */
+
+.story-picker {
+  position: relative;
+}
+
+.story-picker__input {
+  width: 100%;
+}
+
+.story-picker__list {
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.story-picker__list[hidden] {
+  display: none;
+}
+
+.story-picker__option {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.story-picker__option--active {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.story-picker__code {
+  flex: none;
+  min-width: 44px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.story-picker__title {
+  min-width: 0;
+}
+
+.story-picker__more {
+  padding: 6px 10px;
+}
+
+.story-picker__none {
+  margin: 6px 0 0;
+}

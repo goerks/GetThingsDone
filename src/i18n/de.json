@@ -482,7 +482,6 @@
     },
     "noDatesNote": "Start und Ende sind optional. Ohne sie haben Berichte keine Soll-Linie.",
     "addStory": "Story hinzufügen",
-    "addStoryPlaceholder": "Story hinzufügen …",
     "noStoriesToAdd": "Jede Story hat schon ein Release.",
     "noStories": "Noch keine Stories in diesem Release. Füge oben oder auf der Story Map welche hinzu.",
     "remove": "{{code}} aus diesem Release entfernen",
@@ -505,6 +504,15 @@
     "afterEnd_one": "{{count}} Story liegt in einem Sprint, der nach dem {{date}} endet: {{codes}}.",
     "afterEnd_other": "{{count}} Stories liegen in Sprints, die nach dem {{date}} enden: {{codes}}.",
     "sprintAfter": "{{sprint}} endet am {{sprintEnd}}, nach dem Ende von {{release}} ({{releaseEnd}}).",
-    "onCard": "Release: {{title}}"
+    "onCard": "Release: {{title}}",
+    "picker": {
+      "placeholder": "Nach Key oder Titel suchen …",
+      "results_one": "{{count}} Story gefunden. Mit den Pfeiltasten und Enter hinzufügen.",
+      "results_other": "{{count}} Stories gefunden. Mit den Pfeiltasten und Enter eine hinzufügen.",
+      "none": "Keine Story ohne Release passt zu «{{query}}».",
+      "more_one": "{{count}} weitere. Tippe weiter, um die Liste einzugrenzen.",
+      "more_other": "{{count}} weitere. Tippe weiter, um die Liste einzugrenzen.",
+      "added": "{{code}} wurde dem Release hinzugefügt."
+    }
   }
 }
