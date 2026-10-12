@@ -98,6 +98,7 @@ interface AppApi {
   dropOnReleaseMap(activeId: string, overId: string, placement?: Placement): void;
   /** Chooses what the rows of the story map are (a team setting). */
   setMapRows(rows: MapRows): void;
+  setReleasesEnabled(enabled: boolean): void;
   /** Returns the id of the new sprint, or null when the input is invalid. */
   createSprint(input: SprintInput): string | null;
   updateSprint(id: string, input: SprintInput): void;
@@ -315,6 +316,12 @@ export function AppProvider({ repository, children }: Props) {
       setMapRows(rows) {
         if (settingsRef.current.mapRows === rows) return;
         const settings = { ...settingsRef.current, mapRows: rows };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
+      },
+      setReleasesEnabled(enabled) {
+        if (settingsRef.current.releasesEnabled === enabled) return;
+        const settings = { ...settingsRef.current, releasesEnabled: enabled };
         updateSettings(settings);
         persist((repo) => repo.saveSettings(settings));
       },

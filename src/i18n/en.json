@@ -298,7 +298,9 @@
       "hint": "Drag custom fields to change their order in the dialogs. At most {{count}} fields show on a card.",
       "hintNoCard": "Drag custom fields to change their order in the dialog.",
       "noCustom": "No custom fields for this type yet. Tick them under Assignment.",
-      "instructions": "Press space to pick up a field. Use the arrow keys to move it, space to drop it and escape to cancel."
+      "instructions": "Press space to pick up a field. Use the arrow keys to move it, space to drop it and escape to cancel.",
+      "releaseOff": "Not available: releases are switched off",
+      "releaseOffLink": "Settings › Releases"
     },
     "invalidUrl": "Enter a web address, for example example.com.",
     "openLink": "Open {{name}}",
@@ -310,7 +312,8 @@
     "renameHint": "The new name is shown in every language. The default is \"{{name}}\".",
     "resetLabel": "Reset to \"{{name}}\"",
     "alwaysOn": "Always shown on this type",
-    "customOnReleases": "Custom fields on releases are planned for a later release"
+    "customOnReleases": "Custom fields on releases are planned for a later release",
+    "releasesOffCell": "{{name}} is not available on {{type}}: releases are switched off"
   },
   "settings": {
     "title": "Settings",
@@ -335,7 +338,16 @@
       "saved": "The choice applies to the whole team and is saved at once. Stories, sprints and releases stay as they are; only the view changes.",
       "noReleases": "There is no release yet. The story map then shows only the row \"No release\".",
       "createRelease": "Create a release",
-      "back": "← To the story map"
+      "back": "← To the story map",
+      "off": "Releases are switched off, so the story map shows sprints. Switch releases on to use them as rows.",
+      "toReleases": "Switch releases on"
+    },
+    "releases": {
+      "title": "Releases",
+      "enabled": "Plan with releases",
+      "hint": "Switch this off if the team works with sprints only. The Releases page, the release field of stories and the release rows of the story map are then hidden. Nothing is deleted: switch it on again and everything is back.",
+      "saved": "The choice applies to the whole team and is saved at once.",
+      "offNote": "Releases are switched off. Releases and their history are kept."
     }
   },
   "summary": {

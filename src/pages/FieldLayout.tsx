@@ -8,6 +8,7 @@ import { GripIcon, LockIcon } from '../components/icons';
 import { useDragSensors } from '../dnd/dnd';
 import { CARD_FIELD_LIMIT, cardFieldsFor, layoutFor, type LayoutEntry } from '../domain/fields';
 import type { ItemType } from '../domain/types';
+import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
 
 /** Item types with a layout; sprints and releases are shown as planned. */
@@ -45,6 +46,20 @@ function ReleaseRow({ entry }: { entry: LayoutEntry }) {
   const update = (patch: Parameters<typeof app.updateFieldLayout>[2]): void => {
     app.updateFieldLayout('story', field.id, patch);
   };
+  if (!app.settings.releasesEnabled) {
+    return (
+      <li className="layout-row layout-row--fixed layout-row--off">
+        <span className="layout-row__lock" aria-hidden="true">
+          <LockIcon />
+        </span>
+        <span className="layout-row__name">{fieldLabel(t, field)}</span>
+        <span className="muted layout-row__type">{t(`fields.type.${field.dataType}`)}</span>
+        <span className="muted layout-row__note">
+          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsReleases}>{t('fields.layout.releaseOffLink')}</a>
+        </span>
+      </li>
+    );
+  }
   return (
     <li className="layout-row layout-row--fixed">
       <span className="layout-row__lock" aria-hidden="true">

@@ -33,6 +33,7 @@ import {
   totalPoints,
   type Placement
 } from '../domain/board';
+import { effectiveMapRows } from '../domain/settings';
 import { isReleaseDone, releaseState, sortReleases, storiesAfterReleaseEnd } from '../domain/releases';
 import { sortEpics } from '../domain/epics';
 import { isRunning, isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints';
@@ -333,7 +334,7 @@ export function MapPage() {
   };
 
   const today = todayIso();
-  const releaseMode = app.settings.mapRows === 'releases';
+  const releaseMode = effectiveMapRows(app.settings) === 'releases';
   const epics = useMemo(() => sortEpics(app.epics), [app.epics]);
   // Stories without an epic get their own column at the end, shown only while there are such stories.
   const hasLooseStories = app.stories.some((story) => story.epicId === null);
