@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suche: Feld-Syntax</title>
+<style>
+/* Mockups for the field syntax of the search (#7). Each <section class="shot"> is rendered to one PNG in search-syntax/. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --track: #e6e9ee; --pill: #eef0f4; --shadow: rgba(20,24,31,.12); --column: #eceff3;
+  --mark: #fff1b8; --mark-ink: #14181f; --danger: #b42318; --danger-soft: #fdecea;
+  --epic-blue: #2457d6; --epic-amber: #b45309; --epic-teal: #0f766e; --epic-violet: #7c3aed;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { scrollbar-width: none; }
+::-webkit-scrollbar { display: none; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+.shot { width: 1040px; padding: 28px 32px 32px; background: var(--bg); display: grid; gap: 18px; }
+.shot + .shot { border-top: 1px solid var(--border); }
+h1 { margin: 0; font-size: 22px; font-weight: 600; }
+.tag { font-family: var(--font-mono); font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.lead { margin: 0; color: var(--muted); font-size: 15px; max-width: 80ch; }
+.states { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.state { display: grid; gap: 8px; }
+.state-label { font-size: 12.5px; color: var(--muted); }
+.state-label b { font-family: var(--font-mono); color: var(--text); font-weight: 500; margin-right: 4px; }
+.mock { background: var(--column); border: 1px solid var(--border); border-radius: 10px; padding: 12px; min-height: 230px; }
+.field { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; min-height: 38px; padding: 4px 8px; border: 1px solid var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); border-radius: 6px; background: var(--surface); font-size: 13.5px; }
+.field .ico { color: var(--muted); }
+.caret { display: inline-block; width: 1px; height: 15px; background: var(--text); vertical-align: -3px; margin-left: 1px; }
+.typed { white-space: pre; }
+.token { font-family: var(--font-mono); font-size: 12.5px; background: var(--pill); border-radius: 4px; padding: 1px 4px; }
+.token .k { color: var(--accent); }
+.err { text-decoration: wavy underline var(--danger); }
+.badge { display: inline-flex; align-items: center; gap: 0; border-radius: 6px; overflow: hidden; font-size: 12.5px; border: 1px solid var(--accent-soft); white-space: nowrap; }
+.badge .bf { background: var(--accent-soft); color: var(--accent-soft-ink); padding: 2px 6px; font-weight: 600; }
+.badge .bo { background: var(--surface); color: var(--muted); padding: 2px 3px 2px 5px; }
+.badge .bv { background: var(--surface); color: var(--text); padding: 2px 6px 2px 2px; font-weight: 500; }
+.badge.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+.badge .slot { display: inline-block; min-width: 56px; padding: 2px 6px; background: var(--surface); }
+.dd { margin-top: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 26px var(--shadow); overflow: hidden; }
+.grp { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; padding: 8px 10px 3px; }
+.opt { display: flex; align-items: center; gap: 8px; padding: 5px 10px; font-size: 13px; }
+.opt.sel { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.opt .hint { margin-left: auto; color: var(--muted); font-size: 11.5px; font-family: var(--font-mono); }
+.opt .used { margin-left: auto; color: var(--muted); font-size: 11.5px; }
+.opt.off { color: var(--muted); }
+.opt mark { background: var(--mark); color: var(--mark-ink); padding: 0 1px; border-radius: 2px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.res { display: flex; gap: 8px; align-items: center; padding: 5px 10px; font-size: 12.5px; }
+.code { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.foot { display: flex; gap: 10px; flex-wrap: wrap; padding: 6px 10px; border-top: 1px solid var(--border); background: var(--bg); color: var(--muted); font-size: 11px; }
+kbd { font-family: var(--font-mono); font-size: 10.5px; padding: 0 4px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 3px; background: var(--surface); color: var(--text); }
+.note { font-size: 12.5px; color: var(--muted); }
+.pros { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px; }
+.pros h3 { margin: 0 0 4px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.pros ul { margin: 0; padding-left: 18px; }
+table { border-collapse: collapse; width: 100%; background: var(--surface); border: 1px solid var(--border); font-size: 13px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+td code { font-family: var(--font-mono); font-size: 12.5px; background: var(--pill); padding: 1px 4px; border-radius: 3px; }
+.cols { display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: start; }
+</style>
+</head>
+<body>
+
+<!-- ===================== Syntax ===================== -->
+<section class="shot" id="syntax">
+  <span class="tag">Vorschlag · Syntax</span>
+  <h1>Feld-Filter im Suchtext: <code>Feld:Wert</code></h1>
+  <p class="lead">Freitext und Felder stehen im selben Textfeld. Ein Feld-Filter ist <code>Feldname:Wert</code>. Mehrere Filter und Freitext werden immer mit <strong>und</strong> verknüpft. Jedes Feld kommt höchstens einmal vor. Ein fertiger Filter wird zum Badge <span class="badge"><span class="bf">Status</span><span class="bo">=</span><span class="bv">Offen</span></span> und mit einem <kbd>⌫</kbd> ganz entfernt.</p>
+  <div class="cols">
+    <table>
+      <thead><tr><th>Eingabe</th><th>Bedeutung</th></tr></thead>
+      <tbody>
+        <tr><td><code>login fehler</code></td><td>Freitext wie bisher: alle Wörter müssen vorkommen</td></tr>
+        <tr><td><code>status:offen</code></td><td>Status ist «Offen»</td></tr>
+        <tr><td><code>punkte:5 epic:boards</code></td><td>5 Punkte <strong>und</strong> Epic «Boards»</td></tr>
+        <tr><td><code>epic:"local storage" export</code></td><td>Wert mit Leerzeichen in Anführungszeichen, dazu Freitext «export»</td></tr>
+        <tr><td><code>prio:must sprint:"sprint 2"</code></td><td>Eigene Felder (#4) gehen genauso</td></tr>
+        <tr><td><code>stat:off</code></td><td>Feld- und Wertname dürfen abgekürzt werden, solange eindeutig</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <p style="margin-top:0"><strong>Regeln</strong></p>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:4px">
+        <li>Feldnamen in der UI-Sprache, englische Namen gehen immer (<code>points:5</code>).</li>
+        <li>Gross/klein und Akzente egal, wie beim Freitext.</li>
+        <li><code>=</code> statt <code>:</code> geht auch.</li>
+        <li>Ein zweites <code>status:</code> ersetzt das erste Badge.</li>
+        <li>Unbekanntes Feld oder unbekannter Wert: rot unterstrichen, wird nicht angewendet.</li>
+        <li>Kein «oder», kein «ist nicht» im ersten Schritt.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== Variant A ===================== -->
+<section class="shot" id="variant-a">
+  <span class="tag">Variante A · Empfehlung</span>
+  <h1>Autovervollständigung beim Tippen</h1>
+  <p class="lead">Beginnt ein Wort wie ein Feldname, erscheinen die passenden Felder. <kbd>Tab</kbd> oder <kbd>Enter</kbd> übernimmt das Feld, dann kommen die Werte. Nach der Wahl des Werts wird daraus ein Badge. <kbd>Ctrl</kbd>+<kbd>Leertaste</kbd> zeigt jederzeit alle Felder.</p>
+  <div class="states">
+    <div class="state">
+      <div class="state-label"><b>1</b>«Punk» getippt: Felder werden vorgeschlagen</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="typed">Punk</span><span class="caret"></span></div>
+        <div class="dd">
+          <div class="grp">Felder</div>
+          <div class="opt sel"><span><mark>Punk</mark>te</span><span class="hint">punkte:</span></div>
+          <div class="grp">Stories mit «Punk»</div>
+          <div class="res"><span class="code">–</span><span style="color:var(--muted)">keine Treffer im Text</span></div>
+          <div class="foot"><span><kbd>Tab</kbd> Feld wählen</span><span><kbd>Ctrl</kbd>+<kbd>␣</kbd> alle Felder</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>2</b>Nach <kbd>Tab</kbd>: Werte des Felds</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="token"><span class="k">punkte:</span></span><span class="caret"></span></div>
+        <div class="dd">
+          <div class="grp">Punkte</div>
+          <div class="opt">1<span class="hint">1 Story</span></div>
+          <div class="opt">3<span class="hint">2 Stories</span></div>
+          <div class="opt sel">5<span class="hint">3 Stories</span></div>
+          <div class="opt">8<span class="hint">1 Story</span></div>
+          <div class="foot"><span><kbd>↑</kbd><kbd>↓</kbd> wählen</span><span><kbd>Enter</kbd> übernehmen</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>3</b>Badge, dann weiteres Feld «sta…»</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="badge"><span class="bf">Punkte</span><span class="bo">=</span><span class="bv">5</span></span><span class="typed">sta</span><span class="caret"></span></div>
+        <div class="dd">
+          <div class="grp">Felder</div>
+          <div class="opt sel"><span><mark>Sta</mark>tus</span><span class="hint">status:</span></div>
+          <div class="grp">Stories · Punkte = 5</div>
+          <div class="res"><span class="code">S-3</span>Reorder the backlog by priority</div>
+          <div class="res"><span class="code">S-4</span>Keep all data in a local database</div>
+          <div class="foot"><span><kbd>⌫</kbd> am Anfang entfernt das Badge</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pros">
+    <div><h3>Stärken</h3><ul><li>Kein Kürzel nötig, Felder werden beim Tippen entdeckt</li><li>Geübte tippen <code>status:offen</code> direkt, ohne Liste</li><li>Gleiches Muster wie GitHub- und Jira-Suche</li></ul></div>
+    <div><h3>Schwächen</h3><ul><li>Feldvorschläge erscheinen auch, wenn man nur Text meinte (z.B. «Stat…»); sie stehen deshalb klein über den Treffern</li></ul></div>
+  </div>
+</section>
+
+<!-- ===================== Variant B ===================== -->
+<section class="shot" id="variant-b">
+  <span class="tag">Variante B</span>
+  <h1>Feldliste nur auf Abruf: Ctrl+Leertaste oder «@»</h1>
+  <p class="lead">Normales Tippen bleibt reiner Freitext. Erst <kbd>Ctrl</kbd>+<kbd>Leertaste</kbd> oder ein <code>@</code> öffnet die Feldliste an der Cursorposition. Weitertippen filtert die Liste. Wer die Syntax kennt, schreibt <code>status:offen</code> auch hier direkt.</p>
+  <div class="states">
+    <div class="state">
+      <div class="state-label"><b>1</b><kbd>Ctrl</kbd>+<kbd>␣</kbd>: alle Felder</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="typed">export </span><span class="caret"></span></div>
+        <div class="dd">
+          <div class="grp">Feld wählen</div>
+          <div class="opt sel">Status</div>
+          <div class="opt">Epic</div>
+          <div class="opt">Sprint</div>
+          <div class="opt">Punkte</div>
+          <div class="opt">Prio <span class="hint">eigenes Feld</span></div>
+          <div class="opt">Typ</div>
+        </div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>2</b>«@pu» gefiltert, benutztes Feld ausgegraut</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="badge"><span class="bf">Status</span><span class="bo">=</span><span class="bv">Offen</span></span><span class="typed">export @pu</span><span class="caret"></span></div>
+        <div class="dd">
+          <div class="grp">Feld wählen</div>
+          <div class="opt sel"><span><mark>Pu</mark>nkte</span></div>
+          <div class="opt off">Status<span class="used">schon gesetzt</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>3</b>Zwei Badges und Freitext</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="badge"><span class="bf">Status</span><span class="bo">=</span><span class="bv">Offen</span></span><span class="badge"><span class="bf">Punkte</span><span class="bo">=</span><span class="bv">5</span></span><span class="typed">export</span><span class="caret"></span></div>
+        <div class="dd">
+          <div class="grp">Stories · 1</div>
+          <div class="res"><span class="code">S-9</span>Export stories to CSV</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pros">
+    <div><h3>Stärken</h3><ul><li>Freitext wird nie durch Feldvorschläge gestört</li><li>Ein klares Signal: «jetzt will ich filtern»</li></ul></div>
+    <div><h3>Schwächen</h3><ul><li>Man muss das Kürzel kennen (Hinweis im Platzhalter nötig)</li><li><kbd>Ctrl</kbd>+<kbd>Leertaste</kbd> wechselt auf macOS die Eingabesprache; dort hilft nur <code>@</code></li></ul></div>
+  </div>
+</section>
+
+<!-- ===================== Variant C ===================== -->
+<section class="shot" id="variant-c">
+  <span class="tag">Variante C</span>
+  <h1>Badge zuerst, Wert im Badge</h1>
+  <p class="lead">Die Feldwahl (per Autovervollständigung wie A) legt sofort ein leeres Badge an. Der Wert wird im Badge getippt, mit Vorschlägen. Ein Klick auf ein fertiges Badge öffnet die Werte wieder zum Ändern.</p>
+  <div class="states">
+    <div class="state">
+      <div class="state-label"><b>1</b>Feld gewählt: leeres Badge</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="badge sel"><span class="bf">Status</span><span class="bo">=</span><span class="slot"><span class="caret"></span></span></span></div>
+        <div class="dd">
+          <div class="grp">Status</div>
+          <div class="opt sel"><span class="dot" style="background:var(--muted)"></span>Offen<span class="hint">2</span></div>
+          <div class="opt"><span class="dot" style="background:var(--accent)"></span>In Arbeit<span class="hint">2</span></div>
+          <div class="opt"><span class="dot" style="background:var(--epic-amber)"></span>Review<span class="hint">1</span></div>
+          <div class="opt"><span class="dot" style="background:#15803d"></span>Erledigt<span class="hint">1</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>2</b>Wert im Badge getippt</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="badge sel"><span class="bf">Status</span><span class="bo">=</span><span class="slot">in a<span class="caret"></span></span></span></div>
+        <div class="dd">
+          <div class="grp">Status</div>
+          <div class="opt sel"><mark>In A</mark>rbeit<span class="hint">2</span></div>
+          <div class="foot"><span><kbd>Enter</kbd> übernehmen</span><span><kbd>Esc</kbd> Badge verwerfen</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>3</b>Fertig: Badge zu, Cursor dahinter</div>
+      <div class="mock">
+        <div class="field"><span class="ico">⌕</span><span class="badge"><span class="bf">Status</span><span class="bo">=</span><span class="bv">In Arbeit</span></span><span class="typed">daten</span><span class="caret"></span></div>
+        <div class="dd">
+          <div class="grp">Stories · Status = In Arbeit</div>
+          <div class="res"><span class="code">S-4</span>Keep all <mark>data</mark> in a local database</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pros">
+    <div><h3>Stärken</h3><ul><li>Die Struktur ist immer sichtbar, auch beim Tippen</li><li>Werte lassen sich per Klick aufs Badge ändern</li></ul></div>
+    <div><h3>Schwächen</h3><ul><li>Mehr Zustände, aufwendiger umzusetzen</li><li>Direktes Tippen von <code>status:offen</code> ist weniger natürlich</li></ul></div>
+  </div>
+</section>
+
+<!-- ===================== Errors and deletion ===================== -->
+<section class="shot" id="rules">
+  <span class="tag">Für alle Varianten</span>
+  <h1>Löschen, Ersetzen, Fehler</h1>
+  <div class="states">
+    <div class="state">
+      <div class="state-label"><b>⌫</b>Cursor direkt hinter Badge: ein <kbd>⌫</kbd> entfernt es ganz</div>
+      <div class="mock" style="min-height:120px">
+        <div class="field"><span class="ico">⌕</span><span class="badge"><span class="bf">Status</span><span class="bo">=</span><span class="bv">Offen</span></span><span class="badge"><span class="bf">Punkte</span><span class="bo">=</span><span class="bv">5</span></span><span class="caret"></span></div>
+        <p class="note">→ nach <kbd>⌫</kbd>:</p>
+        <div class="field"><span class="ico">⌕</span><span class="badge"><span class="bf">Status</span><span class="bo">=</span><span class="bv">Offen</span></span><span class="caret"></span></div>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>=</b>Feld nochmals getippt: ersetzt den Wert</div>
+      <div class="mock" style="min-height:120px">
+        <div class="field"><span class="ico">⌕</span><span class="badge"><span class="bf">Status</span><span class="bo">=</span><span class="bv">Offen</span></span><span class="token"><span class="k">status:</span>rev</span><span class="caret"></span></div>
+        <p class="note">→ <kbd>Enter</kbd> ersetzt «Offen» durch «Review», kein zweites Badge.</p>
+      </div>
+    </div>
+    <div class="state">
+      <div class="state-label"><b>!</b>Unbekannt: rot, ohne Wirkung</div>
+      <div class="mock" style="min-height:120px">
+        <div class="field"><span class="ico">⌕</span><span class="token err"><span class="k">farbe:</span>rot</span><span class="caret"></span></div>
+        <p class="note">Hinweis unter dem Feld: «Kein Feld ‹farbe›. Mit <kbd>Ctrl</kbd>+<kbd>␣</kbd> die Felder anzeigen.» Gesucht wird ohne diesen Teil.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
