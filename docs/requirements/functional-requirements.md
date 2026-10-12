@@ -231,11 +231,11 @@ Source: ADR 0002 · Status: Implemented · Verified by: App "switches the theme 
 
 ### FR-SET-03 Settings page
 As a team, we want the workspace settings in one place that stays out of the way of the daily work.
-- A gear button next to theme and language opens the settings (`#/settings/fields`); it is marked while the settings are open. The main navigation holds only the working views.
+- A gear button next to theme and language opens the settings (`#/settings/fields`); it is marked while the settings are open. Pressed again ("Close settings"), it goes back to the page shown before. The main navigation holds only the working views.
 - The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section. "Status values" (#5) is shown as planned and cannot be opened yet.
 - The former address `#/fields` opens the fields section.
 
-Source: #4, PO feedback (variant A in `docs/design/settings.md`) · Status: Implemented · Verified by: App "opens the fields from the settings, not from the main navigation", "parses known routes…"
+Source: #4, PO feedback (variant A in `docs/design/settings.md`) · Status: Implemented · Verified by: App "opens the fields from the settings, not from the main navigation", "closes the settings with the gear…", "parses known routes…"
 
 ## Storage (DATA)
 
@@ -336,23 +336,25 @@ Source: #7 · Status: Implemented · Verified by: search.test, Search.test "sear
 
 ### FR-SEARCH-02 Filter by fields in the search text
 As a PO, I want to combine free text with field filters typed in the same field, so that I find for example all open stories of an epic.
-- A filter is typed as `field:value` (or `field=value`), e.g. `status:open points:5 epic:"local storage"`. Field names work in the UI language and in English; field and value names may be shortened while unique; case and accents are ignored. Custom fields (#4) work the same way.
+- A filter is typed as `field:value` (or `field=value`), e.g. `status:open points:5 epic:"local storage"`. Field names work in the UI language and in English; field and value names may be shortened while unique; case and accents are ignored. Fields: key (equal), title and description (contain the text), status, epic, sprint, points, type, criteria and all custom fields (#4).
 - A word that starts like a field name lists the matching fields (typing "Punk" offers "Punkte"); `@` or `Ctrl+Space` lists all fields. `Tab` or `Enter` takes the field and lists its values; choosing a value, or starting the next word after a complete `field:value`, turns it into a badge `Field = value`.
 - All filters and the free text are combined with AND. Each field is used at most once: a field that is set is shown as "already set" and cannot be chosen; typing it again replaces its value.
 - One `Backspace` at the start of the field removes the last badge completely; ✕ on a badge removes it.
+- The search field stays on one line: badges that do not fit are cut off with a fade, and a counter "+n" names how many more there are.
 - An unknown field or value is named in a note under the field and left out of the search.
 - There are no filter buttons, value counts, "is not" or several values per field (PO decision on #8).
 
 Source: #7, PO feedback on #8 · Status: Implemented · Verified by: search.test "typed field filters", "badges", Search.test "field filters typed in the search"
 
 ### FR-SEARCH-03 Keyboard and opening a result
-- Focus stays in the field; `↑`/`↓` move through the suggestions and results, `Enter` opens or takes the marked entry, `Tab` takes a field or value, `Esc` closes the list.
+- Focus stays in the field; `↑`/`↓` move through the suggestions and results, `Enter` opens or takes the marked entry, `Tab` takes a field or value, `Esc` closes the list and a second `Esc` resets the search.
 - A result is shown where it is before its detail dialog opens (PO feedback on #8):
   1. If the current page shows it, the item is marked there, scrolled into view and focused.
   2. Otherwise the app switches to the first page that shows it (story: board for the running sprint, backlog, story map; epic: epics page, story map; sprint: board, story map, backlog) and marks it there.
   3. If no page shows it, the dialog opens over the current page.
   The mark stays until the search is cleared; closing the dialog returns focus to the item. Recently opened items from the history follow the same order.
-- The detail dialog shows "Result n of m" with previous, next and "Back to search"; back reopens the list with the same result marked.
+- The detail dialog shows "Result n of m" with previous, next and "Back to search"; `←` and `→` step to the previous and next result (not while a field has focus), `Esc` closes the dialog. Back reopens the list with the same result marked.
+- Back on the page after closing the dialog, `Esc` resets the search: text, badges, highlighting and mark.
 - Screen readers get a combobox with a grouped listbox and hear the number of results.
 
 Source: #7, PO feedback on #8 · Status: Implemented · Verified by: Search.test "search field", "opening a result where it is shown", search.test "where a result is shown"

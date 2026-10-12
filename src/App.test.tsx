@@ -585,12 +585,24 @@ describe('fields', () => {
     await screen.findByRole('dialog', { name: code });
   }
 
+  it('closes the settings with the gear and goes back to the page shown before', async () => {
+    const user = userEvent.setup();
+    render(<App repository={new LocalStorageRepository()} />);
+    await screen.findByRole('heading', { name: 'Sprint 1', level: 1 });
+    await user.click(screen.getByRole('link', { name: 'Backlog' }));
+    await user.click(screen.getByRole('link', { name: 'Settings' }));
+    expect(window.location.hash).toBe('#/settings/fields');
+    await user.click(screen.getByRole('link', { name: 'Close settings' }));
+    expect(window.location.hash).toBe('#/backlog');
+    expect(await screen.findByRole('heading', { name: 'Backlog', level: 1 })).toBeInTheDocument();
+  });
+
   it('opens the fields from the settings, not from the main navigation', async () => {
     await openFields();
     const main = screen.getByRole('navigation', { name: 'Main' });
     expect(within(main).queryByRole('link', { name: 'Fields' })).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Settings' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Close settings' })).toHaveAttribute('aria-current', 'page');
     expect(window.location.hash).toBe('#/settings/fields');
     const sections = screen.getByRole('navigation', { name: 'Settings sections' });
     expect(within(sections).getByRole('link', { name: 'Fields' })).toHaveAttribute('aria-current', 'page');

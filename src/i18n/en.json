@@ -8,7 +8,8 @@
     "backlog": "Backlog",
     "storyMap": "Story Map",
     "epics": "Epics",
-    "settings": "Settings"
+    "settings": "Settings",
+    "closeSettings": "Close settings"
   },
   "header": {
     "toDark": "Switch to dark theme",
@@ -309,6 +310,9 @@
     "clear": "Clear search",
     "results": "Search results",
     "field": {
+      "key": "Key",
+      "title": "Title",
+      "description": "Description",
       "status": "Status",
       "epic": "Epic",
       "sprint": "Sprint",
@@ -387,6 +391,8 @@
     "problemField": "There is no field “{{name}}”. Type @ to see the fields.",
     "problemValue": "“{{value}}” is not a value of {{field}}.",
     "yes": "yes",
-    "no": "no"
+    "no": "no",
+    "moreBadges_one": "+{{count}} more filter",
+    "moreBadges_other": "+{{count}} more filters"
   }
 }

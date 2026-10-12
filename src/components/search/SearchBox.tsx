@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   EMPTY_QUERY,
@@ -81,6 +81,9 @@ export function SearchBox() {
   // Ctrl+Space asks for the field list for the word at the cursor.
   const [forceFields, setForceFields] = useState(false);
   const pendingCaret = useRef<number | null>(null);
+  // The field stays on one line: badges that do not fit are cut off and counted.
+  const badgesRef = useRef<HTMLDivElement>(null);
+  const [hiddenBadges, setHiddenBadges] = useState(0);
   const { query, results, history, snapshot, labels, open, page, scope, effective, parsed } = search;
   const searching = isActive(effective) || query.text.trim() !== '';
   const usedFields = new Set(effective.filters.map((filter) => filter.field));
@@ -228,6 +231,17 @@ export function SearchBox() {
     // optionId only depends on uid.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, open]);
+
+  useLayoutEffect(() => {
+    const box = badgesRef.current;
+    if (!box) {
+      if (hiddenBadges !== 0) setHiddenBadges(0);
+      return;
+    }
+    const right = box.getBoundingClientRect().right;
+    const hidden = Array.from(box.children).filter((child) => child.getBoundingClientRect().right > right + 1).length;
+    if (hidden !== hiddenBadges) setHiddenBadges(hidden);
+  });
 
   // Put the cursor where an edit of the text wants it, once the new text is rendered.
   useEffect(() => {
@@ -378,6 +392,7 @@ export function SearchBox() {
       event.preventDefault();
       if (forceFields) setForceFields(false);
       else if (open) search.setOpen(false);
+      else if (query.text || query.filters.length > 0) search.setQuery(EMPTY_QUERY);
       else input.blur();
       return;
     }
@@ -560,28 +575,41 @@ export function SearchBox() {
           <circle cx="11" cy="11" r="7" />
           <path d="M20 20l-3.5-3.5" />
         </svg>
-        {query.filters.map((filter) => (
-          <span key={filter.field} className="search-chip">
-            <span className="search-chip__field">{labels.field(filter.field)}</span>
-            <span className="search-chip__op" aria-hidden="true">
-              =
+        {query.filters.length > 0 && (
+          <div className="search__badges" ref={badgesRef}>
+          {query.filters.map((filter) => (
+            <span key={filter.field} className="search-chip">
+              <span className="search-chip__field">{labels.field(filter.field)}</span>
+              <span className="search-chip__op" aria-hidden="true">
+                =
+              </span>
+              <span className="search-chip__value">{labels.value(filter.field, filter.value)}</span>
+              <button
+                type="button"
+                className="search-chip__remove"
+                aria-label={t('search.removeFilter', { filter: labels.badge(filter) })}
+                title={t('search.removeFilter', { filter: labels.badge(filter) })}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setQuery({ ...query, filters: removeFilter(query.filters, filter.field) });
+                  focusInput();
+                }}
+              >
+                ✕
+              </button>
             </span>
-            <span className="search-chip__value">{labels.value(filter.field, filter.value)}</span>
-            <button
-              type="button"
-              className="search-chip__remove"
-              aria-label={t('search.removeFilter', { filter: labels.badge(filter) })}
-              title={t('search.removeFilter', { filter: labels.badge(filter) })}
-              onClick={(event) => {
-                event.stopPropagation();
-                setQuery({ ...query, filters: removeFilter(query.filters, filter.field) });
-                focusInput();
-              }}
-            >
-              ✕
-            </button>
+          ))}
+          </div>
+        )}
+        {hiddenBadges > 0 && (
+          <span
+            className="search__more-badges"
+            aria-label={t('search.moreBadges', { count: hiddenBadges })}
+            title={query.filters.slice(query.filters.length - hiddenBadges).map(labels.badge).join(', ')}
+          >
+            +{hiddenBadges}
           </span>
-        ))}
+        )}
         <input
           ref={search.inputRef}
           className="search__input"

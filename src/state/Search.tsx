@@ -242,6 +242,22 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [focus, hasDetail, closeDetails]);
 
+  // Escape on the page (not in a field or dialog) resets an active search: text, badges, highlighting and mark.
+  const hasQuery = query.text.trim() !== '' || query.filters.length > 0;
+  useEffect(() => {
+    if (!hasQuery) return;
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape' || event.defaultPrevented || hasDetail) return;
+      if (document.querySelector('dialog[open]')) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.('input, textarea, select, [contenteditable="true"], [role="search"]')) return;
+      setQuery(EMPTY_QUERY);
+      setOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [hasQuery, hasDetail]);
+
   const openDetail = details.open;
   /** Shows an item where it is: on this page if it is here, else on the first page that shows it; then runs `then`. */
   const reveal = useCallback(

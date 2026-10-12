@@ -5,6 +5,7 @@ import {
   BUILTIN_FILTER_FIELDS,
   NOT_PLANNED,
   NO_EPIC,
+  TEXT_FILTER_FIELDS,
   customFieldId,
   customFieldKey,
   fieldValues,
@@ -102,7 +103,7 @@ export function useSearchLabels(snapshot: Snapshot): SearchLabels {
       label: field(name),
       aliases: [en(`search.field.${name}`), name],
       values: fieldValues(snapshot, name).map((item) => ({ value: item, label: value(name, item), aliases: englishValue(name, item) })),
-      freeValue: false
+      freeValue: TEXT_FILTER_FIELDS.includes(name)
     }));
     const custom = (snapshot.fields ?? [])
       .filter((definition) => definition.kind === 'custom' && definition.label)
