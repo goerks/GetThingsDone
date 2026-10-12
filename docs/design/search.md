@@ -18,7 +18,7 @@ Four variants for the final version were proposed to the product owner. The mock
 | Topic | Decision |
 |---|---|
 | Opening | `Ctrl+F` (`Cmd+F` on macOS) focuses the search from every page and selects the last text, so typing replaces it. It replaces the browser's own find in the web preview. An open detail dialog closes first. |
-| Free text and fields | One field. Free text searches key, title, description and acceptance criteria of stories, and the names of epics and sprints. Filters are chips in the same field. No query syntax. |
+| Free text and fields | One field. Free text searches key, title, description, acceptance criteria and custom field values of stories (shown text, e.g. the option label; checkboxes left out), and the names of epics and sprints. Custom fields have no filter chips of their own. Filters are chips in the same field. No query syntax. |
 | Field values in free text | Text that is the name of a status, epic or sprint (or the start of it, three letters or more) is offered as "Use as filter"; `Tab` or a click turns it into a chip. |
 | Fields | Status, Epic, Sprint as buttons; Type, Points, Criteria and "Search in" under "+ Filter". Each field opens a menu with checkboxes, the number of results per value and "is / is not" ("Search in" has no "is not"). |
 | Combining | Different fields AND, values of one field OR, "is not" excludes. Several words must all occur, in any field and order; text in double quotes is an exact phrase. Case and accents are ignored. No free OR between fields. |
