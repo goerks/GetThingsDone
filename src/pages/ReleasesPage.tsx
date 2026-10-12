@@ -75,7 +75,7 @@ export function ReleasesPage() {
                       <span className="delta">{t('releases.sinceNone')}</span>
                     ) : (
                       <>
-                        <span className={`delta ${net.tickets >= 0 ? 'delta--up' : 'delta--down'}`}>{`${net.tickets < 0 ? '−' : '+'}${t('summary.stories', { count: Math.abs(net.tickets) })}`}</span>{' '}
+                        <span className={`delta ${net.tickets >= 0 ? 'delta--up' : 'delta--down'}`}>{`${net.tickets === 0 ? '±' : net.tickets < 0 ? '−' : '+'}${t('summary.stories', { count: Math.abs(net.tickets) })}`}</span>{' '}
                         {pointsShown && <span className={`delta ${net.points >= 0 ? 'delta--up' : 'delta--down'}`}>{`${delta(net.points)} ${t('releases.scope.unitShort.points')}`}</span>}
                       </>
                     )}

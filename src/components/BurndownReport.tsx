@@ -13,7 +13,7 @@ const W = 680;
 const H = 284;
 const LEFT = 48;
 const RIGHT = 660;
-const TOP = 16;
+const TOP = 32;
 const BOTTOM = 250;
 
 const amountOf = (amount: Amount, unit: ReportUnit): number => (unit === 'points' ? amount.points : amount.tickets);
