@@ -63,6 +63,17 @@ const DEMO_VALUES: Record<string, Record<string, FieldValue>> = {
   'story-6': { 'field-demo-priority': 'opt-could', 'field-demo-value': 2, 'field-demo-labels': ['opt-ui', 'opt-a11y'] }
 };
 
+/** The release of each demo story; the stories not listed belong to no release. */
+const DEMO_RELEASE_OF: Record<string, string> = {
+  'story-1': 'release-beta',
+  'story-2': 'release-beta',
+  'story-3': 'release-beta',
+  'story-4': 'release-beta',
+  'story-5': 'release-beta',
+  'story-6': 'release-beta',
+  'story-7': 'release-map'
+};
+
 /**
  * Demo data shown on the first start so the board is not empty.
  * Sprint 1 runs around `today`, Sprint 2 follows it, so the board and the story map always have content.
@@ -94,11 +105,21 @@ export function seedSnapshot(today: string): Snapshot {
       { id: 'sprint-1', name: 'Sprint 1', startDate: sprint1Start, endDate: addDays(sprint1Start, 13) },
       { id: 'sprint-2', name: 'Sprint 2', startDate: addDays(sprint1Start, 14), endDate: addDays(sprint1Start, 27) }
     ],
-    stories: demoStories.map((story) => ({ ...story, values: DEMO_VALUES[story.id] ?? {} }))
+    releases: [
+      {
+        id: 'release-beta',
+        title: 'Release 1.0 – Public Beta',
+        description: 'Board, backlog and story map usable for small teams. Demo data.',
+        startDate: sprint1Start,
+        endDate: addDays(sprint1Start, 55)
+      },
+      { id: 'release-map', title: 'Release 1.1 – Story map', description: 'Release planning and reports. Demo data.', startDate: null, endDate: null }
+    ],
+    stories: demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {} }))
   };
 }
 
-const demoStories: Omit<Story, 'values'>[] = [
+const demoStories: Omit<Story, 'values' | 'releaseId'>[] = [
   {
     id: 'story-1',
     code: 'S-1',

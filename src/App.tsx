@@ -6,6 +6,7 @@ import type { Repository } from './data/repository';
 import { BacklogPage } from './pages/BacklogPage';
 import { BoardPage } from './pages/BoardPage';
 import { EpicsPage } from './pages/EpicsPage';
+import { ReleasesPage } from './pages/ReleasesPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { MapPage } from './pages/MapPage';
 import { useRoute } from './router';
@@ -39,6 +40,8 @@ function Shell() {
           <MapPage />
         ) : route.name === 'epics' ? (
           <EpicsPage />
+        ) : route.name === 'releases' ? (
+          <ReleasesPage />
         ) : route.name === 'settings' ? (
           <SettingsPage section={route.section} />
         ) : (

@@ -1,4 +1,4 @@
-import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Snapshot, Sprint, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, Snapshot, Sprint, Story } from '../domain/types';
 
 export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId'>;
 
@@ -29,6 +29,10 @@ export interface Repository {
   deleteEpic(epicId: string): Promise<void>;
   addSprint(sprint: Sprint): Promise<void>;
   updateSprint(sprint: Sprint): Promise<void>;
+  addRelease(release: Release): Promise<void>;
+  updateRelease(release: Release): Promise<void>;
+  /** Deletes a release. Its stories stay and lose their release. */
+  deleteRelease(releaseId: string): Promise<void>;
   /** Adds or changes a field with its options. Values of removed options are deleted. */
   saveField(field: FieldDefinition): Promise<void>;
   /** Deletes a field with its options, assignments and values. */

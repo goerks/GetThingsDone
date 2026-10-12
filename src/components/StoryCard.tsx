@@ -2,7 +2,7 @@ import type { KeyboardEvent } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { criteriaProgress } from '../domain/board';
-import { cardFieldsFor, formatValue } from '../domain/fields';
+import { cardFieldsFor, formatValue, releaseLayout } from '../domain/fields';
 import type { Epic, Story } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
@@ -56,6 +56,20 @@ export function CardFieldValues({ story }: { story: Story }) {
   );
 }
 
+/** The release of the story as a small tag, when the team set the release field to "On card". */
+function CardRelease({ story }: { story: Story }) {
+  const { t } = useTranslation();
+  const app = useApp();
+  const release = app.releases.find((item) => item.id === story.releaseId);
+  if (!release || !releaseLayout(app.assignments).onCard) return null;
+  return (
+    <span className="card-release" title={t('releases.onCard', { title: release.title })}>
+      <span className="sr-only">{t('releases.label')}: </span>
+      {release.title}
+    </span>
+  );
+}
+
 function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) {
   const { t } = useTranslation();
   const builtin = useBuiltin();
@@ -65,6 +79,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
       <span className="card__code">{story.code}</span>
       <TitleButton story={story} className="card__title" />
       <CardFieldValues story={story} />
+      <CardRelease story={story} />
       {builtin.shown('story', 'criteria') && (
         <div className="card__progress">
           <div

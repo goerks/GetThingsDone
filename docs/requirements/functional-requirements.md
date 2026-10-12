@@ -140,8 +140,8 @@ Configurable fields, issue #4, data model in ADR 0003. Stages 1 to 5 of the feat
 
 ### FR-FIELD-01 Field library as a matrix
 As a team, we want to see every field of the workspace and the item types that use it, so that we know what our items carry.
-- The section "Fields" of the settings (FR-SET-03) lists all fields with name and type, grouped into system, built-in and custom fields, with one checkbox column per item type: Stories, Epics. Sprints and Releases are shown as planned columns.
-- System fields (key, title, story status) are ticked and locked. Built-in fields (description, epic, points, acceptance criteria on stories; colour on epics) can be switched off (hidden), except the epic, which stays locked for now (FR-FIELD-10). A field that does not exist for a type shows "–".
+- The section "Fields" of the settings (FR-SET-03) lists all fields with name and type, grouped into system, built-in and custom fields, with one checkbox column per item type: Stories, Epics, Releases. Sprints are shown as a planned column. Custom fields cannot be used on releases yet (#9); their cell in the Releases column is empty.
+- System fields (key, title, story status, the release of a story) are ticked and locked. Built-in fields (description, epic, points, acceptance criteria on stories; colour on epics; start and end on releases) can be switched off (hidden), except the epic, which stays locked for now (FR-FIELD-10), and the description of releases, which is always shown. A field that does not exist for a type shows "–".
 - A click on the checkbox of a custom field uses it on that type or takes it off, and is saved at once. Taking a field off hides it in that type's dialog but keeps its values, so they come back when the field is used again.
 - System and built-in fields cannot be deleted, neither in the UI nor by either storage backend; they can be renamed (FR-FIELD-10). Missing ones are added automatically when data is loaded, also for data of release 0.1.
 
@@ -217,6 +217,69 @@ As a team, we want to call the fields by our own names and switch off the built-
 
 Source: #4, PO decision 2026-10-11 · Status: Implemented · Verified by: App "hides points, so the board, cards and dialogs leave them out…", "hides acceptance criteria, description and epic colour", "renames built-in and system fields with one label and resets them", "renames title, description, epic, criteria and colour and uses the names in every dialog, also after a reload", fields.test "renaming and hiding built-in fields", sqliteRepository.test and localStorageRepository.test "keeps the label and hidden state of a built-in field" / "keeps a renamed and hidden built-in field"
 
+## Releases (REL)
+
+Release planning, issue #10; design in `docs/design/release-planning.md`. Phase 1 of the feature: releases, assigning stories, the release field. The map slices, the scope report and the burndown follow in the next phases of the same pull request.
+
+### FR-REL-01 Releases
+As a PO, I want to plan releases, so that I see which stories belong to a release and how big it is.
+- A release has a title (required), a description and an optional start and end day (both days belong to the release; the end cannot be before the start; one date alone is fine).
+- Its size is the number of its stories and the sum of their points; "done" counts the stories with status done.
+- A release is planned, running or done. This is derived, never stored: done when it has stories and all are done; running when its start day is today or earlier; otherwise planned (also without a start day). Adding a story or reopening one makes a done release run again.
+- Deleting a release keeps its stories and removes their release.
+
+Source: Issue #10 · Status: Implemented · Verified by: releases.test, App "releases page", "release dialog"
+
+### FR-REL-02 Releases page
+A main navigation entry "Releases" (`#/releases`) shows one card per release: title, state, period, description, stories, points, points done and a progress bar. Releases are ordered by start day (without a start day after those with one), done releases last. A click opens the release. The last, dashed card creates a release. Without releases the page explains what a release is.
+
+Source: Issue #10, PO design (cards) · Status: Implemented · Verified by: App "is part of the main navigation and lists the demo releases as cards", "shows an empty page…"
+
+### FR-REL-03 Create a release, also with Ctrl+N
+"+ Release" opens the dialog "New release" (title, description, start, end). On the releases page Ctrl+N (Cmd+N on a Mac) opens the same dialog, unless a dialog is open; on other pages it does nothing. The last card names the shortcut. Many browsers keep Ctrl+N for a new window and never pass it on, so the web preview may not react; the desktop app does.
+
+Source: Issue #10, PO request · Status: Implemented · Verified by: App "creates a release with Ctrl+N…", "does not create a release with Ctrl+N on other pages", "names the shortcut on the last card"; Windows app: manual check
+
+### FR-REL-04 Release dialog
+A release opens in a dialog with the tabs "Details" and "Stories" (arrow keys switch). Title, description and dates are saved at once; a date that would put the end before the start is refused with a message and not saved. The details show size and progress and, when stories are planned in sprints that end after the release, a hint that names them (it never blocks). "Stories" lists the release's stories (key, title, epic, sprint, points, status), adds a story that has no release and removes one; a title opens the story. Deleting asks first and states how many stories lose their release.
+
+Source: Issue #10, PO design (tabs in the dialog) · Status: Implemented · Verified by: App "release dialog" tests
+
+### FR-REL-05 Release of a story
+"Release" is a system field of stories: it cannot be removed, but renamed (FR-FIELD-10). A story belongs to at most one release. The story dialog has a select with "No release" and every release that is not done (plus the story's own); a change is saved at once. When the sprint of the story ends after its release, a hint says so.
+
+Source: Issue #10 · Status: Implemented · Verified by: App "release on stories" tests, releases.test "selectableReleases", sqliteRepository.test "releases"
+
+### FR-REL-06 Release on cards and in the new-story dialog
+Both are off by default. In Settings › Fields › Layout › Stories the Release row can show the release in the create dialog and as a small tag on the card (not counted in the three card fields).
+
+Source: Issue #10, PO decision · Status: Implemented · Verified by: App "keeps the release out of the new-story dialog…", "shows the release on the card only when the team ticked "On card""
+
+### FR-REL-07 Release fields in the settings
+The matrix has an active Releases column: title and description are always shown, start and end can be switched off (the dialogs then leave them out). Layout for releases and custom fields on releases follow with #9.
+
+Source: Issue #10 · Status: Implemented · Verified by: App "release fields in the settings", fields.test
+
+### FR-REL-08 Demo and migration
+The demo data has two releases with demo stories. Data of earlier versions (SQLite migration 007, browser data) gets no releases and no release on stories; the title and description of releases are added to the field library on load.
+
+Source: Issue #10 · Status: Implemented · Verified by: sqliteRepository.test "migration 007", "adds the title and description of releases…", localStorageRepository.test "migrates browser data without releases", migrate.test
+
+### FR-REL-09 Story map rows: sprints or releases
+The rows of the story map are chosen in Settings › Story map (sprints, the default, or releases); the map page head links to that setting. Release rows, a "No release" row, drag between releases.
+
+Source: Issue #10, PO decision · Status: Planned (phase 2)
+
+### FR-REL-10 Scope report
+Scope increase and decrease of a release over time, in tickets and in points, from an append-only history.
+
+Source: Issue #10 · Status: Planned (phase 3)
+
+### FR-REL-11 Burndown
+Remaining tickets and points over time with an ideal line when start and end are set.
+
+Source: Issue #10 · Status: Planned (phase 4)
+
 ## Settings (SET)
 
 ### FR-SET-01 Language
@@ -259,7 +322,7 @@ Source: — · Status: Implemented
 ## Navigation (NAV)
 
 ### FR-NAV-01 Main navigation
-Header with board, backlog, story map and epics, plus a gear button for the settings; the current page is marked.
+Header with board, backlog, story map, epics and releases, plus a gear button for the settings; the current page is marked.
 
 Source: Vision · Status: Implemented · Verified by: App "marks the current page", "parses known routes and falls back to the board"
 
@@ -380,6 +443,6 @@ Source: #7 (variant D), PO feedback on #8 · Status: Implemented · Verified by:
 | ID | Requirement | Status |
 |---|---|---|
 | FR-MAP-06 | Activities above epics on the map | Open (out of scope of #2) |
-| FR-MAP-07 | Release slices in addition to sprints | Open (out of scope of #2) |
 | FR-SEARCH-06 | Search in a side panel next to the board (rest of variant D) | Open (out of scope of #7) |
 | FR-SEARCH-07 | Saved searches with a name | Proposed (PO undecided) |
+| FR-MAP-07 | Release slices in addition to sprints | Planned in #10, phase 2 (see FR-REL-09) |
