@@ -80,7 +80,8 @@ const DEMO_RELEASE_OF: Record<string, string> = {
  * were added, the points of one grew, and one story was finished. The preview shows it in the scope report.
  */
 function demoEvents(today: string): ReleaseEvent[] {
-  const at = (daysAgo: number): string => `${addDays(today, -daysAgo)}T12:00:00.000Z`;
+  // Noon of the local day, so the entry belongs to that day in every time zone.
+  const at = (daysAgo: number): string => new Date(`${addDays(today, -daysAgo)}T12:00:00`).toISOString();
   const entry = (id: string, daysAgo: number, kind: ReleaseEvent['kind'], storyId: string, code: string, points: number, done = false): ReleaseEvent => ({
     id: `event-demo-${id}`,
     at: at(daysAgo),
