@@ -101,13 +101,6 @@ describe('releases page', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('does not create a release with Ctrl+N on other pages', async () => {
-    const user = userEvent.setup();
-    await renderApp('#/board');
-    await user.keyboard('{Control>}n{/Control}');
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
   it('names the shortcut on the last card', async () => {
     await openReleases();
     expect(screen.getByRole('button', { name: /\+ Release/ })).toHaveAttribute('aria-keyshortcuts', 'Control+N Meta+N');

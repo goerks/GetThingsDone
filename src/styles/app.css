@@ -2794,3 +2794,127 @@ mark {
   display: block;
   height: 100%;
 }
+
+/* ---------- Story map rows and its setting (#10, phase 2) ---------- */
+
+.map-rows-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.map-rows-link:hover {
+  border-color: var(--accent);
+}
+
+.map-release {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.map-release .release-state {
+  align-self: flex-start;
+}
+
+.map-release__hint {
+  margin: 2px 0 0;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+.map-settings {
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.map-settings__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 20px;
+}
+
+.map-settings__head h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.choices {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.choices legend {
+  padding: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.choices__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.choice:hover {
+  border-color: var(--accent);
+}
+
+.choice--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.choice:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.choice__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.choice__name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.choice__preview {
+  display: grid;
+  grid-template-columns: 44px repeat(3, 1fr);
+  gap: 3px;
+}
+
+.choice__preview i {
+  height: 14px;
+  border-radius: 3px;
+  background: var(--column);
+}
+
+.choice__preview .choice__preview-label {
+  background: var(--pill);
+}
+
+.choice__rows {
+  font-size: 12px;
+}

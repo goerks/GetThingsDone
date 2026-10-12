@@ -8,7 +8,7 @@ import type { CustomDataType, FieldDefinition } from '../domain/types';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -110,6 +110,31 @@ describe('migration 007', () => {
     expect(() =>
       db.exec("INSERT INTO stories (id, code, title, description, points, status, rank, release_id) VALUES ('s1', 'S-1', 'A', '', 1, 'todo', 0, 'nope')")
     ).toThrow();
+  });
+});
+
+describe('settings', () => {
+  it('starts with the default and keeps the rows of the story map', async () => {
+    const { repository } = await freshRepository();
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints' });
+    await repository.saveSettings({ mapRows: 'releases' });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases' });
+    await repository.saveSettings({ mapRows: 'sprints' });
+    expect((await repository.load()).settings.mapRows).toBe('sprints');
+  });
+
+  it('falls back to the default for a value it does not know', async () => {
+    const { db, repository } = await freshRepository();
+    db.exec("INSERT INTO settings (key, value) VALUES ('map_rows', 'nonsense') ON CONFLICT (key) DO UPDATE SET value = 'nonsense'");
+    expect((await repository.load()).settings.mapRows).toBe('sprints');
+  });
+
+  it('saves the release of a story that was moved on the map', async () => {
+    const { repository } = await freshRepository();
+    const story = (await repository.load()).stories.find((item) => item.id === 'story-7');
+    if (!story) throw new Error('story missing');
+    await repository.savePositions([{ ...story, releaseId: 'release-beta' }]);
+    expect((await repository.load()).stories.find((item) => item.id === 'story-7')?.releaseId).toBe('release-beta');
   });
 });
 

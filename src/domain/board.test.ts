@@ -28,7 +28,8 @@ import {
   updateCriterionText,
   updateStory
 } from './board';
-import type { Sprint, Story } from './types';
+import { dropOnReleaseMap, parseReleaseCellId, releaseCellId, storiesInReleaseCell } from './board';
+import type { Release, Sprint, Story } from './types';
 
 const TODAY = '2026-10-11';
 const S1 = 'sprint-1';
@@ -300,6 +301,73 @@ describe('story map', () => {
     expect(dropOnMap(base, sprints, 'a', 'a')).toBe(base);
     expect(dropOnMap(base, sprints, 'a', 'nope')).toBe(base);
     expect(dropOnMap(base, sprints, 'a', cellId('x', 'no-such-sprint'))).toBe(base);
+  });
+});
+
+describe('story map with releases as rows', () => {
+  const releases: Release[] = [
+    { id: 'r1', title: 'Release 1', description: '', startDate: null, endDate: null },
+    { id: 'r2', title: 'Release 2', description: '', startDate: null, endDate: null }
+  ];
+  const inRelease = (stories: Story[], epicId: string | null, releaseId: string | null): string[] =>
+    storiesInReleaseCell(stories, epicId, releaseId).map((item) => item.id);
+  const withRelease = (item: Story, releaseId: string | null): Story => ({ ...item, releaseId });
+  const base = (): Story[] => [
+    withRelease(story('a', 'todo', 0, S1), 'r1'),
+    withRelease(story('b', 'todo', 1, S1), 'r1'),
+    withRelease(story('c', 'todo', 2, S2), 'r2'),
+    story('d', 'todo', 3, null)
+  ];
+
+  it('round-trips the cell id and rejects ids of other kinds', () => {
+    expect(parseReleaseCellId(releaseCellId('e', 'r1'))).toEqual({ epicId: 'e', releaseId: 'r1' });
+    expect(parseReleaseCellId(releaseCellId(null, null))).toEqual({ epicId: null, releaseId: null });
+    expect(parseReleaseCellId('cell:e::sprint-1')).toBeNull();
+    expect(parseReleaseCellId('story-1')).toBeNull();
+  });
+
+  it('changes the release and the epic when dropped into a cell, and keeps the sprint', () => {
+    const after = dropOnReleaseMap(base(), sprints, releases, 'a', releaseCellId('other', 'r2'));
+    const moved = after.find((item) => item.id === 'a');
+    expect(moved).toMatchObject({ releaseId: 'r2', epicId: 'other', sprintId: S1 });
+    expect(inRelease(after, 'other', 'r2')).toEqual(['a']);
+  });
+
+  it('lets a story lose its release by dropping it into the "no release" cell', () => {
+    const after = dropOnReleaseMap(base(), sprints, releases, 'a', releaseCellId('e', null));
+    expect(after.find((item) => item.id === 'a')?.releaseId).toBeNull();
+  });
+
+  it('refuses a release that does not exist and an unknown story', () => {
+    const list = base();
+    expect(dropOnReleaseMap(list, sprints, releases, 'a', releaseCellId('e', 'nope'))).toBe(list);
+    expect(dropOnReleaseMap(list, sprints, releases, 'zzz', releaseCellId('e', 'r1'))).toBe(list);
+    expect(dropOnReleaseMap(list, sprints, releases, 'a', 'a')).toBe(list);
+  });
+
+  it('places the story next to a target of the same sprint and takes its release', () => {
+    const after = dropOnReleaseMap(base(), sprints, releases, 'd', 'a', 'before');
+    expect(after.find((item) => item.id === 'd')).toMatchObject({ releaseId: 'r1', sprintId: null });
+    // "d" is not planned, "a" is in Sprint 1: ranks stay grouped by sprint, so "d" keeps its place at the end.
+    expect(ids(after)).toEqual(['a', 'b', 'c', 'd']);
+  });
+
+  it('reorders within a cell when the target is in the same sprint', () => {
+    const after = dropOnReleaseMap(base(), sprints, releases, 'b', 'a', 'before');
+    expect(ids(after)).toEqual(['b', 'a', 'c', 'd']);
+    expect(inRelease(after, 'e', 'r1')).toEqual(['b', 'a']);
+  });
+
+  it('keeps the backlog grouped by sprint after a move between releases', () => {
+    const after = dropOnReleaseMap(base(), sprints, releases, 'c', releaseCellId('e', 'r1'));
+    expect(backlogOrder(after, sprints).map((item) => item.sprintId)).toEqual([S1, S1, S2, null]);
+  });
+
+  it('is saved: changedPositions notices a changed release', () => {
+    const before = base();
+    const after = dropOnReleaseMap(before, sprints, releases, 'a', releaseCellId('e', 'r2'));
+    expect(changedPositions(before, after).map((item) => item.id)).toContain('a');
+    expect(changedPositions(before, after).find((item) => item.id === 'a')?.releaseId).toBe('r2');
   });
 });
 

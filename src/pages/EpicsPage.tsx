@@ -8,6 +8,7 @@ import { useBuiltin } from '../components/useBuiltin';
 import { useSearchPage } from '../state/Search';
 import { useMatchClass } from '../components/search/HighlightBar';
 import type { Epic } from '../domain/types';
+import { useNewShortcut } from '../components/useNewShortcut';
 
 /** List of all epics; a click opens the epic in a dialog. */
 export function EpicsPage() {
@@ -15,13 +16,14 @@ export function EpicsPage() {
   const app = useApp();
   const [creating, setCreating] = useState(false);
   useSearchPage(t('nav.epics'), { epic: app.epics.map((epic) => epic.id) });
+  useNewShortcut(() => setCreating(true), !creating);
 
   return (
     <>
       <div className="page-head">
         <h1>{t('epics.title')}</h1>
         <span className="muted">{t('epics.hint')}</span>
-        <button type="button" className="btn btn--primary page-head__action" onClick={() => setCreating(true)}>
+        <button type="button" className="btn btn--primary page-head__action" aria-keyshortcuts="Control+N Meta+N" onClick={() => setCreating(true)}>
           {t('epics.new')}
         </button>
       </div>

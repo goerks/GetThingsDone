@@ -48,6 +48,12 @@ pub fn run() {
             sql: include_str!("../migrations/007_releases.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 8,
+            description: "settings",
+            sql: include_str!("../migrations/008_settings.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

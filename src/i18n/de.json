@@ -170,12 +170,27 @@
       "over": "{{title}} kommt nach {{sprint}}, {{epic}}, Position {{position}}.",
       "dropped": "{{title}} ist jetzt in {{sprint}}, {{epic}}, Position {{position}}.",
       "sprintOver": "{{name}} wird Sprint {{position}}, {{dates}}.",
-      "sprintDropped": "{{name}} ist jetzt Sprint {{position}}, {{dates}}."
+      "sprintDropped": "{{name}} ist jetzt Sprint {{position}}, {{dates}}.",
+      "releaseOver": "{{title}} geht zu {{release}}, {{epic}}, Position {{position}}.",
+      "releaseDropped": "{{title}} ist jetzt in {{release}}, {{epic}}, Position {{position}}.",
+      "instructionsReleases": "Leertaste nimmt eine Story auf. Mit den Pfeiltasten verschiebst du sie zwischen den Zellen, die Leertaste legt sie ab, Escape bricht ab. Enter öffnet die Story. Der Sprint der Story bleibt unverändert."
     },
     "sprintRole": "Sprint",
     "editOrMoveSprint": "Klicken zum Bearbeiten, ziehen zum Umsortieren",
     "compact": "Kompakt",
-    "sprintDropLabel": "{{name}} · {{dates}}"
+    "sprintDropLabel": "{{name}} · {{dates}}",
+    "summaryReleases": "{{epics}} Epics · {{releases}} Releases · {{stories}} Stories",
+    "cornerReleases": "Release ↓ · Epic →",
+    "addRelease": "+ Release",
+    "newStoryInRelease": "Neue Story in {{epic}}, {{release}}",
+    "noRelease": "Kein Release",
+    "rows": "Zeilen: {{rows}}",
+    "rowsSprints": "Sprints",
+    "rowsReleases": "Releases",
+    "rowsLink": "Zeilen der Story Map: {{rows}}. In den Einstellungen ändern",
+    "afterEnd_one": "{{count}} Story nach dem Ende",
+    "afterEnd_other": "{{count}} Stories nach dem Ende",
+    "editRelease": "Release öffnen"
   },
   "fields": {
     "title": "Felder",
@@ -302,7 +317,26 @@
     "sections": "Bereiche der Einstellungen",
     "statusValues": "Status-Werte",
     "planned": "Geplant",
-    "plannedNote": "für ein späteres Release geplant"
+    "plannedNote": "für ein späteres Release geplant",
+    "map": {
+      "title": "Story Map",
+      "rows": "Zeilen der Story Map",
+      "default": "Standard",
+      "sprints": {
+        "name": "Sprints",
+        "hint": "Jede Zeile ist ein Sprint, in zeitlicher Reihenfolge. Zum Planen der nächsten Wochen.",
+        "preview": "Zeilen: Sprint 1, Sprint 2, Nicht geplant"
+      },
+      "releases": {
+        "name": "Releases",
+        "hint": "Jede Zeile ist ein Release. Zum Planen, was wann ausgeliefert wird.",
+        "preview": "Zeilen: Release 1.0, Release 1.1, Kein Release"
+      },
+      "saved": "Die Wahl gilt für das ganze Team und wird sofort gespeichert. Stories, Sprints und Releases bleiben unverändert; es ändert sich nur die Darstellung.",
+      "noReleases": "Es gibt noch kein Release. Die Story Map zeigt dann nur die Zeile «Kein Release».",
+      "createRelease": "Release anlegen",
+      "back": "← Zur Story Map"
+    }
   },
   "summary": {
     "stories_one": "{{count}} Story",
