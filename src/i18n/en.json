@@ -378,10 +378,6 @@
       "back": "Back to search"
     },
     "onPage": "On this page",
-    "everywhere": "Everywhere",
-    "onlyPage": "Only {{page}}",
-    "scopeLabel": "Search where",
-    "searchEverywhere": "Show results from everywhere",
     "showOnPage": "Show on {{page}}",
     "badge": "{{field}} = {{value}}",
     "fieldsGroup": "Fields",

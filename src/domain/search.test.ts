@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   viewFor,
   whereShown,
-  arrangeForPage,
   customFieldKey,
   effectiveQuery,
   fieldToken,
@@ -299,25 +298,6 @@ describe('typed field filters', () => {
   });
 });
 
-describe('current page', () => {
-  const page = { story: new Set(['3']), epic: new Set<string>(), sprint: new Set(['s1']) };
-
-  it('puts results on the page first within their group', () => {
-    const results = search(snapshot, query('', [{ field: 'sprint', value: 's1' }]));
-    expect(ids(results)).toEqual(['story:1', 'story:2', 'sprint:s1']);
-    const onPage = { ...page, story: new Set(['2']) };
-    expect(ids(arrangeForPage(results, onPage, false))).toEqual(['story:2', 'story:1', 'sprint:s1']);
-  });
-
-  it('keeps only results on the page when asked', () => {
-    expect(ids(arrangeForPage(search(snapshot, query('sprint')), page, true))).toEqual(['sprint:s1']);
-  });
-
-  it('leaves the order alone without a page', () => {
-    const results = search(snapshot, query('sprint'));
-    expect(arrangeForPage(results, null, true)).toEqual(results);
-  });
-});
 
 describe('custom fields', () => {
   const withFields: Snapshot = {

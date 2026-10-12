@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import {
   EMPTY_QUERY,
-  arrangeForPage,
   isActive,
   effectiveQuery,
   search,
@@ -30,18 +29,6 @@ import { useDetails } from './Details';
 import { useSearchLabels, type SearchLabels } from './searchLabels';
 
 const HISTORY_KEY = 'getitdone.searchHistory';
-const SCOPE_KEY = 'getitdone.searchScope';
-
-/** Where results come from: everything, or only what the current page shows. */
-export type SearchScope = 'all' | 'page';
-
-function loadScope(): SearchScope {
-  try {
-    return window.localStorage.getItem(SCOPE_KEY) === 'page' ? 'page' : 'all';
-  } catch {
-    return 'all';
-  }
-}
 
 function loadHistory(): SearchHistory {
   try {
@@ -100,10 +87,6 @@ interface SearchApi {
   /** Badges and typed filters together, and what the search text contains. */
   effective: SearchQuery;
   parsed: ParsedText;
-  /** Results for every page; `results` is this list arranged for the current page and scope. */
-  allResults: SearchResult[];
-  scope: SearchScope;
-  setScope(scope: SearchScope): void;
   /** The current page, or null when it shows nothing searchable. */
   page: SearchPage | null;
   setPage(page: SearchPage | null): void;
@@ -158,7 +141,7 @@ export function usePageMatches(): PageMatches | null {
 }
 
 /**
- * A page tells the search what it shows, so results on the page come first and can be highlighted.
+ * A page tells the search what it shows, so results on the page can be marked and highlighted.
  * Pass ids that change only when the page content changes.
  */
 export function useSearchPage(label: string, items: { story?: readonly string[]; epic?: readonly string[]; sprint?: readonly string[] }): void {
@@ -185,22 +168,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [returnKey, setReturnKey] = useState<string | null>(null);
   const [history, setHistory] = useState<SearchHistory>(loadHistory);
-  const [scope, setScopeState] = useState<SearchScope>(loadScope);
   const [page, setPage] = useState<SearchPage | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { query: effective, parsed } = useMemo(() => effectiveQuery(query, labels.catalog), [query, labels.catalog]);
-  const allResults = useMemo(() => search(snapshot, effective), [snapshot, effective]);
-  const results = useMemo(() => arrangeForPage(allResults, page?.items ?? null, scope === 'page'), [allResults, page, scope]);
-
-  const setScope = useCallback((next: SearchScope) => {
-    setScopeState(next);
-    try {
-      window.localStorage.setItem(SCOPE_KEY, next);
-    } catch {
-      // the choice just will not be remembered
-    }
-  }, []);
+  const results = useMemo(() => search(snapshot, effective), [snapshot, effective]);
 
   const changeHistory = useCallback((change: (history: SearchHistory) => SearchHistory) => {
     setHistory((current) => {
@@ -315,13 +287,13 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const matches = useMemo<PageMatches | null>(() => {
     if (!isActive(effective)) return null;
     const ids = (kind: SearchResult['kind']): Set<string> =>
-      new Set(allResults.filter((result) => result.kind === kind).map((result) => result.id));
+      new Set(results.filter((result) => result.kind === kind).map((result) => result.id));
     return {
       ids: { story: ids('story'), epic: ids('epic'), sprint: ids('sprint') },
       label: labels.query(effective),
       clear: () => setQuery(EMPTY_QUERY)
     };
-  }, [effective, allResults, labels]);
+  }, [effective, results, labels]);
 
   const showOnPage = useCallback(() => {
     changeHistory((history) => rememberSearch(history, query));
@@ -350,15 +322,12 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       clearHistory: () => changeHistory(() => EMPTY_HISTORY),
       effective,
       parsed,
-      allResults,
-      scope,
-      setScope,
       page,
       setPage,
       matches,
       showOnPage
     }),
-    [snapshot, labels, query, results, open, focus, returnKey, openResult, openRecent, history, changeHistory, effective, parsed, allResults, scope, setScope, page, matches, showOnPage]
+    [snapshot, labels, query, results, open, focus, returnKey, openResult, openRecent, history, changeHistory, effective, parsed, page, matches, showOnPage]
   );
 
   return <SearchContext.Provider value={api}>{children}</SearchContext.Provider>;

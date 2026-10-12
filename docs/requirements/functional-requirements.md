@@ -370,8 +370,7 @@ Source: #7 · Status: Implemented · Verified by: searchHistory.test, Search.tes
 As a team member, I want to see search matches where they are on the page I am looking at, so that I keep the context.
 - While a search is active, matching stories on board, backlog and story map get an accent border and the others are dimmed, already while typing. On the story map matching epic headers and sprint labels are marked too; on the epics page matching epics.
 - A bar above the page shows "n of m stories here match" with the query and "Clear search".
-- In the result list, items shown on the current page come first in their group and carry "On this page".
-- A switch "Everywhere / Only <page>" limits the results to the current page; the choice is remembered. With no results on the page, the list offers "Show results from everywhere" with the count.
+- The result list is ordered by relevance only; items shown on the current page carry "On this page". There is no switch to limit the results to the page (PO decision in #7).
 - "Show on <page>" or `Ctrl+Enter` closes the list and scrolls to the first match.
 
 Source: #7 (variant D), PO feedback on #8 · Status: Implemented · Verified by: search.test "current page", Search.test "the current page"

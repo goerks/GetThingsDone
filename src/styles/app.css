@@ -2442,10 +2442,6 @@ mark {
   }
 }
 
-.search__scope {
-  margin: 8px 12px 4px;
-}
-
 .result__here {
   margin-left: 8px;
   padding: 0 7px;
@@ -2559,11 +2555,6 @@ mark {
 .search__field .search__input {
   flex: 1 1 90px;
   min-width: 90px;
-}
-
-.detail-nav__keys {
-  display: inline-flex;
-  gap: 2px;
 }
 
 @media (max-width: 700px) {
