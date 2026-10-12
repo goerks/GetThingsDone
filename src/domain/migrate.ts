@@ -2,7 +2,7 @@ import { normalizeColorKey } from './epics';
 import { missingBuiltins } from './fields';
 import { normalizeSettings } from './settings';
 import { addDays, SPRINT_LENGTH_DAYS } from './sprints';
-import type { Epic, FieldAssignment, FieldDefinition, Release, Settings, Snapshot, Sprint, Story } from './types';
+import type { Epic, FieldAssignment, FieldDefinition, Release, ReleaseEvent, Settings, Snapshot, Sprint, Story } from './types';
 
 /**
  * Snapshot as stored by an older release. Release 0.1: one fixed sprint, stories with `inSprint`, epics without
@@ -13,6 +13,7 @@ interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
   sprints?: Sprint[];
   releases?: Release[];
+  events?: ReleaseEvent[];
   stories?: Array<
     Omit<Story, 'sprintId' | 'values' | 'releaseId'> & {
       sprintId?: string | null;
@@ -62,6 +63,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     epics,
     sprints,
     releases: stored.releases ?? [],
+    events: stored.events ?? [],
     settings: normalizeSettings(stored.settings),
     stories,
     fields: [...fields, ...missing.fields],

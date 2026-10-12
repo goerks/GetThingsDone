@@ -469,7 +469,8 @@
     "tabs": {
       "label": "Vues de la release",
       "details": "Détails",
-      "stories": "Stories ({{count}})"
+      "stories": "Stories ({{count}})",
+      "scope": "Périmètre"
     },
     "edit": "Modifier la release",
     "close": "Fermer",
@@ -513,6 +514,50 @@
       "more_one": "{{count}} de plus. Continuez à saisir pour affiner la liste.",
       "more_other": "{{count}} de plus. Continuez à saisir pour affiner la liste.",
       "added": "{{code}} a été ajoutée à la release."
+    },
+    "sinceStart": "Périmètre depuis le début",
+    "sinceNone": "±0",
+    "scope": {
+      "unit": {
+        "label": "Unité",
+        "points": "Points",
+        "tickets": "Tickets"
+      },
+      "unitShort": {
+        "points": "pts"
+      },
+      "recordedSince": "Enregistré depuis le {{date}}. On ne sait rien de la période précédente.",
+      "empty": "Pas encore d'historique. Les changements des stories de cette release sont enregistrés à partir de maintenant.",
+      "tooFew": "Le graphique demande au moins deux jours d'historique.",
+      "kpi": {
+        "start": "Périmètre au début",
+        "increase": "Augmentation",
+        "decrease": "Diminution",
+        "now": "Périmètre actuel"
+      },
+      "legend": {
+        "scope": "Périmètre",
+        "done": "Terminé",
+        "increase": "Augmentation",
+        "decrease": "Diminution"
+      },
+      "chartLabel": "Périmètre en {{unit}} : {{start}} au début, {{now}} maintenant, {{done}} terminé",
+      "showTable": "Afficher sous forme de tableau",
+      "table": {
+        "date": "Date",
+        "scope": "Périmètre",
+        "done": "Terminé",
+        "change": "Changement"
+      },
+      "changes": "Changements du périmètre",
+      "noChanges": "Aucun changement du périmètre depuis le début.",
+      "story": "Story",
+      "deletedStory": "(story supprimée)",
+      "change": {
+        "added": "Ajoutée",
+        "removed": "Retirée",
+        "points": "Points {{from}} → {{to}} ({{diff}})"
+      }
     }
   }
 }

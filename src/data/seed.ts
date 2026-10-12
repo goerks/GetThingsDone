@@ -1,7 +1,7 @@
 import { assignTo, missingBuiltins } from '../domain/fields';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import { addDays } from '../domain/sprints';
-import type { FieldDefinition, FieldValue, Snapshot, Story } from '../domain/types';
+import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
 
 /** Demo custom fields, so the preview shows what teams can add. */
 const DEMO_FIELDS: FieldDefinition[] = [
@@ -76,6 +76,37 @@ const DEMO_RELEASE_OF: Record<string, string> = {
 };
 
 /**
+ * A demo history of the first release: it started with four stories and a fifth that was removed again, two stories
+ * were added, the points of one grew, and one story was finished. The preview shows it in the scope report.
+ */
+function demoEvents(today: string): ReleaseEvent[] {
+  const at = (daysAgo: number): string => `${addDays(today, -daysAgo)}T12:00:00.000Z`;
+  const entry = (id: string, daysAgo: number, kind: ReleaseEvent['kind'], storyId: string, code: string, points: number, done = false): ReleaseEvent => ({
+    id: `event-demo-${id}`,
+    at: at(daysAgo),
+    releaseId: 'release-beta',
+    storyId,
+    code,
+    kind,
+    points,
+    done
+  });
+  return [
+    entry('1', 8, 'baseline', 'story-1', 'S-1', 3),
+    entry('2', 8, 'baseline', 'story-2', 'S-2', 2),
+    entry('3', 8, 'baseline', 'story-3', 'S-3', 3),
+    entry('4', 8, 'baseline', 'story-4', 'S-4', 5),
+    entry('5', 8, 'baseline', 'story-demo-gone', 'S-8', 3),
+    entry('6', 5, 'added', 'story-5', 'S-5', 3),
+    entry('7', 4, 'done', 'story-5', 'S-5', 3, true),
+    entry('8', 3, 'added', 'story-6', 'S-6', 5),
+    entry('9', 2, 'removed', 'story-demo-gone', 'S-8', 3),
+    entry('10', 1, 'points', 'story-3', 'S-3', 5),
+    { id: 'event-demo-11', at: at(1), releaseId: 'release-map', storyId: 'story-7', code: 'S-7', kind: 'baseline', points: 8, done: false }
+  ];
+}
+
+/**
  * Demo data shown on the first start so the board is not empty.
  * Sprint 1 runs around `today`, Sprint 2 follows it, so the board and the story map always have content.
  */
@@ -107,6 +138,7 @@ export function seedSnapshot(today: string): Snapshot {
       { id: 'sprint-1', name: 'Sprint 1', startDate: sprint1Start, endDate: addDays(sprint1Start, 13) },
       { id: 'sprint-2', name: 'Sprint 2', startDate: addDays(sprint1Start, 14), endDate: addDays(sprint1Start, 27) }
     ],
+    events: demoEvents(today),
     releases: [
       {
         id: 'release-beta',

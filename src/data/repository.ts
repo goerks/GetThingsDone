@@ -1,4 +1,4 @@
-import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, Settings, Snapshot, Sprint, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, ReleaseEvent, Settings, Snapshot, Sprint, Story } from '../domain/types';
 
 export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId' | 'releaseId'>;
 
@@ -31,8 +31,10 @@ export interface Repository {
   updateSprint(sprint: Sprint): Promise<void>;
   addRelease(release: Release): Promise<void>;
   updateRelease(release: Release): Promise<void>;
-  /** Deletes a release. Its stories stay and lose their release. */
+  /** Deletes a release with its history. Its stories stay and lose their release. */
   deleteRelease(releaseId: string): Promise<void>;
+  /** Appends entries to the history of the releases. */
+  addReleaseEvents(events: readonly ReleaseEvent[]): Promise<void>;
   /** Stores the settings of the workspace. */
   saveSettings(settings: Settings): Promise<void>;
   /** Adds or changes a field with its options. Values of removed options are deleted. */
