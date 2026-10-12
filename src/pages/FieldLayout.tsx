@@ -15,7 +15,7 @@ const LAYOUT_TYPES: readonly ItemType[] = ['story', 'epic'];
 const PLANNED_TYPES = ['sprint', 'release'] as const;
 
 /** Only stories have cards today; epics appear as list rows and map headers. */
-const HAS_CARD: Record<ItemType, boolean> = { story: true, epic: false };
+const HAS_CARD: Record<ItemType, boolean> = { story: true, epic: false, release: false };
 
 interface RowProps {
   itemType: ItemType;
@@ -33,6 +33,35 @@ function FixedRow({ entry }: { entry: LayoutEntry }) {
       <span className="layout-row__name">{fieldLabel(t, entry.field)}</span>
       <span className="muted layout-row__type">{t(`fields.type.${entry.field.dataType}`)}</span>
       <span className="muted layout-row__note">{t('fields.layout.fixed')}</span>
+    </li>
+  );
+}
+
+/** The "Release" system field keeps its place but can show in the create dialog and on the card (both off by default). */
+function ReleaseRow({ entry }: { entry: LayoutEntry }) {
+  const { t } = useTranslation();
+  const app = useApp();
+  const { field, assignment } = entry;
+  const update = (patch: Parameters<typeof app.updateFieldLayout>[2]): void => {
+    app.updateFieldLayout('story', field.id, patch);
+  };
+  return (
+    <li className="layout-row layout-row--fixed">
+      <span className="layout-row__lock" aria-hidden="true">
+        <LockIcon />
+      </span>
+      <span className="layout-row__name">{fieldLabel(t, field)}</span>
+      <span className="muted layout-row__type">{t(`fields.type.${field.dataType}`)}</span>
+      <span className="layout-row__options">
+        <label className="check">
+          <input type="checkbox" checked={assignment.inCreate} onChange={(event) => update({ inCreate: event.target.checked })} />
+          {t('fields.layout.inCreate')}
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={assignment.onCard} onChange={(event) => update({ onCard: event.target.checked })} />
+          {t('fields.layout.onCard')}
+        </label>
+      </span>
     </li>
   );
 }
@@ -151,9 +180,13 @@ export function FieldLayout() {
       <div role="tabpanel" aria-label={t(`fields.itemType.${itemType}`)} className="layout__panel">
         <p className="muted">{HAS_CARD[itemType] ? t('fields.layout.hint', { count: CARD_FIELD_LIMIT }) : t('fields.layout.hintNoCard')}</p>
         <ol className="layout-list">
-          {fixed.map((entry) => (
-            <FixedRow key={entry.field.id} entry={entry} />
-          ))}
+          {fixed.map((entry) =>
+            entry.field.builtinKey === 'release' && itemType === 'story' ? (
+              <ReleaseRow key={entry.field.id} entry={entry} />
+            ) : (
+              <FixedRow key={entry.field.id} entry={entry} />
+            )
+          )}
         </ol>
         {custom.length === 0 ? (
           <p className="muted">{t('fields.layout.noCustom')}</p>

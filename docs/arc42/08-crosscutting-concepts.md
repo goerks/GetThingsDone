@@ -5,19 +5,23 @@
 ```
 Epic   1 ──── * Story 1 ──── * Criterion
 Sprint 1 ──── * Story          (a story has one sprint or none)
+Release 1 ─── * Story          (a story has one release or none)
 ```
 
 - **Epic**: id, name, colour key from a palette of eight (`blue`, `amber`, `teal`, `violet`, `rose`, `green`, `cyan`, `slate`), position (column order on the story map). An epic that still has stories cannot be deleted.
 - **Sprint**: id, name, start date, end date (local calendar days `YYYY-MM-DD`, both included). The running sprint is computed from today's date (`runningSprint`).
-- **Story**: id, key (`S-<n>`), title, description, epic, points (1, 2, 3, 5, 8, 13), status (`todo`, `in_progress`, `review`, `done`), sprint (one or none), rank.
+- **Release** (#10): id, title, description, optional start and end day. Its size is derived from its stories; its state (planned, running, done) is derived too (`releaseState`), never stored. Deleting a release keeps its stories (`deleteRelease`).
+- **Story**: id, key (`S-<n>`), title, description, epic, points (1, 2, 3, 5, 8, 13), status (`todo`, `in_progress`, `review`, `done`), sprint (one or none), release (one or none), rank.
 - **Criterion**: id, text, done, position within the story.
 
 `rank` is one global priority (0 is the most important). The backlog shows one section per sprint in time order and then the unplanned stories, each by rank (`backlogOrder`); backlog and story map drops store exactly that order, so the ranks stay grouped by sprint. The board shows the stories of the running sprint by rank, grouped by status. A map cell shows the stories of one epic and one sprint by rank. Deleting a story can leave a gap in the ranks; a new story always gets the highest rank plus one.
 
+Release planning decisions (#10, no ADR because the PO no longer reviews them; recorded here and in the issue): a release is its own table with a nullable `stories.release_id`, which enforces "at most one release per story" in the model; "Release" is a system field of stories stored in that native column, not in `field_values` (as ADR 0003 does for epic and sprint); the history for the scope report and the burndown will be an append-only event log computed into states by a pure function (phase 3), because a local app does not run every day and snapshots would have gaps. "Done" is `status === 'done'` until configurable statuses (#5) define a done category.
+
 ## Persistence
 
 - The `Repository` interface (`src/data/repository.ts`) is the only storage boundary. It offers coarse, intention-revealing operations (`savePositions`, `updateStory`, `setCriterionText`, `saveCriteriaOrder`, `addEpic`, ...) instead of generic CRUD, so each UI action maps to one call.
-- SQLite schema: tables `epics`, `sprints`, `stories`, `criteria` with foreign keys and indexes on `rank` and `(story_id, position)`. Schema changes are new numbered migrations in `src-tauri/migrations/`, registered in `lib.rs`. Never edit a released migration. Browser data in `localStorage` is migrated in code when it is read (`src/domain/migrate.ts`) and written back at once, so a migrated sprint keeps its dates.
+- SQLite schema: tables `epics`, `sprints`, `releases`, `stories`, `criteria` with foreign keys and indexes on `rank` and `(story_id, position)`. Schema changes are new numbered migrations in `src-tauri/migrations/`, registered in `lib.rs`. Never edit a released migration. Browser data in `localStorage` is migrated in code when it is read (`src/domain/migrate.ts`) and written back at once, so a migrated sprint keeps its dates.
 - Keys are generated in the frontend (`src/domain/ids.ts`), so the UI can update before the write finishes.
 
 ## Internationalisation

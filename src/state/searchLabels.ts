@@ -14,7 +14,7 @@ import {
   type FilterField,
   type SearchQuery
 } from '../domain/search';
-import type { Snapshot } from '../domain/types';
+import type { SearchSnapshot } from '../domain/types';
 
 export interface SearchLabels {
   field(field: FilterField): string;
@@ -28,7 +28,7 @@ export interface SearchLabels {
 }
 
 /** Names of search fields and values in the current language; English names work as aliases. */
-export function useSearchLabels(snapshot: Snapshot): SearchLabels {
+export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
   const { t } = useTranslation();
   const en = useMemo(() => i18n.getFixedT('en'), []);
 

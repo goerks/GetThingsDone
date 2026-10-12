@@ -28,10 +28,13 @@ import { useApp } from '../state/AppState';
 import { FieldLayout } from './FieldLayout';
 
 /** Item types that show custom fields, one column each in the field table. */
-const FIELD_ITEM_TYPES: readonly ItemType[] = ['story', 'epic'];
+const FIELD_ITEM_TYPES: readonly ItemType[] = ['story', 'epic', 'release'];
+
+/** Item types a custom field can be used on. Releases carry built-in fields only until custom fields on releases follow (#9). */
+const CUSTOM_ITEM_TYPES: readonly ItemType[] = ['story', 'epic'];
 
 /** Item types that get fields later; shown as planned columns. */
-const PLANNED_ITEM_TYPES = ['sprint', 'release'] as const;
+const PLANNED_ITEM_TYPES = ['sprint'] as const;
 
 const KIND_ORDER: readonly FieldKind[] = ['system', 'builtin', 'custom'];
 
@@ -257,7 +260,7 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
         {!field && (
           <fieldset className="field">
             <legend>{t('fields.usedOn')}</legend>
-            {FIELD_ITEM_TYPES.map((itemType) => (
+            {CUSTOM_ITEM_TYPES.map((itemType) => (
               <label key={itemType} className="check">
                 <input
                   type="checkbox"
@@ -340,7 +343,15 @@ function UseCell({ field, itemType, name }: UseCellProps) {
   }
   const used = app.assignments.some((item) => item.fieldId === field.id && item.itemType === itemType && !item.hidden);
   const label = t('fields.useOn', { name, type: typeName });
-  if (field.kind === 'builtin' && canHide(field)) {
+  if (field.kind === 'custom' && !CUSTOM_ITEM_TYPES.includes(itemType)) {
+    return (
+      <td className="field-table__use">
+        <span aria-hidden="true">–</span>
+        <span className="sr-only">{t('fields.customOnReleases', { type: typeName })}</span>
+      </td>
+    );
+  }
+  if (field.kind === 'builtin' && canHide(field, itemType)) {
     return (
       <td className="field-table__use">
         <input
@@ -353,7 +364,7 @@ function UseCell({ field, itemType, name }: UseCellProps) {
     );
   }
   if (field.kind !== 'custom') {
-    const note = field.kind === 'system' ? t('fields.locked') : t('fields.epicFixed');
+    const note = field.kind === 'system' ? t('fields.locked') : field.builtinKey === 'epic' ? t('fields.epicFixed') : t('fields.alwaysOn');
     return (
       <td className="field-table__use">
         <span className="field-table__fixed" title={note}>

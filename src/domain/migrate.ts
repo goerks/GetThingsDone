@@ -1,17 +1,24 @@
 import { normalizeColorKey } from './epics';
 import { missingBuiltins } from './fields';
 import { addDays, SPRINT_LENGTH_DAYS } from './sprints';
-import type { Epic, FieldAssignment, FieldDefinition, Snapshot, Sprint, Story } from './types';
+import type { Epic, FieldAssignment, FieldDefinition, Release, Snapshot, Sprint, Story } from './types';
 
 /**
  * Snapshot as stored by an older release. Release 0.1: one fixed sprint, stories with `inSprint`, epics without
  * a position. Before configurable fields (#4): no field library, no values, and every story has an epic.
+ * Before release planning (#10): no releases and no release on stories.
  */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
   sprints?: Sprint[];
+  releases?: Release[];
   stories?: Array<
-    Omit<Story, 'sprintId' | 'values'> & { sprintId?: string | null; inSprint?: boolean; values?: Story['values'] }
+    Omit<Story, 'sprintId' | 'values' | 'releaseId'> & {
+      sprintId?: string | null;
+      releaseId?: string | null;
+      inSprint?: boolean;
+      values?: Story['values'];
+    }
   >;
   fields?: Array<Omit<FieldDefinition, 'defaultValue'> & { defaultValue?: FieldDefinition['defaultValue'] }>;
   assignments?: FieldAssignment[];
@@ -43,6 +50,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     ...story,
     epicId: story.epicId || null,
     sprintId: sprintId !== undefined ? sprintId : inSprint && needsSprint ? MIGRATED_SPRINT_ID : null,
+    releaseId: story.releaseId ?? null,
     values: story.values ?? {}
   }));
   const fields: FieldDefinition[] = (stored.fields ?? []).map((field) => ({ ...field, defaultValue: field.defaultValue ?? null }));
@@ -51,6 +59,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
   return {
     epics,
     sprints,
+    releases: stored.releases ?? [],
     stories,
     fields: [...fields, ...missing.fields],
     assignments: [...assignments, ...missing.assignments]

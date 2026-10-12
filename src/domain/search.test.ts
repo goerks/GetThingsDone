@@ -29,7 +29,7 @@ import {
   type Filter,
   type SearchResult
 } from './search';
-import type { Snapshot, Story } from './types';
+import type { SearchSnapshot, Story } from './types';
 
 function story(id: string, overrides: Partial<Story> = {}): Story {
   return {
@@ -41,6 +41,7 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
     points: 3,
     status: 'todo',
     sprintId: 's1',
+    releaseId: null,
     rank: Number(id),
     criteria: [],
     values: {},
@@ -48,7 +49,7 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
   };
 }
 
-const snapshot: Snapshot = {
+const snapshot: SearchSnapshot = {
   epics: [
     { id: 'e1', name: 'Boards', colorKey: 'blue', position: 0, values: {} },
     { id: 'e2', name: 'Local storage', colorKey: 'teal', position: 1, values: {} }
@@ -178,7 +179,7 @@ describe('search', () => {
   });
 
   it('filters stories without an epic', () => {
-    const withoutEpic: Snapshot = { ...snapshot, stories: [...snapshot.stories, story('20', { title: 'Loose story', epicId: null })] };
+    const withoutEpic: SearchSnapshot = { ...snapshot, stories: [...snapshot.stories, story('20', { title: 'Loose story', epicId: null })] };
     expect(ids(search(withoutEpic, query('', [{ field: 'epic', value: NO_EPIC }])))).toEqual(['story:20']);
     expect(fieldValues(withoutEpic, 'epic')).toEqual(['e1', 'e2', NO_EPIC]);
     expect(fieldValues(snapshot, 'epic')).toEqual(['e1', 'e2']);
@@ -300,7 +301,7 @@ describe('typed field filters', () => {
 
 
 describe('custom fields', () => {
-  const withFields: Snapshot = {
+  const withFields: SearchSnapshot = {
     ...snapshot,
     fields: [
       { id: 'f-risk', builtinKey: null, kind: 'custom', dataType: 'text', label: 'Risk', options: [], defaultValue: null },

@@ -59,6 +59,7 @@ function story(id: string, values: Story['values'] = {}): Story {
     points: 1,
     status: 'todo',
     sprintId: null,
+    releaseId: null,
     rank: 0,
     criteria: [],
     values
@@ -91,9 +92,9 @@ describe('missingBuiltins', () => {
   it('assigns them to their item types in the default order', () => {
     const story = builtins.assignments.filter((item) => item.itemType === 'story').sort((a, b) => a.position - b.position);
     expect(story.map((item) => item.fieldId)).toEqual(
-      ['key', 'title', 'status', 'description', 'epic', 'points', 'criteria'].map((key) => builtinFieldId(key as never))
+      ['key', 'title', 'status', 'release', 'description', 'epic', 'points', 'criteria'].map((key) => builtinFieldId(key as never))
     );
-    expect(assignedTypes(builtins.assignments, builtinFieldId('title')).sort()).toEqual(['epic', 'story']);
+    expect(assignedTypes(builtins.assignments, builtinFieldId('title')).sort()).toEqual(['epic', 'release', 'story']);
     expect(assignedTypes(builtins.assignments, builtinFieldId('color'))).toEqual(['epic']);
   });
 
@@ -136,7 +137,7 @@ describe('createField', () => {
     const result = createField(builtins.fields, builtins.assignments, { ...textInput, label: ' Customer ' }, ids());
     expect(result?.field).toEqual({ id: 'id-1', builtinKey: null, kind: 'custom', dataType: 'text', label: 'Customer', options: [], defaultValue: null });
     const own = result?.assignments.find((item) => item.fieldId === 'id-1');
-    expect(own).toMatchObject({ itemType: 'story', position: 7, hidden: false, required: false });
+    expect(own).toMatchObject({ itemType: 'story', position: 8, hidden: false, required: false });
   });
 
   it('gives options ids and colours and drops empty ones', () => {

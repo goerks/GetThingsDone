@@ -9,7 +9,8 @@
     "storyMap": "Story Map",
     "epics": "Epics",
     "settings": "Einstellungen",
-    "closeSettings": "Einstellungen schliessen"
+    "closeSettings": "Einstellungen schliessen",
+    "releases": "Releases"
   },
   "header": {
     "toDark": "Zum dunklen Design wechseln",
@@ -200,7 +201,8 @@
       "date": "Datum",
       "checkbox": "Checkbox",
       "multi_select": "Mehrfachauswahl",
-      "url": "Link"
+      "url": "Link",
+      "release": "Release-Verknüpfung"
     },
     "builtin": {
       "key": "Schlüssel",
@@ -210,7 +212,10 @@
       "epic": "Epic",
       "points": "Punkte",
       "criteria": "Akzeptanzkriterien",
-      "color": "Farbe"
+      "color": "Farbe",
+      "release": "Release",
+      "start": "Start",
+      "end": "Ende"
     },
     "itemType": {
       "story": "Stories",
@@ -288,7 +293,9 @@
     "rename": "Feld {{name}} umbenennen",
     "renameTitle": "Feld umbenennen",
     "renameHint": "Der neue Name erscheint in allen Sprachen. Standard ist «{{name}}».",
-    "resetLabel": "Auf «{{name}}» zurücksetzen"
+    "resetLabel": "Auf «{{name}}» zurücksetzen",
+    "alwaysOn": "Auf diesem Typ immer sichtbar",
+    "customOnReleases": "Eigene Felder auf Releases sind für eine spätere Version geplant"
   },
   "settings": {
     "title": "Einstellungen",
@@ -388,5 +395,82 @@
     "no": "nein",
     "moreBadges_one": "+{{count}} weiterer Filter",
     "moreBadges_other": "+{{count}} weitere Filter"
+  },
+  "releases": {
+    "title": "Releases",
+    "hint": "Ein Release bündelt Stories und zeigt, wie gross es ist und wie viel davon erledigt ist. Klicke auf ein Release, um es zu öffnen.",
+    "count_one": "{{count}} Release",
+    "count_other": "{{count}} Releases",
+    "none": "Noch kein Release. Ein Release bündelt Stories und zeigt, wie gross es ist und wie viel davon erledigt ist.",
+    "new": "Neues Release",
+    "add": "Release anlegen",
+    "newCard": "+ Release",
+    "shortcut": "Strg+N",
+    "create": "Release anlegen",
+    "name": "Titel",
+    "description": "Beschreibung",
+    "noDescription": "Noch keine Beschreibung.",
+    "start": "Start",
+    "end": "Ende",
+    "label": "Release",
+    "noRelease": "Kein Release",
+    "period": {
+      "none": "Kein Zeitraum",
+      "from": "Ab {{start}}",
+      "until": "Bis {{end}}",
+      "range": "{{start}} – {{end}}"
+    },
+    "state": {
+      "planned": "Geplant",
+      "running": "Läuft",
+      "done": "Fertig"
+    },
+    "stat": {
+      "stories": "Stories",
+      "points": "Punkte",
+      "donePoints": "Punkte erledigt"
+    },
+    "progress": "{{done}} von {{total}} Punkten erledigt",
+    "progressStories": "{{done}} von {{total}} Stories erledigt",
+    "tabs": {
+      "label": "Ansichten des Releases",
+      "details": "Details",
+      "stories": "Stories ({{count}})"
+    },
+    "edit": "Release bearbeiten",
+    "close": "Schliessen",
+    "notFound": "Dieses Release gibt es nicht mehr.",
+    "problem": {
+      "titleRequired": "Gib dem Release einen Titel.",
+      "startInvalid": "Der Start ist kein gültiges Datum.",
+      "endInvalid": "Das Ende ist kein gültiges Datum.",
+      "endBeforeStart": "Das Ende darf nicht vor dem Start liegen."
+    },
+    "noDatesNote": "Start und Ende sind optional. Ohne sie haben Berichte keine Soll-Linie.",
+    "addStory": "Story hinzufügen",
+    "addStoryPlaceholder": "Story hinzufügen …",
+    "noStoriesToAdd": "Jede Story hat schon ein Release.",
+    "noStories": "Noch keine Stories in diesem Release. Füge oben oder auf der Story Map welche hinzu.",
+    "remove": "{{code}} aus diesem Release entfernen",
+    "removeShort": "Entfernen",
+    "open": "{{code}} öffnen",
+    "column": {
+      "key": "Key",
+      "title": "Titel",
+      "epic": "Epic",
+      "sprint": "Sprint",
+      "points": "Punkte",
+      "status": "Status"
+    },
+    "delete": "Release löschen",
+    "deleteConfirm_one": "«{{title}}» löschen? Die {{count}} Story bleibt erhalten und verliert ihr Release. Das lässt sich nicht rückgängig machen.",
+    "deleteConfirm_other": "«{{title}}» löschen? Die {{count}} Stories bleiben erhalten und verlieren ihr Release. Das lässt sich nicht rückgängig machen.",
+    "deleteConfirmEmpty": "«{{title}}» löschen? Das lässt sich nicht rückgängig machen.",
+    "deleteYes": "Löschen",
+    "deleteNo": "Release behalten",
+    "afterEnd_one": "{{count}} Story liegt in einem Sprint, der nach dem {{date}} endet: {{codes}}.",
+    "afterEnd_other": "{{count}} Stories liegen in Sprints, die nach dem {{date}} enden: {{codes}}.",
+    "sprintAfter": "{{sprint}} endet am {{sprintEnd}}, nach dem Ende von {{release}} ({{releaseEnd}}).",
+    "onCard": "Release: {{title}}"
   }
 }

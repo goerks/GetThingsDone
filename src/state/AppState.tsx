@@ -52,11 +52,18 @@ import {
   updateSprint as updateSprintIn,
   type SprintInput
 } from '../domain/sprints';
-import type { Epic, FieldAssignment, FieldDefinition, FieldValue, ItemType, Snapshot, Sprint, Story } from '../domain/types';
+import {
+  createRelease as createReleaseIn,
+  deleteRelease as deleteReleaseIn,
+  updateRelease as updateReleaseIn,
+  type ReleaseInput
+} from '../domain/releases';
+import type { Epic, FieldAssignment, FieldDefinition, FieldValue, ItemType, Release, Snapshot, Sprint, Story } from '../domain/types';
 
 interface AppApi {
   epics: Epic[];
   sprints: Sprint[];
+  releases: Release[];
   stories: Story[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
@@ -73,6 +80,12 @@ interface AppApi {
   updateSprint(id: string, input: SprintInput): void;
   /** Moves an upcoming sprint before or after another one; the dates of the upcoming sprints are recalculated. */
   moveSprint(activeId: string, overId: string, placement: Placement): void;
+  /** Returns the id of the new release, or null when the input is invalid. */
+  createRelease(input: ReleaseInput): string | null;
+  /** Changes a release; invalid input is ignored. */
+  updateRelease(id: string, input: ReleaseInput): void;
+  /** Deletes a release. Its stories stay and lose their release. */
+  deleteRelease(id: string): void;
   createStory(input: NewStoryInput): string;
   updateStory(id: string, patch: StoryPatch): void;
   deleteStory(id: string): void;
@@ -120,13 +133,14 @@ interface Props {
 
 export function AppProvider({ repository, children }: Props) {
   const { t } = useTranslation();
-  const [snapshot, setSnapshot] = useState<Snapshot>({ epics: [], sprints: [], stories: [], fields: [], assignments: [] });
+  const [snapshot, setSnapshot] = useState<Snapshot>({ epics: [], sprints: [], releases: [], stories: [], fields: [], assignments: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const repoRef = useRef<Repository | null>(null);
   const storiesRef = useRef<Story[]>([]);
   const epicsRef = useRef<Epic[]>([]);
   const sprintsRef = useRef<Sprint[]>([]);
+  const releasesRef = useRef<Release[]>([]);
   const fieldsRef = useRef<Pick<Snapshot, 'fields' | 'assignments'>>({ fields: [], assignments: [] });
 
   const update = useCallback((stories: Story[]) => {
@@ -142,6 +156,11 @@ export function AppProvider({ repository, children }: Props) {
   const updateSprints = useCallback((sprints: Sprint[]) => {
     sprintsRef.current = sprints;
     setSnapshot((current) => ({ ...current, sprints }));
+  }, []);
+
+  const updateReleases = useCallback((releases: Release[]) => {
+    releasesRef.current = releases;
+    setSnapshot((current) => ({ ...current, releases }));
   }, []);
 
   const updateFields = useCallback((fields: FieldDefinition[], assignments: FieldAssignment[]) => {
@@ -182,6 +201,7 @@ export function AppProvider({ repository, children }: Props) {
         epicsRef.current = loaded.epics;
         fieldsRef.current = { fields: loaded.fields, assignments: loaded.assignments };
         sprintsRef.current = loaded.sprints;
+        releasesRef.current = loaded.releases;
         setSnapshot(loaded);
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
@@ -201,6 +221,7 @@ export function AppProvider({ repository, children }: Props) {
     () => ({
       epics: snapshot.epics,
       sprints: snapshot.sprints,
+      releases: snapshot.releases,
       stories: snapshot.stories,
       fields: snapshot.fields,
       assignments: snapshot.assignments,
@@ -254,6 +275,27 @@ export function AppProvider({ repository, children }: Props) {
         if (after === sprintsRef.current || !sprint) return;
         updateSprints(after);
         persist((repo) => repo.updateSprint(sprint));
+      },
+      createRelease(input) {
+        const id = newId();
+        const result = createReleaseIn(releasesRef.current, input, id);
+        if (!result) return null;
+        updateReleases(result.releases);
+        persist((repo) => repo.addRelease(result.release));
+        return id;
+      },
+      updateRelease(id, input) {
+        const after = updateReleaseIn(releasesRef.current, id, input);
+        const release = after.find((item) => item.id === id);
+        if (after === releasesRef.current || !release) return;
+        updateReleases(after);
+        persist((repo) => repo.updateRelease(release));
+      },
+      deleteRelease(id) {
+        const result = deleteReleaseIn(releasesRef.current, storiesRef.current, id);
+        updateReleases(result.releases);
+        update(result.stories);
+        persist((repo) => repo.deleteRelease(id));
       },
       createStory(input) {
         const id = newId();
@@ -426,7 +468,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, update, updateEpics, updateSprints, updateFields, persist]
+    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateFields, persist]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

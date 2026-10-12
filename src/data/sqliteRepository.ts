@@ -12,6 +12,7 @@ import type {
   FieldOption,
   FieldValue,
   ItemType,
+  Release,
   Snapshot,
   Sprint,
   Status,
@@ -39,6 +40,14 @@ interface SprintRow {
   end_date: string;
 }
 
+interface ReleaseRow {
+  id: string;
+  title: string;
+  description: string;
+  start_date: string | null;
+  end_date: string | null;
+}
+
 interface StoryRow {
   id: string;
   code: string;
@@ -48,6 +57,7 @@ interface StoryRow {
   points: number;
   status: string;
   sprint_id: string | null;
+  release_id: string | null;
   rank: number;
 }
 
@@ -136,8 +146,11 @@ export class SqliteRepository implements Repository {
     const sprintRows = await this.db.select<SprintRow[]>(
       'SELECT id, name, start_date, end_date FROM sprints ORDER BY start_date, name'
     );
+    const releaseRows = await this.db.select<ReleaseRow[]>(
+      'SELECT id, title, description, start_date, end_date FROM releases ORDER BY rowid'
+    );
     const storyRows = await this.db.select<StoryRow[]>(
-      'SELECT id, code, title, description, epic_id, points, status, sprint_id, rank FROM stories ORDER BY rank'
+      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, rank FROM stories ORDER BY rank'
     );
     const criterionRows = await this.db.select<CriterionRow[]>(
       'SELECT id, story_id, text, done FROM criteria ORDER BY story_id, position'
@@ -188,6 +201,13 @@ export class SqliteRepository implements Repository {
       startDate: row.start_date,
       endDate: row.end_date
     }));
+    const releases: Release[] = releaseRows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      startDate: row.start_date,
+      endDate: row.end_date
+    }));
     const stories: Story[] = storyRows.map((row) => ({
       id: row.id,
       code: row.code,
@@ -197,6 +217,7 @@ export class SqliteRepository implements Repository {
       points: row.points,
       status: row.status as Status,
       sprintId: row.sprint_id,
+      releaseId: row.release_id,
       rank: row.rank,
       criteria: criteriaByStory.get(row.id) ?? [],
       values: valuesByItem.get(row.id) ?? {}
@@ -208,7 +229,7 @@ export class SqliteRepository implements Repository {
     for (const item of missing.assignments) await this.insertAssignment(item);
     fields = [...fields, ...missing.fields];
     assignments = [...assignments, ...missing.assignments];
-    return { epics, sprints, stories, fields, assignments };
+    return { epics, sprints, releases, stories, fields, assignments };
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
@@ -254,6 +275,7 @@ export class SqliteRepository implements Repository {
     await this.db.execute('DELETE FROM field_definitions');
     await this.db.execute('DELETE FROM criteria');
     await this.db.execute('DELETE FROM stories');
+    await this.db.execute('DELETE FROM releases');
     await this.db.execute('DELETE FROM sprints');
     await this.db.execute('DELETE FROM epics');
     for (const field of snapshot.fields) {
@@ -267,6 +289,9 @@ export class SqliteRepository implements Repository {
     }
     for (const sprint of snapshot.sprints) {
       await this.addSprint(sprint);
+    }
+    for (const release of snapshot.releases) {
+      await this.addRelease(release);
     }
     for (const story of snapshot.stories) {
       await this.addStory(story);
@@ -287,8 +312,8 @@ export class SqliteRepository implements Repository {
 
   async addStory(story: Story): Promise<void> {
     await this.db.execute(
-      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, rank) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.rank]
+      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, rank) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank]
     );
     for (const [position, criterion] of story.criteria.entries()) {
       await this.addCriterion(story.id, criterion, position);
@@ -300,8 +325,8 @@ export class SqliteRepository implements Repository {
 
   async updateStory(story: Story): Promise<void> {
     await this.db.execute(
-      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, rank = $7 WHERE id = $8',
-      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.rank, story.id]
+      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, rank = $8 WHERE id = $9',
+      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, story.id]
     );
   }
 
@@ -383,6 +408,31 @@ export class SqliteRepository implements Repository {
       sprint.endDate,
       sprint.id
     ]);
+  }
+
+  async addRelease(release: Release): Promise<void> {
+    await this.db.execute('INSERT INTO releases (id, title, description, start_date, end_date) VALUES ($1, $2, $3, $4, $5)', [
+      release.id,
+      release.title,
+      release.description,
+      release.startDate,
+      release.endDate
+    ]);
+  }
+
+  async updateRelease(release: Release): Promise<void> {
+    await this.db.execute('UPDATE releases SET title = $1, description = $2, start_date = $3, end_date = $4 WHERE id = $5', [
+      release.title,
+      release.description,
+      release.startDate,
+      release.endDate,
+      release.id
+    ]);
+  }
+
+  async deleteRelease(releaseId: string): Promise<void> {
+    await this.db.execute('UPDATE stories SET release_id = NULL WHERE release_id = $1', [releaseId]);
+    await this.db.execute('DELETE FROM releases WHERE id = $1', [releaseId]);
   }
 
   async saveField(field: FieldDefinition): Promise<void> {

@@ -26,16 +26,28 @@ export interface Sprint {
   endDate: string;
 }
 
+/**
+ * A release groups stories and gets its size from their points (#10). Dates are local calendar days as
+ * `YYYY-MM-DD`; both are optional, and both days belong to the release.
+ */
+export interface Release {
+  id: string;
+  title: string;
+  description: string;
+  startDate: string | null;
+  endDate: string | null;
+}
+
 export interface Criterion {
   id: string;
   text: string;
   done: boolean;
 }
 
-/** Kinds of items that can carry fields. Sprints and releases follow later. */
-export type ItemType = 'epic' | 'story';
+/** Kinds of items that can carry fields. Releases carry built-in fields only for now; sprints follow later. */
+export type ItemType = 'epic' | 'story' | 'release';
 
-export const ITEM_TYPES: readonly ItemType[] = ['story', 'epic'];
+export const ITEM_TYPES: readonly ItemType[] = ['story', 'epic', 'release'];
 
 /** Data types a team can choose for its own fields. */
 export type CustomDataType =
@@ -60,14 +72,25 @@ export const CUSTOM_DATA_TYPES: readonly CustomDataType[] = [
 ];
 
 /** Data types that only system and built-in fields have. */
-export type BuiltinDataType = 'key' | 'status' | 'epic' | 'points' | 'checklist' | 'color';
+export type BuiltinDataType = 'key' | 'status' | 'epic' | 'release' | 'points' | 'checklist' | 'color';
 
 export type FieldDataType = CustomDataType | BuiltinDataType;
 
 /** System fields cannot be removed, built-in fields can be hidden, custom fields belong to the team. */
 export type FieldKind = 'system' | 'builtin' | 'custom';
 
-export type BuiltinKey = 'key' | 'title' | 'status' | 'description' | 'epic' | 'points' | 'criteria' | 'color';
+export type BuiltinKey =
+  | 'key'
+  | 'title'
+  | 'status'
+  | 'description'
+  | 'epic'
+  | 'release'
+  | 'points'
+  | 'criteria'
+  | 'color'
+  | 'start'
+  | 'end';
 
 export interface FieldOption {
   id: string;
@@ -119,6 +142,8 @@ export interface Story {
   status: Status;
   /** The sprint the story is planned in, or null when it is not planned. */
   sprintId: string | null;
+  /** The release the story belongs to (at most one), or null. */
+  releaseId: string | null;
   /** Global priority, 0 is the most important. Board order is this order filtered by column. */
   rank: number;
   criteria: Criterion[];
@@ -129,7 +154,11 @@ export interface Story {
 export interface Snapshot {
   epics: Epic[];
   sprints: Sprint[];
+  releases: Release[];
   stories: Story[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
 }
+
+/** What the search reads: the items and the fields, not the releases' history or the settings. */
+export type SearchSnapshot = Pick<Snapshot, 'epics' | 'sprints' | 'stories' | 'fields' | 'assignments'>;

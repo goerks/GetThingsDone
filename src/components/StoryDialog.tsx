@@ -8,11 +8,14 @@ import { EditableText } from './EditableText';
 import { EpicSelect } from './EpicSelect';
 import { EpicTag } from './EpicTag';
 import { FieldControl } from './FieldControl';
+import { ReleaseSelect } from './ReleaseSelect';
+import { formatDay } from './releaseFormat';
 import { SprintSelect } from './SprintSelect';
 import { GripIcon, TrashIcon } from './icons';
 import { useDragSensors } from '../dnd/dnd';
 import { criteriaProgress } from '../domain/board';
 import { customFieldsFor, isRequired } from '../domain/fields';
+import { sprintEndsAfterRelease } from '../domain/releases';
 import { POINT_VALUES, STATUSES, type Criterion, type Status } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
@@ -74,7 +77,7 @@ function CriterionRow({ storyId, criterion }: CriterionProps) {
 
 /** Details of a story in a dialog over the current page: everything is edited in place and saved at once. */
 export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const app = useApp();
   const builtin = useBuiltin();
   const uid = useId();
@@ -99,6 +102,8 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
   const epic = app.epics.find((item) => item.id === story.epicId);
   const customFields = customFieldsFor('story', app.fields, app.assignments);
   const progress = criteriaProgress(story);
+  const late = sprintEndsAfterRelease(story, app.releases, app.sprints);
+  const language = i18n.resolvedLanguage ?? 'en';
   const allAccepted = progress.total > 0 && progress.done === progress.total;
 
   const submit = (event: FormEvent): void => {
@@ -264,6 +269,20 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
             <div className="field">
               <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
               <SprintSelect id={`${uid}-sprint`} value={story.sprintId} onChange={(sprintId) => app.updateStory(story.id, { sprintId })} />
+            </div>
+            <div className="field">
+              <label htmlFor={`${uid}-release`}>{builtin.label('release', t('releases.label'))}</label>
+              <ReleaseSelect id={`${uid}-release`} value={story.releaseId} onChange={(releaseId) => app.updateStory(story.id, { releaseId })} />
+              {late && late.release.endDate && (
+                <p className="hint" role="note">
+                  {t('releases.sprintAfter', {
+                    sprint: late.sprint.name,
+                    sprintEnd: formatDay(late.sprint.endDate, language),
+                    release: late.release.title,
+                    releaseEnd: formatDay(late.release.endDate, language)
+                  })}
+                </p>
+              )}
             </div>
             {customFields.map((field) => (
               <FieldControl

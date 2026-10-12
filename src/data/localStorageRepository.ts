@@ -1,7 +1,7 @@
 import { dropRemovedOptions, setItemValue, withoutField } from '../domain/fields';
 import { migrateSnapshot } from '../domain/migrate';
 import { todayIso } from '../domain/sprints';
-import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Snapshot, Sprint, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, Snapshot, Sprint, Story } from '../domain/types';
 import type { Repository, StoryPosition } from './repository';
 
 const KEY = 'getitdone.snapshot.v1';
@@ -18,7 +18,7 @@ export class LocalStorageRepository implements Repository {
         const stored = JSON.parse(raw) as Parameters<typeof migrateSnapshot>[0];
         const snapshot = migrateSnapshot(stored, todayIso());
         // Store a migrated snapshot right away, so a migrated sprint keeps the dates it got today.
-        if (stored.sprints === undefined || stored.fields === undefined) this.write(snapshot);
+        if (stored.sprints === undefined || stored.fields === undefined || stored.releases === undefined) this.write(snapshot);
         return snapshot;
       }
     } catch {
@@ -131,6 +131,29 @@ export class LocalStorageRepository implements Repository {
 
   async updateSprint(sprint: Sprint): Promise<void> {
     this.changeSprints((sprints) => sprints.map((item) => (item.id === sprint.id ? sprint : item)));
+  }
+
+  private changeReleases(change: (snapshot: Snapshot) => Snapshot): void {
+    this.write(change(this.read()));
+  }
+
+  async addRelease(release: Release): Promise<void> {
+    this.changeReleases((snapshot) => ({ ...snapshot, releases: [...snapshot.releases, release] }));
+  }
+
+  async updateRelease(release: Release): Promise<void> {
+    this.changeReleases((snapshot) => ({
+      ...snapshot,
+      releases: snapshot.releases.map((item) => (item.id === release.id ? release : item))
+    }));
+  }
+
+  async deleteRelease(releaseId: string): Promise<void> {
+    this.changeReleases((snapshot) => ({
+      ...snapshot,
+      releases: snapshot.releases.filter((release) => release.id !== releaseId),
+      stories: snapshot.stories.map((story) => (story.releaseId === releaseId ? { ...story, releaseId: null } : story))
+    }));
   }
 
   private changeFields(change: (snapshot: Snapshot) => Snapshot): void {

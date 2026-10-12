@@ -23,13 +23,16 @@ interface BuiltinField {
  */
 export const BUILTIN_FIELDS: readonly BuiltinField[] = [
   { key: 'key', kind: 'system', dataType: 'key', itemTypes: ['story'] },
-  { key: 'title', kind: 'system', dataType: 'text', itemTypes: ['story', 'epic'] },
+  { key: 'title', kind: 'system', dataType: 'text', itemTypes: ['story', 'epic', 'release'] },
   { key: 'status', kind: 'system', dataType: 'status', itemTypes: ['story'] },
-  { key: 'description', kind: 'builtin', dataType: 'long_text', itemTypes: ['story'] },
+  { key: 'release', kind: 'system', dataType: 'release', itemTypes: ['story'] },
+  { key: 'description', kind: 'builtin', dataType: 'long_text', itemTypes: ['story', 'release'] },
   { key: 'epic', kind: 'builtin', dataType: 'epic', itemTypes: ['story'] },
   { key: 'points', kind: 'builtin', dataType: 'points', itemTypes: ['story'] },
   { key: 'criteria', kind: 'builtin', dataType: 'checklist', itemTypes: ['story'] },
-  { key: 'color', kind: 'builtin', dataType: 'color', itemTypes: ['epic'] }
+  { key: 'color', kind: 'builtin', dataType: 'color', itemTypes: ['epic'] },
+  { key: 'start', kind: 'builtin', dataType: 'date', itemTypes: ['release'] },
+  { key: 'end', kind: 'builtin', dataType: 'date', itemTypes: ['release'] }
 ];
 
 /** Stable id of a built-in field, the same in every database. */
@@ -43,7 +46,9 @@ function assignment(itemType: ItemType, fieldId: string, position: number): Fiel
 
 /**
  * Adds the system and built-in fields and assignments that are missing, so a new release can add one
- * without a database migration. Returns only what was added; both lists are empty when nothing is missing.
+ * without a database migration. That includes a known field that gets a new item type (the title and the
+ * description of releases). Returns only what was added; both lists are empty when nothing is missing.
+ * Added assignments go after the existing ones of their item type.
  */
 export function missingBuiltins(
   fields: readonly FieldDefinition[],
@@ -54,20 +59,22 @@ export function missingBuiltins(
   const addedAssignments: FieldAssignment[] = [];
   for (const builtin of BUILTIN_FIELDS) {
     const id = builtinFieldId(builtin.key);
-    if (known.has(id)) continue;
-    addedFields.push({
-      id,
-      builtinKey: builtin.key,
-      kind: builtin.kind,
-      dataType: builtin.dataType,
-      label: null,
-      options: [],
-      defaultValue: null
-    });
+    if (!known.has(id)) {
+      addedFields.push({
+        id,
+        builtinKey: builtin.key,
+        kind: builtin.kind,
+        dataType: builtin.dataType,
+        label: null,
+        options: [],
+        defaultValue: null
+      });
+    }
     for (const itemType of builtin.itemTypes) {
-      const position = BUILTIN_FIELDS.filter((item) => item.itemTypes.includes(itemType)).indexOf(builtin);
-      const taken = assignments.some((item) => item.itemType === itemType && item.fieldId === id);
-      if (!taken) addedAssignments.push(assignment(itemType, id, position));
+      const all = [...assignments, ...addedAssignments];
+      if (all.some((item) => item.itemType === itemType && item.fieldId === id)) continue;
+      const last = all.filter((item) => item.itemType === itemType).reduce((max, item) => Math.max(max, item.position), -1);
+      addedAssignments.push(assignment(itemType, id, last + 1));
     }
   }
   return { fields: addedFields, assignments: addedAssignments };
@@ -507,7 +514,8 @@ export type LayoutPatch = Partial<Pick<FieldAssignment, 'required' | 'onCard' | 
 
 /**
  * Changes how a custom field behaves on an item type. A required field is always in the create dialog.
- * Returns null for system and built-in fields, unknown assignments, and a card that is already full.
+ * Returns null for system and built-in fields (except where and whether the release of a story shows, which is
+ * the only thing they can change), unknown assignments, and a card that is already full.
  */
 export function updateLayout(
   itemType: ItemType,
@@ -518,8 +526,12 @@ export function updateLayout(
 ): FieldAssignment[] | null {
   const field = fields.find((item) => item.id === fieldId);
   const current = assignments.find((item) => item.itemType === itemType && item.fieldId === fieldId);
-  if (!field || field.kind !== 'custom' || !current) return null;
-  if (patch.onCard && !current.onCard && cardFieldsFor(itemType, fields, assignments).length >= CARD_FIELD_LIMIT) return null;
+  // The "Release" system field of stories can be shown on the card and in the create dialog, never required.
+  const releaseField = field?.builtinKey === 'release' && itemType === 'story' && !patch.required;
+  if (!field || (field.kind !== 'custom' && !releaseField) || !current) return null;
+  if (field.kind === 'custom' && patch.onCard && !current.onCard && cardFieldsFor(itemType, fields, assignments).length >= CARD_FIELD_LIMIT) {
+    return null;
+  }
   const next: FieldAssignment = { ...current, ...patch };
   if (next.required) next.inCreate = true;
   return assignments.map((item) => (item === current ? next : item));
@@ -546,6 +558,12 @@ export function createFieldsFor(
   return layoutFor(itemType, fields, assignments).filter(
     (entry) => entry.field.kind === 'custom' && !entry.assignment.hidden && (entry.assignment.inCreate || entry.assignment.required)
   );
+}
+
+/** Where the "Release" system field of stories shows besides the story dialog (both off by default, #10). */
+export function releaseLayout(assignments: readonly FieldAssignment[]): { inCreate: boolean; onCard: boolean } {
+  const own = assignments.find((item) => item.itemType === 'story' && item.fieldId === builtinFieldId('release'));
+  return { inCreate: own?.inCreate === true && !own.hidden, onCard: own?.onCard === true && !own.hidden };
 }
 
 /** Whether a field is required on an item type. */
@@ -614,16 +632,23 @@ export function formatValue(field: FieldDefinition, value: FieldValue, locale = 
 
 /* ---------- System and built-in fields as configuration (stage 5) ---------- */
 
-/** Built-in fields a team can hide. The epic stays visible for now (PO decision in #4). */
+/** Built-in fields a team can hide on stories and epics. The epic stays visible for now (PO decision in #4). */
 export const HIDEABLE_BUILTINS: readonly BuiltinKey[] = ['description', 'points', 'criteria', 'color'];
+
+/** Built-in fields a team can hide on releases: the dates. Title and description stay (PO design for #10). */
+export const HIDEABLE_ON_RELEASES: readonly BuiltinKey[] = ['start', 'end'];
 
 /** Every system and built-in field can be renamed except the key, which is an identifier. */
 export function canRename(field: FieldDefinition): boolean {
   return field.builtinKey !== 'key';
 }
 
-export function canHide(field: FieldDefinition): boolean {
-  return field.builtinKey !== null && HIDEABLE_BUILTINS.includes(field.builtinKey);
+/** Whether a built-in field can be hidden, on an item type when given (a release can hide only its dates). */
+export function canHide(field: FieldDefinition, itemType?: ItemType): boolean {
+  if (field.builtinKey === null) return false;
+  if (itemType === 'release') return HIDEABLE_ON_RELEASES.includes(field.builtinKey);
+  if (itemType === undefined) return HIDEABLE_BUILTINS.includes(field.builtinKey) || HIDEABLE_ON_RELEASES.includes(field.builtinKey);
+  return HIDEABLE_BUILTINS.includes(field.builtinKey);
 }
 
 /** Whether a system or built-in field shows on an item type: it belongs to the type and is not hidden. */
@@ -646,7 +671,7 @@ export function setBuiltinHidden(
 ): FieldAssignment[] | null {
   const field = fields.find((item) => item.id === fieldId);
   const current = assignments.find((item) => item.itemType === itemType && item.fieldId === fieldId);
-  if (!field || !canHide(field) || !current) return null;
+  if (!field || !canHide(field, itemType) || !current) return null;
   return assignments.map((item) => (item === current ? { ...item, hidden } : item));
 }
 

@@ -616,7 +616,7 @@ describe('fields', () => {
     expect(screen.getByRole('columnheader', { name: 'Stories' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Epics' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /^Sprints\s*Planned/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /^Releases\s*Planned/ })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Releases' })).toBeInTheDocument();
     expect(screen.getByText('System fields')).toBeInTheDocument();
     expect(screen.getByText('Custom fields')).toBeInTheDocument();
 
@@ -1208,6 +1208,7 @@ describe('router', () => {
   it('parses known routes and falls back to the board', () => {
     expect(parseHash('#/backlog')).toEqual({ name: 'backlog' });
     expect(parseHash('#/epics')).toEqual({ name: 'epics' });
+    expect(parseHash('#/releases')).toEqual({ name: 'releases' });
     expect(parseHash('#/map')).toEqual({ name: 'map' });
     expect(parseHash('#/settings')).toEqual({ name: 'settings', section: 'fields' });
     expect(parseHash('#/settings/fields')).toEqual({ name: 'settings', section: 'fields' });
