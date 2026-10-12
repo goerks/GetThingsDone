@@ -298,7 +298,9 @@
       "hint": "Eigene Felder ziehen, um ihre Reihenfolge in den Dialogen zu ändern. Höchstens {{count}} Felder erscheinen auf einer Karte.",
       "hintNoCard": "Eigene Felder ziehen, um ihre Reihenfolge im Dialog zu ändern.",
       "noCustom": "Noch keine eigenen Felder für diesen Typ. Unter Zuordnung anhaken.",
-      "instructions": "Leertaste drücken, um ein Feld aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen."
+      "instructions": "Leertaste drücken, um ein Feld aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen.",
+      "releaseOff": "Nicht verfügbar: Releases sind ausgeschaltet",
+      "releaseOffLink": "Einstellungen › Releases"
     },
     "invalidUrl": "Bitte eine Webadresse eingeben, zum Beispiel example.com.",
     "openLink": "{{name}} öffnen",
@@ -310,7 +312,8 @@
     "renameHint": "Der neue Name erscheint in allen Sprachen. Standard ist «{{name}}».",
     "resetLabel": "Auf «{{name}}» zurücksetzen",
     "alwaysOn": "Auf diesem Typ immer sichtbar",
-    "customOnReleases": "Eigene Felder auf Releases sind für eine spätere Version geplant"
+    "customOnReleases": "Eigene Felder auf Releases sind für eine spätere Version geplant",
+    "releasesOffCell": "{{name}} ist bei {{type}} nicht verfügbar: Releases sind ausgeschaltet"
   },
   "settings": {
     "title": "Einstellungen",
@@ -335,7 +338,16 @@
       "saved": "Die Wahl gilt für das ganze Team und wird sofort gespeichert. Stories, Sprints und Releases bleiben unverändert; es ändert sich nur die Darstellung.",
       "noReleases": "Es gibt noch kein Release. Die Story Map zeigt dann nur die Zeile «Kein Release».",
       "createRelease": "Release anlegen",
-      "back": "← Zur Story Map"
+      "back": "← Zur Story Map",
+      "off": "Releases sind ausgeschaltet, deshalb zeigt die Story Map Sprints. Schalte Releases ein, um sie als Zeilen zu verwenden.",
+      "toReleases": "Releases einschalten"
+    },
+    "releases": {
+      "title": "Releases",
+      "enabled": "Mit Releases planen",
+      "hint": "Ausschalten, wenn das Team nur mit Sprints arbeitet. Die Seite «Releases», das Feld «Release» bei Stories und die Release-Zeilen der Story Map sind dann ausgeblendet. Es wird nichts gelöscht: Beim erneuten Einschalten ist alles wieder da.",
+      "saved": "Die Auswahl gilt für das ganze Team und wird sofort gespeichert.",
+      "offNote": "Releases sind ausgeschaltet. Releases und ihr Verlauf bleiben erhalten."
     }
   },
   "summary": {

@@ -303,6 +303,15 @@ Source: Issue #10, PO decisions · Status: Implemented · Verified by: burndown.
 
 ## Settings (SET)
 
+### FR-REL-13 Switch releases off
+As a PO of a team that works with sprints only, I want to switch releases off and on again later without losing anything.
+- Settings › Releases has the switch "Plan with releases" (team setting, on by default, saved at once).
+- Off: the main navigation has no "Releases", the address `#/releases` leads to the board, the story dialog, the create dialog and the cards do not show the release field, and the story map shows sprints even if releases were chosen as rows (the choice is disabled in Settings › Story map with a note).
+- In the field settings the release field and the column "Releases" are marked as not available because releases are switched off, with a link to the switch.
+- Nothing is deleted: releases, assignments of stories and the history stay, and are all back when the switch is on again.
+
+Source: Issue #10, PO request · Status: Implemented · Verified by: ReleasesSwitch.test, settings.test, sqliteRepository.test "settings"
+
 ### FR-SET-01 Language
 As a user, I want to switch the UI between Deutsch, English, Français and Italiano. The choice is remembered; without a choice the browser language is used, else English.
 

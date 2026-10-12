@@ -24,6 +24,7 @@ import {
   type FieldKind,
   type ItemType
 } from '../domain/types';
+import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
 import { FieldLayout } from './FieldLayout';
 
@@ -333,6 +334,18 @@ function UseCell({ field, itemType, name }: UseCellProps) {
   const app = useApp();
   const typeName = t(`fields.itemType.${itemType}`);
   const builtin = BUILTIN_FIELDS.find((item) => item.key === field.builtinKey);
+  // Releases switched off: the release field and everything on releases is kept but not available.
+  if (!app.settings.releasesEnabled && (itemType === 'release' || field.builtinKey === 'release')) {
+    const off = t('fields.releasesOffCell', { name, type: typeName });
+    return (
+      <td className="field-table__use">
+        <span aria-hidden="true" title={off}>
+          –
+        </span>
+        <span className="sr-only">{off}</span>
+      </td>
+    );
+  }
   if (builtin && !builtin.itemTypes.includes(itemType)) {
     return (
       <td className="field-table__use">
@@ -514,6 +527,11 @@ export function FieldsSection() {
           </button>
         ))}
       </div>
+      {!app.settings.releasesEnabled && (
+        <p className="hint hint--info" role="note">
+          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsReleases}>{t('fields.layout.releaseOffLink')}</a>
+        </p>
+      )}
       {view === 'layout' ? (
         <FieldLayout />
       ) : (

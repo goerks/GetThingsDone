@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from './components/Header';
 import { createRepository } from './data/createRepository';
@@ -9,7 +9,7 @@ import { EpicsPage } from './pages/EpicsPage';
 import { ReleasesPage } from './pages/ReleasesPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { MapPage } from './pages/MapPage';
-import { useRoute } from './router';
+import { hrefs, useRoute } from './router';
 import { AppProvider, useApp } from './state/AppState';
 import { DetailsProvider } from './state/Details';
 import { SearchProvider } from './state/Search';
@@ -19,7 +19,12 @@ function Shell() {
   const { t } = useTranslation();
   const route = useRoute();
   const { theme, toggleTheme } = useTheme();
-  const { loading, error } = useApp();
+  const { loading, error, settings } = useApp();
+  // Without releases the address of the Releases page leads back to the board.
+  const hidden = route.name === 'releases' && !loading && !settings.releasesEnabled;
+  useEffect(() => {
+    if (hidden) window.location.replace(hrefs.board);
+  }, [hidden]);
 
   return (
     <div className="app">
@@ -40,7 +45,7 @@ function Shell() {
           <MapPage />
         ) : route.name === 'epics' ? (
           <EpicsPage />
-        ) : route.name === 'releases' ? (
+        ) : route.name === 'releases' && !hidden ? (
           <ReleasesPage />
         ) : route.name === 'settings' ? (
           <SettingsPage section={route.section} />
