@@ -28,6 +28,11 @@ export function Dialog({ title, label, wide = false, onClose, children }: Props)
     // jsdom has no showModal; the open attribute keeps the dialog usable there.
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
+    // Keys such as Escape and the arrows must reach the dialog: make sure focus is inside, as browsers do on showModal.
+    if (!dialog.contains(document.activeElement))
+      dialog
+        .querySelector<HTMLElement>('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea, [tabindex]:not([tabindex="-1"])')
+        ?.focus();
     return () => {
       if (dialog.open && typeof dialog.close === 'function') dialog.close();
       opener?.focus?.();
@@ -43,6 +48,25 @@ export function Dialog({ title, label, wide = false, onClose, children }: Props)
       onCancel={(event) => {
         event.preventDefault();
         onClose();
+      }}
+      onKeyDown={(event) => {
+        if (event.defaultPrevented) return;
+        if (event.key === 'Escape') {
+          // Close here, so Escape works the same in every browser (and nested editors can keep it by preventing it).
+          event.preventDefault();
+          onClose();
+          return;
+        }
+        // Left and right step through the list of the navigation bar, unless a field needs the arrow keys.
+        if (!nav || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        const target = event.target as HTMLElement;
+        if (target.closest('input, textarea, select, [contenteditable="true"], [role="slider"]')) return;
+        const step = event.key === 'ArrowLeft' ? nav.previous : nav.next;
+        if (step) {
+          event.preventDefault();
+          step();
+        }
       }}
       onMouseDown={(event) => {
         // A click on the backdrop (the dialog element itself, outside its content) closes it.
@@ -91,6 +115,10 @@ function NavBar({ nav }: { nav: DetailNav }) {
         >
           ›
         </button>
+        <span className="detail-nav__keys" aria-hidden="true">
+          <kbd>←</kbd>
+          <kbd>→</kbd>
+        </span>
         <button type="button" className="btn btn--small" onClick={nav.back}>
           {t('search.nav.back')}
         </button>

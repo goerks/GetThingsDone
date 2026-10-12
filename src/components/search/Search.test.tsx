@@ -378,3 +378,50 @@ describe('opening a result where it is shown', () => {
     expect(document.querySelector('[data-located]')).toBeNull();
   });
 });
+
+describe('keyboard in the dialog and on the page', () => {
+  it('steps through results with the arrow keys and closes the dialog with Escape', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'key');
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('dialog', { name: /S-6/ })).toBeInTheDocument();
+    await user.keyboard('{ArrowRight}');
+    expect(await screen.findByRole('dialog', { name: /S-1/ })).toBeInTheDocument();
+    await user.keyboard('{ArrowLeft}');
+    expect(await screen.findByRole('dialog', { name: /S-6/ })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog', { name: /S-6/ })).not.toBeInTheDocument();
+    // The search is still there after closing the dialog …
+    expect(field()).toHaveValue('key');
+    // … and a second Escape on the page resets it.
+    await user.keyboard('{Escape}');
+    expect(field()).toHaveValue('');
+    expect(screen.queryByText(/stories here match/)).not.toBeInTheDocument();
+  });
+
+  it('resets the search with Escape in the field once the list is closed', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'status:review data');
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(field()).toHaveValue('');
+    expect(screen.getByRole('search').querySelector('.search-chip')).toBeNull();
+  });
+
+  it('filters by key, title and description', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'key:s-4 ');
+    expect(within(listbox()).getByRole('group', { name: 'Stories' })).toHaveTextContent('S-4');
+    expect(within(within(listbox()).getByRole('group', { name: 'Stories' })).getAllByRole('option')).toHaveLength(1);
+    await user.keyboard('{Backspace}');
+    await user.type(field(), 'title:"local database" ');
+    expect(within(within(listbox()).getByRole('group', { name: 'Stories' })).getAllByRole('option')).toHaveLength(1);
+    await user.keyboard('{Backspace}');
+    await user.type(field(), '@');
+    const fields = within(listbox()).getByRole('group', { name: 'Fields' });
+    expect(fields).toHaveTextContent('Key');
+    expect(fields).toHaveTextContent('Title');
+    expect(fields).toHaveTextContent('Description');
+  });
+});
