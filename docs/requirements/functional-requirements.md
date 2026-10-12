@@ -143,9 +143,9 @@ As a team, we want to see every field of the workspace and the item types that u
 - The section "Fields" of the settings (FR-SET-03) lists all fields with name and type, grouped into system, built-in and custom fields, with one checkbox column per item type: Stories, Epics. Sprints and Releases are shown as planned columns.
 - System fields (key, title, story status) are ticked and locked. Built-in fields (description, epic, points, acceptance criteria on stories; colour on epics) can be switched off (hidden), except the epic, which stays locked for now (FR-FIELD-10). A field that does not exist for a type shows "–".
 - A click on the checkbox of a custom field uses it on that type or takes it off, and is saved at once. Taking a field off hides it in that type's dialog but keeps its values, so they come back when the field is used again.
-- System and built-in fields cannot be deleted; they can be renamed (FR-FIELD-10). Missing ones are added automatically when data is loaded, also for data of release 0.1.
+- System and built-in fields cannot be deleted, neither in the UI nor by either storage backend; they can be renamed (FR-FIELD-10). Missing ones are added automatically when data is loaded, also for data of release 0.1.
 
-Source: #4, PO feedback (variant A in `docs/design/field-assignment.md`) · Status: Implemented · Verified by: App "shows a matrix of fields and item types…", "puts a field on epics…", "takes a field off stories without losing its values", "opens data of release 0.1…", fields.test "missingBuiltins", "setAssigned", sqliteRepository.test "adds missing built-in fields…"
+Source: #4, PO feedback (variant A in `docs/design/field-assignment.md`) · Status: Implemented · Verified by: App "shows a matrix of fields and item types…", "puts a field on epics…", "takes a field off stories without losing its values", "opens data of release 0.1…", "offers no way to delete, edit or switch off system fields and the epic", fields.test "missingBuiltins", "setAssigned", "locked fields", sqliteRepository.test "adds missing built-in fields…", "never deletes a system or built-in field", localStorageRepository.test "never deletes a system or built-in field"
 
 ### FR-FIELD-02 Create a custom field
 As a team, we want to add our own fields, so that stories carry the information we need.
@@ -154,7 +154,7 @@ As a team, we want to add our own fields, so that stories carry the information 
 - An optional default value fills in new stories and epics: text, a number, a date, a link, "ticked" for a checkbox, one option or several options. A default that does not fit the type is refused.
 - The name is required and unique among custom fields (ignoring case). A select field needs at least one option and no two options with the same name. Problems are shown in the dialog.
 
-Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "explains what is wrong with a new field", fields.test "validateField", "createField"
+Source: #4 · Status: Implemented · Verified by: App "creates a select field…", "adds a text field for stories and epics, shows it everywhere and keeps its values after a reload", "explains what is wrong with a new field", fields.test "validateField", "createField"
 
 ### FR-FIELD-03 Edit a custom field
 As a team, we want to rename a field and change its options.
@@ -162,13 +162,13 @@ As a team, we want to rename a field and change its options.
 - The type can change only where every value is kept: text → long text, number → text, date → text, link → text, single select → multi select. The dialog offers only these; for any other type the type is locked with a hint to create a new field. Values and the default are converted.
 - Renaming an option keeps the values that use it. Removing an option removes these values on stories and epics.
 
-Source: #4 · Status: Implemented · Verified by: App "renames a field and removes an option…", "turns a single select into a multi select…", fields.test "updateField", "type changes", "dropRemovedOptions", sqliteRepository.test "moves values to the storage of their new type…"
+Source: #4 · Status: Implemented · Verified by: App "renames a field and removes an option…", "turns a single select into a multi select…", "offers only the type changes that keep every value…", fields.test "updateField", "type changes", "type changes in detail" (all 64 type pairs), "dropRemovedOptions", sqliteRepository.test "moves values to the storage of their new type…", "keeps every value for each allowed type change", "migrations 005 and 006…"
 
 ### FR-FIELD-04 Delete a custom field
 As a team, we want to delete a field we no longer need.
 - A confirmation says how many stories and how many epics lose a value. Deleting removes the field, its options, where it is used and all its values.
 
-Source: #4 · Status: Implemented · Verified by: App "deletes a field after saying how many stories lose a value", fields.test "deleteField", "withoutField", sqliteRepository.test "deletes a field…"
+Source: #4 · Status: Implemented · Verified by: App "deletes a field after saying how many stories lose a value", fields.test "deleteField", "withoutField", sqliteRepository.test "deletes a field…", localStorageRepository.test "deletes a custom field…"
 
 ### FR-FIELD-05 Custom field values in the story dialog
 As a team member, I want to fill in the custom fields of a story.
@@ -215,7 +215,7 @@ As a team, we want to call the fields by our own names and switch off the built-
 - Description, points and acceptance criteria (stories) and colour (epics) can be hidden by unticking them in the matrix. A hidden field disappears from the dialogs, create dialogs, cards and summaries; colour also from epic tags and the story map stripe. Values stay and come back when the field is shown again.
 - Key, title and status cannot be hidden ("System field, always used"). The epic of a story cannot be hidden for now ("The epic cannot be hidden for now"; PO decision in #4).
 
-Source: #4, PO decision 2026-10-11 · Status: Implemented · Verified by: App "hides points, so the board, cards and dialogs leave them out…", "hides acceptance criteria, description and epic colour", "renames built-in and system fields with one label and resets them", fields.test "renaming and hiding built-in fields", sqliteRepository.test "keeps the label and hidden state of a built-in field"
+Source: #4, PO decision 2026-10-11 · Status: Implemented · Verified by: App "hides points, so the board, cards and dialogs leave them out…", "hides acceptance criteria, description and epic colour", "renames built-in and system fields with one label and resets them", "renames title, description, epic, criteria and colour and uses the names in every dialog, also after a reload", fields.test "renaming and hiding built-in fields", sqliteRepository.test and localStorageRepository.test "keeps the label and hidden state of a built-in field" / "keeps a renamed and hidden built-in field"
 
 ## Settings (SET)
 

@@ -148,14 +148,18 @@ export class LocalStorageRepository implements Repository {
     }));
   }
 
+  /** Deletes a custom field with everything that belongs to it. System and built-in fields are never deleted. */
   async deleteField(fieldId: string): Promise<void> {
-    this.changeFields((snapshot) => ({
-      ...snapshot,
-      fields: snapshot.fields.filter((field) => field.id !== fieldId),
-      assignments: snapshot.assignments.filter((item) => item.fieldId !== fieldId),
-      stories: withoutField(snapshot.stories, fieldId),
-      epics: withoutField(snapshot.epics, fieldId)
-    }));
+    this.changeFields((snapshot) => {
+      if (snapshot.fields.find((field) => field.id === fieldId)?.kind !== 'custom') return snapshot;
+      return {
+        ...snapshot,
+        fields: snapshot.fields.filter((field) => field.id !== fieldId),
+        assignments: snapshot.assignments.filter((item) => item.fieldId !== fieldId),
+        stories: withoutField(snapshot.stories, fieldId),
+        epics: withoutField(snapshot.epics, fieldId)
+      };
+    });
   }
 
   async saveAssignments(fieldId: string, assignments: readonly FieldAssignment[]): Promise<void> {

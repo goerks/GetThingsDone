@@ -13,6 +13,7 @@ import {
   parseValue,
   CARD_FIELD_LIMIT,
   canConvert,
+  convertValue,
   canHide,
   canRename,
   isBuiltinShown,
@@ -38,7 +39,7 @@ import {
   validateField,
   type FieldInput
 } from './fields';
-import type { FieldAssignment, FieldDefinition, Story } from './types';
+import { CUSTOM_DATA_TYPES, type CustomDataType, type FieldAssignment, type FieldDefinition, type Story } from './types';
 
 function ids(): () => string {
   let next = 0;
@@ -480,5 +481,78 @@ describe('renaming and hiding built-in fields', () => {
   it('does not rename the key or custom fields', () => {
     expect(renameBuiltin(builtins.fields, builtinFieldId('key'), 'Id')).toBeNull();
     expect(renameBuiltin([...builtins.fields, select], 'prio', 'Urgency')).toBeNull();
+  });
+});
+
+describe('type changes in detail', () => {
+  const ALLOWED: ReadonlyArray<[CustomDataType, CustomDataType]> = [
+    ['text', 'long_text'],
+    ['number', 'text'],
+    ['date', 'text'],
+    ['url', 'text'],
+    ['single_select', 'multi_select']
+  ];
+
+  function customField(dataType: CustomDataType): FieldDefinition {
+    const options = dataType === 'single_select' || dataType === 'multi_select' ? select.options : [];
+    return { id: 'f', builtinKey: null, kind: 'custom', dataType, label: 'Field', options, defaultValue: null };
+  }
+
+  it('allows exactly the defined changes between all eight types', () => {
+    for (const from of CUSTOM_DATA_TYPES) {
+      for (const to of CUSTOM_DATA_TYPES) {
+        const expected = from === to || ALLOWED.some(([a, b]) => a === from && b === to);
+        expect(canConvert(from, to), `${from} -> ${to}`).toBe(expected);
+      }
+    }
+  });
+
+  it('updates a field only along the defined changes', () => {
+    for (const from of CUSTOM_DATA_TYPES) {
+      for (const to of CUSTOM_DATA_TYPES) {
+        const field = customField(from);
+        const result = updateField([field], 'f', { label: 'Field', options: field.options, dataType: to }, ids());
+        expect(result?.field.dataType ?? null, `${from} -> ${to}`).toBe(canConvert(from, to) ? to : null);
+      }
+    }
+  });
+
+  it('keeps every value when converting', () => {
+    expect(convertValue('Short note', 'long_text')).toBe('Short note');
+    expect(convertValue(8, 'text')).toBe('8');
+    expect(convertValue(2.5, 'text')).toBe('2.5');
+    expect(convertValue('2026-12-24', 'text')).toBe('2026-12-24');
+    expect(convertValue('https://example.com/', 'text')).toBe('https://example.com/');
+    expect(convertValue('must', 'multi_select')).toEqual(['must']);
+    const items = [story('a', { f: 3, other: 'x' }), story('b')];
+    expect(convertValues(items, 'f', 'text').map((item) => item.values)).toEqual([{ f: '3', other: 'x' }, {}]);
+  });
+
+  it('never changes the type of a system or built-in field', () => {
+    for (const field of builtins.fields) {
+      expect(updateField(builtins.fields, field.id, { label: 'X', options: [], dataType: 'text' }, ids())).toBeNull();
+    }
+  });
+});
+
+describe('locked fields', () => {
+  it('never deletes a system or built-in field', () => {
+    for (const field of builtins.fields) {
+      expect(deleteField(builtins.fields, builtins.assignments, field.id), String(field.builtinKey)).toBeNull();
+    }
+  });
+
+  it('never takes a system or built-in field off an item type', () => {
+    for (const item of builtins.assignments) {
+      expect(setAssigned(builtins.fields, builtins.assignments, item.fieldId, item.itemType, false)).toBeNull();
+    }
+  });
+
+  it('adds a deleted or lost built-in field back on load', () => {
+    const withoutPoints = builtins.fields.filter((field) => field.builtinKey !== 'points');
+    const assignments = builtins.assignments.filter((item) => item.fieldId !== builtinFieldId('points'));
+    const added = missingBuiltins(withoutPoints, assignments);
+    expect(added.fields.map((field) => field.builtinKey)).toEqual(['points']);
+    expect(added.assignments.map((item) => [item.itemType, item.fieldId])).toEqual([['story', builtinFieldId('points')]]);
   });
 });
