@@ -20,6 +20,7 @@ import { formatSprintDates } from '../components/sprintFormat';
 import { hrefs } from '../router';
 import { STATUSES, type Status } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { useBuiltin } from '../components/useBuiltin';
 
 interface Hover {
   overId: string;
@@ -28,6 +29,7 @@ interface Hover {
 
 export function BoardPage() {
   const { t, i18n } = useTranslation();
+  const builtin = useBuiltin();
   const app = useApp();
   const sprint = runningSprint(app.sprints, todayIso());
   const sprintId = sprint?.id ?? null;
@@ -103,7 +105,7 @@ export function BoardPage() {
       <div className="page-head">
         <h1>{sprint.name}</h1>
         <span className="muted">
-          {formatSprintDates(sprint, i18n.language)} · {t('board.summary', { count: inSprint.length, points: totalPoints(inSprint) })}
+          {formatSprintDates(sprint, i18n.language)} · {builtin.summary(inSprint.length, totalPoints(inSprint))}
         </span>
         <button type="button" className="btn btn--primary page-head__action" onClick={() => setCreating(true)}>
           {t('newStory.open')}

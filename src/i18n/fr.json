@@ -249,7 +249,6 @@
     },
     "useOn": "{{name}} pour {{type}}",
     "locked": "Champ système, toujours utilisé",
-    "hideLater": "Les champs intégrés pourront être masqués dans une étape ultérieure",
     "notAvailable": "{{name}} n’existe pas pour {{type}}",
     "deleteQuestion": "Supprimer le champ {{name}} ? Cette action est définitive.",
     "loseStories_one": "{{count}} story perd sa valeur.",
@@ -283,7 +282,12 @@
     "invalidUrl": "Saisissez une adresse web, par exemple example.com.",
     "openLink": "Ouvrir {{name}}",
     "typeConversions": "Seuls les changements de type qui gardent toutes les valeurs sont proposés.",
-    "defaultTicked": "Cochée par défaut"
+    "defaultTicked": "Cochée par défaut",
+    "epicFixed": "L’epic ne peut pas encore être masqué",
+    "rename": "Renommer le champ {{name}}",
+    "renameTitle": "Renommer le champ",
+    "renameHint": "Le nouveau nom s’affiche dans toutes les langues. Par défaut : « {{name}} ».",
+    "resetLabel": "Revenir à « {{name}} »"
   },
   "settings": {
     "title": "Paramètres",
@@ -291,5 +295,11 @@
     "statusValues": "Valeurs de statut",
     "planned": "Prévu",
     "plannedNote": "prévu pour une version ultérieure"
+  },
+  "summary": {
+    "stories_one": "{{count}} story",
+    "stories_other": "{{count}} stories",
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points"
   }
 }

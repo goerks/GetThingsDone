@@ -3,7 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { Dialog } from '../components/Dialog';
 import { fieldLabel } from '../components/fieldLabel';
 import { LockIcon, PencilIcon, TrashIcon } from '../components/icons';
-import { BUILTIN_FIELDS, CONVERSIONS, countValues, defaultAsText, hasOptions, validateField, type FieldError, type FieldInput } from '../domain/fields';
+import {
+  BUILTIN_FIELDS,
+  CONVERSIONS,
+  canHide,
+  canRename,
+  countValues,
+  defaultAsText,
+  hasOptions,
+  validateField,
+  type FieldError,
+  type FieldInput
+} from '../domain/fields';
 import {
   CUSTOM_DATA_TYPES,
   EPIC_COLOR_KEYS,
@@ -327,15 +338,27 @@ function UseCell({ field, itemType, name }: UseCellProps) {
       </td>
     );
   }
-  const used = app.assignments.some((item) => item.fieldId === field.id && item.itemType === itemType);
+  const used = app.assignments.some((item) => item.fieldId === field.id && item.itemType === itemType && !item.hidden);
   const label = t('fields.useOn', { name, type: typeName });
+  if (field.kind === 'builtin' && canHide(field)) {
+    return (
+      <td className="field-table__use">
+        <input
+          type="checkbox"
+          checked={used}
+          aria-label={label}
+          onChange={(event) => app.setBuiltinFieldHidden(field.id, itemType, !event.target.checked)}
+        />
+      </td>
+    );
+  }
   if (field.kind !== 'custom') {
-    const note = field.kind === 'system' ? t('fields.locked') : t('fields.hideLater');
+    const note = field.kind === 'system' ? t('fields.locked') : t('fields.epicFixed');
     return (
       <td className="field-table__use">
         <span className="field-table__fixed" title={note}>
           <input type="checkbox" checked={used} disabled aria-label={`${label}. ${note}`} readOnly />
-          {field.kind === 'system' && <LockIcon />}
+          <LockIcon />
         </span>
       </td>
     );
@@ -351,9 +374,10 @@ interface FieldRowProps {
   field: FieldDefinition;
   onEdit: () => void;
   onDelete: () => void;
+  onRename: () => void;
 }
 
-function FieldRow({ field, onEdit, onDelete }: FieldRowProps) {
+function FieldRow({ field, onEdit, onDelete, onRename }: FieldRowProps) {
   const { t } = useTranslation();
   const name = fieldLabel(t, field);
   return (
@@ -369,6 +393,11 @@ function FieldRow({ field, onEdit, onDelete }: FieldRowProps) {
         <td key={itemType} className="field-table__planned" />
       ))}
       <td className="field-table__actions">
+        {field.kind !== 'custom' && canRename(field) && (
+          <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('fields.rename', { name })} title={t('fields.rename', { name })} onClick={onRename}>
+            <PencilIcon />
+          </button>
+        )}
         {field.kind === 'custom' && (
           <>
             <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('fields.edit', { name })} title={t('fields.edit', { name })} onClick={onEdit}>
@@ -384,7 +413,60 @@ function FieldRow({ field, onEdit, onDelete }: FieldRowProps) {
   );
 }
 
-type Open = { kind: 'new' } | { kind: 'edit'; field: FieldDefinition } | { kind: 'delete'; field: FieldDefinition } | null;
+type Open =
+  | { kind: 'new' }
+  | { kind: 'edit'; field: FieldDefinition }
+  | { kind: 'delete'; field: FieldDefinition }
+  | { kind: 'rename'; field: FieldDefinition }
+  | null;
+
+/** Renames a system or built-in field with one label for all languages, or brings back the translated default. */
+function RenameFieldDialog({ field, onClose }: { field: FieldDefinition; onClose: () => void }) {
+  const { t } = useTranslation();
+  const app = useApp();
+  const uid = useId();
+  const standard = fieldLabel(t, { ...field, label: null });
+  const [label, setLabel] = useState(field.label ?? standard);
+
+  const save = (event: FormEvent): void => {
+    event.preventDefault();
+    const trimmed = label.trim();
+    app.renameBuiltinField(field.id, trimmed && trimmed !== standard ? trimmed : null);
+    onClose();
+  };
+
+  return (
+    <Dialog title={t('fields.renameTitle')} onClose={onClose}>
+      <form className="form" onSubmit={save}>
+        <div className="field">
+          <label htmlFor={`${uid}-label`}>{t('fields.label')}</label>
+          <input id={`${uid}-label`} className="input" value={label} onChange={(event) => setLabel(event.target.value)} autoFocus />
+          <span className="muted">{t('fields.renameHint', { name: standard })}</span>
+        </div>
+        <div className="form__actions">
+          <button type="submit" className="btn btn--primary">
+            {t('fields.save')}
+          </button>
+          {field.label !== null && (
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                app.renameBuiltinField(field.id, null);
+                onClose();
+              }}
+            >
+              {t('fields.resetLabel', { name: standard })}
+            </button>
+          )}
+          <button type="button" className="btn" onClick={onClose}>
+            {t('fields.cancel')}
+          </button>
+        </div>
+      </form>
+    </Dialog>
+  );
+}
 
 /** The fields section of the settings page. */
 export function FieldsSection() {
@@ -406,6 +488,7 @@ export function FieldsSection() {
       {open?.kind === 'new' && <FieldDialog onClose={close} />}
       {open?.kind === 'edit' && <FieldDialog field={open.field} onClose={close} />}
       {open?.kind === 'delete' && <DeleteFieldDialog field={open.field} onClose={close} />}
+      {open?.kind === 'rename' && <RenameFieldDialog field={open.field} onClose={close} />}
       <div className="view-tabs" role="tablist" aria-label={t('fields.views')}>
         {(['assign', 'layout'] as const).map((item) => (
           <button
@@ -454,7 +537,13 @@ export function FieldsSection() {
                     </th>
                   </tr>
                   {group.map((field) => (
-                    <FieldRow key={field.id} field={field} onEdit={() => setOpen({ kind: 'edit', field })} onDelete={() => setOpen({ kind: 'delete', field })} />
+                    <FieldRow
+                      key={field.id}
+                      field={field}
+                      onEdit={() => setOpen({ kind: 'edit', field })}
+                      onDelete={() => setOpen({ kind: 'delete', field })}
+                      onRename={() => setOpen({ kind: 'rename', field })}
+                    />
                   ))}
                 </tbody>
               );

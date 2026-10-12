@@ -22,6 +22,7 @@ import type { Epic, Sprint, Story } from '../domain/types';
 import { TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
+import { useBuiltin } from '../components/useBuiltin';
 
 /** Group key of a section: the sprint id, or "-" for the unplanned stories. */
 type SectionKey = string;
@@ -42,7 +43,7 @@ interface RowProps {
 }
 
 function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
-  const { t } = useTranslation();
+  const builtin = useBuiltin();
   return (
     <>
       <span className="backlog__rank" aria-hidden="true">
@@ -51,9 +52,11 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
       <span className="card__code backlog__code">{story.code}</span>
       <TitleButton story={story} className="backlog__title" />
       <EpicTag epic={epic} inCard />
-      <span className="pill" title={t('card.points', { count: story.points })}>
-        {story.points}
-      </span>
+      {builtin.shown('story', 'points') && (
+        <span className="pill" title={builtin.pointsTitle(story.points)}>
+          {story.points}
+        </span>
+      )}
     </>
   );
 }
@@ -107,6 +110,7 @@ interface SectionProps {
 
 function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
   const { t, i18n } = useTranslation();
+  const builtin = useBuiltin();
   const key = keyOf(sprint?.id ?? null);
   const { setNodeRef } = useDroppable({ id: sectionId(sprint?.id ?? null) });
   const headingId = `backlog-${key}`;
@@ -123,7 +127,7 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
         <span id={headingId}>{sprint ? sprint.name : t('sprint.notPlanned')}</span>
         {running && <span className="badge-running">{t('sprint.running')}</span>}
         {sprint && <span className="muted backlog__dates">{formatSprintDates(sprint, i18n.language)}</span>}
-        <span className="muted">{t('backlog.sectionSummary', { count: rows.length, points: totalPoints(rows) })}</span>
+        <span className="muted">{builtin.summary(rows.length, totalPoints(rows))}</span>
       </h2>
       <SortableContext items={rows.map((story) => story.id)} strategy={keepInPlace}>
         <ol ref={setNodeRef} className="backlog" start={firstRank}>

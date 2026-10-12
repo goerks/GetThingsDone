@@ -7,11 +7,13 @@ import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
 import { FieldControl } from './FieldControl';
 import { ColorPicker } from './EpicDialogs';
+import { useBuiltin } from './useBuiltin';
 
 /** Details of an epic in a dialog: name and colour are saved at once; an epic without stories can be deleted. */
 export function EpicDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const { t } = useTranslation();
   const app = useApp();
+  const builtin = useBuiltin();
   const uid = useId();
   const epic = app.epics.find((item) => item.id === id);
 
@@ -28,6 +30,7 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
   }
 
   const count = storiesInEpic(app.stories, epic.id);
+  const colorShown = builtin.shown('epic', 'color');
   const customFields = customFieldsFor('epic', app.fields, app.assignments);
   const remove = (): void => {
     if (app.deleteEpic(epic.id)) onClose();
@@ -37,20 +40,29 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
     <Dialog label={epic.name} onClose={onClose}>
       <div className="form">
         <div className="epic-dialog__name">
-          <span className="epic__dot epic-dialog__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
+          {colorShown && (
+            <span className="epic__dot epic-dialog__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
+          )}
           <h2 className="dialog__title epic-dialog__title">
-            <EditableText value={epic.name} label={t('epics.name')} required onSave={(name) => app.updateEpic(epic.id, { name })} />
+            <EditableText
+              value={epic.name}
+              label={builtin.label('title', t('epics.name'))}
+              required
+              onSave={(name) => app.updateEpic(epic.id, { name })}
+            />
           </h2>
         </div>
-        <div className="field">
-          <span aria-hidden="true">{t('epics.colorLabel')}</span>
-          <ColorPicker
-            name={`${uid}-color`}
-            legend={t('epics.colorOf', { name: epic.name })}
-            value={epic.colorKey}
-            onChange={(colorKey) => app.updateEpic(epic.id, { colorKey })}
-          />
-        </div>
+        {colorShown && (
+          <div className="field">
+            <span aria-hidden="true">{builtin.label('color', t('epics.colorLabel'))}</span>
+            <ColorPicker
+              name={`${uid}-color`}
+              legend={t('epics.colorOf', { name: epic.name })}
+              value={epic.colorKey}
+              onChange={(colorKey) => app.updateEpic(epic.id, { colorKey })}
+            />
+          </div>
+        )}
         {customFields.map((field) => (
           <FieldControl
             key={field.id}

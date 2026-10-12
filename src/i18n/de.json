@@ -249,7 +249,6 @@
     },
     "useOn": "{{name}} für {{type}}",
     "locked": "Systemfeld, immer verwendet",
-    "hideLater": "Mitgelieferte Felder lassen sich in einer späteren Stufe ausblenden",
     "notAvailable": "{{name}} gibt es für {{type}} nicht",
     "deleteQuestion": "Feld {{name}} löschen? Das lässt sich nicht rückgängig machen.",
     "loseStories_one": "{{count}} Story verliert ihren Wert.",
@@ -283,7 +282,12 @@
     "invalidUrl": "Bitte eine Webadresse eingeben, zum Beispiel example.com.",
     "openLink": "{{name}} öffnen",
     "typeConversions": "Angeboten werden nur Typwechsel, bei denen alle Werte erhalten bleiben.",
-    "defaultTicked": "Standardmässig angehakt"
+    "defaultTicked": "Standardmässig angehakt",
+    "epicFixed": "Das Epic lässt sich vorerst nicht ausblenden",
+    "rename": "Feld {{name}} umbenennen",
+    "renameTitle": "Feld umbenennen",
+    "renameHint": "Der neue Name erscheint in allen Sprachen. Standard ist «{{name}}».",
+    "resetLabel": "Auf «{{name}}» zurücksetzen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -291,5 +295,11 @@
     "statusValues": "Status-Werte",
     "planned": "Geplant",
     "plannedNote": "für ein späteres Release geplant"
+  },
+  "summary": {
+    "stories_one": "{{count}} Story",
+    "stories_other": "{{count}} Stories",
+    "points_one": "{{count}} Punkt",
+    "points_other": "{{count}} Punkte"
   }
 }

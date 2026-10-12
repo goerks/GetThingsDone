@@ -35,7 +35,7 @@ Every field definition has a **kind**:
 | Kind | Examples | Can be deleted | Can be unassigned or hidden | Can be renamed | Data type fixed |
 |---|---|---|---|---|---|
 | `system` | Key, Title (all types), Status (story) | No | No | Yes (except Key) | Yes |
-| `builtin` | Description, Points, Epic, Acceptance criteria (story); Colour (epic) | No | Yes (hidden) | Yes | Yes |
+| `builtin` | Description, Points, Epic, Acceptance criteria (story); Colour (epic) | No | Yes (hidden); the epic stays visible for now (PO decision in #4) | Yes | Yes |
 | `custom` | Anything a team creates | Yes | Yes | Yes | Only lossless conversions |
 
 Rank and sprint membership are positions on the backlog, board and story map. They are not fields and do not appear in the field library.
@@ -84,7 +84,7 @@ CREATE TABLE field_values (
 );
 ```
 
-Later stages extend this shape with their own migration: migration 005 adds `field_definitions.default_value` (JSON of the value; for a select field the option id). Migration 006 adds `field_values.date_value` for dates and the table `field_value_options (item_id, field_id, option_id)` for multi select (one row per chosen option, read back in option order). Checkboxes store 1 in `number_value`, links their address in `text_value`. A value lives in exactly one place; writing it clears the other. The flags `required`, `on_card` and `in_create` and the `position` of `field_assignments` are used from stage 3 on.
+Later stages extend this shape with their own migration: migration 005 adds `field_definitions.default_value` (JSON of the value; for a select field the option id). Migration 006 adds `field_values.date_value` for dates and the table `field_value_options (item_id, field_id, option_id)` for multi select (one row per chosen option, read back in option order). Checkboxes store 1 in `number_value`, links their address in `text_value`. A value lives in exactly one place; writing it clears the other. The flags `required`, `on_card` and `in_create` and the `position` of `field_assignments` are used from stage 3 on; `hidden` from stage 5 on, for built-in fields.
 
 The same migration makes `stories.epic_id` nullable. SQLite needs a table rebuild for that; the migration copies `stories` and `criteria`, drops `criteria` first and recreates both, because dropping `stories` while `criteria` references it would delete every criterion through `ON DELETE CASCADE`. The rebuild also drops `stories.in_sprint`, which migration 003 replaced by `sprint_id`.
 
