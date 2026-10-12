@@ -144,23 +144,20 @@ describe('release dialog', () => {
     expect(within(dialog).getByText('3 of 23 points done')).toBeInTheDocument();
   });
 
-  it('lists the stories, adds a story without a release and removes one', async () => {
+  it('lists the stories and removes one', async () => {
     const user = userEvent.setup();
     const repository = await openReleases();
     const dialog = await openRelease(/Release 1\.1/);
     await user.click(within(dialog).getByRole('tab', { name: 'Stories (1)' }));
     expect(within(dialog).getByRole('button', { name: 'Plan releases on a story map' })).toBeInTheDocument();
-    expect(within(dialog).getByRole('button', { name: 'Remove S-7 from this release' })).toBeInTheDocument();
     // Every demo story has a release, so there is nothing to add.
-    expect(within(dialog).getByLabelText('Add a story')).toBeDisabled();
+    expect(within(dialog).getByText('Every story already has a release.')).toBeInTheDocument();
+    expect(within(dialog).queryByRole('combobox')).not.toBeInTheDocument();
 
     await user.click(within(dialog).getByRole('button', { name: 'Remove S-7 from this release' }));
     expect(within(dialog).getByText(/No stories in this release yet/)).toBeInTheDocument();
     expect((await repository.load()).stories.find((story) => story.id === 'story-7')?.releaseId).toBeNull();
-
-    await user.selectOptions(within(dialog).getByLabelText('Add a story'), 'S-7: Plan releases on a story map');
-    expect(within(dialog).getByRole('tab', { name: 'Stories (1)' })).toBeInTheDocument();
-    expect((await repository.load()).stories.find((story) => story.id === 'story-7')?.releaseId).toBe('release-map');
+    expect(within(dialog).getByRole('combobox', { name: 'Add a story' })).toBeInTheDocument();
   });
 
   it('switches tabs with the arrow keys', async () => {
@@ -348,5 +345,145 @@ describe('release fields in the settings', () => {
     const dialog = screen.getByRole('dialog', { name: /Release 1\.1/ });
     expect(within(dialog).queryByLabelText('Start')).not.toBeInTheDocument();
     expect(within(dialog).queryByLabelText('End')).not.toBeInTheDocument();
+  });
+});
+
+describe('adding a story by search', () => {
+  /** Release 1.1 with stories S-3 to S-7 free to add (they have no release). */
+  async function openStories(): Promise<{ repository: LocalStorageRepository; dialog: HTMLElement }> {
+    const repository = new LocalStorageRepository();
+    const seed = seedSnapshot(todayIso());
+    await repository.replaceAll({
+      ...seed,
+      stories: seed.stories.map((story) => (['story-3', 'story-4', 'story-5', 'story-6'].includes(story.id) ? { ...story, releaseId: null } : story))
+    });
+    render(<App repository={repository} />);
+    window.location.hash = '#/releases';
+    await screen.findByRole('heading', { name: 'Releases', level: 1 });
+    const dialog = await openRelease(/Release 1\.1/);
+    await userEvent.setup().click(within(dialog).getByRole('tab', { name: /^Stories/ }));
+    return { repository, dialog };
+  }
+
+  const options = (dialog: HTMLElement): string[] => within(dialog).queryAllByRole('option').map((option) => option.textContent ?? '');
+
+  it('is a combobox that lists only the stories without a release when it gets the focus', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openStories();
+    const box = within(dialog).getByRole('combobox', { name: 'Add a story' });
+    expect(box).toHaveAttribute('aria-expanded', 'false');
+    await user.click(box);
+    expect(box).toHaveAttribute('aria-expanded', 'true');
+    expect(options(dialog)).toEqual([
+      'S-3Reorder the backlog by priority',
+      'S-4Keep all data in a local database',
+      'S-5Switch the UI language (DE, EN, FR, IT)',
+      'S-6Operate the board with the keyboard only'
+    ]);
+  });
+
+  it('finds a story by its number', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openStories();
+    await user.type(within(dialog).getByRole('combobox'), '5');
+    expect(options(dialog)).toEqual(['S-5Switch the UI language (DE, EN, FR, IT)']);
+    await user.clear(within(dialog).getByRole('combobox'));
+    await user.type(within(dialog).getByRole('combobox'), 's-4');
+    expect(options(dialog)).toEqual(['S-4Keep all data in a local database']);
+  });
+
+  it('finds a story by words of its title, in any order and any case', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openStories();
+    await user.type(within(dialog).getByRole('combobox'), 'KEYBOARD board');
+    expect(options(dialog)).toEqual(['S-6Operate the board with the keyboard only']);
+  });
+
+  it('does not offer stories that have a release, even when they match', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openStories();
+    await user.type(within(dialog).getByRole('combobox'), 'story');
+    expect(options(dialog).some((text) => text.startsWith('S-1') || text.startsWith('S-2'))).toBe(false);
+  });
+
+  it('adds the story with the arrow keys and Enter, empties the field and keeps the focus', async () => {
+    const user = userEvent.setup();
+    const { repository, dialog } = await openStories();
+    const box = within(dialog).getByRole('combobox');
+    await user.type(box, 'data');
+    await user.keyboard('{Enter}');
+    expect((await repository.load()).stories.find((story) => story.id === 'story-4')?.releaseId).toBe('release-map');
+    expect(box).toHaveValue('');
+    expect(box).toHaveFocus();
+    expect(within(dialog).getByRole('status')).toHaveTextContent('S-4 was added to the release.');
+    expect(within(dialog).getByRole('tab', { name: 'Stories (2)' })).toBeInTheDocument();
+
+    // The first arrow key opens the list, the second moves to the second of S-3, S-5, S-6.
+    await user.keyboard('{ArrowDown}{ArrowDown}{Enter}');
+    expect((await repository.load()).stories.find((story) => story.id === 'story-5')?.releaseId).toBe('release-map');
+    expect((await repository.load()).stories.find((story) => story.id === 'story-3')?.releaseId).toBeNull();
+  });
+
+  it('marks the active option for assistive technology', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openStories();
+    const box = within(dialog).getByRole('combobox');
+    await user.click(box);
+    const [first, second] = within(dialog).getAllByRole('option');
+    expect(first).toHaveAttribute('aria-selected', 'true');
+    expect(box).toHaveAttribute('aria-activedescendant', first.id);
+    await user.keyboard('{ArrowDown}');
+    expect(second).toHaveAttribute('aria-selected', 'true');
+    expect(box).toHaveAttribute('aria-activedescendant', second.id);
+    await user.keyboard('{ArrowUp}{ArrowUp}');
+    expect(first).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('adds a story with a click', async () => {
+    const user = userEvent.setup();
+    const { repository, dialog } = await openStories();
+    await user.type(within(dialog).getByRole('combobox'), 'language');
+    await user.click(within(dialog).getByRole('option', { name: /S-5/ }));
+    expect((await repository.load()).stories.find((story) => story.id === 'story-5')?.releaseId).toBe('release-map');
+  });
+
+  it('says when nothing matches, and announces the number of matches', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openStories();
+    const box = within(dialog).getByRole('combobox');
+    await user.type(box, 'ba');
+    expect(within(dialog).getByRole('status')).toHaveTextContent('2 stories found.');
+    await user.type(box, 'nana');
+    expect(within(dialog).getByText('No story without a release matches "banana".')).toBeInTheDocument();
+    expect(within(dialog).queryAllByRole('option')).toHaveLength(0);
+    await user.keyboard('{Enter}');
+    expect(within(dialog).getByRole('tab', { name: 'Stories (1)' })).toBeInTheDocument();
+  });
+
+  it('closes the list with Escape and the dialog only with the second Escape', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openStories();
+    const box = within(dialog).getByRole('combobox');
+    await user.click(box);
+    expect(within(dialog).getAllByRole('option').length).toBeGreaterThan(0);
+    await user.keyboard('{Escape}');
+    expect(box).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('dialog', { name: /Release 1\.1/ })).toBeInTheDocument();
+  });
+
+  it('limits the list and says how many more there are', async () => {
+    const user = userEvent.setup();
+    const repository = new LocalStorageRepository();
+    const seed = seedSnapshot(todayIso());
+    const extra = Array.from({ length: 10 }, (_, index) => ({ ...seed.stories[0], id: `extra-${index}`, code: `S-${20 + index}`, title: `Extra ${index}`, rank: 20 + index, releaseId: null, criteria: [], values: {} }));
+    await repository.replaceAll({ ...seed, stories: [...seed.stories, ...extra] });
+    render(<App repository={repository} />);
+    window.location.hash = '#/releases';
+    await screen.findByRole('heading', { name: 'Releases', level: 1 });
+    const dialog = await openRelease(/Release 1\.1/);
+    await user.click(within(dialog).getByRole('tab', { name: /^Stories/ }));
+    await user.type(within(dialog).getByRole('combobox'), 'extra');
+    expect(within(dialog).getAllByRole('option')).toHaveLength(8);
+    expect(within(dialog).getByText('2 more. Keep typing to narrow the list.')).toBeInTheDocument();
   });
 });

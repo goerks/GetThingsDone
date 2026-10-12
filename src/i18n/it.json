@@ -482,7 +482,6 @@
     },
     "noDatesNote": "Inizio e fine sono facoltativi. Senza di essi i rapporti non hanno una linea obiettivo.",
     "addStory": "Aggiungi una storia",
-    "addStoryPlaceholder": "Aggiungi una storia…",
     "noStoriesToAdd": "Ogni storia ha già una release.",
     "noStories": "Ancora nessuna storia in questa release. Aggiungine sopra o nella story map.",
     "remove": "Rimuovi {{code}} da questa release",
@@ -505,6 +504,15 @@
     "afterEnd_one": "{{count}} storia è pianificata in uno sprint che termina dopo il {{date}}: {{codes}}.",
     "afterEnd_other": "{{count}} storie sono pianificate in sprint che terminano dopo il {{date}}: {{codes}}.",
     "sprintAfter": "{{sprint}} termina il {{sprintEnd}}, dopo la fine di {{release}} ({{releaseEnd}}).",
-    "onCard": "Release: {{title}}"
+    "onCard": "Release: {{title}}",
+    "picker": {
+      "placeholder": "Cerca per chiave o titolo…",
+      "results_one": "{{count}} storia trovata. Frecce e Invio per aggiungerla.",
+      "results_other": "{{count}} storie trovate. Frecce e Invio per aggiungerne una.",
+      "none": "Nessuna storia senza release corrisponde a «{{query}}».",
+      "more_one": "Ancora {{count}}. Continua a digitare per restringere l'elenco.",
+      "more_other": "Ancora {{count}}. Continua a digitare per restringere l'elenco.",
+      "added": "{{code}} è stata aggiunta alla release."
+    }
   }
 }

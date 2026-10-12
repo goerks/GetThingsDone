@@ -5,6 +5,7 @@ import type { Release } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
+import { StoryPicker } from './StoryPicker';
 import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
 
@@ -223,25 +224,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
         {tab === 'stories' && (
           <div role="tabpanel" id={`${uid}-panel-stories`} aria-labelledby={`${uid}-tab-stories`} className="form">
             <div className="release-add">
-              <label htmlFor={`${uid}-add`} className="sr-only">
-                {t('releases.addStory')}
-              </label>
-              <select
-                id={`${uid}-add`}
-                className="select"
-                value=""
-                disabled={candidates.length === 0}
-                onChange={(event) => {
-                  if (event.target.value) app.updateStory(event.target.value, { releaseId: release.id });
-                }}
-              >
-                <option value="">{candidates.length === 0 ? t('releases.noStoriesToAdd') : t('releases.addStoryPlaceholder')}</option>
-                {candidates.map((story) => (
-                  <option key={story.id} value={story.id}>
-                    {story.code}: {story.title}
-                  </option>
-                ))}
-              </select>
+              <StoryPicker stories={candidates} onPick={(story) => app.updateStory(story.id, { releaseId: release.id })} />
             </div>
             {own.length === 0 ? (
               <p className="muted">{t('releases.noStories')}</p>
