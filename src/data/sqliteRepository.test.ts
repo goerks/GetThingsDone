@@ -3,7 +3,8 @@
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
-import { builtinFieldId } from '../domain/fields';
+import { builtinFieldId, convertValue } from '../domain/fields';
+import type { CustomDataType, FieldDefinition } from '../domain/types';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
@@ -82,6 +83,61 @@ describe('migration 004', () => {
     db.exec("UPDATE stories SET epic_id = NULL WHERE id = 's2'");
     db.exec("DELETE FROM stories WHERE id = 's2'");
     expect(db.prepare("SELECT COUNT(*) AS count FROM criteria WHERE story_id = 's2'").get()).toEqual({ count: 0 });
+  });
+});
+
+describe('migrations 005 and 006', () => {
+  it('keep custom fields and their values of stage 1 and 2', () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 4));
+    db.exec(`
+      INSERT INTO epics (id, name, color_key) VALUES ('e1', 'Boards', 'boards');
+      INSERT INTO stories (id, code, title, description, epic_id, points, status, rank)
+        VALUES ('s1', 'S-1', 'First', '', 'e1', 3, 'todo', 0);
+      INSERT INTO field_definitions (id, builtin_key, kind, data_type, label) VALUES
+        ('risk', NULL, 'custom', 'single_select', 'Risk'),
+        ('note', NULL, 'custom', 'text', 'Note'),
+        ('value', NULL, 'custom', 'number', 'Value');
+      INSERT INTO field_options (id, field_id, label, color_key, position) VALUES ('high', 'risk', 'High', 'rose', 0);
+      INSERT INTO field_assignments (item_type, field_id, position) VALUES ('story', 'risk', 10), ('epic', 'risk', 10), ('story', 'note', 11);
+      INSERT INTO field_values (item_id, field_id, text_value, number_value, option_id) VALUES
+        ('s1', 'risk', NULL, NULL, 'high'),
+        ('s1', 'note', 'Keep me', NULL, NULL),
+        ('s1', 'value', NULL, 8, NULL),
+        ('e1', 'risk', NULL, NULL, 'high');
+    `);
+
+    migrate(db, MIGRATIONS.slice(4));
+
+    expect(db.prepare('SELECT id, default_value FROM field_definitions ORDER BY id').all()).toEqual([
+      { id: 'note', default_value: null },
+      { id: 'risk', default_value: null },
+      { id: 'value', default_value: null }
+    ]);
+    expect(db.prepare('SELECT item_id, field_id, text_value, number_value, option_id, date_value FROM field_values ORDER BY item_id, field_id').all()).toEqual([
+      { item_id: 'e1', field_id: 'risk', text_value: null, number_value: null, option_id: 'high', date_value: null },
+      { item_id: 's1', field_id: 'note', text_value: 'Keep me', number_value: null, option_id: null, date_value: null },
+      { item_id: 's1', field_id: 'risk', text_value: null, number_value: null, option_id: 'high', date_value: null },
+      { item_id: 's1', field_id: 'value', text_value: null, number_value: 8, option_id: null, date_value: null }
+    ]);
+    expect(db.prepare('SELECT COUNT(*) AS count FROM field_assignments').get()).toEqual({ count: 3 });
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  });
+
+  it('let the repository read the values of an upgraded database', async () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 4));
+    db.exec(`
+      INSERT INTO stories (id, code, title, description, epic_id, points, status, rank) VALUES ('s1', 'S-1', 'First', '', NULL, 3, 'todo', 0);
+      INSERT INTO field_definitions (id, builtin_key, kind, data_type, label) VALUES ('value', NULL, 'custom', 'number', 'Value');
+      INSERT INTO field_assignments (item_type, field_id, position) VALUES ('story', 'value', 10);
+      INSERT INTO field_values (item_id, field_id, number_value) VALUES ('s1', 'value', 8);
+    `);
+    migrate(db, MIGRATIONS.slice(4));
+    const snapshot = await new SqliteRepository(new NodeDatabase(db)).load();
+    expect(snapshot.stories[0].values).toEqual({ value: 8 });
+    expect(snapshot.fields.find((field) => field.id === 'value')?.defaultValue).toBeNull();
+    expect(snapshot.fields.some((field) => field.builtinKey === 'points')).toBe(true);
   });
 });
 
@@ -190,6 +246,60 @@ describe('SqliteRepository', () => {
     const snapshot = await repository.load();
     expect(snapshot.fields.find((field) => field.id === 'field-demo-priority')?.dataType).toBe('multi_select');
     expect(snapshot.stories.find((story) => story.id === 'story-1')?.values['field-demo-priority']).toEqual(['opt-must']);
+  });
+
+  it('keeps every value for each allowed type change', async () => {
+    const { repository } = await freshRepository();
+    const field = (id: string, dataType: CustomDataType): FieldDefinition => ({ id, builtinKey: null, kind: 'custom', dataType, label: id, options: [], defaultValue: null });
+    await repository.saveField(field('note', 'text'));
+    await repository.saveField(field('num', 'number'));
+    await repository.saveField(field('due', 'date'));
+    await repository.saveField(field('link', 'url'));
+    await repository.setFieldValue('story-7', 'note', 'Line');
+    await repository.setFieldValue('story-7', 'num', 2.5);
+    await repository.setFieldValue('story-7', 'due', '2026-12-24');
+    await repository.setFieldValue('story-7', 'link', 'https://example.com/');
+
+    // The app saves the field, then writes each converted value so it moves to the storage of the new type.
+    const changes: Array<[string, CustomDataType]> = [['note', 'long_text'], ['num', 'text'], ['due', 'text'], ['link', 'text']];
+    const story = (await repository.load()).stories.find((item) => item.id === 'story-7');
+    for (const [id, dataType] of changes) {
+      await repository.saveField(field(id, dataType));
+      await repository.setFieldValue('story-7', id, convertValue(story?.values[id] ?? '', dataType));
+    }
+
+    const snapshot = await repository.load();
+    expect(snapshot.stories.find((story) => story.id === 'story-7')?.values).toMatchObject({
+      note: 'Line',
+      num: '2.5',
+      due: '2026-12-24',
+      link: 'https://example.com/'
+    });
+    expect(snapshot.fields.filter((item) => ['note', 'num', 'due', 'link'].includes(item.id)).map((item) => item.dataType)).toEqual([
+      'long_text',
+      'text',
+      'text',
+      'text'
+    ]);
+  });
+
+  it('never deletes a system or built-in field', async () => {
+    const { db, repository } = await freshRepository();
+    const before = await repository.load();
+    const points = before.fields.find((field) => field.builtinKey === 'points');
+    if (!points) throw new Error('points field missing');
+    await repository.saveField({ ...points, label: 'Effort' });
+    for (const field of before.fields.filter((item) => item.kind !== 'custom')) {
+      await repository.deleteField(field.id);
+    }
+    expect(db.prepare("SELECT COUNT(*) AS count FROM field_definitions WHERE kind <> 'custom'").get()).toEqual({
+      count: before.fields.filter((item) => item.kind !== 'custom').length
+    });
+    const after = await repository.load();
+    expect(after.fields.find((field) => field.id === points.id)?.label).toBe('Effort');
+    const lockedIds = new Set(before.fields.filter((item) => item.kind !== 'custom').map((item) => item.id));
+    const locked = (snapshot: typeof before) => snapshot.assignments.filter((item) => lockedIds.has(item.fieldId));
+    expect(locked(after)).toEqual(locked(before));
   });
 
   it('stores default values of fields', async () => {

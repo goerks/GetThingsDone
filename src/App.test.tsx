@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
@@ -964,6 +964,157 @@ describe('fields', () => {
     const saved = await repository.load();
     expect(saved.fields.find((field) => field.builtinKey === 'points')?.label).toBeNull();
     expect(saved.fields.find((field) => field.builtinKey === 'status')?.label).toBe('State');
+  });
+
+  it('adds a text field for stories and epics, shows it everywhere and keeps its values after a reload', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'New field' }));
+    const dialog = screen.getByRole('dialog', { name: 'New field' });
+    await user.type(within(dialog).getByLabelText('Name'), 'Customer');
+    await user.click(within(dialog).getByRole('checkbox', { name: 'Epics' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Add field' }));
+
+    expect(screen.getByRole('checkbox', { name: 'Customer for Stories' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Customer for Epics' })).toBeChecked();
+    expect(screen.getByRole('button', { name: 'Edit field Customer' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete field Customer' })).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: 'Layout' }));
+    expect(screen.getByText('Customer')).toBeInTheDocument();
+
+    await openStory(/S-3:/);
+    await user.click(screen.getByRole('button', { name: /edit Customer/ }));
+    await user.type(screen.getByRole('textbox', { name: 'Customer' }), 'ACME{Enter}');
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    await user.click(screen.getByRole('link', { name: 'Epics' }));
+    await screen.findByRole('heading', { name: 'Epics', level: 1 });
+    await user.click(screen.getByRole('button', { name: /^Local storage/ }));
+    const epic = await screen.findByRole('dialog', { name: 'Local storage' });
+    await user.click(within(epic).getByRole('button', { name: /edit Customer/ }));
+    await user.type(within(epic).getByRole('textbox', { name: 'Customer' }), 'Internal{Enter}');
+
+    const saved = await repository.load();
+    const customer = saved.fields.find((field) => field.label === 'Customer');
+    expect(customer).toMatchObject({ kind: 'custom', dataType: 'text' });
+    expect(saved.stories.find((s) => s.id === 'story-3')?.values[customer?.id ?? '']).toBe('ACME');
+    expect(saved.epics.find((e) => e.id === 'epic-storage')?.values[customer?.id ?? '']).toBe('Internal');
+
+    cleanup();
+    window.location.hash = '#/board';
+    await renderApp();
+    await openStory(/S-3:/);
+    expect(screen.getByRole('button', { name: /edit Customer/ })).toHaveTextContent('ACME');
+  });
+
+  it('offers no way to delete, edit or switch off system fields and the epic', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    const before = await repository.load();
+    for (const name of ['Key', 'Title', 'Status', 'Description', 'Epic', 'Points', 'Acceptance criteria', 'Colour']) {
+      expect(screen.queryByRole('button', { name: `Delete field ${name}` }), name).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: `Edit field ${name}` }), name).not.toBeInTheDocument();
+    }
+    expect(screen.getAllByRole('button', { name: /^Delete field / })).toHaveLength(4);
+
+    const locked = [
+      screen.getByRole('checkbox', { name: 'Key for Stories. System field, always used' }),
+      screen.getByRole('checkbox', { name: 'Title for Stories. System field, always used' }),
+      screen.getByRole('checkbox', { name: 'Title for Epics. System field, always used' }),
+      screen.getByRole('checkbox', { name: 'Status for Stories. System field, always used' }),
+      screen.getByRole('checkbox', { name: 'Epic for Stories. The epic cannot be hidden for now' })
+    ];
+    for (const checkbox of locked) {
+      expect(checkbox).toBeDisabled();
+      await user.click(checkbox);
+      expect(checkbox).toBeChecked();
+    }
+    const after = await repository.load();
+    expect(after.fields).toEqual(before.fields);
+    expect(after.assignments).toEqual(before.assignments);
+  });
+
+  it('renames title, description, epic, criteria and colour and uses the names in every dialog, also after a reload', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    const rename = async (from: string, to: string): Promise<void> => {
+      await user.click(screen.getByRole('button', { name: `Rename field ${from}` }));
+      const dialog = screen.getByRole('dialog', { name: 'Rename field' });
+      await user.clear(within(dialog).getByLabelText('Name'));
+      if (to) await user.type(within(dialog).getByLabelText('Name'), to);
+      await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    };
+    await rename('Title', 'Summary');
+    await rename('Description', 'Background');
+    await rename('Epic', 'Theme');
+    await rename('Acceptance criteria', 'Done when');
+    await rename('Colour', 'Tint');
+    for (const name of ['Summary', 'Background', 'Theme', 'Done when', 'Tint']) {
+      expect(screen.getByRole('rowheader', { name }), name).toBeInTheDocument();
+    }
+    await user.click(screen.getByRole('tab', { name: 'Layout' }));
+    expect(screen.getByText('Summary')).toBeInTheDocument();
+    expect(screen.getByText('Done when')).toBeInTheDocument();
+
+    await openStory(/S-1:/);
+    expect(screen.getByRole('button', { name: /edit Summary/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Background' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Done when' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Theme')).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
+    await user.click(screen.getByRole('button', { name: 'New story' }));
+    const create = screen.getByRole('dialog', { name: 'New story' });
+    expect(within(create).getByLabelText('Summary')).toBeInTheDocument();
+    expect(within(create).getByLabelText('Background')).toBeInTheDocument();
+    expect(within(create).getByLabelText('Theme')).toBeInTheDocument();
+    await user.click(within(create).getByRole('button', { name: 'Cancel' }));
+
+    window.location.hash = '#/epics';
+    await user.click(await screen.findByRole('button', { name: 'New epic' }));
+    const newEpic = screen.getByRole('dialog', { name: 'New epic' });
+    expect(within(newEpic).getByLabelText('Summary')).toBeInTheDocument();
+    expect(within(newEpic).getByRole('group', { name: 'Tint' })).toBeInTheDocument();
+
+    cleanup();
+    window.location.hash = '#/board';
+    await renderApp();
+    window.location.hash = '#/settings/fields';
+    expect(await screen.findByRole('rowheader', { name: 'Summary' })).toBeInTheDocument();
+    await rename('Theme', '');
+    expect(screen.getByRole('rowheader', { name: 'Epic' })).toBeInTheDocument();
+    const saved = await repository.load();
+    expect(saved.fields.find((field) => field.builtinKey === 'title')?.label).toBe('Summary');
+    expect(saved.fields.find((field) => field.builtinKey === 'epic')?.label).toBeNull();
+  });
+
+  it('offers only the type changes that keep every value and converts a number to text', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    const typesOf = async (name: string): Promise<(string | null)[]> => {
+      await user.click(screen.getByRole('button', { name: `Edit field ${name}` }));
+      const dialog = screen.getByRole('dialog', { name: 'Edit field' });
+      return within(within(dialog).getByLabelText('Type')).getAllByRole('option').map((option) => option.textContent);
+    };
+    const cancel = async (): Promise<void> => {
+      await user.click(within(screen.getByRole('dialog', { name: 'Edit field' })).getByRole('button', { name: 'Cancel' }));
+    };
+    expect(await typesOf('Spec')).toEqual(['Link', 'Text']);
+    await cancel();
+    expect(await typesOf('Labels')).toEqual(['Multi select']);
+    expect(screen.getByText('The type of this field cannot change without losing values. Create a new field instead.')).toBeInTheDocument();
+    await cancel();
+    expect(await typesOf('Business value')).toEqual(['Number', 'Text']);
+    const dialog = screen.getByRole('dialog', { name: 'Edit field' });
+    await user.selectOptions(within(dialog).getByLabelText('Type'), 'text');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    const saved = await repository.load();
+    expect(saved.fields.find((field) => field.id === 'field-demo-value')?.dataType).toBe('text');
+    expect(saved.stories.find((s) => s.id === 'story-1')?.values['field-demo-value']).toBe('8');
+    expect(await typesOf('Business value')).toEqual(['Text', 'Long text']);
+    await cancel();
+    await openStory(/S-1:/);
+    expect(screen.getByRole('button', { name: /edit Business value/ })).toHaveTextContent('8');
   });
 
   it('creates a story without an epic and clears the epic of a story', async () => {
