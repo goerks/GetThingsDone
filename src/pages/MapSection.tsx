@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { MAP_ROWS } from '../domain/settings';
+import { MAP_ROWS, effectiveMapRows } from '../domain/settings';
 import type { MapRows } from '../domain/types';
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
@@ -22,7 +22,8 @@ function Preview() {
 export function MapSection() {
   const { t } = useTranslation();
   const app = useApp();
-  const rows = app.settings.mapRows;
+  const releasesEnabled = app.settings.releasesEnabled;
+  const rows = effectiveMapRows(app.settings);
 
   return (
     <div className="map-settings">
@@ -38,7 +39,14 @@ export function MapSection() {
           {MAP_ROWS.map((choice: MapRows) => (
             <label key={choice} className={`choice${rows === choice ? ' choice--selected' : ''}`}>
               <span className="choice__top">
-                <input type="radio" name="map-rows" value={choice} checked={rows === choice} onChange={() => app.setMapRows(choice)} />
+                <input
+                  type="radio"
+                  name="map-rows"
+                  value={choice}
+                  checked={rows === choice}
+                  disabled={choice === 'releases' && !releasesEnabled}
+                  onChange={() => app.setMapRows(choice)}
+                />
                 <span className="choice__name">{t(`settings.map.${choice}.name`)}</span>
                 {choice === 'sprints' && <span className="badge">{t('settings.map.default')}</span>}
               </span>
@@ -50,6 +58,11 @@ export function MapSection() {
         </div>
       </fieldset>
       <p className="muted">{t('settings.map.saved')}</p>
+      {!releasesEnabled && (
+        <p className="hint hint--info" role="note">
+          {t('settings.map.off')} <a href={hrefs.settingsReleases}>{t('settings.map.toReleases')}</a>
+        </p>
+      )}
       {rows === 'releases' && app.releases.length === 0 && (
         <p className="hint hint--info" role="note">
           {t('settings.map.noReleases')} <a href={hrefs.releases}>{t('settings.map.createRelease')}</a>

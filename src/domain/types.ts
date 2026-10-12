@@ -178,6 +178,8 @@ export type MapRows = 'sprints' | 'releases';
 /** Settings of the workspace, shared by the whole team. */
 export interface Settings {
   mapRows: MapRows;
+  /** Whether the team plans with releases; when off, everything about releases is hidden but kept. */
+  releasesEnabled: boolean;
 }
 
 export interface Snapshot {

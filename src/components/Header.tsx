@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, setLanguage, type LanguageCode } from '../i18n';
 import { hrefs, type Route } from '../router';
+import { useApp } from '../state/AppState';
 import type { Theme } from '../theme';
 import { GearIcon } from './icons';
 import { SearchBox } from './search/SearchBox';
@@ -16,6 +17,7 @@ export function Header({ route, theme, onToggleTheme }: Props) {
   const { t, i18n } = useTranslation();
   const language = (i18n.resolvedLanguage ?? 'en') as LanguageCode;
   const dark = theme === 'dark';
+  const releasesEnabled = useApp().settings.releasesEnabled;
   const inSettings = route.name === 'settings';
   // The gear opens the settings; pressed again, it goes back to the page shown before.
   const lastView = useRef<string>(hrefs.board);
@@ -45,9 +47,11 @@ export function Header({ route, theme, onToggleTheme }: Props) {
         <a href={hrefs.epics} className="nav__link" aria-current={route.name === 'epics' ? 'page' : undefined}>
           {t('nav.epics')}
         </a>
-        <a href={hrefs.releases} className="nav__link" aria-current={route.name === 'releases' ? 'page' : undefined}>
-          {t('nav.releases')}
-        </a>
+        {releasesEnabled && (
+          <a href={hrefs.releases} className="nav__link" aria-current={route.name === 'releases' ? 'page' : undefined}>
+            {t('nav.releases')}
+          </a>
+        )}
       </nav>
 
       <div className="header__tools">

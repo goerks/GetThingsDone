@@ -270,20 +270,22 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
               <SprintSelect id={`${uid}-sprint`} value={story.sprintId} onChange={(sprintId) => app.updateStory(story.id, { sprintId })} />
             </div>
-            <div className="field">
-              <label htmlFor={`${uid}-release`}>{builtin.label('release', t('releases.label'))}</label>
-              <ReleaseSelect id={`${uid}-release`} value={story.releaseId} onChange={(releaseId) => app.updateStory(story.id, { releaseId })} />
-              {late && late.release.endDate && (
-                <p className="hint" role="note">
-                  {t('releases.sprintAfter', {
-                    sprint: late.sprint.name,
-                    sprintEnd: formatDay(late.sprint.endDate, language),
-                    release: late.release.title,
-                    releaseEnd: formatDay(late.release.endDate, language)
-                  })}
-                </p>
-              )}
-            </div>
+            {app.settings.releasesEnabled && (
+              <div className="field">
+                <label htmlFor={`${uid}-release`}>{builtin.label('release', t('releases.label'))}</label>
+                <ReleaseSelect id={`${uid}-release`} value={story.releaseId} onChange={(releaseId) => app.updateStory(story.id, { releaseId })} />
+                {late && late.release.endDate && (
+                  <p className="hint" role="note">
+                    {t('releases.sprintAfter', {
+                      sprint: late.sprint.name,
+                      sprintEnd: formatDay(late.sprint.endDate, language),
+                      release: late.release.title,
+                      releaseEnd: formatDay(late.release.endDate, language)
+                    })}
+                  </p>
+                )}
+              </div>
+            )}
             {customFields.map((field) => (
               <FieldControl
                 key={field.id}

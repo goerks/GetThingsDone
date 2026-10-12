@@ -298,7 +298,9 @@
       "hint": "Faites glisser les champs personnalisés pour changer leur ordre dans les dialogues. Au plus {{count}} champs apparaissent sur une carte.",
       "hintNoCard": "Faites glisser les champs personnalisés pour changer leur ordre dans le dialogue.",
       "noCustom": "Pas encore de champ personnalisé pour ce type. Cochez-les sous Attribution.",
-      "instructions": "Appuyez sur espace pour saisir un champ. Déplacez-le avec les flèches, déposez-le avec espace, annulez avec échap."
+      "instructions": "Appuyez sur espace pour saisir un champ. Déplacez-le avec les flèches, déposez-le avec espace, annulez avec échap.",
+      "releaseOff": "Non disponible : les releases sont désactivées",
+      "releaseOffLink": "Paramètres › Releases"
     },
     "invalidUrl": "Saisissez une adresse web, par exemple example.com.",
     "openLink": "Ouvrir {{name}}",
@@ -310,7 +312,8 @@
     "renameHint": "Le nouveau nom s’affiche dans toutes les langues. Par défaut : « {{name}} ».",
     "resetLabel": "Revenir à « {{name}} »",
     "alwaysOn": "Toujours affiché pour ce type",
-    "customOnReleases": "Les champs personnalisés sur les releases sont prévus pour une version ultérieure"
+    "customOnReleases": "Les champs personnalisés sur les releases sont prévus pour une version ultérieure",
+    "releasesOffCell": "{{name}} n’est pas disponible pour {{type}} : les releases sont désactivées"
   },
   "settings": {
     "title": "Paramètres",
@@ -335,7 +338,16 @@
       "saved": "Le choix vaut pour toute l'équipe et est enregistré immédiatement. Les stories, sprints et releases restent inchangés ; seul l'affichage change.",
       "noReleases": "Il n'y a pas encore de release. La story map n'affiche alors que la ligne « Aucune release ».",
       "createRelease": "Créer une release",
-      "back": "← Vers la story map"
+      "back": "← Vers la story map",
+      "off": "Les releases sont désactivées, la story map affiche donc les sprints. Activez les releases pour les utiliser comme lignes.",
+      "toReleases": "Activer les releases"
+    },
+    "releases": {
+      "title": "Releases",
+      "enabled": "Planifier avec des releases",
+      "hint": "À désactiver si l’équipe travaille uniquement avec des sprints. La page Releases, le champ Release des stories et les lignes de release de la story map sont alors masqués. Rien n’est supprimé : en réactivant, tout revient.",
+      "saved": "Le choix s’applique à toute l’équipe et est enregistré immédiatement.",
+      "offNote": "Les releases sont désactivées. Les releases et leur historique sont conservés."
     }
   },
   "summary": {

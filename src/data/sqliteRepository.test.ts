@@ -116,11 +116,13 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints' });
-    await repository.saveSettings({ mapRows: 'releases' });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases' });
-    await repository.saveSettings({ mapRows: 'sprints' });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', releasesEnabled: true });
+    await repository.saveSettings({ mapRows: 'releases', releasesEnabled: true });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', releasesEnabled: true });
+    await repository.saveSettings({ mapRows: 'sprints', releasesEnabled: true });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
+    await repository.saveSettings({ mapRows: 'releases', releasesEnabled: false });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', releasesEnabled: false });
   });
 
   it('falls back to the default for a value it does not know', async () => {
