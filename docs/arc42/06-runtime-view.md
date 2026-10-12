@@ -58,3 +58,8 @@ All writes go through one promise queue in `AppState`, so a fast series of chang
 ## History and scope report
 
 Every change of the stories goes through one function in `AppProvider` (`update`). It compares the stories before and after with `releaseEventsFor` and appends the entries (joined or left a release, points, done or reopened) to the history in memory and, through the queue, to the repository (`addReleaseEvents`). When the app loads, `baselineEvents` records the stories of every release that has stories but no history, so the history of an old release starts at its first record. `ScopeReport` calls `scopeReport(release, events, today)`: it replays the entries of the release in order, day by day, to the scope and the done amount of each day; the start is the state on the start day (or on the first day of the history), later added or removed stories and changes of points are the increase and the decrease. Deleting a release deletes its entries (`deleteRelease`).
+
+## Burndown
+
+`BurndownReport` calls `burndownReport(release, events, today)`. It takes the days of `scopeReport` (scope and done per calendar day up to today), subtracts done from scope to get what is left, and extends the days to the end date when that is later than today (those days have no value). With a start and an end date it adds the target line: linear from what was left on the start day (or on the first recorded day when the history starts later) to nothing on the end day, in both units. The difference between what is left today and the line today is shown as behind or ahead. The chart is drawn like the scope chart, with the same units, markers for the changes of the scope and a table for screen readers.
+

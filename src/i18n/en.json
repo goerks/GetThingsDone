@@ -470,7 +470,8 @@
       "label": "Release views",
       "details": "Details",
       "stories": "Stories ({{count}})",
-      "scope": "Scope"
+      "scope": "Scope",
+      "burndown": "Burndown"
     },
     "edit": "Edit release",
     "close": "Close",
@@ -558,6 +559,32 @@
         "removed": "Removed",
         "points": "Points {{from}} → {{to}} ({{diff}})"
       }
+    },
+    "burndown": {
+      "kpi": {
+        "remaining": "Left",
+        "done": "Done",
+        "target": "Against the target line"
+      },
+      "doneOf": "{{done}} of {{scope}}",
+      "against": {
+        "behind": "{{amount}} behind",
+        "ahead": "{{amount}} ahead",
+        "on": "on the line"
+      },
+      "legend": {
+        "remaining": "Left",
+        "ideal": "Target line"
+      },
+      "today": "today",
+      "noLine": "Without a start and an end date there is no target line. Set both in the tab Details.",
+      "chartLabel": "Burndown in {{unit}}: {{remaining}} left today, {{done}} of {{scope}} done",
+      "table": {
+        "remaining": "Left",
+        "ideal": "Target line",
+        "change": "Scope change"
+      },
+      "explain": "The line rises when stories are added and falls when stories are removed or finished. The target line runs straight from what was left on the start day to nothing on the end day."
     }
   }
 }

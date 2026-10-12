@@ -470,7 +470,8 @@
       "label": "Vues de la release",
       "details": "Détails",
       "stories": "Stories ({{count}})",
-      "scope": "Périmètre"
+      "scope": "Périmètre",
+      "burndown": "Burndown"
     },
     "edit": "Modifier la release",
     "close": "Fermer",
@@ -558,6 +559,32 @@
         "removed": "Retirée",
         "points": "Points {{from}} → {{to}} ({{diff}})"
       }
+    },
+    "burndown": {
+      "kpi": {
+        "remaining": "Restant",
+        "done": "Terminé",
+        "target": "Par rapport à la ligne cible"
+      },
+      "doneOf": "{{done}} sur {{scope}}",
+      "against": {
+        "behind": "{{amount}} de retard",
+        "ahead": "{{amount}} d'avance",
+        "on": "sur la ligne"
+      },
+      "legend": {
+        "remaining": "Restant",
+        "ideal": "Ligne cible"
+      },
+      "today": "aujourd'hui",
+      "noLine": "Sans date de début et de fin, il n'y a pas de ligne cible. Saisissez les deux dans l'onglet Détails.",
+      "chartLabel": "Burndown en {{unit}} : {{remaining}} restant aujourd'hui, {{done}} sur {{scope}} terminé",
+      "table": {
+        "remaining": "Restant",
+        "ideal": "Ligne cible",
+        "change": "Changement du périmètre"
+      },
+      "explain": "La ligne monte quand des stories s'ajoutent et descend quand des stories sont retirées ou terminées. La ligne cible va tout droit de ce qui restait le jour du début à zéro le jour de la fin."
     }
   }
 }

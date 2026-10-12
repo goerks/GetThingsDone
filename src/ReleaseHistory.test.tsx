@@ -13,7 +13,7 @@ beforeAll(() => {
 
 type Seed = ReturnType<typeof seedSnapshot>;
 
-async function openScope(tweak?: (seed: Seed) => Seed, release = /Release 1\.0/): Promise<{ repository: LocalStorageRepository; dialog: HTMLElement }> {
+async function openScope(tweak?: (seed: Seed) => Seed, release = /Release 1\.0/, tab = 'Scope'): Promise<{ repository: LocalStorageRepository; dialog: HTMLElement }> {
   const repository = new LocalStorageRepository();
   const seed = seedSnapshot(todayIso());
   await repository.replaceAll(tweak ? tweak(seed) : seed);
@@ -23,14 +23,14 @@ async function openScope(tweak?: (seed: Seed) => Seed, release = /Release 1\.0/)
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: release }));
   const dialog = await screen.findByRole('dialog', { name: /Release 1\./ });
-  await user.click(within(dialog).getByRole('tab', { name: 'Scope' }));
+  await user.click(within(dialog).getByRole('tab', { name: tab }));
   return { repository, dialog };
 }
 
 describe('scope report', () => {
   it('is the third tab of the release dialog', async () => {
     const { dialog } = await openScope();
-    expect(within(dialog).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Details', 'Stories (6)', 'Scope']);
+    expect(within(dialog).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Details', 'Stories (6)', 'Scope', 'Burndown']);
     expect(within(dialog).getByRole('tab', { name: 'Scope' })).toHaveAttribute('aria-selected', 'true');
   });
 
@@ -216,5 +216,83 @@ describe('recording the history', () => {
     const seed = seedSnapshot(todayIso());
     await repository.replaceAll({ ...seed, releases: seed.releases.map((release) => (release.id === 'release-map' ? { ...release, startDate: addDays(todayIso(), -3) } : release)) });
     expect((await repository.load()).events.filter((event) => event.releaseId === 'release-map')).toHaveLength(1);
+  });
+});
+
+describe('burndown', () => {
+  it('shows what is left, what is done and where the release stands against the target line', async () => {
+    const { dialog } = await openScope(undefined, /Release 1\.0/, 'Burndown');
+    expect(within(dialog).getByRole('tab', { name: 'Burndown' })).toHaveAttribute('aria-selected', 'true');
+    const kpis = within(dialog).getAllByRole('term').map((term) => [term.textContent, term.nextElementSibling?.textContent]);
+    expect(kpis).toEqual([
+      ['Left', '20'],
+      ['Done', '3 of 23'],
+      ['Against the target line', expect.stringMatching(/^\d+(\.\d)? P behind$/)]
+    ]);
+    expect(within(dialog).getByText(/Recorded since .* Nothing is known about the time before\./)).toBeInTheDocument();
+  });
+
+  it('draws the chart with a target line and says what it shows', async () => {
+    const { dialog } = await openScope(undefined, /Release 1\.0/, 'Burndown');
+    expect(within(dialog).getByRole('img', { name: 'Burndown in Points: 20 left today, 3 of 23 done' })).toBeInTheDocument();
+    expect(dialog.querySelector('.scope-chart__ideal')).not.toBeNull();
+    expect(dialog.querySelector('.scope-chart__today')).not.toBeNull();
+    expect(dialog.querySelector('.scope__key--ideal')).toHaveTextContent('Target line');
+    expect(within(dialog).queryByText(/there is no target line/)).not.toBeInTheDocument();
+  });
+
+  it('counts tickets when the unit is switched, shared with the scope report', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openScope(undefined, /Release 1\.0/, 'Burndown');
+    await user.click(within(dialog).getByRole('button', { name: 'Tickets' }));
+    expect(within(dialog).getByRole('img', { name: 'Burndown in Tickets: 5 left today, 1 of 6 done' })).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('tab', { name: 'Scope' }));
+    expect(within(dialog).getByRole('button', { name: 'Tickets' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('offers the numbers as a table, with the days after today left empty', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openScope(undefined, /Release 1\.0/, 'Burndown');
+    await user.click(within(dialog).getByText('Show as table'));
+    const rows = within(dialog).getByRole('table', { name: /Burndown in Points/ }).querySelectorAll('tbody tr');
+    expect(rows.length).toBeGreaterThan(9);
+    const today = Array.from(rows).find((row) => row.querySelector('td')?.textContent === '20');
+    expect(today).toBeDefined();
+    const after = Array.from(rows[rows.length - 1].querySelectorAll('td')).map((cell) => cell.textContent);
+    expect(after).toEqual(['–', '0', '–']);
+  });
+
+  it('says there is no target line for a release without a start and an end date', async () => {
+    const { dialog } = await openScope(undefined, /Release 1\.1/, 'Burndown');
+    expect(within(dialog).getByText(/Without a start and an end date there is no target line/)).toBeInTheDocument();
+    expect(dialog.querySelector('.scope-chart__ideal')).toBeNull();
+    expect(within(dialog).getByText('–', { selector: 'dd' })).toBeInTheDocument();
+  });
+
+  it('says so for an empty release', async () => {
+    const user = userEvent.setup();
+    const { dialog } = await openScope((seed) => ({
+      ...seed,
+      releases: [...seed.releases, { id: 'r-empty', title: 'Release 3.0', description: '', startDate: null, endDate: null }]
+    }), /Release 1\.0/, 'Burndown');
+    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    await user.click(screen.getByRole('button', { name: /Release 3\.0/ }));
+    await user.click(within(await screen.findByRole('dialog', { name: /Release 3\.0/ })).getByRole('tab', { name: 'Burndown' }));
+    expect(screen.getByText(/No history yet/)).toBeInTheDocument();
+  });
+
+  it('is ahead of the line when more was finished than planned', async () => {
+    const { dialog } = await openScope((seed) => ({
+      ...seed,
+      stories: seed.stories.map((story) => (story.releaseId === 'release-beta' ? { ...story, status: 'done' as const } : story)),
+      events: [
+        ...seed.events,
+        ...seed.stories
+          .filter((story) => story.releaseId === 'release-beta' && story.status !== 'done')
+          .map((story) => ({ id: `finish-${story.id}`, at: new Date().toISOString(), releaseId: 'release-beta', storyId: story.id, code: story.code, kind: 'done' as const, points: story.points, done: true }))
+      ]
+    }), /Release 1\.0/, 'Burndown');
+    const target = within(dialog).getByText('Against the target line').nextElementSibling;
+    expect(target?.textContent).toMatch(/ahead$/);
   });
 });

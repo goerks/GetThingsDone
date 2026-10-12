@@ -470,7 +470,8 @@
       "label": "Viste della release",
       "details": "Dettagli",
       "stories": "Storie ({{count}})",
-      "scope": "Ambito"
+      "scope": "Ambito",
+      "burndown": "Burndown"
     },
     "edit": "Modifica release",
     "close": "Chiudi",
@@ -558,6 +559,32 @@
         "removed": "Rimossa",
         "points": "Punti {{from}} → {{to}} ({{diff}})"
       }
+    },
+    "burndown": {
+      "kpi": {
+        "remaining": "Rimanente",
+        "done": "Completato",
+        "target": "Rispetto alla linea obiettivo"
+      },
+      "doneOf": "{{done}} su {{scope}}",
+      "against": {
+        "behind": "{{amount}} di ritardo",
+        "ahead": "{{amount}} di anticipo",
+        "on": "sulla linea"
+      },
+      "legend": {
+        "remaining": "Rimanente",
+        "ideal": "Linea obiettivo"
+      },
+      "today": "oggi",
+      "noLine": "Senza data di inizio e di fine non c'è una linea obiettivo. Inseriscile entrambe nella scheda Dettagli.",
+      "chartLabel": "Burndown in {{unit}}: oggi {{remaining}} rimanenti, {{done}} su {{scope}} completati",
+      "table": {
+        "remaining": "Rimanente",
+        "ideal": "Linea obiettivo",
+        "change": "Modifica dell'ambito"
+      },
+      "explain": "La linea sale quando si aggiungono storie e scende quando le storie vengono rimosse o completate. La linea obiettivo va dritta da quanto restava il giorno di inizio a zero il giorno di fine."
     }
   }
 }
