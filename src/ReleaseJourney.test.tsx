@@ -207,3 +207,42 @@ describe('a release from planning to the last day', () => {
     expect(byDay('Oct 23, 2026')).toEqual(['Oct 23, 2026', '–', '0', '–']);
   }, 60000);
 });
+
+describe('a release survives a restart', () => {
+  it('shows the release, its stories and its history again after the app is opened anew', async () => {
+    const seed = seedSnapshot('2026-10-05');
+    const first = new LocalStorageRepository();
+    await first.replaceAll({ ...seed, releases: [], events: [], stories: [story(1, 'Alpha', 5), story(2, 'Bravo', 3)] });
+    window.location.hash = '#/releases';
+    const session = render(<App repository={first} />);
+    await screen.findByRole('heading', { name: 'Releases', level: 1 });
+
+    await ui.keyboard('{Control>}n{/Control}');
+    const form = await screen.findByRole('dialog', { name: 'New release' });
+    await ui.type(within(form).getByLabelText('Title'), 'Release 2.0');
+    fireEvent.change(within(form).getByLabelText('Start'), { target: { value: '2026-10-05' } });
+    fireEvent.change(within(form).getByLabelText('End'), { target: { value: '2026-10-23' } });
+    await ui.click(within(form).getByRole('button', { name: 'Add release' }));
+    await addByKey('S-1');
+    await addByKey('S-2');
+    day('2026-10-07');
+    await changeStory('Alpha', setStatus('Done'));
+    await waitFor(async () => expect((await first.load()).events).toHaveLength(3));
+
+    // The app is closed and opened anew on the same storage, two days later.
+    session.unmount();
+    day('2026-10-09');
+    render(<App repository={new LocalStorageRepository()} />);
+    const card = await screen.findByRole('button', { name: /Release 2\.0/ });
+    expect(card).toHaveTextContent('2 Stories');
+    expect(card).toHaveTextContent('8 Points');
+    expect(card).toHaveTextContent('5 Points done');
+
+    const release = await openRelease();
+    await ui.click(within(release).getByRole('tab', { name: 'Burndown' }));
+    await ui.click(within(release).getByRole('button', { name: 'Points' }));
+    expect(within(release).getByRole('img', { name: 'Burndown in Points: 3 left today, 5 of 8 done' })).toBeInTheDocument();
+    // The history was kept: a reopened app records no second baseline.
+    await waitFor(async () => expect((await new LocalStorageRepository().load()).events).toHaveLength(3));
+  });
+});
