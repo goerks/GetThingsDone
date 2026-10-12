@@ -8,7 +8,8 @@
     "backlog": "Backlog",
     "storyMap": "Story Map",
     "epics": "Epic",
-    "settings": "Impostazioni"
+    "settings": "Impostazioni",
+    "closeSettings": "Chiudi impostazioni"
   },
   "header": {
     "toDark": "Passa al tema scuro",
@@ -309,6 +310,9 @@
     "clear": "Cancella ricerca",
     "results": "Risultati della ricerca",
     "field": {
+      "key": "Chiave",
+      "title": "Titolo",
+      "description": "Descrizione",
       "status": "Stato",
       "epic": "Epic",
       "sprint": "Sprint",
@@ -387,6 +391,8 @@
     "problemField": "Non esiste il campo «{{name}}». Digita @ per vedere i campi.",
     "problemValue": "«{{value}}» non è un valore di {{field}}.",
     "yes": "sì",
-    "no": "no"
+    "no": "no",
+    "moreBadges_one": "+{{count}} altro filtro",
+    "moreBadges_other": "+{{count}} altri filtri"
   }
 }

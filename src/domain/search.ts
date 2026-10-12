@@ -8,7 +8,10 @@ export const RESULT_KINDS = ['story', 'epic', 'sprint'] as const;
 export type ResultKind = (typeof RESULT_KINDS)[number];
 
 /** Built-in fields a filter can restrict. Custom fields use the key `field:<id>`. */
-export const BUILTIN_FILTER_FIELDS = ['status', 'epic', 'sprint', 'points', 'type', 'criteria'] as const;
+export const BUILTIN_FILTER_FIELDS = ['key', 'title', 'description', 'status', 'epic', 'sprint', 'points', 'type', 'criteria'] as const;
+
+/** Built-in fields whose value is any typed text: the key must be equal, the others must contain it. */
+export const TEXT_FILTER_FIELDS: readonly BuiltinFilterField[] = ['key', 'title', 'description'];
 export type BuiltinFilterField = (typeof BUILTIN_FILTER_FIELDS)[number];
 
 /** Key of a filter field: a built-in field, or `field:<id>` for a custom field. */
@@ -204,10 +207,19 @@ function passes(item: Item, filter: Filter, snapshot: Snapshot): boolean {
     return false;
   }
   if (filter.field === 'type') return item.kind === filter.value;
+  const contains = (text: string): boolean => fold(text).includes(fold(filter.value));
+  if (filter.field === 'title') {
+    const name = item.kind === 'story' ? item.story.title : item.kind === 'epic' ? item.epic.name : item.sprint.name;
+    return contains(name);
+  }
   if (item.kind === 'epic') return filter.field === 'epic' && item.epic.id === filter.value;
   if (item.kind === 'sprint') return filter.field === 'sprint' && item.sprint.id === filter.value;
   const story = item.story;
   switch (filter.field) {
+    case 'key':
+      return fold(story.code) === fold(filter.value.trim());
+    case 'description':
+      return contains(story.description);
     case 'status':
       return story.status === filter.value;
     case 'epic':

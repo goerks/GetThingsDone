@@ -1976,7 +1976,7 @@ fieldset.field--choices {
 
 .search__field {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 4px 6px;
   width: 300px;
@@ -2518,4 +2518,57 @@ mark {
 
 .search__problems p {
   margin: 0;
+}
+
+/* The search field stays on one line: badges that do not fit are cut off, faded and counted. */
+.search__field:has(.search__badges) {
+  width: 360px;
+}
+
+.search--open .search__field:has(.search__badges) {
+  width: 480px;
+}
+
+.search__badges {
+  display: flex;
+  gap: 4px;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.search__badges:has(+ .search__more-badges) {
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+
+.search__badges .search-chip {
+  flex: none;
+  white-space: nowrap;
+}
+
+.search__more-badges {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.search__field .search__input {
+  flex: 1 1 90px;
+  min-width: 90px;
+}
+
+.detail-nav__keys {
+  display: inline-flex;
+  gap: 2px;
+}
+
+@media (max-width: 700px) {
+  .search__field:has(.search__badges),
+  .search--open .search__field:has(.search__badges) {
+    width: 100%;
+  }
 }

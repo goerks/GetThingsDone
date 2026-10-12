@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, setLanguage, type LanguageCode } from '../i18n';
 import { hrefs, type Route } from '../router';
@@ -15,6 +16,10 @@ export function Header({ route, theme, onToggleTheme }: Props) {
   const { t, i18n } = useTranslation();
   const language = (i18n.resolvedLanguage ?? 'en') as LanguageCode;
   const dark = theme === 'dark';
+  const inSettings = route.name === 'settings';
+  // The gear opens the settings; pressed again, it goes back to the page shown before.
+  const lastView = useRef<string>(hrefs.board);
+  if (!inSettings) lastView.current = hrefs[route.name];
 
   return (
     <header className="header">
@@ -75,11 +80,11 @@ export function Header({ route, theme, onToggleTheme }: Props) {
           ))}
         </select>
         <a
-          href={hrefs.settings}
+          href={inSettings ? lastView.current : hrefs.settings}
           className="icon-btn header__settings"
-          aria-label={t('nav.settings')}
-          title={t('nav.settings')}
-          aria-current={route.name === 'settings' ? 'page' : undefined}
+          aria-label={inSettings ? t('nav.closeSettings') : t('nav.settings')}
+          title={inSettings ? t('nav.closeSettings') : t('nav.settings')}
+          aria-current={inSettings ? 'page' : undefined}
         >
           <GearIcon />
         </a>
