@@ -36,7 +36,7 @@ Sprint 1 ──── * Story          (a story has one sprint or none)
 - Text is edited in place: a button shows the text, a click turns it into a field. Focus returns to the button after Enter or Escape.
 - Colour never carries meaning alone: epic names, status names and criteria counts are written out.
 - Status changes such as "all criteria accepted" are announced through live regions.
-- The search follows the combobox pattern: focus stays in the input, `aria-activedescendant` points to the marked option in a grouped listbox, the number of results is announced in a live region. Filter chips are two buttons (change, remove). Menus are labelled groups of radio buttons and checkboxes.
+- The search follows the combobox pattern: focus stays in the input, `aria-activedescendant` points to the marked option in a grouped listbox, the number of results is announced in a live region. Filters are badges with the field, "=" and the value and a remove button; field and value suggestions are options in the same listbox.
 
 ## Theming
 

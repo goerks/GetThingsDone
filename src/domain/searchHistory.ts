@@ -18,7 +18,7 @@ export const EMPTY_HISTORY: SearchHistory = { searches: [], opened: [] };
 /** Puts a search first; an equal older search is dropped. Empty searches are not kept. */
 export function rememberSearch(history: SearchHistory, query: SearchQuery): SearchHistory {
   if (!isActive(query)) return history;
-  const entry: SearchQuery = { text: query.text.trim(), filters: query.filters.filter((filter) => filter.values.length > 0) };
+  const entry: SearchQuery = { text: query.text.trim(), filters: [...query.filters] };
   const rest = history.searches.filter((item) => !sameQuery(item, entry));
   return { ...history, searches: [entry, ...rest].slice(0, HISTORY_LIMIT) };
 }
@@ -50,7 +50,7 @@ export function parseHistory(raw: unknown): SearchHistory {
           typeof (item as SearchQuery).text === 'string' &&
           Array.isArray((item as SearchQuery).filters) &&
           (item as SearchQuery).filters.every(
-            (filter) => !!filter && typeof filter.field === 'string' && Array.isArray(filter.values) && typeof filter.negate === 'boolean'
+            (filter) => !!filter && typeof filter.field === 'string' && typeof filter.value === 'string'
           )
       )
     : [];

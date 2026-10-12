@@ -1,15 +1,23 @@
 import { criteriaProgress, sortByRank } from './board';
 import { formatValue } from './fields';
 import { mapSprints, runningSprint, sortSprints } from './sprints';
-import type { Epic, FieldDefinition, Snapshot, Sprint, Status, Story } from './types';
+import type { Epic, FieldDefinition, FieldValue, Snapshot, Sprint, Status, Story } from './types';
 
 /** What a result is. The order is the order of the groups in the result list. */
 export const RESULT_KINDS = ['story', 'epic', 'sprint'] as const;
 export type ResultKind = (typeof RESULT_KINDS)[number];
 
-/** Fields a filter chip can restrict. */
-export const FILTER_FIELDS = ['status', 'epic', 'sprint', 'type', 'points', 'criteria', 'scope'] as const;
-export type FilterField = (typeof FILTER_FIELDS)[number];
+/** Built-in fields a filter can restrict. Custom fields use the key `field:<id>`. */
+export const BUILTIN_FILTER_FIELDS = ['status', 'epic', 'sprint', 'points', 'type', 'criteria'] as const;
+export type BuiltinFilterField = (typeof BUILTIN_FILTER_FIELDS)[number];
+
+/** Key of a filter field: a built-in field, or `field:<id>` for a custom field. */
+export type FilterField = string;
+
+const CUSTOM_PREFIX = 'field:';
+export const customFieldKey = (fieldId: string): FilterField => `${CUSTOM_PREFIX}${fieldId}`;
+export const customFieldId = (key: FilterField): string | null =>
+  key.startsWith(CUSTOM_PREFIX) ? key.slice(CUSTOM_PREFIX.length) : null;
 
 /** Filter value of the sprint field for stories that are not planned in any sprint. */
 export const NOT_PLANNED = 'none';
@@ -20,18 +28,10 @@ export const NO_EPIC = 'none';
 export const CRITERIA_STATES = ['all', 'open', 'none'] as const;
 export type CriteriaState = (typeof CRITERIA_STATES)[number];
 
-/** Where free text is looked for when the "Search in" filter is set. Epic and sprint names count as titles. */
-export const TEXT_SCOPES = ['title', 'description', 'criteria'] as const;
-export type TextScope = (typeof TEXT_SCOPES)[number];
-
-/**
- * One chip: a field and its values. Values of one field are combined with OR,
- * different chips with AND; `negate` turns the chip into "is not".
- */
+/** One filter, shown as a badge: a field and one value. Filters are combined with AND; each field at most once. */
 export interface Filter {
   field: FilterField;
-  values: string[];
-  negate: boolean;
+  value: string;
 }
 
 export interface SearchQuery {
@@ -162,57 +162,72 @@ function allTermsIn(texts: readonly string[], terms: readonly string[]): boolean
 
 // ---------- Filters ----------
 
-/** The value a story has for a field. */
-function storyValues(story: Story, field: FilterField): string[] {
-  switch (field) {
-    case 'status':
-      return [story.status];
-    case 'epic':
-      return [story.epicId ?? NO_EPIC];
-    case 'sprint':
-      return [story.sprintId ?? NOT_PLANNED];
-    case 'type':
-      return ['story'];
-    case 'points':
-      return [String(story.points)];
-    case 'criteria':
-      return [criteriaState(story)];
-    case 'scope':
-      return [];
-  }
-}
-
 export function criteriaState(story: Pick<Story, 'criteria'>): CriteriaState {
   const progress = criteriaProgress(story);
   if (progress.total === 0) return 'none';
   return progress.done === progress.total ? 'all' : 'open';
 }
 
-/** The values an epic or sprint has for a field, or null when the field does not apply to it. */
-function itemValues(kind: 'epic' | 'sprint', id: string, field: FilterField): string[] | null {
-  if (field === 'type') return [kind];
-  if (field === 'scope') return [];
-  if (field === kind) return [id];
-  return null;
+/** Whether a custom field value matches a filter value: the option for selects, yes or no, the number, or contained text. */
+function customMatches(field: FieldDefinition, raw: FieldValue | undefined, value: string): boolean {
+  if (field.dataType === 'checkbox') return String(raw === true) === value;
+  if (raw === undefined || raw === null || raw === '') return false;
+  switch (field.dataType) {
+    case 'single_select':
+      return raw === value;
+    case 'multi_select':
+      return Array.isArray(raw) && raw.includes(value);
+    case 'number':
+      return Number(raw) === Number(value);
+    default:
+      return fold(formatValue(field, raw)).includes(fold(value));
+  }
 }
 
-function passes(values: string[] | null, filter: Filter): boolean {
-  if (filter.field === 'scope' || filter.values.length === 0) return true;
-  if (values === null) return false;
-  const hit = values.some((value) => filter.values.includes(value));
-  return filter.negate ? !hit : hit;
+type Item = { kind: 'story'; story: Story } | { kind: 'epic'; epic: Epic } | { kind: 'sprint'; sprint: Sprint };
+
+/** Whether a custom field is on an item type; without any assignments a field counts as a story field. */
+function hasField(snapshot: Snapshot, fieldId: string, kind: ResultKind): boolean {
+  const assignments = (snapshot.assignments ?? []).filter((assignment) => assignment.fieldId === fieldId);
+  if (assignments.length === 0) return kind === 'story';
+  return assignments.some((assignment) => assignment.itemType === kind);
 }
 
-function scopes(filters: readonly Filter[]): Set<TextScope> {
-  const chosen = filters.find((filter) => filter.field === 'scope' && filter.values.length > 0);
-  return new Set((chosen?.values ?? TEXT_SCOPES) as TextScope[]);
+/** Whether an item passes a filter. A filter on a field the item does not have excludes the item. */
+function passes(item: Item, filter: Filter, snapshot: Snapshot): boolean {
+  const customId = customFieldId(filter.field);
+  if (customId !== null) {
+    const field = (snapshot.fields ?? []).find((candidate) => candidate.id === customId);
+    if (!field || !hasField(snapshot, customId, item.kind)) return false;
+    if (item.kind === 'story') return customMatches(field, item.story.values?.[customId], filter.value);
+    if (item.kind === 'epic') return customMatches(field, item.epic.values?.[customId], filter.value);
+    return false;
+  }
+  if (filter.field === 'type') return item.kind === filter.value;
+  if (item.kind === 'epic') return filter.field === 'epic' && item.epic.id === filter.value;
+  if (item.kind === 'sprint') return filter.field === 'sprint' && item.sprint.id === filter.value;
+  const story = item.story;
+  switch (filter.field) {
+    case 'status':
+      return story.status === filter.value;
+    case 'epic':
+      return (story.epicId ?? NO_EPIC) === filter.value;
+    case 'sprint':
+      return (story.sprintId ?? NOT_PLANNED) === filter.value;
+    case 'points':
+      return String(story.points) === filter.value;
+    case 'criteria':
+      return criteriaState(story) === filter.value;
+    default:
+      return false;
+  }
 }
 
 // ---------- Search ----------
 
-/** True when the query asks for anything: text or at least one filter with values. */
+/** True when the query asks for anything: text or at least one filter. */
 export function isActive(query: SearchQuery): boolean {
-  return parseTerms(query.text).length > 0 || query.filters.some((filter) => filter.values.length > 0);
+  return parseTerms(query.text).length > 0 || query.filters.length > 0;
 }
 
 interface Ranked {
@@ -230,29 +245,21 @@ function customTexts(values: Story['values'], fields: readonly FieldDefinition[]
     .filter((item) => item.text.trim() !== '');
 }
 
-function matchStory(
-  story: Story,
-  terms: readonly string[],
-  scope: Set<TextScope>,
-  text: string,
-  fields: readonly FieldDefinition[]
-): Ranked | null {
-  const titleTexts = scope.has('title') ? [story.code, story.title] : [];
-  const descriptionTexts = scope.has('description') ? [story.description] : [];
-  const criteriaTexts = scope.has('criteria') ? story.criteria.map((criterion) => criterion.text) : [];
-  // Custom fields are content, like the description.
-  const custom = scope.has('description') && terms.length > 0 ? customTexts(story.values ?? {}, fields) : [];
-  const customValues = custom.map((item) => item.text);
-  if (terms.length > 0 && !allTermsIn([...titleTexts, ...descriptionTexts, ...criteriaTexts, ...customValues], terms)) return null;
+function matchStory(story: Story, terms: readonly string[], text: string, fields: readonly FieldDefinition[]): Ranked | null {
+  const titleTexts = [story.code, story.title];
+  const criteriaTexts = story.criteria.map((criterion) => criterion.text);
+  const custom = terms.length > 0 ? customTexts(story.values ?? {}, fields) : [];
+  if (terms.length > 0 && !allTermsIn([...titleTexts, story.description, ...criteriaTexts, ...custom.map((item) => item.text)], terms))
+    return null;
 
-  const codeRanges = scope.has('title') ? findRanges(story.code, terms) : [];
-  const titleRanges = scope.has('title') ? findRanges(story.title, terms) : [];
+  const codeRanges = findRanges(story.code, terms);
+  const titleRanges = findRanges(story.title, terms);
   const inTitle = terms.length === 0 || allTermsIn(titleTexts, terms);
   let snippet: Snippet | null = null;
   if (!inTitle) {
     const missing = terms.filter((term) => !titleTexts.some((value) => fold(value).includes(term)));
     const candidates: { field: Snippet['field']; text: string; name?: string }[] = [
-      ...descriptionTexts.map((value) => ({ field: 'description' as const, text: value })),
+      { field: 'description', text: story.description },
       ...criteriaTexts.map((value) => ({ field: 'criterion' as const, text: value })),
       ...custom.map((item) => ({ field: 'custom' as const, text: item.text, name: item.name }))
     ];
@@ -267,49 +274,45 @@ function matchStory(
   };
 }
 
-function matchName(name: string, terms: readonly string[], scope: Set<TextScope>): Range[] | null {
+function matchName(name: string, terms: readonly string[]): Range[] | null {
   if (terms.length === 0) return [];
-  if (!scope.has('title') || !allTermsIn([name], terms)) return null;
+  if (!allTermsIn([name], terms)) return null;
   return findRanges(name, terms);
 }
 
 /**
- * Runs a query over everything in the snapshot.
- * Returns the results in display order: grouped by kind, best match first within a group.
+ * Runs a query over everything in the snapshot. `query.text` is free text only; field filters are in `query.filters`
+ * (see `parseQueryText` for typed filters). Returns the results grouped by kind, best match first within a group.
  * A query without text and without filters returns nothing.
  */
 export function search(snapshot: Snapshot, query: SearchQuery): SearchResult[] {
   if (!isActive(query)) return [];
   const terms = parseTerms(query.text);
-  const filters = query.filters.filter((filter) => filter.values.length > 0);
-  const scope = scopes(filters);
+  const fields = snapshot.fields ?? [];
+  const ok = (item: Item): boolean => query.filters.every((filter) => passes(item, filter, snapshot));
   const ranked: Ranked[] = [];
 
   for (const story of sortByRank(snapshot.stories)) {
-    if (!filters.every((filter) => passes(storyValues(story, filter.field), filter))) continue;
-    const match = matchStory(story, terms, scope, query.text, snapshot.fields ?? []);
+    if (!ok({ kind: 'story', story })) continue;
+    const match = matchStory(story, terms, query.text, fields);
     if (match) ranked.push(match);
   }
-  const epics = [...snapshot.epics].sort((a, b) => a.position - b.position);
-  epics.forEach((epic, index) => {
-    if (!filters.every((filter) => passes(itemValues('epic', epic.id, filter.field), filter))) return;
-    const nameRanges = matchName(epic.name, terms, scope);
-    if (nameRanges) ranked.push({ result: { kind: 'epic', id: epic.id, epic, nameRanges }, tier: 1, order: index });
-  });
+  [...snapshot.epics]
+    .sort((a, b) => a.position - b.position)
+    .forEach((epic, index) => {
+      if (!ok({ kind: 'epic', epic })) return;
+      const nameRanges = matchName(epic.name, terms);
+      if (nameRanges) ranked.push({ result: { kind: 'epic', id: epic.id, epic, nameRanges }, tier: 1, order: index });
+    });
   sortSprints(snapshot.sprints).forEach((sprint, index) => {
-    if (!filters.every((filter) => passes(itemValues('sprint', sprint.id, filter.field), filter))) return;
-    const nameRanges = matchName(sprint.name, terms, scope);
+    if (!ok({ kind: 'sprint', sprint })) return;
+    const nameRanges = matchName(sprint.name, terms);
     if (nameRanges) ranked.push({ result: { kind: 'sprint', id: sprint.id, sprint, nameRanges }, tier: 1, order: index });
   });
 
   const kindOrder = (result: SearchResult): number => RESULT_KINDS.indexOf(result.kind);
   ranked.sort((a, b) => kindOrder(a.result) - kindOrder(b.result) || a.tier - b.tier || a.order - b.order);
   return ranked.map((item) => item.result);
-}
-
-/** Ids of the stories a query finds; used to highlight them on the board and in the backlog. */
-export function matchingStoryIds(snapshot: Snapshot, query: SearchQuery): Set<string> {
-  return new Set(search(snapshot, query).filter((result) => result.kind === 'story').map((result) => result.id));
 }
 
 /** Results per kind, in the order of the groups. */
@@ -319,32 +322,36 @@ export function groupResults(results: readonly SearchResult[]): { kind: ResultKi
   );
 }
 
-// ---------- Chips ----------
+// ---------- Badges ----------
 
-/** Adds a value to the chip of its field, or a new chip when the field has none yet. */
-export function addFilterValue(filters: readonly Filter[], field: FilterField, value: string): Filter[] {
-  const existing = filters.find((filter) => filter.field === field);
-  if (!existing) return [...filters, { field, values: [value], negate: false }];
-  if (existing.values.includes(value)) return [...filters];
-  return filters.map((filter) => (filter === existing ? { ...filter, values: [...filter.values, value] } : filter));
-}
-
-/** Sets the values and "is not" of a field; no values removes the chip. The chip keeps its place. */
-export function setFilter(filters: readonly Filter[], field: FilterField, values: string[], negate: boolean): Filter[] {
-  const index = filters.findIndex((filter) => filter.field === field);
-  if (values.length === 0) return filters.filter((filter) => filter.field !== field);
-  const next: Filter = { field, values, negate: field === 'scope' ? false : negate };
-  if (index === -1) return [...filters, next];
-  return filters.map((filter, i) => (i === index ? next : filter));
+/** Sets the filter of a field; a field that already has a filter gets the new value in its place. */
+export function setFilter(filters: readonly Filter[], filter: Filter): Filter[] {
+  const index = filters.findIndex((item) => item.field === filter.field);
+  if (index === -1) return [...filters, filter];
+  return filters.map((item, i) => (i === index ? filter : item));
 }
 
 export function removeFilter(filters: readonly Filter[], field: FilterField): Filter[] {
   return filters.filter((filter) => filter.field !== field);
 }
 
-/** Possible values of a field, in display order. */
+/** Possible values of a field, in display order. Free-text custom fields offer the values used so far. */
 export function fieldValues(snapshot: Snapshot, field: FilterField): string[] {
-  switch (field) {
+  const customId = customFieldId(field);
+  if (customId !== null) {
+    const definition = (snapshot.fields ?? []).find((item) => item.id === customId);
+    if (!definition) return [];
+    if (definition.dataType === 'single_select' || definition.dataType === 'multi_select')
+      return definition.options.map((option) => option.id);
+    if (definition.dataType === 'checkbox') return ['true', 'false'];
+    const used = [...snapshot.stories, ...snapshot.epics]
+      .map((item) => item.values?.[customId])
+      .filter((value): value is FieldValue => value !== undefined && value !== '')
+      .map((value) => formatValue(definition, value));
+    const distinct = [...new Set(used)];
+    return definition.dataType === 'number' ? distinct.sort((a, b) => Number(a) - Number(b)) : distinct.sort().slice(0, 10);
+  }
+  switch (field as BuiltinFilterField) {
     case 'status':
       return ['todo', 'in_progress', 'review', 'done'] satisfies Status[];
     case 'epic': {
@@ -359,58 +366,12 @@ export function fieldValues(snapshot: Snapshot, field: FilterField): string[] {
       return [...new Set(snapshot.stories.map((story) => story.points))].sort((a, b) => a - b).map(String);
     case 'criteria':
       return [...CRITERIA_STATES];
-    case 'scope':
-      return [...TEXT_SCOPES];
+    default:
+      return [];
   }
 }
 
-/**
- * Number of results for each value of a field, counting what the query would find
- * if this field's chip were set to just that value. The text and all other chips stay.
- */
-export function valueCounts(snapshot: Snapshot, query: SearchQuery, field: FilterField): Map<string, number> {
-  const counts = new Map<string, number>();
-  const others = query.filters.filter((filter) => filter.field !== field);
-  for (const value of fieldValues(snapshot, field)) {
-    const filters = [...others, { field, values: [value], negate: false }];
-    counts.set(value, search(snapshot, { text: query.text, filters }).length);
-  }
-  return counts;
-}
-
-/** A filter that free text could stand for, such as "review" for Status = Review. */
-export interface FilterSuggestion {
-  field: FilterField;
-  value: string;
-  label: string;
-}
-
-/**
- * Field values whose name the free text spells out (whole name, or its start with at least three letters).
- * Values already used in a chip are left out. `labels` are the names in the current language.
- */
-export function suggestFilters(
-  text: string,
-  filters: readonly Filter[],
-  labels: readonly FilterSuggestion[],
-  limit = 3
-): FilterSuggestion[] {
-  const typed = fold(text.trim());
-  if (typed.length < 2) return [];
-  const used = (candidate: FilterSuggestion): boolean =>
-    filters.some((filter) => filter.field === candidate.field && filter.values.includes(candidate.value));
-  const exact: FilterSuggestion[] = [];
-  const prefix: FilterSuggestion[] = [];
-  for (const candidate of labels) {
-    if (used(candidate)) continue;
-    const name = fold(candidate.label);
-    if (name === typed) exact.push(candidate);
-    else if (typed.length >= 3 && name.startsWith(typed)) prefix.push(candidate);
-  }
-  return [...exact, ...prefix].slice(0, limit);
-}
-
-/** For a query without results: how many results there would be without each chip. Only chips that help are listed. */
+/** For a query without results: how many results there would be without each filter. Only filters that help are listed. */
 export function relaxations(snapshot: Snapshot, query: SearchQuery): { field: FilterField; count: number }[] {
   return query.filters
     .map((filter) => ({
@@ -420,16 +381,163 @@ export function relaxations(snapshot: Snapshot, query: SearchQuery): { field: Fi
     .filter((item) => item.count > 0);
 }
 
-/** Two queries are the same when text and chips are equal; used to avoid duplicates in the history. */
+/** Two queries are the same when text and filters are equal; used to avoid duplicates in the history. */
 export function sameQuery(a: SearchQuery, b: SearchQuery): boolean {
   const key = (query: SearchQuery): string =>
     JSON.stringify({
       text: query.text.trim().replace(/\s+/g, ' ').toLowerCase(),
-      filters: [...query.filters]
-        .map((filter) => ({ ...filter, values: [...filter.values].sort() }))
-        .sort((x, y) => x.field.localeCompare(y.field))
+      filters: [...query.filters].sort((x, y) => x.field.localeCompare(y.field))
     });
   return key(a) === key(b);
+}
+
+// ---------- Typed filters: field:value ----------
+
+/** A field as the search text knows it: names to type and the values it accepts. */
+export interface FieldEntry {
+  key: FilterField;
+  /** Shown name in the current language. */
+  label: string;
+  /** Other names that work too, such as the English name. */
+  aliases: string[];
+  values: { value: string; label: string; aliases?: string[] }[];
+  /** True when any typed value is accepted (text fields); the value is then contained text. */
+  freeValue: boolean;
+}
+
+/** A word of the search text with its position. Quoted parts stay inside the word. */
+export interface Token {
+  raw: string;
+  start: number;
+  end: number;
+}
+
+/** Splits text into words at spaces outside double quotes. */
+export function tokenize(text: string): Token[] {
+  const tokens: Token[] = [];
+  let start = -1;
+  let quoted = false;
+  for (let i = 0; i <= text.length; i += 1) {
+    const char = text[i];
+    const end = i === text.length || (!quoted && /\s/.test(char));
+    if (end) {
+      if (start !== -1) tokens.push({ raw: text.slice(start, i), start, end: i });
+      start = -1;
+      continue;
+    }
+    if (start === -1) start = i;
+    if (char === '"') quoted = !quoted;
+  }
+  return tokens;
+}
+
+const unquote = (value: string): string => value.replace(/^"/, '').replace(/"$/, '');
+
+/** Splits `name:value` or `name=value`; null for words without a separator. Names and values may be quoted. */
+export function splitFieldToken(raw: string): { name: string; value: string } | null {
+  const match = /^("[^"]*"|[^:="\s]+)[:=](.*)$/.exec(raw);
+  if (!match) return null;
+  return { name: unquote(match[1]), value: unquote(match[2]) };
+}
+
+/** The name to insert for a field: lower case, quoted when it has spaces. */
+export function fieldToken(entry: FieldEntry): string {
+  const name = entry.label.toLowerCase();
+  return /\s/.test(name) ? `"${name}":` : `${name}:`;
+}
+
+const names = (entry: { label: string; aliases?: string[] }): string[] => [entry.label, ...(entry.aliases ?? [])].map(fold);
+
+/** Fields whose name starts with the typed text, exact names first. */
+export function matchFields(typed: string, catalog: readonly FieldEntry[]): FieldEntry[] {
+  const folded = fold(typed);
+  const exact = catalog.filter((entry) => names(entry).includes(folded));
+  const prefix = catalog.filter((entry) => !exact.includes(entry) && names(entry).some((name) => name.startsWith(folded)));
+  return [...exact, ...prefix];
+}
+
+/** Values of a field whose name starts with the typed text, or all values for empty text. */
+export function matchValues(typed: string, entry: FieldEntry): FieldEntry['values'] {
+  const folded = fold(typed);
+  if (!folded) return entry.values;
+  const exact = entry.values.filter((value) => names(value).includes(folded));
+  const prefix = entry.values.filter((value) => !exact.includes(value) && names(value).some((name) => name.startsWith(folded)));
+  return [...exact, ...prefix];
+}
+
+/** The field a typed name stands for: an exact name, else the only field it is the start of. */
+export function resolveField(name: string, catalog: readonly FieldEntry[]): FieldEntry | null {
+  const found = matchFields(name, catalog);
+  if (found.length === 0) return null;
+  if (names(found[0]).includes(fold(name))) return found[0];
+  return found.length === 1 ? found[0] : null;
+}
+
+/** The value a typed text stands for: an exact name, else the only value it is the start of; any text for free fields. */
+export function resolveValue(typed: string, entry: FieldEntry): string | null {
+  if (!typed.trim()) return null;
+  const found = matchValues(typed, entry);
+  if (found.length > 0 && (names(found[0]).includes(fold(typed)) || found.length === 1)) return found[0].value;
+  return entry.freeValue ? typed.trim() : null;
+}
+
+/** Something in the search text that could not be used as a filter. */
+export type TextProblem = { kind: 'field'; name: string } | { kind: 'value'; field: FieldEntry; value: string };
+
+/** A typed `field:value` that was understood. */
+export interface ResolvedToken {
+  token: Token;
+  filter: Filter;
+}
+
+export interface ParsedText {
+  /** The free text, without the field filters. */
+  text: string;
+  /** Field filters typed in the text, in order; a field typed twice keeps the last value. */
+  filters: Filter[];
+  resolved: ResolvedToken[];
+  problems: TextProblem[];
+}
+
+/**
+ * Reads typed filters from the search text. `name:value` (or `name=value`) becomes a filter when name and value are known.
+ * Unknown ones are reported and left out of the search; so are words that are still being typed (`@sta`, `status:`).
+ */
+export function parseQueryText(text: string, catalog: readonly FieldEntry[]): ParsedText {
+  const free: string[] = [];
+  let filters: Filter[] = [];
+  const resolved: ResolvedToken[] = [];
+  const problems: TextProblem[] = [];
+  for (const token of tokenize(text)) {
+    if (token.raw.startsWith('@')) continue;
+    const parts = splitFieldToken(token.raw);
+    if (!parts) {
+      free.push(token.raw);
+      continue;
+    }
+    const entry = resolveField(parts.name, catalog);
+    if (!entry) {
+      problems.push({ kind: 'field', name: parts.name });
+      continue;
+    }
+    if (!parts.value.trim()) continue;
+    const value = resolveValue(parts.value, entry);
+    if (value === null) {
+      problems.push({ kind: 'value', field: entry, value: parts.value });
+      continue;
+    }
+    const filter = { field: entry.key, value };
+    filters = setFilter(filters, filter);
+    resolved.push({ token, filter });
+  }
+  return { text: free.join(' '), filters, resolved, problems };
+}
+
+/** Badges and typed filters together; a typed filter replaces the badge of the same field. */
+export function effectiveQuery(query: SearchQuery, catalog: readonly FieldEntry[]): { query: SearchQuery; parsed: ParsedText } {
+  const parsed = parseQueryText(query.text, catalog);
+  const filters = parsed.filters.reduce((all, filter) => setFilter(all, filter), [...query.filters]);
+  return { query: { text: parsed.text, filters }, parsed };
 }
 
 // ---------- Current page ----------
