@@ -336,7 +336,7 @@ Source: #7 · Status: Implemented · Verified by: search.test, Search.test "sear
 
 ### FR-SEARCH-02 Filter by fields in the search text
 As a PO, I want to combine free text with field filters typed in the same field, so that I find for example all open stories of an epic.
-- A filter is typed as `field:value` (or `field=value`), e.g. `status:open points:5 epic:"local storage"`. Field names work in the UI language and in English; field and value names may be shortened while unique; case and accents are ignored. Fields: key (equal), title and description (contain the text), status, epic, sprint, points, type, criteria and all custom fields (#4).
+- A filter is typed as `field:value` (or `field=value`), e.g. `status:open points:5 epic:"local storage"`. Field names work in the UI language and in English; field and value names may be shortened while unique; case and accents are ignored. Fields: description (contains the text), status, epic, sprint, points, type, criteria and all custom fields (#4). Key and title are not fields; they are found by the free text (PO decision in #7).
 - A word that starts like a field name lists the matching fields (typing "Punk" offers "Punkte"); `@` or `Ctrl+Space` lists all fields. `Tab` or `Enter` takes the field and lists its values; choosing a value, or starting the next word after a complete `field:value`, turns it into a badge `Field = value`.
 - All filters and the free text are combined with AND. Each field is used at most once: a field that is set is shown as "already set" and cannot be chosen; typing it again replaces its value.
 - One `Backspace` at the start of the field removes the last badge completely; ✕ on a badge removes it.
