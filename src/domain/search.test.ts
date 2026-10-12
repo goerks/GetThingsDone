@@ -1,26 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addFilterValue,
   viewFor,
   whereShown,
   arrangeForPage,
+  customFieldKey,
+  effectiveQuery,
+  fieldToken,
   findRanges,
   fold,
   groupResults,
   isActive,
   makeSnippet,
-  matchingStoryIds,
+  matchFields,
+  parseQueryText,
   parseTerms,
   relaxations,
   removeFilter,
+  resolveField,
+  resolveValue,
   sameQuery,
   search,
   setFilter,
-  suggestFilters,
-  valueCounts,
+  splitFieldToken,
+  tokenize,
   NOT_PLANNED,
   NO_EPIC,
   fieldValues,
+  type FieldEntry,
   type Filter,
   type SearchResult
 } from './search';
@@ -158,100 +164,138 @@ describe('search', () => {
     expect(groups.map((group) => group.kind)).toEqual(['story', 'epic']);
   });
 
-  it('combines different fields with AND and values of one field with OR', () => {
-    const status: Filter = { field: 'status', values: ['review', 'in_progress'], negate: false };
-    expect(ids(search(snapshot, query('', [status])))).toEqual(['story:1', 'story:2']);
-    const epic: Filter = { field: 'epic', values: ['e2'], negate: false };
-    expect(ids(search(snapshot, query('', [status, epic])))).toEqual(['story:2']);
-  });
-
-  it('excludes values with "is not"', () => {
-    const notDone: Filter = { field: 'status', values: ['done'], negate: true };
-    expect(ids(search(snapshot, query('storage', [notDone])))).toEqual([]);
+  it('combines filters of different fields with AND', () => {
+    const review: Filter = { field: 'status', value: 'review' };
+    expect(ids(search(snapshot, query('', [review])))).toEqual(['story:1']);
+    const e2: Filter = { field: 'epic', value: 'e2' };
+    const inProgress: Filter = { field: 'status', value: 'in_progress' };
+    expect(ids(search(snapshot, query('', [inProgress, e2])))).toEqual(['story:2']);
+    expect(ids(search(snapshot, query('', [review, e2])))).toEqual([]);
   });
 
   it('filters by sprint, including stories that are not planned', () => {
-    const notPlanned: Filter = { field: 'sprint', values: [NOT_PLANNED], negate: false };
-    expect(ids(search(snapshot, query('', [notPlanned])))).toEqual(['story:3']);
-    const sprint2: Filter = { field: 'sprint', values: ['s2'], negate: false };
-    expect(ids(search(snapshot, query('', [sprint2])))).toEqual(['story:12', 'sprint:s2']);
+    expect(ids(search(snapshot, query('', [{ field: 'sprint', value: NOT_PLANNED }])))).toEqual(['story:3']);
+    expect(ids(search(snapshot, query('', [{ field: 'sprint', value: 's2' }])))).toEqual(['story:12', 'sprint:s2']);
   });
 
   it('filters stories without an epic', () => {
     const withoutEpic: Snapshot = { ...snapshot, stories: [...snapshot.stories, story('20', { title: 'Loose story', epicId: null })] };
-    expect(ids(search(withoutEpic, query('', [{ field: 'epic', values: [NO_EPIC], negate: false }])))).toEqual(['story:20']);
+    expect(ids(search(withoutEpic, query('', [{ field: 'epic', value: NO_EPIC }])))).toEqual(['story:20']);
     expect(fieldValues(withoutEpic, 'epic')).toEqual(['e1', 'e2', NO_EPIC]);
     expect(fieldValues(snapshot, 'epic')).toEqual(['e1', 'e2']);
   });
 
   it('filters by type, points and criteria', () => {
-    expect(ids(search(snapshot, query('stor', [{ field: 'type', values: ['epic'], negate: false }])))).toEqual(['epic:e2']);
-    expect(ids(search(snapshot, query('', [{ field: 'points', values: ['5', '1'], negate: false }])))).toEqual(['story:2', 'story:3']);
-    expect(ids(search(snapshot, query('', [{ field: 'criteria', values: ['all'], negate: false }])))).toEqual(['story:1']);
-    expect(ids(search(snapshot, query('', [{ field: 'criteria', values: ['none'], negate: false }])))).toEqual(['story:3', 'story:12']);
-  });
-
-  it('restricts the text to the chosen fields with "Search in"', () => {
-    const titleOnly: Filter = { field: 'scope', values: ['title'], negate: false };
-    expect(ids(search(snapshot, query('offline', [titleOnly])))).toEqual([]);
-    const criteriaOnly: Filter = { field: 'scope', values: ['criteria'], negate: false };
-    expect(ids(search(snapshot, query('offline', [criteriaOnly])))).toEqual(['story:2']);
-  });
-
-  it('lists the ids of matching stories for highlighting', () => {
-    expect(matchingStoryIds(snapshot, query('storage'))).toEqual(new Set(['12']));
+    expect(ids(search(snapshot, query('stor', [{ field: 'type', value: 'epic' }])))).toEqual(['epic:e2']);
+    expect(ids(search(snapshot, query('', [{ field: 'points', value: '5' }])))).toEqual(['story:2']);
+    expect(ids(search(snapshot, query('', [{ field: 'criteria', value: 'all' }])))).toEqual(['story:1']);
+    expect(ids(search(snapshot, query('', [{ field: 'criteria', value: 'none' }])))).toEqual(['story:3', 'story:12']);
   });
 });
 
-describe('chips', () => {
-  it('adds a value to the chip of its field', () => {
-    const one = addFilterValue([], 'status', 'review');
-    const two = addFilterValue(one, 'status', 'done');
-    expect(two).toEqual([{ field: 'status', values: ['review', 'done'], negate: false }]);
-    expect(addFilterValue(two, 'status', 'done')).toEqual(two);
+describe('badges', () => {
+  it('keeps one filter per field, replacing its value in place', () => {
+    const filters = setFilter(setFilter([], { field: 'epic', value: 'e1' }), { field: 'status', value: 'todo' });
+    expect(setFilter(filters, { field: 'epic', value: 'e2' })).toEqual([
+      { field: 'epic', value: 'e2' },
+      { field: 'status', value: 'todo' }
+    ]);
+    expect(removeFilter(filters, 'status')).toEqual([{ field: 'epic', value: 'e1' }]);
   });
 
-  it('sets and removes a chip, keeping its place', () => {
-    const filters = setFilter(setFilter([], 'epic', ['e1'], false), 'status', ['todo'], false);
-    expect(setFilter(filters, 'epic', ['e2'], true).map((filter) => filter.field)).toEqual(['epic', 'status']);
-    expect(setFilter(filters, 'epic', [], false).map((filter) => filter.field)).toEqual(['status']);
-    expect(removeFilter(filters, 'status').map((filter) => filter.field)).toEqual(['epic']);
-  });
-
-  it('never negates "Search in"', () => {
-    expect(setFilter([], 'scope', ['title'], true)[0].negate).toBe(false);
-  });
-
-  it('counts results per value with the other chips and the text applied', () => {
-    const counts = valueCounts(snapshot, query('', [{ field: 'epic', values: ['e2'], negate: false }]), 'status');
-    expect(Object.fromEntries(counts)).toEqual({ todo: 0, in_progress: 1, review: 0, done: 1 });
-  });
-
-  it('suggests a filter when the text is the name of a value', () => {
-    const labels = [
-      { field: 'status' as const, value: 'review', label: 'Review' },
-      { field: 'epic' as const, value: 'e1', label: 'Boards' },
-      { field: 'epic' as const, value: 'e2', label: 'Local storage' }
-    ];
-    expect(suggestFilters('review', [], labels)).toEqual([labels[0]]);
-    expect(suggestFilters('loc', [], labels)).toEqual([labels[2]]);
-    expect(suggestFilters('lo', [], labels)).toEqual([]);
-    expect(suggestFilters('review', [{ field: 'status', values: ['review'], negate: false }], labels)).toEqual([]);
-  });
-
-  it('tells which chip to drop when nothing is found', () => {
+  it('tells which filter to drop when nothing is found', () => {
     const filters: Filter[] = [
-      { field: 'status', values: ['done'], negate: false },
-      { field: 'epic', values: ['e1'], negate: false }
+      { field: 'status', value: 'done' },
+      { field: 'epic', value: 'e1' }
     ];
     expect(relaxations(snapshot, query('storage', filters))).toEqual([{ field: 'epic', count: 1 }]);
   });
 
-  it('compares queries regardless of case, spaces and value order', () => {
-    const a = query(' Login  error ', [{ field: 'status', values: ['todo', 'done'], negate: false }]);
-    const b = query('login error', [{ field: 'status', values: ['done', 'todo'], negate: false }]);
+  it('compares queries regardless of case, spaces and filter order', () => {
+    const a = query(' Login  error ', [{ field: 'status', value: 'todo' }, { field: 'epic', value: 'e1' }]);
+    const b = query('login error', [{ field: 'epic', value: 'e1' }, { field: 'status', value: 'todo' }]);
     expect(sameQuery(a, b)).toBe(true);
     expect(sameQuery(a, query('login error'))).toBe(false);
+  });
+});
+
+describe('typed field filters', () => {
+  const catalog: FieldEntry[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      aliases: ['status'],
+      values: [
+        { value: 'todo', label: 'Offen', aliases: ['To do'] },
+        { value: 'in_progress', label: 'In Arbeit', aliases: ['In progress'] },
+        { value: 'review', label: 'Review' }
+      ],
+      freeValue: false
+    },
+    { key: 'points', label: 'Punkte', aliases: ['points'], values: [{ value: '3', label: '3' }, { value: '5', label: '5' }], freeValue: false },
+    { key: 'epic', label: 'Epic', aliases: ['epic'], values: [{ value: 'e2', label: 'Local storage' }], freeValue: false },
+    { key: customFieldKey('f-risk'), label: 'Business value', aliases: [], values: [], freeValue: true }
+  ];
+
+  it('splits text into words, keeping quoted parts together', () => {
+    expect(tokenize('epic:"local storage" export').map((token) => token.raw)).toEqual(['epic:"local storage"', 'export']);
+    expect(splitFieldToken('epic:"local storage"')).toEqual({ name: 'epic', value: 'local storage' });
+    expect(splitFieldToken('points=5')).toEqual({ name: 'points', value: '5' });
+    expect(splitFieldToken('"business value":high')).toEqual({ name: 'business value', value: 'high' });
+    expect(splitFieldToken('login')).toBeNull();
+  });
+
+  it('suggests fields for the start of their name, in the UI language or English', () => {
+    expect(matchFields('Punk', catalog).map((entry) => entry.key)).toEqual(['points']);
+    expect(matchFields('poi', catalog).map((entry) => entry.key)).toEqual(['points']);
+    expect(resolveField('stat', catalog)?.key).toBe('status');
+    expect(resolveField('x', catalog)).toBeNull();
+  });
+
+  it('resolves values by name or unique start; free fields take any text', () => {
+    const status = catalog[0];
+    expect(resolveValue('offen', status)).toBe('todo');
+    expect(resolveValue('in prog', status)).toBe('in_progress');
+    expect(resolveValue('re', status)).toBe('review');
+    expect(resolveValue('xyz', status)).toBeNull();
+    expect(resolveValue('high', catalog[3])).toBe('high');
+  });
+
+  it('reads filters from the text and leaves the free text', () => {
+    const parsed = parseQueryText('punkte:5 export epic:"local storage"', catalog);
+    expect(parsed.text).toBe('export');
+    expect(parsed.filters).toEqual([
+      { field: 'points', value: '5' },
+      { field: 'epic', value: 'e2' }
+    ]);
+    expect(parsed.problems).toEqual([]);
+  });
+
+  it('keeps the last value when a field is typed twice', () => {
+    expect(parseQueryText('status:offen status=review', catalog).filters).toEqual([{ field: 'status', value: 'review' }]);
+  });
+
+  it('reports unknown fields and values and leaves them out, but ignores words still being typed', () => {
+    const parsed = parseQueryText('farbe:rot status:xyz @pu punkte: login', catalog);
+    expect(parsed.text).toBe('login');
+    expect(parsed.filters).toEqual([]);
+    expect(parsed.problems.map((problem) => problem.kind)).toEqual(['field', 'value']);
+  });
+
+  it('lets a typed filter replace the badge of the same field', () => {
+    const { query: effective } = effectiveQuery(query('status:review data', [{ field: 'status', value: 'todo' }, { field: 'points', value: '3' }]), catalog);
+    expect(effective).toEqual({
+      text: 'data',
+      filters: [
+        { field: 'status', value: 'review' },
+        { field: 'points', value: '3' }
+      ]
+    });
+  });
+
+  it('writes field names to insert in lower case, quoted when they have spaces', () => {
+    expect(fieldToken(catalog[1])).toBe('punkte:');
+    expect(fieldToken(catalog[3])).toBe('"business value":');
   });
 });
 
@@ -259,9 +303,10 @@ describe('current page', () => {
   const page = { story: new Set(['3']), epic: new Set<string>(), sprint: new Set(['s1']) };
 
   it('puts results on the page first within their group', () => {
-    const results = search(snapshot, query('', [{ field: 'points', values: ['1', '3', '5'], negate: false }]));
-    expect(ids(results)).toEqual(['story:1', 'story:2', 'story:3', 'story:12']);
-    expect(ids(arrangeForPage(results, page, false))).toEqual(['story:3', 'story:1', 'story:2', 'story:12']);
+    const results = search(snapshot, query('', [{ field: 'sprint', value: 's1' }]));
+    expect(ids(results)).toEqual(['story:1', 'story:2', 'sprint:s1']);
+    const onPage = { ...page, story: new Set(['2']) };
+    expect(ids(arrangeForPage(results, onPage, false))).toEqual(['story:2', 'story:1', 'sprint:s1']);
   });
 
   it('keeps only results on the page when asked', () => {
@@ -306,9 +351,17 @@ describe('custom fields', () => {
     expect(ids(search(withFields, query('o-must')))).toEqual([]);
   });
 
-  it('does not search checkboxes and leaves custom fields out when only titles are searched', () => {
+  it('does not search checkboxes as text', () => {
     expect(ids(search(withFields, query('true')))).toEqual([]);
-    expect(ids(search(withFields, query('vendor', [{ field: 'scope', values: ['title'], negate: false }])))).toEqual([]);
+  });
+
+  it('filters by custom fields: option, yes or no, contained text', () => {
+    expect(ids(search(withFields, query('', [{ field: customFieldKey('f-prio'), value: 'o-must' }])))).toEqual(['story:3']);
+    expect(ids(search(withFields, query('', [{ field: customFieldKey('f-done'), value: 'true' }])))).toEqual(['story:3']);
+    expect(ids(search(withFields, query('', [{ field: customFieldKey('f-done'), value: 'false' }]))).length).toBe(3);
+    expect(ids(search(withFields, query('', [{ field: customFieldKey('f-risk'), value: 'lock' }])))).toEqual(['story:3']);
+    expect(fieldValues(withFields, customFieldKey('f-prio'))).toEqual(['o-must']);
+    expect(fieldValues(withFields, customFieldKey('f-risk'))).toEqual(['Vendor lock-in']);
   });
 });
 

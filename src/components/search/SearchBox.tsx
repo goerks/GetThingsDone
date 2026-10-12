@@ -2,27 +2,34 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type R
 import { useTranslation } from 'react-i18next';
 import {
   EMPTY_QUERY,
-  addFilterValue,
+  fieldToken,
   groupResults,
   isActive,
+  isOnPage,
+  matchFields,
+  matchValues,
   relaxations,
   removeFilter,
-  suggestFilters,
+  resolveField,
+  setFilter,
+  splitFieldToken,
+  tokenize,
+  type FieldEntry,
+  type Filter,
   type FilterField,
-  type FilterSuggestion,
   type ResultKind,
-  isOnPage
+  type Token
 } from '../../domain/search';
 import type { RecentItem } from '../../domain/searchHistory';
 import { useSearch } from '../../state/Search';
-import { FieldMenu, FilterMenu } from './FilterMenu';
 import { ResultRow } from './ResultRow';
 
 /** Results shown per group before "+ n more". */
 export const GROUP_LIMIT = 5;
 
 type Entry =
-  | { key: string; type: 'suggestion'; suggestion: FilterSuggestion }
+  | { key: string; type: 'field'; entry: FieldEntry; used: boolean }
+  | { key: string; type: 'value'; entry: FieldEntry; value: string; label: string }
   | { key: string; type: 'result'; index: number }
   | { key: string; type: 'more'; kind: ResultKind; hidden: number }
   | { key: string; type: 'history'; index: number }
@@ -38,7 +45,24 @@ interface Section {
   entries: Entry[];
 }
 
-type Menu = { field: FilterField | 'more'; trigger: HTMLElement | null } | null;
+/** What the word at the cursor can be completed to: a field name, or a value of a field. */
+type Completion =
+  | { mode: 'fields'; token: Token | null; options: FieldEntry[]; explicit: boolean }
+  | { mode: 'values'; token: Token; entry: FieldEntry; options: FieldEntry['values'] }
+  | null;
+
+/** The word the cursor is in or right after. */
+function tokenAt(text: string, caret: number): Token | null {
+  return tokenize(text).find((token) => token.start <= caret && caret <= token.end) ?? null;
+}
+
+/** Text without the given range, with the spaces around it tidied up. */
+function cut(text: string, start: number, end: number): { text: string; caret: number } {
+  const before = text.slice(0, start).replace(/\s+$/, '');
+  const after = text.slice(end).replace(/^\s+/, '');
+  const joined = before && after ? `${before} ${after}` : `${before}${after}`;
+  return { text: joined, caret: before.length + (before && after ? 1 : 0) };
+}
 
 const isMac = (): boolean => typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
 
@@ -53,10 +77,33 @@ export function SearchBox() {
   const wrapper = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<ResultKind>>(new Set());
-  const [menu, setMenu] = useState<Menu>(null);
-  const [markedChip, setMarkedChip] = useState<number | null>(null);
-  const { query, results, history, snapshot, labels, open, page, scope } = search;
-  const searching = isActive(query);
+  const [caret, setCaret] = useState(0);
+  // Ctrl+Space asks for the field list for the word at the cursor.
+  const [forceFields, setForceFields] = useState(false);
+  const pendingCaret = useRef<number | null>(null);
+  const { query, results, history, snapshot, labels, open, page, scope, effective, parsed } = search;
+  const searching = isActive(effective) || query.text.trim() !== '';
+  const usedFields = new Set(effective.filters.map((filter) => filter.field));
+
+  const completion = useMemo<Completion>(() => {
+    const token = tokenAt(query.text, caret);
+    if (token?.raw.startsWith('@')) {
+      const typed = token.raw.slice(1);
+      return { mode: 'fields', token, options: typed ? matchFields(typed, labels.catalog) : labels.catalog, explicit: true };
+    }
+    const parts = token ? splitFieldToken(token.raw) : null;
+    if (token && parts) {
+      const entry = resolveField(parts.name, labels.catalog);
+      return entry ? { mode: 'values', token, entry, options: matchValues(parts.value, entry) } : null;
+    }
+    if (forceFields)
+      return { mode: 'fields', token, options: token ? matchFields(token.raw, labels.catalog) : labels.catalog, explicit: true };
+    if (token && token.raw.length >= 2) {
+      const options = matchFields(token.raw, labels.catalog);
+      if (options.length > 0) return { mode: 'fields', token, options, explicit: false };
+    }
+    return null;
+  }, [query.text, caret, forceFields, labels.catalog]);
   const listboxId = `${uid}-listbox`;
   const optionId = (key: string): string => `${uid}-option-${key.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 
@@ -69,7 +116,7 @@ export function SearchBox() {
   );
 
   const sections = useMemo<Section[]>(() => {
-    if (!searching) {
+    if (!searching && !completion) {
       const list: Section[] = [];
       if (history.searches.length > 0)
         list.push({
@@ -86,15 +133,27 @@ export function SearchBox() {
       return list;
     }
     const list: Section[] = [];
-    const suggestions = suggestFilters(query.text, query.filters, labels.suggestions);
-    if (suggestions.length > 0)
+    if (completion?.mode === 'fields' && completion.options.length > 0)
       list.push({
-        id: 'suggestions',
-        label: t('search.useAsFilter'),
-        entries: suggestions.map((suggestion) => ({
-          key: `suggestion:${suggestion.field}:${suggestion.value}`,
-          type: 'suggestion',
-          suggestion
+        id: 'fields',
+        label: t('search.fieldsGroup'),
+        entries: completion.options.map((entry) => ({
+          key: `field:${entry.key}`,
+          type: 'field',
+          entry,
+          used: usedFields.has(entry.key) && !(completion.token && splitFieldToken(completion.token.raw))
+        }))
+      });
+    if (completion?.mode === 'values' && completion.options.length > 0)
+      list.push({
+        id: 'values',
+        label: completion.entry.label,
+        entries: completion.options.map((option) => ({
+          key: `value:${completion.entry.key}:${option.value}`,
+          type: 'value',
+          entry: completion.entry,
+          value: option.value,
+          label: option.label
         }))
       });
     for (const group of groupResults(results)) {
@@ -108,10 +167,10 @@ export function SearchBox() {
         entries.push({ key: `more:${group.kind}`, type: 'more', kind: group.kind, hidden: group.results.length - limit });
       list.push({ id: group.kind, label: t(`search.group.${group.kind}`), count: group.results.length, entries });
     }
-    if (results.length === 0) {
+    if (results.length === 0 && isActive(effective)) {
       const elsewhere = search.allResults.length;
       const entries: Entry[] = elsewhere > 0 ? [{ key: 'widen', type: 'widen', count: elsewhere }] : [];
-      entries.push(...relaxations(snapshot, query).map((item) => ({
+      entries.push(...relaxations(snapshot, effective).map((item) => ({
         key: `relax:${item.field}`,
         type: 'relax',
         field: item.field,
@@ -123,7 +182,7 @@ export function SearchBox() {
     return list;
     // `recent` is derived from history and snapshot, which are listed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searching, history, snapshot, query, results, search.allResults, expanded, labels, t]);
+  }, [searching, completion, history, snapshot, query, effective, results, search.allResults, expanded, labels, t]);
 
   const entries = useMemo(() => sections.flatMap((section) => section.entries), [sections]);
   const activeEntry = entries.find((entry) => entry.key === active) ?? null;
@@ -132,8 +191,13 @@ export function SearchBox() {
   useEffect(() => {
     if (active && entries.some((entry) => entry.key === active)) return;
     const back = search.returnKey && entries.find((entry) => entry.key === search.returnKey);
-    // Results come first; without results a filter suggestion is the most likely next step.
-    const first = entries.find((entry) => entry.type === 'result' || entry.type === 'history' || entry.type === 'recent') ?? entries[0];
+    // Asked for fields (@, Ctrl+Space) or typing a value: the first suggestion. Otherwise results come first.
+    const explicit = completion?.mode === 'values' || (completion?.mode === 'fields' && completion.explicit);
+    const suggestion = entries.find((entry) => entry.type === 'value' || (entry.type === 'field' && !entry.used));
+    const first =
+      (explicit ? suggestion : undefined) ??
+      entries.find((entry) => entry.type === 'result' || entry.type === 'history' || entry.type === 'recent') ??
+      entries[0];
     setActive((back || first)?.key ?? null);
     // Only a change of the entries needs a new choice.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,7 +216,6 @@ export function SearchBox() {
     const onPointerDown = (event: MouseEvent): void => {
       if (!wrapper.current?.contains(event.target as Node)) {
         search.setOpen(false);
-        setMenu(null);
       }
     };
     document.addEventListener('mousedown', onPointerDown);
@@ -166,11 +229,44 @@ export function SearchBox() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, open]);
 
-  const setQuery = (next: typeof query): void => {
+  // Put the cursor where an edit of the text wants it, once the new text is rendered.
+  useEffect(() => {
+    const input = search.inputRef.current;
+    if (pendingCaret.current === null || !input) return;
+    input.setSelectionRange(pendingCaret.current, pendingCaret.current);
+    setCaret(pendingCaret.current);
+    pendingCaret.current = null;
+  });
+
+  const setQuery = (next: typeof query, nextCaret?: number): void => {
     search.setQuery(next);
     setExpanded(new Set());
-    setMarkedChip(null);
+    setForceFields(false);
+    if (nextCaret !== undefined) pendingCaret.current = nextCaret;
     search.setOpen(true);
+  };
+
+  /** Replaces the word at the cursor (or inserts at the cursor) and puts the cursor behind the new text. */
+  const replaceToken = (token: Token | null, insert: string): void => {
+    const start = token ? token.start : caret;
+    const end = token ? token.end : caret;
+    const text = query.text.slice(0, start) + insert + query.text.slice(end);
+    setQuery({ ...query, text }, start + insert.length);
+  };
+
+  /** Turns a typed filter into a badge: the word leaves the text, the badge replaces one of the same field. */
+  const toBadge = (token: Token, filter: Filter): void => {
+    const rest = cut(query.text, token.start, token.end);
+    setQuery({ text: rest.text, filters: setFilter(query.filters, filter) }, rest.caret);
+  };
+
+  /** Removes a filter, as badge and as typed text. */
+  const dropFilter = (field: FilterField): void => {
+    let text = query.text;
+    for (const item of [...parsed.resolved].reverse()) {
+      if (item.filter.field === field) text = cut(text, item.token.start, item.token.end).text;
+    }
+    setQuery({ text, filters: removeFilter(query.filters, field) }, text.length);
   };
 
   const focusInput = (): void => {
@@ -181,8 +277,13 @@ export function SearchBox() {
 
   const activate = (entry: Entry): void => {
     switch (entry.type) {
-      case 'suggestion':
-        setQuery({ text: '', filters: addFilterValue(query.filters, entry.suggestion.field, entry.suggestion.value) });
+      case 'field':
+        if (entry.used) return;
+        replaceToken(completion?.token ?? null, fieldToken(entry.entry));
+        focusInput();
+        return;
+      case 'value':
+        if (completion?.mode === 'values') toBadge(completion.token, { field: entry.entry.key, value: entry.value });
         focusInput();
         return;
       case 'result':
@@ -207,7 +308,7 @@ export function SearchBox() {
         search.openRecent(entry.item);
         return;
       case 'relax':
-        setQuery({ ...query, filters: removeFilter(query.filters, entry.field) });
+        dropFilter(entry.field);
         focusInput();
         return;
       case 'reset':
@@ -246,18 +347,36 @@ export function SearchBox() {
       if (open && activeEntry) activate(activeEntry);
       return;
     }
-    if (event.key === 'Tab' && !event.shiftKey && open) {
+    if (event.key === ' ' && event.ctrlKey) {
+      event.preventDefault();
+      setForceFields(true);
+      search.setOpen(true);
+      return;
+    }
+    if (event.key === 'Tab' && !event.shiftKey && open && completion) {
       const suggestion =
-        activeEntry?.type === 'suggestion' ? activeEntry : entries.find((entry) => entry.type === 'suggestion');
+        activeEntry?.type === 'field' || activeEntry?.type === 'value'
+          ? activeEntry
+          : entries.find((entry) => entry.type === 'value' || (entry.type === 'field' && !entry.used));
       if (suggestion) {
         event.preventDefault();
         activate(suggestion);
       }
       return;
     }
+    if (event.key === ' ' && !event.ctrlKey) {
+      // A finished field:value becomes a badge when the next word starts.
+      const token = tokenAt(query.text, input.selectionStart ?? caret);
+      const done = token && (token.raw.match(/"/g)?.length ?? 0) % 2 === 0 && parsed.resolved.find((item) => item.token.start === token.start);
+      if (token && done && input.selectionStart === token.end) {
+        event.preventDefault();
+        toBadge(token, done.filter);
+      }
+      return;
+    }
     if (event.key === 'Escape') {
       event.preventDefault();
-      if (menu) setMenu(null);
+      if (forceFields) setForceFields(false);
       else if (open) search.setOpen(false);
       else input.blur();
       return;
@@ -272,34 +391,11 @@ export function SearchBox() {
       }
       return;
     }
-    if ((event.key === 'Backspace' || event.key === 'ArrowLeft') && atStart && query.filters.length > 0) {
-      const last = query.filters.length - 1;
-      if (event.key === 'Backspace' && markedChip !== null) {
-        event.preventDefault();
-        setQuery({ ...query, filters: query.filters.filter((_, index) => index !== markedChip) });
-        return;
-      }
-      if (event.key === 'Backspace' || markedChip === null) {
-        event.preventDefault();
-        setMarkedChip(markedChip === null ? last : Math.max(0, markedChip - 1));
-        return;
-      }
+    if (event.key === 'Backspace' && atStart && query.filters.length > 0) {
+      // One Backspace right after the badges removes the last badge completely.
       event.preventDefault();
-      setMarkedChip(Math.max(0, markedChip - 1));
-      return;
+      setQuery({ ...query, filters: query.filters.slice(0, -1) }, 0);
     }
-    if (markedChip !== null) setMarkedChip(null);
-  };
-
-  const openMenu = (field: FilterField | 'more', trigger: HTMLElement | null): void => {
-    setMenu((current) => (current?.field === field ? null : { field, trigger }));
-  };
-
-  const closeMenu = (toInput: boolean): void => {
-    const trigger = menu?.trigger;
-    setMenu(null);
-    if (toInput || !trigger?.isConnected) focusInput();
-    else trigger.focus();
   };
 
   const renderEntry = (entry: Entry): ReactNode => {
@@ -313,16 +409,30 @@ export function SearchBox() {
       onClick: () => activate(entry)
     };
     switch (entry.type) {
-      case 'suggestion':
+      case 'field':
+        return (
+          <li key={entry.key} {...common} aria-disabled={entry.used || undefined}>
+            <span className="result__icon result__icon--accent" aria-hidden="true">
+              @
+            </span>
+            <span className="result__main">
+              <span className="result__title">{entry.entry.label}</span>
+            </span>
+            {entry.used ? (
+              <span className="result__kind">{t('search.fieldUsed')}</span>
+            ) : (
+              <span className="search-option__syntax">{fieldToken(entry.entry)}</span>
+            )}
+          </li>
+        );
+      case 'value':
         return (
           <li key={entry.key} {...common}>
             <span className="result__icon result__icon--accent" aria-hidden="true">
-              ⇥
+              =
             </span>
             <span className="result__main">
-              <span className="result__title">
-                {labels.field(entry.suggestion.field)} = <strong>{entry.suggestion.label}</strong>
-              </span>
+              <span className="result__title">{entry.label}</span>
             </span>
             <kbd aria-hidden="true">Tab</kbd>
           </li>
@@ -352,8 +462,8 @@ export function SearchBox() {
               <span className="result__title search-option__history">
                 {item.text.trim() && <span>{item.text.trim()}</span>}
                 {item.filters.map((filter) => (
-                  <span key={filter.field} className={`search-chip search-chip--static${filter.negate ? ' search-chip--not' : ''}`}>
-                    {labels.chip(filter)}
+                  <span key={filter.field} className="search-chip search-chip--static">
+                    {labels.badge(filter)}
                   </span>
                 ))}
               </span>
@@ -398,11 +508,11 @@ export function SearchBox() {
         );
       }
       case 'relax': {
-        const filter = query.filters.find((item) => item.field === entry.field);
+        const filter = effective.filters.find((item) => item.field === entry.field);
         return (
           <li key={entry.key} {...common}>
             <span className="search-option__action">
-              {t('search.withoutFilter', { filter: filter ? labels.chip(filter) : labels.field(entry.field) })}
+              {t('search.withoutFilter', { filter: filter ? labels.badge(filter) : labels.field(entry.field) })}
             </span>
             <span className="pill">{t('search.resultCount', { count: entry.count })}</span>
           </li>
@@ -442,7 +552,6 @@ export function SearchBox() {
         const next = event.relatedTarget as Node | null;
         if (next && !wrapper.current?.contains(next)) {
           search.setOpen(false);
-          setMenu(null);
         }
       }}
     >
@@ -451,28 +560,18 @@ export function SearchBox() {
           <circle cx="11" cy="11" r="7" />
           <path d="M20 20l-3.5-3.5" />
         </svg>
-        {query.filters.map((filter, index) => (
-          <span
-            key={filter.field}
-            className={`search-chip${filter.negate ? ' search-chip--not' : ''}${markedChip === index ? ' search-chip--marked' : ''}`}
-          >
-            <button
-              type="button"
-              className="search-chip__label"
-              aria-label={t('search.editFilter', { filter: labels.chip(filter) })}
-              onClick={(event) => {
-                event.stopPropagation();
-                search.setOpen(true);
-                openMenu(filter.field, event.currentTarget);
-              }}
-            >
-              {labels.chip(filter)}
-            </button>
+        {query.filters.map((filter) => (
+          <span key={filter.field} className="search-chip">
+            <span className="search-chip__field">{labels.field(filter.field)}</span>
+            <span className="search-chip__op" aria-hidden="true">
+              =
+            </span>
+            <span className="search-chip__value">{labels.value(filter.field, filter.value)}</span>
             <button
               type="button"
               className="search-chip__remove"
-              aria-label={t('search.removeFilter', { filter: labels.chip(filter) })}
-              title={t('search.removeFilter', { filter: labels.chip(filter) })}
+              aria-label={t('search.removeFilter', { filter: labels.badge(filter) })}
+              title={t('search.removeFilter', { filter: labels.badge(filter) })}
               onClick={(event) => {
                 event.stopPropagation();
                 setQuery({ ...query, filters: removeFilter(query.filters, filter.field) });
@@ -499,7 +598,11 @@ export function SearchBox() {
           spellCheck={false}
           autoComplete="off"
           onFocus={() => search.setOpen(true)}
-          onChange={(event) => setQuery({ ...query, text: event.target.value })}
+          onChange={(event) => {
+            setCaret(event.target.selectionStart ?? event.target.value.length);
+            setQuery({ ...query, text: event.target.value });
+          }}
+          onSelect={(event) => setCaret(event.currentTarget.selectionStart ?? 0)}
           onKeyDown={onInputKeyDown}
         />
         {hasContent ? (
@@ -527,30 +630,17 @@ export function SearchBox() {
 
       {open && (
         <div className="search__dropdown">
-          <div className="search__filters" role="toolbar" aria-label={t('search.filters')}>
-            {(['status', 'epic', 'sprint'] as const).map((field) => {
-              const used = query.filters.some((filter) => filter.field === field);
-              return (
-                <button
-                  key={field}
-                  type="button"
-                  className={`filter-button${used ? ' filter-button--used' : ''}`}
-                  aria-expanded={menu?.field === field}
-                  onClick={(event) => openMenu(field, event.currentTarget)}
-                >
-                  {labels.field(field)} <span aria-hidden="true">▾</span>
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              className="filter-button filter-button--more"
-              aria-expanded={menu?.field === 'more'}
-              onClick={(event) => openMenu('more', event.currentTarget)}
-            >
-              + {t('search.moreFilters')}
-            </button>
-          </div>
+          {parsed.problems.length > 0 && (
+            <div className="search__problems" role="note">
+              {parsed.problems.map((problem, index) => (
+                <p key={index}>
+                  {problem.kind === 'field'
+                    ? t('search.problemField', { name: problem.name })
+                    : t('search.problemValue', { value: problem.value, field: problem.field.label })}
+                </p>
+              ))}
+            </div>
+          )}
 
           {page && (
             <fieldset className="segmented search__scope">
@@ -565,11 +655,6 @@ export function SearchBox() {
               </label>
             </fieldset>
           )}
-
-          {menu?.field === 'more' && (
-            <FieldMenu onPick={(field) => setMenu({ field, trigger: menu.trigger })} onClose={() => closeMenu(false)} />
-          )}
-          {menu && menu.field !== 'more' && <FilterMenu key={menu.field} field={menu.field} onClose={closeMenu} />}
 
           <ul id={listboxId} className="search__list" role="listbox" aria-label={t('search.results')}>
             {sections.map((section) => (
@@ -597,6 +682,9 @@ export function SearchBox() {
             </span>
             <span aria-hidden="true">
               <kbd>Enter</kbd> {t('search.keys.open')}
+            </span>
+            <span aria-hidden="true">
+              <kbd>@</kbd> {t('search.keys.fields')}
             </span>
             <span aria-hidden="true">
               <kbd>Esc</kbd> {t('search.keys.close')}

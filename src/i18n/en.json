@@ -304,10 +304,9 @@
   },
   "search": {
     "label": "Search",
-    "placeholder": "Search or filter…",
-    "placeholderMore": "Type more or filter…",
+    "placeholder": "Search… (@ for fields)",
+    "placeholderMore": "More text or @ for fields…",
     "clear": "Clear search",
-    "filters": "Filters",
     "results": "Search results",
     "field": {
       "status": "Status",
@@ -315,8 +314,7 @@
       "sprint": "Sprint",
       "type": "Type",
       "points": "Points",
-      "criteria": "Criteria",
-      "scope": "Search in"
+      "criteria": "Criteria"
     },
     "kind": {
       "story": "Story",
@@ -343,14 +341,6 @@
       "open": "Open criteria",
       "none": "No criteria"
     },
-    "scope": {
-      "title": "Key and title",
-      "description": "Description",
-      "criteria": "Acceptance criteria"
-    },
-    "or": "or",
-    "chip": "{{field}}: {{values}}",
-    "chipNot": "{{field}} is not {{values}}",
     "criteriaCount": "{{done}}/{{total}} criteria",
     "foundIn": {
       "description": "Description",
@@ -358,20 +348,11 @@
     },
     "storiesAndPoints_one": "{{count}} story · {{points}} points",
     "storiesAndPoints_other": "{{count}} stories · {{points}} points",
-    "menuLabel": "Filter: {{field}}",
-    "matchLabel": "Match",
-    "is": "is",
-    "isNot": "is not",
-    "narrow": "Find {{field}}…",
     "resultCount_one": "{{count}} result",
     "resultCount_other": "{{count}} results",
     "removeFilter": "Remove filter {{filter}}",
-    "editFilter": "Change filter {{filter}}",
-    "done": "Done",
-    "moreFilters": "Filter",
     "recentSearches": "Recent searches",
     "recentlyOpened": "Recently opened",
-    "useAsFilter": "Use as filter",
     "noResults": "No results",
     "noResultsStatus": "No results. You can drop a filter or start over.",
     "forget": "Remove from history",
@@ -381,7 +362,8 @@
     "keys": {
       "move": "move",
       "open": "open",
-      "close": "close"
+      "close": "close",
+      "fields": "fields"
     },
     "clearHistory": "Clear history",
     "highlightSummary_one": "{{matches}} of {{count}} story here matches",
@@ -398,6 +380,13 @@
     "onlyPage": "Only {{page}}",
     "scopeLabel": "Search where",
     "searchEverywhere": "Show results from everywhere",
-    "showOnPage": "Show on {{page}}"
+    "showOnPage": "Show on {{page}}",
+    "badge": "{{field}} = {{value}}",
+    "fieldsGroup": "Fields",
+    "fieldUsed": "already set",
+    "problemField": "There is no field “{{name}}”. Type @ to see the fields.",
+    "problemValue": "“{{value}}” is not a value of {{field}}.",
+    "yes": "yes",
+    "no": "no"
   }
 }

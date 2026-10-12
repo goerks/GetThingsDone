@@ -18,15 +18,13 @@ describe('search history', () => {
     expect(history.searches.map((query) => query.text)).toEqual(['Login', 'export']);
   });
 
-  it('keeps chips without values out of a remembered search', () => {
-    const history = rememberSearch(EMPTY_HISTORY, {
-      text: '',
-      filters: [
-        { field: 'status', values: ['done'], negate: false },
-        { field: 'epic', values: [], negate: false }
-      ]
-    });
-    expect(history.searches[0].filters).toEqual([{ field: 'status', values: ['done'], negate: false }]);
+  it('remembers the filters of a search', () => {
+    const history = rememberSearch(EMPTY_HISTORY, { text: '', filters: [{ field: 'status', value: 'done' }] });
+    expect(history.searches[0].filters).toEqual([{ field: 'status', value: 'done' }]);
+  });
+
+  it('drops searches stored with the earlier filter format', () => {
+    expect(parseHistory({ searches: [{ text: 'x', filters: [{ field: 'status', values: ['done'], negate: false }] }], opened: [] }).searches).toEqual([]);
   });
 
   it(`keeps at most ${HISTORY_LIMIT} searches and opened items`, () => {
