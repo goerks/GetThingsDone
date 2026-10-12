@@ -8,7 +8,7 @@ import type { CustomDataType, FieldDefinition } from '../domain/types';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -466,5 +466,50 @@ describe('SqliteRepository', () => {
     const { db, repository } = await freshRepository();
     await repository.deleteStory('story-1');
     expect(db.prepare("SELECT COUNT(*) AS count FROM field_values WHERE item_id = 'story-1'").get()).toEqual({ count: 0 });
+  });
+});
+
+describe('history of releases', () => {
+  it('migration 009 keeps the releases and stories and starts without a history', () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 8));
+    db.exec("INSERT INTO releases (id, title, description) VALUES ('r1', 'One', '')");
+    db.exec("INSERT INTO stories (id, code, title, description, points, status, rank, release_id) VALUES ('s1', 'S-1', 'A', '', 3, 'todo', 0, 'r1')");
+    migrate(db, MIGRATIONS.slice(8));
+    expect(db.prepare('SELECT release_id FROM stories').all()).toEqual([{ release_id: 'r1' }]);
+    expect(db.prepare('SELECT COUNT(*) AS count FROM release_events').get()).toEqual({ count: 0 });
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  });
+
+  it('stores the demo history and returns it in order', async () => {
+    const { repository } = await freshRepository();
+    const events = (await repository.load()).events;
+    expect(events.filter((event) => event.releaseId === 'release-beta')).toHaveLength(10);
+    expect(events.map((event) => event.at)).toEqual([...events.map((event) => event.at)].sort());
+    expect(events.find((event) => event.id === 'event-demo-7')).toMatchObject({ kind: 'done', storyId: 'story-5', code: 'S-5', points: 3, done: true });
+  });
+
+  it('appends entries and keeps one for a story that no longer exists', async () => {
+    const { repository } = await freshRepository();
+    await repository.addReleaseEvents([
+      { id: 'e1', at: '2099-01-01T10:00:00.000Z', releaseId: 'release-map', storyId: 'gone', code: 'S-99', kind: 'removed', points: 5, done: false }
+    ]);
+    const added = (await repository.load()).events.find((event) => event.id === 'e1');
+    expect(added).toMatchObject({ storyId: 'gone', code: 'S-99', done: false });
+  });
+
+  it('deletes the history of a release with the release', async () => {
+    const { db, repository } = await freshRepository();
+    await repository.deleteRelease('release-beta');
+    expect((await repository.load()).events.every((event) => event.releaseId !== 'release-beta')).toBe(true);
+    expect(db.prepare("SELECT COUNT(*) AS count FROM release_events WHERE release_id = 'release-beta'").get()).toEqual({ count: 0 });
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  });
+
+  it('refuses an entry for a release that does not exist', async () => {
+    const { repository } = await freshRepository();
+    await expect(
+      repository.addReleaseEvents([{ id: 'e2', at: '2099-01-01T10:00:00.000Z', releaseId: 'nope', storyId: 's', code: 'S-1', kind: 'added', points: 1, done: false }])
+    ).rejects.toThrow();
   });
 });

@@ -469,7 +469,8 @@
     "tabs": {
       "label": "Viste della release",
       "details": "Dettagli",
-      "stories": "Storie ({{count}})"
+      "stories": "Storie ({{count}})",
+      "scope": "Ambito"
     },
     "edit": "Modifica release",
     "close": "Chiudi",
@@ -513,6 +514,50 @@
       "more_one": "Ancora {{count}}. Continua a digitare per restringere l'elenco.",
       "more_other": "Ancora {{count}}. Continua a digitare per restringere l'elenco.",
       "added": "{{code}} è stata aggiunta alla release."
+    },
+    "sinceStart": "Ambito dall'inizio",
+    "sinceNone": "±0",
+    "scope": {
+      "unit": {
+        "label": "Unità",
+        "points": "Punti",
+        "tickets": "Ticket"
+      },
+      "unitShort": {
+        "points": "pt"
+      },
+      "recordedSince": "Registrato dal {{date}}. Del periodo precedente non si sa nulla.",
+      "empty": "Ancora nessuna cronologia. Le modifiche alle storie di questa release vengono registrate da ora.",
+      "tooFew": "Il grafico richiede almeno due giorni di cronologia.",
+      "kpi": {
+        "start": "Ambito all'inizio",
+        "increase": "Aumento",
+        "decrease": "Diminuzione",
+        "now": "Ambito attuale"
+      },
+      "legend": {
+        "scope": "Ambito",
+        "done": "Completato",
+        "increase": "Aumento",
+        "decrease": "Diminuzione"
+      },
+      "chartLabel": "Ambito in {{unit}}: {{start}} all'inizio, {{now}} ora, {{done}} completato",
+      "showTable": "Mostra come tabella",
+      "table": {
+        "date": "Data",
+        "scope": "Ambito",
+        "done": "Completato",
+        "change": "Modifica"
+      },
+      "changes": "Modifiche dell'ambito",
+      "noChanges": "Nessuna modifica dell'ambito dall'inizio.",
+      "story": "Storia",
+      "deletedStory": "(storia eliminata)",
+      "change": {
+        "added": "Aggiunta",
+        "removed": "Rimossa",
+        "points": "Punti {{from}} → {{to}} ({{diff}})"
+      }
     }
   }
 }

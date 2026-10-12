@@ -14,6 +14,7 @@ import type {
   FieldValue,
   ItemType,
   Release,
+  ReleaseEvent,
   Settings,
   Snapshot,
   Sprint,
@@ -48,6 +49,17 @@ interface ReleaseRow {
   description: string;
   start_date: string | null;
   end_date: string | null;
+}
+
+interface EventRow {
+  id: string;
+  at: string;
+  release_id: string;
+  story_id: string;
+  code: string;
+  kind: string;
+  points: number;
+  done: number;
 }
 
 interface StoryRow {
@@ -203,6 +215,19 @@ export class SqliteRepository implements Repository {
       startDate: row.start_date,
       endDate: row.end_date
     }));
+    const eventRows = await this.db.select<EventRow[]>(
+      'SELECT id, at, release_id, story_id, code, kind, points, done FROM release_events ORDER BY at, rowid'
+    );
+    const events: ReleaseEvent[] = eventRows.map((row) => ({
+      id: row.id,
+      at: row.at,
+      releaseId: row.release_id,
+      storyId: row.story_id,
+      code: row.code,
+      kind: row.kind as ReleaseEvent['kind'],
+      points: row.points,
+      done: row.done === 1
+    }));
     const releases: Release[] = releaseRows.map((row) => ({
       id: row.id,
       title: row.title,
@@ -233,7 +258,7 @@ export class SqliteRepository implements Repository {
     assignments = [...assignments, ...missing.assignments];
     const settingRows = await this.db.select<{ key: string; value: string }[]>('SELECT key, value FROM settings');
     const settings = normalizeSettings({ mapRows: settingRows.find((row) => row.key === 'map_rows')?.value });
-    return { epics, sprints, releases, stories, fields, assignments, settings };
+    return { epics, sprints, releases, events, stories, fields, assignments, settings };
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
@@ -280,6 +305,7 @@ export class SqliteRepository implements Repository {
     await this.db.execute('DELETE FROM field_definitions');
     await this.db.execute('DELETE FROM criteria');
     await this.db.execute('DELETE FROM stories');
+    await this.db.execute('DELETE FROM release_events');
     await this.db.execute('DELETE FROM releases');
     await this.db.execute('DELETE FROM sprints');
     await this.db.execute('DELETE FROM epics');
@@ -299,6 +325,7 @@ export class SqliteRepository implements Repository {
     for (const release of snapshot.releases) {
       await this.addRelease(release);
     }
+    await this.addReleaseEvents(snapshot.events);
     for (const story of snapshot.stories) {
       await this.addStory(story);
     }
@@ -417,6 +444,15 @@ export class SqliteRepository implements Repository {
     ]);
   }
 
+  async addReleaseEvents(events: readonly ReleaseEvent[]): Promise<void> {
+    for (const event of events) {
+      await this.db.execute(
+        'INSERT INTO release_events (id, at, release_id, story_id, code, kind, points, done) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+        [event.id, event.at, event.releaseId, event.storyId, event.code, event.kind, event.points, event.done ? 1 : 0]
+      );
+    }
+  }
+
   async saveSettings(settings: Settings): Promise<void> {
     await this.db.execute(
       'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = excluded.value',
@@ -446,6 +482,7 @@ export class SqliteRepository implements Repository {
 
   async deleteRelease(releaseId: string): Promise<void> {
     await this.db.execute('UPDATE stories SET release_id = NULL WHERE release_id = $1', [releaseId]);
+    await this.db.execute('DELETE FROM release_events WHERE release_id = $1', [releaseId]);
     await this.db.execute('DELETE FROM releases WHERE id = $1', [releaseId]);
   }
 

@@ -15,10 +15,12 @@
 | Repository | The storage interface of the frontend (`src/data/repository.ts`). |
 | Search badge | A field filter in the search field, typed as `field:value` and shown as `Field = value`. Each field at most once. |
 | Highlighting | Showing the results of a search on the current page: matching items marked, the others dimmed. |
+| Scope (of a release) | The number of stories and the sum of their points in the release on a day. The scope report shows how it changed after the start. |
 | Settings | Choices of the workspace that the whole team shares, for example the rows of the story map (sprints or releases). |
 | Snapshot | All epics, sprints, releases, stories, fields and assignments loaded at once. |
 | Sprint | A time box with name, start and end date. A story is planned in one sprint or in none. |
 | System field | A field the app depends on (key, title, story status, release of a story). Cannot be removed. |
+| History (of a release) | The append-only entries about the stories of a release: joined, left, points changed, done, reopened. The scope report and the burndown are computed from it. |
 | Release | A group of stories with a title, a description and optional start and end day (#10). Its size is the points of its stories; planned, running or done is derived. A story has at most one release. |
 | Running sprint | The sprint whose dates include today (otherwise the next upcoming, otherwise the last). The board shows it. |
 | Story | A unit of work with title, description, points, status and acceptance criteria. Key `S-<n>`. |

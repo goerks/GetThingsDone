@@ -469,7 +469,8 @@
     "tabs": {
       "label": "Release views",
       "details": "Details",
-      "stories": "Stories ({{count}})"
+      "stories": "Stories ({{count}})",
+      "scope": "Scope"
     },
     "edit": "Edit release",
     "close": "Close",
@@ -513,6 +514,50 @@
       "more_one": "{{count}} more. Keep typing to narrow the list.",
       "more_other": "{{count}} more. Keep typing to narrow the list.",
       "added": "{{code}} was added to the release."
+    },
+    "sinceStart": "Scope since start",
+    "sinceNone": "±0",
+    "scope": {
+      "unit": {
+        "label": "Unit",
+        "points": "Points",
+        "tickets": "Tickets"
+      },
+      "unitShort": {
+        "points": "P"
+      },
+      "recordedSince": "Recorded since {{date}}. Nothing is known about the time before.",
+      "empty": "No history yet. Changes to the stories of this release are recorded from now on.",
+      "tooFew": "The chart needs at least two days of history.",
+      "kpi": {
+        "start": "Scope at the start",
+        "increase": "Increase",
+        "decrease": "Decrease",
+        "now": "Scope now"
+      },
+      "legend": {
+        "scope": "Scope",
+        "done": "Done",
+        "increase": "Increase",
+        "decrease": "Decrease"
+      },
+      "chartLabel": "Scope in {{unit}}: {{start}} at the start, {{now}} now, {{done}} done",
+      "showTable": "Show as table",
+      "table": {
+        "date": "Date",
+        "scope": "Scope",
+        "done": "Done",
+        "change": "Change"
+      },
+      "changes": "Changes of the scope",
+      "noChanges": "No changes of the scope since the start.",
+      "story": "Story",
+      "deletedStory": "(deleted story)",
+      "change": {
+        "added": "Added",
+        "removed": "Removed",
+        "points": "Points {{from}} → {{to}} ({{diff}})"
+      }
     }
   }
 }
