@@ -310,8 +310,6 @@
     "clear": "Cancella ricerca",
     "results": "Risultati della ricerca",
     "field": {
-      "key": "Chiave",
-      "title": "Titolo",
       "description": "Descrizione",
       "status": "Stato",
       "epic": "Epic",
