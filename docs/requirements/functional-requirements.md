@@ -345,10 +345,15 @@ Source: #7 · Status: Implemented · Verified by: search.test "chips", Search.te
 
 ### FR-SEARCH-03 Keyboard and opening a result
 - Focus stays in the field; `↑`/`↓` move through the results, `Enter` opens, `Esc` closes the menu and then the list. `⌫` at the start of the field marks the last chip, a second `⌫` removes it.
-- A result opens in its detail dialog. A bar shows "Result n of m" with previous, next and "Back to search"; back reopens the list with the same result marked.
+- A result is shown where it is before its detail dialog opens (PO feedback on #8):
+  1. If the current page shows it, the item is marked there, scrolled into view and focused.
+  2. Otherwise the app switches to the first page that shows it (story: board for the running sprint, backlog, story map; epic: epics page, story map; sprint: board, story map, backlog) and marks it there.
+  3. If no page shows it, the dialog opens over the current page.
+  The mark stays until the search is cleared; closing the dialog returns focus to the item. Recently opened items from the history follow the same order.
+- The detail dialog shows "Result n of m" with previous, next and "Back to search"; back reopens the list with the same result marked.
 - Screen readers get a combobox with a grouped listbox and hear the number of results.
 
-Source: #7 · Status: Implemented · Verified by: Search.test "search field"
+Source: #7, PO feedback on #8 · Status: Implemented · Verified by: Search.test "search field", "opening a result where it is shown", search.test "where a result is shown"
 
 ### FR-SEARCH-04 History and starting over
 - An empty field shows the last 5 searches with their chips and the 5 items opened last, also those opened from board or map. A search is remembered when a result is opened from it or it is shown on the page with `Ctrl+Enter`.

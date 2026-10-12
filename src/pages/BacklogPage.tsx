@@ -125,6 +125,7 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
     <section
       className={`backlog__section backlog__section--${kind}${drop ? ' backlog__section--target' : ''}`}
       aria-labelledby={headingId}
+      data-sprint-id={sprint?.id}
     >
       <h2 className="backlog__heading">
         <span id={headingId}>{sprint ? sprint.name : t('sprint.notPlanned')}</span>

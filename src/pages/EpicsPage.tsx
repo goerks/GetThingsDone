@@ -52,6 +52,7 @@ function EpicRow({ epic }: { epic: Epic }) {
       <button
         type="button"
         className={`epic-row${match ? ` ${match}` : ''}`}
+        data-epic-id={epic.id}
         onClick={() => details.openEpic(epic.id)}
         onDoubleClick={() => details.openEpic(epic.id)}
       >
