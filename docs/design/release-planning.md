@@ -37,6 +37,7 @@ All new and changed views are mocked up in [`release-planning-variants.html`](re
 ## Deviations from the mockups
 
 - Phase 1: the "Umfang" and "Burndown" tabs were left out until their phases; the scope line of the cards waited for the history.
+- Phase 4: the burndown tab follows the mockup (unit switch, figures, step chart with the target line, signed markers, table). The figures are what is left, what is done and the distance to the target line; the mockup's fourth figure (stories left) is the other unit of the switch. A dashed line marks today.
 - Phase 3: the scope tab follows the mockup (unit switch, four figures, step chart with signed markers, table, change list). The chart is hand-drawn SVG; the "Done" line is added to the scope chart.
 
 ## Rules shared by all views
