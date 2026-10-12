@@ -38,6 +38,27 @@ export interface Release {
   endDate: string | null;
 }
 
+/**
+ * One entry of the history of a release (#10, phase 3). The history is append-only: entries are added, never
+ * changed. `baseline` marks the stories a release had when its history started; `added` and `removed` are a story
+ * joining or leaving the release (also by deleting it), `points` a change of its points, `done` and `reopened` a
+ * change of its status into or out of done. `points` and `done` are the values of the story after the entry.
+ */
+export type ReleaseEventKind = 'baseline' | 'added' | 'removed' | 'points' | 'done' | 'reopened';
+
+export interface ReleaseEvent {
+  id: string;
+  /** When it happened, as an ISO timestamp (UTC). */
+  at: string;
+  releaseId: string;
+  storyId: string;
+  /** The key of the story at that time, so the entry stays readable after the story is deleted. */
+  code: string;
+  kind: ReleaseEventKind;
+  points: number;
+  done: boolean;
+}
+
 export interface Criterion {
   id: string;
   text: string;
@@ -163,6 +184,8 @@ export interface Snapshot {
   epics: Epic[];
   sprints: Sprint[];
   releases: Release[];
+  /** History of the releases, oldest first. */
+  events: ReleaseEvent[];
   stories: Story[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];

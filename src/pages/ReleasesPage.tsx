@@ -4,6 +4,7 @@ import { NewReleaseDialog } from '../components/ReleaseForm';
 import { formatPeriod } from '../components/releaseFormat';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { useBuiltin } from '../components/useBuiltin';
+import { netChange, scopeReport } from '../domain/history';
 import { releaseState, releaseStats, sortReleases } from '../domain/releases';
 import { todayIso } from '../domain/sprints';
 import { useApp } from '../state/AppState';
@@ -39,6 +40,9 @@ export function ReleasesPage() {
           const progress = pointsShown
             ? t('releases.progress', { done: stats.donePoints, total: stats.points })
             : t('releases.progressStories', { done: stats.doneStories, total: stats.stories });
+          const report = scopeReport(release, app.events, today);
+          const net = report ? netChange(report) : null;
+          const delta = (value: number): string => (value > 0 ? `+${value}` : value < 0 ? `−${Math.abs(value)}` : '±0');
           return (
             <li key={release.id}>
               <button type="button" className="release-card" onClick={() => details.openRelease(release.id)}>
@@ -64,6 +68,19 @@ export function ReleasesPage() {
                 <span className="progress" role="img" aria-label={progress}>
                   <span className="progress__bar" style={{ width: `${percent}%` }} />
                 </span>
+                {net && (
+                  <span className="release-card__scope">
+                    {t('releases.sinceStart')}{' '}
+                    {net.tickets === 0 && net.points === 0 ? (
+                      <span className="delta">{t('releases.sinceNone')}</span>
+                    ) : (
+                      <>
+                        <span className={`delta ${net.tickets >= 0 ? 'delta--up' : 'delta--down'}`}>{`${net.tickets < 0 ? '−' : '+'}${t('summary.stories', { count: Math.abs(net.tickets) })}`}</span>{' '}
+                        {pointsShown && <span className={`delta ${net.points >= 0 ? 'delta--up' : 'delta--down'}`}>{`${delta(net.points)} ${t('releases.scope.unitShort.points')}`}</span>}
+                      </>
+                    )}
+                  </span>
+                )}
               </button>
             </li>
           );

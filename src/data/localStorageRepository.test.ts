@@ -83,4 +83,18 @@ describe('LocalStorageRepository', () => {
     expect(after.settings).toEqual({ mapRows: 'releases' });
     expect(after.stories.find((item) => item.id === 'story-7')?.releaseId).toBe('release-beta');
   });
+
+  it('appends history entries, keeps them after a reload and drops them with the release', async () => {
+    const repository = new LocalStorageRepository();
+    await repository.replaceAll(seedSnapshot('2026-10-12'));
+    await repository.addReleaseEvents([{ id: 'e1', at: '2026-10-12T10:00:00.000Z', releaseId: 'release-map', storyId: 's', code: 'S-9', kind: 'added', points: 2, done: false }]);
+    expect((await new LocalStorageRepository().load()).events.at(-1)?.id).toBe('e1');
+    await repository.deleteRelease('release-map');
+    expect((await repository.load()).events.some((event) => event.releaseId === 'release-map')).toBe(false);
+  });
+
+  it('migrates browser data without a history', async () => {
+    window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify({ epics: [], sprints: [], stories: [], fields: [], assignments: [] }));
+    expect((await new LocalStorageRepository().load()).events).toEqual([]);
+  });
 });

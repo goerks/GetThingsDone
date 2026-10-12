@@ -34,6 +34,11 @@ All new and changed views are mocked up in [`release-planning-variants.html`](re
 | Reports | Tabs in the release dialog (the alternative was charts on the page) | 2026-10-12 |
 | "Release" on cards and in the new-story dialog | Off by default | 2026-10-12 |
 
+## Deviations from the mockups
+
+- Phase 1: the "Umfang" and "Burndown" tabs were left out until their phases; the scope line of the cards waited for the history.
+- Phase 3: the scope tab follows the mockup (unit switch, four figures, step chart with signed markers, table, change list). The chart is hand-drawn SVG; the "Done" line is added to the scope chart.
+
 ## Rules shared by all views
 
 - A story belongs to at most one release. The story's release select offers "No release" and every release that is not done.

@@ -219,7 +219,7 @@ Source: #4, PO decision 2026-10-11 · Status: Implemented · Verified by: App "h
 
 ## Releases (REL)
 
-Release planning, issue #10; design in `docs/design/release-planning.md`. Phase 1 of the feature: releases, assigning stories, the release field. Phase 2 adds the story map rows. The scope report and the burndown follow in the next phases of the same pull request.
+Release planning, issue #10; design in `docs/design/release-planning.md`. Phase 1 of the feature: releases, assigning stories, the release field. Phase 2 adds the story map rows, phase 3 the history and the scope report. The burndown follows in the next phase of the same pull request.
 
 ### FR-REL-01 Releases
 As a PO, I want to plan releases, so that I see which stories belong to a release and how big it is.
@@ -275,12 +275,24 @@ As a PO, I want to plan on the story map by release, so that I see what ships wh
 Source: Issue #10, PO decision · Status: Implemented · Verified by: board.test "story map with releases as rows", settings.test, StoryMapReleases.test, sqliteRepository.test "settings", localStorageRepository.test "keeps the settings…"
 
 ### FR-REL-10 Scope report
-Scope increase and decrease of a release over time, in tickets and in points, from an append-only history.
+As a PO, I want to see how the scope of a release changed, so that I know whether it grows or shrinks.
+- The release dialog has a third tab "Scope". A switch "Points | Tickets" (remembered, shared by all reports) chooses the unit; without the points field only tickets are shown.
+- Four figures: scope at the start, increase, decrease and scope now. Below, a step chart of the scope and of what is done per calendar day up to today, with the change of each day marked and signed (`+8`, `−3`), and the same numbers as a table ("Show as table") for screen readers. Colour never carries the meaning alone.
+- A list names every change after the start, newest first: story key and title (or "(deleted story)"), added, removed, or points before and after with the difference.
+- **Start and changes:** the start is the state of the release on its start day (without one: on the first day of its history). A story added to the release after that day is an increase, one removed (also by deleting it) a decrease, a change of points counts as the difference. A change of status never changes the scope. Entries before or on the start day are part of the start.
+- The history starts at the first record: the report says "Recorded since <date>. Nothing is known about the time before." and invents nothing earlier. A release that has stories but no history when the app loads starts its history with a baseline of those stories.
+- The release cards show "Scope since start" with the net change in stories and points, or "±0".
+- Without any entry the tab says so; with less than two days of history the chart is replaced by a note, the figures and the list stay.
 
-Source: Issue #10 · Status: Planned (phase 3)
+Source: Issue #10, PO decisions · Status: Implemented · Verified by: history.test, ReleaseHistory.test "scope report", sqliteRepository.test "history of releases"
+
+### FR-REL-12 History of the releases
+Every change of a story that matters for a release is appended to the history of that release and never changed: joining or leaving a release (moving to another release, deleting the story), a change of points and a change into or out of done while the story is in a release. Stories without a release are not recorded. Deleting a release deletes its history. The demo data brings a demo history, so the preview shows the report. Data of earlier versions gets an empty history (SQLite migration 009, browser data) and a baseline when loaded (FR-REL-10).
+
+Source: Issue #10 · Status: Implemented · Verified by: history.test "releaseEventsFor", "baselineEvents", ReleaseHistory.test "recording the history", sqliteRepository.test, localStorageRepository.test
 
 ### FR-REL-11 Burndown
-Remaining tickets and points over time with an ideal line when start and end are set.
+Remaining tickets and points over time with an ideal line when start and end are set. It uses the history of FR-REL-12 (the done entries).
 
 Source: Issue #10 · Status: Planned (phase 4)
 

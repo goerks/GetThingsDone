@@ -45,6 +45,7 @@ import {
   type FieldPatch,
   type LayoutPatch
 } from '../domain/fields';
+import { baselineEvents, releaseEventsFor } from '../domain/history';
 import { newId } from '../domain/ids';
 import {
   createSprint as createSprintIn,
@@ -60,12 +61,27 @@ import {
   type ReleaseInput
 } from '../domain/releases';
 import { DEFAULT_SETTINGS } from '../domain/settings';
-import type { Epic, FieldAssignment, FieldDefinition, FieldValue, ItemType, MapRows, Release, Settings, Snapshot, Sprint, Story } from '../domain/types';
+import type {
+  Epic,
+  FieldAssignment,
+  FieldDefinition,
+  FieldValue,
+  ItemType,
+  MapRows,
+  Release,
+  ReleaseEvent,
+  Settings,
+  Snapshot,
+  Sprint,
+  Story
+} from '../domain/types';
 
 interface AppApi {
   epics: Epic[];
   sprints: Sprint[];
   releases: Release[];
+  /** History of the releases, oldest first (#10). */
+  events: ReleaseEvent[];
   stories: Story[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
@@ -144,6 +160,7 @@ export function AppProvider({ repository, children }: Props) {
     epics: [],
     sprints: [],
     releases: [],
+    events: [],
     stories: [],
     fields: [],
     assignments: [],
@@ -159,10 +176,33 @@ export function AppProvider({ repository, children }: Props) {
   const settingsRef = useRef<Settings>(DEFAULT_SETTINGS);
   const fieldsRef = useRef<Pick<Snapshot, 'fields' | 'assignments'>>({ fields: [], assignments: [] });
 
-  const update = useCallback((stories: Story[]) => {
-    storiesRef.current = stories;
-    setSnapshot((current) => ({ ...current, stories }));
-  }, []);
+  // Writes run one after another so a quick series of changes is stored in the order it happened.
+  const queueRef = useRef<Promise<void>>(Promise.resolve());
+
+  const persist = useCallback(
+    (work: (repo: Repository) => Promise<void>) => {
+      const repo = repoRef.current;
+      if (!repo) return;
+      queueRef.current = queueRef.current
+        .then(() => work(repo))
+        .catch((cause: unknown) => {
+          const message = cause instanceof Error ? cause.message : String(cause);
+          setError(t('state.saveFailed', { message }));
+        });
+    },
+    [t]
+  );
+
+  /** Sets the stories. What this changes for the stories in releases is appended to the history of the releases. */
+  const update = useCallback(
+    (stories: Story[]) => {
+      const events = releaseEventsFor(storiesRef.current, stories, new Date().toISOString(), newId);
+      storiesRef.current = stories;
+      setSnapshot((current) => ({ ...current, stories, events: events.length > 0 ? [...current.events, ...events] : current.events }));
+      if (events.length > 0) persist((repo) => repo.addReleaseEvents(events));
+    },
+    [persist]
+  );
 
   const updateEpics = useCallback((epics: Epic[]) => {
     epicsRef.current = epics;
@@ -189,23 +229,6 @@ export function AppProvider({ repository, children }: Props) {
     setSnapshot((current) => ({ ...current, fields, assignments }));
   }, []);
 
-  // Writes run one after another so a quick series of changes is stored in the order it happened.
-  const queueRef = useRef<Promise<void>>(Promise.resolve());
-
-  const persist = useCallback(
-    (work: (repo: Repository) => Promise<void>) => {
-      const repo = repoRef.current;
-      if (!repo) return;
-      queueRef.current = queueRef.current
-        .then(() => work(repo))
-        .catch((cause: unknown) => {
-          const message = cause instanceof Error ? cause.message : String(cause);
-          setError(t('state.saveFailed', { message }));
-        });
-    },
-    [t]
-  );
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -216,6 +239,12 @@ export function AppProvider({ repository, children }: Props) {
         if (loaded.epics.length === 0 && loaded.stories.length === 0) {
           loaded = seedSnapshot(todayIso());
           await repo.replaceAll(loaded);
+        }
+        // A release that has stories but no history yet starts its history now.
+        const baseline = baselineEvents(loaded.releases, loaded.stories, loaded.events, new Date().toISOString(), newId);
+        if (baseline.length > 0) {
+          await repo.addReleaseEvents(baseline);
+          loaded = { ...loaded, events: [...loaded.events, ...baseline] };
         }
         if (cancelled) return;
         storiesRef.current = loaded.stories;
@@ -244,6 +273,7 @@ export function AppProvider({ repository, children }: Props) {
       epics: snapshot.epics,
       sprints: snapshot.sprints,
       releases: snapshot.releases,
+      events: snapshot.events,
       stories: snapshot.stories,
       fields: snapshot.fields,
       assignments: snapshot.assignments,
@@ -330,8 +360,15 @@ export function AppProvider({ repository, children }: Props) {
       },
       deleteRelease(id) {
         const result = deleteReleaseIn(releasesRef.current, storiesRef.current, id);
-        updateReleases(result.releases);
-        update(result.stories);
+        // The history goes with the release, so the stories losing it are not recorded as removed.
+        releasesRef.current = result.releases;
+        storiesRef.current = result.stories;
+        setSnapshot((current) => ({
+          ...current,
+          releases: result.releases,
+          stories: result.stories,
+          events: current.events.filter((event) => event.releaseId !== id)
+        }));
         persist((repo) => repo.deleteRelease(id));
       },
       createStory(input) {

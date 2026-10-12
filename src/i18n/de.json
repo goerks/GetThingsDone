@@ -469,7 +469,8 @@
     "tabs": {
       "label": "Ansichten des Releases",
       "details": "Details",
-      "stories": "Stories ({{count}})"
+      "stories": "Stories ({{count}})",
+      "scope": "Umfang"
     },
     "edit": "Release bearbeiten",
     "close": "Schliessen",
@@ -513,6 +514,50 @@
       "more_one": "{{count}} weitere. Tippe weiter, um die Liste einzugrenzen.",
       "more_other": "{{count}} weitere. Tippe weiter, um die Liste einzugrenzen.",
       "added": "{{code}} wurde dem Release hinzugefügt."
+    },
+    "sinceStart": "Umfang seit Start",
+    "sinceNone": "±0",
+    "scope": {
+      "unit": {
+        "label": "Einheit",
+        "points": "Punkte",
+        "tickets": "Tickets"
+      },
+      "unitShort": {
+        "points": "P"
+      },
+      "recordedSince": "Aufgezeichnet seit {{date}}. Davor ist kein Verlauf bekannt.",
+      "empty": "Noch kein Verlauf. Änderungen an den Stories dieses Releases werden ab jetzt aufgezeichnet.",
+      "tooFew": "Das Diagramm braucht mindestens zwei Tage Verlauf.",
+      "kpi": {
+        "start": "Umfang beim Start",
+        "increase": "Zunahme",
+        "decrease": "Abnahme",
+        "now": "Umfang jetzt"
+      },
+      "legend": {
+        "scope": "Umfang",
+        "done": "Erledigt",
+        "increase": "Zunahme",
+        "decrease": "Abnahme"
+      },
+      "chartLabel": "Umfang in {{unit}}: {{start}} beim Start, {{now}} jetzt, {{done}} erledigt",
+      "showTable": "Als Tabelle anzeigen",
+      "table": {
+        "date": "Datum",
+        "scope": "Umfang",
+        "done": "Erledigt",
+        "change": "Änderung"
+      },
+      "changes": "Änderungen am Umfang",
+      "noChanges": "Keine Änderungen am Umfang seit dem Start.",
+      "story": "Story",
+      "deletedStory": "(gelöschte Story)",
+      "change": {
+        "added": "Zugeordnet",
+        "removed": "Entfernt",
+        "points": "Punkte {{from}} → {{to}} ({{diff}})"
+      }
     }
   }
 }

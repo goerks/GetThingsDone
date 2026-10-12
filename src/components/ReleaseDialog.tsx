@@ -5,12 +5,13 @@ import type { Release } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
+import { ScopeReport } from './ScopeReport';
 import { StoryPicker } from './StoryPicker';
 import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
 
-type Tab = 'details' | 'stories';
-const TABS: readonly Tab[] = ['details', 'stories'];
+type Tab = 'details' | 'stories' | 'scope';
+const TABS: readonly Tab[] = ['details', 'stories', 'scope'];
 
 interface Props {
   id: string;
@@ -29,7 +30,7 @@ const inputOf = (release: Release, patch: Partial<Release> = {}) => ({
 
 /**
  * Details of a release in a dialog: title, description and dates are saved at once. A second tab lists the
- * release's stories and adds or removes some. Reports follow in the next phases (#10).
+ * release's stories and adds or removes some, a third shows the scope report. The burndown follows (#10).
  */
 export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
   const { t, i18n } = useTranslation();
@@ -218,6 +219,12 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                 </button>
               )}
             </div>
+          </div>
+        )}
+
+        {tab === 'scope' && (
+          <div role="tabpanel" id={`${uid}-panel-scope`} aria-labelledby={`${uid}-tab-scope`}>
+            <ScopeReport release={release} />
           </div>
         )}
 

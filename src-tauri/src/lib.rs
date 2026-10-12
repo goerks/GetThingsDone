@@ -54,6 +54,12 @@ pub fn run() {
             sql: include_str!("../migrations/008_settings.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "release_events",
+            sql: include_str!("../migrations/009_release_events.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
