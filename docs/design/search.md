@@ -28,3 +28,15 @@ Four variants for the final version were proposed to the product owner. The mock
 | History | An empty field shows the last 5 searches (remembered when a result is opened or shown on the page) and the 5 items opened last (from anywhere). Each can be removed; "Clear history" removes all. Kept per device in the webview's local storage, like theme and language. |
 | Starting over | ✕ in the field clears text and chips. Without results, the list offers "Search without <chip>" with the number of results, and "Clear everything and start over". |
 | Current page (PO feedback on #8) | Each page tells the search what it shows. While a query is active, matches on the page are highlighted live (accent border) and the rest dimmed; a bar shows "n of m stories here match" and "Clear search". In the list, items on the page come first with "On this page". A switch "Everywhere / Only <page>" limits the results to the page (remembered). "Show on <page>" (`Ctrl+Enter`) closes the list and scrolls to the first match. |
+
+## Proposal: field filters typed in the search text (PO feedback on #8)
+
+The PO wants to filter by fields only through the text field, without the filter buttons in the dropdown. Proposal in [`search-syntax.html`](search-syntax.html), images in [`search-syntax/`](search-syntax/):
+
+- Syntax `field:value` (also `field=value`), quotes for values with spaces, field and value names may be shortened while unique, field names in the UI language plus English. Filters and free text are combined with AND; each field once; no OR and no "is not" in the first step.
+- A finished filter becomes a badge `(Status) = Open`; one `Backspace` right after it removes it completely.
+- Variant A (recommended): field suggestions while typing a word that starts like a field name; `Ctrl+Space` lists all fields.
+- Variant B: field list only on request with `Ctrl+Space` or `@`.
+- Variant C: choosing a field creates an empty badge; the value is typed inside the badge.
+
+Status: proposed, waiting for the PO's choice.
