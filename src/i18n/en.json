@@ -170,12 +170,27 @@
       "over": "{{title}} goes to {{sprint}}, {{epic}}, position {{position}}.",
       "dropped": "{{title}} is now in {{sprint}}, {{epic}}, position {{position}}.",
       "sprintOver": "{{name}} becomes sprint {{position}}, {{dates}}.",
-      "sprintDropped": "{{name}} is now sprint {{position}}, {{dates}}."
+      "sprintDropped": "{{name}} is now sprint {{position}}, {{dates}}.",
+      "releaseOver": "{{title}} goes to {{release}}, {{epic}}, position {{position}}.",
+      "releaseDropped": "{{title}} is now in {{release}}, {{epic}}, position {{position}}.",
+      "instructionsReleases": "Press space to pick up a story. Use the arrow keys to move it between cells, space to drop it and escape to cancel. Press enter to open the story. The sprint of the story stays as it is."
     },
     "sprintRole": "sprint",
     "editOrMoveSprint": "Click to edit, drag to reorder",
     "compact": "Compact",
-    "sprintDropLabel": "{{name}} · {{dates}}"
+    "sprintDropLabel": "{{name}} · {{dates}}",
+    "summaryReleases": "{{epics}} epics · {{releases}} releases · {{stories}} stories",
+    "cornerReleases": "Release ↓ · Epic →",
+    "addRelease": "+ Release",
+    "newStoryInRelease": "New story in {{epic}}, {{release}}",
+    "noRelease": "No release",
+    "rows": "Rows: {{rows}}",
+    "rowsSprints": "Sprints",
+    "rowsReleases": "Releases",
+    "rowsLink": "Rows of the story map: {{rows}}. Change in the settings",
+    "afterEnd_one": "{{count}} story after the end",
+    "afterEnd_other": "{{count}} stories after the end",
+    "editRelease": "Open the release"
   },
   "fields": {
     "title": "Fields",
@@ -302,7 +317,26 @@
     "sections": "Settings sections",
     "statusValues": "Status values",
     "planned": "Planned",
-    "plannedNote": "planned for a later release"
+    "plannedNote": "planned for a later release",
+    "map": {
+      "title": "Story map",
+      "rows": "Rows of the story map",
+      "default": "Default",
+      "sprints": {
+        "name": "Sprints",
+        "hint": "Every row is a sprint, in time order. For planning the next weeks.",
+        "preview": "Rows: Sprint 1, Sprint 2, Not planned"
+      },
+      "releases": {
+        "name": "Releases",
+        "hint": "Every row is a release. For planning what ships when.",
+        "preview": "Rows: Release 1.0, Release 1.1, No release"
+      },
+      "saved": "The choice applies to the whole team and is saved at once. Stories, sprints and releases stay as they are; only the view changes.",
+      "noReleases": "There is no release yet. The story map then shows only the row \"No release\".",
+      "createRelease": "Create a release",
+      "back": "← To the story map"
+    }
   },
   "summary": {
     "stories_one": "{{count}} story",

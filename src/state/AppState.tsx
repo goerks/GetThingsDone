@@ -10,6 +10,7 @@ import {
   deleteStory as deleteStoryIn,
   dropInBacklog,
   dropOnMap,
+  dropOnReleaseMap,
   dropStory,
   moveCriterion as moveCriterionIn,
   toggleCriterion as toggleCriterionIn,
@@ -58,7 +59,8 @@ import {
   updateRelease as updateReleaseIn,
   type ReleaseInput
 } from '../domain/releases';
-import type { Epic, FieldAssignment, FieldDefinition, FieldValue, ItemType, Release, Snapshot, Sprint, Story } from '../domain/types';
+import { DEFAULT_SETTINGS } from '../domain/settings';
+import type { Epic, FieldAssignment, FieldDefinition, FieldValue, ItemType, MapRows, Release, Settings, Snapshot, Sprint, Story } from '../domain/types';
 
 interface AppApi {
   epics: Epic[];
@@ -67,6 +69,7 @@ interface AppApi {
   stories: Story[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
+  settings: Settings;
   loading: boolean;
   error: string | null;
   /** Drag and drop on the board. */
@@ -75,6 +78,10 @@ interface AppApi {
   dropInBacklog(activeId: string, overId: string, placement?: Placement): void;
   /** Drag and drop on the story map: changes sprint and epic. */
   dropOnMap(activeId: string, overId: string, placement?: Placement): void;
+  /** Drag and drop on the story map with releases as rows: changes release and epic, keeps the sprint. */
+  dropOnReleaseMap(activeId: string, overId: string, placement?: Placement): void;
+  /** Chooses what the rows of the story map are (a team setting). */
+  setMapRows(rows: MapRows): void;
   /** Returns the id of the new sprint, or null when the input is invalid. */
   createSprint(input: SprintInput): string | null;
   updateSprint(id: string, input: SprintInput): void;
@@ -133,7 +140,15 @@ interface Props {
 
 export function AppProvider({ repository, children }: Props) {
   const { t } = useTranslation();
-  const [snapshot, setSnapshot] = useState<Snapshot>({ epics: [], sprints: [], releases: [], stories: [], fields: [], assignments: [] });
+  const [snapshot, setSnapshot] = useState<Snapshot>({
+    epics: [],
+    sprints: [],
+    releases: [],
+    stories: [],
+    fields: [],
+    assignments: [],
+    settings: DEFAULT_SETTINGS
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const repoRef = useRef<Repository | null>(null);
@@ -141,6 +156,7 @@ export function AppProvider({ repository, children }: Props) {
   const epicsRef = useRef<Epic[]>([]);
   const sprintsRef = useRef<Sprint[]>([]);
   const releasesRef = useRef<Release[]>([]);
+  const settingsRef = useRef<Settings>(DEFAULT_SETTINGS);
   const fieldsRef = useRef<Pick<Snapshot, 'fields' | 'assignments'>>({ fields: [], assignments: [] });
 
   const update = useCallback((stories: Story[]) => {
@@ -161,6 +177,11 @@ export function AppProvider({ repository, children }: Props) {
   const updateReleases = useCallback((releases: Release[]) => {
     releasesRef.current = releases;
     setSnapshot((current) => ({ ...current, releases }));
+  }, []);
+
+  const updateSettings = useCallback((settings: Settings) => {
+    settingsRef.current = settings;
+    setSnapshot((current) => ({ ...current, settings }));
   }, []);
 
   const updateFields = useCallback((fields: FieldDefinition[], assignments: FieldAssignment[]) => {
@@ -202,6 +223,7 @@ export function AppProvider({ repository, children }: Props) {
         fieldsRef.current = { fields: loaded.fields, assignments: loaded.assignments };
         sprintsRef.current = loaded.sprints;
         releasesRef.current = loaded.releases;
+        settingsRef.current = loaded.settings;
         setSnapshot(loaded);
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
@@ -225,6 +247,7 @@ export function AppProvider({ repository, children }: Props) {
       stories: snapshot.stories,
       fields: snapshot.fields,
       assignments: snapshot.assignments,
+      settings: snapshot.settings,
       loading,
       error,
       drop(activeId, overId, placement) {
@@ -250,6 +273,20 @@ export function AppProvider({ repository, children }: Props) {
         update(after);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
+      },
+      dropOnReleaseMap(activeId, overId, placement) {
+        const before = storiesRef.current;
+        const after = dropOnReleaseMap(before, sprintsRef.current, releasesRef.current, activeId, overId, placement);
+        if (after === before) return;
+        update(after);
+        const changed = changedPositions(before, after);
+        persist((repo) => repo.savePositions(changed));
+      },
+      setMapRows(rows) {
+        if (settingsRef.current.mapRows === rows) return;
+        const settings = { ...settingsRef.current, mapRows: rows };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
       },
       createSprint(input) {
         const id = newId();
@@ -468,7 +505,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateFields, persist]
+    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

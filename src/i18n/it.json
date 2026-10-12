@@ -170,12 +170,27 @@
       "over": "{{title}} va in {{sprint}}, {{epic}}, posizione {{position}}.",
       "dropped": "{{title}} è ora in {{sprint}}, {{epic}}, posizione {{position}}.",
       "sprintOver": "{{name}} diventa lo sprint {{position}}, {{dates}}.",
-      "sprintDropped": "{{name}} è ora lo sprint {{position}}, {{dates}}."
+      "sprintDropped": "{{name}} è ora lo sprint {{position}}, {{dates}}.",
+      "releaseOver": "{{title}} va in {{release}}, {{epic}}, posizione {{position}}.",
+      "releaseDropped": "{{title}} è ora in {{release}}, {{epic}}, posizione {{position}}.",
+      "instructionsReleases": "Premi spazio per prendere una storia. Le frecce la spostano tra le celle, spazio la rilascia, esc annulla. Invio apre la storia. Lo sprint della storia resta invariato."
     },
     "sprintRole": "sprint",
     "editOrMoveSprint": "Clic per modificare, trascina per riordinare",
     "compact": "Compatto",
-    "sprintDropLabel": "{{name}} · {{dates}}"
+    "sprintDropLabel": "{{name}} · {{dates}}",
+    "summaryReleases": "{{epics}} epic · {{releases}} release · {{stories}} storie",
+    "cornerReleases": "Release ↓ · Epic →",
+    "addRelease": "+ Release",
+    "newStoryInRelease": "Nuova storia in {{epic}}, {{release}}",
+    "noRelease": "Nessuna release",
+    "rows": "Righe: {{rows}}",
+    "rowsSprints": "Sprint",
+    "rowsReleases": "Release",
+    "rowsLink": "Righe della story map: {{rows}}. Cambia nelle impostazioni",
+    "afterEnd_one": "{{count}} storia dopo la fine",
+    "afterEnd_other": "{{count}} storie dopo la fine",
+    "editRelease": "Apri la release"
   },
   "fields": {
     "title": "Campi",
@@ -302,7 +317,26 @@
     "sections": "Sezioni delle impostazioni",
     "statusValues": "Valori di stato",
     "planned": "Previsto",
-    "plannedNote": "previsto per una release successiva"
+    "plannedNote": "previsto per una release successiva",
+    "map": {
+      "title": "Story map",
+      "rows": "Righe della story map",
+      "default": "Predefinito",
+      "sprints": {
+        "name": "Sprint",
+        "hint": "Ogni riga è uno sprint, in ordine temporale. Per pianificare le prossime settimane.",
+        "preview": "Righe: Sprint 1, Sprint 2, Non pianificato"
+      },
+      "releases": {
+        "name": "Release",
+        "hint": "Ogni riga è una release. Per pianificare cosa esce e quando.",
+        "preview": "Righe: Release 1.0, Release 1.1, Nessuna release"
+      },
+      "saved": "La scelta vale per tutto il team e viene salvata subito. Storie, sprint e release restano invariati; cambia solo la vista.",
+      "noReleases": "Non c'è ancora nessuna release. La story map mostra allora solo la riga «Nessuna release».",
+      "createRelease": "Crea una release",
+      "back": "← Alla story map"
+    }
   },
   "summary": {
     "stories_one": "{{count}} story",

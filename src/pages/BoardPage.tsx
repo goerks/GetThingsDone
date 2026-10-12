@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { BoardColumn } from '../components/BoardColumn';
 import { NewStoryDialog } from '../components/NewStoryDialog';
+import { useNewShortcut } from '../components/useNewShortcut';
 import { OverlayCard } from '../components/StoryCard';
 import { dropTargetIn, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import { dropStory, parseColumnId, sprintStories, storiesInColumn, totalPoints, type Placement } from '../domain/board';
@@ -38,6 +39,7 @@ export function BoardPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
   const [creating, setCreating] = useState(false);
+  useNewShortcut(() => setCreating(true), !creating);
 
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
   const sensors = useDragSensors();
@@ -110,7 +112,7 @@ export function BoardPage() {
         <span className="muted">
           {formatSprintDates(sprint, i18n.language)} · {builtin.summary(inSprint.length, totalPoints(inSprint))}
         </span>
-        <button type="button" className="btn btn--primary page-head__action" onClick={() => setCreating(true)}>
+        <button type="button" className="btn btn--primary page-head__action" aria-keyshortcuts="Control+N Meta+N" onClick={() => setCreating(true)}>
           {t('newStory.open')}
         </button>
       </div>

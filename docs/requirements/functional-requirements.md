@@ -219,7 +219,7 @@ Source: #4, PO decision 2026-10-11 · Status: Implemented · Verified by: App "h
 
 ## Releases (REL)
 
-Release planning, issue #10; design in `docs/design/release-planning.md`. Phase 1 of the feature: releases, assigning stories, the release field. The map slices, the scope report and the burndown follow in the next phases of the same pull request.
+Release planning, issue #10; design in `docs/design/release-planning.md`. Phase 1 of the feature: releases, assigning stories, the release field. Phase 2 adds the story map rows. The scope report and the burndown follow in the next phases of the same pull request.
 
 ### FR-REL-01 Releases
 As a PO, I want to plan releases, so that I see which stories belong to a release and how big it is.
@@ -235,10 +235,10 @@ A main navigation entry "Releases" (`#/releases`) shows one card per release: ti
 
 Source: Issue #10, PO design (cards) · Status: Implemented · Verified by: App "is part of the main navigation and lists the demo releases as cards", "shows an empty page…"
 
-### FR-REL-03 Create a release, also with Ctrl+N
-"+ Release" opens the dialog "New release" (title, description, start, end). On the releases page Ctrl+N (Cmd+N on a Mac) opens the same dialog, unless a dialog is open; on other pages it does nothing. The last card names the shortcut. Many browsers keep Ctrl+N for a new window and never pass it on, so the web preview may not react; the desktop app does.
+### FR-REL-03 Create a release
+"+ Release" (the last card of the releases page, or the row on the story map in release mode) opens the dialog "New release" (title, description, start, end). Ctrl+N does the same on the releases page (see FR-NAV-02).
 
-Source: Issue #10, PO request · Status: Implemented · Verified by: App "creates a release with Ctrl+N…", "does not create a release with Ctrl+N on other pages", "names the shortcut on the last card"; Windows app: manual check
+Source: Issue #10 · Status: Implemented · Verified by: App "creates a release with a title only, through the last card", "asks for a title and refuses an end before the start", "creates a release from the map"
 
 ### FR-REL-04 Release dialog
 A release opens in a dialog with the tabs "Details" and "Stories" (arrow keys switch). Title, description and dates are saved at once; a date that would put the end before the start is refused with a message and not saved. The details show size and progress and, when stories are planned in sprints that end after the release, a hint that names them (it never blocks). "Stories" lists the release's stories (key, title, epic, sprint, points, status), adds a story that has no release and removes one; a title opens the story. Deleting asks first and states how many stories lose their release.
@@ -266,9 +266,13 @@ The demo data has two releases with demo stories. Data of earlier versions (SQLi
 Source: Issue #10 · Status: Implemented · Verified by: sqliteRepository.test "migration 007", "adds the title and description of releases…", localStorageRepository.test "migrates browser data without releases", migrate.test
 
 ### FR-REL-09 Story map rows: sprints or releases
-The rows of the story map are chosen in Settings › Story map (sprints, the default, or releases); the map page head links to that setting. Release rows, a "No release" row, drag between releases.
+As a PO, I want to plan on the story map by release, so that I see what ships when.
+- What the rows are is a team setting, chosen in Settings › Story map (`#/settings/map`): sprints (the default) or releases, as a radio group of two cards, saved at once. The section lists next to "Fields"; a link leads back to the map. When releases are chosen and there is no release yet, a note says the map then shows only "No release" and links to the releases page.
+- The head of the story map shows the choice as a link ("Rows: Releases" with a gear) to that setting, in both modes.
+- In release mode each row is a release (order as on the releases page, releases that are done are left out like past sprints), plus a last row "No release". The label shows state, period, stories and points, a hint when stories are planned in sprints that end after the release, and opens the release. "+ Release" adds a release.
+- Dragging a story into another cell changes its epic and its release in one move (mouse, touch, keyboard, announced in all four languages) and keeps its sprint, so the backlog stays grouped by sprint. The drop line and the highlight work as in sprint mode. "+" in a cell creates a story with that epic and release.
 
-Source: Issue #10, PO decision · Status: Planned (phase 2)
+Source: Issue #10, PO decision · Status: Implemented · Verified by: board.test "story map with releases as rows", settings.test, StoryMapReleases.test, sqliteRepository.test "settings", localStorageRepository.test "keeps the settings…"
 
 ### FR-REL-10 Scope report
 Scope increase and decrease of a release over time, in tickets and in points, from an append-only history.
@@ -295,7 +299,7 @@ Source: ADR 0002 · Status: Implemented · Verified by: App "switches the theme 
 ### FR-SET-03 Settings page
 As a team, we want the workspace settings in one place that stays out of the way of the daily work.
 - A gear button next to theme and language opens the settings (`#/settings/fields`); it is marked while the settings are open. Pressed again ("Close settings"), it goes back to the page shown before. The main navigation holds only the working views.
-- The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section. "Status values" (#5) is shown as planned and cannot be opened yet.
+- The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section, "Story map" the second (FR-REL-09). "Status values" (#5) is shown as planned and cannot be opened yet.
 - The former address `#/fields` opens the fields section.
 
 Source: #4, PO feedback (variant A in `docs/design/settings.md`) · Status: Implemented · Verified by: App "opens the fields from the settings, not from the main navigation", "closes the settings with the gear…", "parses known routes…"
@@ -320,6 +324,11 @@ If loading or saving fails, a translated error message is shown.
 Source: — · Status: Implemented
 
 ## Navigation (NAV)
+
+### FR-NAV-02 Ctrl+N creates what the page is about
+Ctrl+N (Cmd+N on a Mac) opens the create dialog of the current page: a new story on the board (prefilled with the running sprint), the backlog and the story map (not planned), a new epic on the epics page, a new release on the releases page. It does nothing in the settings, and not while a dialog is open. The create buttons name the shortcut (`aria-keyshortcuts`); the last release card shows it. Many browsers keep Ctrl+N for a new window and never pass it on, so the web preview may not react; the desktop app does, and the buttons work everywhere.
+
+Source: Issue #10, PO request · Status: Implemented · Verified by: NewShortcut.test; Windows app: manual check
 
 ### FR-NAV-01 Main navigation
 Header with board, backlog, story map, epics and releases, plus a gear button for the settings; the current page is marked.
@@ -445,4 +454,4 @@ Source: #7 (variant D), PO feedback on #8 · Status: Implemented · Verified by:
 | FR-MAP-06 | Activities above epics on the map | Open (out of scope of #2) |
 | FR-SEARCH-06 | Search in a side panel next to the board (rest of variant D) | Open (out of scope of #7) |
 | FR-SEARCH-07 | Saved searches with a name | Proposed (PO undecided) |
-| FR-MAP-07 | Release slices in addition to sprints | Planned in #10, phase 2 (see FR-REL-09) |
+| FR-MAP-07 | Release slices in addition to sprints | Implemented in #10, phase 2 (see FR-REL-09) |

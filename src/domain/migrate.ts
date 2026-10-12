@@ -1,12 +1,13 @@
 import { normalizeColorKey } from './epics';
 import { missingBuiltins } from './fields';
+import { normalizeSettings } from './settings';
 import { addDays, SPRINT_LENGTH_DAYS } from './sprints';
-import type { Epic, FieldAssignment, FieldDefinition, Release, Snapshot, Sprint, Story } from './types';
+import type { Epic, FieldAssignment, FieldDefinition, Release, Settings, Snapshot, Sprint, Story } from './types';
 
 /**
  * Snapshot as stored by an older release. Release 0.1: one fixed sprint, stories with `inSprint`, epics without
  * a position. Before configurable fields (#4): no field library, no values, and every story has an epic.
- * Before release planning (#10): no releases and no release on stories.
+ * Before release planning (#10): no releases, no release on stories and no settings.
  */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
@@ -22,6 +23,7 @@ interface StoredSnapshot {
   >;
   fields?: Array<Omit<FieldDefinition, 'defaultValue'> & { defaultValue?: FieldDefinition['defaultValue'] }>;
   assignments?: FieldAssignment[];
+  settings?: Partial<Settings>;
 }
 
 export const MIGRATED_SPRINT_ID = 'sprint-1';
@@ -60,6 +62,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     epics,
     sprints,
     releases: stored.releases ?? [],
+    settings: normalizeSettings(stored.settings),
     stories,
     fields: [...fields, ...missing.fields],
     assignments: [...assignments, ...missing.assignments]

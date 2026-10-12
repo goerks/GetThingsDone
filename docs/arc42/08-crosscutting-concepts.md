@@ -21,7 +21,7 @@ Release planning decisions (#10, no ADR because the PO no longer reviews them; r
 ## Persistence
 
 - The `Repository` interface (`src/data/repository.ts`) is the only storage boundary. It offers coarse, intention-revealing operations (`savePositions`, `updateStory`, `setCriterionText`, `saveCriteriaOrder`, `addEpic`, ...) instead of generic CRUD, so each UI action maps to one call.
-- SQLite schema: tables `epics`, `sprints`, `releases`, `stories`, `criteria` with foreign keys and indexes on `rank` and `(story_id, position)`. Schema changes are new numbered migrations in `src-tauri/migrations/`, registered in `lib.rs`. Never edit a released migration. Browser data in `localStorage` is migrated in code when it is read (`src/domain/migrate.ts`) and written back at once, so a migrated sprint keeps its dates.
+- SQLite schema: tables `epics`, `sprints`, `releases`, `settings` (key and value), `stories`, `criteria` with foreign keys and indexes on `rank` and `(story_id, position)`. Schema changes are new numbered migrations in `src-tauri/migrations/`, registered in `lib.rs`. Never edit a released migration. Browser data in `localStorage` is migrated in code when it is read (`src/domain/migrate.ts`) and written back at once, so a migrated sprint keeps its dates.
 - Keys are generated in the frontend (`src/domain/ids.ts`), so the UI can update before the write finishes.
 
 ## Internationalisation
