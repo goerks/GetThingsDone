@@ -4,10 +4,12 @@ import { NewEpicDialog } from '../components/EpicDialogs';
 import { sortEpics, storiesInEpic } from '../domain/epics';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
+import { useBuiltin } from '../components/useBuiltin';
 
 /** List of all epics; a click opens the epic in a dialog. */
 export function EpicsPage() {
   const { t } = useTranslation();
+  const builtin = useBuiltin();
   const app = useApp();
   const details = useDetails();
   const [creating, setCreating] = useState(false);
@@ -35,7 +37,9 @@ export function EpicsPage() {
                   onClick={() => details.openEpic(epic.id)}
                   onDoubleClick={() => details.openEpic(epic.id)}
                 >
-                  <span className="epic__dot epic-row__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
+                  {builtin.shown('epic', 'color') && (
+                    <span className="epic__dot epic-row__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />
+                  )}
                   <span className="epic-row__name">{epic.name}</span>
                   <span className="muted epic-row__count">{t('epics.storyCount', { count: storiesInEpic(app.stories, epic.id) })}</span>
                 </button>

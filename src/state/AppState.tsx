@@ -33,7 +33,9 @@ import {
   deleteField as deleteFieldIn,
   dropRemovedOptions,
   moveInLayout,
+  renameBuiltin,
   setAssigned,
+  setBuiltinHidden,
   setItemValue,
   updateLayout,
   updateField as updateFieldIn,
@@ -91,6 +93,10 @@ interface AppApi {
   deleteField(id: string): void;
   /** Uses a custom field on an item type or stops using it there; values are kept. */
   setFieldUsed(fieldId: string, itemType: ItemType, used: boolean): void;
+  /** Renames a system or built-in field; null brings back the translated default. */
+  renameBuiltinField(fieldId: string, label: string | null): void;
+  /** Hides or shows a built-in field on an item type; values stay. */
+  setBuiltinFieldHidden(fieldId: string, itemType: ItemType, hidden: boolean): void;
   /** Moves a custom field before or after another one in the layout of an item type. */
   moveFieldInLayout(itemType: ItemType, activeId: string, overId: string): void;
   /** Changes required, on card and in create dialog of a field on an item type. Returns false when refused. */
@@ -379,6 +385,20 @@ export function AppProvider({ repository, children }: Props) {
         updateFields(fields, after);
         const own = after.filter((item) => item.fieldId === fieldId);
         persist((repo) => repo.saveAssignments(fieldId, own));
+      },
+      renameBuiltinField(fieldId, label) {
+        const { fields, assignments } = fieldsRef.current;
+        const result = renameBuiltin(fields, fieldId, label);
+        if (!result) return;
+        updateFields(result.fields, assignments);
+        persist((repo) => repo.saveField(result.field));
+      },
+      setBuiltinFieldHidden(fieldId, itemType, hidden) {
+        const { fields, assignments } = fieldsRef.current;
+        const after = setBuiltinHidden(fields, assignments, fieldId, itemType, hidden);
+        if (!after) return;
+        updateFields(fields, after);
+        persist((repo) => repo.saveAssignments(fieldId, after.filter((item) => item.fieldId === fieldId)));
       },
       moveFieldInLayout(itemType, activeId, overId) {
         const { fields, assignments } = fieldsRef.current;

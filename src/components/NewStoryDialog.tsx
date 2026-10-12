@@ -7,6 +7,7 @@ import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
 import { EpicSelect } from './EpicSelect';
 import { SprintSelect } from './SprintSelect';
+import { useBuiltin } from './useBuiltin';
 
 interface Props {
   /** Prefilled sprint: the running one from the board, "not planned" from the backlog, the cell's on the map. */
@@ -19,6 +20,7 @@ interface Props {
 export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicId, onClose }: Props) {
   const { t } = useTranslation();
   const app = useApp();
+  const builtin = useBuiltin();
   const uid = useId();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -41,7 +43,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
     <Dialog title={t('newStory.dialogTitle')} onClose={onClose}>
       <form className="form" onSubmit={submit}>
         <div className="field">
-          <label htmlFor={`${uid}-title`}>{t('newStory.title')}</label>
+          <label htmlFor={`${uid}-title`}>{builtin.label('title', t('newStory.title'))}</label>
           <input
             id={`${uid}-title`}
             className="input"
@@ -51,36 +53,40 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
             autoFocus
           />
         </div>
-        <div className="field">
-          <label htmlFor={`${uid}-description`}>{t('newStory.description')}</label>
-          <textarea
-            id={`${uid}-description`}
-            className="input"
-            rows={3}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
+        {builtin.shown('story', 'description') && (
+          <div className="field">
+            <label htmlFor={`${uid}-description`}>{builtin.label('description', t('newStory.description'))}</label>
+            <textarea
+              id={`${uid}-description`}
+              className="input"
+              rows={3}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            />
+          </div>
+        )}
         <div className="form__row">
           <div className="field">
-            <label htmlFor={`${uid}-epic`}>{t('newStory.epic')}</label>
+            <label htmlFor={`${uid}-epic`}>{builtin.label('epic', t('newStory.epic'))}</label>
             <EpicSelect id={`${uid}-epic`} value={epicId} onChange={setEpicId} />
           </div>
-          <div className="field">
-            <label htmlFor={`${uid}-points`}>{t('newStory.points')}</label>
-            <select
-              id={`${uid}-points`}
-              className="select"
-              value={points}
-              onChange={(event) => setPoints(Number(event.target.value))}
-            >
-              {POINT_VALUES.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </div>
+          {builtin.shown('story', 'points') && (
+            <div className="field">
+              <label htmlFor={`${uid}-points`}>{builtin.label('points', t('newStory.points'))}</label>
+              <select
+                id={`${uid}-points`}
+                className="select"
+                value={points}
+                onChange={(event) => setPoints(Number(event.target.value))}
+              >
+                {POINT_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
         <div className="field">
           <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>

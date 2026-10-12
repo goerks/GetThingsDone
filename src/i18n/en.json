@@ -249,7 +249,6 @@
     },
     "useOn": "{{name}} for {{type}}",
     "locked": "System field, always used",
-    "hideLater": "Built-in fields can be hidden in a later stage",
     "notAvailable": "{{name}} does not exist for {{type}}",
     "deleteQuestion": "Delete the field {{name}}? This cannot be undone.",
     "loseStories_one": "{{count}} story loses its value.",
@@ -283,7 +282,12 @@
     "invalidUrl": "Enter a web address, for example example.com.",
     "openLink": "Open {{name}}",
     "typeConversions": "Only type changes that keep every value are offered.",
-    "defaultTicked": "Ticked by default"
+    "defaultTicked": "Ticked by default",
+    "epicFixed": "The epic cannot be hidden for now",
+    "rename": "Rename field {{name}}",
+    "renameTitle": "Rename field",
+    "renameHint": "The new name is shown in every language. The default is \"{{name}}\".",
+    "resetLabel": "Reset to \"{{name}}\""
   },
   "settings": {
     "title": "Settings",
@@ -291,5 +295,11 @@
     "statusValues": "Status values",
     "planned": "Planned",
     "plannedNote": "planned for a later release"
+  },
+  "summary": {
+    "stories_one": "{{count}} story",
+    "stories_other": "{{count}} stories",
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points"
   }
 }

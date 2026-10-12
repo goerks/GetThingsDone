@@ -611,7 +611,10 @@ describe('fields', () => {
     const titleForEpics = screen.getByRole('checkbox', { name: 'Title for Epics. System field, always used' });
     expect(titleForEpics).toBeChecked();
     expect(titleForEpics).toBeDisabled();
-    expect(screen.getByRole('checkbox', { name: /^Points for Stories\. Built-in fields can be hidden/ })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Points for Stories' })).toBeEnabled();
+    expect(screen.getByRole('checkbox', { name: 'Epic for Stories. The epic cannot be hidden for now' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Rename field Key' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Rename field Title' })).toBeInTheDocument();
     expect(screen.queryByRole('checkbox', { name: /^Points for Epics/ })).not.toBeInTheDocument();
     expect(screen.getByText('Points does not exist for Epics')).toBeInTheDocument();
 
@@ -620,7 +623,7 @@ describe('fields', () => {
     expect(screen.getByRole('checkbox', { name: 'Business value for Epics' })).not.toBeChecked();
     expect(screen.getByRole('checkbox', { name: 'Business value for Epics' })).toBeEnabled();
     const title = screen.getByRole('row', { name: /^Title / });
-    expect(within(title).queryByRole('button')).not.toBeInTheDocument();
+    expect(within(title).getAllByRole('button').map((button) => button.getAttribute('aria-label'))).toEqual(['Rename field Title']);
     expect(screen.getByRole('button', { name: 'Edit field Priority' })).toBeInTheDocument();
   });
 
@@ -885,6 +888,82 @@ describe('fields', () => {
     expect(saved.fields.find((field) => field.id === 'field-demo-priority')?.defaultValue).toEqual(['opt-should']);
     expect(saved.stories.find((s) => s.id === 'story-1')?.values['field-demo-priority']).toEqual(['opt-must']);
     expect(saved.epics.find((e) => e.id === 'epic-boards')?.values['field-demo-priority']).toEqual(['opt-must']);
+  });
+
+  it('hides points, so the board, cards and dialogs leave them out, and shows them again', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('checkbox', { name: 'Points for Stories' }));
+
+    window.location.hash = '#/board';
+    expect(await screen.findByText(/· 6 stories$/)).toBeInTheDocument();
+    const card = screen.getByRole('group', { name: /S-1:/ });
+    expect(within(card).queryByTitle('3 points')).not.toBeInTheDocument();
+    await openStory(/S-1:/);
+    expect(screen.queryByLabelText('Points')).not.toBeInTheDocument();
+    expect((await repository.load()).stories.find((s) => s.id === 'story-1')?.points).toBe(3);
+
+    await user.keyboard('{Escape}');
+    window.location.hash = '#/settings/fields';
+    await user.click(await screen.findByRole('checkbox', { name: 'Points for Stories' }));
+    window.location.hash = '#/board';
+    expect(await screen.findByText(/· 6 stories · 23 points$/)).toBeInTheDocument();
+  });
+
+  it('hides acceptance criteria, description and epic colour', async () => {
+    const user = userEvent.setup();
+    await openFields();
+    await user.click(screen.getByRole('checkbox', { name: 'Acceptance criteria for Stories' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Description for Stories' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Colour for Epics' }));
+
+    window.location.hash = '#/board';
+    const card = await screen.findByRole('group', { name: /S-1:/ });
+    expect(within(card).queryByRole('img', { name: /criteria accepted/ })).not.toBeInTheDocument();
+    expect(card.querySelector('.epic')).not.toBeNull();
+    expect(card.querySelector('.epic .epic__dot')).toBeNull();
+    await openStory(/S-1:/);
+    expect(screen.queryByRole('heading', { name: 'Acceptance criteria' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Description' })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: 'New story' }));
+    expect(within(screen.getByRole('dialog', { name: 'New story' })).queryByLabelText('Description')).not.toBeInTheDocument();
+  });
+
+  it('renames built-in and system fields with one label and resets them', async () => {
+    const user = userEvent.setup();
+    const repository = await openFields();
+    await user.click(screen.getByRole('button', { name: 'Rename field Points' }));
+    let dialog = screen.getByRole('dialog', { name: 'Rename field' });
+    expect(within(dialog).getByText('The new name is shown in every language. The default is "Points".')).toBeInTheDocument();
+    const name = within(dialog).getByLabelText('Name');
+    await user.clear(name);
+    await user.type(name, 'Effort');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    expect(screen.getByRole('rowheader', { name: 'Effort' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Rename field Status' }));
+    dialog = screen.getByRole('dialog', { name: 'Rename field' });
+    await user.clear(within(dialog).getByLabelText('Name'));
+    await user.type(within(dialog).getByLabelText('Name'), 'State');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    window.location.hash = '#/board';
+    expect(await screen.findByText(/· 6 stories · 23 Effort$/)).toBeInTheDocument();
+    await openStory(/S-1:/);
+    expect(screen.getByLabelText('Effort')).toBeInTheDocument();
+    expect(screen.getByLabelText('State')).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
+    await user.selectOptions(screen.getByLabelText('Language'), 'de');
+    window.location.hash = '#/settings/fields';
+    expect(await screen.findByRole('rowheader', { name: 'Effort' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Feld Effort umbenennen' }));
+    await user.click(screen.getByRole('button', { name: 'Auf «Punkte» zurücksetzen' }));
+    expect(screen.getByRole('rowheader', { name: 'Punkte' })).toBeInTheDocument();
+    const saved = await repository.load();
+    expect(saved.fields.find((field) => field.builtinKey === 'points')?.label).toBeNull();
+    expect(saved.fields.find((field) => field.builtinKey === 'status')?.label).toBe('State');
   });
 
   it('creates a story without an epic and clears the epic of a story', async () => {
