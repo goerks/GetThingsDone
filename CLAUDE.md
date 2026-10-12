@@ -14,6 +14,7 @@ Code, comments, commit messages, issues, pull requests and documentation are in 
 ## Workflow
 
 1. Work from a GitHub issue written by the PO. Break it into stories as a comment on the issue and ask open questions there before building.
+   - Whatever is proposed to the PO in the conversation (story breakdown, design proposal, phases, open questions and their answers) is also posted in the issue, as a comment with links to the files in the repository. The issue is the record; the conversation alone is not. Post it in the same step as the proposal, do not wait to be asked.
 2. One feature branch per feature, created from the latest `main`: `feature/<issue-number>-<short-name>`. Never push to `main` directly. Technical details such as branch names are the AI's decision; do not ask the PO.
 3. Open a pull request against `main`. Describe what changed, list the acceptance criteria as a checklist and say whether the PO also needs to test the Windows app (storage or desktop specific changes) or whether the web preview is enough.
 4. Every pull request gets two ways to test:
