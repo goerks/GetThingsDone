@@ -217,6 +217,9 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
 .q .rec { font-size: 14px; }
 .q .rec strong { color: var(--ok); }
 @media (max-width: 700px) { .two, .three { grid-template-columns: 1fr; } }
+
+.hint--info { color: var(--text); background: var(--pill); }
+.hint--info::before { content: "\24D8"; }
 </style>
 </head>
 <body>
@@ -225,31 +228,28 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
   <header>
     <div class="meta"><span>Get It Done</span><span>Issue #10</span><span>Release-Planung</span><span>Designvorschläge</span></div>
     <h1>Release-Planung: alle neuen und geänderten Ansichten</h1>
-    <p class="muted">Ein Release hat Titel und Beschreibung, optional Start- und Enddatum und enthält Stories. Sein Umfang ergibt sich aus den Punkten der Stories. Dieser Entwurf zeigt jede Ansicht, die neu ist oder sich ändert. Wo es eine echte Wahl gibt, sind es zwei Varianten, mit Empfehlung. Alle Mockups nutzen die Tokens und Bausteine der App und haben ein helles und ein dunkles Thema (folgt deiner Systemeinstellung).</p>
+    <p class="muted">Ein Release hat Titel und Beschreibung, optional Start- und Enddatum und enthält Stories. Sein Umfang ergibt sich aus den Punkten der Stories. Dieser Entwurf zeigt jede Ansicht, die neu ist oder sich ändert, mit deinen Entscheiden (Stand 2026-10-12): Karten, Berichte im Dialog, Release nicht auf Karten, und die Zeilen der Story Map werden in den Einstellungen gewählt. Alle Mockups nutzen die Tokens und Bausteine der App und haben ein helles und ein dunkles Thema (folgt deiner Systemeinstellung).</p>
   </header>
 
   <section class="variant" aria-labelledby="ov">
     <h2 id="ov">Übersicht der Ansichten</h2>
     <div class="decisions">
-      <div class="dec"><b>1 · Navigation und Release-Seite</b><span>Neuer Eintrag „Releases“. Seite mit allen Releases. Variante A (Karten) oder B (Tabelle).</span></div>
+      <div class="dec"><b>1 · Release-Seite</b><span>Neuer Eintrag „Releases“ in der Navigation, Karten pro Release.</span></div>
       <div class="dec"><b>2 · Release-Dialog</b><span>Neu und bearbeiten. Reiter Details, Stories, Umfang, Burndown.</span></div>
       <div class="dec"><b>3 · Berichte</b><span>Umfang (Zu- und Abnahme) und Burndown, je in Punkten oder Tickets, mit Tabelle für Screenreader.</span></div>
       <div class="dec"><b>4 · Story-Dialog</b><span>Neues Systemfeld „Release“ in Details und Neu-Dialog.</span></div>
-      <div class="dec"><b>5 · Story Map</b><span>Schalter „Zeilen: Sprints / Releases“, Drag-and-drop zwischen Releases, Termin-Hinweis.</span></div>
-      <div class="dec"><b>6 · Einstellungen › Felder</b><span>„Release“ als Systemfeld, Spalte „Releases“ wird aktiv.</span></div>
-      <div class="dec"><b>7 · Karten und Backlog</b><span>Release-Marke, wenn das Feld „Auf Karte“ steht.</span></div>
-      <div class="dec"><b>8 · Sonderfälle</b><span>Keine Releases, ohne Datum, Release fertig.</span></div>
+      <div class="dec"><b>5 · Story Map</b><span>Zeilen nach Einstellung, Link in die Einstellungen, Drag-and-drop zwischen Releases, Termin-Hinweis.</span></div>
+      <div class="dec"><b>6 · Einstellungen › Story Map</b><span>Neuer Abschnitt: Zeilen der Map wählen (Sprints oder Releases), Rücksprung zur Map.</span></div>
+      <div class="dec"><b>7 · Einstellungen › Felder</b><span>„Release“ als Systemfeld, Spalte „Releases“ wird aktiv.</span></div>
+      <div class="dec"><b>8 · Karten und Backlog</b><span>Release-Marke nur, wenn das Feld „Auf Karte“ steht (Standard: aus).</span></div>
+      <div class="dec"><b>9 · Sonderfälle</b><span>Keine Releases, ohne Datum, Release fertig.</span></div>
     </div>
   </section>
 
   <!-- ===================== 1 · Release page ===================== -->
   <section class="variant" aria-labelledby="v1">
-    <div class="variant__head"><h3 id="v1">1 · Release-Seite: Variante A, Karten</h3><span class="tag tag--rec">Empfohlen</span></div>
-    <p>Jedes Release ist eine Karte: Titel, Zeitraum, Stories, Punkte, Fortschritt (erledigte Punkte) und die Veränderung des Umfangs seit dem Start. Ein Klick öffnet den Release-Dialog. „+ Release“ steht wie bei Sprints und Epics nicht im Seitenkopf, sondern als letzte, gestrichelte Karte.</p>
-    <div class="pc">
-      <div><b>Vorteile</b><ul><li>Fortschritt und Umfang auf einen Blick</li><li>Mini-Verlauf zeigt, ob der Umfang wächst</li><li>Passt zur Epics-Seite</li></ul></div>
-      <div><b>Nachteile</b><ul><li>Bei mehr als etwa 8 Releases wird die Seite lang</li></ul></div>
-    </div>
+    <h3 id="v1">1 · Release-Seite</h3>
+    <p>Jedes Release ist eine Karte: Titel, Zeitraum, Stories, Punkte, Fortschritt (erledigte Punkte) und die Veränderung des Umfangs seit dem Start. Ein Klick auf die Karte öffnet den Release-Dialog. „+ Release“ steht wie bei Sprints und Epics nicht im Seitenkopf, sondern als letzte, gestrichelte Karte. Die Karten sind nach Startdatum sortiert, Releases ohne Datum danach, fertige Releases zuletzt. Die Seite ist Teil der Hauptnavigation, weil Releases täglich geplant werden (anders als Felder und Einstellungen).</p>
     <div class="frame">
       <div class="frame__bar"><b>Get It Done</b><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span class="on">Releases</span></span></div>
       <div class="frame__head"><h4>Releases</h4><span class="lbl">3 Releases · 18 Stories · 56 Punkte</span></div>
@@ -284,25 +284,7 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
     <p class="muted">„Läuft / Geplant / Fertig“ wird abgeleitet, nicht gepflegt: Fertig, wenn alle Stories erledigt sind; Läuft, wenn heute zwischen Start- und Enddatum liegt; sonst Geplant. Fertige Releases stehen unten.</p>
   </section>
 
-  <section class="variant" aria-labelledby="v1b">
-    <div class="variant__head"><h3 id="v1b">1 · Release-Seite: Variante B, Tabelle</h3><span class="tag">Alternative</span></div>
-    <p>Eine Zeile pro Release, sortiert nach Startdatum. Dichter und besser zum Vergleichen, aber ohne Mini-Verlauf und ohne Beschreibung.</p>
-    <div class="pc">
-      <div><b>Vorteile</b><ul><li>Viele Releases auf einem Bildschirm</li><li>Spalten lassen sich vergleichen</li></ul></div>
-      <div><b>Nachteile</b><ul><li>Weniger Überblick über die Entwicklung</li><li>Auf schmalen Fenstern scrollt die Tabelle</li></ul></div>
-    </div>
-    <div class="frame">
-      <div class="frame__bar"><b>Get It Done</b><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span class="on">Releases</span></span></div>
-      <div class="frame__head"><h4>Releases</h4><span class="btns"><span class="btn btn--primary">+ Release</span></span></div>
-      <div class="tbl-wrap"><table class="tbl">
-        <thead><tr><th>Release</th><th>Zeitraum</th><th class="num">Stories</th><th class="num">Punkte</th><th>Erledigt</th><th>Umfang seit Start</th><th>Stand</th></tr></thead>
-        <tbody>
-          <tr><td><b>Release 1.0 – Public Beta</b></td><td class="num" style="text-align:left">5.10. – 20.11.2026</td><td class="num">14</td><td class="num">42</td><td style="min-width:120px"><div class="bar"><i style="width:29%"></i></div></td><td><span class="delta delta--up">+5 / +11 P</span></td><td><span class="rel-badge rel-badge--run">Läuft</span></td></tr>
-          <tr><td><b>Release 1.1 – Story Map</b></td><td class="num" style="text-align:left">–</td><td class="num">4</td><td class="num">14</td><td><div class="bar"><i style="width:0%"></i></div></td><td><span class="delta">±0</span></td><td><span class="rel-badge">Geplant</span></td></tr>
-          <tr><td><b>Release 0.1 – Skeleton</b></td><td class="num" style="text-align:left">1.9. – 30.9.2026</td><td class="num">6</td><td class="num">16</td><td><div class="bar"><i style="width:100%"></i></div></td><td><span class="delta delta--up">+1 / +2 P</span></td><td><span class="rel-badge rel-badge--done">Fertig</span></td></tr>
-        </tbody></table></div>
-    </div>
-  </section>
+  
 
   <!-- ===================== 2 · Release dialog ===================== -->
   <section class="variant" aria-labelledby="v2">
@@ -364,7 +346,7 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
   <!-- ===================== 3 · Reports ===================== -->
   <section class="variant" aria-labelledby="v3">
     <h3 id="v3">3 · Berichte: Umfang und Burndown</h3>
-    <p>Beide Berichte stehen in eigenen Reitern des Release-Dialogs (Variante R1, empfohlen). Oben wählt ein Schalter „Punkte | Tickets“; die Wahl gilt für beide Berichte und wird gemerkt. Die Diagramme sind eigenes SVG ohne neue Abhängigkeit. Farbe trägt nie allein die Aussage: Zu- und Abnahme tragen das Vorzeichen („+8“, „−3“) im Diagramm, Linien unterscheiden sich durch Beschriftung, die Soll-Linie ist gestrichelt. Unter jedem Diagramm steht ausklappbar dieselbe Information als Tabelle, die Screenreader vorlesen.</p>
+    <p>Beide Berichte stehen in eigenen Reitern des Release-Dialogs. Oben wählt ein Schalter „Punkte | Tickets“; die Wahl gilt für beide Berichte und wird gemerkt. Die Diagramme sind eigenes SVG ohne neue Abhängigkeit. Farbe trägt nie allein die Aussage: Zu- und Abnahme tragen das Vorzeichen („+8“, „−3“) im Diagramm, Linien unterscheiden sich durch Beschriftung, die Soll-Linie ist gestrichelt. Unter jedem Diagramm steht ausklappbar dieselbe Information als Tabelle, die Screenreader vorlesen.</p>
 
     <h2>Reiter „Umfang“</h2>
     <div class="backdrop"><div class="dlg dlg--wide">
@@ -435,18 +417,7 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
     </div></div>
   </section>
 
-  <section class="variant" aria-labelledby="v3b">
-    <div class="variant__head"><h3 id="v3b">3 · Berichte: Variante R2, auf der Release-Seite</h3><span class="tag">Alternative</span></div>
-    <p>Die Berichte stehen nicht im Dialog, sondern direkt unter den Release-Karten. Ein Auswahlfeld wählt das Release; beide Diagramme stehen untereinander. Mehr Platz fürs Vergleichen von Verläufen, aber die Release-Seite wird lang, und Stories, Details und Berichte liegen an zwei Orten.</p>
-    <div class="frame">
-      <div class="frame__bar"><b>Get It Done</b><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span class="on">Releases</span></span></div>
-      <div class="frame__head"><h4>Releases</h4><span class="lbl">… Karten wie in Variante A …</span></div>
-      <div style="padding:8px 16px 16px;display:grid;gap:10px">
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b>Bericht für</b><div class="inp" style="min-width:240px">Release 1.0 – Public Beta ▾</div><span class="seg"><span class="on">Punkte</span><span>Tickets</span></span></div>
-        <div class="two"><div class="chart"><b style="font-size:13px">Umfang</b><svg viewBox="0 0 680 284" role="img" aria-label="Umfang in Punkten: Start 31, heute 42, davon 12 erledigt"><line class="grid" x1="48" x2="660" y1="250" y2="250"/><text x="40" y="254" text-anchor="end">0</text><line class="grid" x1="48" x2="660" y1="198" y2="198"/><text x="40" y="202" text-anchor="end">10</text><line class="grid" x1="48" x2="660" y1="146" y2="146"/><text x="40" y="150" text-anchor="end">20</text><line class="grid" x1="48" x2="660" y1="94" y2="94"/><text x="40" y="98" text-anchor="end">30</text><line class="grid" x1="48" x2="660" y1="42" y2="42"/><text x="40" y="46" text-anchor="end">40</text><line class="ax" x1="48" x2="660" y1="250" y2="250"/><line class="ax" x1="48" x2="48" y1="250" y2="255"/><text x="48" y="270" text-anchor="middle">5.10.</text><line class="ax" x1="234.3" x2="234.3" y1="250" y2="255"/><text x="234.3" y="270" text-anchor="middle">19.10.</text><line class="ax" x1="420.5" x2="420.5" y1="250" y2="255"/><text x="420.5" y="270" text-anchor="middle">2.11.</text><text x="660" y="270" text-anchor="end">Ende 20.11.</text><line class="today" x1="141.1" x2="141.1" y1="16" y2="250"/><text x="147" y="28">heute 12.10.</text><path class="ln" d="M48,88.8 H87.9 V47.2 H114.5 V62.8 H127.8 V31.6 H141.1"/><path class="ln2" d="M48,250 H74.6 V224 H101.2 V208.4 H141.1 V187.6"/><circle class="up" cx="87.9" cy="47.2" r="4.5"/><text class="tag" x="84" y="39" text-anchor="end">+8</text><circle class="down" cx="114.5" cy="62.8" r="4.5"/><text class="tag" x="114.5" y="80" text-anchor="middle">−3</text><circle class="up" cx="127.8" cy="31.6" r="4.5"/><text class="tag" x="123" y="24" text-anchor="end">+6</text></svg></div><div class="chart"><b style="font-size:13px">Burndown</b><svg viewBox="0 0 680 284" role="img" aria-label="Burndown in Punkten: Start 31, heute 30 verbleibend, Soll-Linie bis 0 am 20. November"><line class="grid" x1="48" x2="660" y1="250" y2="250"/><text x="40" y="254" text-anchor="end">0</text><line class="grid" x1="48" x2="660" y1="198" y2="198"/><text x="40" y="202" text-anchor="end">10</text><line class="grid" x1="48" x2="660" y1="146" y2="146"/><text x="40" y="150" text-anchor="end">20</text><line class="grid" x1="48" x2="660" y1="94" y2="94"/><text x="40" y="98" text-anchor="end">30</text><line class="grid" x1="48" x2="660" y1="42" y2="42"/><text x="40" y="46" text-anchor="end">40</text><line class="ax" x1="48" x2="660" y1="250" y2="250"/><line class="ax" x1="48" x2="48" y1="250" y2="255"/><text x="48" y="270" text-anchor="middle">5.10.</text><line class="ax" x1="234.3" x2="234.3" y1="250" y2="255"/><text x="234.3" y="270" text-anchor="middle">19.10.</text><line class="ax" x1="420.5" x2="420.5" y1="250" y2="255"/><text x="420.5" y="270" text-anchor="middle">2.11.</text><text x="660" y="270" text-anchor="end">Ende 20.11.</text><line class="today" x1="141.1" x2="141.1" y1="16" y2="250"/><text x="147" y="28">heute 12.10.</text><path class="ideal" d="M48,88.8 L660,250"/><path class="ln" d="M48,88.8 H74.6 V114.8 H87.9 V73.2 H101.2 V88.8 H114.5 V104.4 H127.8 V73.2 H141.1 V94"/><circle class="up" cx="87.9" cy="73.2" r="4.5"/><text class="tag" x="87.9" y="63" text-anchor="middle">+8</text><circle class="down" cx="114.5" cy="104.4" r="4.5"/><text class="tag" x="114.5" y="121" text-anchor="middle">−3</text><circle class="up" cx="127.8" cy="73.2" r="4.5"/><text class="tag" x="124" y="63" text-anchor="end">+6</text></svg></div></div>
-      </div>
-    </div>
-  </section>
+  
 
   <!-- ===================== 4 · Story dialog ===================== -->
   <section class="variant" aria-labelledby="v4">
@@ -475,18 +446,18 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
       </div>
       <div class="dlg__foot"><span></span><span style="display:flex;gap:8px"><span class="btn">Abbrechen</span><span class="btn btn--primary">Anlegen</span></span></div>
     </div></div>
-    <p class="muted">Der Neu-Dialog zeigt „Release“, wenn es im Layout für Stories unter „Im Neu-Dialog“ steht (Standard: aus). Auf der Story Map im Release-Modus (Ansicht 5) ist es mit dem Release der Zeile vorbelegt. Ist „Release“ als Pflichtfeld gesetzt, gelten dieselben Regeln wie bei anderen Pflichtfeldern.</p>
+    <p class="muted">Der Neu-Dialog zeigt „Release“, wenn es im Layout für Stories unter „Im Neu-Dialog“ steht (Standard: aus, entschieden). Auf der Story Map im Release-Modus (Ansicht 5) ist es mit dem Release der Zeile vorbelegt, auch wenn das Feld im Neu-Dialog sonst aus ist. Ist „Release“ als Pflichtfeld gesetzt, gelten dieselben Regeln wie bei anderen Pflichtfeldern.</p>
   </section>
 
   <!-- ===================== 5 · Story map ===================== -->
   <section class="variant" aria-labelledby="v5">
-    <h3 id="v5">5 · Story Map: Zeilen wechseln zwischen Sprints und Releases</h3>
-    <p>Im Seitenkopf steht neben „Kompakt“ der Schalter „Zeilen: Sprints | Releases“ (Gruppe mit zwei Knöpfen, die Wahl wird gemerkt). Die Epic-Spalten bleiben. Im Release-Modus ist jede Zeile ein Release (nach Startdatum, ohne Datum danach), die letzte Zeile ist „Kein Release“, durch eine kräftige Linie getrennt. Die Zeilenmarke zeigt Titel, Zeitraum, Stories, Punkte und Fortschritt. Ziehen einer Karte in eine andere Zeile ändert Epic und Release in einem Zug, wie heute bei Sprints, mit Tastatur und Ansage („S-3 geht zu Release 1.1, Backlog, Position 1“). Beendete Releases sind ausgeblendet, wie vergangene Sprints.</p>
+    <h3 id="v5">5 · Story Map: Zeilen nach Einstellung</h3>
+    <p>Ob die Zeilen der Map Sprints oder Releases sind, wird <b>nicht auf der Map</b> umgeschaltet, sondern in den Einstellungen gewählt (Ansicht 6). Damit man nicht suchen muss, zeigt der Seitenkopf der Map die aktuelle Wahl als Link: „Zeilen: Releases“ mit Zahnrad springt direkt zu „Einstellungen › Story Map“. Der Link hat den Namen „Zeilen der Story Map: Releases. In den Einstellungen ändern“ und ist ein echter Link (<code>&lt;a href="#/settings/map"&gt;</code>). Im Release-Modus ist jede Zeile ein Release (nach Startdatum, ohne Datum danach), die letzte Zeile ist „Kein Release“, durch eine kräftige Linie getrennt. Die Zeilenmarke zeigt Titel, Zeitraum, Stories, Punkte und Fortschritt. Ziehen einer Karte in eine andere Zeile ändert Epic und Release in einem Zug, wie heute bei Sprints, mit Tastatur und Ansage („S-3 geht zu Release 1.1, Backlog, Position 1“). Beendete Releases sind ausgeblendet, wie vergangene Sprints. Im Sprint-Modus bleibt die Map wie heute, nur der Link im Seitenkopf kommt dazu.</p>
 
-    <h2>Ruhezustand</h2>
+    <h2>Ruhezustand, Zeilen = Releases</h2>
     <div class="frame">
       <div class="frame__bar"><b>Get It Done</b><span class="nav"><span>Board</span><span>Backlog</span><span class="on">Story Map</span><span>Epics</span><span>Releases</span></span></div>
-      <div class="frame__head"><h4>Story Map</h4><span class="btns" style="align-items:center"><span class="lbl">Zeilen</span><span class="seg" role="group" aria-label="Zeilen"><span>Sprints</span><span class="on">Releases</span></span><span class="btn">Kompakt</span></span></div>
+      <div class="frame__head"><h4>Story Map</h4><span class="btns" style="align-items:center"><a class="btn" href="#" style="display:inline-flex;gap:6px;align-items:center;text-decoration:none" aria-label="Zeilen der Story Map: Releases. In den Einstellungen ändern">Zeilen: <b>Releases</b> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></a><span class="btn">Kompakt</span></span></div>
       <div class="scroll"><div class="gridR">
         <div class="corner">Release ↓ / Epic →</div>
         <div class="epic" style="--c:var(--e-blue)"><b>Board</b><span>4 Stories · 12 P</span></div>
@@ -519,6 +490,9 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
       </div></div>
     </div>
 
+    <h2>Seitenkopf im Sprint-Modus (Standard)</h2>
+    <div class="frame"><div class="frame__head"><h4>Story Map</h4><span class="btns" style="align-items:center"><a class="btn" href="#" style="display:inline-flex;gap:6px;align-items:center;text-decoration:none" aria-label="Zeilen der Story Map: Sprints. In den Einstellungen ändern">Zeilen: <b>Sprints</b> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></a><span class="btn">Kompakt</span></span></div></div>
+
     <h2>Beim Ziehen</h2>
     <div class="frame">
       <div class="frame__head"><h4>Story Map</h4><span class="lbl">S-6 wird in „Release 1.0“, Epic „Board“ gezogen</span></div>
@@ -540,10 +514,50 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
     <p class="muted">Gleiche Hervorhebung wie bei Sprints: Zielzelle, Epic-Kopf und Zeilenmarke mit Ring, Linie an der Stelle, wo die Karte landet. Karten, die schon in einem anderen Release liegen, wandern beim Ziehen um; das Release wechselt, die Story verschwindet nirgends. „+“ in einer Zelle legt eine Story mit Epic und Release der Zelle an. Ein Klick auf die Zeilenmarke öffnet den Release-Dialog.</p>
   </section>
 
-  <!-- ===================== 6 · Settings ===================== -->
+  <!-- ===================== 6 · Settings story map ===================== -->
+  <section class="variant" aria-labelledby="v6s">
+    <h3 id="v6s">6 · Einstellungen › Story Map</h3>
+    <p>Die Einstellungen (Zahnrad im Seitenkopf, <code>#/settings/…</code>) bekommen einen zweiten Abschnitt „Story Map“ zwischen „Felder“ und dem geplanten „Status-Werte“. Er enthält eine Einstellung: <b>Zeilen der Story Map</b>, als Auswahl mit zwei Karten (Radiogruppe): <b>Sprints</b> (Standard) oder <b>Releases</b>. Jede Karte hat einen Satz Erklärung und eine kleine Vorschau. Die Wahl gilt für das ganze Team und wird sofort gespeichert, es gibt keinen Speichern-Knopf. Der Link „Zur Story Map“ führt zurück.</p>
+    <div class="frame">
+      <div class="frame__bar"><b>Get It Done</b><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span style="margin-left:auto">⚙</span></div>
+      <div class="frame__head"><h4>Einstellungen</h4></div>
+      <div style="display:grid;grid-template-columns:200px 1fr;gap:18px;padding:8px 16px 18px">
+        <nav style="display:grid;gap:2px;align-content:start;font-size:14px" aria-label="Abschnitte">
+          <span style="padding:8px 10px;border-radius:6px;color:var(--text)">Felder</span>
+          <span style="padding:8px 10px;border-radius:6px;background:var(--accent-soft);color:var(--accent-soft-ink);font-weight:600">Story Map</span>
+          <span style="padding:8px 10px;color:var(--muted)">Status-Werte <span class="badge">geplant</span></span>
+        </nav>
+        <div style="display:grid;gap:14px;align-content:start">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><h4 style="margin:0;font-size:18px">Story Map</h4><a href="#" style="font-size:13px;color:var(--accent)">← Zur Story Map</a></div>
+          <fieldset style="border:0;padding:0;margin:0;display:grid;gap:10px">
+            <legend style="font-size:13px;font-weight:600;padding:0 0 6px">Zeilen der Story Map</legend>
+            <div class="two">
+              <label class="rcard" style="cursor:pointer;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)">
+                <span style="display:flex;gap:8px;align-items:center"><span style="width:16px;height:16px;border-radius:50%;border:5px solid var(--accent);display:inline-block"></span><b class="t" style="font-size:15px">Sprints</b> <span class="rel-badge rel-badge--run">Standard</span></span>
+                <span class="desc">Jede Zeile ist ein Sprint, in zeitlicher Reihenfolge. Zum Planen der nächsten Wochen.</span>
+                <span aria-hidden="true" style="display:grid;grid-template-columns:44px repeat(3,1fr);gap:3px"><i style="background:var(--pill);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--pill);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i></span>
+                <span class="lbl">Zeilen: Sprint 1, Sprint 2, Nicht geplant</span>
+              </label>
+              <label class="rcard" style="cursor:pointer">
+                <span style="display:flex;gap:8px;align-items:center"><span style="width:16px;height:16px;border-radius:50%;border:2px solid var(--muted);display:inline-block"></span><b class="t" style="font-size:15px">Releases</b></span>
+                <span class="desc">Jede Zeile ist ein Release. Zum Planen, was wann ausgeliefert wird.</span>
+                <span aria-hidden="true" style="display:grid;grid-template-columns:44px repeat(3,1fr);gap:3px"><i style="background:var(--pill);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--pill);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i><i style="background:var(--column);height:14px;border-radius:3px"></i></span>
+                <span class="lbl">Zeilen: Release 1.0, Release 1.1, Kein Release</span>
+              </label>
+            </div>
+          </fieldset>
+          <p class="lbl">Die Einstellung gilt für das ganze Team und wird sofort gespeichert. Stories, Sprints und Releases bleiben unverändert; es ändert sich nur die Darstellung.</p>
+          <div class="hint hint--info">Noch kein Release angelegt: Die Map zeigt dann nur die Zeile „Kein Release“. <a href="#" style="color:var(--accent)">Release anlegen</a></div>
+        </div>
+      </div>
+    </div>
+    <p class="muted">Der Hinweis erscheint nur, wenn „Releases“ gewählt ist und es noch kein Release gibt. Der Wechsel zwischen Map und Einstellungen ist reine Navigation: Adresse <code>#/settings/map</code>, die Zurück-Taste des Browsers führt zur Map. Tastatur: Pfeiltasten wechseln die Auswahl der Radiogruppe, der Fokusring zeigt die gewählte Karte.</p>
+  </section>
+
+  <!-- ===================== 7 · Settings fields ===================== -->
   <section class="variant" aria-labelledby="v6">
-    <h3 id="v6">6 · Einstellungen › Felder</h3>
-    <p>Die Matrix („Felder × Typen“) bekommt das Systemfeld <b>Release</b> bei den Stories (gesperrt, umbenennbar) und aktiviert die Spalte <b>Releases</b>. Die Spalte zeigt die eingebauten Felder des Releases: Titel und Beschreibung sind immer an, Start und Ende lassen sich ausblenden. Eigene Felder auf Releases bleiben „geplant“ (Issue #9, Phase 5 dieses Features).</p>
+    <h3 id="v6">7 · Einstellungen › Felder</h3>
+    <p>In den Einstellungen bleibt „Felder“ der erste Abschnitt. Die Matrix („Felder × Typen“) bekommt das Systemfeld <b>Release</b> bei den Stories (gesperrt, umbenennbar) und aktiviert die Spalte <b>Releases</b>. Die Spalte zeigt die eingebauten Felder des Releases: Titel und Beschreibung sind immer an, Start und Ende lassen sich ausblenden. Eigene Felder auf Releases bleiben „geplant“ (Issue #9, Phase 5 dieses Features).</p>
     <div class="frame"><div class="frame__head"><h4>Einstellungen › Felder</h4><span class="tabs" style="padding:0;border:0;margin-left:auto"><span class="on">Zuordnung</span><span>Layout</span></span></div>
       <div class="tbl-wrap"><table class="mx">
         <thead><tr><th>Feld</th><th>Typ</th><th class="c">Stories</th><th class="c">Epics</th><th class="c plan">Sprints</th><th class="c">Releases</th></tr></thead>
@@ -563,13 +577,13 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
           <tr><td>Priorität</td><td>Auswahl</td><td class="c">☑</td><td class="c">☐</td><td class="c plan">geplant</td><td class="c plan">geplant</td></tr>
         </tbody></table></div>
     </div>
-    <p class="muted">Der Reiter „Layout › Releases“ ordnet die Felder des Releases (Reihenfolge, Pflicht) wie bei Stories und Epics. „Titel“ ist immer Pflicht. Im Layout für Stories lässt sich „Release“ als „Auf Karte“ und „Im Neu-Dialog“ schalten (Ansicht 7).</p>
+    <p class="muted">Der Reiter „Layout › Releases“ ordnet die Felder des Releases (Reihenfolge, Pflicht) wie bei Stories und Epics. „Titel“ ist immer Pflicht. Im Layout für Stories lässt sich „Release“ als „Auf Karte“ und „Im Neu-Dialog“ schalten (Ansicht 8).</p>
   </section>
 
   <!-- ===================== 7 · Cards ===================== -->
   <section class="variant" aria-labelledby="v7">
-    <h3 id="v7">7 · Karten, Board und Backlog</h3>
-    <p>Wie jedes Feld zeigt „Release“ sich auf Karte und Zeile nur, wenn es im Layout „Auf Karte“ steht (Standard: aus, damit die Karten ruhig bleiben). Dann erscheint eine kleine Marke mit dem Release-Titel unter dem Epic. Auf der Story Map im Release-Modus ist die Marke überflüssig und bleibt weg.</p>
+    <h3 id="v7">8 · Karten, Board und Backlog</h3>
+    <p>Wie jedes Feld zeigt „Release“ sich auf Karte und Zeile nur, wenn es im Layout „Auf Karte“ steht (Standard: <b>aus</b>, entschieden, damit die Karten ruhig bleiben). Dann erscheint eine kleine Marke mit dem Release-Titel unter dem Epic. Auf der Story Map im Release-Modus ist die Marke überflüssig und bleibt weg.</p>
     <div class="two">
       <div class="card" style="cursor:default;font-size:13px"><div class="top"><span class="code">S-1</span><span class="pts">3</span></div>Create a story<span class="lbl">▪ Board · 2 von 4 Kriterien</span><span class="tag-rel">Release 1.0 – Public Beta</span><span class="st st--prog">In Arbeit</span></div>
       <table class="tbl" style="border:1px solid var(--border);border-radius:8px"><tbody><tr><td class="num" style="text-align:left">3</td><td class="num" style="text-align:left">S-1</td><td>Create a story</td><td>Board</td><td><span class="tag-rel">Release 1.0 – Public Beta</span></td><td class="num">3</td></tr></tbody></table>
@@ -578,12 +592,12 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
 
   <!-- ===================== 8 · States ===================== -->
   <section class="variant" aria-labelledby="v8">
-    <h3 id="v8">8 · Sonderfälle</h3>
+    <h3 id="v8">9 · Sonderfälle</h3>
     <div class="decisions">
-      <div class="dec"><b>Noch kein Release</b><span>Die Seite erklärt in einem Satz, wozu Releases dienen, und bietet „Release anlegen“ an. Die Story Map im Release-Modus zeigt nur „Kein Release“ plus ein „+ Release“.</span>
+      <div class="dec"><b>Noch kein Release</b><span>Die Seite erklärt in einem Satz, wozu Releases dienen, und bietet „Release anlegen“ an. Die Story Map im Release-Modus zeigt nur „Kein Release“; der Hinweis in den Einstellungen bietet „Release anlegen“ an.</span>
         <div class="frame" style="margin-top:8px"><div class="frame__head"><h4>Releases</h4></div><div style="padding:14px 16px 18px;display:grid;gap:8px;justify-items:start"><p>Noch kein Release. Ein Release bündelt Stories und zeigt, wie sich Umfang und Fortschritt entwickeln.</p><span class="btn btn--primary">Release anlegen</span></div></div></div>
       <div class="dec"><b>Release ohne Datum</b><span>Der Burndown läuft vom ersten Eintrag bis heute. Es gibt keine Soll-Linie; ein Hinweis nennt, was dafür fehlt.</span>
-        <div class="hint" style="margin-top:8px;color:var(--text);background:var(--pill)">ⓘ Ohne Start- und Enddatum gibt es keine Soll-Linie. Trage beide Daten im Reiter „Details“ ein.</div></div>
+        <div class="hint hint--info" style="margin-top:8px">Ohne Start- und Enddatum gibt es keine Soll-Linie. Trage beide Daten im Reiter „Details“ ein.</div></div>
       <div class="dec"><b>Release ohne Stories</b><span>Umfang- und Burndown-Reiter zeigen „Noch keine Stories im Release. Ordne Stories im Reiter ‚Stories‘ oder auf der Story Map zu.“ statt eines leeren Diagramms.</span></div>
       <div class="dec"><b>Release fertig</b><span>Alle Stories erledigt: Marke „Fertig“ (grün, mit Text), die Karte rutscht nach unten. Kommt eine Story dazu oder wird eine wieder geöffnet, gilt das Release wieder als „Läuft“. Der Burndown endet bei 0.</span></div>
       <div class="dec"><b>Kein Verlauf vor der Aufzeichnung</b><span>Der Bericht beginnt mit dem ersten Eintrag; eine Zeile unter dem Diagramm sagt: „Aufgezeichnet seit 12.10.2026. Davor ist kein Verlauf bekannt.“</span></div>
@@ -594,7 +608,7 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
   <section class="variant" aria-labelledby="a11y">
     <h3 id="a11y">Bedienung und Barrierefreiheit</h3>
     <ul>
-      <li>Alle Knöpfe sind echte <code>button</code>/<code>a</code>-Elemente, mindestens 44 × 44 px, mit sichtbarem Fokusring. Der Schalter „Punkte | Tickets“ und „Zeilen“ sind Gruppen mit gedrückt-Zustand (<code>aria-pressed</code>).</li>
+      <li>Alle Knöpfe sind echte <code>button</code>/<code>a</code>-Elemente, mindestens 44 × 44 px, mit sichtbarem Fokusring. Der Schalter „Punkte | Tickets“ ist eine Gruppe mit gedrückt-Zustand (<code>aria-pressed</code>), die Zeilenwahl in den Einstellungen eine Radiogruppe mit Beschriftung.</li>
       <li>Die Reiter im Release-Dialog folgen dem Muster <code>tablist</code> mit Pfeiltasten.</li>
       <li>Diagramme haben <code>role="img"</code> mit Kurzbeschreibung und eine aufklappbare Tabelle mit denselben Werten. Farbe allein trägt keine Information: Vorzeichen im Diagramm, Linien gestrichelt oder beschriftet.</li>
       <li>Drag-and-drop zwischen Release-Zeilen läuft wie heute per Tastatur (Leertaste, Pfeile, Leertaste, Escape) und wird in DE, EN, FR und IT angesagt.</li>
@@ -603,11 +617,12 @@ details summary { cursor: pointer; font-size: 12.5px; color: var(--muted); }
   </section>
 
   <section class="variant" aria-labelledby="dec2">
-    <h3 id="dec2">Was ich von dir brauche</h3>
-    <div class="qs">
-      <div class="q"><b>1 · Release-Seite: A (Karten) oder B (Tabelle)?</b><span class="rec">Empfehlung: <strong>A</strong>. Mit wenigen Releases zeigt sie Fortschritt und Verlauf auf einen Blick.</span></div>
-      <div class="q"><b>2 · Berichte: R1 (Reiter im Dialog) oder R2 (auf der Seite)?</b><span class="rec">Empfehlung: <strong>R1</strong>. Alles zu einem Release an einem Ort, und die Seite bleibt kurz.</span></div>
-      <div class="q"><b>3 · Soll „Release“ standardmäßig auf Karten und im Neu-Dialog stehen?</b><span class="rec">Empfehlung: <strong>nein</strong>, beides aus; die Story Map und der Story-Dialog genügen.</span></div>
+    <h3 id="dec2">Entscheide des PO (2026-10-12)</h3>
+    <div class="decisions">
+      <div class="dec"><b>Release-Seite</b><span>Karten (Variante A).</span></div>
+      <div class="dec"><b>Berichte</b><span>Reiter im Release-Dialog (R1).</span></div>
+      <div class="dec"><b>Release auf Karten und im Neu-Dialog</b><span>Standardmäßig aus.</span></div>
+      <div class="dec"><b>Zeilen der Story Map</b><span>Werden in den Einstellungen gewählt, nicht auf der Map. Die Map verlinkt direkt auf den Abschnitt „Einstellungen › Story Map“.</span></div>
     </div>
   </section>
 </div>
