@@ -284,7 +284,7 @@ As a PO, I want to see how the scope of a release changed, so that I know whethe
 - The release cards show "Scope since start" with the net change in stories and points, or "±0".
 - Without any entry the tab says so; with less than two days of history the chart is replaced by a note, the figures and the list stay.
 
-Source: Issue #10, PO decisions · Status: Implemented · Verified by: history.test, ReleaseHistory.test "scope report", sqliteRepository.test "history of releases"
+Source: Issue #10, PO decisions · Status: Implemented · Verified by: history.test, ReleaseHistory.test "scope report", ReleaseJourney.test (a release from planning to the last day over three weeks with a controlled clock), sqliteRepository.test "history of releases"
 
 ### FR-REL-12 History of the releases
 Every change of a story that matters for a release is appended to the history of that release and never changed: joining or leaving a release (moving to another release, deleting the story), a change of points and a change into or out of done while the story is in a release. Stories without a release are not recorded. Deleting a release deletes its history. The demo data brings a demo history, so the preview shows the report. Data of earlier versions gets an empty history (SQLite migration 009, browser data) and a baseline when loaded (FR-REL-10).
@@ -299,7 +299,7 @@ As a PO, I want to see how much of a release is left and whether it will make it
 - **Target line:** with a start and an end date it runs straight from what was left on the start day (when the history starts later: on the first recorded day) to nothing on the end day. Without both dates there is no line and the tab says what is missing. Without a history, or with less than two days of it, the tab says so like the scope report.
 - It uses the history of FR-REL-12 and counts what is done by the status of the stories at that time.
 
-Source: Issue #10, PO decisions · Status: Implemented · Verified by: burndown.test, ReleaseHistory.test "burndown"
+Source: Issue #10, PO decisions · Status: Implemented · Verified by: burndown.test, ReleaseHistory.test "burndown", ReleaseJourney.test
 
 ## Settings (SET)
 

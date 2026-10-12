@@ -12,7 +12,7 @@ const W = 680;
 const H = 284;
 const LEFT = 48;
 const RIGHT = 660;
-const TOP = 16;
+const TOP = 32;
 const BOTTOM = 250;
 
 /** A y axis that ends on a round number above the largest value. */
