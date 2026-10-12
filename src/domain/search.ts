@@ -1,6 +1,7 @@
 import { criteriaProgress, sortByRank } from './board';
+import { formatValue } from './fields';
 import { sortSprints } from './sprints';
-import type { Epic, Snapshot, Sprint, Status, Story } from './types';
+import type { Epic, FieldDefinition, Snapshot, Sprint, Status, Story } from './types';
 
 /** What a result is. The order is the order of the groups in the result list. */
 export const RESULT_KINDS = ['story', 'epic', 'sprint'] as const;
@@ -48,7 +49,9 @@ export interface Range {
 
 export interface Snippet {
   /** Where the match was found. */
-  field: 'description' | 'criterion';
+  field: 'description' | 'criterion' | 'custom';
+  /** Name of the custom field the match is in. */
+  fieldName?: string;
   text: string;
   ranges: Range[];
   /** True when text was cut off before or after the snippet. */
@@ -219,11 +222,28 @@ interface Ranked {
   order: number;
 }
 
-function matchStory(story: Story, terms: readonly string[], scope: Set<TextScope>, text: string): Ranked | null {
+/** Text of the custom field values of an item, with the field name; checkboxes and empty values have no text. */
+function customTexts(values: Story['values'], fields: readonly FieldDefinition[]): { name: string; text: string }[] {
+  return fields
+    .filter((field) => field.kind === 'custom' && field.dataType !== 'checkbox' && values[field.id] !== undefined)
+    .map((field) => ({ name: field.label ?? '', text: formatValue(field, values[field.id]) }))
+    .filter((item) => item.text.trim() !== '');
+}
+
+function matchStory(
+  story: Story,
+  terms: readonly string[],
+  scope: Set<TextScope>,
+  text: string,
+  fields: readonly FieldDefinition[]
+): Ranked | null {
   const titleTexts = scope.has('title') ? [story.code, story.title] : [];
   const descriptionTexts = scope.has('description') ? [story.description] : [];
   const criteriaTexts = scope.has('criteria') ? story.criteria.map((criterion) => criterion.text) : [];
-  if (terms.length > 0 && !allTermsIn([...titleTexts, ...descriptionTexts, ...criteriaTexts], terms)) return null;
+  // Custom fields are content, like the description.
+  const custom = scope.has('description') && terms.length > 0 ? customTexts(story.values ?? {}, fields) : [];
+  const customValues = custom.map((item) => item.text);
+  if (terms.length > 0 && !allTermsIn([...titleTexts, ...descriptionTexts, ...criteriaTexts, ...customValues], terms)) return null;
 
   const codeRanges = scope.has('title') ? findRanges(story.code, terms) : [];
   const titleRanges = scope.has('title') ? findRanges(story.title, terms) : [];
@@ -231,12 +251,13 @@ function matchStory(story: Story, terms: readonly string[], scope: Set<TextScope
   let snippet: Snippet | null = null;
   if (!inTitle) {
     const missing = terms.filter((term) => !titleTexts.some((value) => fold(value).includes(term)));
-    const candidates: { field: Snippet['field']; text: string }[] = [
+    const candidates: { field: Snippet['field']; text: string; name?: string }[] = [
       ...descriptionTexts.map((value) => ({ field: 'description' as const, text: value })),
-      ...criteriaTexts.map((value) => ({ field: 'criterion' as const, text: value }))
+      ...criteriaTexts.map((value) => ({ field: 'criterion' as const, text: value })),
+      ...custom.map((item) => ({ field: 'custom' as const, text: item.text, name: item.name }))
     ];
     const found = candidates.find((candidate) => findRanges(candidate.text, missing).length > 0);
-    if (found) snippet = makeSnippet(found.field, found.text, terms);
+    if (found) snippet = { ...makeSnippet(found.field, found.text, terms), ...(found.name !== undefined ? { fieldName: found.name } : {}) };
   }
   const exactCode = fold(text.trim()) === fold(story.code);
   return {
@@ -266,7 +287,7 @@ export function search(snapshot: Snapshot, query: SearchQuery): SearchResult[] {
 
   for (const story of sortByRank(snapshot.stories)) {
     if (!filters.every((filter) => passes(storyValues(story, filter.field), filter))) continue;
-    const match = matchStory(story, terms, scope, query.text);
+    const match = matchStory(story, terms, scope, query.text, snapshot.fields ?? []);
     if (match) ranked.push(match);
   }
   const epics = [...snapshot.epics].sort((a, b) => a.position - b.position);

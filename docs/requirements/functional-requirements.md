@@ -328,8 +328,8 @@ Source: PO feedback on #2 · Status: Implemented · Verified by: App "switches t
 As a team member, I want to search from every page with `Ctrl+F` (`Cmd+F`), so that I find a story, epic or sprint without knowing where it is.
 - The search field is in the header. `Ctrl+F` / `Cmd+F` focuses it and selects the text; an open detail dialog closes first.
 - Results appear while typing in a dropdown, grouped into stories, epics and sprints, at most five per group with "+ n more".
-- Free text is found in the key, title, description and acceptance criteria of stories and in the names of epics and sprints. Case and accents are ignored, several words must all occur, double quotes search an exact phrase.
-- The match is marked. A match outside the title shows where it was found (description, criterion) and a snippet.
+- Free text is found in the key, title, description, acceptance criteria and custom field values (#4) of stories and in the names of epics and sprints. Custom fields count as content, like the description; checkboxes are not searched. Case and accents are ignored, several words must all occur, double quotes search an exact phrase.
+- The match is marked. A match outside the title shows where it was found (description, criterion or the name of the custom field) and a snippet.
 - An exact key (`S-12`) comes first, then matches in key or title, then other matches; within these, backlog order.
 
 Source: #7 · Status: Implemented · Verified by: search.test, Search.test "search field"
