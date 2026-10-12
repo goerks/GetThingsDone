@@ -28,7 +28,7 @@ Four variants for the final version were proposed to the product owner. The mock
 | History | An empty field shows the last 5 searches (remembered when a result is opened or shown on the page) and the 5 items opened last (from anywhere). Each can be removed; "Clear history" removes all. Kept per device in the webview's local storage, like theme and language. |
 | One line | The field never wraps: badges that do not fit are cut off with a fade and counted ("+2"); with badges the field is 360 px wide, 480 px while open. |
 | Starting over | ✕ in the field clears text and badges. Without results, the list offers "Search without <filter>" with the number of results, and "Clear everything and start over". |
-| Current page (PO feedback on #8) | Each page tells the search what it shows. While a query is active, matches on the page are highlighted live (accent border) and the rest dimmed; a bar shows "n of m stories here match" and "Clear search". In the list, items on the page come first with "On this page". A switch "Everywhere / Only <page>" limits the results to the page (remembered). "Show on <page>" (`Ctrl+Enter`) closes the list and scrolls to the first match. |
+| Current page (PO feedback on #8) | Each page tells the search what it shows. While a query is active, matches on the page are highlighted live (accent border) and the rest dimmed; a bar shows "n of m stories here match" and "Clear search". In the list, items on the page carry "On this page"; the order stays by relevance, without a page switch (PO decision). "Show on <page>" (`Ctrl+Enter`) closes the list and scrolls to the first match. |
 
 ## Proposal: field filters typed in the search text (PO feedback on #8)
 

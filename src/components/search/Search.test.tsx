@@ -283,27 +283,12 @@ describe('the current page', () => {
     expect(screen.getByRole('group', { name: /S-7: Plan releases on a story map/ })).toHaveClass('backlog__row--match');
   });
 
-  it('lists results on the page first and marks them', async () => {
+  it('orders results by relevance only and marks those on the page', async () => {
     const user = await renderApp();
     await user.type(field(), 'story');
-    const stories = within(listbox()).getAllByRole('option');
-    expect(stories[0]).toHaveTextContent('On this page');
-    const last = stories[stories.length - 1];
-    expect(last).toHaveTextContent('S-7');
-    expect(last).not.toHaveTextContent('On this page');
-  });
-
-  it('searches only the page when switched, and offers to search everywhere again', async () => {
-    const user = await renderApp();
-    await user.type(field(), 'releases');
-    await user.click(screen.getByRole('radio', { name: 'Only Board' }));
-    const empty = within(listbox()).getByRole('group', { name: 'No results' });
-    const widen = within(empty).getByRole('option', { name: /Show results from everywhere/ });
-    expect(widen).toHaveTextContent('1 result');
-    await user.click(widen);
-    expect(screen.getByRole('radio', { name: 'Everywhere' })).toBeChecked();
-    expect(within(listbox()).getByRole('group', { name: 'Stories' })).toHaveTextContent('S-7');
-    expect(window.localStorage.getItem('getitdone.searchScope')).toBe('all');
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    const stories = within(within(listbox()).getByRole('group', { name: 'Stories' })).getAllByRole('option');
+    expect(stories.some((option) => option.textContent?.includes('On this page'))).toBe(true);
   });
 
   it('marks matching epics on the epics page', async () => {

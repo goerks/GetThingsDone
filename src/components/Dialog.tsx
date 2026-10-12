@@ -115,10 +115,6 @@ function NavBar({ nav }: { nav: DetailNav }) {
         >
           ›
         </button>
-        <span className="detail-nav__keys" aria-hidden="true">
-          <kbd>←</kbd>
-          <kbd>→</kbd>
-        </span>
         <button type="button" className="btn btn--small" onClick={nav.back}>
           {t('search.nav.back')}
         </button>

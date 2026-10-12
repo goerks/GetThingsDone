@@ -553,19 +553,6 @@ export type PageItems = Record<ResultKind, ReadonlySet<string>>;
 
 export const isOnPage = (result: Pick<SearchResult, 'kind' | 'id'>, page: PageItems): boolean => page[result.kind].has(result.id);
 
-/**
- * Orders results for the current page: within each group, items shown on the page come first.
- * With `onlyPage`, results that are not on the page are left out.
- */
-export function arrangeForPage(results: readonly SearchResult[], page: PageItems | null, onlyPage: boolean): SearchResult[] {
-  if (!page) return [...results];
-  if (onlyPage) return results.filter((result) => isOnPage(result, page));
-  return RESULT_KINDS.flatMap((kind) => {
-    const group = results.filter((result) => result.kind === kind);
-    return [...group.filter((result) => isOnPage(result, page)), ...group.filter((result) => !isOnPage(result, page))];
-  });
-}
-
 // ---------- Where an item is shown ----------
 
 /** The pages that show stories, epics or sprints. */

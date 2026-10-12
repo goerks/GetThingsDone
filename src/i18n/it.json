@@ -378,10 +378,6 @@
       "back": "Torna alla ricerca"
     },
     "onPage": "In questa pagina",
-    "everywhere": "Ovunque",
-    "onlyPage": "Solo {{page}}",
-    "scopeLabel": "Dove cercare",
-    "searchEverywhere": "Mostra risultati da ovunque",
     "showOnPage": "Mostra in {{page}}",
     "badge": "{{field}} = {{value}}",
     "fieldsGroup": "Campi",
