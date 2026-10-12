@@ -334,17 +334,19 @@ As a team member, I want to search from every page with `Ctrl+F` (`Cmd+F`), so t
 
 Source: #7 · Status: Implemented · Verified by: search.test, Search.test "search field"
 
-### FR-SEARCH-02 Filter with chips
-As a PO, I want to combine free text with filters, so that I find for example all open stories of an epic.
-- Status, Epic and Sprint have their own button; Type, Points, Criteria (all accepted, open, none) and "Search in" (key and title, description, criteria) are under "+ Filter".
-- A field's menu lists its values as checkboxes with the number of results and offers "is" or "is not". A click on a chip opens its menu, ✕ on a chip removes it.
-- Different fields are combined with AND, values of one field with OR. Filters work without text.
-- Text that names a status, epic or sprint is offered as "Use as filter"; `Tab` turns it into a chip.
+### FR-SEARCH-02 Filter by fields in the search text
+As a PO, I want to combine free text with field filters typed in the same field, so that I find for example all open stories of an epic.
+- A filter is typed as `field:value` (or `field=value`), e.g. `status:open points:5 epic:"local storage"`. Field names work in the UI language and in English; field and value names may be shortened while unique; case and accents are ignored. Custom fields (#4) work the same way.
+- A word that starts like a field name lists the matching fields (typing "Punk" offers "Punkte"); `@` or `Ctrl+Space` lists all fields. `Tab` or `Enter` takes the field and lists its values; choosing a value, or starting the next word after a complete `field:value`, turns it into a badge `Field = value`.
+- All filters and the free text are combined with AND. Each field is used at most once: a field that is set is shown as "already set" and cannot be chosen; typing it again replaces its value.
+- One `Backspace` at the start of the field removes the last badge completely; ✕ on a badge removes it.
+- An unknown field or value is named in a note under the field and left out of the search.
+- There are no filter buttons, value counts, "is not" or several values per field (PO decision on #8).
 
-Source: #7 · Status: Implemented · Verified by: search.test "chips", Search.test "filters"
+Source: #7, PO feedback on #8 · Status: Implemented · Verified by: search.test "typed field filters", "badges", Search.test "field filters typed in the search"
 
 ### FR-SEARCH-03 Keyboard and opening a result
-- Focus stays in the field; `↑`/`↓` move through the results, `Enter` opens, `Esc` closes the menu and then the list. `⌫` at the start of the field marks the last chip, a second `⌫` removes it.
+- Focus stays in the field; `↑`/`↓` move through the suggestions and results, `Enter` opens or takes the marked entry, `Tab` takes a field or value, `Esc` closes the list.
 - A result is shown where it is before its detail dialog opens (PO feedback on #8):
   1. If the current page shows it, the item is marked there, scrolled into view and focused.
   2. Otherwise the app switches to the first page that shows it (story: board for the running sprint, backlog, story map; epic: epics page, story map; sprint: board, story map, backlog) and marks it there.
@@ -356,9 +358,9 @@ Source: #7 · Status: Implemented · Verified by: search.test "chips", Search.te
 Source: #7, PO feedback on #8 · Status: Implemented · Verified by: Search.test "search field", "opening a result where it is shown", search.test "where a result is shown"
 
 ### FR-SEARCH-04 History and starting over
-- An empty field shows the last 5 searches with their chips and the 5 items opened last, also those opened from board or map. A search is remembered when a result is opened from it or it is shown on the page with `Ctrl+Enter`.
+- An empty field shows the last 5 searches with their badges and the 5 items opened last, also those opened from board or map. A search is remembered when a result is opened from it or it is shown on the page with `Ctrl+Enter`.
 - An entry is removed with ✕ or `Delete`; "Clear history" removes all. The history stays on the device.
-- ✕ in the field clears text and chips. Without results, the list offers to search without one of the chips, with the number of results, or to start over.
+- ✕ in the field clears text and badges. Without results, the list offers to search without one of the filters, with the number of results, or to start over.
 
 Source: #7 · Status: Implemented · Verified by: searchHistory.test, Search.test "history", "suggests dropping a filter…"
 

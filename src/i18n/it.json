@@ -304,10 +304,9 @@
   },
   "search": {
     "label": "Ricerca",
-    "placeholder": "Cerca o filtra…",
-    "placeholderMore": "Continua a scrivere o filtra…",
+    "placeholder": "Cerca… (@ per i campi)",
+    "placeholderMore": "Continua o @ per i campi…",
     "clear": "Cancella ricerca",
-    "filters": "Filtri",
     "results": "Risultati della ricerca",
     "field": {
       "status": "Stato",
@@ -315,8 +314,7 @@
       "sprint": "Sprint",
       "type": "Tipo",
       "points": "Punti",
-      "criteria": "Criteri",
-      "scope": "Cerca in"
+      "criteria": "Criteri"
     },
     "kind": {
       "story": "Story",
@@ -343,14 +341,6 @@
       "open": "Criteri aperti",
       "none": "Nessun criterio"
     },
-    "scope": {
-      "title": "Chiave e titolo",
-      "description": "Descrizione",
-      "criteria": "Criteri di accettazione"
-    },
-    "or": "o",
-    "chip": "{{field}}: {{values}}",
-    "chipNot": "{{field}} non è {{values}}",
     "criteriaCount": "{{done}}/{{total}} criteri",
     "foundIn": {
       "description": "Descrizione",
@@ -358,20 +348,11 @@
     },
     "storiesAndPoints_one": "{{count}} story · {{points}} punti",
     "storiesAndPoints_other": "{{count}} story · {{points}} punti",
-    "menuLabel": "Filtro: {{field}}",
-    "matchLabel": "Condizione",
-    "is": "è",
-    "isNot": "non è",
-    "narrow": "Cerca {{field}}…",
     "resultCount_one": "{{count}} risultato",
     "resultCount_other": "{{count}} risultati",
     "removeFilter": "Rimuovi filtro {{filter}}",
-    "editFilter": "Modifica filtro {{filter}}",
-    "done": "Fatto",
-    "moreFilters": "Filtro",
     "recentSearches": "Ricerche recenti",
     "recentlyOpened": "Aperti di recente",
-    "useAsFilter": "Usa come filtro",
     "noResults": "Nessun risultato",
     "noResultsStatus": "Nessun risultato. Puoi togliere un filtro o ricominciare.",
     "forget": "Rimuovi dalla cronologia",
@@ -381,7 +362,8 @@
     "keys": {
       "move": "scegli",
       "open": "apri",
-      "close": "chiudi"
+      "close": "chiudi",
+      "fields": "campi"
     },
     "clearHistory": "Cancella cronologia",
     "highlightSummary_one": "{{matches}} story su {{count}} corrisponde qui",
@@ -398,6 +380,13 @@
     "onlyPage": "Solo {{page}}",
     "scopeLabel": "Dove cercare",
     "searchEverywhere": "Mostra risultati da ovunque",
-    "showOnPage": "Mostra in {{page}}"
+    "showOnPage": "Mostra in {{page}}",
+    "badge": "{{field}} = {{value}}",
+    "fieldsGroup": "Campi",
+    "fieldUsed": "già impostato",
+    "problemField": "Non esiste il campo «{{name}}». Digita @ per vedere i campi.",
+    "problemValue": "«{{value}}» non è un valore di {{field}}.",
+    "yes": "sì",
+    "no": "no"
   }
 }

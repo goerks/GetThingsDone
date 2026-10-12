@@ -3,10 +3,12 @@ import {
   EMPTY_QUERY,
   arrangeForPage,
   isActive,
+  effectiveQuery,
   search,
   viewFor,
   whereShown,
   type PageItems,
+  type ParsedText,
   type SearchQuery,
   type SearchResult
 } from '../domain/search';
@@ -95,6 +97,9 @@ interface SearchApi {
   forgetSearch(index: number): void;
   forgetOpened(item: RecentItem): void;
   clearHistory(): void;
+  /** Badges and typed filters together, and what the search text contains. */
+  effective: SearchQuery;
+  parsed: ParsedText;
   /** Results for every page; `results` is this list arranged for the current page and scope. */
   allResults: SearchResult[];
   scope: SearchScope;
@@ -184,7 +189,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [page, setPage] = useState<SearchPage | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const allResults = useMemo(() => search(snapshot, query), [snapshot, query]);
+  const { query: effective, parsed } = useMemo(() => effectiveQuery(query, labels.catalog), [query, labels.catalog]);
+  const allResults = useMemo(() => search(snapshot, effective), [snapshot, effective]);
   const results = useMemo(() => arrangeForPage(allResults, page?.items ?? null, scope === 'page'), [allResults, page, scope]);
 
   const setScope = useCallback((next: SearchScope) => {
@@ -272,9 +278,9 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     (index: number) => {
       changeHistory((history) => rememberSearch(history, query));
       setOpen(false);
-      openAt(results, index, labels.query(query));
+      openAt(results, index, labels.query(effective));
     },
-    [changeHistory, query, results, openAt, labels]
+    [changeHistory, query, effective, results, openAt, labels]
   );
 
   const openRecent = useCallback(
@@ -287,19 +293,19 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!isActive(query)) clearLocated();
-  }, [query]);
+    if (!isActive(effective)) clearLocated();
+  }, [effective]);
 
   const matches = useMemo<PageMatches | null>(() => {
-    if (!isActive(query)) return null;
+    if (!isActive(effective)) return null;
     const ids = (kind: SearchResult['kind']): Set<string> =>
       new Set(allResults.filter((result) => result.kind === kind).map((result) => result.id));
     return {
       ids: { story: ids('story'), epic: ids('epic'), sprint: ids('sprint') },
-      label: labels.query(query),
+      label: labels.query(effective),
       clear: () => setQuery(EMPTY_QUERY)
     };
-  }, [query, allResults, labels]);
+  }, [effective, allResults, labels]);
 
   const showOnPage = useCallback(() => {
     changeHistory((history) => rememberSearch(history, query));
@@ -326,6 +332,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       forgetSearch: (index) => changeHistory((history) => forgetSearchIn(history, index)),
       forgetOpened: (item) => changeHistory((history) => forgetOpenedIn(history, item)),
       clearHistory: () => changeHistory(() => EMPTY_HISTORY),
+      effective,
+      parsed,
       allResults,
       scope,
       setScope,
@@ -334,7 +342,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       matches,
       showOnPage
     }),
-    [snapshot, labels, query, results, open, focus, returnKey, openResult, openRecent, history, changeHistory, allResults, scope, setScope, page, matches, showOnPage]
+    [snapshot, labels, query, results, open, focus, returnKey, openResult, openRecent, history, changeHistory, effective, parsed, allResults, scope, setScope, page, matches, showOnPage]
   );
 
   return <SearchContext.Provider value={api}>{children}</SearchContext.Provider>;

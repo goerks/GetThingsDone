@@ -114,96 +114,105 @@ describe('search field', () => {
 
   it('clears text and filters with one click', async () => {
     const user = await renderApp();
-    await user.type(field(), 'review');
-    await user.keyboard('{Tab}');
-    await user.type(field(), 'tick');
+    await user.type(field(), 'status:review tick');
     await user.click(within(screen.getByRole('search')).getByRole('button', { name: 'Clear search' }));
     expect(field()).toHaveValue('');
-    expect(screen.queryByRole('button', { name: /Change filter/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('search').querySelector('.search-chip')).toBeNull();
     expect(field()).toHaveFocus();
   });
 });
 
-describe('filters', () => {
-  it('offers matching free text as a filter and turns it into a chip with Tab', async () => {
+describe('field filters typed in the search', () => {
+  const badge = (name: string): HTMLElement | null =>
+    within(screen.getByRole('search'))
+      .queryAllByText((_, element) => element?.classList.contains('search-chip') === true && element.textContent?.startsWith(name) === true)[0] ?? null;
+
+  it('suggests fields while typing; Tab takes the field and lists its values; choosing one makes a badge', async () => {
     const user = await renderApp();
-    await user.type(field(), 'review');
-    const suggestions = within(listbox()).getByRole('group', { name: 'Use as filter' });
-    expect(suggestions).toHaveTextContent('Status = Review');
-    // Without text results, the suggestion is the marked entry.
-    expect(selected()).toHaveTextContent('Status = Review');
+    await user.type(field(), 'poi');
+    expect(within(listbox()).getByRole('group', { name: 'Fields' })).toHaveTextContent('Points');
     await user.keyboard('{Tab}');
+    expect(field()).toHaveValue('points:');
+    const values = within(listbox()).getByRole('group', { name: 'Points' });
+    expect(within(values).getAllByRole('option').map((option) => option.textContent)).toEqual(
+      expect.arrayContaining([expect.stringContaining('5')])
+    );
+    await user.type(field(), '5');
+    await user.keyboard('{Enter}');
     expect(field()).toHaveValue('');
-    expect(screen.getByRole('button', { name: 'Change filter Status: Review' })).toBeInTheDocument();
-    expect(within(listbox()).getByRole('group', { name: 'Stories' })).toHaveTextContent('Tick off acceptance criteria');
+    expect(badge('Points')).toHaveTextContent('Points=5');
+    const stories = within(listbox()).getByRole('group', { name: 'Stories' });
+    expect(within(stories).getAllByRole('option').length).toBeGreaterThan(0);
     expect(field()).toHaveFocus();
   });
 
-  it('removes the last chip with Backspace twice at the start of the field', async () => {
+  it('lists all fields with @ and Ctrl+Space; a field that is set cannot be chosen again', async () => {
     const user = await renderApp();
-    await user.type(field(), 'review');
-    await user.keyboard('{Tab}');
-    await user.keyboard('{Backspace}');
-    expect(screen.getByRole('button', { name: 'Change filter Status: Review' }).parentElement).toHaveClass('search-chip--marked');
-    await user.keyboard('{Backspace}');
-    expect(screen.queryByRole('button', { name: 'Change filter Status: Review' })).not.toBeInTheDocument();
+    await user.type(field(), 'status:review ');
+    expect(badge('Status')).toHaveTextContent('Status=Review');
+    await user.type(field(), '@');
+    const fields = within(listbox()).getByRole('group', { name: 'Fields' });
+    expect(fields).toHaveTextContent('Epic');
+    expect(fields).toHaveTextContent('Sprint');
+    expect(within(fields).getByRole('option', { name: /Status/ })).toHaveAttribute('aria-disabled', 'true');
+    await user.clear(field());
+    await user.keyboard('{Control>} {/Control}');
+    expect(within(listbox()).getByRole('group', { name: 'Fields' })).toHaveTextContent('Points');
   });
 
-  it('picks values in a menu with counts; values of one field are combined with or', async () => {
+  it('turns a typed field:value into a badge when the next word starts, and combines fields with AND', async () => {
     const user = await renderApp();
-    await user.click(field());
-    await user.click(screen.getByRole('button', { name: /^Status/ }));
-    const menu = screen.getByRole('dialog', { name: 'Filter: Status' });
-    const review = within(menu).getByRole('checkbox', { name: /Review/ });
-    expect(within(menu).getByRole('radio', { name: 'is' })).toHaveFocus();
-    await user.click(review);
-    await user.click(within(menu).getByRole('checkbox', { name: /Done/ }));
-    expect(screen.getByRole('button', { name: 'Change filter Status: Review or Done' })).toBeInTheDocument();
-    const stories = within(listbox()).getByRole('group', { name: /^Stories/ });
-    expect(within(stories).getAllByRole('option').map((option) => option.textContent)).toEqual([
-      expect.stringContaining('S-2'),
-      expect.stringContaining('S-5')
-    ]);
-    await user.click(within(menu).getByRole('button', { name: 'Done' }));
-    expect(screen.queryByRole('dialog', { name: 'Filter: Status' })).not.toBeInTheDocument();
-    expect(field()).toHaveFocus();
-  });
-
-  it('excludes values with "is not" and combines fields with and', async () => {
-    const user = await renderApp();
-    await user.click(field());
-    await user.click(screen.getByRole('button', { name: /^Epic/ }));
-    await user.click(within(screen.getByRole('dialog', { name: 'Filter: Epic' })).getByRole('checkbox', { name: /Boards/ }));
-    await user.click(screen.getByRole('button', { name: /^Status/ }));
-    const menu = screen.getByRole('dialog', { name: 'Filter: Status' });
-    await user.click(within(menu).getByRole('checkbox', { name: /Review/ }));
-    await user.click(within(menu).getByRole('radio', { name: 'is not' }));
-    expect(screen.getByRole('button', { name: 'Change filter Status is not Review' })).toBeInTheDocument();
-    const stories = within(listbox()).getByRole('group', { name: /^Stories/ });
+    await user.type(field(), 'status:in epic:"local storage" ');
+    expect(field()).toHaveValue('');
+    expect(badge('Status')).toHaveTextContent('Status=In progress');
+    expect(badge('Epic')).toHaveTextContent('Epic=Local storage');
+    const stories = within(listbox()).getByRole('group', { name: 'Stories' });
     expect(within(stories).getAllByRole('option')).toHaveLength(1);
-    expect(stories).toHaveTextContent('S-1');
+    expect(stories).toHaveTextContent('S-4');
   });
 
-  it('offers the other fields under "+ Filter"', async () => {
+  it('removes the last badge completely with one Backspace at the start of the field', async () => {
     const user = await renderApp();
-    await user.click(field());
-    await user.click(screen.getByRole('button', { name: '+ Filter' }));
-    await user.click(within(screen.getByRole('dialog', { name: 'Filter' })).getByRole('button', { name: 'Criteria' }));
-    await user.click(within(screen.getByRole('dialog', { name: 'Filter: Criteria' })).getByRole('checkbox', { name: /All accepted/ }));
-    expect(screen.getByRole('button', { name: 'Change filter Criteria: All accepted' })).toBeInTheDocument();
-    expect(within(listbox()).getByRole('group', { name: /^Stories/ })).toHaveTextContent('S-5');
+    await user.type(field(), 'status:review points:2 ');
+    expect(badge('Points')).not.toBeNull();
+    await user.keyboard('{Backspace}');
+    expect(badge('Points')).toBeNull();
+    expect(badge('Status')).not.toBeNull();
+  });
+
+  it('replaces the value when a field is typed again', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'status:review status:done ');
+    expect(screen.getByRole('search').querySelectorAll('.search-chip')).toHaveLength(1);
+    expect(badge('Status')).toHaveTextContent('Status=Done');
+  });
+
+  it('reports an unknown field or value and leaves it out of the search', async () => {
+    const user = await renderApp();
+    await user.type(field(), 'colour:red offline');
+    expect(screen.getByRole('note')).toHaveTextContent('There is no field “colour”');
+    expect(within(listbox()).getByRole('group', { name: 'Stories' })).toHaveTextContent('S-4');
+    await user.clear(field());
+    await user.type(field(), 'status:maybe');
+    expect(screen.getByRole('note')).toHaveTextContent('“maybe” is not a value of Status');
   });
 
   it('suggests dropping a filter when nothing is found', async () => {
     const user = await renderApp();
-    await user.type(field(), 'done');
-    await user.keyboard('{Tab}');
-    await user.type(field(), 'keyboard');
+    await user.type(field(), 'status:done keyboard');
     const empty = within(listbox()).getByRole('group', { name: 'No results' });
-    const relax = within(empty).getByRole('option', { name: /Search without Status: Done/ });
+    const relax = within(empty).getByRole('option', { name: /Search without Status = Done/ });
     expect(relax).toHaveTextContent('1 result');
     await user.click(relax);
-    expect(within(listbox()).getByRole('group', { name: 'Stories' })).toBeInTheDocument();
+    expect(field()).toHaveValue('keyboard');
+    expect(within(listbox()).getByRole('group', { name: 'Stories' })).toHaveTextContent('S-6');
+  });
+
+  it('has no filter buttons any more', async () => {
+    const user = await renderApp();
+    await user.click(field());
+    expect(screen.queryByRole('button', { name: /^Status/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '+ Filter' })).not.toBeInTheDocument();
   });
 });
 
@@ -312,7 +321,9 @@ describe('languages', () => {
     await i18n.changeLanguage('de');
     await user.type(screen.getByRole('combobox', { name: 'Suche' }), 'offline');
     expect(screen.getByRole('listbox', { name: 'Suchergebnisse' })).toHaveTextContent('Beschreibung:');
-    expect(screen.getByRole('button', { name: /^Status/ })).toBeInTheDocument();
+    await user.clear(screen.getByRole('combobox', { name: 'Suche' }));
+    await user.type(screen.getByRole('combobox', { name: 'Suche' }), 'Punk');
+    expect(within(screen.getByRole('listbox', { name: 'Suchergebnisse' })).getByRole('group', { name: 'Felder' })).toHaveTextContent('Punkte');
   });
 });
 

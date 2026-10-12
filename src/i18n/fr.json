@@ -304,10 +304,9 @@
   },
   "search": {
     "label": "Recherche",
-    "placeholder": "Rechercher ou filtrer…",
-    "placeholderMore": "Continuer à saisir ou filtrer…",
+    "placeholder": "Rechercher… (@ pour les champs)",
+    "placeholderMore": "Continuer ou @ pour les champs…",
     "clear": "Effacer la recherche",
-    "filters": "Filtres",
     "results": "Résultats de recherche",
     "field": {
       "status": "Statut",
@@ -315,8 +314,7 @@
       "sprint": "Sprint",
       "type": "Type",
       "points": "Points",
-      "criteria": "Critères",
-      "scope": "Rechercher dans"
+      "criteria": "Critères"
     },
     "kind": {
       "story": "Story",
@@ -343,14 +341,6 @@
       "open": "Critères ouverts",
       "none": "Aucun critère"
     },
-    "scope": {
-      "title": "Clé et titre",
-      "description": "Description",
-      "criteria": "Critères d’acceptation"
-    },
-    "or": "ou",
-    "chip": "{{field}} : {{values}}",
-    "chipNot": "{{field}} n’est pas {{values}}",
     "criteriaCount": "{{done}}/{{total}} critères",
     "foundIn": {
       "description": "Description",
@@ -358,20 +348,11 @@
     },
     "storiesAndPoints_one": "{{count}} story · {{points}} points",
     "storiesAndPoints_other": "{{count}} stories · {{points}} points",
-    "menuLabel": "Filtre : {{field}}",
-    "matchLabel": "Condition",
-    "is": "est",
-    "isNot": "n’est pas",
-    "narrow": "Chercher {{field}}…",
     "resultCount_one": "{{count}} résultat",
     "resultCount_other": "{{count}} résultats",
     "removeFilter": "Retirer le filtre {{filter}}",
-    "editFilter": "Modifier le filtre {{filter}}",
-    "done": "Terminé",
-    "moreFilters": "Filtre",
     "recentSearches": "Recherches récentes",
     "recentlyOpened": "Ouverts récemment",
-    "useAsFilter": "Utiliser comme filtre",
     "noResults": "Aucun résultat",
     "noResultsStatus": "Aucun résultat. Vous pouvez retirer un filtre ou recommencer.",
     "forget": "Retirer de l’historique",
@@ -381,7 +362,8 @@
     "keys": {
       "move": "choisir",
       "open": "ouvrir",
-      "close": "fermer"
+      "close": "fermer",
+      "fields": "champs"
     },
     "clearHistory": "Effacer l’historique",
     "highlightSummary_one": "{{matches}} story sur {{count}} correspond ici",
@@ -398,6 +380,13 @@
     "onlyPage": "Seulement {{page}}",
     "scopeLabel": "Où chercher",
     "searchEverywhere": "Afficher les résultats de partout",
-    "showOnPage": "Afficher sur {{page}}"
+    "showOnPage": "Afficher sur {{page}}",
+    "badge": "{{field}} = {{value}}",
+    "fieldsGroup": "Champs",
+    "fieldUsed": "déjà défini",
+    "problemField": "Il n’y a pas de champ « {{name}} ». Tapez @ pour voir les champs.",
+    "problemValue": "« {{value}} » n’est pas une valeur de {{field}}.",
+    "yes": "oui",
+    "no": "non"
   }
 }
