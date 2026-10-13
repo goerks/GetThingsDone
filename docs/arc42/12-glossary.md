@@ -4,7 +4,8 @@
 |---|---|
 | Acceptance criterion | A checkable condition of a story. A story is accepted when all criteria are ticked. |
 | Backlog | All stories, ordered by priority (rank). |
-| Board | Kanban view of the stories in the running sprint, one column per status. |
+| Board | Kanban view of the stories in the running sprint, one column per status value, grouped by category. |
+| Status value | A step of the team's process and a column of the board, in one of the fixed categories "Not started", "In progress" or "Done". A story is done when its status is in "Done". |
 | Built-in field | A field the app ships with, such as description or points. Can later be hidden and renamed. |
 | Custom field | A field a team adds to the field library, for example "Priority". |
 | Epic | A larger theme that groups stories. Shown as a coloured dot and name. A story may have no epic. |
