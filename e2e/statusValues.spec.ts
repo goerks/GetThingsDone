@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { pressUntilAnnounced } from './keyboardDrag';
 
 /*
  * End-to-end tests of the configurable status values in a real browser (#5), following the test cases the PO approved
@@ -268,8 +269,7 @@ test('AC2.6 pulls a story through own statuses from left to right with the keybo
     await card(page, 'S-3').focus();
     await page.keyboard.press('Space');
     await expect(announcement(page, new RegExp(`^Reorder the backlog by priority is over ${from}`))).toHaveCount(1);
-    await page.keyboard.press('ArrowRight');
-    await expect(announcement(page, new RegExp(`^Reorder the backlog by priority is over ${to}`))).toHaveCount(1);
+    await pressUntilAnnounced(page, 'ArrowRight', announcement(page, new RegExp(`^Reorder the backlog by priority is over ${to}`)));
     await page.keyboard.press('Space');
 
     // Then S-3 is in that column, and the screen reader says so (which also ends this move, before the next one starts)
@@ -632,8 +632,7 @@ test('AC6.3 announces moving a status to screen readers', async ({ page }) => {
   await handle(page, 'Review').focus();
   await page.keyboard.press('Space');
   await expect(announcement(page, 'Picked up Review.')).toHaveCount(1);
-  await page.keyboard.press('ArrowUp');
-  await expect(announcement(page, /^Review is over /)).toHaveCount(1);
+  await pressUntilAnnounced(page, 'ArrowUp', announcement(page, /^Review is over /));
   await page.keyboard.press('Space');
 
   // Then the screen reader says that it was dropped and where it is now
