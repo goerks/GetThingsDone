@@ -43,6 +43,14 @@ Stories, epics and sprints open in dialogs over the current page (`DetailsProvid
 5. Each page registers what it shows with `useSearchPage` (board: running sprint; backlog: all stories and sprints; map: shown stories, epics and sprints; epics page: epics). Results stay in order of relevance; those on the page are only marked. While a query is active, cards and rows ask `useMatchClass` whether they match; the matches are recomputed from the current snapshot, so moving or editing a story updates the highlighting at once. `Ctrl+Enter` closes the list and scrolls to the first match.
 6. The history (last 5 searches and opened items) is written to the webview's `localStorage` on every change. `DetailsProvider` exposes the open item, so items opened from anywhere are remembered.
 
+## Help and first steps (#33)
+
+1. `?` (or the header button) calls `toggleHelp`; `HelpPanel` is rendered next to the page, the app gets the class `app--help` and the main area makes room.
+2. The home view lists `TOPICS` for the current route (`pages`), then the general ones. Typing calls `searchHelp` on the entries of the current language (`useHelpEntries`); the result is ranked by title, keywords, text.
+3. "Show me" looks up the selector of the topic and sets `data-help-highlight` on the first match; a capture listener removes it on the next pointer, key or `hashchange`.
+4. `startTour` sets `tourStarted`. `AppState` calls its activity listeners after a drop that changes a story's status (`moved`), `createStory` (`created`) and a backlog drop (`ordered`); `HelpProvider` passes them to `noteActivity`, which ticks off the matching step only when the tour is started and always ends the invitation.
+5. Every change of `HelpState` is written to `localStorage` (`getitdone.help`).
+
 ## Saving
 
 All writes go through one promise queue in `AppState`, so a fast series of changes is stored in the order it happened. If a write fails, the UI keeps the change and shows a "saving failed" alert. There is no automatic retry yet (see [chapter 11](11-risks-and-technical-debt.md)).

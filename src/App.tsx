@@ -2,6 +2,8 @@ import { featureOn } from './domain/settings';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from './components/Header';
+import { HelpPanel } from './components/help/HelpPanel';
+import { WelcomeCard } from './components/help/WelcomeCard';
 import { createRepository } from './data/createRepository';
 import type { Repository } from './data/repository';
 import { BacklogPage } from './pages/BacklogPage';
@@ -12,6 +14,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { MapPage } from './pages/MapPage';
 import { hrefs, useRoute } from './router';
 import { AppProvider, useApp } from './state/AppState';
+import { HelpProvider, useHelp } from './state/Help';
 import { DetailsProvider } from './state/Details';
 import { SearchProvider } from './state/Search';
 import { useTheme } from './theme';
@@ -21,6 +24,7 @@ function Shell() {
   const route = useRoute();
   const { theme, toggleTheme } = useTheme();
   const { loading, error, settings } = useApp();
+  const help = useHelp();
   // Without releases the address of the Releases page leads back to the board.
   const hidden = route.name === 'releases' && !loading && !featureOn(settings, 'releases');
   useEffect(() => {
@@ -28,9 +32,11 @@ function Shell() {
   }, [hidden]);
 
   return (
-    <div className="app">
+    <div className={`app${help.open ? ' app--help' : ''}`}>
       <Header route={route} theme={theme} onToggleTheme={toggleTheme} />
       <main className="main">
+        {/* The settings are no place for an invitation: they are a task of their own. */}
+        {!loading && route.name !== 'settings' && <WelcomeCard />}
         {error && (
           <div role="alert" className="notice notice--error">
             {error}
@@ -54,6 +60,7 @@ function Shell() {
           <BoardPage />
         )}
       </main>
+      {help.open && <HelpPanel route={route} />}
     </div>
   );
 }
@@ -64,7 +71,9 @@ export default function App({ repository }: { repository?: Promise<Repository> |
     <AppProvider repository={source}>
       <DetailsProvider>
         <SearchProvider>
-          <Shell />
+          <HelpProvider>
+            <Shell />
+          </HelpProvider>
         </SearchProvider>
       </DetailsProvider>
     </AppProvider>

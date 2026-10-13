@@ -664,5 +664,151 @@
       "confirmMove_one": "Déplacer {{count}} story et supprimer",
       "confirmMove_other": "Déplacer {{count}} stories et supprimer"
     }
+  },
+  "help": {
+    "button": "Aide",
+    "close": "Fermer l’aide",
+    "panelLabel": "Aide",
+    "title": "Aide · {{page}}",
+    "pages": {
+      "board": "Tableau",
+      "backlog": "Backlog",
+      "map": "Story Map",
+      "epics": "Epics",
+      "releases": "Releases",
+      "settings": "Paramètres"
+    },
+    "search": {
+      "label": "Rechercher dans l’aide",
+      "placeholder": "Rechercher dans l’aide…",
+      "clear": "Effacer la recherche",
+      "results_one": "{{count}} résultat",
+      "results_other": "{{count}} résultats",
+      "resultsLabel": "Sujets d’aide trouvés",
+      "none": "Aucun résultat pour « {{query}} »",
+      "noneHint": "Essayez d’autres mots ou consultez tous les sujets.",
+      "showAll": "Voir tous les sujets"
+    },
+    "onThisPage": "Sur cette page",
+    "general": "Général",
+    "allTopics": "Tous les sujets",
+    "back": "Retour",
+    "topicOn": "Sur la page : {{page}}",
+    "showMe": "Montre-moi",
+    "shown": "Mis en évidence sur la page.",
+    "missing": "Il n’y a rien à montrer ici pour le moment.",
+    "missingStory": "Il n’y a rien à montrer ici pour le moment. Créez d’abord une story.",
+    "goTo": "Ouvrir {{page}}",
+    "invitation": {
+      "label": "Introduction",
+      "title": "Nouveau ici ? Bienvenue dans Get It Done.",
+      "text": "Une courte introduction vous montre l’essentiel en trois minutes environ. Vous pouvez aussi la lancer plus tard avec le bouton ?.",
+      "start": "Démarrer l’introduction",
+      "decline": "Non merci"
+    },
+    "tour": {
+      "title": "Premiers pas",
+      "intro": "Facultatif, et vous pouvez vous arrêter à tout moment. Vous pouvez aussi vous lancer seul.",
+      "progress": "{{done}} sur {{total}} terminées",
+      "stepsLabel": "Étapes",
+      "stepDone": "terminée",
+      "stepSkipped": "ignorée",
+      "stepCurrent": "étape en cours",
+      "skip": "Ignorer l’étape",
+      "confirm": "Compris",
+      "close": "Continuer plus tard",
+      "restart": "Recommencer",
+      "restartAsk": "Recommencer à la première étape ? Vos stories restent telles quelles.",
+      "restartYes": "Oui, recommencer",
+      "restartNo": "Annuler",
+      "finished": "Bravo : toutes les étapes sont faites. Chaque sujet d’aide est à un clic.",
+      "open": "Afficher les premiers pas",
+      "progressShort": "{{done}} sur {{total}}",
+      "steps": {
+        "board": {
+          "title": "Découvrir le tableau",
+          "text": "Chaque colonne est un statut, chaque carte une story. Cliquez sur le titre d’une carte pour ouvrir la story."
+        },
+        "move": {
+          "title": "Déplacer une story",
+          "text": "Faites glisser une story dans une autre colonne. Au clavier : choisissez la carte, Espace, flèches, Espace à nouveau. L’étape se coche toute seule."
+        },
+        "create": {
+          "title": "Créer une story",
+          "text": "Appuyez sur Ctrl+N ou cliquez sur « Nouvelle story ». L’étape se coche dès que la story existe."
+        },
+        "order": {
+          "title": "Ordonner le backlog",
+          "text": "Ouvrez le backlog et faites glisser une story à un autre endroit, ou déplacez-la au clavier comme sur le tableau."
+        }
+      }
+    },
+    "topics": {
+      "board.move": {
+        "title": "Déplacer une story",
+        "keywords": "statut colonne glisser deposer clavier fleches changer",
+        "body": "Faites glisser une carte dans une autre colonne pour changer son statut. Au clavier, choisissez la carte, appuyez sur Espace pour la saisir, déplacez-la avec les flèches et appuyez de nouveau sur Espace pour la déposer. Échap annule.\nLe changement est enregistré immédiatement."
+      },
+      "board.columns": {
+        "title": "Colonnes et valeurs de statut",
+        "keywords": "statuts valeurs workflow categorie",
+        "body": "Chaque colonne du tableau est une valeur de statut. Les colonnes appartiennent aux catégories À faire, En cours et Terminé.\nVous renommez, ajoutez ou supprimez les valeurs de statut sous Paramètres, Valeurs de statut."
+      },
+      "story.open": {
+        "title": "Ouvrir et modifier une story",
+        "keywords": "story detail dialogue titre description criteres points",
+        "body": "Cliquez sur le titre d’une story, ou choisissez la carte et appuyez sur Entrée, pour l’ouvrir. Dans la fenêtre, vous modifiez le titre, la description, les points et le statut, et vous cochez les critères d’acceptation.\nÉchap ferme la fenêtre."
+      },
+      "story.create": {
+        "title": "Créer une story",
+        "keywords": "nouvelle story ajouter ctrl+n",
+        "body": "Appuyez sur Ctrl+N (Cmd+N sur Mac) ou utilisez le bouton « Nouvelle story » du tableau ou du backlog. Donnez un titre à la story et enregistrez-la.\nUne nouvelle story commence dans la première colonne."
+      },
+      "backlog.order": {
+        "title": "Ordonner le backlog",
+        "keywords": "priorite ordre glisser trier",
+        "body": "Le backlog est classé par priorité : la story du haut est la plus importante. Faites glisser une ligne à un autre endroit, ou déplacez-la au clavier : Espace pour saisir, flèches pour déplacer, Espace pour déposer.\nUne story déposée dans une autre section de sprint est planifiée dans ce sprint."
+      },
+      "backlog.sprints": {
+        "title": "Backlog et ligne de sprint",
+        "keywords": "sprint planification section ligne a venir en cours",
+        "body": "Le backlog montre les sprints les uns sous les autres, puis les stories pas encore planifiées. La ligne de sprint est la limite entre deux sections : ce qui est au-dessus appartient à ce sprint.\nFaites glisser des stories par-dessus la ligne pour les planifier."
+      },
+      "map.basics": {
+        "title": "Story Map",
+        "keywords": "carte activites epics sprints lignes colonnes release planification",
+        "body": "La Story Map a une colonne par epic et une ligne par sprint, ou par release si vous le choisissez dans les paramètres. Chaque cellule contient les stories de cet epic dans ce sprint.\nFaites glisser une story dans une autre cellule pour changer son sprint et son epic."
+      },
+      "epics.basics": {
+        "title": "Epics",
+        "keywords": "groupe couleur renommer supprimer theme",
+        "body": "Les epics regroupent les stories qui vont ensemble. Cliquez sur un epic pour le renommer, changer sa couleur ou le supprimer.\nUn epic qui contient encore des stories ne peut pas être supprimé."
+      },
+      "releases.basics": {
+        "title": "Releases",
+        "keywords": "release version perimetre burndown historique",
+        "body": "Une release rassemble les stories livrées ensemble. Ouvrez une release pour voir son périmètre, son avancement et son historique.\nLa page Releases peut être désactivée sous Paramètres, Fonctions."
+      },
+      "settings.basics": {
+        "title": "Paramètres",
+        "keywords": "champs valeurs de statut fonctions story map lignes roue",
+        "body": "Ouvrez les paramètres avec la roue dentée. Les champs décrivent vos stories, les valeurs de statut sont les colonnes du tableau, d’autres sections fixent les lignes de la Story Map et activent ou désactivent des fonctions.\nLa roue vous ramène à la page d’où vous venez."
+      },
+      "search.basics": {
+        "title": "Recherche",
+        "keywords": "trouver filtre ctrl+f champ statut epic sprint",
+        "body": "Appuyez sur Ctrl+F (Cmd+F sur Mac) pour chercher des stories, des epics et des sprints. Tous les mots doivent apparaître ; un texte entre guillemets est cherché comme expression.\nAffinez avec des filtres comme status:done : tapez @ pour voir tous les champs."
+      },
+      "shortcuts": {
+        "title": "Raccourcis clavier",
+        "keywords": "touches clavier raccourci",
+        "body": "?  Ouvrir ou fermer l’aide.\nCtrl+F  Rechercher.\nCtrl+N  Créer une story, un epic ou une release, selon la page.\nEspace, flèches, Espace  Saisir, déplacer et déposer une carte ou une ligne.\nÉchap  Annuler, ou fermer une fenêtre ou l’aide."
+      },
+      "tour": {
+        "title": "Premiers pas",
+        "keywords": "introduction tutoriel visite guidee parcours demarrer",
+        "body": "Une courte introduction facultative en quatre étapes : découvrir le tableau, déplacer une story, créer une story et ordonner le backlog. Les étapes se cochent toutes seules quand vous les faites."
+      }
+    }
   }
 }

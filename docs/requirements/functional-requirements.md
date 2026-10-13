@@ -1,6 +1,6 @@
 # Functional requirements
 
-Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints), issue #4 (configurable fields), issue #10 (release planning) and issue #5 (configurable status values). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
+Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints), issue #4 (configurable fields), issue #10 (release planning) and issue #5 (configurable status values) and issue #33 (help system). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
 
 ## Board (BOARD)
 
@@ -483,6 +483,49 @@ As a team member, I want to see search matches where they are on the page I am l
 - "Show on <page>" or `Ctrl+Enter` closes the list and scrolls to the first match.
 
 Source: #7 (variant D), PO feedback on #8 · Status: Implemented · Verified by: search.test "current page", Search.test "the current page"
+
+## Help (HELP)
+
+### FR-HELP-01 Help panel
+As a team member, I want to open help next to the page I am working on, so that I can look something up without losing my place.
+- A `?` button in the header (and the key `?` when no text field has the focus and no dialog is open) opens and closes the help. `Escape` closes it; the focus goes back to the button.
+- The help is a panel next to the page: the page makes room and stays usable. On a narrow window the panel covers the whole page.
+- The title names the page (`Help · Board`); the panel lists the topics of the current page first, then the general topics, and follows the page when it changes.
+- Topics: moving, columns and status values, opening and creating stories, ordering the backlog and the sprint line, story map, epics, releases, settings, search and keyboard shortcuts.
+
+Source: #33 · Status: Implemented · Verified by: #33 AC1.1 to AC1.4, AC2.1, AC9.1 (`src/Help.test.tsx`, `e2e/help.spec.ts`)
+
+### FR-HELP-02 Search the help
+As a team member, I want to search the help, so that I find a topic by the words I know.
+- Several words must all occur; text in double quotes is a phrase. Case and accents are ignored. A match in the title ranks above one in the keywords, and that above one in the text.
+- Hits show the matched words (marked), where the text matches and, for topics of other pages, the page they belong to. No hits says so and offers all topics. A cross clears the search.
+- The search finds the texts of the current language only.
+- Keyboard: `↓` from the field into the hits, arrow keys between them, `Enter` opens a topic, `Escape` goes back to the hits with the search kept. The number of hits (or "no results") is announced to screen readers.
+
+Source: #33 · Status: Implemented · Verified by: #33 AC3.1 to AC3.7, AC4.1, AC4.2 (`src/domain/helpSearch.test.ts`, `src/help/topics.test.ts`, `src/Help.test.tsx`, `e2e/help.spec.ts`)
+
+### FR-HELP-03 Show me
+As a team member, I want a help topic to point at the thing it talks about, so that I see it in the app.
+- "Show me" frames the element with an accent outline and scrolls it into view. Nothing is dimmed. The frame ends with the next click, key or change of page.
+- Without such an element the help says so (for stories: "Create a story first"). A topic of another page offers a link to that page instead.
+
+Source: #33 · Status: Implemented · Verified by: #33 AC5.1 to AC5.3 (`src/Help.test.tsx`, `e2e/help.spec.ts`)
+
+### FR-HELP-04 First steps (optional introduction)
+As a new user, I want a short introduction I can start when I want it, so that I learn the main things by doing them.
+- The introduction is a checklist of four steps in the help: get to know the board, move a story, create a story, order the backlog. It is never forced and can be left at any time.
+- The first step is confirmed by the user. The others are ticked off by the app when the user really does the thing, in the panel or not. Only what is done after the start counts; a skipped step is done later if the user does it.
+- A step can be skipped; the introduction can be closed and continued; "Start again" (after a confirmation) resets it without touching any story.
+- The progress is kept per device (`localStorage`, like theme and language).
+
+Source: #33 · Status: Implemented · Verified by: #33 AC6.1 to AC6.6, AC7.1, AC7.2 (`src/domain/helpTour.test.ts`, `src/Help.test.tsx`, `e2e/help.spec.ts` "AC6.3 leads through all four first steps")
+
+### FR-HELP-05 Invitation on the first start
+As a new user, I want to be asked once whether I want the introduction, so that I find it without it being forced on me.
+- On the first start a small card above the page (not in the settings) offers "Start introduction" and "No thanks". It blocks nothing.
+- It goes away for good after either button, and also when the user starts working on their own (moves or creates a story, orders the backlog).
+
+Source: #33 · Status: Implemented · Verified by: #33 AC8.1 to AC8.4 (`src/Help.test.tsx`, `e2e/help.spec.ts`)
 
 ## Later
 
