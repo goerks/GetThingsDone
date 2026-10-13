@@ -367,9 +367,10 @@ Ctrl+N (Cmd+N on a Mac) opens the create dialog of the current page: a new story
 Source: Issue #10, PO request · Status: Implemented · Verified by: NewShortcut.test; Windows app: manual check
 
 ### FR-NAV-01 Main navigation
-Header with board, backlog, story map, epics and releases, plus a gear button for the settings; the current page is marked.
+Header with board, backlog, story map, epics and releases, plus the search, theme, language and a gear button for the settings; the current page is marked.
+- The header is sticky (#15): it stays at the top of the window while the page scrolls. Its height is shared as `--header-height`, so a focused element scrolled into view does not end up below it.
 
-Source: Vision · Status: Implemented · Verified by: App "marks the current page", "parses known routes and falls back to the board"
+Source: Vision, #15 · Status: Implemented · Verified by: App "marks the current page", "parses known routes and falls back to the board", e2e `header.spec.ts` AC1.1
 
 ## Sprints (SPRINT)
 

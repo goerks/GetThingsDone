@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LANGUAGES, setLanguage, type LanguageCode } from '../i18n';
 import { hrefs, type Route } from '../router';
@@ -23,8 +23,23 @@ export function Header({ route, theme, onToggleTheme }: Props) {
   const lastView = useRef<string>(hrefs.board);
   if (!inSettings) lastView.current = hrefs[route.name];
 
+  const headerRef = useRef<HTMLElement>(null);
+  // The header wraps on narrow screens, so its height is measured and shared as `--header-height`.
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const share = (): void => document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`);
+    share();
+    const observer = new ResizeObserver(share);
+    observer.observe(header);
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty('--header-height');
+    };
+  }, []);
+
   return (
-    <header className="header">
+    <header className="header" ref={headerRef}>
       <div className="brand">
         <span className="brand__logo" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

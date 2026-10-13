@@ -14,6 +14,11 @@ html {
   color-scheme: dark;
 }
 
+html {
+  /* A focused element scrolled into view must not end up below the sticky header. */
+  scroll-padding-top: var(--header-height, 0px);
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -88,7 +93,11 @@ a {
 
 /* ---------- Header ---------- */
 
+/* The header stays at the top of the window while the page scrolls (#15). Its height is set by `Header`. */
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
