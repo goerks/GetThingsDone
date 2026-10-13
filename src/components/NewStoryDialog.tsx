@@ -1,3 +1,4 @@
+import { featureOn } from '../domain/settings';
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NewStoryInput } from '../domain/board';
@@ -33,7 +34,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const [sprintId, setSprintId] = useState(initialSprintId);
   const [releaseId, setReleaseId] = useState<string | null>(initialReleaseId ?? null);
   // The release shows when the team put it into the create dialog, or when the caller prefilled one.
-  const releaseShown = app.settings.releasesEnabled && (releaseLayout(app.assignments).inCreate || initialReleaseId !== undefined);
+  const releaseShown = featureOn(app.settings, 'releases') && (releaseLayout(app.assignments).inCreate || initialReleaseId !== undefined);
   const custom = useCreateFields('story');
 
   const submit = (event: FormEvent): void => {

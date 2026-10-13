@@ -190,7 +190,8 @@
     "rowsLink": "Zeilen der Story Map: {{rows}}. In den Einstellungen ändern",
     "afterEnd_one": "{{count}} Story nach dem Ende",
     "afterEnd_other": "{{count}} Stories nach dem Ende",
-    "editRelease": "Release öffnen"
+    "editRelease": "Release öffnen",
+    "rowsOff": "Die Zeilen sind Sprints: Releases sind ausgeschaltet."
   },
   "fields": {
     "title": "Felder",
@@ -300,7 +301,7 @@
       "noCustom": "Noch keine eigenen Felder für diesen Typ. Unter Zuordnung anhaken.",
       "instructions": "Leertaste drücken, um ein Feld aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen.",
       "releaseOff": "Nicht verfügbar: Releases sind ausgeschaltet",
-      "releaseOffLink": "Einstellungen › Releases"
+      "releaseOffLink": "Einstellungen › Funktionen"
     },
     "invalidUrl": "Bitte eine Webadresse eingeben, zum Beispiel example.com.",
     "openLink": "{{name}} öffnen",
@@ -339,15 +340,21 @@
       "noReleases": "Es gibt noch kein Release. Die Story Map zeigt dann nur die Zeile «Kein Release».",
       "createRelease": "Release anlegen",
       "back": "← Zur Story Map",
-      "off": "Releases sind ausgeschaltet, deshalb zeigt die Story Map Sprints. Schalte Releases ein, um sie als Zeilen zu verwenden.",
-      "toReleases": "Releases einschalten"
+      "off": "Releases sind ausgeschaltet und können daher nicht als Zeilen der Story Map verwendet werden.",
+      "toReleases": "Funktion «Releases» einschalten",
+      "unavailable": "Nicht verfügbar"
     },
-    "releases": {
-      "title": "Releases",
-      "enabled": "Mit Releases planen",
-      "hint": "Ausschalten, wenn das Team nur mit Sprints arbeitet. Die Seite «Releases», das Feld «Release» bei Stories und die Release-Zeilen der Story Map sind dann ausgeblendet. Es wird nichts gelöscht: Beim erneuten Einschalten ist alles wieder da.",
+    "features": {
+      "title": "Funktionen",
+      "hint": "Funktionen für das ganze Team ein- oder ausschalten. Eine ausgeschaltete Funktion ist ausgeblendet, ihre Daten bleiben erhalten.",
+      "on": "Ein",
+      "off": "Aus",
       "saved": "Die Auswahl gilt für das ganze Team und wird sofort gespeichert.",
-      "offNote": "Releases sind ausgeschaltet. Releases und ihr Verlauf bleiben erhalten."
+      "releases": {
+        "name": "Releases",
+        "description": "Mit Releases planen: die Seite «Releases», das Feld «Release» bei Stories, Release-Zeilen in der Story Map sowie Scope- und Burndown-Berichte. Ausschalten, wenn das Team nur mit Sprints arbeitet.",
+        "offNote": "Ausgeschaltet. Releases, ihre Stories und ihr Verlauf bleiben erhalten und sind beim Einschalten wieder da."
+      }
     }
   },
   "summary": {

@@ -1,3 +1,4 @@
+import { featureOn } from '../domain/settings';
 import { useState } from 'react';
 import { DndContext, closestCenter, type Announcements, type DragEndEvent, type UniqueIdentifier } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -46,7 +47,7 @@ function ReleaseRow({ entry }: { entry: LayoutEntry }) {
   const update = (patch: Parameters<typeof app.updateFieldLayout>[2]): void => {
     app.updateFieldLayout('story', field.id, patch);
   };
-  if (!app.settings.releasesEnabled) {
+  if (!featureOn(app.settings, 'releases')) {
     return (
       <li className="layout-row layout-row--fixed layout-row--off">
         <span className="layout-row__lock" aria-hidden="true">
@@ -55,7 +56,7 @@ function ReleaseRow({ entry }: { entry: LayoutEntry }) {
         <span className="layout-row__name">{fieldLabel(t, field)}</span>
         <span className="muted layout-row__type">{t(`fields.type.${field.dataType}`)}</span>
         <span className="muted layout-row__note">
-          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsReleases}>{t('fields.layout.releaseOffLink')}</a>
+          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsFeatures}>{t('fields.layout.releaseOffLink')}</a>
         </span>
       </li>
     );

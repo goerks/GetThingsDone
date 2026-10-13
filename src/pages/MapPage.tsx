@@ -33,7 +33,7 @@ import {
   totalPoints,
   type Placement
 } from '../domain/board';
-import { effectiveMapRows } from '../domain/settings';
+import { effectiveMapRows, featureOn } from '../domain/settings';
 import { isReleaseDone, releaseState, sortReleases, storiesAfterReleaseEnd } from '../domain/releases';
 import { sortEpics } from '../domain/epics';
 import { isRunning, isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints';
@@ -594,6 +594,12 @@ export function MapPage() {
           {t('map.compact')}
         </button>
       </div>
+
+      {app.settings.mapRows === 'releases' && !featureOn(app.settings, 'releases') && (
+        <p className="hint hint--warn" role="note">
+          {t('map.rowsOff')} <a href={hrefs.settingsFeatures}>{t('settings.map.toReleases')}</a>
+        </p>
+      )}
 
       <HighlightBar storyIds={shownStories.map((story) => story.id)} />
 

@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { hrefs, type SettingsSection } from '../router';
 import { FieldsSection } from './FieldsSection';
 import { MapSection } from './MapSection';
-import { ReleasesSection } from './ReleasesSection';
+import { FeaturesSection } from './FeaturesSection';
 
 /**
  * Settings of the workspace: a list of sections next to the content of the chosen one.
@@ -24,8 +24,8 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           <a href={hrefs.settingsMap} className="settings__link" aria-current={section === 'map' ? 'page' : undefined}>
             {t('settings.map.title')}
           </a>
-          <a href={hrefs.settingsReleases} className="settings__link" aria-current={section === 'releases' ? 'page' : undefined}>
-            {t('settings.releases.title')}
+          <a href={hrefs.settingsFeatures} className="settings__link" aria-current={section === 'features' ? 'page' : undefined}>
+            {t('settings.features.title')}
           </a>
           <span className="settings__link settings__link--planned">
             {t('settings.statusValues')}
@@ -36,7 +36,7 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           </span>
         </nav>
         <section className="settings__content">
-          {section === 'map' ? <MapSection /> : section === 'releases' ? <ReleasesSection /> : <FieldsSection />}
+          {section === 'map' ? <MapSection /> : section === 'features' ? <FeaturesSection /> : <FieldsSection />}
         </section>
       </div>
     </>

@@ -190,7 +190,8 @@
     "rowsLink": "Lignes de la story map : {{rows}}. À modifier dans les paramètres",
     "afterEnd_one": "{{count}} story après la fin",
     "afterEnd_other": "{{count}} stories après la fin",
-    "editRelease": "Ouvrir la release"
+    "editRelease": "Ouvrir la release",
+    "rowsOff": "Les lignes sont des sprints : les releases sont désactivées."
   },
   "fields": {
     "title": "Champs",
@@ -300,7 +301,7 @@
       "noCustom": "Pas encore de champ personnalisé pour ce type. Cochez-les sous Attribution.",
       "instructions": "Appuyez sur espace pour saisir un champ. Déplacez-le avec les flèches, déposez-le avec espace, annulez avec échap.",
       "releaseOff": "Non disponible : les releases sont désactivées",
-      "releaseOffLink": "Paramètres › Releases"
+      "releaseOffLink": "Paramètres › Fonctions"
     },
     "invalidUrl": "Saisissez une adresse web, par exemple example.com.",
     "openLink": "Ouvrir {{name}}",
@@ -339,15 +340,21 @@
       "noReleases": "Il n'y a pas encore de release. La story map n'affiche alors que la ligne « Aucune release ».",
       "createRelease": "Créer une release",
       "back": "← Vers la story map",
-      "off": "Les releases sont désactivées, la story map affiche donc les sprints. Activez les releases pour les utiliser comme lignes.",
-      "toReleases": "Activer les releases"
+      "off": "Les releases sont désactivées et ne peuvent donc pas servir de lignes de la story map.",
+      "toReleases": "Activer la fonction Releases",
+      "unavailable": "Non disponible"
     },
-    "releases": {
-      "title": "Releases",
-      "enabled": "Planifier avec des releases",
-      "hint": "À désactiver si l’équipe travaille uniquement avec des sprints. La page Releases, le champ Release des stories et les lignes de release de la story map sont alors masqués. Rien n’est supprimé : en réactivant, tout revient.",
+    "features": {
+      "title": "Fonctions",
+      "hint": "Activer ou désactiver des fonctions pour toute l’équipe. Une fonction désactivée est masquée, ses données sont conservées.",
+      "on": "Activée",
+      "off": "Désactivée",
       "saved": "Le choix s’applique à toute l’équipe et est enregistré immédiatement.",
-      "offNote": "Les releases sont désactivées. Les releases et leur historique sont conservés."
+      "releases": {
+        "name": "Releases",
+        "description": "Planifier avec des releases : la page Releases, le champ Release des stories, les lignes de release de la story map et les rapports de périmètre et de burndown. À désactiver si l’équipe travaille uniquement avec des sprints.",
+        "offNote": "Désactivée. Les releases, leurs stories et leur historique sont conservés et reviennent à la réactivation."
+      }
     }
   },
   "summary": {

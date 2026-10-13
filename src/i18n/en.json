@@ -190,7 +190,8 @@
     "rowsLink": "Rows of the story map: {{rows}}. Change in the settings",
     "afterEnd_one": "{{count}} story after the end",
     "afterEnd_other": "{{count}} stories after the end",
-    "editRelease": "Open the release"
+    "editRelease": "Open the release",
+    "rowsOff": "Rows are sprints: releases are switched off."
   },
   "fields": {
     "title": "Fields",
@@ -300,7 +301,7 @@
       "noCustom": "No custom fields for this type yet. Tick them under Assignment.",
       "instructions": "Press space to pick up a field. Use the arrow keys to move it, space to drop it and escape to cancel.",
       "releaseOff": "Not available: releases are switched off",
-      "releaseOffLink": "Settings › Releases"
+      "releaseOffLink": "Settings › Features"
     },
     "invalidUrl": "Enter a web address, for example example.com.",
     "openLink": "Open {{name}}",
@@ -339,15 +340,21 @@
       "noReleases": "There is no release yet. The story map then shows only the row \"No release\".",
       "createRelease": "Create a release",
       "back": "← To the story map",
-      "off": "Releases are switched off, so the story map shows sprints. Switch releases on to use them as rows.",
-      "toReleases": "Switch releases on"
+      "off": "Releases are switched off, so they cannot be used as rows of the story map.",
+      "toReleases": "Switch the releases feature on",
+      "unavailable": "Not available"
     },
-    "releases": {
-      "title": "Releases",
-      "enabled": "Plan with releases",
-      "hint": "Switch this off if the team works with sprints only. The Releases page, the release field of stories and the release rows of the story map are then hidden. Nothing is deleted: switch it on again and everything is back.",
+    "features": {
+      "title": "Features",
+      "hint": "Switch features on or off for the whole team. A feature that is off is hidden; its data is kept.",
+      "on": "On",
+      "off": "Off",
       "saved": "The choice applies to the whole team and is saved at once.",
-      "offNote": "Releases are switched off. Releases and their history are kept."
+      "releases": {
+        "name": "Releases",
+        "description": "Plan with releases: the Releases page, the release field of stories, release rows on the story map and the scope and burndown reports. Switch it off if the team works with sprints only.",
+        "offNote": "Switched off. Releases, their stories and their history are kept and come back when you switch it on."
+      }
     }
   },
   "summary": {
