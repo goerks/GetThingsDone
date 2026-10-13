@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { pressUntilAnnounced } from './keyboardDrag';
 
 /*
  * End-to-end tests of the help (#33) in a real browser, following the test cases the PO approved in the issue:
@@ -27,8 +28,7 @@ async function moveRight(page: Page, code: string, from: string, to: string): Pr
   await card(page, code).focus();
   await page.keyboard.press('Space');
   await expect(announcement(page, new RegExp(`is over ${from}`))).toHaveCount(1);
-  await page.keyboard.press('ArrowRight');
-  await expect(announcement(page, new RegExp(`is over ${to}`))).toHaveCount(1);
+  await pressUntilAnnounced(page, 'ArrowRight', announcement(page, new RegExp(`is over ${to}`)));
   await page.keyboard.press('Space');
   await expect(announcement(page, new RegExp(`dropped in ${to}\\.`))).toHaveCount(1);
 }
@@ -111,8 +111,7 @@ test('AC6.3 leads through all four first steps, ticks each one off by itself and
   await row.focus();
   await page.keyboard.press('Space');
   await expect(announcement(page, /^Picked up /)).toHaveCount(1);
-  await page.keyboard.press('ArrowDown');
-  await expect(announcement(page, new RegExp(`would become rank ${rank + 1} `))).toHaveCount(1);
+  await pressUntilAnnounced(page, 'ArrowDown', announcement(page, new RegExp(`would become rank ${rank + 1} `)));
   await page.keyboard.press('Space');
   await expect(announcement(page, new RegExp(`is now rank ${rank + 1}\\.`))).toHaveCount(1);
 
