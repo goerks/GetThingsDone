@@ -17,7 +17,7 @@ The database is created on first start as `getitdone.db` in the app config direc
 
 | Workflow | Trigger | Steps |
 |---|---|---|
-| `ci.yml` | Every push, every pull request | `npm ci`, typecheck, tests, web build (Ubuntu) |
+| `ci.yml` | Every push, every pull request | `npm ci`, typecheck, tests, web build (Ubuntu); a second job runs the end-to-end tests in Chromium and uploads the report when they fail |
 | `windows-build.yml` | Every push, every pull request, manual | Tauri build on `windows-latest`, uploads the artifact `GetItDone-windows` with portable exe and installer |
 
 The PO downloads the artifact from the workflow run (GitHub login required) to test locally.
