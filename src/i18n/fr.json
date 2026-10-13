@@ -627,6 +627,7 @@
     "stories_one": "{{count}} story",
     "stories_other": "{{count}} stories",
     "noStories": "Aucune story",
+    "emptyGroup": "Faites glisser un statut ici",
     "move": "Déplacer le statut {{name}}",
     "remove": "Supprimer le statut {{name}}",
     "locked": "{{name}} est le dernier statut de « {{category}} » et ne peut être ni supprimé ni déplacé dans une autre catégorie.",

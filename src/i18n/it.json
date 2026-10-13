@@ -627,6 +627,7 @@
     "stories_one": "{{count}} story",
     "stories_other": "{{count}} story",
     "noStories": "Nessuna story",
+    "emptyGroup": "Trascinate qui uno stato",
     "move": "Sposta lo stato {{name}}",
     "remove": "Rimuovi lo stato {{name}}",
     "locked": "{{name}} è l’ultimo stato in «{{category}}» e non può essere rimosso né spostato in un’altra categoria.",

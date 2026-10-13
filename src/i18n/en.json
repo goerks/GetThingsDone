@@ -627,6 +627,7 @@
     "stories_one": "{{count}} story",
     "stories_other": "{{count}} stories",
     "noStories": "No stories",
+    "emptyGroup": "Drag a status here",
     "move": "Move status {{name}}",
     "remove": "Remove status {{name}}",
     "locked": "{{name}} is the last status in \"{{category}}\" and cannot be removed or moved to another category.",

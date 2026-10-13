@@ -248,3 +248,18 @@ export function storiesChangingDone(stories: readonly Story[], before: readonly 
   const isDone = isDoneIn(after);
   return stories.filter((story) => wasDone(story) !== isDone(story));
 }
+
+/** Where a moved status ends up: in this category, in front of `beforeId`, or at the end of the category when null. */
+export interface StatusDrop {
+  category: StatusCategory;
+  beforeId: string | null;
+}
+
+/** The place of one status in a new order, so a drop can be shown as a line before it lands. */
+export function dropOf(places: readonly StatusPlace[], id: string): StatusDrop | null {
+  const index = places.findIndex((place) => place.id === id);
+  if (index < 0) return null;
+  const { category } = places[index];
+  const next = places.slice(index + 1).find((place) => place.category === category);
+  return { category, beforeId: next ? next.id : null };
+}
