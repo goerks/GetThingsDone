@@ -2,23 +2,23 @@
 
 Issue: [#5 Configurable status values and board columns](https://github.com/goerks/GetThingsDone/issues/5)
 
-## Decisions already taken (PO, 2026-10-13)
+The mockups are in [`status-values-variants.html`](status-values-variants.html) (open the file in a browser; the mockup text is in German because it is reviewed in German).
 
-- Fixed categories *not started*, *in progress*, *done*; at least one status in *not started* and one in *done*.
-- Every status value has its own colour; default derived from the category.
-- New stories get the first status in board order, which is in *not started*.
-- A category change counts from the day of the change in the release history.
+## Decisions (PO, 2026-10-13)
+
+- Fixed categories in a fixed order: *not started* → *in progress* → *done*. At least one status in *not started* and one in *done*.
+- Order is free only within a category; a *done* column never stands before an *in progress* column.
+- Colours: one base colour per category (slate, blue, green). The first status of a category has the full colour, the following ones get lighter shades, computed automatically. There is no colour picker; the name is always shown next to the colour.
+- The board shows a band per category above its columns, with name, category colour and story count.
+- Dragging a status into another group changes its category. When stories have that status, a confirmation says how many and that they count as done (or open) from today on; the release history records the change on that day.
+- New stories get the first status in *not started*.
+- Removing a status value in use: the confirmation states the number of stories and asks for the target status (default: the status to the left).
 - The board keeps a minimum column width and scrolls horizontally; no maximum number of status values.
-- Removing a status value in use: the confirmation states the number of stories and asks for the target status.
 
 ## Variants
 
-The mockups are in [`status-values-variants.html`](status-values-variants.html) (open the file in a browser; the mockup text is in German because it is reviewed in German).
-
 | Variant | Idea | Outcome |
 |---|---|---|
-| A · Grouped by category | Three fixed groups; drag within and across groups, which changes the category. Board order follows the groups. | Proposed |
-| B · One list, category per row | Like the option editor of #4 with a category select per row; free order, rules reported as messages. | Open |
-| C · Board preview | Empty columns side by side under category bands; name and colour in a popover. | Open |
-
-Shared by all variants: the removal dialog and the board with many columns.
+| A · Grouped by category | Three fixed groups; drag within and across groups. | **Chosen**, with category shades instead of free colours and a category band on the board |
+| B · One list, category per row | Like the option editor of #4 with a category select per row; free order, rules reported as messages. | Rejected: rules only show up as errors, free order allows a confusing board |
+| C · Board preview | Empty columns under category bands; name and colour in a popover. | Rejected: too wide, hard to operate by keyboard and on narrow screens; the band idea moved to the board itself |
