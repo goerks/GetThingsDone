@@ -3359,6 +3359,15 @@ mark {
   min-height: 8px;
 }
 
+.status-group__empty {
+  padding: 14px 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
 .status-group__add {
   align-self: flex-start;
   margin: 0 12px;
@@ -3386,10 +3395,27 @@ mark {
   border-radius: var(--radius-sm);
 }
 
-.status-row--dragging {
+.status-row {
   position: relative;
-  z-index: 1;
+}
+
+/* The dragged status stays where it is, dimmed; a copy follows the pointer and a line shows where it will land. */
+.status-row--dragging {
+  opacity: 0.35;
+}
+
+.status-group__list > .drop-line {
+  /* The list gap would grow the list by a few pixels when the line appears. */
+  margin-top: -6px;
+}
+
+.status-row--overlay {
+  max-width: 280px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
   box-shadow: 0 6px 18px var(--shadow);
+  font-weight: 500;
+  cursor: grabbing;
 }
 
 .status-row__dot {

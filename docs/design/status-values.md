@@ -22,3 +22,8 @@ The mockups are in [`status-values-variants.html`](status-values-variants.html) 
 | A · Grouped by category | Three fixed groups; drag within and across groups. | **Chosen**, with category shades instead of free colours and a category band on the board |
 | B · One list, category per row | Like the option editor of #4 with a category select per row; free order, rules reported as messages. | Rejected: rules only show up as errors, free order allows a confusing board |
 | C · Board preview | Empty columns under category bands; name and colour in a popover. | Rejected: too wide, hard to operate by keyboard and on narrow screens; the band idea moved to the board itself |
+
+## Dragging between categories (PO, 2026-10-13)
+
+The first build used one sortable list over all three groups, which pushed the rows below the dragged status out of their groups while dragging, and always dropped *behind* the status it was over. Now every row stays in place while dragging, a copy follows the pointer, and a line shows where the status lands: in front of the status it is over (upper half) or behind it (lower half), as on the board and the story map. An empty category shows "Drag a status here" and takes the drop. Only the dragged status changes its category; nobody is switched.
+

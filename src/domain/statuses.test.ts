@@ -4,6 +4,7 @@ import {
   addStatus,
   changedCategories,
   defaultTarget,
+  dropOf,
   isDoneIn,
   isLastOfRequired,
   moveStatus,
@@ -188,5 +189,53 @@ describe('remove', () => {
   it('suggests the status to the left as the target', () => {
     expect(defaultTarget(defaults(), 'review')).toBe('in_progress');
     expect(defaultTarget(defaults(), 'todo')).toBe('in_progress');
+  });
+});
+
+describe('moving a status into another category', () => {
+  const statuses = normalizeStatuses([
+    ...defaults(),
+    { id: 'test', label: 'Test', category: 'in_progress' }
+  ]);
+  const layout = (places: readonly { id: string; category: string }[]): string[] => places.map((place) => `${place.id}:${place.category}`);
+
+  it('puts the status in front of or behind the status it is dropped on, and changes only that status', () => {
+    expect(layout(moveStatus(statuses, 'test', 'done', 'done', 'before'))).toEqual([
+      'todo:not_started',
+      'in_progress:in_progress',
+      'review:in_progress',
+      'test:done',
+      'done:done'
+    ]);
+    expect(layout(moveStatus(statuses, 'test', 'done', 'done', 'after'))).toEqual([
+      'todo:not_started',
+      'in_progress:in_progress',
+      'review:in_progress',
+      'done:done',
+      'test:done'
+    ]);
+    // Dropped in front of the first status of the next category up: it goes in front of it, in that category.
+    expect(layout(moveStatus(statuses, 'test', 'todo', 'not_started', 'before')).slice(0, 2)).toEqual(['test:not_started', 'todo:not_started']);
+  });
+
+  it('lets exactly the dragged status change its category', () => {
+    const places = moveStatus(statuses, 'review', 'done', 'done', 'before');
+    const after = reorderStatuses(statuses, places) ?? [];
+    expect(changedCategories(statuses, after).map((status) => status.id)).toEqual(['review']);
+  });
+
+  it('puts a status at the end of an empty category, in the right place between the categories', () => {
+    const withoutProgress = statuses.filter((status) => status.category !== 'in_progress');
+    const withIdea = [...withoutProgress, { id: 'idea', label: 'Idea', category: 'not_started' as const }];
+    const places = moveStatus(normalizeStatuses(withIdea), 'idea', null, 'in_progress', 'after');
+    expect(layout(places)).toEqual(['todo:not_started', 'idea:in_progress', 'done:done']);
+    expect(reorderStatuses(normalizeStatuses(withIdea), places)?.map((status) => status.id)).toEqual(['todo', 'idea', 'done']);
+  });
+
+  it('tells where a dropped status lands: in front of the next status of its category, or at the end', () => {
+    expect(dropOf(moveStatus(statuses, 'test', 'done', 'done', 'before'), 'test')).toEqual({ category: 'done', beforeId: 'done' });
+    expect(dropOf(moveStatus(statuses, 'test', 'done', 'done', 'after'), 'test')).toEqual({ category: 'done', beforeId: null });
+    expect(dropOf(moveStatus(statuses, 'test', 'todo', 'not_started', 'before'), 'test')).toEqual({ category: 'not_started', beforeId: 'todo' });
+    expect(dropOf([], 'x')).toBeNull();
   });
 });

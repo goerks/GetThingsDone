@@ -63,8 +63,8 @@ async function standsStill(locator: Locator): Promise<void> {
     .toBe(true);
 }
 
-/** Drags with the mouse in small steps, as a person would. */
-async function drag(page: Page, from: Locator, to: Locator): Promise<void> {
+/** Drags with the mouse in small steps, as a person would; `at` is where on the target it lands, from the top (0) to the bottom (1). */
+async function drag(page: Page, from: Locator, to: Locator, at = 0.5): Promise<void> {
   await standsStill(from);
   await standsStill(to);
   const a = await from.boundingBox();
@@ -73,7 +73,7 @@ async function drag(page: Page, from: Locator, to: Locator): Promise<void> {
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
   await page.mouse.down();
   await page.mouse.move(a.x + a.width / 2 + 10, a.y + a.height / 2, { steps: 3 });
-  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 15 });
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height * at, { steps: 15 });
   await page.mouse.up();
 }
 
@@ -118,8 +118,8 @@ test('AC1.1 adds nothing without a name, or when Escape is pressed', async ({ pa
 });
 
 test('AC1.3 changes the order inside a category with the mouse and with the keyboard', async ({ page }) => {
-  // When I drag "Review" by its handle above "In progress"
-  await drag(page, handle(page, 'Review'), nameField(page, 'In progress'));
+  // When I drag "Review" by its handle onto the upper half of "In progress"
+  await drag(page, handle(page, 'Review'), nameField(page, 'In progress'), 0.2);
 
   // Then "Review" is first, and so it is on the board, also after a reload
   expect(await namesIn(page, 'In progress')).toEqual(['Review', 'In progress']);
@@ -272,7 +272,8 @@ test('AC2.6 pulls a story through own statuses from left to right with the keybo
     await expect(announcement(page, new RegExp(`^Reorder the backlog by priority is over ${to}`))).toHaveCount(1);
     await page.keyboard.press('Space');
 
-    // Then S-3 is in that column
+    // Then S-3 is in that column, and the screen reader says so (which also ends this move, before the next one starts)
+    await expect(announcement(page, `Reorder the backlog by priority dropped in ${to}.`)).toHaveCount(1);
     await expect(column(page, to).getByRole('group', { name: /^S-3: / })).toBeVisible();
     from = to;
   }
@@ -302,6 +303,145 @@ test('AC3.1 keeps the categories in their order: a status crosses a category edg
   expect(order).toEqual(['not_started', 'in_progress', 'done']);
   await toBoard(page);
   expect(await boardColumns(page)).toEqual(['To do', 'In progress', 'Review', 'Done']);
+});
+
+test('AC3.5 moves a status into another category exactly where I drop it and changes nothing else', async ({ page }) => {
+  // Given "In progress" holds "In progress", "Review" and the new status "Test"
+  await addStatus(page, 'In progress', 'Test');
+
+  // When I drag "Test" onto the upper half of "Done" in "Done"
+  await drag(page, handle(page, 'Test'), nameField(page, 'Done'), 0.2);
+
+  // Then "Test" is now in front of "Done", and no other status changed its category
+  expect(await namesIn(page, 'Done')).toEqual(['Test', 'Done']);
+  expect(await namesIn(page, 'In progress')).toEqual(['In progress', 'Review']);
+  expect(await namesIn(page, 'Not started')).toEqual(['To do']);
+
+  // When I drag "Test" onto the lower half of "Done"
+  await drag(page, handle(page, 'Test'), nameField(page, 'Done'), 0.8);
+
+  // Then it is behind "Done", still in "Done"
+  expect(await namesIn(page, 'Done')).toEqual(['Done', 'Test']);
+  expect(await namesIn(page, 'In progress')).toEqual(['In progress', 'Review']);
+
+  // When I drag "Test" onto the upper half of "To do"
+  await drag(page, handle(page, 'Test'), nameField(page, 'To do'), 0.2);
+
+  // Then it is the first status of "Not started", and the board shows the columns in this order
+  expect(await namesIn(page, 'Not started')).toEqual(['Test', 'To do']);
+  expect(await namesIn(page, 'Done')).toEqual(['Done']);
+  await toBoard(page);
+  expect(await boardColumns(page)).toEqual(['Test', 'To do', 'In progress', 'Review', 'Done']);
+});
+
+/** The top of every status row and the group each row is shown in, as they are on the screen right now. */
+async function rowLayout(page: Page): Promise<string[]> {
+  return page.locator('.status-group').evaluateAll((groups) =>
+    groups.flatMap((group) => {
+      const box = group.getBoundingClientRect();
+      return [...group.querySelectorAll('input.status-row__name')].map((input) => {
+        const top = Math.round(input.getBoundingClientRect().top);
+        const inside = top >= box.top && top <= box.bottom;
+        return `${(input as HTMLInputElement).value} @${top} ${inside ? 'in' : 'outside'} ${group.getAttribute('data-category')}`;
+      });
+    })
+  );
+}
+
+/** Holds the status behind `from` over `to` (at `at` from its top to its bottom), without letting go. */
+async function holdOver(page: Page, from: Locator, to: Locator, at: number): Promise<void> {
+  const a = await from.boundingBox();
+  const b = await to.boundingBox();
+  if (!a || !b) throw new Error('drag source or target is not visible');
+  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(a.x + a.width / 2 + 10, a.y + a.height / 2, { steps: 3 });
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height * at, { steps: 15 });
+}
+
+test('AC3.5 keeps every other status in its own category and at its place while I drag one into another category', async ({ page }) => {
+  // Given "Test" at the end of "In progress", and the place of every status on the screen
+  await addStatus(page, 'In progress', 'Test');
+  const before = await rowLayout(page);
+  expect(before).toHaveLength(5);
+
+  // When I hold "Test" over the upper half of "Done" (in "Done"), without letting go
+  await holdOver(page, handle(page, 'Test'), nameField(page, 'Done'), 0.2);
+
+  // Then no other status moved or switched to another category: the others look exactly as before
+  const during = (await rowLayout(page)).filter((row) => !row.startsWith('Test @'));
+  expect(during).toEqual(before.filter((row) => !row.startsWith('Test @')));
+
+  // When I let go
+  await page.mouse.up();
+
+  // Then only "Test" is in "Done" now, in front of "Done"; all others are in their categories as before
+  expect(await namesIn(page, 'Not started')).toEqual(['To do']);
+  expect(await namesIn(page, 'In progress')).toEqual(['In progress', 'Review']);
+  expect(await namesIn(page, 'Done')).toEqual(['Test', 'Done']);
+});
+
+test('AC3.5 shows a line where the status will land', async ({ page }) => {
+  // Given the status "Test" at the end of "In progress"
+  await addStatus(page, 'In progress', 'Test');
+
+  // When I hold "Test" over the upper half of "Done"
+  await holdOver(page, handle(page, 'Test'), nameField(page, 'Done'), 0.2);
+
+  // Then a line shows the place in front of "Done", and "Done" is highlighted as the target category
+  await expect(page.locator('[data-status="done"].drop-before')).toHaveCount(1);
+  await expect(page.locator('.status-group--over')).toHaveAttribute('data-category', 'done');
+
+  // When I hold it over the lower half of "Done"
+  await page.mouse.move((await nameField(page, 'Done').boundingBox())!.x + 100, (await nameField(page, 'Done').boundingBox())!.y + 36, { steps: 5 });
+
+  // Then the line is at the end of "Done"
+  await expect(page.locator('.status-group[data-category="done"] .drop-line')).toHaveCount(1);
+
+  // When I let go
+  await page.mouse.up();
+
+  // Then the line is gone and "Test" is behind "Done"
+  await expect(page.locator('.drop-before, .drop-line')).toHaveCount(0);
+  expect(await namesIn(page, 'Done')).toEqual(['Done', 'Test']);
+});
+
+test('AC3.5 puts a status with stories at the end of a category after the confirmation, and nothing else changes', async ({ page }) => {
+  // When I drag "In progress", which has stories, onto the lower half of "Done", the last status of "Done"
+  await drag(page, handle(page, 'In progress'), nameField(page, 'Done'), 0.85);
+
+  // Then I am asked first, and nothing has changed yet
+  const dialog = page.getByRole('dialog', { name: 'Move "In progress" to "Done"?' });
+  await expect(dialog).toContainText('2 stories have this status (S-1, S-4)');
+  expect(await namesIn(page, 'In progress')).toEqual(['In progress', 'Review']);
+
+  // When I confirm
+  await dialog.getByRole('button', { name: 'Move', exact: true }).click();
+
+  // Then "In progress" is the last status of "Done", and "Review" and "To do" stay where they were
+  expect(await namesIn(page, 'Done')).toEqual(['Done', 'In progress']);
+  expect(await namesIn(page, 'In progress')).toEqual(['Review']);
+  expect(await namesIn(page, 'Not started')).toEqual(['To do']);
+});
+
+test('AC3.5 lets me drop a status into an empty category', async ({ page }) => {
+  // Given "In progress" is empty because I removed its statuses
+  await addStatus(page, 'Not started', 'Idea');
+  for (const name of ['Review', 'In progress']) {
+    await page.getByRole('button', { name: `Remove status ${name}` }).click();
+    await page.getByRole('dialog').getByRole('combobox', { name: 'Move to' }).selectOption('todo');
+    await page.getByRole('dialog').getByRole('button', { name: /and remove$/ }).click();
+    await expect(nameField(page, name)).toHaveCount(0);
+  }
+  await expect(group(page, 'In progress').getByText('Drag a status here')).toBeVisible();
+
+  // When I drag "Idea" onto the hint of "In progress"
+  await drag(page, handle(page, 'Idea'), group(page, 'In progress').getByText('Drag a status here'));
+
+  // Then "Idea" is in "In progress", and "To do" stays in "Not started"
+  expect(await namesIn(page, 'In progress')).toEqual(['Idea']);
+  expect(await namesIn(page, 'Not started')).toEqual(['To do']);
+  await expect(group(page, 'In progress').getByText('Drag a status here')).toHaveCount(0);
 });
 
 test('AC3.4 counts the stories of a status that moves to "Done" as done in the releases, from today on', async ({ page }) => {
