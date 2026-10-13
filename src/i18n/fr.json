@@ -36,7 +36,10 @@
     "cardRole": "carte de story",
     "noSprintTitle": "Pas encore de sprint",
     "noSprint": "Le tableau affiche le sprint en cours. Il n’y a pas encore de sprint.",
-    "toMap": "En créer un sur la story map"
+    "toMap": "En créer un sur la story map",
+    "columns": "Colonnes du tableau",
+    "bandCount_one": "{{count}} story dans cette catégorie",
+    "bandCount_other": "{{count}} stories dans cette catégorie"
   },
   "card": {
     "criteria": "{{done}} critères acceptés sur {{total}}",
@@ -319,7 +322,6 @@
   "settings": {
     "title": "Paramètres",
     "sections": "Sections des paramètres",
-    "statusValues": "Valeurs de statut",
     "planned": "Prévu",
     "plannedNote": "prévu pour une version ultérieure",
     "map": {
@@ -604,6 +606,62 @@
         "change": "Changement du périmètre"
       },
       "explain": "La ligne monte quand des stories s'ajoutent et descend quand des stories sont retirées ou terminées. La ligne cible va tout droit de ce qui restait le jour du début à zéro le jour de la fin."
+    }
+  },
+  "statusValues": {
+    "title": "Valeurs de statut",
+    "hint": "Chaque valeur de statut est une colonne du tableau. Les trois catégories sont fixes et gardent leur ordre ; à l’intérieur d’une catégorie, vous choisissez l’ordre. Une story est terminée quand son statut est dans « Terminé ».",
+    "category": {
+      "not_started": "Pas commencé",
+      "in_progress": "En cours",
+      "done": "Terminé"
+    },
+    "rule": {
+      "not_started": "Au moins un · les nouvelles stories commencent dans le premier",
+      "in_progress": "Facultatif",
+      "done": "Au moins un · les stories ici sont terminées"
+    },
+    "list": "Valeurs de statut dans « {{category}} »",
+    "name": "Nom du statut {{name}}",
+    "nameHint": "Un seul nom pour toutes les langues. Laissez vide pour retrouver le nom par défaut « {{name}} ».",
+    "stories_one": "{{count}} story",
+    "stories_other": "{{count}} stories",
+    "noStories": "Aucune story",
+    "move": "Déplacer le statut {{name}}",
+    "remove": "Supprimer le statut {{name}}",
+    "locked": "{{name}} est le dernier statut de « {{category}} » et ne peut être ni supprimé ni déplacé dans une autre catégorie.",
+    "add": "Statut dans « {{category}} »",
+    "addLabel": "Nom du nouveau statut dans « {{category}} »",
+    "addConfirm": "Ajouter",
+    "cancel": "Annuler",
+    "keyboard": "Faites glisser un statut par sa poignée pour changer l’ordre. Déposé dans une autre catégorie, il change de catégorie. Au clavier : Alt+flèche haut ou bas dans le champ du nom.",
+    "saved": "Les modifications s’appliquent à toute l’équipe et sont enregistrées immédiatement.",
+    "refused": "Impossible : « Pas commencé » et « Terminé » ont chacun besoin d’au moins un statut.",
+    "moved": "{{name}} est maintenant en position {{position}} dans « {{category}} ».",
+    "dnd": {
+      "instructions": "Pour déplacer un statut, appuyez sur espace. Utilisez les flèches pour le déplacer, espace pour le déposer, Échap pour annuler.",
+      "pickedUp": "{{name}} pris.",
+      "over": "{{name}} est sur {{target}}.",
+      "dropped": "{{name}} déposé.",
+      "cancelled": "Déplacement de {{name}} annulé."
+    },
+    "confirmCategory": {
+      "title": "Déplacer « {{name}} » vers « {{category}} » ?",
+      "toDone_one": "{{count}} story a ce statut ({{codes}}). Elle compte comme terminée à partir d’aujourd’hui ; les releases et le burndown la comptent dès aujourd’hui.",
+      "toDone_other": "{{count}} stories ont ce statut ({{codes}}). Elles comptent comme terminées à partir d’aujourd’hui ; les releases et le burndown les comptent dès aujourd’hui.",
+      "fromDone_one": "{{count}} story a ce statut ({{codes}}). Elle compte de nouveau comme ouverte à partir d’aujourd’hui.",
+      "fromDone_other": "{{count}} stories ont ce statut ({{codes}}). Elles comptent de nouveau comme ouvertes à partir d’aujourd’hui.",
+      "confirm": "Déplacer"
+    },
+    "removeDialog": {
+      "title": "Supprimer le statut « {{name}} » ?",
+      "unused": "Aucune story n’a ce statut.",
+      "used_one": "{{count}} story a ce statut ({{codes}}). Elle reçoit un autre statut.",
+      "used_other": "{{count}} stories ont ce statut ({{codes}}). Elles reçoivent un autre statut.",
+      "target": "Déplacer vers",
+      "confirm": "Supprimer",
+      "confirmMove_one": "Déplacer {{count}} story et supprimer",
+      "confirmMove_other": "Déplacer {{count}} stories et supprimer"
     }
   }
 }

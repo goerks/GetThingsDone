@@ -8,7 +8,7 @@ import type { CustomDataType, FieldDefinition } from '../domain/types';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -513,5 +513,60 @@ describe('history of releases', () => {
     await expect(
       repository.addReleaseEvents([{ id: 'e2', at: '2099-01-01T10:00:00.000Z', releaseId: 'nope', storyId: 's', code: 'S-1', kind: 'added', points: 1, done: false }])
     ).rejects.toThrow();
+  });
+});
+
+describe('status values (#5)', () => {
+  it('migration 010 adds the four defaults and keeps the status of every story', () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 9));
+    db.exec(`
+      INSERT INTO stories (id, code, title, description, epic_id, points, status, rank)
+        VALUES ('s1', 'S-1', 'First', '', NULL, 3, 'review', 0), ('s2', 'S-2', 'Second', '', NULL, 5, 'done', 1);
+    `);
+
+    migrate(db, MIGRATIONS.slice(9));
+
+    expect(db.prepare('SELECT id, label, category, position FROM status_values ORDER BY position').all()).toEqual([
+      { id: 'todo', label: null, category: 'not_started', position: 0 },
+      { id: 'in_progress', label: null, category: 'in_progress', position: 1 },
+      { id: 'review', label: null, category: 'in_progress', position: 2 },
+      { id: 'done', label: null, category: 'done', position: 3 }
+    ]);
+    expect(db.prepare('SELECT id, status FROM stories ORDER BY rank').all()).toEqual([
+      { id: 's1', status: 'review' },
+      { id: 's2', status: 'done' }
+    ]);
+  });
+
+  it('stores renamed, added and reordered status values with their categories', async () => {
+    const { repository } = await freshRepository();
+    expect((await repository.load()).statuses.map((status) => status.id)).toEqual(['todo', 'in_progress', 'review', 'done']);
+    await repository.saveStatuses([
+      { id: 'todo', label: 'Backlog', category: 'not_started' },
+      { id: 'in_progress', label: null, category: 'in_progress' },
+      { id: 'test', label: 'Test', category: 'in_progress' },
+      { id: 'review', label: null, category: 'done' },
+      { id: 'done', label: null, category: 'done' }
+    ]);
+    const loaded = await repository.load();
+    expect(loaded.statuses).toEqual([
+      { id: 'todo', label: 'Backlog', category: 'not_started' },
+      { id: 'in_progress', label: null, category: 'in_progress' },
+      { id: 'test', label: 'Test', category: 'in_progress' },
+      { id: 'review', label: null, category: 'done' },
+      { id: 'done', label: null, category: 'done' }
+    ]);
+  });
+
+  it('keeps the status of a story that moved to another status before its status was removed', async () => {
+    const { repository } = await freshRepository();
+    const story = (await repository.load()).stories.find((item) => item.status === 'review');
+    if (!story) throw new Error('demo story in review missing');
+    await repository.savePositions([{ ...story, status: 'in_progress' }]);
+    await repository.saveStatuses((await repository.load()).statuses.filter((status) => status.id !== 'review'));
+    const loaded = await repository.load();
+    expect(loaded.statuses.map((status) => status.id)).toEqual(['todo', 'in_progress', 'done']);
+    expect(loaded.stories.find((item) => item.id === story.id)?.status).toBe('in_progress');
   });
 });

@@ -408,8 +408,8 @@ export function deleteStory(stories: Story[], id: string): Story[] {
   return stories.filter((story) => story.id !== id);
 }
 
-/** Adds a story in "To do", at the end of its sprint (or of the unplanned stories) in the backlog. */
-export function createStory(stories: Story[], input: NewStoryInput, id: string): { stories: Story[]; story: Story } {
+/** Adds a story with the start status, at the end of its sprint (or of the unplanned stories) in the backlog. */
+export function createStory(stories: Story[], input: NewStoryInput, id: string, status: Status = 'todo'): { stories: Story[]; story: Story } {
   const story: Story = {
     id,
     code: nextCode(stories),
@@ -417,7 +417,7 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string):
     description: input.description.trim(),
     epicId: input.epicId,
     points: input.points,
-    status: 'todo',
+    status,
     sprintId: input.sprintId,
     releaseId: input.releaseId ?? null,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,

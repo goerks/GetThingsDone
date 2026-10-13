@@ -10,6 +10,7 @@ import { ScopeReport } from './ScopeReport';
 import { StoryPicker } from './StoryPicker';
 import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
+import { statusLabel } from './statusLabel';
 
 type Tab = 'details' | 'stories' | 'scope' | 'burndown';
 const TABS: readonly Tab[] = ['details', 'stories', 'scope', 'burndown'];
@@ -58,7 +59,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
   }
 
   const own = storiesInRelease(app.stories, release.id);
-  const stats = releaseStats(app.stories, release.id);
+  const stats = releaseStats(app.stories, release.id, app.isDone);
   const pointsShown = builtin.shown('story', 'points');
   const language = i18n.resolvedLanguage ?? 'en';
   const late = storiesAfterReleaseEnd(release, app.stories, app.sprints);
@@ -270,7 +271,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                         <td>{epicName(story.epicId)}</td>
                         <td>{sprintName(story.sprintId)}</td>
                         {pointsShown && <td>{story.points}</td>}
-                        <td>{t(`status.${story.status}`)}</td>
+                        <td>{statusLabel(t, app.statuses, story.status)}</td>
                         <td>
                           <button
                             type="button"

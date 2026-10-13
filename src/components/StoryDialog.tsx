@@ -17,7 +17,9 @@ import { useDragSensors } from '../dnd/dnd';
 import { criteriaProgress } from '../domain/board';
 import { customFieldsFor, isRequired } from '../domain/fields';
 import { sprintEndsAfterRelease } from '../domain/releases';
-import { POINT_VALUES, STATUSES, type Criterion, type Status } from '../domain/types';
+import { POINT_VALUES, type Criterion } from '../domain/types';
+import { statusLabel } from './statusLabel';
+import { STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
 
@@ -237,12 +239,16 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
                 id={`${uid}-status`}
                 className="select"
                 value={story.status}
-                onChange={(event) => app.updateStory(story.id, { status: event.target.value as Status })}
+                onChange={(event) => app.updateStory(story.id, { status: event.target.value })}
               >
-                {STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {t(`status.${status}`)}
-                  </option>
+                {STATUS_CATEGORIES.map((category) => (
+                  <optgroup key={category} label={t(`statusValues.category.${category}`)}>
+                    {statusesIn(app.statuses, category).map((status) => (
+                      <option key={status.id} value={status.id}>
+                        {statusLabel(t, app.statuses, status.id)}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>

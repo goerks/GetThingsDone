@@ -36,7 +36,10 @@
     "cardRole": "story card",
     "noSprintTitle": "No sprint yet",
     "noSprint": "The board shows the running sprint. There is no sprint yet.",
-    "toMap": "Create one on the story map"
+    "toMap": "Create one on the story map",
+    "columns": "Board columns",
+    "bandCount_one": "{{count}} story in this category",
+    "bandCount_other": "{{count}} stories in this category"
   },
   "card": {
     "criteria": "{{done}} of {{total}} criteria accepted",
@@ -319,7 +322,6 @@
   "settings": {
     "title": "Settings",
     "sections": "Settings sections",
-    "statusValues": "Status values",
     "planned": "Planned",
     "plannedNote": "planned for a later release",
     "map": {
@@ -604,6 +606,62 @@
         "change": "Scope change"
       },
       "explain": "The line rises when stories are added and falls when stories are removed or finished. The target line runs straight from what was left on the start day to nothing on the end day."
+    }
+  },
+  "statusValues": {
+    "title": "Status values",
+    "hint": "Every status value is a column of the board. The three categories are fixed and keep their order; inside a category you choose the order. A story counts as done when its status is in \"Done\".",
+    "category": {
+      "not_started": "Not started",
+      "in_progress": "In progress",
+      "done": "Done"
+    },
+    "rule": {
+      "not_started": "At least one · new stories start in the first",
+      "in_progress": "Optional",
+      "done": "At least one · stories here count as done"
+    },
+    "list": "Status values in \"{{category}}\"",
+    "name": "Name of status {{name}}",
+    "nameHint": "One name for every language. Leave it empty to get back the default name \"{{name}}\".",
+    "stories_one": "{{count}} story",
+    "stories_other": "{{count}} stories",
+    "noStories": "No stories",
+    "move": "Move status {{name}}",
+    "remove": "Remove status {{name}}",
+    "locked": "{{name}} is the last status in \"{{category}}\" and cannot be removed or moved to another category.",
+    "add": "Status in \"{{category}}\"",
+    "addLabel": "Name of the new status in \"{{category}}\"",
+    "addConfirm": "Add",
+    "cancel": "Cancel",
+    "keyboard": "Drag a status by its handle to change the order. Dropping it in another category changes its category. With the keyboard: Alt+Arrow up or down in the name field.",
+    "saved": "Changes apply to the whole team and are saved at once.",
+    "refused": "Not possible: \"Not started\" and \"Done\" each need at least one status.",
+    "moved": "{{name}} is now at position {{position}} in \"{{category}}\".",
+    "dnd": {
+      "instructions": "To move a status, press space. Use the arrow keys to move it, space to drop it in its new place, escape to cancel.",
+      "pickedUp": "Picked up {{name}}.",
+      "over": "{{name}} is over {{target}}.",
+      "dropped": "{{name}} was dropped.",
+      "cancelled": "Moving {{name}} was cancelled."
+    },
+    "confirmCategory": {
+      "title": "Move \"{{name}}\" to \"{{category}}\"?",
+      "toDone_one": "{{count}} story has this status ({{codes}}). It counts as done from today on; releases and burndown count it from today.",
+      "toDone_other": "{{count}} stories have this status ({{codes}}). They count as done from today on; releases and burndown count them from today.",
+      "fromDone_one": "{{count}} story has this status ({{codes}}). It counts as open again from today on.",
+      "fromDone_other": "{{count}} stories have this status ({{codes}}). They count as open again from today on.",
+      "confirm": "Move"
+    },
+    "removeDialog": {
+      "title": "Remove status \"{{name}}\"?",
+      "unused": "No story has this status.",
+      "used_one": "{{count}} story has this status ({{codes}}). It gets another status.",
+      "used_other": "{{count}} stories have this status ({{codes}}). They get another status.",
+      "target": "Move to",
+      "confirm": "Remove",
+      "confirmMove_one": "Move {{count}} story and remove",
+      "confirmMove_other": "Move {{count}} stories and remove"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -19,7 +19,9 @@ import { dropStory, parseColumnId, sprintStories, storiesInColumn, totalPoints, 
 import { runningSprint, todayIso } from '../domain/sprints';
 import { formatSprintDates } from '../components/sprintFormat';
 import { hrefs } from '../router';
-import { STATUSES, type Status } from '../domain/types';
+import { CATEGORY_COLORS, STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
+import type { Status } from '../domain/types';
+import { statusLabel } from '../components/statusLabel';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar } from '../components/search/HighlightBar';
@@ -55,9 +57,9 @@ export function BoardPage() {
   const titleOf = (id: UniqueIdentifier): string => app.stories.find((story) => story.id === id)?.title ?? '';
   const columnNameOf = (id: UniqueIdentifier): string => {
     const column = parseColumnId(String(id));
-    if (column) return t(`status.${column}`);
+    if (column) return statusLabel(t, app.statuses, column);
     const story = app.stories.find((item) => item.id === id);
-    return story ? t(`status.${story.status}`) : '';
+    return story ? statusLabel(t, app.statuses, story.status) : '';
   };
 
   const announcements: Announcements = {
@@ -131,16 +133,41 @@ export function BoardPage() {
         onDragCancel={onDragCancel}
         accessibility={{ announcements, screenReaderInstructions: { draggable: t('board.dnd.instructions') } }}
       >
-        <div className="columns">
-          {STATUSES.map((status) => (
-            <BoardColumn
-              key={status}
-              status={status}
-              stories={storiesInColumn(app.stories, sprintId, status)}
-              epics={epics}
-              drop={target?.group === status ? { beforeId: target.beforeId } : undefined}
-            />
-          ))}
+        {/* One band per category above its columns; with many columns the board scrolls sideways. */}
+        <div className="board" role="group" aria-label={t('board.columns')}>
+          {STATUS_CATEGORIES.map((category) => {
+            const columns = statusesIn(app.statuses, category);
+            if (columns.length === 0) return null;
+            const count = columns.reduce((sum, status) => sum + storiesInColumn(app.stories, sprintId, status.id).length, 0);
+            return (
+              <div
+                key={category}
+                className="board__group"
+                role="group"
+                aria-labelledby={`band-${category}`}
+                data-category={category}
+                style={{ '--category-color': CATEGORY_COLORS[category] } as CSSProperties}
+              >
+                <h2 className="board__band">
+                  <span id={`band-${category}`}>{t(`statusValues.category.${category}`)}</span>
+                  <span className="board__band-count" aria-label={t('board.bandCount', { count })}>
+                    {count}
+                  </span>
+                </h2>
+                <div className="columns">
+                  {columns.map((status) => (
+                    <BoardColumn
+                      key={status.id}
+                      status={status.id}
+                      stories={storiesInColumn(app.stories, sprintId, status.id)}
+                      epics={epics}
+                      drop={target?.group === status.id ? { beforeId: target.beforeId } : undefined}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
         <DragOverlay>
           {activeStory ? <OverlayCard story={activeStory} epic={epics.get(activeStory.epicId ?? '')} /> : null}

@@ -15,6 +15,9 @@ import {
   type ReleaseInput
 } from './releases';
 import type { Release, Sprint, Story } from './types';
+import { DEFAULT_STATUSES, isDoneIn } from './statuses';
+
+const isDone = isDoneIn(DEFAULT_STATUSES);
 
 function story(id: string, releaseId: string | null, overrides: Partial<Story> = {}): Story {
   return {
@@ -105,9 +108,9 @@ describe('size and progress', () => {
   ];
 
   it('counts stories and points of a release, and what is done', () => {
-    expect(releaseStats(stories, 'r1')).toEqual({ stories: 3, points: 10, doneStories: 2, donePoints: 7 });
-    expect(releaseStats(stories, 'r2')).toEqual({ stories: 1, points: 8, doneStories: 0, donePoints: 0 });
-    expect(releaseStats(stories, 'none')).toEqual({ stories: 0, points: 0, doneStories: 0, donePoints: 0 });
+    expect(releaseStats(stories, 'r1', isDone)).toEqual({ stories: 3, points: 10, doneStories: 2, donePoints: 7 });
+    expect(releaseStats(stories, 'r2', isDone)).toEqual({ stories: 1, points: 8, doneStories: 0, donePoints: 0 });
+    expect(releaseStats(stories, 'none', isDone)).toEqual({ stories: 0, points: 0, doneStories: 0, donePoints: 0 });
   });
 
   it('lists the stories of a release by rank', () => {
@@ -121,21 +124,21 @@ describe('release state', () => {
   const allDone = [story('s1', 'r1', { status: 'done' }), story('s2', 'r1', { status: 'done' })];
 
   it('is done only when the release has stories and all are done', () => {
-    expect(releaseState(release('r1'), allDone, today)).toBe('done');
-    expect(releaseState(release('r1'), open, today)).toBe('planned');
-    expect(releaseState(release('r1', '2026-10-01'), [], today)).toBe('running');
-    expect(isReleaseDone([], 'r1')).toBe(false);
+    expect(releaseState(release('r1'), allDone, today, isDone)).toBe('done');
+    expect(releaseState(release('r1'), open, today, isDone)).toBe('planned');
+    expect(releaseState(release('r1', '2026-10-01'), [], today, isDone)).toBe('running');
+    expect(isReleaseDone([], 'r1', isDone)).toBe(false);
   });
 
   it('is running from the start date on and planned before it or without one', () => {
-    expect(releaseState(release('r1', '2026-10-12'), open, today)).toBe('running');
-    expect(releaseState(release('r1', '2026-10-13'), open, today)).toBe('planned');
-    expect(releaseState(release('r1', null, '2026-12-01'), open, today)).toBe('planned');
+    expect(releaseState(release('r1', '2026-10-12'), open, today, isDone)).toBe('running');
+    expect(releaseState(release('r1', '2026-10-13'), open, today, isDone)).toBe('planned');
+    expect(releaseState(release('r1', null, '2026-12-01'), open, today, isDone)).toBe('planned');
   });
 
   it('runs again when a story is added to a done release', () => {
     const reopened = [...allDone, story('s3', 'r1')];
-    expect(releaseState(release('r1', '2026-10-01'), reopened, today)).toBe('running');
+    expect(releaseState(release('r1', '2026-10-01'), reopened, today, isDone)).toBe('running');
   });
 });
 
@@ -150,12 +153,12 @@ describe('order and choice', () => {
   ];
 
   it('sorts by start date, then releases without one by title, and done releases last', () => {
-    expect(sortReleases(list, stories).map((item) => item.id)).toEqual(['early', 'late', 'no-date-a', 'no-date-b', 'done-one']);
+    expect(sortReleases(list, stories, isDone).map((item) => item.id)).toEqual(['early', 'late', 'no-date-a', 'no-date-b', 'done-one']);
   });
 
   it('offers releases that are not done, plus the current one even when it is done', () => {
-    expect(selectableReleases(list, stories, null).map((item) => item.id)).not.toContain('done-one');
-    expect(selectableReleases(list, stories, 'done-one').map((item) => item.id)).toContain('done-one');
+    expect(selectableReleases(list, stories, null, isDone).map((item) => item.id)).not.toContain('done-one');
+    expect(selectableReleases(list, stories, 'done-one', isDone).map((item) => item.id)).toContain('done-one');
   });
 });
 

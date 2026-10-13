@@ -22,7 +22,7 @@ export function ReleaseSelect({ id, value, onChange }: Props) {
       onChange={(event) => onChange(event.target.value === NO_RELEASE ? null : event.target.value)}
     >
       <option value={NO_RELEASE}>{t('releases.noRelease')}</option>
-      {selectableReleases(app.releases, app.stories, value).map((release) => (
+      {selectableReleases(app.releases, app.stories, value, app.isDone).map((release) => (
         <option key={release.id} value={release.id}>
           {release.title}
         </option>

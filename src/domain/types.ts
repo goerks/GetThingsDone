@@ -1,6 +1,16 @@
-export type Status = 'todo' | 'in_progress' | 'review' | 'done';
+/** The id of a status value. The team configures the status values (#5); the defaults are todo, in_progress, review, done. */
+export type Status = string;
 
-export const STATUSES: readonly Status[] = ['todo', 'in_progress', 'review', 'done'];
+/** Fixed categories of the status values, in board order. A story is done when its status is in "done". */
+export type StatusCategory = 'not_started' | 'in_progress' | 'done';
+
+/** One status value, which is also a column of the board. The order of the list is the board order. */
+export interface StatusValue {
+  id: string;
+  /** Null shows the translated default label of a default status value. One label for every language. */
+  label: string | null;
+  category: StatusCategory;
+}
 
 export const EPIC_COLOR_KEYS = ['blue', 'amber', 'teal', 'violet', 'rose', 'green', 'cyan', 'slate'] as const;
 
@@ -193,10 +203,12 @@ export interface Snapshot {
   /** History of the releases, oldest first. */
   events: ReleaseEvent[];
   stories: Story[];
+  /** Status values in board order (#5). */
+  statuses: StatusValue[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
   settings: Settings;
 }
 
 /** What the search reads: the items and the fields, not the releases' history or the settings. */
-export type SearchSnapshot = Pick<Snapshot, 'epics' | 'sprints' | 'stories' | 'fields' | 'assignments'>;
+export type SearchSnapshot = Pick<Snapshot, 'epics' | 'sprints' | 'stories' | 'statuses' | 'fields' | 'assignments'>;

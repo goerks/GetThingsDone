@@ -47,6 +47,7 @@ import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
 import { usePageMatches, useSearchPage } from '../state/Search';
 import { useNewShortcut } from '../components/useNewShortcut';
+import { StatusDot } from '../components/StatusDot';
 
 const NOT_PLANNED = '-';
 /** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
@@ -62,7 +63,6 @@ interface Hover {
 /* ---------- Card ---------- */
 
 function CardContent({ story }: { story: Story }) {
-  const { t } = useTranslation();
   const builtin = useBuiltin();
   return (
     <>
@@ -76,7 +76,7 @@ function CardContent({ story }: { story: Story }) {
       </span>
       <TitleButton story={story} className="map-card__title" />
       <CardFieldValues story={story} />
-      <span className={`status-dot status-dot--${story.status}`}>{t(`status.${story.status}`)}</span>
+      <StatusDot status={story.status} />
     </>
   );
 }
@@ -260,7 +260,7 @@ function ReleaseLabel({ release, stories, labelId, isTarget, today }: ReleaseLab
   const app = useApp();
   const builtin = useBuiltin();
   const details = useDetails();
-  const state = releaseState(release, app.stories, today);
+  const state = releaseState(release, app.stories, today, app.isDone);
   const late = storiesAfterReleaseEnd(release, app.stories, app.sprints).length;
   const period = formatPeriod(release, t, i18n.resolvedLanguage ?? 'en');
   return (
@@ -341,7 +341,7 @@ export function MapPage() {
   const columns = useMemo<Array<Epic | null>>(() => (hasLooseStories ? [...epics, null] : epics), [epics, hasLooseStories]);
   const sprints = mapSprints(app.sprints, today);
   // Releases that are done are left out like past sprints; their stories are done as well.
-  const releases = sortReleases(app.releases, app.stories).filter((release) => !isReleaseDone(app.stories, release.id));
+  const releases = sortReleases(app.releases, app.stories, app.isDone).filter((release) => !isReleaseDone(app.stories, release.id, app.isDone));
   const shownStories = releaseMode
     ? app.stories.filter((story) => story.releaseId === null || releases.some((release) => release.id === story.releaseId))
     : app.stories.filter((story) => story.sprintId === null || sprints.some((sprint) => sprint.id === story.sprintId));

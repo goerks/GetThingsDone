@@ -15,6 +15,7 @@ import {
   type SearchQuery
 } from '../domain/search';
 import type { SearchSnapshot } from '../domain/types';
+import { statusLabel } from '../components/statusLabel';
 
 export interface SearchLabels {
   field(field: FilterField): string;
@@ -51,7 +52,7 @@ export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
       }
       switch (name) {
         case 'status':
-          return t(`status.${item}`);
+          return statusLabel(t, snapshot.statuses, item);
         case 'epic':
           return item === NO_EPIC ? t('epics.noEpic') : (snapshot.epics.find((epic) => epic.id === item)?.name ?? item);
         case 'sprint':
@@ -64,7 +65,7 @@ export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
           return item;
       }
     },
-    [t, snapshot.epics, snapshot.sprints, snapshot.fields]
+    [t, snapshot.epics, snapshot.sprints, snapshot.statuses, snapshot.fields]
   );
 
   const badge = useCallback((filter: Filter) => t('search.badge', { field: field(filter.field), value: value(filter.field, filter.value) }), [
@@ -85,7 +86,7 @@ export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
     const englishValue = (name: FilterField, item: string): string[] => {
       switch (name) {
         case 'status':
-          return [en(`status.${item}`), item.replace('_', ' ')];
+          return [statusLabel(en, snapshot.statuses, item), item.replace('_', ' ')];
         case 'type':
           return [en(`search.kind.${item}`)];
         case 'criteria':

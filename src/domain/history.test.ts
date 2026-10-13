@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { baselineEvents, dayOf, eventsOfRelease, netChange, releaseEventsFor, scopeReport } from './history';
+import { DEFAULT_STATUSES, isDoneIn } from './statuses';
 import type { Release, ReleaseEvent, Story } from './types';
+
+const isDone = isDoneIn(DEFAULT_STATUSES);
 
 let counter = 0;
 const newId = (): string => `ev-${(counter += 1)}`;
@@ -29,42 +32,49 @@ const kinds = (events: ReleaseEvent[]): string[] => events.map((event) => `${eve
 describe('releaseEventsFor', () => {
   it('records nothing for stories without a release', () => {
     const before = [story('a')];
-    expect(releaseEventsFor(before, [story('a', { points: 5, status: 'done' })], AT, newId)).toEqual([]);
+    expect(releaseEventsFor(before, [story('a', { points: 5, status: 'done' })], AT, newId, isDone)).toEqual([]);
   });
 
   it('records a story that joins a release, with its points and whether it is done', () => {
-    const events = releaseEventsFor([story('a')], [story('a', { releaseId: 'r1', points: 5, status: 'done' })], AT, newId);
+    const events = releaseEventsFor([story('a')], [story('a', { releaseId: 'r1', points: 5, status: 'done' })], AT, newId, isDone);
     expect(events).toMatchObject([{ kind: 'added', releaseId: 'r1', storyId: 'a', code: 'A', points: 5, done: true, at: AT }]);
   });
 
   it('records a story that leaves a release', () => {
-    const events = releaseEventsFor([story('a', { releaseId: 'r1', points: 8 })], [story('a')], AT, newId);
+    const events = releaseEventsFor([story('a', { releaseId: 'r1', points: 8 })], [story('a')], AT, newId, isDone);
     expect(events).toMatchObject([{ kind: 'removed', releaseId: 'r1', points: 8 }]);
   });
 
   it('records a move between releases as a removal and an addition', () => {
-    const events = releaseEventsFor([story('a', { releaseId: 'r1' })], [story('a', { releaseId: 'r2' })], AT, newId);
+    const events = releaseEventsFor([story('a', { releaseId: 'r1' })], [story('a', { releaseId: 'r2' })], AT, newId, isDone);
     expect(kinds(events)).toEqual(['removed:r1:a', 'added:r2:a']);
   });
 
   it('records a change of points and a change into and out of done while in a release', () => {
     const base = story('a', { releaseId: 'r1' });
-    expect(kinds(releaseEventsFor([base], [{ ...base, points: 5 }], AT, newId))).toEqual(['points:r1:a']);
-    expect(kinds(releaseEventsFor([base], [{ ...base, status: 'done' }], AT, newId))).toEqual(['done:r1:a']);
-    expect(kinds(releaseEventsFor([{ ...base, status: 'done' }], [{ ...base, status: 'review' }], AT, newId))).toEqual(['reopened:r1:a']);
-    expect(releaseEventsFor([base], [{ ...base, status: 'in_progress' }], AT, newId)).toEqual([]);
+    expect(kinds(releaseEventsFor([base], [{ ...base, points: 5 }], AT, newId, isDone))).toEqual(['points:r1:a']);
+    expect(kinds(releaseEventsFor([base], [{ ...base, status: 'done' }], AT, newId, isDone))).toEqual(['done:r1:a']);
+    expect(kinds(releaseEventsFor([{ ...base, status: 'done' }], [{ ...base, status: 'review' }], AT, newId, isDone))).toEqual(['reopened:r1:a']);
+    expect(releaseEventsFor([base], [{ ...base, status: 'in_progress' }], AT, newId, isDone)).toEqual([]);
   });
 
   it('records a deleted story as removed, and a new story with a release as added', () => {
     const gone = story('a', { releaseId: 'r1' });
-    expect(kinds(releaseEventsFor([gone], [], AT, newId))).toEqual(['removed:r1:a']);
-    expect(kinds(releaseEventsFor([], [gone], AT, newId))).toEqual(['added:r1:a']);
-    expect(releaseEventsFor([story('b')], [], AT, newId)).toEqual([]);
+    expect(kinds(releaseEventsFor([gone], [], AT, newId, isDone))).toEqual(['removed:r1:a']);
+    expect(kinds(releaseEventsFor([], [gone], AT, newId, isDone))).toEqual(['added:r1:a']);
+    expect(releaseEventsFor([story('b')], [], AT, newId, isDone)).toEqual([]);
+  });
+
+  it('records stories that become done or open because their status value moves to another category (#5)', () => {
+    const list = [story('a', { releaseId: 'r1', status: 'review' }), story('b', { releaseId: 'r1', status: 'in_progress' }), story('c', { status: 'review' })];
+    const reviewDone = isDoneIn(DEFAULT_STATUSES.map((status) => (status.id === 'review' ? { ...status, category: 'done' as const } : status)));
+    expect(releaseEventsFor(list, list, AT, newId, reviewDone, isDone)).toMatchObject([{ kind: 'done', releaseId: 'r1', storyId: 'a', done: true }]);
+    expect(kinds(releaseEventsFor(list, list, AT, newId, isDone, reviewDone))).toEqual(['reopened:r1:a']);
   });
 
   it('records nothing when nothing changed', () => {
     const list = [story('a', { releaseId: 'r1' })];
-    expect(releaseEventsFor(list, list, AT, newId)).toEqual([]);
+    expect(releaseEventsFor(list, list, AT, newId, isDone)).toEqual([]);
   });
 });
 
@@ -76,7 +86,7 @@ describe('baselineEvents', () => {
   const stories = [story('a', { releaseId: 'r1', points: 5, status: 'done' }), story('b', { releaseId: 'r2' }), story('c')];
 
   it('starts the history of a release that has stories and none yet', () => {
-    const events = baselineEvents(releases, stories, [], AT, newId);
+    const events = baselineEvents(releases, stories, [], AT, newId, isDone);
     expect(events).toMatchObject([
       { kind: 'baseline', releaseId: 'r1', storyId: 'a', points: 5, done: true },
       { kind: 'baseline', releaseId: 'r2', storyId: 'b', points: 3, done: false }
@@ -85,7 +95,7 @@ describe('baselineEvents', () => {
 
   it('leaves a release with a history alone', () => {
     const existing: ReleaseEvent[] = [{ id: 'x', at: AT, releaseId: 'r1', storyId: 'a', code: 'A', kind: 'baseline', points: 5, done: false }];
-    expect(baselineEvents(releases, stories, existing, AT, newId).map((event) => event.releaseId)).toEqual(['r2']);
+    expect(baselineEvents(releases, stories, existing, AT, newId, isDone).map((event) => event.releaseId)).toEqual(['r2']);
   });
 });
 
