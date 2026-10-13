@@ -19,7 +19,7 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 
 | Component | Notes |
 |---|---|
-| App header | Logo, main navigation with underline for the current page, search field, theme switch, language, user |
+| App header | Logo, main navigation with underline for the current page, search field, theme switch, language, user. Sticky at the top of the window (`z-index: 30`, height shared as `--header-height`) |
 | Board column | Own lane: `--column` background, border, header with a rule and the status dot; as tall as the board, at least 240 px wide; the board scrolls sideways when the columns do not fit. While dragging, the target column turns `--accent-soft` with an accent border |
 | Category band | Above the columns of each status category (#5): name in uppercase, story count in mono, 3 px top edge in the category colour (`--epic-slate` not started, `--epic-blue` in progress, `--epic-green` done) |
 | Status dot | The colour of a status: the category colour for the first status of a category, lighter `color-mix` shades with `--surface` for the following ones. Always next to the status name |
