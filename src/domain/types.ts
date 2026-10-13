@@ -173,13 +173,17 @@ export interface Story {
 }
 
 /** What the rows of the story map are. */
+/** Features a team can switch on and off (#10). */
+export type FeatureKey = 'releases';
+export type Features = Record<FeatureKey, boolean>;
+
 export type MapRows = 'sprints' | 'releases';
 
 /** Settings of the workspace, shared by the whole team. */
 export interface Settings {
   mapRows: MapRows;
-  /** Whether the team plans with releases; when off, everything about releases is hidden but kept. */
-  releasesEnabled: boolean;
+  /** Feature toggles; a feature that is off is hidden everywhere but its data is kept. */
+  features: Features;
 }
 
 export interface Snapshot {

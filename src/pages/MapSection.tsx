@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { MAP_ROWS, effectiveMapRows } from '../domain/settings';
+import { MAP_ROWS, effectiveMapRows, featureOn } from '../domain/settings';
 import type { MapRows } from '../domain/types';
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
@@ -22,7 +22,7 @@ function Preview() {
 export function MapSection() {
   const { t } = useTranslation();
   const app = useApp();
-  const releasesEnabled = app.settings.releasesEnabled;
+  const releasesEnabled = featureOn(app.settings, 'releases');
   const rows = effectiveMapRows(app.settings);
 
   return (
@@ -33,11 +33,16 @@ export function MapSection() {
           {t('settings.map.back')}
         </a>
       </div>
+      {!releasesEnabled && (
+        <p className="hint hint--warn" role="note">
+          {t('settings.map.off')} <a href={hrefs.settingsFeatures}>{t('settings.map.toReleases')}</a>
+        </p>
+      )}
       <fieldset className="choices">
         <legend>{t('settings.map.rows')}</legend>
         <div className="choices__list">
           {MAP_ROWS.map((choice: MapRows) => (
-            <label key={choice} className={`choice${rows === choice ? ' choice--selected' : ''}`}>
+            <label key={choice} className={`choice${rows === choice ? ' choice--selected' : ''}${choice === 'releases' && !releasesEnabled ? ' choice--off' : ''}`}>
               <span className="choice__top">
                 <input
                   type="radio"
@@ -49,6 +54,7 @@ export function MapSection() {
                 />
                 <span className="choice__name">{t(`settings.map.${choice}.name`)}</span>
                 {choice === 'sprints' && <span className="badge">{t('settings.map.default')}</span>}
+                {choice === 'releases' && !releasesEnabled && <span className="badge badge--off">{t('settings.map.unavailable')}</span>}
               </span>
               <span className="muted">{t(`settings.map.${choice}.hint`)}</span>
               <Preview />
@@ -58,11 +64,6 @@ export function MapSection() {
         </div>
       </fieldset>
       <p className="muted">{t('settings.map.saved')}</p>
-      {!releasesEnabled && (
-        <p className="hint hint--info" role="note">
-          {t('settings.map.off')} <a href={hrefs.settingsReleases}>{t('settings.map.toReleases')}</a>
-        </p>
-      )}
       {rows === 'releases' && app.releases.length === 0 && (
         <p className="hint hint--info" role="note">
           {t('settings.map.noReleases')} <a href={hrefs.releases}>{t('settings.map.createRelease')}</a>

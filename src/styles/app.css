@@ -3203,3 +3203,55 @@ mark {
 .scope__key--ideal::before {
   border-top: 2px dashed var(--muted);
 }
+
+/* ---------- Feature toggles and what a switched-off feature leaves unavailable (#10) ---------- */
+
+.hint--warn {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--muted);
+  font-size: 14px;
+}
+
+.choice--off {
+  cursor: not-allowed;
+  background: var(--pill);
+  border-style: dashed;
+}
+
+.choice--off .choice__name,
+.choice--off .choice__preview {
+  opacity: 0.55;
+}
+
+.badge--off {
+  color: var(--muted);
+  border-style: dashed;
+}
+
+.features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.feature__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.feature__text {
+  margin: 6px 0 0 28px;
+}

@@ -1,3 +1,4 @@
+import { featureOn } from '../domain/settings';
 import type { KeyboardEvent } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
@@ -61,7 +62,7 @@ function CardRelease({ story }: { story: Story }) {
   const { t } = useTranslation();
   const app = useApp();
   const release = app.releases.find((item) => item.id === story.releaseId);
-  if (!release || !app.settings.releasesEnabled || !releaseLayout(app.assignments).onCard) return null;
+  if (!release || !featureOn(app.settings, 'releases') || !releaseLayout(app.assignments).onCard) return null;
   return (
     <span className="card-release" title={t('releases.onCard', { title: release.title })}>
       <span className="sr-only">{t('releases.label')}: </span>

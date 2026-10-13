@@ -1,7 +1,7 @@
 import Database from '@tauri-apps/plugin-sql';
 import { normalizeColorKey } from '../domain/epics';
 import { missingBuiltins } from '../domain/fields';
-import { normalizeSettings } from '../domain/settings';
+import { FEATURE_KEYS, normalizeSettings } from '../domain/settings';
 import type {
   BuiltinKey,
   Criterion,
@@ -259,7 +259,7 @@ export class SqliteRepository implements Repository {
     const settingRows = await this.db.select<{ key: string; value: string }[]>('SELECT key, value FROM settings');
     const settings = normalizeSettings({
       mapRows: settingRows.find((row) => row.key === 'map_rows')?.value,
-      releasesEnabled: settingRows.find((row) => row.key === 'releases_enabled')?.value
+      features: Object.fromEntries(FEATURE_KEYS.map((key) => [key, settingRows.find((row) => row.key === `feature_${key}`)?.value]))
     });
     return { epics, sprints, releases, events, stories, fields, assignments, settings };
   }
@@ -459,7 +459,7 @@ export class SqliteRepository implements Repository {
   async saveSettings(settings: Settings): Promise<void> {
     const upsert = 'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = excluded.value';
     await this.db.execute(upsert, ['map_rows', settings.mapRows]);
-    await this.db.execute(upsert, ['releases_enabled', settings.releasesEnabled ? '1' : '0']);
+    for (const key of FEATURE_KEYS) await this.db.execute(upsert, [`feature_${key}`, settings.features[key] ? '1' : '0']);
   }
 
   async addRelease(release: Release): Promise<void> {

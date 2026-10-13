@@ -190,7 +190,8 @@
     "rowsLink": "Righe della story map: {{rows}}. Cambia nelle impostazioni",
     "afterEnd_one": "{{count}} storia dopo la fine",
     "afterEnd_other": "{{count}} storie dopo la fine",
-    "editRelease": "Apri la release"
+    "editRelease": "Apri la release",
+    "rowsOff": "Le righe sono sprint: le release sono disattivate."
   },
   "fields": {
     "title": "Campi",
@@ -300,7 +301,7 @@
       "noCustom": "Ancora nessun campo personalizzato per questo tipo. Spuntali in Assegnazione.",
       "instructions": "Premi spazio per prendere un campo. Spostalo con le frecce, rilascialo con spazio, annulla con esc.",
       "releaseOff": "Non disponibile: le release sono disattivate",
-      "releaseOffLink": "Impostazioni › Release"
+      "releaseOffLink": "Impostazioni › Funzioni"
     },
     "invalidUrl": "Inserisci un indirizzo web, per esempio example.com.",
     "openLink": "Apri {{name}}",
@@ -339,15 +340,21 @@
       "noReleases": "Non c'è ancora nessuna release. La story map mostra allora solo la riga «Nessuna release».",
       "createRelease": "Crea una release",
       "back": "← Alla story map",
-      "off": "Le release sono disattivate, quindi la story map mostra gli sprint. Attiva le release per usarle come righe.",
-      "toReleases": "Attiva le release"
+      "off": "Le release sono disattivate e non possono quindi essere usate come righe della story map.",
+      "toReleases": "Attiva la funzione Release",
+      "unavailable": "Non disponibile"
     },
-    "releases": {
-      "title": "Release",
-      "enabled": "Pianifica con le release",
-      "hint": "Disattivare se il team lavora solo con gli sprint. La pagina Release, il campo Release delle storie e le righe di release della story map vengono nascosti. Non si cancella nulla: riattivando, tutto torna.",
+    "features": {
+      "title": "Funzioni",
+      "hint": "Attiva o disattiva le funzioni per tutto il team. Una funzione disattivata è nascosta, i suoi dati vengono conservati.",
+      "on": "Attiva",
+      "off": "Disattivata",
       "saved": "La scelta vale per tutto il team e viene salvata subito.",
-      "offNote": "Le release sono disattivate. Le release e la loro cronologia vengono conservate."
+      "releases": {
+        "name": "Release",
+        "description": "Pianificare con le release: la pagina Release, il campo Release delle storie, le righe di release della story map e i rapporti su ambito e burndown. Disattivare se il team lavora solo con gli sprint.",
+        "offNote": "Disattivata. Le release, le loro storie e la cronologia vengono conservate e tornano alla riattivazione."
+      }
     }
   },
   "summary": {
