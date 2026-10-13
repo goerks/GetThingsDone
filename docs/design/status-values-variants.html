@@ -141,161 +141,104 @@ header.intro { display: grid; gap: 12px; }
 .fade { position: absolute; top: 0; right: 0; bottom: 0; width: 60px; background: linear-gradient(to right, transparent, var(--bg)); }
 .scrollbar { margin: 0 18px 12px; height: 6px; border-radius: 3px; background: var(--pill); position: relative; }
 .scrollbar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 62%; border-radius: 3px; background: var(--muted); opacity: .5; }
+
+/* Category colours and their shades: the first status of a category is the base colour, later ones get lighter. */
+:root { --cat-new: var(--c-slate); --cat-wip: var(--c-blue); --cat-done: var(--c-green); }
+.new1 { background: var(--cat-new); } .new2 { background: color-mix(in oklab, var(--cat-new) 65%, var(--surface)); }
+.wip1 { background: var(--cat-wip); } .wip2 { background: color-mix(in oklab, var(--cat-wip) 72%, var(--surface)); } .wip3 { background: color-mix(in oklab, var(--cat-wip) 48%, var(--surface)); }
+.done1 { background: var(--cat-done); } .done2 { background: color-mix(in oklab, var(--cat-done) 60%, var(--surface)); }
+.group__head .dot { width: 10px; height: 10px; }
+
+/* Board with category bands */
+.bboard { padding: 14px 18px; display: grid; gap: 6px; overflow: hidden; position: relative; }
+.bands { display: flex; gap: 10px; }
+.band { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 6px 6px 0 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; border-top: 3px solid; background: var(--surface); border-left: 1px solid var(--border); border-right: 1px solid var(--border); flex: none; }
+.band--new { border-top-color: var(--cat-new); } .band--wip { border-top-color: var(--cat-wip); } .band--done { border-top-color: var(--cat-done); }
+.band .count { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.cols { display: flex; gap: 10px; }
+.cgroup { display: flex; gap: 6px; flex: none; }
+.w1 { width: 190px; } .w2 { width: 386px; } .w3 { width: 582px; }
+.mini { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; font-size: 14px; }
 </style>
 </head>
 <body>
 
 <main class="wrap">
   <header class="intro">
-    <div class="meta"><span>Issue #5</span><span>Einstellungen · Status-Werte</span></div>
-    <h1>Wie stellt ein Team seine Status-Werte ein?</h1>
-    <p class="muted">Der Abschnitt «Status-Werte» in den Einstellungen ist heute als «geplant» gelistet. Jeder Status-Wert ist eine Spalte auf dem Board und hat einen Namen, eine Farbe und eine Kategorie. Drei Varianten für die Einstellungsseite, alle mit denselben Regeln. Der Löschdialog und das Board mit vielen Spalten sind für alle Varianten gleich und stehen am Schluss.</p>
+    <div class="meta"><span>Issue #5</span><span>Einstellungen · Status-Werte</span><span>Variante A, überarbeitet</span></div>
+    <h1>Status-Werte nach Kategorien</h1>
+    <p class="muted">Überarbeitung nach dem Feedback vom 13.10.: Die Kategorien stehen in fester Reihenfolge und sind auch auf dem Board als Band sichtbar. Farben gibt es nur drei, eine pro Kategorie; die Status innerhalb einer Kategorie bekommen automatisch Abstufungen davon. Die verworfenen Varianten B und C sind in <code>status-values.md</code> beschrieben.</p>
   </header>
 
   <section class="variant" aria-labelledby="rules">
-    <h2 id="rules">Regeln für alle Varianten (Entscheide vom 13.10.)</h2>
+    <h2 id="rules">Regeln</h2>
     <div class="rules">
-      <div class="box"><b>Kategorien</b><span>Fest: <i>Nicht begonnen</i>, <i>In Arbeit</i>, <i>Erledigt</i>. In <i>Nicht begonnen</i> und <i>Erledigt</i> gibt es immer mindestens einen Status.</span></div>
-      <div class="box"><b>Erledigt</b><span>Eine Story ist erledigt, wenn ihr Status in <i>Erledigt</i> liegt. Das zählt für Releases, Burndown und Story Map.</span></div>
-      <div class="box"><b>Neue Stories</b><span>Bekommen den ersten Status auf dem Board. Er liegt immer in <i>Nicht begonnen</i>.</span></div>
-      <div class="box"><b>Name und Farbe</b><span>Ein Name für alle Sprachen. Die Standardwerte bleiben übersetzt, bis man sie umbenennt. Farbe frei wählbar, Vorschlag nach Kategorie.</span></div>
+      <div class="box"><b>Kategorien</b><span>Fest und in fester Reihenfolge: <i>Nicht begonnen</i> → <i>In Arbeit</i> → <i>Erledigt</i>. In <i>Nicht begonnen</i> und <i>Erledigt</i> gibt es immer mindestens einen Status.</span></div>
+      <div class="box"><b>Reihenfolge</b><span>Frei nur innerhalb einer Kategorie. Eine <i>Erledigt</i>-Spalte steht nie vor einer <i>In Arbeit</i>-Spalte.</span></div>
+      <div class="box"><b>Farben</b><span>Grau, Blau, Grün je Kategorie. Der erste Status hat die volle Farbe, die folgenden werden heller. Nichts zu wählen; der Name steht immer daneben.</span></div>
+      <div class="box"><b>Erledigt, neue Stories</b><span>Erledigt ist, was in <i>Erledigt</i> liegt. Neue Stories bekommen den ersten Status in <i>Nicht begonnen</i>.</span></div>
     </div>
   </section>
 
-  <section class="variant" aria-labelledby="va">
-    <div class="variant__head">
-      <h3 id="va">A · Liste nach Kategorien gruppiert</h3>
-      <span class="tag tag--rec">Empfehlung</span>
-    </div>
-    <p>Drei Gruppen in fester Reihenfolge, in jeder Gruppe die Status-Werte in Board-Reihenfolge. Ziehen sortiert innerhalb der Gruppe und auch in eine andere Gruppe; damit wechselt die Kategorie. Die Board-Reihenfolge ergibt sich: zuerst alles aus <i>Nicht begonnen</i>, dann <i>In Arbeit</i>, dann <i>Erledigt</i>. Name direkt im Feld ändern, Farbe über den Punkt.</p>
+  <section class="variant" aria-labelledby="set">
+    <div class="variant__head"><h3 id="set">Einstellungen · Status-Werte</h3><span class="tag tag--rec">gewählt</span></div>
+    <p>Drei Gruppen, in jeder die Status in Board-Reihenfolge. Ziehen sortiert innerhalb der Gruppe; ziehen in eine andere Gruppe ändert die Kategorie (mit Rückfrage, siehe unten). Name direkt im Feld ändern. Tastatur: Alt+↑/↓ verschiebt, auch über Gruppengrenzen.</p>
     <div class="scroll">
-      <div class="app" role="img" aria-label="Variante A: Drei Gruppen Nicht begonnen, In Arbeit und Erledigt, jede mit einer Liste von Status-Werten mit Farbpunkt, Name, Anzahl Stories und Löschen-Knopf">
+      <div class="app" role="img" aria-label="Einstellungen: drei Gruppen Nicht begonnen, In Arbeit, Erledigt mit Status-Werten in Abstufungen der Kategoriefarbe">
         <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
         <div class="page">
           <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
           <div class="content">
             <div class="ph"><b>Status-Werte</b><span class="hint">Reihenfolge = Spalten auf dem Board</span></div>
             <div class="group">
-              <div class="group__head">Nicht begonnen <span class="rule">mind. 1 · der erste ist der Start für neue Stories</span></div>
-              <div class="row"><span class="grip">⋮⋮</span><span class="dot slate"></span><span class="input">Backlog</span><span class="count">12 Stories</span><span class="x">✕</span></div>
-              <div class="row"><span class="grip">⋮⋮</span><span class="dot blue"></span><span class="input">Zu erledigen</span><span class="count">7 Stories</span><span class="x">✕</span></div>
+              <div class="group__head"><span class="dot new1"></span>Nicht begonnen <span class="rule">mind. 1 · der erste ist der Start für neue Stories</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot new1"></span><span class="input">Backlog</span><span class="count">12 Stories</span><span class="x">✕</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot new2"></span><span class="input">Zu erledigen</span><span class="count">7 Stories</span><span class="x">✕</span></div>
               <div class="add">+ Status in «Nicht begonnen»</div>
             </div>
             <div class="group">
-              <div class="group__head">In Arbeit</div>
-              <div class="row"><span class="grip">⋮⋮</span><span class="dot amber"></span><span class="input input--focus">In Arbeit</span><span class="count">4 Stories</span><span class="x">✕</span></div>
-              <div class="row row--drop"><span class="grip">⋮⋮</span><span class="dot violet"></span><span class="input">Review</span><span class="count">2 Stories</span><span class="x">✕</span></div>
-              <div class="row"><span class="grip">⋮⋮</span><span class="dot cyan"></span><span class="input">Test</span><span class="count">–</span><span class="x">✕</span></div>
+              <div class="group__head"><span class="dot wip1"></span>In Arbeit</div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot wip1"></span><span class="input input--focus">In Arbeit</span><span class="count">4 Stories</span><span class="x">✕</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot wip2"></span><span class="input">Review</span><span class="count">2 Stories</span><span class="x">✕</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot wip3"></span><span class="input">Test</span><span class="count">–</span><span class="x">✕</span></div>
               <div class="add">+ Status in «In Arbeit»</div>
             </div>
             <div class="group">
-              <div class="group__head">Erledigt <span class="rule">mind. 1</span></div>
-              <div class="row"><span class="grip">⋮⋮</span><span class="dot green"></span><span class="input">Fertig</span><span class="count">31 Stories</span><span class="lock" title="Letzter Status in Erledigt">🔒</span></div>
+              <div class="group__head"><span class="dot done1"></span>Erledigt <span class="rule">mind. 1</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot done1"></span><span class="input">Fertig</span><span class="count">31 Stories</span><span class="lock" title="Letzter Status in Erledigt">🔒</span></div>
               <div class="add">+ Status in «Erledigt»</div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="proscons">
-      <div class="box"><b>Dafür</b><ul><li>Die Kategorie sieht man auf einen Blick, ohne Auswahlfeld pro Zeile</li><li>Die Regeln sind sichtbar: Schloss beim letzten Status einer Pflicht-Gruppe, «Start für neue Stories» oben</li><li>Keine unsinnige Reihenfolge möglich (z. B. Erledigt vor In Arbeit)</li><li>Schmal, funktioniert auch auf dem Handy; Tastatur: Alt+↑/↓ verschiebt, auch über Gruppengrenzen</li></ul></div>
-      <div class="box"><b>Dagegen</b><ul><li>Ein Team kann keine Spalte aus <i>Erledigt</i> vor eine aus <i>In Arbeit</i> stellen (gewollt, aber eine Einschränkung)</li><li>Wie das Board aussieht, muss man sich vorstellen</li></ul></div>
-    </div>
   </section>
 
-  <section class="variant" aria-labelledby="vb">
-    <div class="variant__head">
-      <h3 id="vb">B · Eine Liste mit Kategorie pro Zeile</h3>
-      <span class="tag">am freiesten</span>
-    </div>
-    <p>Eine einzige Liste in Board-Reihenfolge, wie der Editor für Auswahlwerte aus #4. Jede Zeile hat eine Auswahl für die Kategorie. Die Reihenfolge ist frei. Verletzt eine Änderung eine feste Regel (z. B. erster Status nicht in <i>Nicht begonnen</i>), wird sie nicht gespeichert; eine ungewohnte Reihenfolge ist erlaubt und bekommt nur einen Hinweis.</p>
+  <section class="variant" aria-labelledby="move">
+    <div class="variant__head"><h3 id="move">Status in eine andere Kategorie ziehen</h3><span class="tag">Rückfrage</span></div>
+    <p>Ziehen von «Review» nach <i>Erledigt</i>. Hat der Status Stories, fragt die App nach, weil diese ab heute als erledigt zählen (Releases, Burndown, Story Map). Ohne Stories wird direkt verschoben.</p>
     <div class="scroll">
-      <div class="app" role="img" aria-label="Variante B: Eine Tabelle mit Position, Farbe, Name, Kategorie-Auswahl, Anzahl Stories und Löschen; darunter ein roter Hinweis">
+      <div class="app" role="img" aria-label="Rückfrage: Review nach Erledigt verschieben? 2 Stories gelten ab heute als erledigt">
         <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
-        <div class="page">
+        <div class="page" style="min-height: 300px">
           <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
-          <div class="content">
-            <div class="ph"><b>Status-Werte</b><span class="btn btn--p">Neuer Status</span></div>
-            <div class="list">
-              <div class="frow frow--head"><span></span><span>Spalte</span><span></span><span>Name</span><span>Kategorie</span><span>Stories</span><span></span></div>
-              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">1</span><span class="dot slate"></span><span class="input">Backlog</span><span class="select">Nicht begonnen</span><span class="count">12</span><span class="x">✕</span></div>
-              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">2</span><span class="dot blue"></span><span class="input">Zu erledigen</span><span class="select">Nicht begonnen</span><span class="count">7</span><span class="x">✕</span></div>
-              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">3</span><span class="dot amber"></span><span class="input">In Arbeit</span><span class="select">In Arbeit</span><span class="count">4</span><span class="x">✕</span></div>
-              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">4</span><span class="dot green"></span><span class="input">Fertig</span><span class="select">Erledigt</span><span class="count">31</span><span class="x">✕</span></div>
-              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">5</span><span class="dot violet"></span><span class="input">Review</span><span class="select">In Arbeit</span><span class="count">2</span><span class="x">✕</span></div>
-            </div>
-            <div class="warn">⚠ «Review» (In Arbeit) steht nach «Fertig» (Erledigt). Das ist erlaubt, wirkt auf dem Board aber ungewohnt.</div>
-          </div>
+          <div class="content"><div class="ph"><b>Status-Werte</b></div></div>
+        </div>
+        <div class="scrim"></div>
+        <div class="dialog">
+          <b style="font-size:16px">«Review» nach «Erledigt» verschieben?</b>
+          <span><b>2 Stories</b> haben diesen Status (S-14, S-21). Sie gelten ab heute als erledigt; Releases und Burndown zählen sie ab heute mit.</span>
+          <div style="display:flex; gap:8px"><span class="btn btn--p">Verschieben</span><span class="btn">Abbrechen</span></div>
         </div>
       </div>
-    </div>
-    <div class="proscons">
-      <div class="box"><b>Dafür</b><ul><li>Volle Freiheit bei der Reihenfolge</li><li>Gleiches Muster wie die Auswahlwerte in #4, wenig Neues zu lernen</li></ul></div>
-      <div class="box"><b>Dagegen</b><ul><li>Regeln greifen erst als Fehlermeldung, nicht schon in der Darstellung</li><li>Breiter: auf dem Handy scrollt die Liste seitlich oder bricht um</li><li>Kategorie ist bei jeder Zeile ein weiteres Auswahlfeld</li></ul></div>
-    </div>
-  </section>
-
-  <section class="variant" aria-labelledby="vc">
-    <div class="variant__head">
-      <h3 id="vc">C · Board-Vorschau</h3>
-      <span class="tag">am anschaulichsten</span>
-    </div>
-    <p>Die Einstellung sieht aus wie das Board selbst: leere Spalten nebeneinander, darüber die Kategorie als Band. Spalten zieht man nach links oder rechts, auch in ein anderes Band. Klick auf einen Spaltenkopf öffnet ein kleines Fenster für Name und Farbe. «+» am Ende jedes Bands fügt eine Spalte hinzu.</p>
-    <div class="scroll">
-      <div class="app" role="img" aria-label="Variante C: Spalten nebeneinander unter den Bändern Nicht begonnen, In Arbeit und Erledigt; ein Fenster zum Bearbeiten von Name und Farbe der Spalte Review ist offen">
-        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
-        <div class="page" style="min-height: 380px">
-          <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
-          <div class="content">
-            <div class="ph"><b>Status-Werte</b><span class="hint">So sieht das Board aus. Spalten ziehen zum Sortieren.</span></div>
-            <div class="lanes">
-              <div class="lane-group">
-                <div class="lane-group__head">Nicht begonnen</div>
-                <div class="lane-row">
-                  <div class="lane"><div class="lane__head"><span class="dot slate"></span>Backlog<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>12 Stories</span><span class="x">✕</span></div></div>
-                  <div class="lane--add lane">+</div>
-                </div>
-              </div>
-              <div class="lane-group">
-                <div class="lane-group__head">In Arbeit</div>
-                <div class="lane-row">
-                  <div class="lane"><div class="lane__head"><span class="dot amber"></span>In Arbeit<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>4 Stories</span><span class="x">✕</span></div></div>
-                  <div class="lane lane--edit"><div class="lane__head"><span class="dot violet"></span>Review<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>2 Stories</span><span class="x">✕</span></div></div>
-                  <div class="lane--add lane">+</div>
-                </div>
-              </div>
-              <div class="lane-group">
-                <div class="lane-group__head">Erledigt</div>
-                <div class="lane-row">
-                  <div class="lane"><div class="lane__head"><span class="dot green"></span>Fertig<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>31 Stories</span><span class="lock">🔒</span></div></div>
-                  <div class="lane--add lane">+</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="pop" style="left: 440px; top: 210px">
-          <span class="lbl">Name</span><span class="input input--focus">Review</span>
-          <span class="lbl">Farbe</span>
-          <div class="swatches"><span class="dot blue"></span><span class="dot amber"></span><span class="dot teal"></span><span class="dot violet sel"></span><span class="dot green"></span><span class="dot cyan"></span><span class="dot slate"></span></div>
-          <div style="display:flex; gap:8px"><span class="btn btn--p">Übernehmen</span><span class="btn">Abbrechen</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="proscons">
-      <div class="box"><b>Dafür</b><ul><li>Man sieht direkt, wie das Board aussehen wird</li><li>Regeln wie in A sichtbar: Bänder in fester Reihenfolge, Schloss</li></ul></div>
-      <div class="box"><b>Dagegen</b><ul><li>Wird mit vielen Spalten sehr breit; auf dem Handy kaum bedienbar</li><li>Name und Farbe brauchen einen zusätzlichen Klick ins Fenster</li><li>Seitliches Ziehen per Tastatur und Screenreader schwerer zu erklären als eine Liste</li></ul></div>
     </div>
   </section>
 
   <section class="variant" aria-labelledby="del">
-    <div class="variant__head">
-      <h3 id="del">Für alle: Status entfernen, der verwendet wird</h3>
-      <span class="tag">entschieden</span>
-    </div>
-    <p>Der Dialog nennt die Anzahl betroffener Stories und fragt, wohin sie kommen. Vorgeschlagen ist der Status links davon auf dem Board. Bestätigen verschiebt die Stories und entfernt den Status in einem Schritt. Ein unbenutzter Status wird mit einer einfachen Rückfrage entfernt.</p>
+    <div class="variant__head"><h3 id="del">Status entfernen, der verwendet wird</h3><span class="tag">entschieden</span></div>
+    <p>Der Dialog nennt die Anzahl betroffener Stories und fragt, wohin sie kommen. Vorgeschlagen ist der Status links davon. Bestätigen verschiebt die Stories und entfernt den Status in einem Schritt.</p>
     <div class="scroll">
-      <div class="app" role="img" aria-label="Dialog: Status Review entfernen. 2 Stories haben diesen Status. Auswahl Verschieben nach In Arbeit. Knöpfe Verschieben und entfernen, Abbrechen">
+      <div class="app" role="img" aria-label="Dialog: Status Review entfernen. 2 Stories haben diesen Status. Auswahl Verschieben nach In Arbeit">
         <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
         <div class="page" style="min-height: 300px">
           <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
@@ -306,7 +249,7 @@ header.intro { display: grid; gap: 12px; }
           <b style="font-size:16px">Status «Review» entfernen?</b>
           <span><b>2 Stories</b> haben diesen Status (S-14, S-21). Sie bekommen einen anderen Status.</span>
           <span class="lbl">Verschieben nach</span>
-          <span class="select" style="justify-self:start"><span class="dot amber"></span>In Arbeit</span>
+          <span class="select" style="justify-self:start"><span class="dot wip1"></span>In Arbeit</span>
           <div style="display:flex; gap:8px"><span class="btn btn--danger">2 Stories verschieben und entfernen</span><span class="btn">Abbrechen</span></div>
         </div>
       </div>
@@ -314,34 +257,35 @@ header.intro { display: grid; gap: 12px; }
   </section>
 
   <section class="variant" aria-labelledby="board">
-    <div class="variant__head">
-      <h3 id="board">Für alle: Board mit vielen Spalten</h3>
-      <span class="tag">entschieden</span>
-    </div>
-    <p>Jede Spalte zeigt ihre Farbe und ihren Namen im Kopf. Die Spalten behalten eine Mindestbreite, das Board scrollt seitlich. Beim Ziehen einer Karte an den Rand scrollt es mit.</p>
+    <div class="variant__head"><h3 id="board">Board mit Kategorie-Band</h3><span class="tag">entschieden</span></div>
+    <p>Über den Spalten steht pro Kategorie ein Band mit Namen, Kategoriefarbe und Anzahl Stories. Die Spaltenköpfe tragen die Abstufung. Spalten behalten eine Mindestbreite, das Board scrollt seitlich; beim Ziehen einer Karte an den Rand scrollt es mit.</p>
     <div class="scroll">
-      <div class="app" role="img" aria-label="Board mit sieben Spalten, von denen fünf sichtbar sind; ein Verlauf am rechten Rand und eine Scrollleiste zeigen, dass es weitergeht">
+      <div class="app" role="img" aria-label="Board: Bänder Nicht begonnen über Backlog und Zu erledigen, In Arbeit über In Arbeit, Review und Test, Erledigt über Fertig">
         <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span style="color:var(--text); font-weight:600">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear" style="background:none;border-color:var(--border);color:var(--muted)">⚙</span></div>
-        <div class="board">
-          <div class="col"><div class="col__head"><span class="dot slate"></span>Backlog<span class="count">3</span></div><div class="card"><span class="k">S-31</span>Export als CSV</div><div class="card"><span class="k">S-33</span>Login mit SSO</div></div>
-          <div class="col"><div class="col__head"><span class="dot blue"></span>Zu erledigen<span class="count">2</span></div><div class="card"><span class="k">S-12</span>Filter speichern</div></div>
-          <div class="col"><div class="col__head"><span class="dot amber"></span>In Arbeit<span class="count">2</span></div><div class="card"><span class="k">S-9</span>Burndown pro Sprint</div></div>
-          <div class="col"><div class="col__head"><span class="dot violet"></span>Review<span class="count">1</span></div><div class="card"><span class="k">S-14</span>Dunkles Thema</div></div>
-          <div class="col"><div class="col__head"><span class="dot cyan"></span>Test<span class="count">0</span></div></div>
-          <div class="col"><div class="col__head"><span class="dot teal"></span>Abnahme<span class="count">0</span></div></div>
-          <div class="col"><div class="col__head"><span class="dot green"></span>Fertig<span class="count">5</span></div></div>
+        <div class="bboard">
+          <div class="bands">
+            <div class="band band--new w2">Nicht begonnen<span class="count">5</span></div>
+            <div class="band band--wip w3">In Arbeit<span class="count">3</span></div>
+            <div class="band band--done w1">Erledigt<span class="count">5</span></div>
+          </div>
+          <div class="cols">
+            <div class="cgroup">
+              <div class="col"><div class="col__head"><span class="dot new1"></span>Backlog<span class="count">3</span></div><div class="card"><span class="k">S-31</span>Export als CSV</div><div class="card"><span class="k">S-33</span>Login mit SSO</div></div>
+              <div class="col"><div class="col__head"><span class="dot new2"></span>Zu erledigen<span class="count">2</span></div><div class="card"><span class="k">S-12</span>Filter speichern</div></div>
+            </div>
+            <div class="cgroup">
+              <div class="col"><div class="col__head"><span class="dot wip1"></span>In Arbeit<span class="count">2</span></div><div class="card"><span class="k">S-9</span>Burndown pro Sprint</div></div>
+              <div class="col"><div class="col__head"><span class="dot wip2"></span>Review<span class="count">1</span></div><div class="card"><span class="k">S-14</span>Dunkles Thema</div></div>
+              <div class="col"><div class="col__head"><span class="dot wip3"></span>Test<span class="count">0</span></div></div>
+            </div>
+            <div class="cgroup">
+              <div class="col"><div class="col__head"><span class="dot done1"></span>Fertig<span class="count">5</span></div></div>
+            </div>
+          </div>
           <div class="fade"></div>
         </div>
         <div class="scrollbar"></div>
       </div>
-    </div>
-  </section>
-
-  <section class="variant" aria-labelledby="dec">
-    <h2 id="dec">Vorschlag</h2>
-    <div class="rules">
-      <div class="box"><b>Variante A</b><span>Die Gruppen machen die Regeln sichtbar, statt sie als Fehlermeldung zu melden. Die Liste ist schmal, gut mit Tastatur und Screenreader bedienbar und nutzt die Bausteine aus #4 (Farbpunkt, Ziehen zum Sortieren).</span></div>
-      <div class="box"><b>Offen für die Wahl</b><span>Darf ein Team eine <i>Erledigt</i>-Spalte vor eine <i>In Arbeit</i>-Spalte stellen? Bei A nein, bei B ja.</span></div>
     </div>
   </section>
 </main>
