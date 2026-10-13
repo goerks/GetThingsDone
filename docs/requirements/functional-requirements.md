@@ -397,7 +397,7 @@ As a PO, I want to drag a story into another cell, so that I change its sprint a
 - Dropping changes epic and sprint and is saved; the backlog stays grouped by sprint.
 - Moves are announced in DE, EN, FR and IT ("… goes to Sprint 2, Backlog, position 1").
 
-Source: Issue #2 · Status: Implemented · Verified by: board.test "story map"; highlight, crosshair and keyboard drag: manual check in Chromium
+Source: Issue #2 · Status: Implemented · Verified by: board.test "story map", e2e storyMap "FR-MAP-02.1" (mouse, highlight, backlog, board, reload) and "FR-MAP-02.2" (keyboard, announcement, Escape); drop line: manual check in Chromium
 
 ### FR-MAP-03 Create sprints, epics and stories on the map
 - There are no create buttons in the page head: everything is created where it belongs on the map.
@@ -406,7 +406,7 @@ Source: Issue #2 · Status: Implemented · Verified by: board.test "story map"; 
 - "+" at the end of the epic headers opens "New epic".
 - "+" in a cell opens "New story" with that epic and sprint prefilled.
 
-Source: Issue #2, PO feedback · Status: Implemented · Verified by: App "adds a sprint…", "edits a sprint…", "adds an epic as a new column", "creates a story directly in a cell…", "has no "New story" or "+ Sprint" buttons at the top…"
+Source: Issue #2, PO feedback · Status: Implemented · Verified by: App "adds a sprint…", "edits a sprint…", "adds an epic as a new column", "creates a story directly in a cell…", e2e storyMap "FR-MAP-03.1", "has no "New story" or "+ Sprint" buttons at the top…"
 
 ### FR-MAP-04 Reorder upcoming sprints
 As a PO, I want to drag a sprint that has not started yet up or down, so that I can change the order of the coming sprints.
@@ -414,7 +414,7 @@ As a PO, I want to drag a sprint that has not started yet up or down, so that I 
 - While dragging, a line shows the new position with the sprint's new dates.
 - After the drop, every upcoming sprint keeps its length and the start dates follow each other without gaps from the end of the running sprint.
 
-Source: PO feedback on #2 · Status: Implemented · Verified by: sprints.test "reordering upcoming sprints", App "lets only sprints that have not started be dragged"; drag with line and dates: manual check in Chromium
+Source: PO feedback on #2 · Status: Implemented · Verified by: sprints.test "reordering upcoming sprints", App "lets only sprints that have not started be dragged", e2e storyMap "FR-MAP-04.1"; line with the new dates while dragging: manual check in Chromium
 
 ### FR-MAP-05 Compact cards
 As a PO, I want to collapse the cards on the map to one line (key and title) and back, so that I see more of the plan at once. The switch "Compact" is in the page head and is remembered.

@@ -52,12 +52,15 @@ Load and save errors are caught in `AppState` and shown as a translated alert wi
 
 ## Testing
 
+Tests are derived from test cases the PO approves per acceptance criterion (see `CLAUDE.md`, "Test cases"). A test name starts with the ID of its test case (`AC2.1`, or `FR-MAP-02.1` for existing requirements).
+
 | Level | Tool | Where |
 |---|---|---|
 | Unit | Vitest | `src/domain/*.test.ts` |
 | Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, with `LocalStorageRepository` as test double |
 | Integration (data, Tauri boundary) | – | Planned |
-| UI and accessibility (axe) | – | Planned |
+| End-to-end | Playwright, real Chromium, web build with demo data and a fixed clock | `e2e/*.spec.ts`, `npm run test:e2e` (story map since #12) |
+| Accessibility (axe) | – | Planned |
 
 ## Security
 

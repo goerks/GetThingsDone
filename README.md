@@ -31,12 +31,14 @@ npm install
 npm run dev          # browser, data in localStorage
 npm run tauri dev    # desktop app, data in SQLite
 npm test             # unit and component tests
+npm run test:e2e     # end-to-end tests in Chromium (first: npx playwright install chromium)
 npm run typecheck
 npm run tauri build  # installer and executable
 ```
 
 ## Documentation
 
+- [Working mode (PO and AI)](docs/working-mode.md)
 - [Vision and scope](docs/vision.md)
 - [Requirements](docs/requirements/README.md)
 - [Architecture (arc42)](docs/arc42/README.md)

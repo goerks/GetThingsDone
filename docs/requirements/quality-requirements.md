@@ -14,5 +14,5 @@ How the architecture meets these requirements: [arc42 chapter 10](../arc42/10-qu
 | QR-08 | Performance | The app starts and reacts without noticeable delay for a team backlog of a few hundred stories | Start under 2 s, interactions under 100 ms on a typical laptop | Not measured |
 | QR-09 | Portability | Windows first; Linux and macOS from the same codebase | Tauri build on each platform | Partial (Windows build in CI) |
 | QR-10 | Light install | One small portable executable or a minimal installer, no admin rights | Portable exe and per-user NSIS installer | Implemented |
-| QR-11 | Maintainability | High test coverage of domain logic and UI behaviour; CI green on every push | Unit and component tests, typecheck | Implemented (coverage target not yet enforced) |
+| QR-11 | Maintainability | High test coverage of domain logic and UI behaviour; CI green on every push | Unit, component and end-to-end tests, typecheck | Implemented (coverage target not yet enforced) |
 | QR-12 | Traceability | Requirements, ADRs and arc42 are updated with each feature | Definition of done, pull request checklist | Implemented from release 0.1 |

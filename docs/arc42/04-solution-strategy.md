@@ -9,4 +9,4 @@
 | Accessibility | Semantic HTML, dnd-kit with keyboard sensor and localized screen reader announcements, visible focus, token-based contrast |
 | Multilingual | i18next with one JSON file per language, language remembered locally |
 | Calm, consistent look | Visual direction "Focus" with design tokens and a light and dark theme (ADR 0002) |
-| Fast feedback | Vitest unit and component tests, typecheck and build in CI, Windows build on every push |
+| Fast feedback | Vitest unit and component tests, Playwright end-to-end tests, typecheck and build in CI, Windows build on every push |
