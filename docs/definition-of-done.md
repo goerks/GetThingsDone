@@ -4,9 +4,10 @@ A feature is done when all of the following hold.
 
 ## Quality
 
+- [ ] Every PO-approved test case is covered by at least one automated test named with its test case ID (or marked *(manuell)* and checked by hand)
 - [ ] Unit and component tests cover the new logic, with high coverage
 - [ ] Integration tests cover data access and the Tauri/web boundary
-- [ ] UI tests cover the main user journey of the feature
+- [ ] End-to-end tests (`e2e/`) cover the main user journey of the feature in a real browser
 - [ ] Automated accessibility checks pass (for example axe in the UI tests)
 - [ ] Keyboard-only operation was checked
 - [ ] All UI strings exist in DE, EN, FR and IT
@@ -22,5 +23,5 @@ A feature is done when all of the following hold.
 ## Acceptance
 
 - [ ] Preview deployment is available and lists the acceptance criteria
-- [ ] Pull request description contains the acceptance checklist
+- [ ] Pull request description contains the acceptance checklist with test case IDs and covering tests
 - [ ] Product owner has accepted in the pull request
