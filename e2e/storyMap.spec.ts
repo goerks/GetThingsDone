@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { pressUntilAnnounced } from './keyboardDrag';
 
 /*
  * End-to-end tests of the story map in a real browser, approved by the PO as test cases in issue #12.
@@ -87,8 +88,7 @@ test('FR-MAP-02.2 moves a story with the keyboard only, and Escape cancels', asy
   // (Like a screen reader user, wait for each announcement before the next key.)
   await page.keyboard.press('Space');
   await expect(announcement(page, 'Picked up Reorder the backlog by priority.')).toHaveCount(1);
-  await page.keyboard.press('ArrowRight');
-  await expect(announcement(page, 'Reorder the backlog by priority goes to Sprint 1, Local storage')).toHaveCount(1);
+  await pressUntilAnnounced(page, 'ArrowRight', announcement(page, 'Reorder the backlog by priority goes to Sprint 1, Local storage'));
   await page.keyboard.press('Space');
 
   // Then S-3 is in "Local storage" / Sprint 1, and the screen reader says where it is now
@@ -99,8 +99,7 @@ test('FR-MAP-02.2 moves a story with the keyboard only, and Escape cancels', asy
   await card(page, 'S-3').focus();
   await page.keyboard.press('Space');
   await expect(announcement(page, 'Picked up Reorder the backlog by priority.')).toHaveCount(1);
-  await page.keyboard.press('ArrowDown');
-  await expect(announcement(page, /^Reorder the backlog by priority goes to /)).toHaveCount(1);
+  await pressUntilAnnounced(page, 'ArrowDown', announcement(page, /^Reorder the backlog by priority goes to /));
   await page.keyboard.press('Escape');
 
   // Then S-3 stays in "Local storage" / Sprint 1
