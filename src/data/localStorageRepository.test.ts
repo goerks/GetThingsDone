@@ -98,7 +98,7 @@ describe('LocalStorageRepository', () => {
     expect((await new LocalStorageRepository().load()).events).toEqual([]);
   });
 
-  it('gives an older snapshot the default status values and stores changed ones (#5)', async () => {
+  it('AC5.1 gives an older snapshot the default status values and stores changed ones', async () => {
     const { statuses: _statuses, ...older } = seedSnapshot('2026-10-12');
     window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify(older));
     const repository = new LocalStorageRepository();

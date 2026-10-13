@@ -517,7 +517,7 @@ describe('history of releases', () => {
 });
 
 describe('status values (#5)', () => {
-  it('migration 010 adds the four defaults and keeps the status of every story', () => {
+  it('AC5.2 migration 010 adds the four defaults and keeps the status of every story', () => {
     const db = openDatabase();
     migrate(db, MIGRATIONS.slice(0, 9));
     db.exec(`
@@ -539,7 +539,7 @@ describe('status values (#5)', () => {
     ]);
   });
 
-  it('stores renamed, added and reordered status values with their categories', async () => {
+  it('AC5.3 stores renamed, added and reordered status values with their categories', async () => {
     const { repository } = await freshRepository();
     expect((await repository.load()).statuses.map((status) => status.id)).toEqual(['todo', 'in_progress', 'review', 'done']);
     await repository.saveStatuses([
@@ -559,7 +559,7 @@ describe('status values (#5)', () => {
     ]);
   });
 
-  it('keeps the status of a story that moved to another status before its status was removed', async () => {
+  it('AC4.1 keeps the status of a story that moved to another status before its status was removed', async () => {
     const { repository } = await freshRepository();
     const story = (await repository.load()).stories.find((item) => item.status === 'review');
     if (!story) throw new Error('demo story in review missing');

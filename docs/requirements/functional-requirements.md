@@ -62,7 +62,7 @@ As a team, we want to define our own status values, and with them the board colu
 - The board shows a band per category above its columns with name, colour and story count. Columns keep a minimum width; with many columns the board scrolls sideways.
 - Existing data keeps every story and its status: the four former statuses become the default values (SQLite migration 010, browser data migrated when read).
 
-Source: Vision (MVP scope), #5, PO decisions of 2026-10-13 (`docs/design/status-values.md`) · Status: Implemented · Verified by: statuses.test (rules, order, categories, remove, colours), history.test "records stories that become done or open because their status value moves to another category", sqliteRepository.test "status values (#5)", localStorageRepository.test "gives an older snapshot the default status values…", StatusValues.test (settings and board journey)
+Source: Vision (MVP scope), #5, PO decisions of 2026-10-13 (`docs/design/status-values.md`); test cases AC1.1 to AC6.3 approved in issue #5 · Status: Implemented · Verified by: e2e `e2e/statusValues.spec.ts` (AC1.1, AC1.3, AC1.4, AC2.1, AC2.3, AC2.4, AC2.6, AC3.1, AC3.4, AC4.1, AC5.1, AC5.3, AC6.1, AC6.2, AC6.3); component `src/StatusValues.test.tsx` (AC1.1, AC1.2, AC2.2, AC3.2, AC3.3, AC4.1); unit `src/domain/statuses.test.ts` (rules, order, categories, removal, colours), `src/domain/history.test.ts` (category change in the release history); data `sqliteRepository.test` (AC5.2 migration 010, AC5.3), `localStorageRepository.test` (AC5.1). By hand: AC2.5 colours, AC5.2 Windows app with the real database, AC6.3 real screen reader
 
 ## Backlog (BACKLOG)
 

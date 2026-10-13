@@ -324,7 +324,9 @@ export function StatusValuesSection() {
 
   const announcements: Announcements = {
     onDragStart: ({ active }) => t('statusValues.dnd.pickedUp', { name: nameOf(active.id) }),
-    onDragOver: ({ active, over }) => (over ? t('statusValues.dnd.over', { name: nameOf(active.id), target: nameOf(over.id) }) : undefined),
+    // Over itself right after the pick-up: keep "picked up" instead of replacing it.
+    onDragOver: ({ active, over }) =>
+      over && over.id !== active.id ? t('statusValues.dnd.over', { name: nameOf(active.id), target: nameOf(over.id) }) : undefined,
     onDragEnd: ({ active }) => t('statusValues.dnd.dropped', { name: nameOf(active.id) }),
     onDragCancel: ({ active }) => t('statusValues.dnd.cancelled', { name: nameOf(active.id) })
   };

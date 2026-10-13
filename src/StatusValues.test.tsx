@@ -34,7 +34,7 @@ async function toBoard(user: ReturnType<typeof userEvent.setup>): Promise<void> 
 }
 
 describe('settings › status values', () => {
-  it('lists the default status values in their categories and locks the last of "not started" and "done"', async () => {
+  it('AC3.2 lists the default status values in their categories and locks the last of "Not started" and "Done"', async () => {
     await renderApp('#/settings/statuses');
     expect(screen.getByRole('heading', { level: 2, name: 'Status values' })).toBeInTheDocument();
     expect(within(group('Not started')).getAllByRole('textbox').map((input) => (input as HTMLInputElement).value)).toEqual(['To do']);
@@ -46,7 +46,7 @@ describe('settings › status values', () => {
     expect(screen.getByRole('button', { name: 'Remove status Review' })).toBeInTheDocument();
   });
 
-  it('adds a status that becomes a column of the board under its category', async () => {
+  it('AC1.1 adds a status that becomes a column of the board under its category', async () => {
     const user = userEvent.setup();
     const repository = await renderApp('#/settings/statuses');
     await user.click(screen.getByRole('button', { name: '+ Status in "In progress"' }));
@@ -64,7 +64,7 @@ describe('settings › status values', () => {
     expect(boardColumns()).toHaveLength(5);
   });
 
-  it('renames a status for every language and brings back the translated default when the name is cleared', async () => {
+  it('AC1.2 renames a status for every language and brings back the translated default when the name is cleared', async () => {
     const user = userEvent.setup();
     await renderApp('#/settings/statuses');
     await user.clear(nameField('To do'));
@@ -85,7 +85,7 @@ describe('settings › status values', () => {
     expect(nameField('To do')).toHaveValue('To do');
   });
 
-  it('moves the stories of a removed status to the chosen status', async () => {
+  it('AC4.1 moves the stories of a removed status to the chosen status', async () => {
     const user = userEvent.setup();
     const repository = await renderApp('#/settings/statuses');
     await user.click(screen.getByRole('button', { name: 'Remove status Review' }));
@@ -106,7 +106,7 @@ describe('settings › status values', () => {
     expect(within(screen.getByRole('region', { name: 'To do' })).getByText('Tick off acceptance criteria')).toBeInTheDocument();
   });
 
-  it('asks before a status with stories moves to "Done" and then counts its stories as done', async () => {
+  it('AC3.3 asks before a status with stories moves to "Done" and then counts its stories as done', async () => {
     const user = userEvent.setup();
     const repository = await renderApp('#/settings/statuses');
     nameField('Review').focus();
@@ -125,7 +125,7 @@ describe('settings › status values', () => {
     expect(within(done).getAllByRole('region').map((column) => column.getAttribute('data-status'))).toEqual(['review', 'done']);
   });
 
-  it('refuses to move the last status out of "Done" and moves an unused status without asking', async () => {
+  it('AC3.2 refuses to move the last status out of "Done", and AC3.3 moves an unused status without asking', async () => {
     const user = userEvent.setup();
     await renderApp('#/settings/statuses');
     nameField('Done').focus();
@@ -142,7 +142,7 @@ describe('settings › status values', () => {
     expect(screen.getByText(/^(Not possible|Test is now)/, { selector: '.status-settings__message' })).toHaveTextContent('Test is now at position 1 in "Done".');
   });
 
-  it('starts a new story in the first status of "not started"', async () => {
+  it('AC2.2 starts a new story in the first status of "Not started"', async () => {
     const user = userEvent.setup();
     await renderApp('#/settings/statuses');
     await user.click(screen.getByRole('button', { name: '+ Status in "Not started"' }));
@@ -157,5 +157,35 @@ describe('settings › status values', () => {
     await user.type(within(dialog).getByRole('textbox', { name: /Title/ }), 'Fresh idea');
     await user.click(within(dialog).getByRole('button', { name: /Create|Add/ }));
     expect(await within(screen.getByRole('region', { name: 'Idea' })).findByText('Fresh idea')).toBeInTheDocument();
+  });
+
+  it('AC1.2 keeps the name of an own status when the name is cleared', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/settings/statuses');
+    await user.click(screen.getByRole('button', { name: '+ Status in "In progress"' }));
+    await user.type(screen.getByRole('textbox', { name: 'Name of the new status in "In progress"' }), 'Test{Enter}');
+    await user.clear(nameField('Test'));
+    await user.tab();
+    expect(nameField('Test')).toHaveValue('Test');
+  });
+
+  it('AC3.3 changes nothing on "Cancel", and asks again when a status leaves "Done"', async () => {
+    const user = userEvent.setup();
+    const repository = await renderApp('#/settings/statuses');
+    nameField('Review').focus();
+    await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+    await user.click(within(screen.getByRole('dialog', { name: 'Move "Review" to "Done"?' })).getByRole('button', { name: 'Cancel' }));
+    expect(within(group('Done')).getAllByRole('textbox')).toHaveLength(1);
+    expect((await repository.load()).statuses.find((status) => status.id === 'review')?.category).toBe('in_progress');
+
+    nameField('Review').focus();
+    await user.keyboard('{Alt>}{ArrowDown}{/Alt}');
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Move' }));
+    nameField('Review').focus();
+    await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+    const dialog = screen.getByRole('dialog', { name: 'Move "Review" to "In progress"?' });
+    expect(dialog).toHaveTextContent('1 story has this status (S-2). It counts as open again from today on');
+    await user.click(within(dialog).getByRole('button', { name: 'Move' }));
+    expect(within(group('In progress')).getAllByRole('textbox').map((input) => (input as HTMLInputElement).value)).toEqual(['In progress', 'Review']);
   });
 });
