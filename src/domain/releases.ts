@@ -1,4 +1,5 @@
 import { isValidDay } from './sprints';
+import type { IsDone } from './statuses';
 import type { Release, Sprint, Story } from './types';
 
 export interface ReleaseInput {
@@ -63,9 +64,9 @@ export interface ReleaseStats {
 }
 
 /** Size and progress of a release; the points of its stories are its scope. */
-export function releaseStats(stories: readonly Story[], releaseId: string): ReleaseStats {
+export function releaseStats(stories: readonly Story[], releaseId: string, isDone: IsDone): ReleaseStats {
   const own = storiesInRelease(stories, releaseId);
-  const done = own.filter((story) => story.status === 'done');
+  const done = own.filter(isDone);
   return {
     stories: own.length,
     points: own.reduce((sum, story) => sum + story.points, 0),
@@ -75,9 +76,9 @@ export function releaseStats(stories: readonly Story[], releaseId: string): Rele
 }
 
 /** A release is done when it has stories and all of them are done. */
-export function isReleaseDone(stories: readonly Story[], releaseId: string): boolean {
+export function isReleaseDone(stories: readonly Story[], releaseId: string, isDone: IsDone): boolean {
   const own = storiesInRelease(stories, releaseId);
-  return own.length > 0 && own.every((story) => story.status === 'done');
+  return own.length > 0 && own.every(isDone);
 }
 
 export type ReleaseState = 'planned' | 'running' | 'done';
@@ -86,8 +87,8 @@ export type ReleaseState = 'planned' | 'running' | 'done';
  * Derived, never stored: done when the release has stories and all are done; running when it has started
  * (a start date today or earlier); otherwise planned. A release without a start date stays planned.
  */
-export function releaseState(release: Release, stories: readonly Story[], today: string): ReleaseState {
-  if (isReleaseDone(stories, release.id)) return 'done';
+export function releaseState(release: Release, stories: readonly Story[], today: string, isDone: IsDone): ReleaseState {
+  if (isReleaseDone(stories, release.id, isDone)) return 'done';
   if (release.startDate && release.startDate <= today) return 'running';
   return 'planned';
 }
@@ -96,8 +97,8 @@ export function releaseState(release: Release, stories: readonly Story[], today:
  * Releases in the order of the releases page: running and planned ones by start date (releases without a
  * start date after those with one), then the done ones; ties by title.
  */
-export function sortReleases(releases: readonly Release[], stories: readonly Story[]): Release[] {
-  const done = new Set(releases.filter((release) => isReleaseDone(stories, release.id)).map((release) => release.id));
+export function sortReleases(releases: readonly Release[], stories: readonly Story[], isDone: IsDone): Release[] {
+  const done = new Set(releases.filter((release) => isReleaseDone(stories, release.id, isDone)).map((release) => release.id));
   return [...releases].sort((a, b) => {
     const byDone = Number(done.has(a.id)) - Number(done.has(b.id));
     if (byDone !== 0) return byDone;
@@ -112,9 +113,9 @@ export function sortReleases(releases: readonly Release[], stories: readonly Sto
 }
 
 /** Releases a story can be assigned to: those that are not done, and the one it already has. */
-export function selectableReleases(releases: readonly Release[], stories: readonly Story[], currentId: string | null): Release[] {
-  return sortReleases(releases, stories).filter(
-    (release) => release.id === currentId || !isReleaseDone(stories, release.id)
+export function selectableReleases(releases: readonly Release[], stories: readonly Story[], currentId: string | null, isDone: IsDone): Release[] {
+  return sortReleases(releases, stories, isDone).filter(
+    (release) => release.id === currentId || !isReleaseDone(stories, release.id, isDone)
   );
 }
 

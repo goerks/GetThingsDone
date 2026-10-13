@@ -1,7 +1,7 @@
 import { criteriaProgress, sortByRank } from './board';
 import { formatValue } from './fields';
 import { mapSprints, runningSprint, sortSprints } from './sprints';
-import type { Epic, FieldDefinition, FieldValue, SearchSnapshot, Sprint, Status, Story } from './types';
+import type { Epic, FieldDefinition, FieldValue, SearchSnapshot, Sprint, Story } from './types';
 
 /** What a result is. The order is the order of the groups in the result list. */
 export const RESULT_KINDS = ['story', 'epic', 'sprint'] as const;
@@ -359,7 +359,7 @@ export function fieldValues(snapshot: SearchSnapshot, field: FilterField): strin
   }
   switch (field as BuiltinFilterField) {
     case 'status':
-      return ['todo', 'in_progress', 'review', 'done'] satisfies Status[];
+      return snapshot.statuses.map((status) => status.id);
     case 'epic': {
       const epics = [...snapshot.epics].sort((a, b) => a.position - b.position).map((epic) => epic.id);
       return snapshot.stories.some((story) => story.epicId === null) ? [...epics, NO_EPIC] : epics;

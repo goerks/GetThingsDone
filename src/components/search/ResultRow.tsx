@@ -4,6 +4,7 @@ import type { SearchResult } from '../../domain/search';
 import type { SearchSnapshot } from '../../domain/types';
 import { formatSprintDates } from '../sprintFormat';
 import { Highlighted } from './Highlighted';
+import { StatusDot } from '../StatusDot';
 
 const ICON = { story: 'S', epic: 'E', sprint: 'SP' } as const;
 
@@ -56,7 +57,7 @@ export function ResultRow({ result, snapshot, onPage = false }: { result: Search
             </span>
           )}
         </span>
-        <span className={`status-dot status-dot--${story.status}`}>{t(`status.${story.status}`)}</span>
+        <StatusDot status={story.status} />
       </>
     );
   }

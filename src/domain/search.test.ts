@@ -30,6 +30,7 @@ import {
   type SearchResult
 } from './search';
 import type { SearchSnapshot, Story } from './types';
+import { DEFAULT_STATUSES } from './statuses';
 
 function story(id: string, overrides: Partial<Story> = {}): Story {
   return {
@@ -50,6 +51,7 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
 }
 
 const snapshot: SearchSnapshot = {
+  statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
   epics: [
     { id: 'e1', name: 'Boards', colorKey: 'blue', position: 0, values: {} },
     { id: 'e2', name: 'Local storage', colorKey: 'teal', position: 1, values: {} }

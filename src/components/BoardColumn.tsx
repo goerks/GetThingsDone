@@ -1,7 +1,11 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
+import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { columnId } from '../domain/board';
+import { statusColor } from '../domain/statuses';
+import { useApp } from '../state/AppState';
+import { statusLabel } from './statusLabel';
 import type { Epic, Status, Story } from '../domain/types';
 import { keepInPlace } from '../dnd/dnd';
 import { SortableStoryCard } from './StoryCard';
@@ -16,6 +20,7 @@ interface Props {
 
 export function BoardColumn({ status, stories, epics, drop }: Props) {
   const { t } = useTranslation();
+  const app = useApp();
   const { setNodeRef } = useDroppable({ id: columnId(status) });
   const headingId = `column-${status}`;
 
@@ -25,11 +30,14 @@ export function BoardColumn({ status, stories, epics, drop }: Props) {
       aria-labelledby={headingId}
       data-status={status}
       data-drop-target={drop ? 'true' : undefined}
+      style={{ '--status-color': statusColor(app.statuses, status) } as CSSProperties}
     >
-      <h2 className="column__title">
-        <span id={headingId}>{t(`status.${status}`)}</span>
+      <h3 className="column__title">
+        <span id={headingId} className="column__name">
+          {statusLabel(t, app.statuses, status)}
+        </span>
         <span className="column__count">{stories.length}</span>
-      </h2>
+      </h3>
       <SortableContext items={stories.map((story) => story.id)} strategy={keepInPlace}>
         <ul ref={setNodeRef} className="column__list">
           {stories.map((story) => (

@@ -606,9 +606,7 @@ describe('fields', () => {
     expect(window.location.hash).toBe('#/settings/fields');
     const sections = screen.getByRole('navigation', { name: 'Settings sections' });
     expect(within(sections).getByRole('link', { name: 'Fields' })).toHaveAttribute('aria-current', 'page');
-    expect(within(sections).queryByRole('link', { name: /Status values/ })).not.toBeInTheDocument();
-    expect(within(sections).getByText('Status values')).toBeInTheDocument();
-    expect(within(sections).getByText('Planned')).toBeInTheDocument();
+    expect(within(sections).getByRole('link', { name: 'Status values' })).toHaveAttribute('href', '#/settings/statuses');
   });
 
   it('shows a matrix of fields and item types with fixed system and built-in fields', async () => {

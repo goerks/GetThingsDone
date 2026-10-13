@@ -36,7 +36,10 @@
     "cardRole": "scheda story",
     "noSprintTitle": "Ancora nessuno sprint",
     "noSprint": "La board mostra lo sprint in corso. Non c’è ancora nessuno sprint.",
-    "toMap": "Creane uno sulla story map"
+    "toMap": "Creane uno sulla story map",
+    "columns": "Colonne della board",
+    "bandCount_one": "{{count}} story in questa categoria",
+    "bandCount_other": "{{count}} story in questa categoria"
   },
   "card": {
     "criteria": "{{done}} criteri accettati su {{total}}",
@@ -319,7 +322,6 @@
   "settings": {
     "title": "Impostazioni",
     "sections": "Sezioni delle impostazioni",
-    "statusValues": "Valori di stato",
     "planned": "Previsto",
     "plannedNote": "previsto per una release successiva",
     "map": {
@@ -604,6 +606,62 @@
         "change": "Modifica dell'ambito"
       },
       "explain": "La linea sale quando si aggiungono storie e scende quando le storie vengono rimosse o completate. La linea obiettivo va dritta da quanto restava il giorno di inizio a zero il giorno di fine."
+    }
+  },
+  "statusValues": {
+    "title": "Valori di stato",
+    "hint": "Ogni valore di stato è una colonna della board. Le tre categorie sono fisse e mantengono il loro ordine; all’interno di una categoria scegliete voi l’ordine. Una story è completata quando il suo stato è in «Completato».",
+    "category": {
+      "not_started": "Non iniziato",
+      "in_progress": "In corso",
+      "done": "Completato"
+    },
+    "rule": {
+      "not_started": "Almeno uno · le nuove story iniziano nel primo",
+      "in_progress": "Facoltativo",
+      "done": "Almeno uno · le story qui sono completate"
+    },
+    "list": "Valori di stato in «{{category}}»",
+    "name": "Nome dello stato {{name}}",
+    "nameHint": "Un solo nome per tutte le lingue. Lasciate vuoto per ripristinare il nome predefinito «{{name}}».",
+    "stories_one": "{{count}} story",
+    "stories_other": "{{count}} story",
+    "noStories": "Nessuna story",
+    "move": "Sposta lo stato {{name}}",
+    "remove": "Rimuovi lo stato {{name}}",
+    "locked": "{{name}} è l’ultimo stato in «{{category}}» e non può essere rimosso né spostato in un’altra categoria.",
+    "add": "Stato in «{{category}}»",
+    "addLabel": "Nome del nuovo stato in «{{category}}»",
+    "addConfirm": "Aggiungi",
+    "cancel": "Annulla",
+    "keyboard": "Trascinate uno stato dalla maniglia per cambiare l’ordine. Rilasciato in un’altra categoria, cambia categoria. Con la tastiera: Alt+freccia su o giù nel campo del nome.",
+    "saved": "Le modifiche valgono per tutto il team e vengono salvate subito.",
+    "refused": "Non possibile: «Non iniziato» e «Completato» hanno bisogno ciascuno di almeno uno stato.",
+    "moved": "{{name}} è ora in posizione {{position}} in «{{category}}».",
+    "dnd": {
+      "instructions": "Per spostare uno stato, premete spazio. Usate le frecce per spostarlo, spazio per rilasciarlo, Esc per annullare.",
+      "pickedUp": "{{name}} preso.",
+      "over": "{{name}} è sopra {{target}}.",
+      "dropped": "{{name}} rilasciato.",
+      "cancelled": "Spostamento di {{name}} annullato."
+    },
+    "confirmCategory": {
+      "title": "Spostare «{{name}}» in «{{category}}»?",
+      "toDone_one": "{{count}} story ha questo stato ({{codes}}). Da oggi conta come completata; release e burndown la contano da oggi.",
+      "toDone_other": "{{count}} story hanno questo stato ({{codes}}). Da oggi contano come completate; release e burndown le contano da oggi.",
+      "fromDone_one": "{{count}} story ha questo stato ({{codes}}). Da oggi conta di nuovo come aperta.",
+      "fromDone_other": "{{count}} story hanno questo stato ({{codes}}). Da oggi contano di nuovo come aperte.",
+      "confirm": "Sposta"
+    },
+    "removeDialog": {
+      "title": "Rimuovere lo stato «{{name}}»?",
+      "unused": "Nessuna story ha questo stato.",
+      "used_one": "{{count}} story ha questo stato ({{codes}}). Riceve un altro stato.",
+      "used_other": "{{count}} story hanno questo stato ({{codes}}). Ricevono un altro stato.",
+      "target": "Sposta in",
+      "confirm": "Rimuovi",
+      "confirmMove_one": "Sposta {{count}} story e rimuovi",
+      "confirmMove_other": "Sposta {{count}} story e rimuovi"
     }
   }
 }
