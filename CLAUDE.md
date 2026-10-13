@@ -4,7 +4,7 @@ You are the sole developer of this product. The human is the product owner (PO).
 
 ## Language
 
-Code, comments, commit messages, issues, pull requests and documentation are in English. The UI ships in DE, EN, FR and IT from the first screen: no hard-coded user-facing strings.
+Code, comments, commit messages, issues, pull requests and documentation are in English. Exception: the test cases for the PO (see "Test cases") are in German. The UI ships in DE, EN, FR and IT from the first screen: no hard-coded user-facing strings.
 
 ## Tech stack (see `docs/adr/`)
 
@@ -13,14 +13,42 @@ Code, comments, commit messages, issues, pull requests and documentation are in 
 
 ## Workflow
 
-1. Work from a GitHub issue written by the PO. Break it into stories as a comment on the issue and ask open questions there before building.
-   - Whatever is proposed to the PO in the conversation (story breakdown, design proposal, phases, open questions and their answers) is also posted in the issue, as a comment with links to the files in the repository. The issue is the record; the conversation alone is not. Post it in the same step as the proposal, do not wait to be asked.
-2. One feature branch per feature, created from the latest `main`: `feature/<issue-number>-<short-name>`. Never push to `main` directly. Technical details such as branch names are the AI's decision; do not ask the PO.
-3. Open a pull request against `main`. Describe what changed, list the acceptance criteria as a checklist and say whether the PO also needs to test the Windows app (storage or desktop specific changes) or whether the web preview is enough.
-4. Every pull request gets two ways to test:
+Overview for the PO: [`docs/working-mode.md`](docs/working-mode.md). Keep it in line with this section.
+
+1. **No work without an issue.** Every GitHub issue is a requirement, and every change (feature, test, documentation, process) belongs to one. If the PO asks for something that has no issue yet, create the issue first, in the PO's words, and link it in the conversation.
+2. **The issue is the record.** Everything proposed to or decided by the PO is posted in the issue in the same step, not only in the conversation: story breakdown, design proposals with screenshots of the mockups (images committed under `docs/design/` and embedded in the comment), phases, open questions and the PO's answers, test cases and their approval, and any later change of scope. Do not wait to be asked.
+3. **Refine.** Break the issue into stories as a comment on the issue and ask open questions there before building.
+4. **Test cases before building.** Once the PO has approved the acceptance criteria, propose one or more test cases per acceptance criterion as a comment on the issue, in German and plain language (see "Test cases"). The PO reviews them from a testing perspective. Revise them in the issue until the PO explicitly approves them; keep the approved version in the issue. Do not start building before that.
+5. **Go and pull request.** When the PO gives the go to build, implement the feature end to end without asking the PO for intermediate checks. Ask only if something blocks you or would change an approved acceptance criterion or test case; then update the issue and get the change approved again. Work on one feature branch per issue, created from the latest `main` (`feature/<issue-number>-<short-name>`, unless the session prescribes a branch). Never push to `main` directly. Technical details such as branch names are the AI's decision; do not ask the PO.
+6. Open a pull request against `main` whose description starts with `Closes #<issue>`, so GitHub closes the issue when the pull request is merged. Describe what changed, list the acceptance criteria as a checklist with their test case IDs and the automated tests that cover them, and say whether the PO also needs to test the Windows app (storage or desktop specific changes) or whether the web preview is enough. Link the pull request in the issue.
+7. Every pull request gets two ways to test:
    - **Web preview:** Render builds a public static site per pull request (Pull Request Previews). It runs the browser build with demo data in `localStorage`. The address of pull request `<n>` is `https://getthingsdone-pr-<n>.onrender.com` (`main` is at `https://getthingsdone.onrender.com`). Post this address in the conversation and in the pull request description whenever a pull request is ready for review.
    - **Windows app:** CI builds the app on every push (artifact `GetItDone-windows`). After every push that changes the app, wait for the Windows build and post the test link in the conversation: the direct artifact download (`https://github.com/<owner>/<repo>/actions/runs/<run-id>/artifacts/<artifact-id>`) and the run page, with the commit it was built from. If the build fails, fix it first.
-5. The PO gives feedback in the conversation or the pull request. Only after the PO's explicit approval, merge the pull request into `main` with a merge commit, then delete the feature branch on GitHub. No other branches than `main` and open feature branches stay on GitHub.
+8. The PO gives feedback in the conversation or the pull request. Only after the PO's explicit approval, merge the pull request into `main` with "Rebase and merge". It is the only merge method enabled on the repository (no merge commits, no squash), and GitHub refuses it for a branch that contains a merge: keep every branch linear and rebase it on `main` instead of merging `main` into it. Then delete the feature branch on GitHub. No other branches than `main` and open feature branches stay on GitHub.
+
+## Test cases
+
+Two layers: the PO reviews **test cases in German and plain language**; the AI turns each approved test case into **Gherkin and automated tests** for its own use. The PO never has to read Gherkin.
+
+- Each acceptance criterion `AC<n>` gets one or more test cases `AC<n>.<m>`. Test cases for existing behaviour that has no acceptance criterion in the issue take the ID of the requirement instead (`FR-MAP-02.1`, see `docs/requirements/`). Cover the normal case and the relevant edge and error cases (empty input, limits, cancel, keyboard only, language switch) where they matter for that criterion.
+- Write test cases for the PO in German, in short everyday sentences, from the user's point of view: what is there, what I do, what I see. No technical terms (no CSS, components, database, "Given/When/Then"). Use concrete example values. Variations go into a small table.
+- Format of one test case:
+
+  ```markdown
+  **AC2.1 Story per Drag & Drop auf Erledigt ziehen**
+  - Ausgangslage: Story „S-3 Login-Seite“ steht in der Spalte „In Arbeit“.
+  - Ich mache: Ich ziehe „S-3“ in die Spalte „Erledigt“.
+  - Erwartet: „S-3“ steht in „Erledigt“, auch nachdem ich die App neu geladen habe.
+  ```
+
+- Mark test cases that are checked by hand and not automated (for example visual details) with *(manuell)* and say why.
+- List open questions that come up while writing test cases below them; they need a PO decision before the test cases are approved.
+- After approval, the AI writes at least one automated test per test case. The test follows the test case step by step with `// Given`, `// When`, `// Then` comments in English (Gherkin is never shown in issues or pull requests). The test name starts with the ID, for example `test('AC2.1 moves a story to Done by drag and drop', …)`, so the PR and `Verified by` in `docs/requirements/` point to it.
+- Choose the test level by what the test case needs:
+  - **End-to-end** (`e2e/*.spec.ts`, Playwright, real Chromium, web build with demo data, `npm run test:e2e`): journeys across pages, drag and drop with the mouse, real layout, reloads. Fix the clock (`page.clock.setFixedTime`) so dates in the demo data are stable.
+  - **Component** (`src/**/*.test.tsx`, Vitest and jsdom, `npm test`): behaviour of one page or dialog, keyboard and screen reader texts.
+  - **Unit** (`src/domain/*.test.ts`): rules and calculations.
+- Run both `npm test` and `npm run test:e2e` before every push. In this container: `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium npm run test:e2e`.
 
 ## Definition of Done
 

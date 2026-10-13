@@ -15,7 +15,7 @@ Requirements of Get It Done. They are derived from the [vision](../vision.md) an
 - Functional requirements are written as user stories with acceptance criteria.
 - **Source** names the origin: `Vision`, an issue (`#12`) or a pull request.
 - **Status**: `Implemented` (in the code, covered by tests), `Partial`, `Open` (agreed, not built), `Proposed` (awaiting PO approval).
-- **Verified by** points to the tests that cover the requirement.
+- **Verified by** points to the tests that cover the requirement. For features refined with test cases, name the test case IDs (`#12 AC2.1`); the tests carry the same ID in their name.
 - A new feature adds or changes requirements in the same pull request as the code.
 
 ## Roles
