@@ -664,5 +664,151 @@
       "confirmMove_one": "Move {{count}} story and remove",
       "confirmMove_other": "Move {{count}} stories and remove"
     }
+  },
+  "help": {
+    "button": "Help",
+    "close": "Close help",
+    "panelLabel": "Help",
+    "title": "Help · {{page}}",
+    "pages": {
+      "board": "Board",
+      "backlog": "Backlog",
+      "map": "Story Map",
+      "epics": "Epics",
+      "releases": "Releases",
+      "settings": "Settings"
+    },
+    "search": {
+      "label": "Search help",
+      "placeholder": "Search help…",
+      "clear": "Clear search",
+      "results_one": "{{count}} result",
+      "results_other": "{{count}} results",
+      "resultsLabel": "Help topics found",
+      "none": "No results for “{{query}}”",
+      "noneHint": "Try other words or look at all topics.",
+      "showAll": "Show all topics"
+    },
+    "onThisPage": "On this page",
+    "general": "General",
+    "allTopics": "All topics",
+    "back": "Back",
+    "topicOn": "On page: {{page}}",
+    "showMe": "Show me",
+    "shown": "Highlighted on the page.",
+    "missing": "There is nothing to show here right now.",
+    "missingStory": "There is nothing to show here right now. Create a story first.",
+    "goTo": "Open {{page}}",
+    "invitation": {
+      "label": "Introduction",
+      "title": "New here? Welcome to Get It Done.",
+      "text": "A short introduction shows you the most important things in about three minutes. You can also start it later with the ? button.",
+      "start": "Start introduction",
+      "decline": "No thanks"
+    },
+    "tour": {
+      "title": "First steps",
+      "intro": "Optional, and you can stop at any time. You can also simply start on your own.",
+      "progress": "{{done}} of {{total}} done",
+      "stepsLabel": "Steps",
+      "stepDone": "done",
+      "stepSkipped": "skipped",
+      "stepCurrent": "current step",
+      "skip": "Skip step",
+      "confirm": "Got it",
+      "close": "Continue later",
+      "restart": "Start again",
+      "restartAsk": "Start again from the first step? Your stories stay as they are.",
+      "restartYes": "Yes, start again",
+      "restartNo": "Cancel",
+      "finished": "Well done: all steps are through. Every help topic is one click away.",
+      "open": "Show the first steps",
+      "progressShort": "{{done}} of {{total}}",
+      "steps": {
+        "board": {
+          "title": "Get to know the board",
+          "text": "Every column is a status, every card is a story. Click the title of a card to open the story."
+        },
+        "move": {
+          "title": "Move a story",
+          "text": "Drag any story into another column. With the keyboard: choose the card, press Space, use the arrow keys, press Space again. The step is ticked off by itself."
+        },
+        "create": {
+          "title": "Create a story",
+          "text": "Press Ctrl+N or use the “New story” button. The step is ticked off when the story exists."
+        },
+        "order": {
+          "title": "Order the backlog",
+          "text": "Open the Backlog and drag a story to another place, or move it with the keyboard like on the board."
+        }
+      }
+    },
+    "topics": {
+      "board.move": {
+        "title": "Move a story",
+        "keywords": "status column drag drop keyboard arrow change",
+        "body": "Drag a card into another column to change its status. With the keyboard, choose the card, press Space to pick it up, move it with the arrow keys and press Space again to drop it. Escape cancels.\nThe change is saved at once."
+      },
+      "board.columns": {
+        "title": "Columns and status values",
+        "keywords": "status values workflow category",
+        "body": "Every column of the board is a status value. The columns belong to the categories To do, In progress and Done.\nYou can rename, add or remove status values under Settings, Status values."
+      },
+      "story.open": {
+        "title": "Open and edit a story",
+        "keywords": "story detail dialog title description criteria points",
+        "body": "Click the title of a story, or choose the card and press Enter, to open it. In the dialog you change title, description, points and status, and tick off the acceptance criteria.\nPress Escape to close the dialog."
+      },
+      "story.create": {
+        "title": "Create a story",
+        "keywords": "new story add ctrl+n",
+        "body": "Press Ctrl+N (Cmd+N on a Mac) or use the “New story” button on the Board or the Backlog. Give the story a title and save it.\nA new story starts in the first column."
+      },
+      "backlog.order": {
+        "title": "Order the backlog",
+        "keywords": "priority rank drag reorder sort",
+        "body": "The backlog is ordered by priority: the story at the top is the most important. Drag a row to another place, or move it with the keyboard: Space to pick up, arrow keys to move, Space to drop.\nA story you drop into another sprint section is planned in that sprint."
+      },
+      "backlog.sprints": {
+        "title": "Backlog and the sprint line",
+        "keywords": "sprint planning section line upcoming running",
+        "body": "The backlog shows the sprints one below the other, followed by the stories that are not planned yet. The sprint line is the border between two sections: what is above it belongs to that sprint.\nDrag stories across the line to plan them."
+      },
+      "map.basics": {
+        "title": "Story Map",
+        "keywords": "map activities epics sprints rows columns release planning",
+        "body": "The Story Map has one column per epic and one row per sprint, or per release if you choose so in the settings. Every cell holds the stories of that epic in that sprint.\nDrag a story into another cell to change its sprint and epic."
+      },
+      "epics.basics": {
+        "title": "Epics",
+        "keywords": "group colour rename delete theme",
+        "body": "Epics group stories that belong together. Click an epic to rename it, change its colour or delete it.\nAn epic that still has stories cannot be deleted."
+      },
+      "releases.basics": {
+        "title": "Releases",
+        "keywords": "release version scope burndown history",
+        "body": "A release collects stories that ship together. Open a release to see its scope, its progress and its history.\nThe Releases page can be switched off under Settings, Features."
+      },
+      "settings.basics": {
+        "title": "Settings",
+        "keywords": "fields status values features story map rows gear",
+        "body": "Open the settings with the gear button. Fields describe your stories, status values are the columns of the board, and further sections set the rows of the Story Map and switch features on or off.\nThe gear takes you back to the page you came from."
+      },
+      "search.basics": {
+        "title": "Search",
+        "keywords": "find filter ctrl+f field status epic sprint",
+        "body": "Press Ctrl+F (Cmd+F on a Mac) to search stories, epics and sprints. Several words must all occur; text in double quotes is searched as a phrase.\nNarrow the search with filters such as status:done: type @ to see all fields."
+      },
+      "shortcuts": {
+        "title": "Keyboard shortcuts",
+        "keywords": "keys keyboard shortcut hotkey",
+        "body": "?  Open or close the help.\nCtrl+F  Search.\nCtrl+N  Create a story, an epic or a release, depending on the page.\nSpace, arrow keys, Space  Pick up, move and drop a card or row.\nEscape  Cancel, or close a dialog or the help."
+      },
+      "tour": {
+        "title": "First steps",
+        "keywords": "introduction tutorial tour onboarding walkthrough guide start",
+        "body": "A short, optional introduction in four steps: get to know the board, move a story, create a story and order the backlog. Steps are ticked off by themselves when you do them."
+      }
+    }
   }
 }

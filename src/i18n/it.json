@@ -664,5 +664,151 @@
       "confirmMove_one": "Sposta {{count}} story e rimuovi",
       "confirmMove_other": "Sposta {{count}} story e rimuovi"
     }
+  },
+  "help": {
+    "button": "Guida",
+    "close": "Chiudi la guida",
+    "panelLabel": "Guida",
+    "title": "Guida · {{page}}",
+    "pages": {
+      "board": "Board",
+      "backlog": "Backlog",
+      "map": "Story Map",
+      "epics": "Epic",
+      "releases": "Release",
+      "settings": "Impostazioni"
+    },
+    "search": {
+      "label": "Cerca nella guida",
+      "placeholder": "Cerca nella guida…",
+      "clear": "Cancella la ricerca",
+      "results_one": "{{count}} risultato",
+      "results_other": "{{count}} risultati",
+      "resultsLabel": "Argomenti trovati",
+      "none": "Nessun risultato per «{{query}}»",
+      "noneHint": "Prova altre parole o guarda tutti gli argomenti.",
+      "showAll": "Mostra tutti gli argomenti"
+    },
+    "onThisPage": "In questa pagina",
+    "general": "Generale",
+    "allTopics": "Tutti gli argomenti",
+    "back": "Indietro",
+    "topicOn": "Nella pagina: {{page}}",
+    "showMe": "Mostramelo",
+    "shown": "Evidenziato nella pagina.",
+    "missing": "Al momento non c’è nulla da mostrare qui.",
+    "missingStory": "Al momento non c’è nulla da mostrare qui. Crea prima una story.",
+    "goTo": "Apri {{page}}",
+    "invitation": {
+      "label": "Introduzione",
+      "title": "Sei nuovo? Benvenuto in Get It Done.",
+      "text": "Una breve introduzione ti mostra l’essenziale in circa tre minuti. Puoi avviarla anche più tardi con il pulsante ?.",
+      "start": "Avvia l’introduzione",
+      "decline": "No, grazie"
+    },
+    "tour": {
+      "title": "Primi passi",
+      "intro": "Facoltativo, e puoi fermarti in qualsiasi momento. Puoi anche iniziare da solo.",
+      "progress": "{{done}} di {{total}} completati",
+      "stepsLabel": "Passi",
+      "stepDone": "completato",
+      "stepSkipped": "saltato",
+      "stepCurrent": "passo attuale",
+      "skip": "Salta il passo",
+      "confirm": "Capito",
+      "close": "Continua più tardi",
+      "restart": "Ricomincia",
+      "restartAsk": "Ricominciare dal primo passo? Le tue story restano come sono.",
+      "restartYes": "Sì, ricomincia",
+      "restartNo": "Annulla",
+      "finished": "Bravo: tutti i passi sono fatti. Ogni argomento della guida è a un clic.",
+      "open": "Mostra i primi passi",
+      "progressShort": "{{done}} di {{total}}",
+      "steps": {
+        "board": {
+          "title": "Conoscere la board",
+          "text": "Ogni colonna è uno stato, ogni scheda una story. Fai clic sul titolo di una scheda per aprire la story."
+        },
+        "move": {
+          "title": "Spostare una story",
+          "text": "Trascina una story in un’altra colonna. Con la tastiera: scegli la scheda, Spazio, frecce, di nuovo Spazio. Il passo si spunta da solo."
+        },
+        "create": {
+          "title": "Creare una story",
+          "text": "Premi Ctrl+N o fai clic su «Nuova story». Il passo si spunta appena la story esiste."
+        },
+        "order": {
+          "title": "Ordinare il backlog",
+          "text": "Apri il backlog e trascina una story in un altro punto, oppure spostala con la tastiera come sulla board."
+        }
+      }
+    },
+    "topics": {
+      "board.move": {
+        "title": "Spostare una story",
+        "keywords": "stato colonna trascinare tastiera frecce cambiare",
+        "body": "Trascina una scheda in un’altra colonna per cambiarne lo stato. Con la tastiera scegli la scheda, premi Spazio per sollevarla, spostala con le frecce e premi di nuovo Spazio per rilasciarla. Esc annulla.\nLa modifica viene salvata subito."
+      },
+      "board.columns": {
+        "title": "Colonne e valori di stato",
+        "keywords": "stati valori workflow categoria",
+        "body": "Ogni colonna della board è un valore di stato. Le colonne appartengono alle categorie Da fare, In corso e Completato.\nI valori di stato si rinominano, aggiungono o rimuovono in Impostazioni, Valori di stato."
+      },
+      "story.open": {
+        "title": "Aprire e modificare una story",
+        "keywords": "story dettaglio finestra titolo descrizione criteri punti",
+        "body": "Fai clic sul titolo di una story, oppure scegli la scheda e premi Invio, per aprirla. Nella finestra modifichi titolo, descrizione, punti e stato e spunti i criteri di accettazione.\nEsc chiude la finestra."
+      },
+      "story.create": {
+        "title": "Creare una story",
+        "keywords": "nuova story aggiungere ctrl+n",
+        "body": "Premi Ctrl+N (Cmd+N su Mac) oppure usa il pulsante «Nuova story» nella board o nel backlog. Dai un titolo alla story e salvala.\nUna nuova story inizia nella prima colonna."
+      },
+      "backlog.order": {
+        "title": "Ordinare il backlog",
+        "keywords": "priorita ordine trascinare ordinare",
+        "body": "Il backlog è ordinato per priorità: la story in alto è la più importante. Trascina una riga in un altro punto, oppure spostala con la tastiera: Spazio per sollevare, frecce per spostare, Spazio per rilasciare.\nUna story rilasciata in un’altra sezione di sprint viene pianificata in quello sprint."
+      },
+      "backlog.sprints": {
+        "title": "Backlog e linea dello sprint",
+        "keywords": "sprint pianificazione sezione linea prossimo in corso",
+        "body": "Il backlog mostra gli sprint uno sotto l’altro, poi le story non ancora pianificate. La linea dello sprint è il confine tra due sezioni: ciò che sta sopra appartiene a quello sprint.\nTrascina le story oltre la linea per pianificarle."
+      },
+      "map.basics": {
+        "title": "Story Map",
+        "keywords": "mappa attivita epic sprint righe colonne release pianificazione",
+        "body": "La Story Map ha una colonna per epic e una riga per sprint, oppure per release se lo scegli nelle impostazioni. Ogni cella contiene le story di quell’epic in quello sprint.\nTrascina una story in un’altra cella per cambiare sprint ed epic."
+      },
+      "epics.basics": {
+        "title": "Epic",
+        "keywords": "gruppo colore rinominare eliminare tema",
+        "body": "Gli epic raggruppano le story che stanno insieme. Fai clic su un epic per rinominarlo, cambiarne il colore o eliminarlo.\nUn epic che ha ancora story non può essere eliminato."
+      },
+      "releases.basics": {
+        "title": "Release",
+        "keywords": "release versione ambito burndown cronologia",
+        "body": "Una release raccoglie le story che vengono consegnate insieme. Apri una release per vedere il suo ambito, i progressi e la cronologia.\nLa pagina Release si può disattivare in Impostazioni, Funzioni."
+      },
+      "settings.basics": {
+        "title": "Impostazioni",
+        "keywords": "campi valori di stato funzioni story map righe ingranaggio",
+        "body": "Apri le impostazioni con l’ingranaggio. I campi descrivono le story, i valori di stato sono le colonne della board, altre sezioni definiscono le righe della Story Map e attivano o disattivano funzioni.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+      },
+      "search.basics": {
+        "title": "Ricerca",
+        "keywords": "trovare filtro ctrl+f campo stato epic sprint",
+        "body": "Premi Ctrl+F (Cmd+F su Mac) per cercare story, epic e sprint. Tutte le parole devono comparire; il testo tra virgolette viene cercato come frase.\nRestringi la ricerca con filtri come status:done: digita @ per vedere tutti i campi."
+      },
+      "shortcuts": {
+        "title": "Scorciatoie da tastiera",
+        "keywords": "tasti tastiera scorciatoia",
+        "body": "?  Apri o chiudi la guida.\nCtrl+F  Cerca.\nCtrl+N  Crea una story, un epic o una release, a seconda della pagina.\nSpazio, frecce, Spazio  Solleva, sposta e rilascia una scheda o una riga.\nEsc  Annulla, oppure chiudi una finestra o la guida."
+      },
+      "tour": {
+        "title": "Primi passi",
+        "keywords": "introduzione tutorial tour percorso guidato iniziare",
+        "body": "Una breve introduzione facoltativa in quattro passi: conoscere la board, spostare una story, creare una story e ordinare il backlog. I passi si spuntano da soli quando li fai."
+      }
+    }
   }
 }

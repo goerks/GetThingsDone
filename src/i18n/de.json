@@ -664,5 +664,151 @@
       "confirmMove_one": "{{count}} Story verschieben und entfernen",
       "confirmMove_other": "{{count}} Stories verschieben und entfernen"
     }
+  },
+  "help": {
+    "button": "Hilfe",
+    "close": "Hilfe schliessen",
+    "panelLabel": "Hilfe",
+    "title": "Hilfe · {{page}}",
+    "pages": {
+      "board": "Board",
+      "backlog": "Backlog",
+      "map": "Story Map",
+      "epics": "Epics",
+      "releases": "Releases",
+      "settings": "Einstellungen"
+    },
+    "search": {
+      "label": "Hilfe durchsuchen",
+      "placeholder": "Hilfe durchsuchen …",
+      "clear": "Suche leeren",
+      "results_one": "{{count}} Treffer",
+      "results_other": "{{count}} Treffer",
+      "resultsLabel": "Gefundene Hilfethemen",
+      "none": "Keine Treffer für „{{query}}“",
+      "noneHint": "Versuche andere Wörter oder sieh dir alle Themen an.",
+      "showAll": "Alle Themen ansehen"
+    },
+    "onThisPage": "Auf dieser Seite",
+    "general": "Allgemein",
+    "allTopics": "Alle Themen",
+    "back": "Zurück",
+    "topicOn": "Auf der Seite: {{page}}",
+    "showMe": "Zeig es mir",
+    "shown": "Auf der Seite hervorgehoben.",
+    "missing": "Hier gibt es gerade nichts zu zeigen.",
+    "missingStory": "Hier gibt es gerade nichts zu zeigen. Lege zuerst eine Story an.",
+    "goTo": "{{page}} öffnen",
+    "invitation": {
+      "label": "Einführung",
+      "title": "Neu hier? Willkommen bei Get It Done.",
+      "text": "Eine kurze Einführung zeigt dir in etwa drei Minuten das Wichtigste. Du kannst sie auch später mit dem Knopf ? starten.",
+      "start": "Rundgang starten",
+      "decline": "Nein danke"
+    },
+    "tour": {
+      "title": "Erste Schritte",
+      "intro": "Freiwillig, und du kannst jederzeit aufhören. Du kannst auch einfach selbst loslegen.",
+      "progress": "{{done}} von {{total}} erledigt",
+      "stepsLabel": "Schritte",
+      "stepDone": "erledigt",
+      "stepSkipped": "übersprungen",
+      "stepCurrent": "aktueller Schritt",
+      "skip": "Schritt überspringen",
+      "confirm": "Verstanden",
+      "close": "Später fortsetzen",
+      "restart": "Rundgang neu starten",
+      "restartAsk": "Wieder beim ersten Schritt beginnen? Deine Stories bleiben, wie sie sind.",
+      "restartYes": "Ja, neu starten",
+      "restartNo": "Abbrechen",
+      "finished": "Gut gemacht: alle Schritte sind durch. Jedes Hilfethema ist nur einen Klick entfernt.",
+      "open": "Erste Schritte anzeigen",
+      "progressShort": "{{done}} von {{total}}",
+      "steps": {
+        "board": {
+          "title": "Das Board kennenlernen",
+          "text": "Jede Spalte ist ein Status, jede Karte eine Story. Klicke auf den Titel einer Karte, um die Story zu öffnen."
+        },
+        "move": {
+          "title": "Eine Story verschieben",
+          "text": "Ziehe eine beliebige Story in eine andere Spalte. Mit der Tastatur: Karte wählen, Leertaste, Pfeiltasten, nochmals Leertaste. Der Schritt wird von selbst abgehakt."
+        },
+        "create": {
+          "title": "Eine Story anlegen",
+          "text": "Drücke Strg+N oder klicke auf „Neue Story“. Der Schritt wird abgehakt, sobald die Story existiert."
+        },
+        "order": {
+          "title": "Das Backlog ordnen",
+          "text": "Öffne das Backlog und ziehe eine Story an eine andere Stelle, oder verschiebe sie mit der Tastatur wie auf dem Board."
+        }
+      }
+    },
+    "topics": {
+      "board.move": {
+        "title": "Eine Story verschieben",
+        "keywords": "status spalte ziehen drag drop tastatur pfeiltasten ändern",
+        "body": "Ziehe eine Karte in eine andere Spalte, um ihren Status zu ändern. Mit der Tastatur wählst du die Karte, hebst sie mit der Leertaste auf, bewegst sie mit den Pfeiltasten und legst sie mit der Leertaste wieder ab. Esc bricht ab.\nDie Änderung wird sofort gespeichert."
+      },
+      "board.columns": {
+        "title": "Spalten und Status-Werte",
+        "keywords": "status werte workflow kategorie",
+        "body": "Jede Spalte des Boards ist ein Status-Wert. Die Spalten gehören zu den Kategorien Offen, In Arbeit und Erledigt.\nStatus-Werte benennst du um, fügst du hinzu oder entfernst du unter Einstellungen, Status-Werte."
+      },
+      "story.open": {
+        "title": "Story öffnen und bearbeiten",
+        "keywords": "story detail dialog titel beschreibung kriterien punkte",
+        "body": "Klicke auf den Titel einer Story, oder wähle die Karte und drücke Enter, um sie zu öffnen. Im Dialog änderst du Titel, Beschreibung, Punkte und Status und hakst die Akzeptanzkriterien ab.\nMit Esc schliesst du den Dialog."
+      },
+      "story.create": {
+        "title": "Eine Story anlegen",
+        "keywords": "neue story hinzufügen strg+n",
+        "body": "Drücke Strg+N (Cmd+N auf dem Mac) oder klicke auf „Neue Story“ im Board oder im Backlog. Gib der Story einen Titel und speichere sie.\nEine neue Story beginnt in der ersten Spalte."
+      },
+      "backlog.order": {
+        "title": "Das Backlog ordnen",
+        "keywords": "priorität reihenfolge ziehen sortieren",
+        "body": "Das Backlog ist nach Priorität geordnet: Die oberste Story ist die wichtigste. Ziehe eine Zeile an eine andere Stelle, oder verschiebe sie mit der Tastatur: Leertaste zum Aufheben, Pfeiltasten zum Bewegen, Leertaste zum Ablegen.\nEine Story, die du in einen anderen Sprint-Abschnitt ablegst, wird in diesem Sprint geplant."
+      },
+      "backlog.sprints": {
+        "title": "Backlog und Sprintlinie",
+        "keywords": "sprint planung abschnitt linie kommend laufend",
+        "body": "Das Backlog zeigt die Sprints untereinander, danach die Stories, die noch nicht geplant sind. Die Sprintlinie ist die Grenze zwischen zwei Abschnitten: Was darüber steht, gehört zu diesem Sprint.\nZiehe Stories über die Linie, um sie zu planen."
+      },
+      "map.basics": {
+        "title": "Story Map",
+        "keywords": "karte aktivitäten epics sprints zeilen spalten release planung",
+        "body": "Die Story Map hat eine Spalte pro Epic und eine Zeile pro Sprint, oder pro Release, wenn du das in den Einstellungen so wählst. Jede Zelle enthält die Stories dieses Epics in diesem Sprint.\nZiehe eine Story in eine andere Zelle, um Sprint und Epic zu ändern."
+      },
+      "epics.basics": {
+        "title": "Epics",
+        "keywords": "gruppe farbe umbenennen löschen thema",
+        "body": "Epics fassen Stories zusammen, die zusammengehören. Klicke auf ein Epic, um es umzubenennen, seine Farbe zu ändern oder es zu löschen.\nEin Epic, das noch Stories hat, kann nicht gelöscht werden."
+      },
+      "releases.basics": {
+        "title": "Releases",
+        "keywords": "release version umfang burndown verlauf",
+        "body": "Ein Release sammelt Stories, die zusammen ausgeliefert werden. Öffne ein Release, um seinen Umfang, seinen Fortschritt und seinen Verlauf zu sehen.\nDie Seite Releases kannst du unter Einstellungen, Funktionen ausschalten."
+      },
+      "settings.basics": {
+        "title": "Einstellungen",
+        "keywords": "felder status werte funktionen story map zeilen zahnrad",
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Felder beschreiben deine Stories, Status-Werte sind die Spalten des Boards, weitere Bereiche legen die Zeilen der Story Map fest und schalten Funktionen ein oder aus.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+      },
+      "search.basics": {
+        "title": "Suche",
+        "keywords": "finden filter strg+f feld status epic sprint",
+        "body": "Drücke Strg+F (Cmd+F auf dem Mac), um Stories, Epics und Sprints zu suchen. Mehrere Wörter müssen alle vorkommen; Text in Anführungszeichen wird als Wortfolge gesucht.\nEngere Suchen gelingen mit Filtern wie status:done: Tippe @, um alle Felder zu sehen."
+      },
+      "shortcuts": {
+        "title": "Tastenkürzel",
+        "keywords": "tasten tastatur kürzel shortcut",
+        "body": "?  Hilfe öffnen oder schliessen.\nStrg+F  Suchen.\nStrg+N  Je nach Seite eine Story, ein Epic oder ein Release anlegen.\nLeertaste, Pfeiltasten, Leertaste  Karte oder Zeile aufheben, bewegen und ablegen.\nEsc  Abbrechen, oder einen Dialog oder die Hilfe schliessen."
+      },
+      "tour": {
+        "title": "Erste Schritte",
+        "keywords": "einführung tutorial rundgang tour einstieg anleitung starten",
+        "body": "Eine kurze, freiwillige Einführung in vier Schritten: das Board kennenlernen, eine Story verschieben, eine Story anlegen und das Backlog ordnen. Schritte werden von selbst abgehakt, wenn du sie machst."
+      }
+    }
   }
 }
