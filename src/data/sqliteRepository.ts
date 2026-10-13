@@ -2,6 +2,7 @@ import Database from '@tauri-apps/plugin-sql';
 import { normalizeColorKey } from '../domain/epics';
 import { missingBuiltins } from '../domain/fields';
 import { FEATURE_KEYS, normalizeSettings } from '../domain/settings';
+import { normalizeStatuses } from '../domain/statuses';
 import type {
   BuiltinKey,
   Criterion,
@@ -19,6 +20,8 @@ import type {
   Snapshot,
   Sprint,
   Status,
+  StatusCategory,
+  StatusValue,
   Story
 } from '../domain/types';
 import type { Repository, StoryPosition } from './repository';
@@ -261,7 +264,11 @@ export class SqliteRepository implements Repository {
       mapRows: settingRows.find((row) => row.key === 'map_rows')?.value,
       features: Object.fromEntries(FEATURE_KEYS.map((key) => [key, settingRows.find((row) => row.key === `feature_${key}`)?.value]))
     });
-    return { epics, sprints, releases, events, stories, fields, assignments, settings };
+    const statusRows = await this.db.select<{ id: string; label: string | null; category: string }[]>(
+      'SELECT id, label, category FROM status_values ORDER BY position'
+    );
+    const statuses = normalizeStatuses(statusRows.map((row) => ({ id: row.id, label: row.label, category: row.category as StatusCategory })));
+    return { epics, sprints, releases, events, stories, statuses, fields, assignments, settings };
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
@@ -325,6 +332,7 @@ export class SqliteRepository implements Repository {
       await this.addSprint(sprint);
     }
     await this.saveSettings(snapshot.settings);
+    await this.saveStatuses(snapshot.statuses);
     for (const release of snapshot.releases) {
       await this.addRelease(release);
     }
@@ -453,6 +461,18 @@ export class SqliteRepository implements Repository {
         'INSERT INTO release_events (id, at, release_id, story_id, code, kind, points, done) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
         [event.id, event.at, event.releaseId, event.storyId, event.code, event.kind, event.points, event.done ? 1 : 0]
       );
+    }
+  }
+
+  async saveStatuses(statuses: readonly StatusValue[]): Promise<void> {
+    await this.db.execute('DELETE FROM status_values');
+    for (const [position, status] of statuses.entries()) {
+      await this.db.execute('INSERT INTO status_values (id, label, category, position) VALUES ($1, $2, $3, $4)', [
+        status.id,
+        status.label,
+        status.category,
+        position
+      ]);
     }
   }
 

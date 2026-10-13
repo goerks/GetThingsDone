@@ -36,7 +36,10 @@
     "cardRole": "Story-Karte",
     "noSprintTitle": "Noch kein Sprint",
     "noSprint": "Das Board zeigt den laufenden Sprint. Es gibt noch keinen Sprint.",
-    "toMap": "Auf der Story Map einen anlegen"
+    "toMap": "Auf der Story Map einen anlegen",
+    "columns": "Spalten des Boards",
+    "bandCount_one": "{{count}} Story in dieser Kategorie",
+    "bandCount_other": "{{count}} Stories in dieser Kategorie"
   },
   "card": {
     "criteria": "{{done}} von {{total}} Kriterien abgenommen",
@@ -319,7 +322,6 @@
   "settings": {
     "title": "Einstellungen",
     "sections": "Bereiche der Einstellungen",
-    "statusValues": "Status-Werte",
     "planned": "Geplant",
     "plannedNote": "für ein späteres Release geplant",
     "map": {
@@ -604,6 +606,62 @@
         "change": "Umfangsänderung"
       },
       "explain": "Die Linie steigt, wenn Stories dazukommen, und fällt, wenn Stories entfernt oder erledigt werden. Die Soll-Linie läuft geradlinig vom Stand am Starttag auf null am Endtag."
+    }
+  },
+  "statusValues": {
+    "title": "Status-Werte",
+    "hint": "Jeder Status-Wert ist eine Spalte auf dem Board. Die drei Kategorien sind fest und behalten ihre Reihenfolge; innerhalb einer Kategorie bestimmt ihr die Reihenfolge. Eine Story gilt als erledigt, wenn ihr Status in «Erledigt» liegt.",
+    "category": {
+      "not_started": "Nicht begonnen",
+      "in_progress": "In Arbeit",
+      "done": "Erledigt"
+    },
+    "rule": {
+      "not_started": "Mind. 1 · neue Stories beginnen im ersten",
+      "in_progress": "Optional",
+      "done": "Mind. 1 · Stories hier gelten als erledigt"
+    },
+    "list": "Status-Werte in «{{category}}»",
+    "name": "Name des Status {{name}}",
+    "nameHint": "Ein Name für alle Sprachen. Leer lassen stellt den Standardnamen «{{name}}» wieder her.",
+    "stories_one": "{{count}} Story",
+    "stories_other": "{{count}} Stories",
+    "noStories": "Keine Stories",
+    "move": "Status {{name}} verschieben",
+    "remove": "Status {{name}} entfernen",
+    "locked": "{{name}} ist der letzte Status in «{{category}}» und kann weder entfernt noch in eine andere Kategorie verschoben werden.",
+    "add": "Status in «{{category}}»",
+    "addLabel": "Name des neuen Status in «{{category}}»",
+    "addConfirm": "Hinzufügen",
+    "cancel": "Abbrechen",
+    "keyboard": "Einen Status am Griff ziehen, um die Reihenfolge zu ändern. In einer anderen Kategorie abgelegt, wechselt er die Kategorie. Mit der Tastatur: Alt+Pfeil hoch oder runter im Namensfeld.",
+    "saved": "Änderungen gelten für das ganze Team und werden sofort gespeichert.",
+    "refused": "Nicht möglich: «Nicht begonnen» und «Erledigt» brauchen je mindestens einen Status.",
+    "moved": "{{name}} ist jetzt an Position {{position}} in «{{category}}».",
+    "dnd": {
+      "instructions": "Um einen Status zu verschieben, Leertaste drücken. Mit den Pfeiltasten bewegen, mit der Leertaste ablegen, mit Escape abbrechen.",
+      "pickedUp": "{{name}} aufgenommen.",
+      "over": "{{name}} ist über {{target}}.",
+      "dropped": "{{name}} abgelegt.",
+      "cancelled": "Verschieben von {{name}} abgebrochen."
+    },
+    "confirmCategory": {
+      "title": "«{{name}}» nach «{{category}}» verschieben?",
+      "toDone_one": "{{count}} Story hat diesen Status ({{codes}}). Sie gilt ab heute als erledigt; Releases und Burndown zählen sie ab heute mit.",
+      "toDone_other": "{{count}} Stories haben diesen Status ({{codes}}). Sie gelten ab heute als erledigt; Releases und Burndown zählen sie ab heute mit.",
+      "fromDone_one": "{{count}} Story hat diesen Status ({{codes}}). Sie gilt ab heute wieder als offen.",
+      "fromDone_other": "{{count}} Stories haben diesen Status ({{codes}}). Sie gelten ab heute wieder als offen.",
+      "confirm": "Verschieben"
+    },
+    "removeDialog": {
+      "title": "Status «{{name}}» entfernen?",
+      "unused": "Keine Story hat diesen Status.",
+      "used_one": "{{count}} Story hat diesen Status ({{codes}}). Sie bekommt einen anderen Status.",
+      "used_other": "{{count}} Stories haben diesen Status ({{codes}}). Sie bekommen einen anderen Status.",
+      "target": "Verschieben nach",
+      "confirm": "Entfernen",
+      "confirmMove_one": "{{count}} Story verschieben und entfernen",
+      "confirmMove_other": "{{count}} Stories verschieben und entfernen"
     }
   }
 }

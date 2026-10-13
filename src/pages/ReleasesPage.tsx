@@ -33,9 +33,9 @@ export function ReleasesPage() {
       {creating && <NewReleaseDialog onClose={() => setCreating(false)} />}
       {app.releases.length === 0 && <p className="muted">{t('releases.none')}</p>}
       <ul className="release-list">
-        {sortReleases(app.releases, app.stories).map((release) => {
-          const stats = releaseStats(app.stories, release.id);
-          const state = releaseState(release, app.stories, today);
+        {sortReleases(app.releases, app.stories, app.isDone).map((release) => {
+          const stats = releaseStats(app.stories, release.id, app.isDone);
+          const state = releaseState(release, app.stories, today, app.isDone);
           const percent = stats.points === 0 ? 0 : Math.round(((pointsShown ? stats.donePoints / stats.points : stats.doneStories / stats.stories) || 0) * 100);
           const progress = pointsShown
             ? t('releases.progress', { done: stats.donePoints, total: stats.points })

@@ -3,11 +3,9 @@ import { hrefs, type SettingsSection } from '../router';
 import { FieldsSection } from './FieldsSection';
 import { MapSection } from './MapSection';
 import { FeaturesSection } from './FeaturesSection';
+import { StatusValuesSection } from './StatusValuesSection';
 
-/**
- * Settings of the workspace: a list of sections next to the content of the chosen one.
- * Status values (#5) are shown as planned so the team sees what comes next.
- */
+/** Settings of the workspace: a list of sections next to the content of the chosen one. */
 export function SettingsPage({ section }: { section: SettingsSection }) {
   const { t } = useTranslation();
 
@@ -21,22 +19,26 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           <a href={hrefs.settings} className="settings__link" aria-current={section === 'fields' ? 'page' : undefined}>
             {t('fields.title')}
           </a>
+          <a href={hrefs.settingsStatuses} className="settings__link" aria-current={section === 'statuses' ? 'page' : undefined}>
+            {t('statusValues.title')}
+          </a>
           <a href={hrefs.settingsMap} className="settings__link" aria-current={section === 'map' ? 'page' : undefined}>
             {t('settings.map.title')}
           </a>
           <a href={hrefs.settingsFeatures} className="settings__link" aria-current={section === 'features' ? 'page' : undefined}>
             {t('settings.features.title')}
           </a>
-          <span className="settings__link settings__link--planned">
-            {t('settings.statusValues')}
-            <span className="badge" aria-hidden="true">
-              {t('settings.planned')}
-            </span>
-            <span className="sr-only">: {t('settings.plannedNote')}</span>
-          </span>
         </nav>
         <section className="settings__content">
-          {section === 'map' ? <MapSection /> : section === 'features' ? <FeaturesSection /> : <FieldsSection />}
+          {section === 'statuses' ? (
+            <StatusValuesSection />
+          ) : section === 'map' ? (
+            <MapSection />
+          ) : section === 'features' ? (
+            <FeaturesSection />
+          ) : (
+            <FieldsSection />
+          )}
         </section>
       </div>
     </>

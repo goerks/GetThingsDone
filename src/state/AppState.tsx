@@ -61,6 +61,18 @@ import {
   type ReleaseInput
 } from '../domain/releases';
 import { DEFAULT_SETTINGS } from '../domain/settings';
+import {
+  DEFAULT_STATUSES,
+  addStatus as addStatusIn,
+  isDoneIn,
+  removeStatus as removeStatusIn,
+  renameStatus as renameStatusIn,
+  reorderStatuses,
+  repairStatuses,
+  startStatus,
+  type IsDone,
+  type StatusPlace
+} from '../domain/statuses';
 import type {
   Epic,
   FieldAssignment,
@@ -74,6 +86,8 @@ import type {
   Settings,
   Snapshot,
   Sprint,
+  StatusCategory,
+  StatusValue,
   Story
 } from '../domain/types';
 
@@ -84,6 +98,10 @@ interface AppApi {
   /** History of the releases, oldest first (#10). */
   events: ReleaseEvent[];
   stories: Story[];
+  /** Status values in board order (#5). */
+  statuses: StatusValue[];
+  /** Whether a story is done: its status is in the "done" category. */
+  isDone: IsDone;
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
   settings: Settings;
@@ -100,6 +118,14 @@ interface AppApi {
   /** Chooses what the rows of the story map are (a team setting). */
   setMapRows(rows: MapRows): void;
   setFeature(key: FeatureKey, enabled: boolean): void;
+  /** Adds a status value at the end of a category. Returns its id, or null when the name is empty. */
+  addStatus(category: StatusCategory, label: string): string | null;
+  /** Renames a status value; an empty name brings back the translated default of a default value. */
+  renameStatus(id: string, label: string): void;
+  /** Applies a new order of the status values, possibly with other categories. False when the order is not valid. */
+  reorderStatuses(places: readonly StatusPlace[]): boolean;
+  /** Removes a status value; its stories get the target status. False when refused. */
+  removeStatus(id: string, targetId: string | null): boolean;
   /** Returns the id of the new sprint, or null when the input is invalid. */
   createSprint(input: SprintInput): string | null;
   updateSprint(id: string, input: SprintInput): void;
@@ -164,6 +190,7 @@ export function AppProvider({ repository, children }: Props) {
     releases: [],
     events: [],
     stories: [],
+    statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
     fields: [],
     assignments: [],
     settings: DEFAULT_SETTINGS
@@ -176,6 +203,7 @@ export function AppProvider({ repository, children }: Props) {
   const sprintsRef = useRef<Sprint[]>([]);
   const releasesRef = useRef<Release[]>([]);
   const settingsRef = useRef<Settings>(DEFAULT_SETTINGS);
+  const statusesRef = useRef<StatusValue[]>(DEFAULT_STATUSES.map((status) => ({ ...status })));
   const fieldsRef = useRef<Pick<Snapshot, 'fields' | 'assignments'>>({ fields: [], assignments: [] });
 
   // Writes run one after another so a quick series of changes is stored in the order it happened.
@@ -195,12 +223,16 @@ export function AppProvider({ repository, children }: Props) {
     [t]
   );
 
-  /** Sets the stories. What this changes for the stories in releases is appended to the history of the releases. */
+  /**
+   * Sets the stories, and the status values when they change too. What this changes for the stories in releases
+   * (also through a status value that moves into or out of "done") is appended to the history of the releases.
+   */
   const update = useCallback(
-    (stories: Story[]) => {
-      const events = releaseEventsFor(storiesRef.current, stories, new Date().toISOString(), newId);
+    (stories: Story[], statuses: StatusValue[] = statusesRef.current) => {
+      const events = releaseEventsFor(storiesRef.current, stories, new Date().toISOString(), newId, isDoneIn(statuses), isDoneIn(statusesRef.current));
       storiesRef.current = stories;
-      setSnapshot((current) => ({ ...current, stories, events: events.length > 0 ? [...current.events, ...events] : current.events }));
+      statusesRef.current = statuses;
+      setSnapshot((current) => ({ ...current, stories, statuses, events: events.length > 0 ? [...current.events, ...events] : current.events }));
       if (events.length > 0) persist((repo) => repo.addReleaseEvents(events));
     },
     [persist]
@@ -242,8 +274,15 @@ export function AppProvider({ repository, children }: Props) {
           loaded = seedSnapshot(todayIso());
           await repo.replaceAll(loaded);
         }
+        // A story whose status no longer exists gets the start status, so it does not drop off the board.
+        const repaired = repairStatuses(loaded.stories, loaded.statuses);
+        if (repaired !== loaded.stories) {
+          const changed = changedPositions(loaded.stories, repaired);
+          await repo.savePositions(changed);
+          loaded = { ...loaded, stories: repaired };
+        }
         // A release that has stories but no history yet starts its history now.
-        const baseline = baselineEvents(loaded.releases, loaded.stories, loaded.events, new Date().toISOString(), newId);
+        const baseline = baselineEvents(loaded.releases, loaded.stories, loaded.events, new Date().toISOString(), newId, isDoneIn(loaded.statuses));
         if (baseline.length > 0) {
           await repo.addReleaseEvents(baseline);
           loaded = { ...loaded, events: [...loaded.events, ...baseline] };
@@ -255,6 +294,7 @@ export function AppProvider({ repository, children }: Props) {
         sprintsRef.current = loaded.sprints;
         releasesRef.current = loaded.releases;
         settingsRef.current = loaded.settings;
+        statusesRef.current = loaded.statuses;
         setSnapshot(loaded);
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
@@ -277,6 +317,8 @@ export function AppProvider({ repository, children }: Props) {
       releases: snapshot.releases,
       events: snapshot.events,
       stories: snapshot.stories,
+      statuses: snapshot.statuses,
+      isDone: isDoneIn(snapshot.statuses),
       fields: snapshot.fields,
       assignments: snapshot.assignments,
       settings: snapshot.settings,
@@ -325,6 +367,40 @@ export function AppProvider({ repository, children }: Props) {
         const settings = { ...settingsRef.current, features: { ...settingsRef.current.features, [key]: enabled } };
         updateSettings(settings);
         persist((repo) => repo.saveSettings(settings));
+      },
+      addStatus(category, label) {
+        const id = newId();
+        const after = addStatusIn(statusesRef.current, category, label, id);
+        if (!after) return null;
+        update(storiesRef.current, after);
+        persist((repo) => repo.saveStatuses(after));
+        return id;
+      },
+      renameStatus(id, label) {
+        const after = renameStatusIn(statusesRef.current, id, label);
+        if (!after || after === statusesRef.current) return;
+        update(storiesRef.current, after);
+        persist((repo) => repo.saveStatuses(after));
+      },
+      reorderStatuses(places) {
+        const after = reorderStatuses(statusesRef.current, places);
+        if (!after) return false;
+        update(storiesRef.current, after);
+        persist((repo) => repo.saveStatuses(after));
+        return true;
+      },
+      removeStatus(id, targetId) {
+        const before = storiesRef.current;
+        const result = removeStatusIn(statusesRef.current, before, id, targetId);
+        if (!result) return false;
+        update(result.stories, result.statuses);
+        const changed = changedPositions(before, result.stories);
+        // The stories move first, so no story is left with a status that is gone.
+        persist(async (repo) => {
+          await repo.savePositions(changed);
+          await repo.saveStatuses(result.statuses);
+        });
+        return true;
       },
       createSprint(input) {
         const id = newId();
@@ -381,7 +457,7 @@ export function AppProvider({ repository, children }: Props) {
       },
       createStory(input) {
         const id = newId();
-        const result = createStoryIn(storiesRef.current, input, id);
+        const result = createStoryIn(storiesRef.current, input, id, startStatus(statusesRef.current));
         update(result.stories);
         persist((repo) => repo.addStory(result.story));
         return id;

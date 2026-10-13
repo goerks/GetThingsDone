@@ -60,6 +60,12 @@ pub fn run() {
             sql: include_str!("../migrations/009_release_events.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 10,
+            description: "status_values",
+            sql: include_str!("../migrations/010_status_values.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

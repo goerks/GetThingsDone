@@ -1,7 +1,6 @@
 import { addDays, todayIso } from './sprints';
+import type { IsDone } from './statuses';
 import type { Release, ReleaseEvent, ReleaseEventKind, Story } from './types';
-
-const isDone = (story: Story): boolean => story.status === 'done';
 
 /** The local calendar day (`YYYY-MM-DD`) of a timestamp. */
 export const dayOf = (at: string): string => todayIso(new Date(at));
@@ -9,27 +8,35 @@ export const dayOf = (at: string): string => todayIso(new Date(at));
 /**
  * The history entries a change of the stories causes. Only stories in a release matter: joining or leaving one
  * (also by moving to another release or by deleting the story), a change of the points and a change into or out
- * of done while the story is in a release.
+ * of done while the story is in a release. `wasDone` and `isDone` tell what done means before and after the change;
+ * they differ when a status value moves to another category (#5), which changes done without changing the story.
  */
-export function releaseEventsFor(before: readonly Story[], after: readonly Story[], at: string, newId: () => string): ReleaseEvent[] {
+export function releaseEventsFor(
+  before: readonly Story[],
+  after: readonly Story[],
+  at: string,
+  newId: () => string,
+  isDone: IsDone,
+  wasDone: IsDone = isDone
+): ReleaseEvent[] {
   const events: ReleaseEvent[] = [];
-  const entry = (story: Story, kind: ReleaseEventKind, releaseId: string): void => {
-    events.push({ id: newId(), at, releaseId, storyId: story.id, code: story.code, kind, points: story.points, done: isDone(story) });
+  const entry = (story: Story, kind: ReleaseEventKind, releaseId: string, done: IsDone = isDone): void => {
+    events.push({ id: newId(), at, releaseId, storyId: story.id, code: story.code, kind, points: story.points, done: done(story) });
   };
   const previous = new Map(before.map((story) => [story.id, story]));
   for (const story of after) {
     const old = previous.get(story.id);
     previous.delete(story.id);
     if (old?.releaseId !== story.releaseId) {
-      if (old?.releaseId) entry(old, 'removed', old.releaseId);
+      if (old?.releaseId) entry(old, 'removed', old.releaseId, wasDone);
       if (story.releaseId) entry(story, 'added', story.releaseId);
     } else if (old && story.releaseId) {
       if (old.points !== story.points) entry(story, 'points', story.releaseId);
-      if (isDone(old) !== isDone(story)) entry(story, isDone(story) ? 'done' : 'reopened', story.releaseId);
+      if (wasDone(old) !== isDone(story)) entry(story, isDone(story) ? 'done' : 'reopened', story.releaseId);
     }
   }
   // What is left was deleted.
-  for (const gone of previous.values()) if (gone.releaseId) entry(gone, 'removed', gone.releaseId);
+  for (const gone of previous.values()) if (gone.releaseId) entry(gone, 'removed', gone.releaseId, wasDone);
   return events;
 }
 
@@ -42,7 +49,8 @@ export function baselineEvents(
   stories: readonly Story[],
   events: readonly ReleaseEvent[],
   at: string,
-  newId: () => string
+  newId: () => string,
+  isDone: IsDone
 ): ReleaseEvent[] {
   const tracked = new Set(events.map((event) => event.releaseId));
   return releases

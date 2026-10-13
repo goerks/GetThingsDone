@@ -97,4 +97,19 @@ describe('LocalStorageRepository', () => {
     window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify({ epics: [], sprints: [], stories: [], fields: [], assignments: [] }));
     expect((await new LocalStorageRepository().load()).events).toEqual([]);
   });
+
+  it('gives an older snapshot the default status values and stores changed ones (#5)', async () => {
+    const { statuses: _statuses, ...older } = seedSnapshot('2026-10-12');
+    window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify(older));
+    const repository = new LocalStorageRepository();
+    expect((await repository.load()).statuses.map((status) => status.id)).toEqual(['todo', 'in_progress', 'review', 'done']);
+    await repository.saveStatuses([
+      { id: 'todo', label: 'Backlog', category: 'not_started' },
+      { id: 'done', label: null, category: 'done' }
+    ]);
+    expect((await new LocalStorageRepository().load()).statuses).toEqual([
+      { id: 'todo', label: 'Backlog', category: 'not_started' },
+      { id: 'done', label: null, category: 'done' }
+    ]);
+  });
 });

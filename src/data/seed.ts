@@ -1,6 +1,7 @@
 import { assignTo, missingBuiltins } from '../domain/fields';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import { addDays } from '../domain/sprints';
+import { DEFAULT_STATUSES } from '../domain/statuses';
 import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
 
 /** Demo custom fields, so the preview shows what teams can add. */
@@ -127,6 +128,7 @@ export function seedSnapshot(today: string): Snapshot {
   });
   return {
     settings: DEFAULT_SETTINGS,
+    statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
     fields: [...builtins.fields, ...DEMO_FIELDS],
     assignments,
     epics: [
