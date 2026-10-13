@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hilfesystem Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a small app window mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --e-rose: #be123c; --e-amber: #b45309; --e-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.tag--now { background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+/* ---------- App window mockup ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 760px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.nav .flag { color: var(--bad); font-weight: 600; border-bottom-color: var(--bad); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); position: relative; }
+.ibtn svg { width: 15px; height: 15px; }
+.ibtn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.sel { height: 30px; padding: 0 22px 0 8px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; color: var(--text); background: var(--surface); }
+.hint { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: baseline; gap: 12px; }
+.ph b { font-size: 17px; }
+.ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+
+table.ft { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.ft th, .ft td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ft thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.ft tr:last-child td, .ft tr:last-child th { border-bottom: 0; }
+.ft tbody th { font-weight: 500; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; }
+.badge--c { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+/* Settings layout of variant A */
+.settings { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 0 10px 6px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.side .later { opacity: .7; }
+.side small { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 5px; }
+
+/* Board ghost behind menus and dialogs */
+.ghost { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 150px; }
+.lane i { font-style: normal; color: var(--muted); font-size: 11px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; height: 38px; }
+
+/* Variant B menu */
+.menu { position: absolute; top: 42px; right: 52px; width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; z-index: 2; }
+.menu span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+.menu .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu .later { color: var(--muted); }
+.menu hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* Variant C dialog */
+.scrim { position: absolute; inset: 46px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 640px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 12px; z-index: 2; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+.tabs span { padding: 6px 12px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs .on { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.x { margin-left: auto; color: var(--muted); }
+.stack { position: absolute; top: 160px; left: 50%; transform: translateX(-38%); width: 360px; background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 14px 16px; display: grid; gap: 8px; z-index: 3; }
+.field { height: 26px; border: 1px solid var(--border); border-radius: 5px; }
+
+/* Phone mockup of variant A */
+.phone { width: 300px; border: 1px solid var(--border); border-radius: 18px; background: var(--bg); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); font-size: 12px; justify-self: start; }
+.phone .bar { height: auto; flex-wrap: wrap; padding: 8px 12px; gap: 6px 10px; }
+.phone .nav { height: 30px; }
+.phone .nav span { padding: 0 6px; }
+.chips { display: flex; gap: 6px; overflow: hidden; }
+.chips span { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; color: var(--muted); }
+.chips .on { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: transparent; font-weight: 600; }
+.row { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.rows .row:last-child { border-bottom: 0; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+
+/* ---------- Help mockups ---------- */
+.card { height:auto; padding:7px 9px; display:grid; gap:3px; font-size:12px; }
+.card small { color: var(--muted); font-size: 11px; }
+.card .pts { justify-self:start; }
+.lane { min-height: 190px; }
+.ibtn--q { font-weight: 700; font-size: 14px; }
+.drawer { position:absolute; top:46px; right:0; bottom:0; width:300px; background:var(--surface); border-left:1px solid var(--border); box-shadow:-10px 0 30px var(--shadow); padding:14px 16px; display:grid; gap:10px; align-content:start; z-index:3; }
+.drawer h4 { margin:0; font-size:15px; }
+.search { height:30px; border:1px solid var(--border); border-radius:6px; padding:0 10px; display:flex; align-items:center; gap:8px; color:var(--muted); background:var(--bg); }
+.search--on { border-color:var(--accent); color:var(--text); box-shadow:0 0 0 2px var(--accent-soft); }
+kbd { font-family:var(--font-mono); font-size:11px; border:1px solid var(--border); border-bottom-width:2px; border-radius:4px; padding:0 5px; background:var(--surface); color:var(--text); }
+.lbl2 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.link { color:var(--accent); }
+.lst { display:grid; gap:2px; }
+.lst span { padding:6px 8px; border-radius:6px; display:flex; justify-content:space-between; gap:8px; }
+.lst .on { background:var(--accent-soft); color:var(--accent-soft-ink); }
+.steps { display:grid; gap:6px; }
+.step { display:flex; gap:8px; align-items:flex-start; }
+.chk { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); flex:none; margin-top:1px; display:grid; place-items:center; font-size:10px; }
+.chk--ok { background:var(--ok); border-color:var(--ok); color:#fff; }
+.chk--now { border-color:var(--accent); }
+.bar2 { height:6px; border-radius:3px; background:var(--track,#e6e9ee); overflow:hidden; }
+.bar2 i { display:block; height:100%; background:var(--accent); }
+.tryit { background:var(--accent-soft); color:var(--accent-soft-ink); border-radius:6px; padding:8px 10px; display:grid; gap:6px; }
+.welcome { background:var(--surface); border:1px solid var(--accent); border-radius:10px; padding:12px 14px; display:flex; gap:14px; align-items:center; box-shadow:0 4px 16px var(--shadow); }
+.welcome > div { display:grid; gap:2px; flex:1; }
+.welcome .btn--g { border-color:transparent; color:var(--muted); background:transparent; }
+.hl { outline:3px solid var(--accent); outline-offset:2px; position:relative; z-index:2; }
+.dim { position:absolute; inset:46px 0 0 0; background:var(--scrim); z-index:1; }
+.pop { position:absolute; width:290px; background:var(--surface); border:1px solid var(--accent); border-radius:10px; box-shadow:0 14px 36px var(--shadow); padding:12px 14px; display:grid; gap:8px; z-index:4; }
+.pop .foot { display:flex; align-items:center; gap:8px; }
+.pop .foot .right { margin-left:auto; display:flex; gap:6px; }
+.dots { display:flex; gap:4px; }
+.dots i { width:7px; height:7px; border-radius:50%; background:var(--border); }
+.dots i.on { background:var(--accent); }
+.hot { display:inline-grid; place-items:center; width:16px; height:16px; border-radius:50%; background:var(--accent-soft); color:var(--accent-soft-ink); font-size:10px; font-weight:700; border:1px solid var(--accent); }
+.tip { position:absolute; width:250px; background:var(--text); color:var(--bg); border-radius:8px; padding:9px 11px; font-size:12px; z-index:4; display:grid; gap:4px; box-shadow:0 8px 24px var(--shadow); }
+.tip .link { color:var(--accent); filter:brightness(1.4); }
+.palette { position:absolute; top:70px; left:50%; transform:translateX(-50%); width:520px; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:0 16px 40px var(--shadow); padding:10px; display:grid; gap:8px; z-index:4; }
+.help-layout { display:grid; grid-template-columns:200px 1fr; gap:18px; align-items:start; }
+.tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.tile { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 12px; display:grid; gap:3px; }
+.tile b { font-size:13px; }
+.sandbox { background:var(--pill); border:1px dashed var(--accent); border-radius:6px; padding:8px; display:grid; gap:6px; }
+.demo { font-size:11px; color:var(--accent-soft-ink); background:var(--accent-soft); border-radius:999px; padding:1px 8px; justify-self:start; }
+.stage { display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:16px; }
+.cap { font-size:13px; color:var(--muted); margin-top:6px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
+<symbol id="moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol></svg>
+<main class="wrap">
+<header class="intro"><div class="meta"><span>Issue #33</span><span>Konzeptphase</span></div>
+<h1>Hilfesystem: drei Konzepte</h1>
+<p class="muted">Anforderung: Hilfe zum Nachlesen, möglichst interaktiv, und dazu eine freiwillige Einführung oder ein Tutorial, das nie aufgezwungen wird. Alle drei Konzepte erfüllen beides, setzen aber andere Schwerpunkte. Ein «?» im Header ist in jedem Konzept der feste Einstieg. Beispieldaten sind die Demo-Daten der App.</p></header>
+
+<section class="variant" aria-labelledby="va"><div class="variant__head"><h3 id="va">A · Hilfe-Seitenleiste mit Checkliste «Erste Schritte»</h3><span class="tag tag--rec">Empfehlung</span></div><p>Das «?» öffnet eine Seitenleiste neben der aktuellen Seite. Sie zeigt Hilfe zum aktuellen Ort, mit Suche und Themenliste. «Zeig es mir» markiert das betreffende Element in der App. Die Einführung ist eine freiwillige Checkliste in derselben Leiste: Die App erkennt, wenn ein Schritt wirklich getan wurde, und hakt ihn ab. Beim ersten Start erscheint nur eine kleine, ablehnbare Karte.</p><div><div class="scroll"><div class="app" id="a1" role="img" aria-label="Variante A, Nachschlagen: Hilfe-Seitenleiste rechts zeigt Hilfe zum Board, mit Suche und Themenliste" style="min-height:540px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q ibtn--on" title="Hilfe">?</span></div></div><div class="page"><div class="ph"><b>Sprint 1</b><span class="muted">5 Stories · 14 Punkte</span></div><div class="ghost"><div class="lane"><i>Zu erledigen</i><div class="card "><span>S-1 Konto anlegen</span><small>3 Punkte</small></div><div class="card "><span>S-2 Passwort ändern</span><small>2 Punkte</small></div></div><div class="lane"><i>In Arbeit</i><div class="card "><span>S-3 Login-Seite</span><small>5 Punkte</small></div></div><div class="lane"><i>Review</i><div class="card "><span>S-4 Mailversand</span><small>3 Punkte</small></div></div><div class="lane"><i>Erledigt</i><div class="card "><span>S-5 Projektstruktur</span><small>1 Punkt</small></div></div></div></div>
+<div class="drawer">
+ <div style="display:flex;align-items:center"><h4>Hilfe · Board</h4><span class="x">✕</span></div>
+ <div class="search search--on">🔍 <span>Status ändern</span></div>
+ <span class="lbl2">Auf dieser Seite</span>
+ <div class="lst"><span class="on">Eine Story verschieben <small class="muted">Drag &amp; Drop oder Tastatur</small></span><span>Spalten und Status-Werte</span><span>Story öffnen und bearbeiten</span></div>
+ <div class="tryit"><b>Eine Story verschieben</b><span>Ziehe eine Karte in eine andere Spalte. Mit der Tastatur: Karte wählen, <kbd>Leertaste</kbd>, Pfeiltasten, <kbd>Leertaste</kbd>.</span><span class="link">▶ Zeig es mir (Karte «S-3» wird markiert)</span></div>
+ <span class="lbl2">Verwandt</span>
+ <div class="lst"><span>Status-Werte in den Einstellungen <span class="link">→</span></span></div>
+ <hr style="border:0;border-top:1px solid var(--border);width:100%">
+ <div class="lst"><span>Alle Hilfethemen</span><span>🎓 Erste Schritte (Rundgang)</span><span>Tastenkürzel <kbd>?</kbd></span></div>
+</div></div></div><div class="cap">Nachschlagen: Hilfe zum Board, Suche, «Zeig es mir»</div></div><div><div class="scroll"><div class="app" id="a2" role="img" aria-label="Variante A, Einführung: Checkliste Erste Schritte in der Seitenleiste, Schritt 2 ist aktiv und hebt die Spalte hervor" style="min-height:540px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q ibtn--on" title="Hilfe">?</span></div></div><div class="page"><div class="ph"><b>Sprint 1</b><span class="muted">5 Stories · 14 Punkte</span></div><div class="ghost"><div class="lane"><i>Zu erledigen</i><div class="card "><span>S-1 Konto anlegen</span><small>3 Punkte</small></div><div class="card "><span>S-2 Passwort ändern</span><small>2 Punkte</small></div></div><div class="lane hl"><i>In Arbeit</i><div class="card "><span>S-3 Login-Seite</span><small>5 Punkte</small></div></div><div class="lane"><i>Review</i><div class="card "><span>S-4 Mailversand</span><small>3 Punkte</small></div></div><div class="lane"><i>Erledigt</i><div class="card "><span>S-5 Projektstruktur</span><small>1 Punkt</small></div></div></div></div>
+<div class="drawer">
+ <div style="display:flex;align-items:center"><h4>Erste Schritte</h4><span class="x">✕</span></div>
+ <span class="muted">Freiwillig und jederzeit abbrechbar. Du kannst auch einfach selbst loslegen.</span>
+ <div class="bar2"><i style="width:25%"></i></div><span class="muted" style="font-size:12px">1 von 4 erledigt</span>
+ <div class="steps">
+  <div class="step"><span class="chk chk--ok">✓</span><span><s>Das Board kennenlernen</s></span></div>
+  <div class="step"><span class="chk chk--now"></span><span><b>Eine Story verschieben</b><br><span class="muted">Ziehe «S-3 Login-Seite» nach «Review». Wir merken, wenn du es getan hast.</span></span></div>
+  <div class="step"><span class="chk"></span><span>Eine Story anlegen</span></div>
+  <div class="step"><span class="chk"></span><span>Das Backlog ordnen</span></div>
+ </div>
+ <div style="display:flex;gap:6px"><span class="btn">Schritt überspringen</span><span class="btn">Später fortsetzen</span></div>
+</div></div></div><div class="cap">Einführung: Checkliste, Schritt 2 ist aktiv, die Spalte ist markiert</div></div><div><div class="scroll"><div class="app" id="a3" role="img" aria-label="Variante A, Willkommen: unaufdringliche Karte beim ersten Start mit Rundgang starten oder Nein danke" style="min-height:420px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q" title="Hilfe">?</span></div></div><div class="page"><div class="ph"><b>Sprint 1</b><span class="muted">5 Stories · 14 Punkte</span></div><div class="welcome"><div><b>Neu hier? Willkommen bei Get It Done.</b><span class="muted">Ein kurzer Rundgang zeigt dir in etwa 3 Minuten das Wichtigste. Du kannst ihn auch später über «?» starten.</span></div><span class="btn btn--p">Rundgang starten</span><span class="btn btn--g">Nein danke</span></div><div class="ghost"><div class="lane"><i>Zu erledigen</i><div class="card "><span>S-1 Konto anlegen</span><small>3 Punkte</small></div><div class="card "><span>S-2 Passwort ändern</span><small>2 Punkte</small></div></div><div class="lane"><i>In Arbeit</i><div class="card "><span>S-3 Login-Seite</span><small>5 Punkte</small></div></div><div class="lane"><i>Review</i><div class="card "><span>S-4 Mailversand</span><small>3 Punkte</small></div></div><div class="lane"><i>Erledigt</i><div class="card "><span>S-5 Projektstruktur</span><small>1 Punkt</small></div></div></div></div></div></div><div class="cap">Erster Start: eine Einladung, kein Zwang</div></div><div class="proscons"><div class="box"><b>Dafür</b><ul><li>Man bleibt in der Arbeit: Hilfe und App sind gleichzeitig sichtbar</li><li>Hilfe passt sich der Seite an (kontextabhängig)</li><li>Lernen durch Tun an den echten Daten, kein zweites Programm</li><li>Gut per Tastatur und Screenreader umsetzbar (Seitenleiste mit Fokusführung)</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Die Leiste verkleinert den Inhalt; auf dem Handy wird sie zum Vollbild-Blatt</li><li>Übungen laufen an echten Daten: Schritte müssen so gewählt sein, dass nichts Wichtiges kaputtgeht (oder Demo-Daten anbieten)</li></ul></div></div></section>
+
+<section class="variant" aria-labelledby="vb"><div class="variant__head"><h3 id="vb">B · Hilfe-Center mit Lektionen und Übungsboard</h3><span class="tag ">möglich</span></div><p>Das «?» führt auf eine eigene Seite <code>#/help</code>: Suche, Themenkacheln und Lernpfade. Lektionen zeigen links die Anleitung und rechts ein Übungsboard mit Demo-Daten. Die App prüft, ob die Aufgabe gelöst ist. Lernpfade sind klar getrennt vom Nachschlagen und nur auf Wunsch zu öffnen.</p><div><div class="scroll"><div class="app" id="b1" role="img" aria-label="Variante B, Hilfe-Center: eigene Seite mit Suche, Themenkacheln und Lernpfaden" style="min-height:540px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q ibtn--on" title="Hilfe">?</span></div></div><div class="page">
+ <div class="ph"><b>Hilfe</b><span class="muted">Nachschlagen und ausprobieren</span></div>
+ <div class="search" style="max-width:520px">🔍 <span>Suchen, zum Beispiel «Story verschieben»</span></div>
+ <span class="lbl2">Lernpfade (freiwillig)</span>
+ <div class="tiles">
+  <div class="tile"><b>🎓 Erste Schritte</b><span class="muted">4 Lektionen · 5 Min.</span><div class="bar2"><i style="width:50%"></i></div><span class="link">Weitermachen</span></div>
+  <div class="tile"><b>Sprint planen</b><span class="muted">3 Lektionen · 4 Min.</span><div class="bar2"><i style="width:0"></i></div><span class="link">Starten</span></div>
+  <div class="tile"><b>Story Map nutzen</b><span class="muted">3 Lektionen · 4 Min.</span><div class="bar2"><i style="width:0"></i></div><span class="link">Starten</span></div>
+ </div>
+ <span class="lbl2">Themen</span>
+ <div class="tiles">
+  <div class="tile"><b>Board</b><span class="muted">Karten, Spalten, Status</span></div>
+  <div class="tile"><b>Backlog &amp; Sprints</b><span class="muted">Ordnen, Sprintlinie</span></div>
+  <div class="tile"><b>Story Map</b><span class="muted">Aktivitäten, Releases</span></div>
+  <div class="tile"><b>Felder &amp; Status-Werte</b><span class="muted">Einstellungen</span></div>
+  <div class="tile"><b>Suche</b><span class="muted">Syntax, Filter</span></div>
+  <div class="tile"><b>Tastatur</b><span class="muted">Alle Kürzel</span></div>
+ </div></div></div></div><div class="cap">Hilfe-Center: Suche, Lernpfade, Themen</div></div><div><div class="scroll"><div class="app" id="b2" role="img" aria-label="Variante B, Lektion: Anleitung links, Übungs-Board mit Demo-Daten rechts, die App merkt, wenn die Aufgabe gelöst ist" style="min-height:540px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q ibtn--on" title="Hilfe">?</span></div></div><div class="page">
+ <div class="ph"><b>Hilfe</b><span class="muted">› Erste Schritte › Lektion 2 von 4</span><span class="btn">Beenden</span></div>
+ <div class="help-layout" style="grid-template-columns:230px 1fr">
+  <div class="side">
+   <span class="lbl">Erste Schritte</span>
+   <span class="lst"><span>✓ Das Board kennenlernen</span></span>
+   <span class="on">● Eine Story verschieben</span>
+   <span>○ Eine Story anlegen</span>
+   <span>○ Das Backlog ordnen</span>
+  </div>
+  <div style="display:grid;gap:10px;min-width:0">
+   <div class="tryit"><b>Aufgabe: Ziehe «S-3 Login-Seite» nach «Review».</b><span>Tastatur: Karte wählen, <kbd>Leertaste</kbd>, Pfeiltaste nach rechts, <kbd>Leertaste</kbd>.</span></div>
+   <div class="sandbox"><span class="demo">Übungsboard · deine echten Daten bleiben unberührt</span>
+   <div class="ghost"><div class="lane" style="min-height:110px"><i>In Arbeit</i><div class="card hl"><span>S-3 Login-Seite</span><small>5 Punkte</small></div></div><div class="lane" style="min-height:110px"><i>Review</i></div><div class="lane" style="min-height:110px"><i>Erledigt</i></div></div></div>
+   <div style="display:flex;gap:6px"><span class="btn">← Zurück</span><span class="btn">Überspringen</span><span class="btn btn--p" style="opacity:.5">Weiter →</span></div>
+  </div>
+ </div></div></div></div><div class="cap">Lektion mit Übungsboard in einer geschützten Demo</div></div><div class="proscons"><div class="box"><b>Dafür</b><ul><li>Sicherer Spielplatz: eigene Daten bleiben unberührt</li><li>Viel Platz für ausführliche Anleitungen, mit eigener Adresse (verlinkbar)</li><li>Lernpfade mit Fortschritt sind motivierend</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Man verlässt die Arbeitsansicht; Hilfe und App nicht gleichzeitig sichtbar</li><li>Übungsboard ist ein Nachbau und muss mitgepflegt werden (mehr Aufwand, mehr Tests)</li><li>Weniger kontextabhängig</li></ul></div></div></section>
+
+<section class="variant" aria-labelledby="vc"><div class="variant__head"><h3 id="vc">C · Geführter Rundgang mit Hotspots und Hilfe-Suche</h3><span class="tag ">möglich</span></div><p>Ein Rundgang dunkelt die Seite ab und führt mit Sprechblasen Schritt für Schritt über echte Elemente. Zusätzlich gibt es kleine «?»-Hotspots direkt neben Elementen (ein Tooltip erklärt, ein Link führt zur ausführlichen Hilfe) und eine Hilfe-Suche als Befehlsleiste. Der Rundgang startet nur auf Wunsch.</p><div><div class="scroll"><div class="app" id="c1" role="img" aria-label="Variante C, Rundgang: Spotlight auf der Spalte In Arbeit mit Erklärung, Schritt 2 von 5" style="min-height:540px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q" title="Hilfe">?</span></div></div><div class="page"><div class="ph"><b>Sprint 1</b><span class="muted">5 Stories · 14 Punkte</span></div><div class="ghost"><div class="lane"><i>Zu erledigen</i><div class="card "><span>S-1 Konto anlegen</span><small>3 Punkte</small></div><div class="card "><span>S-2 Passwort ändern</span><small>2 Punkte</small></div></div><div class="lane hl"><i>In Arbeit</i><div class="card "><span>S-3 Login-Seite</span><small>5 Punkte</small></div></div><div class="lane"><i>Review</i><div class="card "><span>S-4 Mailversand</span><small>3 Punkte</small></div></div><div class="lane"><i>Erledigt</i><div class="card "><span>S-5 Projektstruktur</span><small>1 Punkt</small></div></div></div></div>
+<div class="dim"></div>
+<div class="pop" style="top:185px;left:300px">
+ <b>Spalten sind Arbeitsstände</b>
+ <span>Jede Spalte ist ein Status. Zieh eine Karte hinüber, sobald sich der Stand ändert. Die Spalten richtest du unter Einstellungen ein.</span>
+ <div class="foot"><span class="dots"><i></i><i class="on"></i><i></i><i></i><i></i></span><span class="muted" style="font-size:12px">2 von 5</span><span class="right"><span class="btn">Zurück</span><span class="btn btn--p">Weiter</span></span></div>
+ <span class="muted" style="font-size:12px"><kbd>Esc</kbd> beendet den Rundgang jederzeit.</span>
+</div></div></div><div class="cap">Rundgang: Spotlight und Sprechblase, Schritt 2 von 5</div></div><div><div class="scroll"><div class="app" id="c2" role="img" aria-label="Variante C, Hotspots: kleine Fragezeichen neben Elementen, ein Tooltip erklärt den Status-Punkt der Karte" style="min-height:540px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q ibtn--on" title="Hilfe">?</span></div></div><div class="page"><div class="ph"><b>Sprint 1</b><span class="hot">?</span><span class="muted">5 Stories · 14 Punkte</span></div>
+ <div class="ghost">
+  <div class="lane"><i>Zu erledigen <span class="hot">?</span></i><div class="card "><span>S-1 Konto anlegen</span><small>3 Punkte</small></div><div class="card "><span>S-2 Passwort ändern</span><small>2 Punkte</small></div></div>
+  <div class="lane"><i>In Arbeit</i><div class="card"><span>S-3 Login-Seite <span class="hot" style="background:var(--accent);color:var(--accent-ink)">?</span></span><small>5 Punkte</small></div></div>
+  <div class="lane"><i>Review</i><div class="card "><span>S-4 Mailversand</span><small>3 Punkte</small></div></div>
+  <div class="lane"><i>Erledigt</i><div class="card "><span>S-5 Projektstruktur</span><small>1 Punkt</small></div></div></div></div>
+<div class="tip" style="top:200px;left:270px"><b>Punkte schätzen den Aufwand</b><span>Die Summe pro Sprint siehst du oben. Nutze die Fibonacci-Reihe: 1, 2, 3, 5, 8.</span><span class="link">Mehr dazu in der Hilfe →</span></div>
+<div class="drawer" style="display:none"></div></div></div><div class="cap">Hotspots: Hilfe direkt am Element</div></div><div><div class="scroll"><div class="app" id="c3" role="img" aria-label="Variante C, Hilfe-Suche: Befehlsleiste mit Suchfeld, Treffern und der Aktion Rundgang starten" style="min-height:540px"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+<div class="nav"><span class="on">Board</span><span class="">Backlog</span><span class="">Story Map</span><span class="">Epics</span></div>
+<div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn"><svg><use href="#gear"/></svg></span><span class="ibtn ibtn--q" title="Hilfe">?</span></div></div><div class="page"><div class="ph"><b>Sprint 1</b><span class="muted">5 Stories · 14 Punkte</span></div><div class="ghost"><div class="lane"><i>Zu erledigen</i><div class="card "><span>S-1 Konto anlegen</span><small>3 Punkte</small></div><div class="card "><span>S-2 Passwort ändern</span><small>2 Punkte</small></div></div><div class="lane"><i>In Arbeit</i><div class="card "><span>S-3 Login-Seite</span><small>5 Punkte</small></div></div><div class="lane"><i>Review</i><div class="card "><span>S-4 Mailversand</span><small>3 Punkte</small></div></div><div class="lane"><i>Erledigt</i><div class="card "><span>S-5 Projektstruktur</span><small>1 Punkt</small></div></div></div></div><div class="dim"></div>
+<div class="palette">
+ <div class="search search--on">🔍 <span>rundgang</span></div>
+ <div class="lst"><span class="on">🎓 Rundgang starten <kbd>Enter</kbd></span><span>Rundgang: nur das Board</span><span>Hilfe: Eine Story verschieben</span><span>Hilfe: Tastenkürzel</span></div>
+ <span class="muted" style="font-size:12px">Öffnen mit <kbd>?</kbd> oder <kbd>Strg</kbd> + <kbd>K</kbd> und «Hilfe»</span>
+</div></div></div><div class="cap">Hilfe-Suche als Befehlsleiste</div></div><div class="proscons"><div class="box"><b>Dafür</b><ul><li>Sehr direkt: Erklärung genau am Element</li><li>Kurz und eindrücklich für den ersten Eindruck</li><li>Hotspots sind schnell nachzuschlagen</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Abdunkeln und Spotlight sind für Tastatur- und Screenreader-Nutzer aufwendig</li><li>Wirkt schnell aufdringlich, wenn viele Hotspots sichtbar sind</li><li>Sprechblasen brechen, wenn sich das Layout ändert (wartungsanfällig)</li><li>Keine Platz für ausführliche Hilfetexte</li></ul></div></div></section>
+
+<section class="variant" aria-labelledby="dec"><h2 id="dec">Vorschlag</h2>
+<div class="proscons">
+<div class="box"><b>Bauen</b><span>Konzept A als Basis: Hilfe-Seitenleiste mit Suche und der freiwilligen Checkliste. Wo ein Schritt nicht an echten Daten sicher ist, nutzt er die Demo-Daten.</span></div>
+<div class="box"><b>Aus C übernehmen</b><span>Die Hilfe-Suche über <kbd>?</kbd> und «Zeig es mir» als sanfte Markierung statt Abdunkeln. Einzelne Hotspots nur dort, wo Begriffe schwer sind.</span></div>
+<div class="box"><b>Aus B später</b><span>Ein Hilfe-Center mit Übungsboard und weiteren Lernpfaden, wenn die Inhalte wachsen. Die Leiste verlinkt dann darauf.</span></div></div></section>
+</main></body></html>
