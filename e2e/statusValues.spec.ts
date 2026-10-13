@@ -262,15 +262,19 @@ test('AC2.6 pulls a story through own statuses from left to right with the keybo
   await toBoard(page);
 
   // When I pick S-3 up with the space key and move it to the next column, four times
+  // (like a screen reader user, wait for each announcement before the next key: the first one names the column it is in)
+  let from = 'Backlog';
   for (const to of ['In progress', 'Review', 'Test', 'Fertig']) {
     await card(page, 'S-3').focus();
     await page.keyboard.press('Space');
+    await expect(announcement(page, new RegExp(`^Reorder the backlog by priority is over ${from}`))).toHaveCount(1);
     await page.keyboard.press('ArrowRight');
     await expect(announcement(page, new RegExp(`^Reorder the backlog by priority is over ${to}`))).toHaveCount(1);
     await page.keyboard.press('Space');
 
     // Then S-3 is in that column
     await expect(column(page, to).getByRole('group', { name: /^S-3: / })).toBeVisible();
+    from = to;
   }
 
   // And it counts as done
