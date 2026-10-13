@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status-Werte Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a mockup of the settings page. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --c-blue: #2457d6; --c-amber: #b45309; --c-teal: #0f766e; --c-violet: #7c3aed;
+  --c-rose: #be123c; --c-green: #15803d; --c-cyan: #0e7490; --c-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; align-content: start; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+/* ---------- Mockup frame ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 860px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 42px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 14px; color: var(--muted); }
+.gear { margin-left: auto; width: 28px; height: 28px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); border-radius: 6px; display: grid; place-items: center; font-size: 14px; }
+.page { padding: 16px 18px 20px; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side span { padding: 6px 10px; border-radius: 6px; color: var(--muted); }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.content { display: grid; gap: 10px; min-width: 0; }
+.ph { display: flex; align-items: center; gap: 12px; }
+.ph b { font-size: 16px; }
+.ph .btn { margin-left: auto; }
+.hint { font-size: 12px; color: var(--muted); }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--danger { background: var(--bad); color: var(--surface); border-color: var(--bad); font-weight: 500; }
+.btn--ghost { border-style: dashed; color: var(--muted); }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; white-space: nowrap; color: var(--muted); }
+
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex: none; }
+.blue { background: var(--c-blue); } .amber { background: var(--c-amber); } .teal { background: var(--c-teal); }
+.violet { background: var(--c-violet); } .green { background: var(--c-green); } .slate { background: var(--c-slate); } .cyan { background: var(--c-cyan); }
+.grip { color: var(--muted); letter-spacing: -2px; }
+.x { color: var(--muted); }
+.lock { color: var(--muted); font-size: 11px; }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.input { height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; background: var(--surface); min-width: 0; }
+.input--focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.select { height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; background: var(--surface); white-space: nowrap; }
+.select::after { content: "▾"; color: var(--muted); font-size: 11px; }
+
+/* Variant A: grouped by category */
+.group { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.group__head { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--pill); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.group__head .rule { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.row { display: grid; grid-template-columns: 18px 14px minmax(0, 1fr) 80px 22px; gap: 10px; align-items: center; padding: 6px 10px; border-top: 1px solid var(--border); }
+.row--drop { box-shadow: inset 0 3px 0 var(--accent); }
+.add { padding: 6px 10px; border-top: 1px solid var(--border); color: var(--muted); }
+
+/* Variant B: flat list with category select */
+.list { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+.frow { display: grid; grid-template-columns: 18px 34px 14px minmax(0, 1fr) 150px 80px 22px; gap: 10px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.frow:last-child { border-bottom: 0; }
+.frow--head { color: var(--muted); font-size: 12px; font-weight: 600; padding-block: 5px; }
+.pos { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.warn { display: flex; gap: 8px; align-items: center; background: var(--bad-soft); color: var(--bad); border-radius: 6px; padding: 6px 10px; font-size: 12px; }
+
+/* Variant C: board preview */
+.lanes { display: flex; gap: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+.lane-group { display: grid; grid-template-rows: auto 1fr; border-right: 1px solid var(--border); min-width: 0; }
+.lane-group:last-child { border-right: 0; }
+.lane-group__head { padding: 5px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; background: var(--pill); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; }
+.lane-row { display: flex; gap: 8px; padding: 10px; align-items: stretch; }
+.lane { width: 122px; background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 8px; align-content: start; }
+.lane--edit { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.lane__head { display: flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.lane__head .grip { margin-left: auto; }
+.lane__meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
+.lane--add { border-style: dashed; background: transparent; color: var(--muted); place-items: center; min-height: 90px; text-align: center; width: 44px; }
+.pop { position: absolute; width: 250px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 12px; display: grid; gap: 8px; z-index: 2; }
+.lbl { font-size: 12px; color: var(--muted); }
+.swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.swatches .dot { width: 18px; height: 18px; }
+.swatches .sel { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
+
+/* Shared: removal dialog and board */
+.scrim { position: absolute; inset: 42px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 440px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 18px 20px; display: grid; gap: 12px; z-index: 2; }
+.board { display: flex; gap: 10px; padding: 14px 18px; overflow: hidden; position: relative; }
+.col { flex: none; width: 190px; background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 8px; align-content: start; min-height: 200px; }
+.col__head { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.col__head .count { margin-left: auto; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; display: grid; gap: 4px; }
+.card .k { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.fade { position: absolute; top: 0; right: 0; bottom: 0; width: 60px; background: linear-gradient(to right, transparent, var(--bg)); }
+.scrollbar { margin: 0 18px 12px; height: 6px; border-radius: 3px; background: var(--pill); position: relative; }
+.scrollbar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 62%; border-radius: 3px; background: var(--muted); opacity: .5; }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="intro">
+    <div class="meta"><span>Issue #5</span><span>Einstellungen · Status-Werte</span></div>
+    <h1>Wie stellt ein Team seine Status-Werte ein?</h1>
+    <p class="muted">Der Abschnitt «Status-Werte» in den Einstellungen ist heute als «geplant» gelistet. Jeder Status-Wert ist eine Spalte auf dem Board und hat einen Namen, eine Farbe und eine Kategorie. Drei Varianten für die Einstellungsseite, alle mit denselben Regeln. Der Löschdialog und das Board mit vielen Spalten sind für alle Varianten gleich und stehen am Schluss.</p>
+  </header>
+
+  <section class="variant" aria-labelledby="rules">
+    <h2 id="rules">Regeln für alle Varianten (Entscheide vom 13.10.)</h2>
+    <div class="rules">
+      <div class="box"><b>Kategorien</b><span>Fest: <i>Nicht begonnen</i>, <i>In Arbeit</i>, <i>Erledigt</i>. In <i>Nicht begonnen</i> und <i>Erledigt</i> gibt es immer mindestens einen Status.</span></div>
+      <div class="box"><b>Erledigt</b><span>Eine Story ist erledigt, wenn ihr Status in <i>Erledigt</i> liegt. Das zählt für Releases, Burndown und Story Map.</span></div>
+      <div class="box"><b>Neue Stories</b><span>Bekommen den ersten Status auf dem Board. Er liegt immer in <i>Nicht begonnen</i>.</span></div>
+      <div class="box"><b>Name und Farbe</b><span>Ein Name für alle Sprachen. Die Standardwerte bleiben übersetzt, bis man sie umbenennt. Farbe frei wählbar, Vorschlag nach Kategorie.</span></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="va">
+    <div class="variant__head">
+      <h3 id="va">A · Liste nach Kategorien gruppiert</h3>
+      <span class="tag tag--rec">Empfehlung</span>
+    </div>
+    <p>Drei Gruppen in fester Reihenfolge, in jeder Gruppe die Status-Werte in Board-Reihenfolge. Ziehen sortiert innerhalb der Gruppe und auch in eine andere Gruppe; damit wechselt die Kategorie. Die Board-Reihenfolge ergibt sich: zuerst alles aus <i>Nicht begonnen</i>, dann <i>In Arbeit</i>, dann <i>Erledigt</i>. Name direkt im Feld ändern, Farbe über den Punkt.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante A: Drei Gruppen Nicht begonnen, In Arbeit und Erledigt, jede mit einer Liste von Status-Werten mit Farbpunkt, Name, Anzahl Stories und Löschen-Knopf">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
+        <div class="page">
+          <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
+          <div class="content">
+            <div class="ph"><b>Status-Werte</b><span class="hint">Reihenfolge = Spalten auf dem Board</span></div>
+            <div class="group">
+              <div class="group__head">Nicht begonnen <span class="rule">mind. 1 · der erste ist der Start für neue Stories</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot slate"></span><span class="input">Backlog</span><span class="count">12 Stories</span><span class="x">✕</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot blue"></span><span class="input">Zu erledigen</span><span class="count">7 Stories</span><span class="x">✕</span></div>
+              <div class="add">+ Status in «Nicht begonnen»</div>
+            </div>
+            <div class="group">
+              <div class="group__head">In Arbeit</div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot amber"></span><span class="input input--focus">In Arbeit</span><span class="count">4 Stories</span><span class="x">✕</span></div>
+              <div class="row row--drop"><span class="grip">⋮⋮</span><span class="dot violet"></span><span class="input">Review</span><span class="count">2 Stories</span><span class="x">✕</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot cyan"></span><span class="input">Test</span><span class="count">–</span><span class="x">✕</span></div>
+              <div class="add">+ Status in «In Arbeit»</div>
+            </div>
+            <div class="group">
+              <div class="group__head">Erledigt <span class="rule">mind. 1</span></div>
+              <div class="row"><span class="grip">⋮⋮</span><span class="dot green"></span><span class="input">Fertig</span><span class="count">31 Stories</span><span class="lock" title="Letzter Status in Erledigt">🔒</span></div>
+              <div class="add">+ Status in «Erledigt»</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Die Kategorie sieht man auf einen Blick, ohne Auswahlfeld pro Zeile</li><li>Die Regeln sind sichtbar: Schloss beim letzten Status einer Pflicht-Gruppe, «Start für neue Stories» oben</li><li>Keine unsinnige Reihenfolge möglich (z. B. Erledigt vor In Arbeit)</li><li>Schmal, funktioniert auch auf dem Handy; Tastatur: Alt+↑/↓ verschiebt, auch über Gruppengrenzen</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Ein Team kann keine Spalte aus <i>Erledigt</i> vor eine aus <i>In Arbeit</i> stellen (gewollt, aber eine Einschränkung)</li><li>Wie das Board aussieht, muss man sich vorstellen</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="vb">
+    <div class="variant__head">
+      <h3 id="vb">B · Eine Liste mit Kategorie pro Zeile</h3>
+      <span class="tag">am freiesten</span>
+    </div>
+    <p>Eine einzige Liste in Board-Reihenfolge, wie der Editor für Auswahlwerte aus #4. Jede Zeile hat eine Auswahl für die Kategorie. Die Reihenfolge ist frei. Verletzt eine Änderung eine feste Regel (z. B. erster Status nicht in <i>Nicht begonnen</i>), wird sie nicht gespeichert; eine ungewohnte Reihenfolge ist erlaubt und bekommt nur einen Hinweis.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante B: Eine Tabelle mit Position, Farbe, Name, Kategorie-Auswahl, Anzahl Stories und Löschen; darunter ein roter Hinweis">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
+        <div class="page">
+          <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
+          <div class="content">
+            <div class="ph"><b>Status-Werte</b><span class="btn btn--p">Neuer Status</span></div>
+            <div class="list">
+              <div class="frow frow--head"><span></span><span>Spalte</span><span></span><span>Name</span><span>Kategorie</span><span>Stories</span><span></span></div>
+              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">1</span><span class="dot slate"></span><span class="input">Backlog</span><span class="select">Nicht begonnen</span><span class="count">12</span><span class="x">✕</span></div>
+              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">2</span><span class="dot blue"></span><span class="input">Zu erledigen</span><span class="select">Nicht begonnen</span><span class="count">7</span><span class="x">✕</span></div>
+              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">3</span><span class="dot amber"></span><span class="input">In Arbeit</span><span class="select">In Arbeit</span><span class="count">4</span><span class="x">✕</span></div>
+              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">4</span><span class="dot green"></span><span class="input">Fertig</span><span class="select">Erledigt</span><span class="count">31</span><span class="x">✕</span></div>
+              <div class="frow"><span class="grip">⋮⋮</span><span class="pos">5</span><span class="dot violet"></span><span class="input">Review</span><span class="select">In Arbeit</span><span class="count">2</span><span class="x">✕</span></div>
+            </div>
+            <div class="warn">⚠ «Review» (In Arbeit) steht nach «Fertig» (Erledigt). Das ist erlaubt, wirkt auf dem Board aber ungewohnt.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Volle Freiheit bei der Reihenfolge</li><li>Gleiches Muster wie die Auswahlwerte in #4, wenig Neues zu lernen</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Regeln greifen erst als Fehlermeldung, nicht schon in der Darstellung</li><li>Breiter: auf dem Handy scrollt die Liste seitlich oder bricht um</li><li>Kategorie ist bei jeder Zeile ein weiteres Auswahlfeld</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="vc">
+    <div class="variant__head">
+      <h3 id="vc">C · Board-Vorschau</h3>
+      <span class="tag">am anschaulichsten</span>
+    </div>
+    <p>Die Einstellung sieht aus wie das Board selbst: leere Spalten nebeneinander, darüber die Kategorie als Band. Spalten zieht man nach links oder rechts, auch in ein anderes Band. Klick auf einen Spaltenkopf öffnet ein kleines Fenster für Name und Farbe. «+» am Ende jedes Bands fügt eine Spalte hinzu.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Variante C: Spalten nebeneinander unter den Bändern Nicht begonnen, In Arbeit und Erledigt; ein Fenster zum Bearbeiten von Name und Farbe der Spalte Review ist offen">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
+        <div class="page" style="min-height: 380px">
+          <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
+          <div class="content">
+            <div class="ph"><b>Status-Werte</b><span class="hint">So sieht das Board aus. Spalten ziehen zum Sortieren.</span></div>
+            <div class="lanes">
+              <div class="lane-group">
+                <div class="lane-group__head">Nicht begonnen</div>
+                <div class="lane-row">
+                  <div class="lane"><div class="lane__head"><span class="dot slate"></span>Backlog<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>12 Stories</span><span class="x">✕</span></div></div>
+                  <div class="lane--add lane">+</div>
+                </div>
+              </div>
+              <div class="lane-group">
+                <div class="lane-group__head">In Arbeit</div>
+                <div class="lane-row">
+                  <div class="lane"><div class="lane__head"><span class="dot amber"></span>In Arbeit<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>4 Stories</span><span class="x">✕</span></div></div>
+                  <div class="lane lane--edit"><div class="lane__head"><span class="dot violet"></span>Review<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>2 Stories</span><span class="x">✕</span></div></div>
+                  <div class="lane--add lane">+</div>
+                </div>
+              </div>
+              <div class="lane-group">
+                <div class="lane-group__head">Erledigt</div>
+                <div class="lane-row">
+                  <div class="lane"><div class="lane__head"><span class="dot green"></span>Fertig<span class="grip">⋮⋮</span></div><div class="lane__meta"><span>31 Stories</span><span class="lock">🔒</span></div></div>
+                  <div class="lane--add lane">+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pop" style="left: 440px; top: 210px">
+          <span class="lbl">Name</span><span class="input input--focus">Review</span>
+          <span class="lbl">Farbe</span>
+          <div class="swatches"><span class="dot blue"></span><span class="dot amber"></span><span class="dot teal"></span><span class="dot violet sel"></span><span class="dot green"></span><span class="dot cyan"></span><span class="dot slate"></span></div>
+          <div style="display:flex; gap:8px"><span class="btn btn--p">Übernehmen</span><span class="btn">Abbrechen</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Man sieht direkt, wie das Board aussehen wird</li><li>Regeln wie in A sichtbar: Bänder in fester Reihenfolge, Schloss</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Wird mit vielen Spalten sehr breit; auf dem Handy kaum bedienbar</li><li>Name und Farbe brauchen einen zusätzlichen Klick ins Fenster</li><li>Seitliches Ziehen per Tastatur und Screenreader schwerer zu erklären als eine Liste</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="del">
+    <div class="variant__head">
+      <h3 id="del">Für alle: Status entfernen, der verwendet wird</h3>
+      <span class="tag">entschieden</span>
+    </div>
+    <p>Der Dialog nennt die Anzahl betroffener Stories und fragt, wohin sie kommen. Vorgeschlagen ist der Status links davon auf dem Board. Bestätigen verschiebt die Stories und entfernt den Status in einem Schritt. Ein unbenutzter Status wird mit einer einfachen Rückfrage entfernt.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Dialog: Status Review entfernen. 2 Stories haben diesen Status. Auswahl Verschieben nach In Arbeit. Knöpfe Verschieben und entfernen, Abbrechen">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear">⚙</span></div>
+        <div class="page" style="min-height: 300px">
+          <div class="side"><span>Felder</span><span>Story Map</span><span class="on">Status-Werte</span></div>
+          <div class="content"><div class="ph"><b>Status-Werte</b></div></div>
+        </div>
+        <div class="scrim"></div>
+        <div class="dialog">
+          <b style="font-size:16px">Status «Review» entfernen?</b>
+          <span><b>2 Stories</b> haben diesen Status (S-14, S-21). Sie bekommen einen anderen Status.</span>
+          <span class="lbl">Verschieben nach</span>
+          <span class="select" style="justify-self:start"><span class="dot amber"></span>In Arbeit</span>
+          <div style="display:flex; gap:8px"><span class="btn btn--danger">2 Stories verschieben und entfernen</span><span class="btn">Abbrechen</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="board">
+    <div class="variant__head">
+      <h3 id="board">Für alle: Board mit vielen Spalten</h3>
+      <span class="tag">entschieden</span>
+    </div>
+    <p>Jede Spalte zeigt ihre Farbe und ihren Namen im Kopf. Die Spalten behalten eine Mindestbreite, das Board scrollt seitlich. Beim Ziehen einer Karte an den Rand scrollt es mit.</p>
+    <div class="scroll">
+      <div class="app" role="img" aria-label="Board mit sieben Spalten, von denen fünf sichtbar sind; ein Verlauf am rechten Rand und eine Scrollleiste zeigen, dass es weitergeht">
+        <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span style="color:var(--text); font-weight:600">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span><span class="gear" style="background:none;border-color:var(--border);color:var(--muted)">⚙</span></div>
+        <div class="board">
+          <div class="col"><div class="col__head"><span class="dot slate"></span>Backlog<span class="count">3</span></div><div class="card"><span class="k">S-31</span>Export als CSV</div><div class="card"><span class="k">S-33</span>Login mit SSO</div></div>
+          <div class="col"><div class="col__head"><span class="dot blue"></span>Zu erledigen<span class="count">2</span></div><div class="card"><span class="k">S-12</span>Filter speichern</div></div>
+          <div class="col"><div class="col__head"><span class="dot amber"></span>In Arbeit<span class="count">2</span></div><div class="card"><span class="k">S-9</span>Burndown pro Sprint</div></div>
+          <div class="col"><div class="col__head"><span class="dot violet"></span>Review<span class="count">1</span></div><div class="card"><span class="k">S-14</span>Dunkles Thema</div></div>
+          <div class="col"><div class="col__head"><span class="dot cyan"></span>Test<span class="count">0</span></div></div>
+          <div class="col"><div class="col__head"><span class="dot teal"></span>Abnahme<span class="count">0</span></div></div>
+          <div class="col"><div class="col__head"><span class="dot green"></span>Fertig<span class="count">5</span></div></div>
+          <div class="fade"></div>
+        </div>
+        <div class="scrollbar"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="dec">
+    <h2 id="dec">Vorschlag</h2>
+    <div class="rules">
+      <div class="box"><b>Variante A</b><span>Die Gruppen machen die Regeln sichtbar, statt sie als Fehlermeldung zu melden. Die Liste ist schmal, gut mit Tastatur und Screenreader bedienbar und nutzt die Bausteine aus #4 (Farbpunkt, Ziehen zum Sortieren).</span></div>
+      <div class="box"><b>Offen für die Wahl</b><span>Darf ein Team eine <i>Erledigt</i>-Spalte vor eine <i>In Arbeit</i>-Spalte stellen? Bei A nein, bei B ja.</span></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
