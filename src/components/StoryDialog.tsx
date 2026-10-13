@@ -1,3 +1,4 @@
+import { featureOn } from '../domain/settings';
 import { useId, useState, type FormEvent } from 'react';
 import { DndContext, closestCenter, type Announcements, type DragEndEvent, type UniqueIdentifier } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -270,7 +271,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
               <SprintSelect id={`${uid}-sprint`} value={story.sprintId} onChange={(sprintId) => app.updateStory(story.id, { sprintId })} />
             </div>
-            {app.settings.releasesEnabled && (
+            {featureOn(app.settings, 'releases') && (
               <div className="field">
                 <label htmlFor={`${uid}-release`}>{builtin.label('release', t('releases.label'))}</label>
                 <ReleaseSelect id={`${uid}-release`} value={story.releaseId} onChange={(releaseId) => app.updateStory(story.id, { releaseId })} />

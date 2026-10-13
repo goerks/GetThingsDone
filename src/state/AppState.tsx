@@ -67,6 +67,7 @@ import type {
   FieldDefinition,
   FieldValue,
   ItemType,
+  FeatureKey,
   MapRows,
   Release,
   ReleaseEvent,
@@ -98,7 +99,7 @@ interface AppApi {
   dropOnReleaseMap(activeId: string, overId: string, placement?: Placement): void;
   /** Chooses what the rows of the story map are (a team setting). */
   setMapRows(rows: MapRows): void;
-  setReleasesEnabled(enabled: boolean): void;
+  setFeature(key: FeatureKey, enabled: boolean): void;
   /** Returns the id of the new sprint, or null when the input is invalid. */
   createSprint(input: SprintInput): string | null;
   updateSprint(id: string, input: SprintInput): void;
@@ -319,9 +320,9 @@ export function AppProvider({ repository, children }: Props) {
         updateSettings(settings);
         persist((repo) => repo.saveSettings(settings));
       },
-      setReleasesEnabled(enabled) {
-        if (settingsRef.current.releasesEnabled === enabled) return;
-        const settings = { ...settingsRef.current, releasesEnabled: enabled };
+      setFeature(key, enabled) {
+        if (settingsRef.current.features[key] === enabled) return;
+        const settings = { ...settingsRef.current, features: { ...settingsRef.current.features, [key]: enabled } };
         updateSettings(settings);
         persist((repo) => repo.saveSettings(settings));
       },

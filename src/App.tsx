@@ -1,3 +1,4 @@
+import { featureOn } from './domain/settings';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from './components/Header';
@@ -21,7 +22,7 @@ function Shell() {
   const { theme, toggleTheme } = useTheme();
   const { loading, error, settings } = useApp();
   // Without releases the address of the Releases page leads back to the board.
-  const hidden = route.name === 'releases' && !loading && !settings.releasesEnabled;
+  const hidden = route.name === 'releases' && !loading && !featureOn(settings, 'releases');
   useEffect(() => {
     if (hidden) window.location.replace(hrefs.board);
   }, [hidden]);

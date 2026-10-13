@@ -1,3 +1,4 @@
+import { featureOn } from '../domain/settings';
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../components/Dialog';
@@ -335,7 +336,7 @@ function UseCell({ field, itemType, name }: UseCellProps) {
   const typeName = t(`fields.itemType.${itemType}`);
   const builtin = BUILTIN_FIELDS.find((item) => item.key === field.builtinKey);
   // Releases switched off: the release field and everything on releases is kept but not available.
-  if (!app.settings.releasesEnabled && (itemType === 'release' || field.builtinKey === 'release')) {
+  if (!featureOn(app.settings, 'releases') && (itemType === 'release' || field.builtinKey === 'release')) {
     const off = t('fields.releasesOffCell', { name, type: typeName });
     return (
       <td className="field-table__use">
@@ -527,9 +528,9 @@ export function FieldsSection() {
           </button>
         ))}
       </div>
-      {!app.settings.releasesEnabled && (
+      {!featureOn(app.settings, 'releases') && (
         <p className="hint hint--info" role="note">
-          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsReleases}>{t('fields.layout.releaseOffLink')}</a>
+          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsFeatures}>{t('fields.layout.releaseOffLink')}</a>
         </p>
       )}
       {view === 'layout' ? (
