@@ -1,12 +1,12 @@
 # Functional requirements
 
-Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints) and issue #4 (configurable fields, in progress). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
+Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints), issue #4 (configurable fields), issue #10 (release planning) and issue #5 (configurable status values). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
 
 ## Board (BOARD)
 
 ### FR-BOARD-01 Show the sprint on a board
 As a team member, I want to see the stories of the current sprint in columns by status, so that I know the state of the work.
-- Columns "To do", "In progress", "Review" and "Done", each with its count.
+- One column per status value in the configured order (FR-BOARD-06), each with its count; the defaults are "To do", "In progress", "Review" and "Done".
 - Each column is a clearly separated lane with its own background, border and header line, as tall as the board.
 - Only stories in the sprint are shown, ordered by backlog priority.
 - An empty column shows a drop hint.
@@ -44,16 +44,25 @@ Source: Vision, issue #2 · Status: Implemented · Verified by: App "summarises 
 As a team member, I want to create a story with title, description, epic and points from the board or the backlog, so that I can capture new work.
 - "New story" on the board and in the backlog opens a dialog (not an inline form). Escape, "Cancel" or a click outside closes it without saving.
 - Title is required, description optional, values are trimmed.
-- The new story gets the next free key (`S-<n>`), status "To do" and the end of the backlog.
+- The new story gets the next free key (`S-<n>`), the first status in "Not started" (by default "To do", FR-BOARD-06) and the end of the backlog.
 - The sprint field is prefilled: the running sprint from the board, "Not planned" from the backlog, the cell's sprint (and epic) on the story map.
 - The epic is optional: the dialog starts with "No epic" unless it is opened from a map cell. A new epic can be created from the epic field.
 
 Source: Vision, PO feedback · Status: Implemented · Verified by: App "creates a story in "To do" through a dialog", "closes the new story dialog without saving on cancel", "adds a new story below the sprint line from a dialog", "creates a story directly in a cell…", board.test "createStory"
 
 ### FR-BOARD-06 Configurable columns
-As a team, we want to configure the board columns, so that the board fits our process.
+As a team, we want to define our own status values, and with them the board columns, so that the board fits our process.
+- Settings › Status values (`#/settings/statuses`) lists the status values in three fixed categories in a fixed order: "Not started", "In progress", "Done". The board shows one column per status value in this order.
+- Status values can be added at the end of a category, renamed (one name for every language; an empty name brings back the translated default of a default value), reordered inside a category and removed. Changes are saved at once.
+- "Not started" and "Done" always keep at least one status value: the last one there shows a lock and can be neither removed nor moved to another category. New stories get the first status in "Not started".
+- Dragging a status value into another category (or Alt+Arrow up/down in its name field across the edge of the category) changes its category. When stories then become done or open again, a confirmation names how many stories (with their keys) and says that this counts from today; the release history records it on that day and earlier days stay as they were.
+- A story counts as done when its status is in "Done": release progress, release state, scope report, burndown and the story map use this (FR-REL).
+- Removing a status value that stories use opens a confirmation with the number of stories (and their keys) and a target status (default: the status to the left); confirming moves the stories and removes the value in one step.
+- Colours: one base colour per category (slate, blue, green); the first status of a category has the full colour, the following ones get lighter shades. Colour is never alone: the name is always shown.
+- The board shows a band per category above its columns with name, colour and story count. Columns keep a minimum width; with many columns the board scrolls sideways.
+- Existing data keeps every story and its status: the four former statuses become the default values (SQLite migration 010, browser data migrated when read).
 
-Source: Vision (MVP scope) · Status: Open (see technical debt TD-4)
+Source: Vision (MVP scope), #5, PO decisions of 2026-10-13 (`docs/design/status-values.md`) · Status: Implemented · Verified by: statuses.test (rules, order, categories, remove, colours), history.test "records stories that become done or open because their status value moves to another category", sqliteRepository.test "status values (#5)", localStorageRepository.test "gives an older snapshot the default status values…", StatusValues.test (settings and board journey)
 
 ## Backlog (BACKLOG)
 
@@ -326,7 +335,7 @@ Source: ADR 0002 · Status: Implemented · Verified by: App "switches the theme 
 ### FR-SET-03 Settings page
 As a team, we want the workspace settings in one place that stays out of the way of the daily work.
 - A gear button next to theme and language opens the settings (`#/settings/fields`); it is marked while the settings are open. Pressed again ("Close settings"), it goes back to the page shown before. The main navigation holds only the working views.
-- The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section, "Story map" the second (FR-REL-09). "Status values" (#5) is shown as planned and cannot be opened yet.
+- The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section, then "Status values" (FR-BOARD-06), "Story map" (FR-REL-09) and "Features".
 - The former address `#/fields` opens the fields section.
 
 Source: #4, PO feedback (variant A in `docs/design/settings.md`) · Status: Implemented · Verified by: App "opens the fields from the settings, not from the main navigation", "closes the settings with the gear…", "parses known routes…"

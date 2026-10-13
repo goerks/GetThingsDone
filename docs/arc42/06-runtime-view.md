@@ -63,3 +63,10 @@ Every change of the stories goes through one function in `AppProvider` (`update`
 
 `BurndownReport` calls `burndownReport(release, events, today)`. It takes the days of `scopeReport` (scope and done per calendar day up to today), subtracts done from scope to get what is left, and extends the days to the end date when that is later than today (those days have no value). With a start and an end date it adds the target line: linear from what was left on the start day (or on the first recorded day when the history starts later) to nothing on the end day, in both units. The difference between what is left today and the line today is shown as behind or ahead. The chart is drawn like the scope chart, with the same units, markers for the changes of the scope and a table for screen readers.
 
+## Change the status values (#5)
+
+1. `StatusValuesSection` turns a drop (or Alt+Arrow up/down in a name field) into a new order with categories (`moveStatus`, `stepStatus`) and checks it with `reorderStatuses`: categories in their fixed order, "not started" and "done" not empty. An invalid order is refused with a message.
+2. If stories change between open and done (`storiesChangingDone`), a confirmation names them; otherwise the order is applied at once.
+3. `reorderStatuses` on the state calls `update(stories, statuses)`, which compares the done check before and after and appends `done` or `reopened` entries for stories in releases, then saves the status values (`saveStatuses`).
+4. Removing a status value with stories moves them to the chosen target (`removeStatus`); the state saves the changed stories first (`savePositions`) and then the status values, so no story is left with a status that is gone.
+
