@@ -20,7 +20,10 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Component | Notes |
 |---|---|
 | App header | Logo, main navigation with underline for the current page, search field, theme switch, language, user |
-| Board column | Own lane: `--column` background, border, header with a rule; as tall as the board. While dragging, the target column turns `--accent-soft` with an accent border |
+| Board column | Own lane: `--column` background, border, header with a rule and the status dot; as tall as the board, at least 240 px wide; the board scrolls sideways when the columns do not fit. While dragging, the target column turns `--accent-soft` with an accent border |
+| Category band | Above the columns of each status category (#5): name in uppercase, story count in mono, 3 px top edge in the category colour (`--epic-slate` not started, `--epic-blue` in progress, `--epic-green` done) |
+| Status dot | The colour of a status: the category colour for the first status of a category, lighter `color-mix` shades with `--surface` for the following ones. Always next to the status name |
+| Status value list | Settings › Status values: one group per category with the category colour as top edge and its rule in the head; rows with drag handle, status dot, name field, story count and remove button (lock for the last status of "not started" and "done"); dashed "+ Status in …" button per group |
 | Story card | ID (mono), title as link, criteria progress bar with count, epic dot and name, points pill. The whole card is the drag source (cursor `grab`); double click or Enter opens it |
 | Backlog row | Rank (mono), ID, title, epic, points. Dragged as a whole, no buttons |
 | Backlog sections | One section per sprint on a `--column` surface with name, dates and a "running" badge; a 3 px rule in `--text` separates "Not planned" |
