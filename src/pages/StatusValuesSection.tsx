@@ -1,12 +1,22 @@
-import { useId, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { DndContext, closestCenter, useDroppable, type Announcements, type DragEndEvent, type UniqueIdentifier } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useId, useMemo, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  useDroppable,
+  type Announcements,
+  type DragEndEvent,
+  type DragMoveEvent,
+  type DragStartEvent,
+  type UniqueIdentifier
+} from '@dnd-kit/core';
+import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from '../components/Dialog';
 import { GripIcon, LockIcon, TrashIcon } from '../components/icons';
 import { statusLabel } from '../components/statusLabel';
-import { useDragSensors } from '../dnd/dnd';
+import { keepInPlace, placementOf, useDragSensors } from '../dnd/dnd';
+import type { Placement } from '../domain/board';
 import {
   CATEGORY_COLORS,
   DEFAULT_STATUS_IDS,
@@ -14,6 +24,7 @@ import {
   categoryOf,
   changedCategories,
   defaultTarget,
+  dropOf,
   isLastOfRequired,
   moveStatus,
   reorderStatuses,
@@ -22,6 +33,7 @@ import {
   stepStatus,
   storiesChangingDone,
   storiesWithStatus,
+  type StatusDrop,
   type StatusPlace
 } from '../domain/statuses';
 import type { StatusCategory, StatusValue } from '../domain/types';
@@ -41,7 +53,21 @@ interface PendingMove {
   category: StatusCategory;
 }
 
-function StatusRow({ status, onRemove, onStep }: { status: StatusValue; onRemove: () => void; onStep: (direction: -1 | 1) => void }) {
+/** What the pointer is over while a status is dragged, and on which half of it. */
+interface Hover {
+  overId: string;
+  placement: Placement | undefined;
+}
+
+interface RowProps {
+  status: StatusValue;
+  /** A dragged status would land in front of this one: a line shows the place. */
+  dropBefore: boolean;
+  onRemove: () => void;
+  onStep: (direction: -1 | 1) => void;
+}
+
+function StatusRow({ status, dropBefore, onRemove, onStep }: RowProps) {
   const { t } = useTranslation();
   const app = useApp();
   const name = statusLabel(t, app.statuses, status.id);
@@ -49,7 +75,7 @@ function StatusRow({ status, onRemove, onStep }: { status: StatusValue; onRemove
   const hintId = useId();
   const count = storiesWithStatus(app.stories, status.id).length;
   const locked = isLastOfRequired(app.statuses, status.id);
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: status.id });
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useSortable({ id: status.id });
   const isDefault = DEFAULT_STATUS_IDS.includes(status.id);
 
   const commit = (): void => {
@@ -80,9 +106,9 @@ function StatusRow({ status, onRemove, onStep }: { status: StatusValue; onRemove
   return (
     <li
       ref={setNodeRef}
-      className={`status-row${isDragging ? ' status-row--dragging' : ''}`}
+      className={`status-row${isDragging ? ' status-row--dragging' : ''}${dropBefore ? ' drop-before' : ''}`}
       data-status={status.id}
-      style={{ transform: CSS.Transform.toString(transform), transition, '--status-color': statusColor(app.statuses, status.id) } as CSSProperties}
+      style={{ '--status-color': statusColor(app.statuses, status.id) } as CSSProperties}
     >
       <button type="button" ref={setActivatorNodeRef} className="drag-handle" aria-label={t('statusValues.move', { name })} {...attributes} {...listeners}>
         <GripIcon />
@@ -160,14 +186,14 @@ function AddStatus({ category }: { category: StatusCategory }) {
   );
 }
 
-function StatusGroup({ category, children }: { category: StatusCategory; children: ReactNode }) {
+function StatusGroup({ category, target, empty, children }: { category: StatusCategory; target: boolean; empty: boolean; children: ReactNode }) {
   const { t } = useTranslation();
-  const { setNodeRef, isOver } = useDroppable({ id: `${GROUP_PREFIX}${category}` });
+  const { setNodeRef } = useDroppable({ id: `${GROUP_PREFIX}${category}` });
   const headingId = `status-group-${category}`;
   const name = t(`statusValues.category.${category}`);
   return (
     <section
-      className={`status-group${isOver ? ' status-group--over' : ''}`}
+      className={`status-group${target ? ' status-group--over' : ''}`}
       aria-labelledby={headingId}
       data-category={category}
       style={{ '--category-color': CATEGORY_COLORS[category] } as CSSProperties}
@@ -178,6 +204,7 @@ function StatusGroup({ category, children }: { category: StatusCategory; childre
       </h3>
       <ol ref={setNodeRef} className="status-group__list" aria-label={t('statusValues.list', { category: name })}>
         {children}
+        {empty && <li className="status-group__empty">{t('statusValues.emptyGroup')}</li>}
       </ol>
       <AddStatus category={category} />
     </section>
@@ -277,6 +304,8 @@ export function StatusValuesSection() {
   const [removing, setRemoving] = useState<StatusValue | null>(null);
   const [pending, setPending] = useState<PendingMove | null>(null);
   const [message, setMessage] = useState('');
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [hover, setHover] = useState<Hover | null>(null);
 
   const nameOf = (id: UniqueIdentifier): string => {
     const value = String(id);
@@ -305,21 +334,47 @@ export function StatusValuesSection() {
     setMessage(t('statusValues.moved', { name: nameOf(id), position, category: t(`statusValues.category.${category}`) }));
   };
 
-  const onDragEnd = (event: DragEndEvent): void => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const activeId = String(active.id);
-    const overId = String(over.id);
+  /**
+   * The new order if `activeId` were dropped over `overId` (a status or the free space of a category) on the given
+   * half of it. Only the dragged status moves; every other status keeps its category and its place in the list.
+   * Without a half (keyboard), the direction of the move decides.
+   */
+  const placesFor = (activeId: string, overId: string, placement: Placement | undefined): StatusPlace[] | null => {
+    if (overId === activeId) return null;
     if (overId.startsWith(GROUP_PREFIX)) {
-      const category = overId.slice(GROUP_PREFIX.length) as StatusCategory;
-      apply(moveStatus(app.statuses, activeId, null, category, 'after'), activeId);
-      return;
+      return moveStatus(app.statuses, activeId, null, overId.slice(GROUP_PREFIX.length) as StatusCategory, 'after');
     }
     const category = categoryOf(app.statuses, overId);
-    if (!category) return;
+    if (!category) return null;
     const from = app.statuses.findIndex((status) => status.id === activeId);
     const to = app.statuses.findIndex((status) => status.id === overId);
-    apply(moveStatus(app.statuses, activeId, overId, category, from < to ? 'after' : 'before'), activeId);
+    return moveStatus(app.statuses, activeId, overId, category, placement ?? (from < to ? 'after' : 'before'));
+  };
+
+  // The place a drop would give the dragged status; the line and the highlight follow from it, so preview and drop agree.
+  const target = useMemo<StatusDrop | null>(() => {
+    if (!activeId || !hover) return null;
+    const places = placesFor(activeId, hover.overId, hover.placement);
+    if (!places || !reorderStatuses(app.statuses, places)) return null;
+    return dropOf(places, activeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, hover, app.statuses]);
+
+  const onDragStart = (event: DragStartEvent): void => setActiveId(String(event.active.id));
+  const onDragMove = (event: DragMoveEvent): void => {
+    const next = event.over ? { overId: String(event.over.id), placement: placementOf(event) } : null;
+    setHover((current) => (current?.overId === next?.overId && current?.placement === next?.placement ? current : next));
+  };
+  const onDragEnd = (event: DragEndEvent): void => {
+    setActiveId(null);
+    setHover(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    apply(placesFor(String(active.id), String(over.id), placementOf(event)), String(active.id));
+  };
+  const onDragCancel = (): void => {
+    setActiveId(null);
+    setHover(null);
   };
 
   const announcements: Announcements = {
@@ -340,23 +395,37 @@ export function StatusValuesSection() {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={onDragStart}
+        onDragMove={onDragMove}
+        onDragOver={onDragMove}
         onDragEnd={onDragEnd}
+        onDragCancel={onDragCancel}
         accessibility={{ announcements, screenReaderInstructions: { draggable: t('statusValues.dnd.instructions') } }}
       >
-        <SortableContext items={app.statuses.map((status) => status.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext items={app.statuses.map((status) => status.id)} strategy={keepInPlace}>
           {STATUS_CATEGORIES.map((category) => (
-            <StatusGroup key={category} category={category}>
+            <StatusGroup key={category} category={category} target={target?.category === category} empty={statusesIn(app.statuses, category).length === 0}>
               {statusesIn(app.statuses, category).map((status) => (
                 <StatusRow
                   key={status.id}
                   status={status}
+                  dropBefore={target?.beforeId === status.id}
                   onRemove={() => setRemoving(status)}
                   onStep={(direction) => apply(stepStatus(app.statuses, status.id, direction), status.id)}
                 />
               ))}
+              {target?.category === category && target.beforeId === null && <li className="drop-line" aria-hidden="true" />}
             </StatusGroup>
           ))}
         </SortableContext>
+        <DragOverlay>
+          {activeId ? (
+            <div className="status-row status-row--overlay" style={{ '--status-color': statusColor(app.statuses, activeId) } as CSSProperties}>
+              <span className="status-row__dot" aria-hidden="true" />
+              <span className="status-row__name">{statusLabel(t, app.statuses, activeId)}</span>
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
       <p className="muted">{t('statusValues.keyboard')}</p>
       <p className="muted">{t('statusValues.saved')}</p>
