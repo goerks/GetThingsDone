@@ -5,6 +5,7 @@ import { hrefs, type Route } from '../router';
 import type { Theme } from '../theme';
 import { GearIcon } from './icons';
 import { useFeature } from './useFeature';
+import { useHelp } from '../state/Help';
 import { SearchBox } from './search/SearchBox';
 
 interface Props {
@@ -18,6 +19,7 @@ export function Header({ route, theme, onToggleTheme }: Props) {
   const language = (i18n.resolvedLanguage ?? 'en') as LanguageCode;
   const dark = theme === 'dark';
   const releasesEnabled = useFeature('releases');
+  const help = useHelp();
   const inSettings = route.name === 'settings';
   // The gear opens the settings; pressed again, it goes back to the page shown before.
   const lastView = useRef<string>(hrefs.board);
@@ -110,6 +112,18 @@ export function Header({ route, theme, onToggleTheme }: Props) {
         >
           <GearIcon />
         </a>
+        <button
+          type="button"
+          ref={help.buttonRef}
+          className={`icon-btn help-btn${help.open ? ' icon-btn--on' : ''}`}
+          aria-label={t('help.button')}
+          title={t('help.button')}
+          aria-expanded={help.open}
+          aria-keyshortcuts="?"
+          onClick={help.toggleHelp}
+        >
+          <span aria-hidden="true">?</span>
+        </button>
       </div>
     </header>
   );

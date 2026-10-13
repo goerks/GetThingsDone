@@ -45,6 +45,7 @@ import {
   type FieldPatch,
   type LayoutPatch
 } from '../domain/fields';
+import type { Activity } from '../domain/helpTour';
 import { baselineEvents, releaseEventsFor } from '../domain/history';
 import { newId } from '../domain/ids';
 import {
@@ -107,6 +108,8 @@ interface AppApi {
   settings: Settings;
   loading: boolean;
   error: string | null;
+  /** Calls the listener when the user moves a story to another status, creates a story or orders the backlog. Returns the way to stop listening. */
+  onActivity(listener: (activity: Activity) => void): () => void;
   /** Drag and drop on the board. */
   drop(activeId: string, overId: string, placement?: Placement): void;
   /** Drag and drop in the backlog, including between sprint sections. */
@@ -203,6 +206,7 @@ export function AppProvider({ repository, children }: Props) {
   const sprintsRef = useRef<Sprint[]>([]);
   const releasesRef = useRef<Release[]>([]);
   const settingsRef = useRef<Settings>(DEFAULT_SETTINGS);
+  const activityListeners = useRef(new Set<(activity: Activity) => void>());
   const statusesRef = useRef<StatusValue[]>(DEFAULT_STATUSES.map((status) => ({ ...status })));
   const fieldsRef = useRef<Pick<Snapshot, 'fields' | 'assignments'>>({ fields: [], assignments: [] });
 
@@ -310,6 +314,10 @@ export function AppProvider({ repository, children }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const notify = useCallback((activity: Activity) => {
+    for (const listener of [...activityListeners.current]) listener(activity);
+  }, []);
+
   const api = useMemo<AppApi>(
     () => ({
       epics: snapshot.epics,
@@ -324,6 +332,12 @@ export function AppProvider({ repository, children }: Props) {
       settings: snapshot.settings,
       loading,
       error,
+      onActivity(listener) {
+        activityListeners.current.add(listener);
+        return () => {
+          activityListeners.current.delete(listener);
+        };
+      },
       drop(activeId, overId, placement) {
         const before = storiesRef.current;
         const after = dropStory(before, activeId, overId, placement);
@@ -331,6 +345,8 @@ export function AppProvider({ repository, children }: Props) {
         update(after);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
+        const statusBefore = before.find((story) => story.id === activeId)?.status;
+        if (statusBefore !== after.find((story) => story.id === activeId)?.status) notify('moved');
       },
       dropInBacklog(activeId, overId, placement) {
         const before = storiesRef.current;
@@ -339,6 +355,7 @@ export function AppProvider({ repository, children }: Props) {
         update(after);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
+        notify('ordered');
       },
       dropOnMap(activeId, overId, placement) {
         const before = storiesRef.current;
@@ -460,6 +477,7 @@ export function AppProvider({ repository, children }: Props) {
         const result = createStoryIn(storiesRef.current, input, id, startStatus(statusesRef.current));
         update(result.stories);
         persist((repo) => repo.addStory(result.story));
+        notify('created');
         return id;
       },
       updateStory(id, patch) {
@@ -626,7 +644,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist]
+    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

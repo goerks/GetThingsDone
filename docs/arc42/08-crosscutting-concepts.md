@@ -60,9 +60,9 @@ Tests are derived from test cases the PO approves per acceptance criterion (see 
 | Level | Tool | Where |
 |---|---|---|
 | Unit | Vitest | `src/domain/*.test.ts` |
-| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, with `LocalStorageRepository` as test double |
+| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, `src/Help.test.tsx`, with `LocalStorageRepository` as test double |
 | Integration (data, Tauri boundary) | – | Planned |
-| End-to-end | Playwright, real Chromium, web build with demo data and a fixed clock | `e2e/*.spec.ts`, `npm run test:e2e` (story map since #12) |
+| End-to-end | Playwright, real Chromium, web build with demo data and a fixed clock | `e2e/*.spec.ts`, `npm run test:e2e` (story map since #12, help since #33) |
 | Accessibility (axe) | – | Planned |
 
 ## Security

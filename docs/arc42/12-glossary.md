@@ -15,6 +15,8 @@
 | Rank | Global priority of a story, 0 is the most important. |
 | Repository | The storage interface of the frontend (`src/data/repository.ts`). |
 | Search badge | A field filter in the search field, typed as `field:value` and shown as `Field = value`. Each field at most once. |
+| First steps | The optional introduction in the help: four steps that the app ticks off when the user does them. Never forced. |
+| Show me | A button in a help topic that frames the element the topic is about. |
 | Highlighting | Showing the results of a search on the current page: matching items marked, the others dimmed. |
 | Scope (of a release) | The number of stories and the sum of their points in the release on a day. The scope report shows how it changed after the start. |
 | Settings | Choices of the workspace that the whole team shares, for example the rows of the story map (sprints or releases). |
