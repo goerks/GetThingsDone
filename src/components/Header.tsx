@@ -25,6 +25,22 @@ export function Header({ route, theme, onToggleTheme }: Props) {
   const lastView = useRef<string>(hrefs.board);
   if (!inSettings) lastView.current = hrefs[route.name];
 
+  // Escape closes the settings and goes back to the page shown before, like the gear. The help closes first: it is
+  // checked through a ref, because it closes in the same key press. A field or search that uses Escape itself comes first.
+  const helpOpen = useRef(help.open);
+  helpOpen.current = help.open;
+  useEffect(() => {
+    if (!inSettings) return;
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing || helpOpen.current) return;
+      if (document.querySelector('dialog[open]')) return;
+      event.preventDefault();
+      window.location.hash = lastView.current;
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [inSettings]);
+
   const headerRef = useRef<HTMLElement>(null);
   // The header wraps on narrow screens, so its height is measured and shared as `--header-height`.
   useEffect(() => {

@@ -217,7 +217,7 @@ describe('help search', () => {
     expect(within(panel()).getAllByText(/^No results for/).length).toBeGreaterThan(0);
   });
 
-  it('AC4.1 works with the keyboard alone: type, arrow down, Enter, and Escape goes back to the hits', async () => {
+  it('AC4.1 works with the keyboard alone: type, arrow down, Enter, and "Back" goes back to the hits', async () => {
     const user = await search('move');
     expect(field()).toHaveFocus();
     await user.keyboard('{ArrowDown}');
@@ -225,7 +225,7 @@ describe('help search', () => {
     await user.keyboard('{Enter}');
     expect(within(panel()).getByRole('heading', { level: 3, name: 'Move a story' })).toHaveFocus();
 
-    await user.keyboard('{Escape}');
+    await user.click(within(panel()).getByRole('button', { name: /Back/ }));
     // Back at the hits, the search is still there and the panel is still open
     expect(panel()).toBeInTheDocument();
     expect(field()).toHaveValue('move');
@@ -312,6 +312,84 @@ describe('show me', () => {
     await user.click(screen.getByRole('button', { name: /^Order the backlog/ }));
     expect(within(panel()).queryByRole('button', { name: 'Show me' })).not.toBeInTheDocument();
     expect(within(panel()).getByRole('link', { name: 'Open Backlog' })).toHaveAttribute('href', '#/backlog');
+  });
+});
+
+describe('Escape closes the help, then the settings', () => {
+  const gear = (): HTMLElement => screen.getByRole('link', { name: 'Settings' });
+
+  it('AC11.1 closes the help from every view, also when the focus is on the page, and leaves the focus there', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board');
+    await dismissInvitation(user);
+    await openHelp(user);
+    await user.type(field(), 'move');
+    await user.click(within(panel()).getByRole('button', { name: /^Move a story/ }));
+    expect(within(panel()).getByRole('heading', { level: 3, name: 'Move a story' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+
+    await openHelp(user);
+    const card = screen.getByRole('group', { name: /^S-3: / });
+    card.focus();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+    expect(card).toHaveFocus();
+  });
+
+  it('AC11.2 the first Escape closes the help, the second closes the settings and goes back to the page before', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/backlog');
+    await dismissInvitation(user);
+    await user.click(gear());
+    expect(window.location.hash).toBe('#/settings/fields');
+    await openHelp(user);
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+    expect(window.location.hash).toBe('#/settings/fields');
+
+    await user.keyboard('{Escape}');
+    expect(window.location.hash).toBe('#/backlog');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Backlog' })).toBeInTheDocument();
+  });
+
+  it('AC11.3 Escape closes the settings when the help is not open', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board');
+    await user.click(gear());
+    await user.keyboard('{Escape}');
+    expect(window.location.hash).toBe('#/board');
+  });
+
+  it('AC11.4 leaves the settings alone while a field uses Escape itself, and closes them with the next one', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/settings/statuses');
+    await user.click(screen.getByRole('button', { name: '+ Status in "In progress"' }));
+    const name = screen.getByRole('textbox', { name: 'Name of the new status in "In progress"' });
+    await user.type(name, 'Test');
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('textbox', { name: 'Name of the new status in "In progress"' })).not.toBeInTheDocument();
+    expect(window.location.hash).toBe('#/settings/statuses');
+    await user.keyboard('{Escape}');
+    expect(window.location.hash).toBe('#/board');
+  });
+
+  it('AC11.5 does not close the settings under an open dialog: Escape closes the dialog first', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/settings/fields');
+    await user.click(screen.getByRole('button', { name: 'New field' }));
+    expect(screen.getByRole('dialog', { name: 'New field' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(window.location.hash).toBe('#/settings/fields');
+  });
+
+  it('AC11.6 does nothing on the other pages', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/backlog');
+    await user.keyboard('{Escape}');
+    expect(window.location.hash).toBe('#/backlog');
   });
 });
 
