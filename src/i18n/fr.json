@@ -850,7 +850,12 @@
       "backlog.sprints": {
         "title": "Backlog et ligne de sprint",
         "keywords": "sprint planification section ligne a venir en cours",
-        "body": "Le backlog montre les sprints les uns sous les autres, puis les stories pas encore planifiées. La ligne de sprint est la limite entre deux sections : ce qui est au-dessus appartient à ce sprint.\nFaites glisser des stories par-dessus la ligne pour les planifier."
+        "body": "Le backlog montre les sprints les uns sous les autres, puis les stories pas encore planifiées. La ligne de sprint est la limite entre deux sections : ce qui est au-dessus appartient à ce sprint. Les sprints en cours et planifiés sont signalés ; les sprints clôturés ne sont plus affichés.\nFaites glisser des stories par-dessus la ligne pour les planifier."
+      },
+      "sprint.lifecycle": {
+        "title": "Démarrer et clôturer un sprint",
+        "keywords": "sprint démarrer clôturer terminer fin planifié en cours stories non terminées sprint suivant",
+        "body": "Un sprint est planifié, en cours ou clôturé. Un seul sprint est en cours à la fois ; le tableau l’affiche.\nPour démarrer un sprint, ouvrez le tableau tant qu’aucun sprint n’est en cours : il affiche le prochain sprint planifié. Appuyez sur « Démarrer le sprint », vérifiez ses stories et ses points, puis confirmez. Ces points comptent comme planifiés.\nPour clôturer le sprint en cours, appuyez sur « Clôturer le sprint » sur le tableau. Le résumé montre ce qui était planifié au démarrage, ce qui est terminé et ce qui s’est ajouté ou a été retiré pendant le sprint. Choisissez où vont les stories non terminées : dans le sprint suivant, dans un nouveau sprint ou dans le backlog. Cochez « Ensuite, démarrer … » pour démarrer tout de suite le sprint suivant.\nUn sprint dont la date de fin est passée reste sur le tableau, marqué « terminé », jusqu’à ce que vous le clôturiez. Un sprint clôturé disparaît du tableau, du backlog et de la story map."
       },
       "map.basics": {
         "title": "Story Map",

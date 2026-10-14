@@ -58,6 +58,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'story.create', pages: ['board', 'backlog'], show: { selector: '.page-head__action', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'settingsFields' }] },
   { id: 'backlog.order', pages: ['backlog'], show: { selector: '.backlog__row', missing: 'story' }, links: [{ id: 'backlog' }] },
   { id: 'backlog.sprints', pages: ['backlog'], show: { selector: '.backlog__heading', missing: 'plain' }, links: [{ id: 'backlog' }] },
+  { id: 'sprint.lifecycle', pages: ['board', 'backlog', 'map'], show: { selector: '.page-head__actions', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'map' }] },
   { id: 'map.basics', pages: ['map'], links: [{ id: 'map' }, { id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }] },
   { id: 'epics.basics', pages: ['epics'], links: [{ id: 'epics' }] },
   { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }, { id: 'map', requires: 'releases' }] },

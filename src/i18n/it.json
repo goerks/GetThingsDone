@@ -850,7 +850,12 @@
       "backlog.sprints": {
         "title": "Backlog e linea dello sprint",
         "keywords": "sprint pianificazione sezione linea prossimo in corso",
-        "body": "Il backlog mostra gli sprint uno sotto l’altro, poi le story non ancora pianificate. La linea dello sprint è il confine tra due sezioni: ciò che sta sopra appartiene a quello sprint.\nTrascina le story oltre la linea per pianificarle."
+        "body": "Il backlog mostra gli sprint uno sotto l’altro, poi le story non ancora pianificate. La linea dello sprint è il confine tra due sezioni: ciò che sta sopra appartiene a quello sprint. Gli sprint in corso e pianificati sono contrassegnati; gli sprint conclusi non vengono più mostrati.\nTrascina le story oltre la linea per pianificarle."
+      },
+      "sprint.lifecycle": {
+        "title": "Avviare e concludere uno sprint",
+        "keywords": "sprint avviare concludere terminare fine pianificato in corso story non completate sprint successivo",
+        "body": "Uno sprint è pianificato, in corso o concluso. È in corso un solo sprint alla volta; la board lo mostra.\nPer avviare uno sprint apri la board finché nessuno sprint è in corso: mostra il prossimo sprint pianificato. Premi «Avvia lo sprint», controlla le story e i punti e conferma. Questi punti contano come pianificati.\nPer concludere lo sprint in corso premi «Concludi lo sprint» sulla board. Il riepilogo mostra cosa era pianificato all’avvio, cosa è completato e cosa si è aggiunto o è uscito durante lo sprint. Scegli dove vanno le story non completate: nello sprint successivo, in un nuovo sprint o nel backlog. Spunta «Poi avvia …» per avviare subito lo sprint successivo.\nUno sprint la cui data di fine è passata resta sulla board, contrassegnato come «terminato», finché non lo concludi. Uno sprint concluso scompare da board, backlog e story map."
       },
       "map.basics": {
         "title": "Story Map",

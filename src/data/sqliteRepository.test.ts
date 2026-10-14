@@ -5,6 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
 import { builtinFieldId, convertValue } from '../domain/fields';
 import type { CustomDataType, FieldDefinition } from '../domain/types';
+import { addDays, todayIso } from '../domain/sprints';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
@@ -568,5 +569,94 @@ describe('status values (#5)', () => {
     const loaded = await repository.load();
     expect(loaded.statuses.map((status) => status.id)).toEqual(['todo', 'in_progress', 'done']);
     expect(loaded.stories.find((item) => item.id === story.id)?.status).toBe('in_progress');
+  });
+});
+
+describe('sprint states (#17)', () => {
+  const today = todayIso();
+  const day = (offset: number): string => addDays(today, offset);
+
+  /** A database of an earlier version: three sprints without a state, stories in them. */
+  function legacyDatabase(): DatabaseSync {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 10));
+    db.exec(`
+      INSERT INTO sprints (id, name, start_date, end_date) VALUES
+        ('s0', 'Sprint 0', '${day(-28)}', '${day(-15)}'),
+        ('s1', 'Sprint 1', '${day(-14)}', '${day(5)}'),
+        ('s2', 'Sprint 2', '${day(6)}', '${day(19)}');
+      INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, rank) VALUES
+        ('a', 'S-1', 'Done early', '', NULL, 5, 'done', 's0', 0),
+        ('b', 'S-2', 'Not finished', '', NULL, 8, 'in_progress', 's0', 1),
+        ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
+        ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
+    `);
+    migrate(db, ['011_sprint_states.sql']);
+    return db;
+  }
+
+  it('AC11.1 gives the sprints of an earlier database their state by their dates when it loads, and stores it', async () => {
+    // Given a database of an earlier version
+    const db = legacyDatabase();
+    expect(db.prepare('SELECT id, state FROM sprints ORDER BY start_date').all()).toEqual([
+      { id: 's0', state: null },
+      { id: 's1', state: null },
+      { id: 's2', state: null }
+    ]);
+    // When the app loads it
+    const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
+    // Then earlier sprints are completed, today's sprint runs and later ones are planned, in the data and in the file
+    expect(loaded.sprints.map((sprint) => [sprint.id, sprint.state])).toEqual([
+      ['s0', 'completed'],
+      ['s1', 'running'],
+      ['s2', 'planned']
+    ]);
+    expect(db.prepare('SELECT id, state FROM sprints ORDER BY start_date').all()).toEqual([
+      { id: 's0', state: 'completed' },
+      { id: 's1', state: 'running' },
+      { id: 's2', state: 'planned' }
+    ]);
+  });
+
+  it('AC11.2 stores the result of a completed sprint and the scope of a running one', async () => {
+    const db = legacyDatabase();
+    const repository = new SqliteRepository(new NodeDatabase(db));
+    await repository.load();
+    const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
+    expect(loaded.sprints.find((sprint) => sprint.id === 's0')?.result).toMatchObject({
+      plannedPoints: 13,
+      plannedStories: 2,
+      donePoints: 5,
+      doneStories: 1,
+      notDonePoints: 8,
+      notDoneStories: 1
+    });
+    expect(loaded.sprints.find((sprint) => sprint.id === 's1')?.startItems).toEqual([{ storyId: 'c', code: 'S-3', points: 3 }]);
+    expect(loaded.sprints.find((sprint) => sprint.id === 's2')?.startItems).toBeNull();
+  });
+
+  it('Q19 puts the unfinished story of a sprint that is completed by the update back in the backlog', async () => {
+    const db = legacyDatabase();
+    await new SqliteRepository(new NodeDatabase(db)).load();
+    expect(db.prepare('SELECT id, sprint_id FROM stories ORDER BY id').all()).toEqual([
+      { id: 'a', sprint_id: 's0' },
+      { id: 'b', sprint_id: null },
+      { id: 'c', sprint_id: 's1' },
+      { id: 'd', sprint_id: 's2' }
+    ]);
+  });
+
+  it('keeps the state, the start items and the result of a sprint through a save and a load', async () => {
+    const { repository } = await freshRepository();
+    const snapshot = await repository.load();
+    const running = snapshot.sprints.find((sprint) => sprint.state === 'running');
+    expect(running?.startItems?.length).toBe(6);
+    const completed = {
+      ...running!,
+      state: 'completed' as const,
+      result: { completedOn: '2026-10-20', plannedPoints: 23, plannedStories: 6, donePoints: 3, doneStories: 1, notDonePoints: 20, notDoneStories: 5, addedStories: 0, addedPoints: 0, removedStories: 0, removedPoints: 0, changedPoints: 0 }
+    };
+    await repository.updateSprint(completed);
+    expect((await repository.load()).sprints.find((sprint) => sprint.id === completed.id)).toEqual(completed);
   });
 });
