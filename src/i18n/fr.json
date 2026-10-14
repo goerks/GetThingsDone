@@ -753,7 +753,6 @@
     }
   },
   "recorder": {
-    "button": "Enregistrer un test",
     "panelLabel": "Constructeur de tests",
     "title": "Constructeur de tests",
     "close": "Fermer le constructeur de tests",
@@ -792,7 +791,7 @@
       "begin": "Démarrer l’enregistrement"
     },
     "home": {
-      "intro": "Construisez de nouveaux tests en parcourant l’application. À la fin, copiez tout dans un seul texte et donnez-le à l’IA.",
+      "intro": "Construisez de nouveaux tests en parcourant l’application. À la fin, copiez le résultat dans un seul texte et donnez-le à l’IA.",
       "newTest": "Construire un nouveau test",
       "yourTests": "Mes tests ({{count}})",
       "none": "Aucun test pour l’instant.",
@@ -805,9 +804,8 @@
       "confirmDelete": "Supprimer « {{name}} » ?",
       "deleteYes": "Oui, supprimer",
       "export": "Transmettre à l’IA",
-      "exportNone": "Rien à copier pour l’instant.",
-      "exportHint": "Un texte avec tous les nouveaux tests, prêt à coller chez l’IA.",
-      "copyAll": "Tout copier",
+      "exportHint": "Un texte avec la recette et tous les nouveaux tests, prêt à coller chez l’IA.",
+      "copyAll": "Copier le résultat",
       "showText": "Afficher le texte",
       "hideText": "Masquer le texte",
       "textLabel": "Texte pour l’IA"
@@ -854,7 +852,8 @@
       "seeText": "Je vois le texte « {{text}} ».",
       "seeElement": "Je vois l’élément que j’ai désigné.",
       "fieldShows": "Le champ « {{field}} » affiche « {{value}} »."
-    }
+    },
+    "copyNothing": "Rien à copier pour l’instant."
   },
   "help": {
     "button": "Aide",
@@ -1017,8 +1016,8 @@
       },
       "recorder.basics": {
         "title": "Enregistrer un test",
-        "keywords": "test enregistrer enregistrement constructeur cliquer résultat attendu feedback copier exporter ia aperçu",
-        "body": "Cela ne fonctionne que dans l’aperçu web. Cliquez sur « Enregistrer un test » dans l’en-tête : le constructeur de tests s’ouvre à droite.\n1. Choisissez « Construire un nouveau test », donnez-lui un nom et démarrez l’enregistrement.\n2. Parcourez l’application comme pour un test. Chaque clic, chaque saisie et chaque glissement devient une phrase dans la barre. Vous pouvez réécrire ou supprimer des phrases, ou ajouter une étape à la main.\n3. Choisissez « Désigner le résultat », cliquez sur l’élément qui montre ce que vous attendez, puis choisissez une phrase. Terminez le test.\n4. À la fin, choisissez « Tout copier » et collez le texte chez l’IA."
+        "keywords": "test enregistrer enregistrement constructeur cliquer résultat attendu feedback recette copier exporter ia aperçu",
+        "body": "Cela ne fonctionne que dans les aperçus de pull requests, avec le bouton rond « Preview » en bas de la page. Cliquez sur ce bouton et ouvrez l’onglet « Neuer Test » : le constructeur de tests s’ouvre à droite.\n1. Choisissez « Construire un nouveau test », donnez-lui un nom et démarrez l’enregistrement.\n2. Parcourez l’application comme pour un test. Chaque clic, chaque saisie et chaque glissement devient une phrase dans la barre. Vous pouvez réécrire ou supprimer des phrases, ou ajouter une étape à la main.\n3. Choisissez « Désigner le résultat », cliquez sur l’élément qui montre ce que vous attendez, puis choisissez une phrase. Terminez le test.\n4. À la fin, choisissez « Copier le résultat » (dans la barre ou dans la fenêtre) et collez le texte chez l’IA : il contient la recette et tous les nouveaux tests."
       }
     },
     "links": {

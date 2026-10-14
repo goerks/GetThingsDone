@@ -75,12 +75,14 @@ The interactive help (#33) is documentation for users and grows with every featu
 
 ## Test builder (web preview)
 
-The test builder (#37) lets the PO assemble tests by clicking and hand them to the AI as one text. It exists only where the app does not run in Tauri (`RecorderProvider` is `enabled` unless `isTauri()`), so the desktop app has no button.
+The test builder (#37) lets the PO assemble tests by clicking and hand them to the AI as one text. It exists only where the acceptance popup of #32 shows (`RecorderProvider` is `enabled` with `acceptanceEnabled()`: pull request previews, the dev server, `?acceptance=1`; never Tauri, never `main`). The way in is the tab "Neuer Test" of that popup (`src/components/recorder/BuilderTab.tsx`), not a button of the product's header.
 
 - `src/domain/testRecorder.ts` holds the pure rules: steps, a test, what is saved, and `renderExport`, the text for the AI. Entries have a `kind` (today only `test`), so feedback can be added as another kind without changing the export.
 - `src/state/Recorder.tsx` keeps the state (recording, collection) in `localStorage` (`getitdone.recorder`) and listens on `document` while a test is recorded: capture-phase listeners for click, double click, input, change, keys and pointer drags, plus `hashchange`. `src/state/recorderDom.ts` names the element a user meant (aria-label, label, text) and the part of the page it is in (the region with its heading). Everything inside the bar carries `data-recorder` and is never recorded.
 - "Fresh demo data" removes the stored demo data and loads the page again. A `sessionStorage` flag keeps this reload out of the steps; any other reload during a recording becomes the step "I reload the app".
 - The bar is fixed to the right edge like the help; `.app--recorder` makes room next to it and moves the help left. Sentences are made in the language of the UI at recording time; the headings of the export are always German, like the test cases the PO reviews.
+- One text for the AI: `src/acceptance/result.ts` keeps what was noted in the acceptance (`storedResultText`), `exportText` of the recorder adds it to the new tests (section "Abnahme" before "Neue Tests"); without new tests it is the acceptance text alone. The popup and the bar copy the same text.
+- The bar uses the colour of the popup (`--tool`) so that both read as tools of the preview; the popup moves left of the bar when it flips to the right.
 - The test builder sends nothing anywhere: the user copies the text and pastes it. No telemetry.
 
 ## Testing

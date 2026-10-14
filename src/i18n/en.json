@@ -753,7 +753,6 @@
     }
   },
   "recorder": {
-    "button": "Record test",
     "panelLabel": "Test builder",
     "title": "Test builder",
     "close": "Close the test builder",
@@ -792,7 +791,7 @@
       "begin": "Start recording"
     },
     "home": {
-      "intro": "Build new tests by clicking through the app. At the end, copy everything in one text and hand it to the AI.",
+      "intro": "Build new tests by clicking through the app. At the end, copy the result in one text and hand it to the AI.",
       "newTest": "Build a new test",
       "yourTests": "My tests ({{count}})",
       "none": "No tests yet.",
@@ -805,9 +804,8 @@
       "confirmDelete": "Delete “{{name}}”?",
       "deleteYes": "Yes, delete",
       "export": "Hand over to the AI",
-      "exportNone": "Nothing to copy yet.",
-      "exportHint": "One text with all new tests, ready to paste to the AI.",
-      "copyAll": "Copy everything",
+      "exportHint": "One text with the acceptance and all new tests, ready to paste to the AI.",
+      "copyAll": "Copy result",
       "showText": "Show the text",
       "hideText": "Hide the text",
       "textLabel": "Text for the AI"
@@ -854,7 +852,8 @@
       "seeText": "I see the text “{{text}}”.",
       "seeElement": "I see the element I pointed at.",
       "fieldShows": "The field “{{field}}” shows “{{value}}”."
-    }
+    },
+    "copyNothing": "Nothing to copy yet."
   },
   "help": {
     "button": "Help",
@@ -1017,8 +1016,8 @@
       },
       "recorder.basics": {
         "title": "Record a test",
-        "keywords": "test record builder recorder click expected result feedback copy export ai preview",
-        "body": "This works in the web preview only. Click “Record test” in the header to open the test builder on the right.\n1. Choose “Build a new test”, give it a name and start the recording.\n2. Click through the app as you would for a test. Every click, input and drag becomes a sentence in the bar. Rewrite or remove sentences, or add a step by hand.\n3. Choose “Point at the result” and click the element that shows what you expect, then pick a sentence. Finish the test.\n4. When you are done, choose “Copy everything” and paste the text to the AI."
+        "keywords": "test record builder recorder click expected result feedback acceptance copy export ai preview",
+        "body": "This works in pull request previews only, next to the round “Preview” button at the bottom of the page. Click that button and open the tab “Neuer Test”: the test builder opens on the right.\n1. Choose “Build a new test”, give it a name and start the recording.\n2. Click through the app as you would for a test. Every click, input and drag becomes a sentence in the bar. Rewrite or remove sentences, or add a step by hand.\n3. Choose “Point at the result” and click the element that shows what you expect, then pick a sentence. Finish the test.\n4. When you are done, choose “Copy result” (in the bar or in the popup) and paste the text to the AI: it holds the acceptance and all new tests."
       }
     },
     "links": {

@@ -1,6 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isTauri } from '../data/createRepository';
+import { acceptanceEnabled } from '../acceptance/preview';
+import { storedResultText } from '../acceptance/result';
 import {
   RECORDER_STORAGE_KEY,
   addExpected,
@@ -39,7 +40,7 @@ export interface Picked {
 }
 
 export interface RecorderApi {
-  /** False in the desktop app: the recorder is a tool of the web preview. */
+  /** Where the acceptance popup shows (pull request previews): the test builder is a tool of the same kind. */
   enabled: boolean;
   panel: PanelState;
   state: RecorderState;
@@ -49,8 +50,6 @@ export interface RecorderApi {
   picked: Picked | null;
   /** The last thing that happened, for a screen reader and the status line. */
   notice: string;
-  buttonRef: RefObject<HTMLButtonElement | null>;
-  togglePanel(): void;
   collapse(): void;
   expand(): void;
   startCreating(): void;
@@ -120,13 +119,13 @@ const PAGE_KEYS = { board: 'nav.board', backlog: 'nav.backlog', map: 'nav.storyM
 
 interface Props {
   children: ReactNode;
-  /** Defaults to the web preview: everything except the desktop app. */
+  /** Defaults to where the acceptance popup shows: pull request previews, the dev server and `?acceptance=1`; never the desktop app. */
   enabled?: boolean;
   /** Resets the demo data. Replaced in tests, because a test cannot reload the page. */
   reset?: () => void;
 }
 
-export function RecorderProvider({ children, enabled = !isTauri(), reset = resetDemoData }: Props) {
+export function RecorderProvider({ children, enabled = acceptanceEnabled(), reset = resetDemoData }: Props) {
   const { t, i18n } = useTranslation();
   const [state, setState] = useState<RecorderState>(readState);
   const [panel, setPanel] = useState<PanelState>(() => (readState().draft ? 'open' : 'hidden'));
@@ -134,7 +133,6 @@ export function RecorderProvider({ children, enabled = !isTauri(), reset = reset
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
   const [notice, setNotice] = useState('');
-  const buttonRef = useRef<HTMLButtonElement>(null);
   const tRef = useRef(t);
   tRef.current = t;
 
@@ -371,19 +369,26 @@ export function RecorderProvider({ children, enabled = !isTauri(), reset = reset
     setState((current) => (current.draft ? { ...current, draft: { ...current.draft, test: change(current.draft.test) } } : current));
   }, []);
 
-  const exportText = useCallback(
-    (): string =>
-      renderExport(state.collection, {
-        address: `${window.location.origin}${window.location.pathname}`,
-        date: formatDate(new Date()),
-        language: i18n.resolvedLanguage ?? 'en',
-        width: window.innerWidth
-      }),
-    [state.collection, i18n.resolvedLanguage]
-  );
+  // One text for the AI: the result of the acceptance and the new tests. Without any test it is the text of the
+  // acceptance alone, as the popup always copied it; without anything it is empty.
+  const exportText = useCallback((): string => {
+    const acceptance = storedResultText();
+    if (state.collection.length === 0) return acceptance;
+    return renderExport(state.collection, {
+      address: `${window.location.origin}${window.location.pathname}`,
+      date: formatDate(new Date()),
+      language: i18n.resolvedLanguage ?? 'en',
+      width: window.innerWidth,
+      acceptance
+    });
+  }, [state.collection, i18n.resolvedLanguage]);
 
   const copyAll = useCallback(async (): Promise<boolean> => {
     const text = exportText();
+    if (text === '') {
+      setNotice(tRef.current('recorder.copyNothing'));
+      return false;
+    }
     let done = false;
     try {
       await navigator.clipboard.writeText(text);
@@ -417,11 +422,6 @@ export function RecorderProvider({ children, enabled = !isTauri(), reset = reset
       picking,
       picked,
       notice,
-      buttonRef,
-      togglePanel: () => {
-        setCreating(false);
-        setPanel((current) => (current === 'hidden' ? 'open' : current === 'rail' ? 'open' : draft ? 'rail' : 'hidden'));
-      },
       collapse: () => setPanel(draft ? 'rail' : 'hidden'),
       expand: () => setPanel('open'),
       startCreating: () => setCreating(true),

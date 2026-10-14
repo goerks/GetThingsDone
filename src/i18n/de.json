@@ -753,7 +753,6 @@
     }
   },
   "recorder": {
-    "button": "Test aufnehmen",
     "panelLabel": "Test-Builder",
     "title": "Test-Builder",
     "close": "Test-Builder schliessen",
@@ -792,7 +791,7 @@
       "begin": "Aufnahme starten"
     },
     "home": {
-      "intro": "Baue neue Tests, indem du dich durch die App klickst. Am Ende kopierst du alles in einem Text und gibst ihn der KI.",
+      "intro": "Baue neue Tests, indem du dich durch die App klickst. Am Ende kopierst du das Ergebnis in einem Text und gibst ihn der KI.",
       "newTest": "Neuen Test aufbauen",
       "yourTests": "Meine Tests ({{count}})",
       "none": "Noch keine Tests.",
@@ -805,9 +804,8 @@
       "confirmDelete": "«{{name}}» löschen?",
       "deleteYes": "Ja, löschen",
       "export": "An die KI übergeben",
-      "exportNone": "Noch nichts zum Kopieren.",
-      "exportHint": "Ein Text mit allen neuen Tests, bereit zum Einfügen bei der KI.",
-      "copyAll": "Alles kopieren",
+      "exportHint": "Ein Text mit der Abnahme und allen neuen Tests, bereit zum Einfügen bei der KI.",
+      "copyAll": "Ergebnis kopieren",
       "showText": "Text anzeigen",
       "hideText": "Text verbergen",
       "textLabel": "Text für die KI"
@@ -854,7 +852,8 @@
       "seeText": "Ich sehe den Text «{{text}}».",
       "seeElement": "Ich sehe das Element, auf das ich gezeigt habe.",
       "fieldShows": "Das Feld «{{field}}» zeigt «{{value}}»."
-    }
+    },
+    "copyNothing": "Noch nichts zum Kopieren."
   },
   "help": {
     "button": "Hilfe",
@@ -1017,8 +1016,8 @@
       },
       "recorder.basics": {
         "title": "Test aufnehmen",
-        "keywords": "test aufnehmen aufnahme builder klicken erwartet ergebnis feedback kopieren export ki vorschau",
-        "body": "Das geht nur in der Web-Vorschau. Klicke oben auf «Test aufnehmen», dann öffnet sich rechts der Test-Builder.\n1. Wähle «Neuen Test aufbauen», gib einen Namen ein und starte die Aufnahme.\n2. Klicke dich durch die App, wie du es für einen Test tun würdest. Jeder Klick, jede Eingabe und jedes Ziehen wird als Satz in der Leiste notiert. Du kannst Sätze umschreiben, entfernen oder einen Schritt von Hand ergänzen.\n3. Wähle «Auf das Ergebnis zeigen», klicke auf das Element, das zeigt, was du erwartest, und wähle einen Satz. Beende den Test.\n4. Zum Schluss wählst du «Alles kopieren» und fügst den Text bei der KI ein."
+        "keywords": "test aufnehmen aufnahme builder klicken erwartet ergebnis feedback abnahme kopieren export ki vorschau",
+        "body": "Das gibt es nur in Vorschauen von Pull Requests, beim runden Knopf «Preview» unten auf der Seite. Klicke auf den Knopf und öffne den Reiter «Neuer Test»: Rechts öffnet sich der Test-Builder.\n1. Wähle «Neuen Test aufbauen», gib einen Namen ein und starte die Aufnahme.\n2. Klicke dich durch die App, wie du es für einen Test tun würdest. Jeder Klick, jede Eingabe und jedes Ziehen wird als Satz in der Leiste notiert. Du kannst Sätze umschreiben, entfernen oder einen Schritt von Hand ergänzen.\n3. Wähle «Auf das Ergebnis zeigen», klicke auf das Element, das zeigt, was du erwartest, und wähle einen Satz. Beende den Test.\n4. Zum Schluss wählst du «Ergebnis kopieren» (in der Leiste oder im Popup) und fügst den Text bei der KI ein: Er enthält die Abnahme und alle neuen Tests."
       }
     },
     "links": {

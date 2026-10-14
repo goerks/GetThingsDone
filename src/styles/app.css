@@ -4889,15 +4889,6 @@ a.btn {
 }
 
 /* ---------- Test builder (#37): a bar fixed to the right edge of the web preview ---------- */
-.recorder-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  white-space: nowrap;
-}
-
-.recorder-btn__dot,
 .recorder__dot {
   width: 10px;
   height: 10px;
@@ -4905,12 +4896,6 @@ a.btn {
   background: var(--danger);
   flex: none;
   display: inline-block;
-}
-
-.recorder-btn--live,
-.recorder-btn.icon-btn--on {
-  border-color: var(--danger);
-  background: var(--danger-soft);
 }
 
 .recorder__dot--live {
@@ -4949,7 +4934,7 @@ a.btn {
   display: flex;
   flex-direction: column;
   background: var(--surface);
-  border-left: 2px solid var(--danger);
+  border-left: 2px solid var(--tool);
   box-shadow: -8px 0 24px var(--shadow);
   overflow-y: auto;
 }
@@ -4972,7 +4957,16 @@ a.btn {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px 4px;
+  padding: 10px 16px;
+  background: var(--tool);
+  color: var(--tool-ink);
+}
+
+/* Like the header of the acceptance popup: the builder is a tool of the preview, not part of the product. */
+.recorder__head .icon-btn {
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
 }
 
 .recorder__title {
@@ -5119,7 +5113,7 @@ a.btn {
 }
 
 .recorder__add .input {
-  flex: 1 1 140px;
+  flex: 1 1 100%;
   min-width: 0;
 }
 
@@ -5227,7 +5221,7 @@ a.btn {
     width: 100%;
     max-height: 48vh;
     border-left: 0;
-    border-top: 2px solid var(--danger);
+    border-top: 2px solid var(--tool);
     box-shadow: 0 -8px 24px var(--shadow);
   }
 
@@ -5239,5 +5233,88 @@ a.btn {
 
   .recorder__rail-count {
     writing-mode: horizontal-tb;
+  }
+}
+
+/* The tab "Neuer Test" in the acceptance popup (#37) and what goes with it. */
+.acceptance__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.acceptance__tab {
+  flex: 1;
+  min-height: 40px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.acceptance__tab[aria-selected='true'] {
+  border-bottom-color: var(--tool);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.acceptance__tab:focus-visible {
+  outline: 3px solid var(--tool-dark);
+  outline-offset: -3px;
+}
+
+.acceptance__rec {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  display: inline-block;
+}
+
+/* On the round button the dot is ringed, so it can be told from the magenta. */
+.acceptance__rec--fab {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--surface);
+}
+
+.acceptance__builder {
+  display: grid;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.acceptance__builder p {
+  margin: 0;
+}
+
+.acceptance__builder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* The popup keeps clear of the test builder bar at the right edge. */
+.app--recorder .acceptance--right {
+  right: calc(var(--recorder-width) + 16px);
+}
+
+@media (max-width: 760px) {
+  .app--recorder .acceptance {
+    bottom: calc(48vh + 16px);
+  }
+
+  .app--recorder-rail .acceptance {
+    bottom: 80px;
   }
 }

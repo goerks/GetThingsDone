@@ -139,6 +139,14 @@ describe('the text for the AI', () => {
     expect(renderExport([test], context)).toContain('Hinweis für die KI:');
   });
 
+  it('AC8.6 puts the result of the acceptance before the new tests, and leaves the section out without one', () => {
+    const withAcceptance = renderExport([test], { ...context, acceptance: 'Abnahme Paket 1: 1 von 2 in Ordnung' });
+    expect(withAcceptance.indexOf('## Abnahme\n\nAbnahme Paket 1: 1 von 2 in Ordnung')).toBeGreaterThan(0);
+    expect(withAcceptance.indexOf('## Abnahme')).toBeLessThan(withAcceptance.indexOf('## Neue Tests (1)'));
+    expect(renderExport([test], context)).not.toContain('## Abnahme');
+    expect(renderExport([test], { ...context, acceptance: '  ' })).not.toContain('## Abnahme');
+  });
+
   it('AC8.1 numbers several tests and leaves out the requirement when there is none', () => {
     const second = { ...test, id: 'b', name: 'Zweiter', requirement: '' };
     const text = renderExport([test, second], context);

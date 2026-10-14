@@ -203,6 +203,8 @@ export interface ExportContext {
   date: string;
   language: string;
   width: number;
+  /** The result of the acceptance in the popup (#32), if there is one: it comes first, before the new tests. */
+  acceptance?: string;
 }
 
 export interface ExportLabels {
@@ -219,7 +221,7 @@ export function renderExport(entries: readonly CollectionEntry[], context: Expor
   const lines: string[] = [
     '# Feedback aus der Vorschau von Get It Done',
     '',
-    'Hinweis für die KI: Dieser Text stammt vom Product Owner aus der Web-Vorschau. Er enthält neue Testfälle, die dort zusammengeklickt wurden. ' +
+    'Hinweis für die KI: Dieser Text stammt vom Product Owner aus der Web-Vorschau. Er enthält das Ergebnis der Abnahme (falls vorhanden) und neue Testfälle, die dort zusammengeklickt wurden. ' +
       'Prüfe jeden Testfall, lege fehlende Testfälle im passenden Issue an (deutsch, in einfacher Sprache, wie in CLAUDE.md beschrieben) ' +
       'und baue nach der Freigabe des Product Owners daraus automatisierte Tests. Die technischen Schritte am Ende jedes Tests zeigen, was angeklickt wurde.',
     '',
@@ -229,6 +231,7 @@ export function renderExport(entries: readonly CollectionEntry[], context: Expor
     `- Fensterbreite: ${context.width} px`,
     ''
   ];
+  if (context.acceptance?.trim()) lines.push('## Abnahme', '', context.acceptance.trim(), '');
   if (tests.length > 0) {
     lines.push(`## Neue Tests (${tests.length})`, '');
     tests.forEach((test, index) => {

@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PACKAGE_1 } from './package1';
+import { RECORDER_ATTR } from '../state/recorderDom';
+import { useRecorder } from '../state/Recorder';
+import { BuilderTab } from '../components/recorder/BuilderTab';
+import { CASES, PACKAGE, PO_CASES, STORAGE_KEY, load, resultAsText, type Notes, type State } from './result';
 import type { TestCase } from './types';
 
 /*
@@ -10,31 +13,8 @@ import type { TestCase } from './types';
  * only (nothing is sent anywhere).
  */
 
-type State = 'ok' | 'bad';
-interface Note {
-  state?: State;
-  comment: string;
-}
-type Notes = Record<string, Note>;
-
-const PACKAGE = PACKAGE_1;
-const STORAGE_KEY = `getitdone.acceptance.${PACKAGE.issue}.package1`;
 const STEP_KEY = `${STORAGE_KEY}.step`;
-const CASES: TestCase[] = PACKAGE.criteria.flatMap((criterion) => criterion.cases);
-/** The test cases only the product owner can check; the others are covered by automated tests. */
-const PO_CASES: TestCase[] = CASES.filter((testCase) => testCase.poCheck);
 const CRITERION_OF = new Map(PACKAGE.criteria.flatMap((criterion) => criterion.cases.map((testCase) => [testCase.id, criterion] as const)));
-
-function load(): Notes {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    const stored = raw ? (JSON.parse(raw) as Record<string, { state?: State; done?: boolean; comment?: string }>) : {};
-    // The first version stored a tick (`done`); it counts as "In Ordnung".
-    return Object.fromEntries(Object.entries(stored).map(([id, note]) => [id, { state: note.state ?? (note.done ? 'ok' : undefined), comment: note.comment ?? '' }]));
-  } catch {
-    return {};
-  }
-}
 
 function loadStep(notes: Notes): string {
   try {
@@ -44,41 +24,6 @@ function loadStep(notes: Notes): string {
     // start at the first open test case
   }
   return (PO_CASES.find((testCase) => notes[testCase.id]?.state !== 'ok') ?? PO_CASES[0] ?? CASES[0]).id;
-}
-
-/**
- * The result as text for the chat with the AI: what the product owner pastes back into the conversation, so the AI
- * needs no lookup. A summary, then every problem with what was expected and the comment, then comments on other
- * test cases, then the ids that are in order and the ones not yet checked.
- */
-export function resultAsText(notes: Notes): string {
-  const state = (testCase: TestCase): State | undefined => notes[testCase.id]?.state;
-  const mine = PO_CASES;
-  const ok = mine.filter((testCase) => state(testCase) === 'ok');
-  const bad = CASES.filter((testCase) => state(testCase) === 'bad');
-  const open = mine.filter((testCase) => state(testCase) === undefined);
-  const commentOf = (testCase: TestCase): string => notes[testCase.id]?.comment.trim() ?? '';
-  const lines = [
-    `Abnahme ${PACKAGE.title} (#${PACKAGE.issue}, Pull Request #${PACKAGE.pullRequest}): ${ok.length} von ${mine.length} Punkten für den PO in Ordnung, ${bad.length} ${bad.length === 1 ? 'Problem' : 'Probleme'}, ${open.length} offen`,
-    `(${CASES.length - mine.length} weitere Punkte sind durch automatische Tests abgedeckt.)`,
-    ''
-  ];
-  if (bad.length > 0) {
-    lines.push('Probleme:');
-    for (const testCase of bad) {
-      lines.push(`- ${testCase.id} ${testCase.title}${commentOf(testCase) ? ` – ${commentOf(testCase)}` : ''}`, `  Erwartet: ${testCase.then}`);
-    }
-    lines.push('');
-  }
-  const remarks = CASES.filter((testCase) => state(testCase) !== 'bad' && commentOf(testCase));
-  if (remarks.length > 0) {
-    lines.push('Kommentare:');
-    for (const testCase of remarks) lines.push(`- ${testCase.id} ${testCase.title} – ${commentOf(testCase)}`);
-    lines.push('');
-  }
-  if (ok.length > 0) lines.push(`In Ordnung: ${ok.map((testCase) => testCase.id).join(', ')}`);
-  if (open.length > 0) lines.push(`Noch offen: ${open.map((testCase) => testCase.id).join(', ')}`);
-  return lines.join('\n');
 }
 
 /** How long the element under test lights up, in milliseconds. */
@@ -142,6 +87,14 @@ export function AcceptancePanel() {
   const [side, setSide] = useState<'left' | 'right'>('left');
   const [list, setList] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [tab, setTab] = useState<'acceptance' | 'builder'>('acceptance');
+  const recorder = useRecorder();
+  /** The test builder opens on the right edge together with its tab. */
+  const selectTab = (next: 'acceptance' | 'builder'): void => {
+    setTab(next);
+    if (next === 'builder' && recorder.panel === 'hidden') recorder.expand();
+  };
+  const recording = recorder.state.draft !== null && !recorder.state.draft.paused && !recorder.state.draft.editing;
   const cases = showAll ? CASES : PO_CASES;
   const total = cases.length;
   const step = Math.max(0, cases.findIndex((testCase) => testCase.id === stepId));
@@ -190,7 +143,8 @@ export function AcceptancePanel() {
   const comment = (id: string, text: string): void => setNotes((current) => ({ ...current, [id]: { state: current[id]?.state, comment: text } }));
 
   const copy = async (): Promise<void> => {
-    const text = resultAsText(notes);
+    // New tests of the test builder (#37) go into the same text; without any, it is the text of the acceptance alone.
+    const text = recorder.state.collection.length > 0 ? recorder.exportText() : resultAsText(notes);
     try {
       await navigator.clipboard.writeText(text);
     } catch {
@@ -213,18 +167,40 @@ export function AcceptancePanel() {
   };
 
   return (
-    <div className={`acceptance${side === 'right' ? ' acceptance--right' : ''}`}>
+    <div className={`acceptance${side === 'right' ? ' acceptance--right' : ''}`} {...{ [RECORDER_ATTR]: 'true' }}>
       {open && (
         <aside className="acceptance__panel" aria-label="Abnahme">
           <header className="acceptance__head">
-            <h2>
-              Abnahme · Schritt {step + 1} von {total}
-            </h2>
+            <h2>{tab === 'builder' ? 'Neuer Test' : `Abnahme · Schritt ${step + 1} von ${total}`}</h2>
             <button type="button" className="icon-btn icon-btn--quiet" aria-label="Abnahme schliessen" onClick={() => setOpen(false)}>
               ×
             </button>
           </header>
-          <div className="acceptance__body">
+          <div
+            className="acceptance__tabs"
+            role="tablist"
+            aria-label="Bereich der Vorschau"
+            onKeyDown={(event) => {
+              // Arrow keys, Home and End move between the two tabs, as in every tab list.
+              if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+              event.preventDefault();
+              const next = event.key === 'ArrowLeft' || event.key === 'Home' ? 'acceptance' : 'builder';
+              selectTab(next);
+              document.getElementById(`acceptance-tab-${next}`)?.focus();
+            }}
+          >
+            <button type="button" role="tab" id="acceptance-tab-acceptance" aria-selected={tab === 'acceptance'} tabIndex={tab === 'acceptance' ? 0 : -1} aria-controls="acceptance-tabpanel" className="acceptance__tab" onClick={() => selectTab('acceptance')}>
+              Abnahme
+            </button>
+            <button type="button" role="tab" id="acceptance-tab-builder" aria-selected={tab === 'builder'} tabIndex={tab === 'builder' ? 0 : -1} aria-controls="acceptance-tabpanel" className="acceptance__tab" onClick={() => selectTab('builder')}>
+              Neuer Test
+              {recorder.state.collection.length > 0 && <span className="acceptance__tab-count"> ({recorder.state.collection.length})</span>}
+              {recording && <span className="acceptance__rec" aria-label="Aufnahme läuft" role="img" />}
+            </button>
+          </div>
+          <div id="acceptance-tabpanel" role="tabpanel" aria-labelledby={`acceptance-tab-${tab}`} className="acceptance__body">
+            {tab === 'builder' && <BuilderTab onCopy={copy} copied={copied} />}
+            {tab === 'acceptance' && (<>
             <div className="acceptance__strip" role="group" aria-label="Alle Prüfpunkte">
               {cases.map((testCase, index) => (
                 <button
@@ -353,6 +329,7 @@ export function AcceptancePanel() {
                 ))}
               </div>
             )}
+            </>)}
           </div>
         </aside>
       )}
@@ -361,7 +338,7 @@ export function AcceptancePanel() {
           type="button"
           className="acceptance__toggle"
           aria-expanded={open}
-          aria-label={`Abnahme, ${done} von ${total} in Ordnung${problems > 0 ? `, ${problems} Probleme` : ''}, Preview`}
+          aria-label={`Abnahme, ${done} von ${total} in Ordnung${problems > 0 ? `, ${problems} Probleme` : ''}${recording ? ', Aufnahme läuft' : ''}, Preview`}
           onClick={() => setOpen(!open)}
         >
           <svg className="acceptance__ring" viewBox="0 0 78 78" aria-hidden="true">
@@ -372,6 +349,7 @@ export function AcceptancePanel() {
           <span className="acceptance__count" aria-hidden="true">
             {done}/{total}
           </span>
+          {recording && <span className="acceptance__rec acceptance__rec--fab" aria-hidden="true" />}
         </button>
         <span className="acceptance__tag" aria-hidden="true">
           Preview
