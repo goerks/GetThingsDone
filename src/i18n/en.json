@@ -822,6 +822,10 @@
       "settingsFeatures": "Open Settings → Features"
     },
     "linksTitle": "Where to find it",
-    "linkLocked": "{{label}}: switch the feature “{{feature}}” on first (see above)."
+    "linkLocked": "Switch the feature “{{feature}}” on first",
+    "linkHints": {
+      "featureFirst": "Switch the feature on first",
+      "releaseRows": "Choose “Releases” as the rows"
+    }
   }
 }

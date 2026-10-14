@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { searchHelp } from '../../domain/helpSearch';
 import { TOUR_STEPS, activeStep, doneCount, type TourStepId } from '../../domain/helpTour';
@@ -9,7 +9,7 @@ import { useHelp } from '../../state/Help';
 import { useApp } from '../../state/AppState';
 import { featureOn } from '../../domain/settings';
 import { Highlighted } from '../search/Highlighted';
-import { CloseIcon } from './icons';
+import { ArrowIcon, CloseIcon, LockIcon, PageLinkIcon, SettingsLinkIcon } from './icons';
 
 /** Moves between the buttons of a list with the arrow keys; the first ArrowUp goes back to the field. */
 function moveInList(event: KeyboardEvent<HTMLElement>, root: HTMLElement | null): void {
@@ -306,6 +306,7 @@ function isHere(id: LinkId, route: Route): boolean {
 function TopicLinks({ links, route }: { links: readonly HelpLinkDef[]; route: Route }) {
   const { t } = useTranslation();
   const { settings } = useApp();
+  const baseId = useId();
   const shown = links.filter((link) => !isHere(link.id, route));
   if (shown.length === 0) return null;
   return (
@@ -315,15 +316,32 @@ function TopicLinks({ links, route }: { links: readonly HelpLinkDef[]; route: Ro
         {shown.map((link) => {
           const label = t(`help.links.${link.id}`);
           const locked = link.requires !== undefined && !featureOn(settings, link.requires);
+          const settingsPlace = link.id.startsWith('settings');
+          // The feature that has to be switched on first stands out, the places that need it say so while it is off.
+          const first = links.some((other) => other.requires) && link.id === 'settingsFeatures';
+          const hint = locked ? t('help.linkLocked', { feature: t(`settings.features.${link.requires}.name`) }) : link.hint ? t(`help.linkHints.${link.hint}`) : null;
+          const hintId = `${baseId}-${link.id}`;
+          const content = (
+            <>
+              {locked ? <LockIcon /> : settingsPlace ? <SettingsLinkIcon /> : <PageLinkIcon />}
+              <span className="linkbtn__text">
+                <span className="linkbtn__label">{label}</span>
+                {hint && (
+                  <span className="linkbtn__hint" id={hintId}>
+                    {hint}
+                  </span>
+                )}
+              </span>
+              {!locked && <ArrowIcon />}
+            </>
+          );
           return (
             <li key={link.id}>
               {locked ? (
-                <span className="help__link help__link--locked">
-                  {t('help.linkLocked', { label, feature: t(`settings.features.${link.requires}.name`) })}
-                </span>
+                <span className="linkbtn linkbtn--locked">{content}</span>
               ) : (
-                <a className="help__link" href={LINK_TARGETS[link.id]}>
-                  {label}
+                <a className={`linkbtn${first ? ' linkbtn--first' : ''}`} href={LINK_TARGETS[link.id]} aria-label={label} aria-describedby={hint ? hintId : undefined}>
+                  {content}
                 </a>
               )}
             </li>

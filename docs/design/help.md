@@ -25,6 +25,6 @@ The links of a topic ("Where to find it") were plain text lines. Three variants 
 
 | Variant | Idea | Outcome |
 |---|---|---|
-| A · Row buttons | Wide button per place with icon, name and arrow; the feature to switch on first is highlighted and on top; places that cannot be used yet are dashed and grey with a lock and a hint | Proposed |
+| A · Row buttons | Wide button per place with icon, name and arrow; the feature to switch on first is highlighted and on top; places that cannot be used yet are dashed and grey with a lock and a hint | **Chosen by the PO**, built in #33 |
 | B · Grouped chips | Short round buttons in two groups, "First" and "Then" | Not proposed |
 | C · Path in steps | Numbered steps with one button each; the first is the main button | Not proposed (only fits topics with an order) |

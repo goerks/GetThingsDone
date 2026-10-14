@@ -3802,18 +3802,68 @@ mark {
 
 .help__links {
   display: grid;
-  gap: 2px;
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.help__link {
-  display: block;
-  padding: 6px 0;
+/* A link of the help as a button: icon, name, arrow. */
+.linkbtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--target-min);
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.linkbtn:hover {
+  border-color: var(--accent);
+}
+
+.linkbtn__icon,
+.linkbtn__go {
+  flex: none;
   color: var(--accent);
 }
 
-.help__link--locked {
+.linkbtn__go {
+  margin-left: auto;
+}
+
+.linkbtn__text {
+  display: grid;
+  gap: 1px;
+}
+
+.linkbtn__hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* The feature that has to be switched on first. */
+.linkbtn--first {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.linkbtn--first .linkbtn__hint {
+  color: var(--accent-soft-ink);
+}
+
+/* A place that cannot be used yet. */
+.linkbtn--locked {
+  border-style: dashed;
+  background: var(--pill);
+  color: var(--muted);
+}
+
+.linkbtn--locked .linkbtn__icon {
   color: var(--muted);
 }

@@ -822,6 +822,10 @@
       "settingsFeatures": "Apri Impostazioni → Funzioni"
     },
     "linksTitle": "Dove trovarlo",
-    "linkLocked": "{{label}}: attiva prima la funzione «{{feature}}» (vedi sopra)."
+    "linkLocked": "Attiva prima la funzione «{{feature}}»",
+    "linkHints": {
+      "featureFirst": "Prima attivare la funzione",
+      "releaseRows": "Scegliere «Release» come righe"
+    }
   }
 }
