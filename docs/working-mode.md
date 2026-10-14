@@ -14,12 +14,12 @@ How the product owner (PO) and the AI developer work together on a feature. The 
 |---|---|---|---|
 | 1 | PO | Writes the issue: goal, notes, draft acceptance criteria (template "Feature") | Issue |
 | 2 | AI | Proposes stories, design and phases, asks open questions | Issue comment |
-| 3 | PO | Answers the questions, approves the acceptance criteria | Conversation or issue; the AI records it in the issue |
+| 3 | PO | Answers the questions (the AI asks them interactively with selectable options), approves the acceptance criteria | Conversation or issue; the AI records it in the issue |
 | 4 | AI | Proposes one or more **test cases per acceptance criterion**, in German and plain language | Issue comment |
 | 5 | PO | Reviews the test cases from a testing perspective; they are revised until the PO approves them and gives the go | Conversation or issue; the AI records it in the issue |
 | 6 | AI | Builds the feature in one go, without intermediate checks. Turns every test case into at least one automated test with the same ID | Feature branch |
 | 7 | AI | Opens a pull request starting with `Closes #<issue>`, with the acceptance checklist, the test case IDs and the tests that cover them, the web preview and the Windows build | Pull request, linked in the issue |
-| 8 | PO | Tests in the web preview (and the Windows app if the pull request says so) and approves | Pull request or conversation |
+| 8 | PO | Tests in the web preview (and the Windows app if the pull request says so) and approves. The preview has an "Abnahme" panel at the bottom left: every test case with a link to its page, a tick box and a comment; "Ergebnis kopieren" gives the result as text that the PO pastes back into the chat with the AI (no detour through the issue; the AI records it) | Preview, pull request or conversation |
 | 9 | AI | Merges with "Rebase and merge", the only merge method enabled (the branch stays linear); GitHub closes the issue; the branch is deleted | GitHub |
 
 If something during building would change an approved acceptance criterion or test case, the AI stops, updates the issue and asks the PO again.

@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Repository } from '../data/repository';
+import { statusLabel } from '../components/statusLabel';
+import { useToast } from './Toast';
 import { seedSnapshot } from '../data/seed';
 import {
   addCriterion as addCriterionTo,
@@ -148,8 +150,15 @@ interface AppApi {
   updateRelease(id: string, input: ReleaseInput): void;
   /** Deletes a release. Its stories stay and lose their release. */
   deleteRelease(id: string): void;
+  /** Creates a story and tells the user; the story is highlighted afterwards. */
   createStory(input: NewStoryInput): string;
   updateStory(id: string, patch: StoryPatch): void;
+  /** Changes a story from a menu: like `updateStory`, plus a notice and the highlight (#32). */
+  changeStory(id: string, patch: StoryPatch): void;
+  /** The story that was just created or moved and is highlighted for a moment, or null. */
+  flashed: string | null;
+  /** Whether the highlighted story is also scrolled into view: not after a drag, the drop put it where the user is looking. */
+  flashScroll: boolean;
   deleteStory(id: string): void;
   toggleCriterion(storyId: string, criterionId: string): void;
   addCriterion(storyId: string, text: string): void;
@@ -195,6 +204,10 @@ interface Props {
 
 export function AppProvider({ repository, children }: Props) {
   const { t } = useTranslation();
+  const toast = useToast();
+  const [flashed, setFlashed] = useState<string | null>(null);
+  const [flashScroll, setFlashScroll] = useState(false);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [snapshot, setSnapshot] = useState<Snapshot>({
     epics: [],
     sprints: [],
@@ -217,6 +230,42 @@ export function AppProvider({ repository, children }: Props) {
   const activityListeners = useRef(new Set<(activity: Activity) => void>());
   const statusesRef = useRef<StatusValue[]>(DEFAULT_STATUSES.map((status) => ({ ...status })));
   const fieldsRef = useRef<Pick<Snapshot, 'fields' | 'assignments'>>({ fields: [], assignments: [] });
+
+  /** Highlights a story for two seconds. */
+  const flash = useCallback((id: string, scroll: boolean) => {
+    clearTimeout(flashTimer.current);
+    setFlashScroll(scroll);
+    setFlashed(id);
+    flashTimer.current = setTimeout(() => setFlashed(null), 2000);
+  }, []);
+
+  /** Tells the user what a move changed (status first, then sprint, epic, release, points) and highlights the story. */
+  const announceMove = useCallback(
+    (before: Story[], after: Story[], id: string, scroll: boolean) => {
+      const was = before.find((story) => story.id === id);
+      const now = after.find((story) => story.id === id);
+      if (!was || !now) return;
+      flash(id, scroll);
+      const code = now.code;
+      if (was.status !== now.status) {
+        toast.notify(t('toast.moved.status', { code, target: statusLabel(t, statusesRef.current, now.status) }));
+      } else if (was.sprintId !== now.sprintId) {
+        const sprint = sprintsRef.current.find((item) => item.id === now.sprintId);
+        toast.notify(t('toast.moved.sprint', { code, target: sprint ? sprint.name : t('sprint.notPlanned') }));
+      } else if (was.epicId !== now.epicId) {
+        const epic = epicsRef.current.find((item) => item.id === now.epicId);
+        toast.notify(epic ? t('toast.moved.epic', { code, target: epic.name }) : t('toast.moved.noEpic', { code }));
+      } else if (was.releaseId !== now.releaseId) {
+        const release = releasesRef.current.find((item) => item.id === now.releaseId);
+        toast.notify(release ? t('toast.moved.release', { code, target: release.title }) : t('toast.moved.noRelease', { code }));
+      } else if (was.points !== now.points) {
+        toast.notify(t('toast.moved.points', { code, count: now.points }));
+      } else {
+        toast.notify(t('toast.moved.reordered', { code }));
+      }
+    },
+    [flash, t, toast]
+  );
 
   // Writes run one after another so a quick series of changes is stored in the order it happened.
   const queueRef = useRef<Promise<void>>(Promise.resolve());
@@ -351,6 +400,7 @@ export function AppProvider({ repository, children }: Props) {
         const after = dropStory(before, activeId, overId, placement);
         if (after === before) return;
         update(after);
+        announceMove(before, after, activeId, false);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
         const statusBefore = before.find((story) => story.id === activeId)?.status;
@@ -361,6 +411,7 @@ export function AppProvider({ repository, children }: Props) {
         const after = dropInBacklog(before, sprintsRef.current, activeId, overId, placement);
         if (after === before) return;
         update(after);
+        announceMove(before, after, activeId, false);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
         notify('ordered');
@@ -370,6 +421,7 @@ export function AppProvider({ repository, children }: Props) {
         const after = dropOnMap(before, sprintsRef.current, activeId, overId, placement);
         if (after === before) return;
         update(after);
+        announceMove(before, after, activeId, false);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
       },
@@ -378,6 +430,7 @@ export function AppProvider({ repository, children }: Props) {
         const after = dropOnReleaseMap(before, sprintsRef.current, releasesRef.current, activeId, overId, placement);
         if (after === before) return;
         update(after);
+        announceMove(before, after, activeId, false);
         const changed = changedPositions(before, after);
         persist((repo) => repo.savePositions(changed));
       },
@@ -433,6 +486,7 @@ export function AppProvider({ repository, children }: Props) {
         if (!result) return null;
         updateSprints(result.sprints);
         persist((repo) => repo.addSprint(result.sprint));
+        toast.notify(t('toast.created.sprint', { name: result.sprint.name }));
         return id;
       },
       moveSprint(activeId, overId, placement) {
@@ -486,6 +540,7 @@ export function AppProvider({ repository, children }: Props) {
         if (!result) return null;
         updateReleases(result.releases);
         persist((repo) => repo.addRelease(result.release));
+        toast.notify(t('toast.created.release', { title: result.release.title }));
         return id;
       },
       updateRelease(id, input) {
@@ -514,6 +569,8 @@ export function AppProvider({ repository, children }: Props) {
         update(result.stories);
         persist((repo) => repo.addStory(result.story));
         notify('created');
+        toast.notify(t('toast.created.story', { code: result.story.code, title: result.story.title }));
+        flash(id, true);
         return id;
       },
       updateStory(id, patch) {
@@ -523,6 +580,18 @@ export function AppProvider({ repository, children }: Props) {
         update(after);
         persist((repo) => repo.updateStory(story));
       },
+      changeStory(id, patch) {
+        const before = storiesRef.current;
+        const after = updateStoryIn(before, id, patch);
+        const story = after.find((item) => item.id === id);
+        const was = before.find((item) => item.id === id);
+        if (!story || !was || (Object.keys(patch) as Array<keyof StoryPatch>).every((key) => was[key] === story[key])) return;
+        update(after);
+        persist((repo) => repo.updateStory(story));
+        announceMove(before, after, id, true);
+      },
+      flashed,
+      flashScroll,
       deleteStory(id) {
         update(deleteStoryIn(storiesRef.current, id));
         persist((repo) => repo.deleteStory(id));
@@ -569,6 +638,7 @@ export function AppProvider({ repository, children }: Props) {
         if (!result) return null;
         updateEpics(result.epics);
         persist((repo) => repo.addEpic(result.epic));
+        toast.notify(t('toast.created.epic', { name: result.epic.name }));
         return id;
       },
       updateEpic(id, patch) {
@@ -680,7 +750,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify, t]
+    [snapshot, loading, error, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify, announceMove, flash, toast, t]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

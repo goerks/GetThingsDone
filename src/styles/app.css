@@ -107,6 +107,12 @@ a {
   border-radius: var(--radius-md);
 }
 
+/* Several actions in a page head sit together at the right. */
+.page-head__action ~ .page-head__action,
+.page-head__actions .page-head__action {
+  margin-left: 0;
+}
+
 /* ---------- Header ---------- */
 
 /* The header stays at the top of the window while the page scrolls (#15). Its height is set by `Header`. */
@@ -484,7 +490,7 @@ textarea.input {
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px 14px;
-  cursor: grab;
+  cursor: pointer;
   user-select: none;
   touch-action: manipulation;
   background: var(--surface);
@@ -1151,6 +1157,11 @@ textarea.input {
   margin: 0;
   color: var(--danger);
   font-size: 14px;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger);
 }
 
 /* ---------- Story map ---------- */
@@ -3908,6 +3919,190 @@ a.linkbtn:hover {
   color: var(--muted);
 }
 
+
+/* ---------- Usability package 1 (#32) ---------- */
+
+/* Cards, rows and chips open with a click: the pointer is a hand; it is a fist only while dragging. */
+.backlog__row,
+.map-card {
+  cursor: pointer;
+}
+
+.card--dragging,
+.backlog__row--dragging,
+.map-card--dragging {
+  cursor: grabbing;
+}
+
+.new-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.new-button__keys {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 0 6px;
+  border: 1px solid color-mix(in oklab, var(--accent-ink) 45%, transparent);
+  border-radius: 4px;
+  color: var(--accent-ink);
+  background: transparent;
+}
+
+/* Footer of the create dialogs: "Cancel" and the primary button at the right, the shortcut hint under them. */
+.create-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.create-footer__buttons {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.create-footer__buttons .btn {
+  white-space: nowrap;
+}
+
+.create-footer__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.create-added {
+  margin: 0;
+  border: 1px solid var(--epic-green);
+  background: color-mix(in oklab, var(--epic-green) 14%, var(--surface));
+  color: var(--text);
+  font-weight: 500;
+}
+
+.discard-ask {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--text);
+}
+
+.discard-ask__text {
+  flex: 1 1 140px;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Quick add: "+ Story" at the end of a column, a section or a cell. */
+.quick-add {
+  display: block;
+  width: 100%;
+  min-height: var(--target-min);
+  padding: 6px 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.quick-add:hover,
+.quick-add:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.quick-add--open {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  cursor: default;
+}
+
+.quick-add__input {
+  width: 100%;
+}
+
+.backlog__section > .quick-add {
+  margin-top: 8px;
+}
+
+/* Context menu */
+.ctx-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+
+.ctx-box {
+  position: fixed;
+  z-index: 91;
+}
+
+.ctx-menu {
+  min-width: 190px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.ctx-menu__row {
+  position: relative;
+}
+
+.ctx-menu--nested {
+  position: absolute;
+  top: -5px;
+  left: calc(100% - 2px);
+}
+
+.ctx-menu--flip {
+  left: auto;
+  right: calc(100% - 2px);
+}
+
+.ctx-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ctx-menu__item:hover,
+.ctx-menu__item:focus-visible,
+.ctx-menu__item[aria-expanded='true'] {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
 /* ---------- Start and complete a sprint (#17) ---------- */
 
 .sprint-hint {
@@ -3921,6 +4116,504 @@ a.linkbtn:hover {
   border-radius: var(--radius-md);
   background: var(--accent-soft);
   color: var(--accent-soft-ink);
+}
+
+.ctx-menu__dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.ctx-menu__label {
+  flex: 1;
+}
+
+.ctx-menu__tick,
+.ctx-menu__arrow {
+  color: var(--muted);
+}
+
+/* Notices */
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 10px 12px 10px 16px;
+  border-radius: var(--radius-md);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+}
+
+.toast__close {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toast__close:hover {
+  background: color-mix(in oklab, var(--bg) 22%, transparent);
+}
+
+/* The story whose menu is open: clearly the chosen one, so it is clear what the menu acts on. */
+.ctx-target {
+  position: relative;
+  z-index: 2;
+  border-color: var(--accent) !important;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px var(--accent-soft), 0 6px 18px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* A story that was just created or moved: a green frame for two seconds. */
+.flash {
+  border-color: var(--epic-green) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--epic-green) 35%, transparent) !important;
+  animation: flash-pulse 2s ease-out;
+}
+
+@keyframes flash-pulse {
+  from {
+    box-shadow: 0 0 0 7px color-mix(in oklab, var(--epic-green) 45%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    animation: none;
+  }
+}
+
+/* Shortcut overview */
+.shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.shortcut__group h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.shortcut__list {
+  margin: 0;
+}
+
+.shortcut__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.shortcut__row dt {
+  font-size: 14px;
+}
+
+.shortcut__row dd {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.shortcut__keys kbd,
+.new-button kbd {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.shortcut__keys kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--pill);
+}
+
+/* Acceptance aid of the pull request previews: never part of the product, so it does not look like it:
+   a round magenta button (round and magenta exist nowhere else in the app) with a progress ring and a "Preview" tag. */
+.acceptance {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: calc(100vw - 32px);
+}
+
+/* The popup moves to the side of the window that does not hold what is under test. */
+.acceptance--right {
+  left: auto;
+  right: 16px;
+  align-items: flex-end;
+}
+
+.acceptance__fab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px;
+}
+
+.acceptance--right .acceptance__fab {
+  flex-direction: row-reverse;
+}
+
+.acceptance__toggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--tool);
+  color: var(--tool-ink);
+  box-shadow: 0 8px 20px color-mix(in oklab, var(--tool) 45%, transparent);
+  cursor: pointer;
+}
+
+.acceptance__toggle:hover {
+  filter: brightness(1.08);
+}
+
+.acceptance__toggle:focus-visible {
+  outline: 3px solid var(--tool-dark);
+  outline-offset: 4px;
+}
+
+.acceptance__ring {
+  position: absolute;
+  inset: -6px;
+  width: 78px;
+  height: 78px;
+  rotate: -90deg;
+  pointer-events: none;
+}
+
+.acceptance__ring circle {
+  fill: none;
+  stroke-width: 5;
+}
+
+.acceptance__ring-track {
+  stroke: color-mix(in oklab, var(--tool) 28%, transparent);
+}
+
+.acceptance__ring-done {
+  stroke: var(--tool);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acceptance__ring-done {
+    transition: none;
+  }
+}
+
+.acceptance__count {
+  position: absolute;
+  top: -10px;
+  right: -12px;
+  min-width: 30px;
+  padding: 1px 6px;
+  border: 2px solid var(--bg);
+  border-radius: var(--radius-pill);
+  background: var(--tool-dark);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.acceptance__tag {
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  background: var(--tool-dark);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* A popup above the button, not a sidebar: the page keeps its place. */
+.acceptance__panel {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  max-height: min(78vh, 720px);
+  border: 2px solid var(--tool);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 12px 30px color-mix(in oklab, var(--tool) 35%, transparent);
+  overflow: hidden;
+}
+
+.acceptance__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 8px 8px 16px;
+  background: var(--tool);
+  color: var(--tool-ink);
+}
+
+.acceptance__head h2 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.acceptance__head .icon-btn {
+  min-width: 32px;
+  min-height: 32px;
+  border-color: var(--tool-ink);
+  background: transparent;
+  color: var(--tool-ink);
+}
+
+.acceptance__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 14px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+/* All steps as traffic lights; the current one is outlined. */
+.acceptance__strip {
+  display: flex;
+  gap: 2px;
+}
+
+.acceptance__seg {
+  flex: 1;
+  min-width: 3px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: var(--border);
+  cursor: pointer;
+}
+
+.acceptance__seg--ok {
+  background: var(--epic-green);
+}
+
+.acceptance__seg--bad {
+  background: var(--danger);
+}
+
+.acceptance__seg--now {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+
+.acceptance__status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.acceptance__case {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.acceptance__case h3 {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.acceptance__id {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.acceptance__criterion,
+.acceptance__manual {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.acceptance__steps {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  margin: 0;
+}
+
+.acceptance__steps dt {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.acceptance__steps dd {
+  margin: 0;
+}
+
+.acceptance__mine {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 4px solid var(--tool);
+  background: color-mix(in oklab, var(--tool) 10%, var(--surface));
+}
+
+.acceptance__auto {
+  margin: 0;
+  color: var(--muted);
+}
+
+.acceptance__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-basis: 100%;
+  font-size: 12px;
+}
+
+.acceptance__autotag {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.acceptance__tests {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--pill);
+  font-size: 12px;
+}
+
+.acceptance__tests ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.acceptance__tests code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.acceptance__tests p {
+  margin: 6px 0 0;
+}
+
+.acceptance__go {
+  align-self: flex-start;
+}
+
+.acceptance__marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.acceptance__ok {
+  border-color: var(--epic-green);
+  color: var(--epic-green);
+  font-weight: 600;
+}
+
+.acceptance__bad {
+  border-color: var(--danger);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.acceptance__ok.is-on {
+  background: var(--epic-green);
+  color: var(--surface);
+}
+
+.acceptance__bad.is-on {
+  background: var(--danger);
+  color: var(--surface);
+}
+
+.acceptance__comment {
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.acceptance__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.acceptance__hint {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.acceptance__copied {
+  flex-basis: 100%;
+  color: var(--epic-green);
+  font-weight: 600;
+}
+
+.acceptance__list h4 {
+  margin: 10px 0 4px;
+  font-size: 13px;
+}
+
+.acceptance__list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .sprint-hint--ended {
@@ -4065,6 +4758,74 @@ a.linkbtn:hover {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.acceptance__row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.acceptance__row:hover,
+.acceptance__row[aria-current='step'] {
+  background: var(--pill);
+}
+
+.acceptance__dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--muted);
+  border-radius: 50%;
+}
+
+.acceptance__dot--ok {
+  border-color: var(--epic-green);
+  background: var(--epic-green);
+}
+
+.acceptance__dot--bad {
+  border-color: var(--danger);
+  background: var(--danger);
+}
+
+/* What is to be tested lights up for a moment after "Zur Seite". */
+.acceptance-glow {
+  position: relative;
+  z-index: 5;
+  outline: 4px solid var(--tool);
+  outline-offset: 3px;
+  animation: acceptance-glow 1s ease-in-out 3;
+}
+
+@keyframes acceptance-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in oklab, var(--tool) 55%, transparent), 0 0 24px 8px var(--tool);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acceptance-glow {
+    animation: none;
+  }
+}
+
+a.btn {
+  text-decoration: none;
 }
 
 .sprint-stories li {

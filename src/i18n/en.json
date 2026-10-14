@@ -15,7 +15,8 @@
   "header": {
     "toDark": "Switch to dark theme",
     "toLight": "Switch to light theme",
-    "language": "Language"
+    "language": "Language",
+    "shortcuts": "Keyboard shortcuts"
   },
   "status": {
     "todo": "To do",
@@ -53,7 +54,12 @@
     "points": "Points",
     "add": "Add story",
     "cancel": "Cancel",
-    "dialogTitle": "New story"
+    "dialogTitle": "New story",
+    "addAnother": "Add and add another",
+    "addedAnother": "“{{title}}” added. Epic, sprint and points stay.",
+    "problem": {
+      "title": "Please enter a title."
+    }
   },
   "backlog": {
     "title": "Backlog",
@@ -138,7 +144,10 @@
     "inUse_other": "Used by {{count}} stories. Move them to another epic first.",
     "notFound": "This epic does not exist any more.",
     "deleteButton": "Delete epic",
-    "noEpic": "No epic"
+    "noEpic": "No epic",
+    "problem": {
+      "name": "Please enter a name."
+    }
   },
   "sprint": {
     "label": "Sprint",
@@ -834,13 +843,23 @@
       },
       "story.open": {
         "title": "Open and edit a story",
-        "keywords": "story detail dialog title description criteria points",
-        "body": "Click the title of a story, or choose the card and press Enter, to open it. In the dialog you change title, description, points and status, and tick off the acceptance criteria.\nPress Escape to close the dialog."
+        "keywords": "story detail dialog title description criteria points click",
+        "body": "Click a story (anywhere on its card or row), or choose the card and press Enter, to open it. In the dialog you change title, description, points and status, and tick off the acceptance criteria.\nPress Escape to close the dialog."
       },
       "story.create": {
         "title": "Create a story",
-        "keywords": "new story add ctrl+n",
-        "body": "Press Ctrl+N (Cmd+N on a Mac) or use the “New story” button on the Board or the Backlog. Give the story a title and save it.\nA new story starts in the first column."
+        "keywords": "new story add ctrl+n another",
+        "body": "Press Ctrl+N (Cmd+N on a Mac) or use the “New story” button on the Board or the Backlog. Give the story a title and save it with the button or with Ctrl+Enter. If the title is missing, a message under the field says so.\n“Add and add another” (Ctrl+Shift+Enter) keeps epic, sprint and points for the next story.\nA new story starts in the first column."
+      },
+      "story.menu": {
+        "title": "Change a story from its menu",
+        "keywords": "context menu right click status sprint epic points shift f10 move",
+        "body": "Right-click a card or row (or choose it and press the menu key or Shift+F10). The menu changes status, sprint, epic and points without opening the story.\nUse the arrow keys to move through the menu, the right arrow to open a submenu, Enter to choose and Escape to close.\nA notice tells you what changed, and the story is framed in green for a moment."
+      },
+      "story.quickAdd": {
+        "title": "Add stories quickly",
+        "keywords": "quick add plus story column sprint cell title enter",
+        "body": "Click “+ Story” at the end of a column on the Board or of a section in the Backlog, or the “+” in a cell of the Story Map. Type a title and press Enter: the story is added in that place and the field stays open for the next one. Escape closes the field.\nOnly the title is asked; points, epic and the rest you can add later in the story."
       },
       "backlog.order": {
         "title": "Order the backlog",
@@ -885,7 +904,7 @@
       "shortcuts": {
         "title": "Keyboard shortcuts",
         "keywords": "keys keyboard shortcut hotkey",
-        "body": "?  Open or close the help.\nCtrl+F  Search.\nCtrl+N  Create a story, an epic or a release, depending on the page.\nSpace, arrow keys, Space  Pick up, move and drop a card or row.\nEscape  Cancel, or close a dialog or the help."
+        "body": "?  Open or close the help.\nCtrl+/  Show all keyboard shortcuts.\nCtrl+F  Search.\nCtrl+N  Create a story, an epic or a release, depending on the page.\nCtrl+Enter  Save a dialog for something new. Ctrl+Shift+Enter  Save a new story and add another.\nShift+F10 or the menu key  Open the menu of the chosen card.\nSpace, arrow keys, Space  Pick up, move and drop a card or row.\nEscape  Cancel, or close a dialog or the help."
       },
       "tour": {
         "title": "First steps",
@@ -909,6 +928,72 @@
     "linkHints": {
       "featureFirst": "Switch the feature on first",
       "releaseRows": "Choose “Releases” as the rows"
+    }
+  },
+  "dialog": {
+    "saveHint": "{{mod}}+Enter saves · Esc cancels",
+    "discardTitle": "Discard input?",
+    "keepEditing": "Keep editing",
+    "discard": "Discard"
+  },
+  "quickAdd": {
+    "button": "+ Story",
+    "in": "in {{place}}",
+    "open": "Add a story to {{place}}",
+    "input": "Title of the new story in {{place}}",
+    "placeholder": "Title – Enter adds, Esc closes"
+  },
+  "menu": {
+    "open": "Open",
+    "status": "Status",
+    "sprint": "Sprint",
+    "epic": "Epic",
+    "points": "Points",
+    "label": "Actions for {{code}}"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "everywhere": "Everywhere",
+    "note": "Ctrl is Cmd on a Mac. Single-key shortcuts only work when no text field has the focus.",
+    "page": {
+      "board": "On the board",
+      "backlog": "In the backlog",
+      "map": "On the story map",
+      "epics": "On the epics page",
+      "releases": "On the releases page",
+      "settings": "In the settings"
+    },
+    "newStory": "New story",
+    "newEpic": "New epic",
+    "newRelease": "New release",
+    "openCard": "Open the focused card",
+    "dragCard": "Pick up or drop the focused card (arrow keys move it)",
+    "cardMenu": "Menu of the focused card (or the menu key)",
+    "search": "Search",
+    "overview": "This overview",
+    "close": "Close a dialog or menu",
+    "save": "Save a create dialog",
+    "addAnother": "Save a new story and add another",
+    "help": "Open the help"
+  },
+  "toast": {
+    "close": "Dismiss",
+    "created": {
+      "story": "{{code}} “{{title}}” added",
+      "epic": "Epic “{{name}}” added",
+      "sprint": "Sprint “{{name}}” added",
+      "release": "Release “{{title}}” added"
+    },
+    "moved": {
+      "status": "{{code}} moved to {{target}}",
+      "sprint": "{{code}} moved to {{target}}",
+      "epic": "{{code}} now in epic “{{target}}”",
+      "noEpic": "{{code}} now has no epic",
+      "release": "{{code}} now in release “{{target}}”",
+      "noRelease": "{{code}} now has no release",
+      "points_one": "{{code}} now has {{count}} point",
+      "points_other": "{{code}} now has {{count}} points",
+      "reordered": "{{code}} moved"
     }
   }
 }

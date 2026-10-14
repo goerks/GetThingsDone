@@ -45,6 +45,16 @@ Status value decisions (#5, recorded here and in the issue): status values are t
 - Status changes such as "all criteria accepted" are announced through live regions.
 - The search follows the combobox pattern: focus stays in the input, `aria-activedescendant` points to the marked option in a grouped listbox, the number of results is announced in a live region. Filters are badges with the field, "=" and the value and a remove button; field and value suggestions are options in the same listbox.
 
+## Interaction conventions (#32)
+
+- **Opening:** one click opens a story, epic, sprint or release everywhere; dragging starts after 4 px, and dnd-kit swallows the click that ends a drag. A click beside a dialog within 400 ms of opening is ignored.
+- **Create dialogs** share `Dialog` (props `dirty`, `submitShortcut`) and `DialogFooter`: `Ctrl+Enter` submits the form, Escape or a click beside the dialog asks "Discard input?" when `dirty`.
+- **Shortcuts** are always combinations with Ctrl (Cmd on a Mac); there are no single-key shortcuts (PO decision). `Ctrl+N` creates what the page is about (`useNewShortcut`), `Ctrl+/` opens the overview (`Shortcuts.tsx`).
+- **Context menu:** `StoryMenuProvider` owns one menu for all cards; cards and rows call `openFor` from `onContextMenu`, which the browser also fires for the menu key and `Shift+F10`. The menu is a portal with a transparent layer behind it.
+- **Feedback:** `ToastProvider` (above `AppProvider`) shows notices in a polite live region; `AppState` announces creates and moves and sets `flashed`, which cards read to show the green frame; `App` scrolls the flashed story into view. Without a provider (small tests) notices do nothing.
+- **Quick add** (`QuickAdd.tsx`) creates a story with the defaults of its place; with a required custom field without default it hands over to `NewStoryDialog`.
+- **Acceptance panel** (`src/acceptance/`): the test cases of a pull request are data (`package<n>.ts`); `Panel.tsx` shows them step by step in previews only (`preview.ts`), keeps marks, comments and the step in `localStorage`, and copies the result as text for the chat with the AI. It is German only because it shows the German test cases for the PO.
+
 ## Theming
 
 Colours, spacing and radii are CSS custom properties in `docs/design/tokens.css`. Epic colours are `--epic-<key>`; each reaches at least 3:1 against cards and columns in both themes and is always shown with the epic name. The theme is set with `data-theme="light|dark"` on the root element, stored locally and initialised from the system preference.
@@ -72,7 +82,7 @@ Tests are derived from test cases the PO approves per acceptance criterion (see 
 | Unit | Vitest | `src/domain/*.test.ts` |
 | Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, `src/Help.test.tsx`, with `LocalStorageRepository` as test double |
 | Integration (data, Tauri boundary) | – | Planned |
-| End-to-end | Playwright, real Chromium, web build with demo data and a fixed clock | `e2e/*.spec.ts`, `npm run test:e2e` (story map since #12, help since #33) |
+| End-to-end | Playwright, real Chromium, web build with demo data and a fixed clock; visual checks with `toHaveScreenshot` of new elements (baselines in `e2e/*.spec.ts-snapshots`, Chromium on Linux, tolerance 8 % because CI renders text slightly differently) | `e2e/*.spec.ts`, `npm run test:e2e` (story map since #12, help since #33, usability since #32) |
 | Accessibility (axe) | – | Planned |
 
 ## Security

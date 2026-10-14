@@ -16,6 +16,9 @@ import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { NewEpicDialog } from '../components/EpicDialogs';
 import { NewStoryDialog } from '../components/NewStoryDialog';
+import { NewButton } from '../components/NewButton';
+import { StoryQuickAdd } from '../components/QuickAdd';
+import { useStoryMenu } from '../state/StoryMenu';
 import { NewReleaseDialog } from '../components/ReleaseForm';
 import { formatPeriod } from '../components/releaseFormat';
 import { SprintDialog } from '../components/SprintDialog';
@@ -84,6 +87,8 @@ function CardContent({ story }: { story: Story }) {
 function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
   const { t } = useTranslation();
   const details = useDetails();
+  const menu = useStoryMenu();
+  const app = useApp();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -99,7 +104,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
   };
 
   const match = useMatchClass(story.id, 'map-card');
-  const classes = ['map-card', isDragging && 'map-card--dragging', dropBefore && 'drop-before', match].filter(Boolean).join(' ');
+  const classes = ['map-card', isDragging && 'map-card--dragging', dropBefore && 'drop-before', app.flashed === story.id && 'flash', menu.openId === story.id && 'ctx-target', match].filter(Boolean).join(' ');
 
   return (
     <li>
@@ -111,7 +116,8 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
         aria-label={`${story.code}: ${story.title}`}
         {...listeners}
         onKeyDown={onKeyDown}
-        onDoubleClick={() => details.openStory(story.id)}
+        onClick={() => details.openStory(story.id)}
+        onContextMenu={(event) => menu.openFor(story.id, event)}
       >
         <CardContent story={story} />
       </article>
@@ -135,10 +141,12 @@ interface CellProps {
   /** Set while a dragged story would land in this cell: in front of `beforeId`, or at the end when null. */
   drop: { beforeId: string | null } | null;
   labelledBy: string;
-  onAdd: () => void;
+  /** Where "+" puts a new story, in words, and as ids. */
+  place: string;
+  quick: { sprintId: string | null; epicId: string | null; releaseId?: string | null };
 }
 
-function Cell({ dropId, cellKey: key, unplanned, addLabel, stories, drop, labelledBy, onAdd }: CellProps) {
+function Cell({ dropId, cellKey: key, unplanned, addLabel, stories, drop, labelledBy, place, quick }: CellProps) {
   const { setNodeRef } = useDroppable({ id: dropId });
   const classes = ['map-cell', drop && 'map-cell--target', unplanned && 'map-cell--unplanned'].filter(Boolean).join(' ');
 
@@ -152,15 +160,15 @@ function Cell({ dropId, cellKey: key, unplanned, addLabel, stories, drop, labell
           {drop && drop.beforeId === null && stories.length > 0 && <li className="drop-line" aria-hidden="true" />}
         </ul>
       </SortableContext>
-      <button
-        type="button"
-        className={`map-cell__add${stories.length === 0 ? ' map-cell__add--empty' : ''}`}
-        aria-label={addLabel}
-        title={addLabel}
-        onClick={onAdd}
-      >
-        +
-      </button>
+      <StoryQuickAdd
+        variant="cell"
+        place={place}
+        buttonLabel={addLabel}
+        extraClass={stories.length === 0 ? 'map-cell__add--empty' : undefined}
+        sprintId={quick.sprintId}
+        epicId={quick.epicId}
+        releaseId={quick.releaseId}
+      />
     </div>
   );
 }
@@ -520,7 +528,8 @@ export function MapPage() {
           stories={storiesInCell(app.stories, epic?.id ?? null, sprint?.id ?? null)}
           drop={target && target.group === cellKey(epic?.id ?? null, sprint?.id ?? null) ? { beforeId: target.beforeId } : null}
           labelledBy={`${labelId} ${columnLabelId(epic)}`}
-          onAdd={() => setDialog({ kind: 'story', epicId: epic?.id ?? null, sprintId: sprint?.id ?? null })}
+          place={`${sprint ? sprint.name : t('sprint.notPlanned')}, ${epic ? epic.name : t('epics.noEpic')}`}
+          quick={{ sprintId: sprint?.id ?? null, epicId: epic?.id ?? null }}
         />
       ))}
     </div>
@@ -556,7 +565,8 @@ export function MapPage() {
             stories={storiesInReleaseCell(app.stories, epic?.id ?? null, release?.id ?? null)}
             drop={target && target.group === cellKey(epic?.id ?? null, release?.id ?? null) ? { beforeId: target.beforeId } : null}
             labelledBy={`${labelId} ${columnLabelId(epic)}`}
-            onAdd={() => setDialog({ kind: 'story', epicId: epic?.id ?? null, sprintId: null, releaseId: release?.id ?? null })}
+            place={`${release ? release.title : t('map.noRelease')}, ${epic ? epic.name : t('epics.noEpic')}`}
+            quick={{ sprintId: null, epicId: epic?.id ?? null, releaseId: release?.id ?? null }}
           />
         ))}
       </div>
@@ -593,6 +603,7 @@ export function MapPage() {
         >
           {t('map.compact')}
         </button>
+        <NewButton label={t('newStory.open')} onClick={() => setDialog({ kind: 'story', epicId: null, sprintId: null })} />
       </div>
 
       {app.settings.mapRows === 'releases' && !featureOn(app.settings, 'releases') && (

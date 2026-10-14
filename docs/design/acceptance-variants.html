@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abnahme Varianten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column; each variant is a clickable prototype of the preview (board mock with the acceptance on top).
+   Tokens mirror the app's "Focus" design (docs/design/tokens.css); marker yellow is the acceptance tool's own colour. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.18); --scrim: rgba(20,24,31,.55);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --accept: #ffd23f; --accept-ink: #1a1300;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.5); --scrim: rgba(0,0,0,.6);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.5); --scrim: rgba(0,0,0,.6);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; padding-inline: 16px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 80px; display: grid; gap: 56px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; } h2 { font-size: 22px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; } .muted { color: var(--muted); }
+kbd { font-family: var(--font-mono); font-size: 12px; background: var(--pill); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+.variant { display: grid; gap: 14px; min-width: 0; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.id { font-family: var(--font-mono); font-size: 12px; background: var(--accent-soft); color: var(--accent-soft-ink); padding: 2px 8px; border-radius: 999px; font-weight: 500; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.pc { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.pc div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 14px; font-size: 14px; }
+.pc b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
+.hint { font-size: 13px; color: var(--muted); }
+.scroll { overflow-x: auto; border-radius: var(--r); }
+
+/* ---- Mock of the app (the preview the PO tests) ---- */
+.frame { position: relative; min-width: 760px; height: 520px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); font-size: 13px; }
+.m-bar { display: flex; align-items: center; gap: 18px; padding: 0 14px; height: 38px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.m-bar b { white-space: nowrap; } .m-nav { display: flex; gap: 14px; color: var(--muted); } .m-nav .on { color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+.m-page { padding: 12px 14px; display: grid; gap: 10px; }
+.m-head { display: flex; align-items: center; gap: 12px; } .m-head h3 { font-size: 17px; } .m-head .push { margin-left: auto; }
+.m-btn { height: 28px; padding: 0 11px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
+.m-btn kbd { background: transparent; color: var(--accent-ink); border-color: color-mix(in oklab, var(--accent-ink) 45%, transparent); }
+.m-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.m-col { background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 7px; align-content: start; min-height: 360px; }
+.m-col h4 { margin: 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding-bottom: 5px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+.m-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; display: grid; gap: 3px; }
+.m-card span { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.m-add { border: 1px dashed var(--border); border-radius: 6px; padding: 8px; color: var(--muted); }
+
+/* the glow: what is to be tested lights up for a moment */
+.glow { position: relative; z-index: 5; outline: 4px solid var(--accept); outline-offset: 3px; animation: glow 1s ease-in-out 3; }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--accept) 55%, transparent), 0 0 24px 8px var(--accept); } }
+@media (prefers-reduced-motion: reduce) { .glow { animation: none; } }
+
+/* ---- The acceptance button: unlike every button of the app ---- */
+.acc { position: absolute; left: 12px; bottom: 12px; z-index: 20; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.acc.right { left: auto; right: 12px; align-items: flex-end; }
+.acc-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px 0 12px; border: 2px solid var(--accept-ink); border-radius: 999px; background: var(--accept); color: var(--accept-ink); font: 700 14px var(--font-sans); box-shadow: 4px 4px 0 var(--accept-ink); cursor: pointer; }
+.acc-btn .n { padding: 0 7px; border-radius: 999px; background: var(--accept-ink); color: var(--accept); font: 12px var(--font-mono); }
+.acc-btn .t { padding: 1px 6px; border: 1.5px solid var(--accept-ink); border-radius: 4px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.pop { width: 400px; max-height: 410px; display: flex; flex-direction: column; background: var(--surface); color: var(--text); border: 2px solid var(--accept-ink); border-radius: var(--r); box-shadow: 6px 6px 0 var(--accept-ink); overflow: hidden; }
+.pop-h { display: flex; align-items: center; gap: 8px; padding: 7px 8px 7px 14px; background: var(--accept); color: var(--accept-ink); font-weight: 700; }
+.pop-h .x { margin-left: auto; width: 28px; height: 28px; border: 1.5px solid var(--accept-ink); border-radius: 6px; background: transparent; color: inherit; font-size: 16px; cursor: pointer; }
+.pop-b { overflow-y: auto; padding: 10px 12px 12px; display: grid; gap: 8px; }
+.btn { height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 13px var(--font-sans); cursor: pointer; white-space: nowrap; }
+.btn--p { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn--ok { border-color: var(--ok); color: var(--ok); font-weight: 600; } .btn--ok.on { background: var(--ok); color: var(--surface); }
+.btn--bad { border-color: var(--bad); color: var(--bad); font-weight: 600; } .btn--bad.on { background: var(--bad); color: var(--surface); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.steps { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: 13px; color: var(--muted); margin: 0; }
+.steps dt { font-weight: 600; } .steps dd { margin: 0; color: var(--text); }
+textarea.cm { width: 100%; font: 13px var(--font-sans); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; background: var(--surface); color: var(--text); }
+.dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--muted); display: inline-block; flex: none; }
+.dot.ok { background: var(--ok); border-color: var(--ok); } .dot.bad { background: var(--bad); border-color: var(--bad); }
+.bar { height: 6px; border-radius: 3px; background: var(--pill); overflow: hidden; display: flex; gap: 2px; }
+.bar i { flex: 1; background: var(--border); } .bar i.ok { background: var(--ok); } .bar i.bad { background: var(--bad); } .bar i.cur { outline: 2px solid var(--accept-ink); outline-offset: -2px; }
+/* A: accordion */
+.grp > button { width: 100%; display: flex; align-items: center; gap: 8px; text-align: left; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--column); color: var(--text); font: 600 13px var(--font-sans); cursor: pointer; }
+.grp > button .c { margin-left: auto; font: 12px var(--font-mono); color: var(--muted); }
+.grp .cases { display: grid; gap: 6px; padding: 6px 0 2px 8px; }
+.case { border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; display: grid; gap: 6px; background: var(--bg); }
+.case > .top { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.case > .top b { font-family: var(--font-mono); font-size: 12px; }
+/* C: mini bar */
+.mini { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(640px, calc(100% - 24px)); z-index: 20; background: var(--surface); color: var(--text); border: 2px solid var(--accept-ink); border-radius: var(--r); box-shadow: 6px 6px 0 var(--accept-ink); }
+.mini-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+.mini-row .txt { flex: 1; min-width: 0; } .mini-row .txt b { font-family: var(--font-mono); font-size: 12px; background: var(--accept); color: var(--accept-ink); padding: 1px 6px; border-radius: 4px; margin-right: 6px; }
+.mini-row .txt p { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: none; }
+.mini-more { padding: 0 12px 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+/* D: filter chips */
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: 12px var(--font-sans); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accept); color: var(--accept-ink); border-color: var(--accept-ink); font-weight: 700; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-left: auto; }
+.seg button { width: 30px; height: 26px; border: 0; border-right: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 13px; }
+.seg button:last-child { border-right: 0; } .seg button.ok.on { background: var(--ok); color: var(--surface); } .seg button.bad.on { background: var(--bad); color: var(--surface); } .seg button.open.on { background: var(--pill); color: var(--text); }
+/* E: spotlight */
+.dim { position: absolute; z-index: 30; border-radius: 10px; box-shadow: 0 0 0 2000px var(--scrim); outline: 3px solid var(--accept); pointer-events: none; transition: all .25s; }
+.tip { position: absolute; z-index: 31; width: 300px; background: var(--surface); color: var(--text); border: 2px solid var(--accept-ink); border-radius: var(--r); box-shadow: 5px 5px 0 var(--accept-ink); padding: 10px 12px; display: grid; gap: 8px; }
+.tip h4 { margin: 0; font-size: 13px; } .tip .exp { font-size: 13px; }
+.tip .step { font: 12px var(--font-mono); color: var(--muted); }
+.start { position: absolute; z-index: 20; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+  <div class="meta"><span>Issue #32</span><span>Abnahme in der Preview</span><span>5 Varianten</span></div>
+  <h1>Abnahme: Varianten</h1>
+  <p class="muted">Basis ist, was Sie verlangt haben: ein Popup statt der Seitenleiste, ein Prüfpunkt, der beim Anspringen aufleuchtet, und ein Knopf, der sich klar vom Rest der App unterscheidet. Darauf bauen fünf Wege auf, die Abnahme einfacher zu machen. Jede Variante ist anklickbar (Beispiel mit 5 von 47 Prüfpunkten). Wählen Sie eine oder mischen Sie, zum Beispiel «B mit den Filtern aus D».</p>
+</header>
+
+<section class="variant" aria-labelledby="knopf">
+  <div class="variant__head"><h2 id="knopf">Der Abnahmeknopf (für alle Varianten)</h2><span class="tag tag--rec">umgesetzt</span></div>
+  <p>Gelber Knopf mit hartem Schatten, Klemmbrett-Symbol, Zähler und dem Wort «Preview»; die App selbst hat keine gelben Flächen und keine Schatten dieser Art. Das Popup hat dieselbe gelbe Kopfzeile, so dass klar bleibt, was Werkzeug und was Produkt ist.</p>
+  <div class="row" style="padding: 8px 4px 12px"><span class="m-btn">Neue Story <kbd>Ctrl+N</kbd></span><span class="btn">Kompakt</span><span class="acc-btn" style="position:static">▤ Abnahme <span class="n">12/47</span> <span class="t">Preview</span></span></div>
+</section>
+
+<section class="variant" aria-labelledby="va">
+  <div class="variant__head"><span class="id">A</span><h2 id="va">Kriterien zugeklappt</h2></div>
+  <p>Das Popup zeigt nur die Kriterien (AC1, AC3, …) mit Fortschritt. Es ist immer nur eines offen; darin steht jeder Prüfpunkt als eine Zeile, ein Klick klappt ihn auf. «Zur Seite» klappt das Popup zu einem kleinen Hinweis zusammen und der Prüfpunkt leuchtet auf.</p>
+  <div class="pc"><div><b>Gut</b>Kurz und übersichtlich, 47 Punkte schrecken nicht ab. Kleine Änderung am Bestehenden.</div><div><b>Schwach</b>Man muss weiterhin selbst den nächsten Punkt suchen.</div></div>
+  <div class="scroll"><div class="frame" id="fa"></div></div>
+</section>
+
+<section class="variant" aria-labelledby="vb">
+  <div class="variant__head"><span class="id">B</span><h2 id="vb">Durchsteppen</h2><span class="tag tag--rec">Empfehlung</span></div>
+  <p>Das Popup zeigt einen Prüfpunkt auf einmal: «Schritt 3 von 47», Ausgangslage, Aktion, Erwartung. «In Ordnung» geht zum nächsten Punkt, springt auf die richtige Seite und lässt das Ziel aufleuchten. «Problem» öffnet ein Kommentarfeld. Ein Streifen oben zeigt alle Punkte als Ampel, ein Klick darauf springt dorthin.</p>
+  <div class="pc"><div><b>Gut</b>Man muss nie suchen: ein Klick pro Punkt. Der Streifen zeigt sofort, wo man steht.</div><div><b>Schwach</b>Ein Gesamtüberblick braucht den Streifen oder die Liste.</div></div>
+  <div class="scroll"><div class="frame" id="fb"></div></div>
+</section>
+
+<section class="variant" aria-labelledby="vc">
+  <div class="variant__head"><span class="id">C</span><h2 id="vc">Schmale Leiste unten</h2></div>
+  <p>Statt eines Popups eine schmale Leiste am unteren Rand: der aktuelle Prüfpunkt in einer Zeile, «Erwartet» daneben, rechts ✓ ✗ und Pfeile. Details klappen nach oben auf. Sie verdeckt fast nichts, das Ziel bleibt sichtbar.</p>
+  <div class="pc"><div><b>Gut</b>Die Seite bleibt fast ganz frei, man testet und hakt in einem Zug ab.</div><div><b>Schwach</b>Wenig Platz für Ausgangslage und Kommentare; die ganze Liste fehlt ohne Zusatzansicht.</div></div>
+  <div class="scroll"><div class="frame" id="fc"></div></div>
+</section>
+
+<section class="variant" aria-labelledby="vd">
+  <div class="variant__head"><span class="id">D</span><h2 id="vd">Ampel und Filter</h2></div>
+  <p>Jeder Prüfpunkt hat drei Zustände (offen, in Ordnung, Problem) und die Kriterien zeigen eine Zusammenfassung. Filter «Offen / Probleme» blenden den Rest aus; «Probleme kopieren» gibt nur die Fehler als Text für den Pull Request. Zur Seite springt man aus jeder Zeile.</p>
+  <div class="pc"><div><b>Gut</b>Gut für den zweiten Durchgang («was ist noch offen, was war ein Problem?») und für das Ergebnis an den Entwickler.</div><div><b>Schwach</b>Mehr Bedienelemente; beim ersten Durchgang mehr Klicks als B.</div></div>
+  <div class="scroll"><div class="frame" id="fd"></div></div>
+</section>
+
+<section class="variant" aria-labelledby="ve">
+  <div class="variant__head"><span class="id">E</span><h2 id="ve">Geführter Rundgang mit Spotlight</h2></div>
+  <p>Die Seite wird abgedunkelt, nur das Ziel bleibt hell und gelb umrandet. Daneben steht eine Sprechblase mit der Erwartung und den Knöpfen «In Ordnung», «Problem», «Weiter». So ist am deutlichsten, was geprüft werden soll.</p>
+  <div class="pc"><div><b>Gut</b>Am eindeutigsten: man sieht am Element selbst, was zu tun ist. Für Neulinge ideal.</div><div><b>Schwach</b>Die Seite ist abgedunkelt, man kann nicht frei klicken; für Punkte mit Dialogen, Tastatur oder mehreren Seiten braucht es einen Ausweg («Rundgang pausieren»).</div></div>
+  <div class="scroll"><div class="frame" id="fe"></div></div>
+</section>
+</main>
+
+<script>
+const CASES = [
+  { id: 'AC1.1', ac: 'AC1', acTitle: 'Ein Klick öffnet', title: 'Karte auf dem Board mit einem Klick öffnen', target: 's3', given: 'Das Board zeigt Sprint 1. «S-3» steht in «Offen».', when: 'Ich klicke auf eine freie Stelle der Karte, nicht auf den Titel.', then: 'Die Details von «S-3» öffnen sich.' },
+  { id: 'AC1.2', ac: 'AC1', acTitle: 'Ein Klick öffnet', title: 'Zeile im Backlog öffnen', target: 's3', given: 'Ich bin im Backlog. «S-3» steht in «Sprint 1».', when: 'Ich klicke einmal auf die Zeile von «S-3».', then: 'Die Details von «S-3» öffnen sich.' },
+  { id: 'AC3.1', ac: 'AC3', acTitle: '«Neu» auf jeder Seite', title: 'Hauptknopf mit Kürzel', target: 'new', given: 'Ich öffne Board, Backlog und Story Map.', when: 'Ich schaue rechts oben in den Seitenkopf.', then: 'Der Knopf «Neue Story Ctrl+N» steht überall am selben Platz.' },
+  { id: 'AC4.2', ac: 'AC4', acTitle: 'Kontextmenü', title: 'Status über das Menü ändern', target: 's3', given: '«S-3» steht in «Offen».', when: 'Ich öffne das Menü von «S-3» und wähle Status, dann «Erledigt».', then: '«S-3» steht in «Erledigt», auch nach dem Neuladen.' },
+  { id: 'AC5.1', ac: 'AC5', acTitle: 'Direkt anlegen', title: 'Story in einer Spalte anlegen', target: 'add', given: 'Die Spalte «In Arbeit» hat 2 Stories.', when: 'Ich klicke «+ Story», tippe «Rechnung als PDF» und drücke Enter.', then: 'Die Story steht in «In Arbeit», das Feld bleibt offen.' }
+];
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+/* Mock of the app with the three things the cases point at. */
+function mockApp(frame) {
+  frame.innerHTML = `
+    <div class="m-bar"><b>Get It Done</b><span class="m-nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></span></div>
+    <div class="m-page"><div class="m-head"><h3>Sprint 1</h3><span class="muted">6 Stories · 23 Punkte</span><span class="m-btn push" data-t="new">Neue Story <kbd>Ctrl+N</kbd></span></div>
+      <div class="m-board">
+        <div class="m-col"><h4>Offen <span>2</span></h4><div class="m-card" data-t="s3"><span>S-3</span>Reorder the backlog by priority</div><div class="m-card"><span>S-6</span>Operate the board with the keyboard only</div></div>
+        <div class="m-col"><h4>In Arbeit <span>2</span></h4><div class="m-card"><span>S-1</span>Create a story with title and description</div><div class="m-card"><span>S-4</span>Keep all data in a local database</div><div class="m-add" data-t="add">+ Story</div></div>
+        <div class="m-col"><h4>Review <span>1</span></h4><div class="m-card"><span>S-2</span>Tick off acceptance criteria</div></div>
+        <div class="m-col"><h4>Erledigt <span>1</span></h4><div class="m-card"><span>S-5</span>Switch the UI language</div></div>
+      </div></div>`;
+  return { frame, el: (t) => frame.querySelector(`[data-t="${t}"]`) };
+}
+function glow(app, target, acc) {
+  app.frame.querySelectorAll('.glow').forEach((n) => n.classList.remove('glow'));
+  const el = app.el(target); if (!el) return;
+  // The popup moves to the side of the page that does not hold the target, so it never covers what is to be tested.
+  if (acc) { const f = app.frame.getBoundingClientRect(), t = el.getBoundingClientRect(); acc.classList.toggle('right', t.left + t.width / 2 < f.left + f.width / 2); }
+  void el.offsetWidth; el.classList.add('glow'); setTimeout(() => el.classList.remove('glow'), 3000);
+}
+const button = (label, cls, fn, attrs = '') => { const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.innerHTML = label; b.onclick = fn; if (attrs) b.setAttribute('aria-label', attrs); return b; };
+const el = (html) => { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; };
+const tally = (res) => `${Object.values(res).filter((r) => r.s === 'ok').length}/47`;
+
+/* shared state helper: results per variant */
+const newRes = () => ({});
+const setS = (res, id, s) => { res[id] = { ...(res[id] || {}), s: res[id] && res[id].s === s ? undefined : s }; };
+
+/* ---------- A: criteria folded ---------- */
+(function () {
+  const app = mockApp(document.getElementById('fa')); const res = newRes();
+  let open = false, openAc = 'AC1', openCase = null, now = null;
+  const acc = el('<div class="acc"></div>'); app.frame.appendChild(acc);
+  function render() {
+    acc.innerHTML = '';
+    if (open) {
+      const pop = el(`<div class="pop"><div class="pop-h">Abnahme · Paket 1 <span class="muted" style="font-weight:400;opacity:.7">${tally(res)} geprüft</span></div><div class="pop-b"></div></div>`);
+      pop.querySelector('.pop-h').appendChild(button('×', 'x', () => { open = false; render(); }, 'Abnahme schliessen'));
+      const body = pop.querySelector('.pop-b');
+      [...new Set(CASES.map((c) => c.ac))].forEach((ac) => {
+        const list = CASES.filter((c) => c.ac === ac); const doneN = list.filter((c) => res[c.id] && res[c.id].s === 'ok').length;
+        const g = el(`<div class="grp"></div>`);
+        g.appendChild(button(`<span>${openAc === ac ? '▾' : '▸'}</span> ${ac} ${esc(list[0].acTitle)} <span class="c">${doneN}/${list.length}</span>`, '', () => { openAc = openAc === ac ? null : ac; render(); }));
+        if (openAc === ac) {
+          const cs = el('<div class="cases"></div>');
+          list.forEach((c) => {
+            const r = res[c.id] || {}; const box = el(`<div class="case"><div class="top"><input type="checkbox" ${r.s === 'ok' ? 'checked' : ''} aria-label="${c.id} in Ordnung"><b>${c.id}</b> <span>${esc(c.title)}</span></div></div>`);
+            box.querySelector('input').onclick = (e) => { e.stopPropagation(); setS(res, c.id, 'ok'); render(); };
+            box.querySelector('.top').onclick = () => { openCase = openCase === c.id ? null : c.id; render(); };
+            if (openCase === c.id) {
+              box.appendChild(el(`<dl class="steps"><dt>Ausgangslage</dt><dd>${esc(c.given)}</dd><dt>Ich mache</dt><dd>${esc(c.when)}</dd><dt>Erwartet</dt><dd>${esc(c.then)}</dd></dl>`));
+              const row = el('<div class="row"></div>'); row.appendChild(button('Zur Seite', 'btn', () => { now = c; open = false; render(); glow(app, c.target, acc); })); row.appendChild(button('Kommentar', 'btn', () => {})); box.appendChild(row);
+            }
+            cs.appendChild(box);
+          });
+          g.appendChild(cs);
+        }
+        body.appendChild(g);
+      });
+      acc.appendChild(pop);
+    } else if (now) {
+      const r = res[now.id] || {};
+      const b = el(`<div class="pop" style="width:380px"><div class="pop-b"><p><b>${now.id}</b> ${esc(now.title)}</p><p class="hint"><b>Erwartet:</b> ${esc(now.then)}</p></div></div>`);
+      const row = el('<div class="row"></div>'); const lab = el(`<label class="row"><input type="checkbox" ${r.s === 'ok' ? 'checked' : ''}> In Ordnung</label>`); lab.querySelector('input').onclick = () => { setS(res, now.id, 'ok'); render(); };
+      row.appendChild(lab); row.appendChild(button('Liste', 'btn', () => { open = true; render(); })); b.querySelector('.pop-b').appendChild(row); acc.appendChild(b);
+    }
+    acc.appendChild(el(`<button type="button" class="acc-btn" aria-expanded="${open}">▤ Abnahme <span class="n">${tally(res)}</span> <span class="t">Preview</span></button>`)).onclick = () => { open = !open; render(); };
+  }
+  render();
+})();
+
+/* ---------- B: step through ---------- */
+(function () {
+  const app = mockApp(document.getElementById('fb')); const res = newRes();
+  let open = true, i = 0, bad = false, list = false;
+  const acc = el('<div class="acc"></div>'); app.frame.appendChild(acc);
+  const go = (n) => { i = Math.max(0, Math.min(CASES.length - 1, n)); bad = false; render(); glow(app, CASES[i].target, acc); };
+  function render() {
+    acc.innerHTML = '';
+    if (open) {
+      const c = CASES[i]; const r = res[c.id] || {};
+      const pop = el(`<div class="pop"><div class="pop-h">Abnahme · Schritt ${i + 1} von ${CASES.length}*</div><div class="pop-b"></div></div>`);
+      pop.querySelector('.pop-h').appendChild(button('×', 'x', () => { open = false; render(); }, 'Abnahme schliessen'));
+      const body = pop.querySelector('.pop-b'); const bar = el('<div class="bar" role="group" aria-label="Alle Prüfpunkte"></div>');
+      CASES.forEach((k, n) => { const seg = el(`<i class="${(res[k.id] || {}).s || ''} ${n === i ? 'cur' : ''}" title="${k.id}"></i>`); seg.style.cursor = 'pointer'; seg.onclick = () => go(n); bar.appendChild(seg); });
+      body.appendChild(bar);
+      body.appendChild(el(`<div><b style="font-family:var(--font-mono);font-size:12px">${c.id}</b> <b>${esc(c.title)}</b><div class="hint">${c.ac} ${esc(c.acTitle)}</div></div>`));
+      body.appendChild(el(`<dl class="steps"><dt>Ausgangslage</dt><dd>${esc(c.given)}</dd><dt>Ich mache</dt><dd>${esc(c.when)}</dd><dt>Erwartet</dt><dd>${esc(c.then)}</dd></dl>`));
+      const r1 = el('<div class="row"></div>'); r1.appendChild(button('◎ Zur Seite und markieren', 'btn btn--p', () => glow(app, c.target, acc)));
+      body.appendChild(r1);
+      const r2 = el('<div class="row"></div>');
+      r2.appendChild(button('✓ In Ordnung', `btn btn--ok ${r.s === 'ok' ? 'on' : ''}`, () => { setS(res, c.id, 'ok'); bad = false; if (res[c.id].s === 'ok') go(i + 1); else render(); }));
+      r2.appendChild(button('✗ Problem', `btn btn--bad ${r.s === 'bad' || bad ? 'on' : ''}`, () => { setS(res, c.id, 'bad'); bad = res[c.id].s === 'bad'; render(); }));
+      r2.appendChild(button('‹', 'btn', () => go(i - 1), 'Zurück')); r2.appendChild(button('›', 'btn', () => go(i + 1), 'Weiter'));
+      body.appendChild(r2);
+      if (r.s === 'bad') { const t = el('<textarea class="cm" rows="2" placeholder="Was ist dir aufgefallen?" aria-label="Kommentar"></textarea>'); t.value = r.c || ''; t.oninput = () => (res[c.id].c = t.value); body.appendChild(t); }
+      body.appendChild(button(list ? 'Liste ausblenden' : 'Alle Punkte anzeigen', 'btn', () => { list = !list; render(); }));
+      if (list) body.appendChild(el(`<div style="display:grid;gap:4px">${CASES.map((k, n) => `<div class="row" data-n="${n}" style="cursor:pointer"><span class="dot ${(res[k.id] || {}).s || ''}"></span><b style="font:12px var(--font-mono)">${k.id}</b> ${esc(k.title)}</div>`).join('')}</div>`)).querySelectorAll('[data-n]').forEach((row) => (row.onclick = () => go(+row.dataset.n)));
+      body.appendChild(el('<p class="hint">*Beispiel mit 5 statt 47 Punkten.</p>'));
+      acc.appendChild(pop);
+    }
+    acc.appendChild(el(`<button type="button" class="acc-btn">▤ Abnahme <span class="n">${tally(res)}</span> <span class="t">Preview</span></button>`)).onclick = () => { open = !open; render(); if (open) glow(app, CASES[i].target, acc); };
+  }
+  render(); glow(app, CASES[0].target, acc);
+})();
+
+/* ---------- C: slim bar ---------- */
+(function () {
+  const app = mockApp(document.getElementById('fc')); const res = newRes();
+  let i = 0, more = false;
+  const mini = el('<div class="mini"></div>'); app.frame.appendChild(mini);
+  const btn = el(`<button type="button" class="acc-btn" style="position:absolute;left:12px;top:48px;z-index:21;display:none">▤ Abnahme</button>`); app.frame.appendChild(btn);
+  const go = (n) => { i = Math.max(0, Math.min(CASES.length - 1, n)); render(); glow(app, CASES[i].target); };
+  function render() {
+    const c = CASES[i]; const r = res[c.id] || {}; mini.innerHTML = '';
+    if (more) mini.appendChild(el(`<div class="mini-more"><dl class="steps"><dt>Ausgangslage</dt><dd>${esc(c.given)}</dd><dt>Ich mache</dt><dd>${esc(c.when)}</dd><dt>Erwartet</dt><dd>${esc(c.then)}</dd></dl></div>`));
+    const row = el(`<div class="mini-row"><span class="acc-btn" style="min-height:30px;padding:0 10px;box-shadow:2px 2px 0 var(--accept-ink);font-size:12px">▤ ${tally(res)}</span><div class="txt"><b>${c.id}</b>${esc(c.title)}<p>Erwartet: ${esc(c.then)}</p></div></div>`);
+    row.appendChild(button(more ? '▾' : '▴', 'btn', () => { more = !more; render(); }, 'Details'));
+    row.appendChild(button('✓', `btn btn--ok ${r.s === 'ok' ? 'on' : ''}`, () => { setS(res, c.id, 'ok'); if (res[c.id].s === 'ok') go(i + 1); else render(); }, 'In Ordnung'));
+    row.appendChild(button('✗', `btn btn--bad ${r.s === 'bad' ? 'on' : ''}`, () => { setS(res, c.id, 'bad'); render(); }, 'Problem'));
+    row.appendChild(button('‹', 'btn', () => go(i - 1), 'Zurück')); row.appendChild(button('›', 'btn', () => go(i + 1), 'Weiter'));
+    mini.appendChild(row);
+    if (r.s === 'bad') { const t = el('<div class="mini-more"><textarea class="cm" rows="1" placeholder="Was ist dir aufgefallen?" aria-label="Kommentar"></textarea></div>'); mini.appendChild(t); }
+  }
+  render(); glow(app, CASES[0].target);
+})();
+
+/* ---------- D: traffic light and filter ---------- */
+(function () {
+  const app = mockApp(document.getElementById('fd')); const res = newRes();
+  res['AC1.1'] = { s: 'ok' }; res['AC3.1'] = { s: 'bad', c: 'Kürzel fehlt auf der Story Map' };
+  let open = true, filter = 'all', expanded = null, copied = false;
+  const acc = el('<div class="acc"></div>'); app.frame.appendChild(acc);
+  const st = (c) => (res[c.id] && res[c.id].s) || 'open';
+  function render() {
+    acc.innerHTML = '';
+    if (open) {
+      const n = { all: CASES.length, open: CASES.filter((c) => st(c) === 'open').length, ok: CASES.filter((c) => st(c) === 'ok').length, bad: CASES.filter((c) => st(c) === 'bad').length };
+      const pop = el('<div class="pop"><div class="pop-h">Abnahme · Paket 1</div><div class="pop-b"></div></div>');
+      pop.querySelector('.pop-h').appendChild(button('×', 'x', () => { open = false; render(); }, 'Abnahme schliessen'));
+      const body = pop.querySelector('.pop-b');
+      const chips = el('<div class="chips"></div>');
+      [['all', 'Alle'], ['open', 'Offen'], ['ok', 'In Ordnung'], ['bad', 'Probleme']].forEach(([k, l]) => { const c = el(`<button type="button" class="chip" aria-pressed="${filter === k}">${l} ${n[k]}</button>`); c.onclick = () => { filter = k; render(); }; chips.appendChild(c); });
+      body.appendChild(chips);
+      [...new Set(CASES.map((c) => c.ac))].forEach((ac) => {
+        const list = CASES.filter((c) => c.ac === ac && (filter === 'all' || st(c) === filter)); if (!list.length) return;
+        body.appendChild(el(`<div class="row" style="font-weight:600;font-size:13px;margin-top:2px">${ac} ${esc(list[0].acTitle)} <span style="margin-left:auto" class="row">${CASES.filter((c) => c.ac === ac).map((c) => `<span class="dot ${st(c) === 'open' ? '' : st(c)}"></span>`).join('')}</span></div>`));
+        list.forEach((c) => {
+          const box = el(`<div class="case"><div class="top"><b>${c.id}</b> <span>${esc(c.title)}</span><span class="seg"></span></div></div>`);
+          const seg = box.querySelector('.seg');
+          [['open', '○', 'offen'], ['ok', '✓', 'in Ordnung'], ['bad', '✗', 'Problem']].forEach(([k, g, lbl]) => { const b = el(`<button type="button" class="${k} ${st(c) === k ? 'on' : ''}" aria-label="${c.id} ${lbl}" aria-pressed="${st(c) === k}">${g}</button>`); b.onclick = (e) => { e.stopPropagation(); res[c.id] = { ...(res[c.id] || {}), s: k === 'open' ? undefined : k }; render(); }; seg.appendChild(b); });
+          box.querySelector('.top').onclick = () => { expanded = expanded === c.id ? null : c.id; render(); };
+          if (expanded === c.id || st(c) === 'bad') {
+            box.appendChild(el(`<dl class="steps"><dt>Ich mache</dt><dd>${esc(c.when)}</dd><dt>Erwartet</dt><dd>${esc(c.then)}</dd></dl>`));
+            const row = el('<div class="row"></div>'); row.appendChild(button('Zur Seite', 'btn', () => { glow(app, c.target, acc); })); box.appendChild(row);
+            if (st(c) === 'bad') { const t = el(`<textarea class="cm" rows="1" placeholder="Was ist dir aufgefallen?" aria-label="Kommentar ${c.id}"></textarea>`); t.value = (res[c.id] && res[c.id].c) || ''; t.oninput = () => (res[c.id].c = t.value); box.appendChild(t); }
+          }
+          body.appendChild(box);
+        });
+      });
+      const foot = el('<div class="row" style="margin-top:4px"></div>');
+      foot.appendChild(button(copied ? 'Kopiert ✓' : 'Probleme kopieren', 'btn btn--p', () => { copied = true; render(); setTimeout(() => { copied = false; render(); }, 1800); }));
+      foot.appendChild(button('Alles kopieren', 'btn', () => {}));
+      body.appendChild(foot); acc.appendChild(pop);
+    }
+    acc.appendChild(el(`<button type="button" class="acc-btn">▤ Abnahme <span class="n">${tally(Object.fromEntries(Object.entries(res).filter(([, v]) => v.s === 'ok')))}</span> <span class="t">Preview</span></button>`)).onclick = () => { open = !open; render(); };
+  }
+  render();
+})();
+
+/* ---------- E: spotlight tour ---------- */
+(function () {
+  const app = mockApp(document.getElementById('fe')); const res = newRes();
+  let on = true, i = 0, bad = false;
+  const layer = el('<div></div>'); app.frame.appendChild(layer);
+  function place(rect, tip, c) {
+    const f = app.frame.getBoundingClientRect();
+    const t = app.el(c.target).getBoundingClientRect();
+    rect.style.cssText = `left:${t.left - f.left - 6}px;top:${t.top - f.top - 6}px;width:${t.width + 12}px;height:${t.height + 12}px`;
+    const left = Math.min(Math.max(8, t.left - f.left + t.width + 16), f.width - 316);
+    const top = Math.min(Math.max(8, t.top - f.top - 10), f.height - 230);
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  function render() {
+    layer.innerHTML = '';
+    if (!on) {
+      layer.appendChild(el(`<div class="acc"><button type="button" class="acc-btn">▤ Abnahme <span class="n">${tally(res)}</span> <span class="t">Preview</span></button></div>`)).querySelector('button').onclick = () => { on = true; i = 0; render(); };
+      return;
+    }
+    const c = CASES[i]; const r = res[c.id] || {};
+    const rect = el('<div class="dim"></div>'); const tip = el(`<div class="tip" role="dialog" aria-label="Prüfpunkt ${c.id}"><div class="step">Schritt ${i + 1} von ${CASES.length}* · ${c.id}</div><h4>${esc(c.title)}</h4><div class="exp"><b>Ich mache:</b> ${esc(c.when)}<br><b>Erwartet:</b> ${esc(c.then)}</div></div>`);
+    const row = el('<div class="row"></div>');
+    row.appendChild(button('✓ In Ordnung', `btn btn--ok ${r.s === 'ok' ? 'on' : ''}`, () => { setS(res, c.id, 'ok'); if (i + 1 < CASES.length) i++; else on = false; render(); }));
+    row.appendChild(button('✗ Problem', `btn btn--bad ${r.s === 'bad' ? 'on' : ''}`, () => { setS(res, c.id, 'bad'); render(); }));
+    row.appendChild(button('Weiter ›', 'btn', () => { if (i + 1 < CASES.length) i++; else on = false; render(); }));
+    tip.appendChild(row);
+    if (r.s === 'bad') tip.appendChild(el('<textarea class="cm" rows="2" placeholder="Was ist dir aufgefallen?" aria-label="Kommentar"></textarea>'));
+    tip.appendChild(button('Rundgang pausieren (Seite frei bedienen)', 'btn', () => { on = false; render(); }));
+    layer.appendChild(rect); layer.appendChild(tip); place(rect, tip, c);
+  }
+  render();
+  new ResizeObserver(() => on && render()).observe(app.frame);
+})();
+</script>
+
+</body>
+</html>
