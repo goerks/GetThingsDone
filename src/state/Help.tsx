@@ -156,6 +156,19 @@ export function HelpProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [toggleHelp]);
 
+  // Escape closes the help, wherever the focus is. A field, the search or a drag that uses Escape itself comes first
+  // (it calls preventDefault), and so does an open dialog.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape' || event.defaultPrevented || event.isComposing || document.querySelector('dialog[open]')) return;
+      event.preventDefault();
+      closeHelp();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open, closeHelp]);
+
   const api = useMemo<HelpApi>(
     () => ({
       open,
