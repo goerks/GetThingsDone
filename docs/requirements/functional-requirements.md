@@ -366,6 +366,13 @@ Ctrl+N (Cmd+N on a Mac) opens the create dialog of the current page: a new story
 
 Source: Issue #10, PO request · Status: Implemented · Verified by: NewShortcut.test; Windows app: manual check
 
+### FR-NAV-03 Escape closes the help and the settings
+As a team member, I want `Escape` to close what is open on top of my work, so that I get back to it with the keyboard.
+- With the help open, the first `Escape` closes the help, the second closes the settings (when they are open) and returns to the page shown before, like the gear.
+- A dialog, a field or the search that uses `Escape` itself comes first: the settings stay open while `Escape` only cancels a field, and close with the next one.
+
+Source: #33 (PO feedback) · Status: Implemented · Verified by: #33 AC11.1 to AC11.6 (`src/Help.test.tsx`, `e2e/help.spec.ts` "AC11.2", "AC11.4")
+
 ### FR-NAV-01 Main navigation
 Header with board, backlog, story map, epics and releases, plus the search, theme, language and a gear button for the settings; the current page is marked.
 - The header is sticky (#15): it stays at the top of the window while the page scrolls. Its height is shared as `--header-height`, so a focused element scrolled into view does not end up below it.
@@ -488,19 +495,19 @@ Source: #7 (variant D), PO feedback on #8 · Status: Implemented · Verified by:
 
 ### FR-HELP-01 Help panel
 As a team member, I want to open help next to the page I am working on, so that I can look something up without losing my place.
-- A `?` button in the header (and the key `?` when no text field has the focus and no dialog is open) opens and closes the help. `Escape` closes it; the focus goes back to the button.
+- A `?` button in the header (and the key `?` when no text field has the focus and no dialog is open) opens and closes the help. `Escape` closes it from every view and wherever the focus is; if the focus was in the panel, it goes back to the button.
 - The help is a panel next to the page: the page makes room and stays usable. On a narrow window the panel covers the whole page.
 - The title names the page (`Help · Board`); the panel lists the topics of the current page first, then the general topics, and follows the page when it changes.
 - Topics: moving, columns and status values, opening and creating stories, ordering the backlog and the sprint line, story map, epics, releases, settings, search and keyboard shortcuts.
 
-Source: #33 · Status: Implemented · Verified by: #33 AC1.1 to AC1.4, AC2.1, AC9.1 (`src/Help.test.tsx`, `e2e/help.spec.ts`)
+Source: #33 · Status: Implemented · Verified by: #33 AC1.1 to AC1.4, AC2.1, AC9.1, AC11.1 (`src/Help.test.tsx`, `e2e/help.spec.ts`)
 
 ### FR-HELP-02 Search the help
 As a team member, I want to search the help, so that I find a topic by the words I know.
 - Several words must all occur; text in double quotes is a phrase. Case and accents are ignored. A match in the title ranks above one in the keywords, and that above one in the text.
 - Hits show the matched words (marked), where the text matches and, for topics of other pages, the page they belong to. No hits says so and offers all topics. A cross clears the search.
 - The search finds the texts of the current language only.
-- Keyboard: `↓` from the field into the hits, arrow keys between them, `Enter` opens a topic, `Escape` goes back to the hits with the search kept. The number of hits (or "no results") is announced to screen readers.
+- Keyboard: `↓` from the field into the hits, arrow keys between them, `Enter` opens a topic, "Back" goes back to the hits with the search kept. The number of hits (or "no results") is announced to screen readers.
 
 Source: #33 · Status: Implemented · Verified by: #33 AC3.1 to AC3.7, AC4.1, AC4.2 (`src/domain/helpSearch.test.ts`, `src/help/topics.test.ts`, `src/Help.test.tsx`, `e2e/help.spec.ts`)
 

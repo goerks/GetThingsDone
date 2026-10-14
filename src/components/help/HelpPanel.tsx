@@ -72,15 +72,17 @@ export function HelpPanel({ route }: { route: Route }) {
   }, [view]);
   useEffect(() => {
     const button = help.buttonRef.current;
-    return () => button?.focus();
+    return () => {
+      // Only when the focus was in the panel (it is on the page body once the panel is gone), not when it was on the page.
+      if (!document.activeElement || document.activeElement === document.body) button?.focus();
+    };
   }, [help.buttonRef]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     if (event.key !== 'Escape') return;
     event.preventDefault();
     event.stopPropagation();
-    if (view.name === 'home') help.closeHelp();
-    else help.setView({ name: 'home' });
+    help.closeHelp();
   };
 
   const topicTitle = (id: string): string => t(`help.topics.${id}.title`);

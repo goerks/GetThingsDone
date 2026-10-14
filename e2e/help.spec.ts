@@ -193,7 +193,7 @@ test('AC3.1 finds help topics while I type, shows where they match and opens one
   // Then the topic is open with its text and a link to the backlog, and the search stays when I go back
   await expect(panel(page).getByRole('heading', { name: 'Backlog and the sprint line', level: 3 })).toBeFocused();
   await expect(panel(page).getByRole('link', { name: 'Open Backlog' })).toBeVisible();
-  await page.keyboard.press('Escape');
+  await panel(page).getByRole('button', { name: /Back/ }).click();
   await expect(field).toHaveValue('SPRINT LINE');
   await expect(panel(page)).toBeVisible();
 });
@@ -367,4 +367,39 @@ test('AC10.3 explains that the feature Releases must be switched on first, and l
   // Then the page offers the rows "Releases"
   await expect(page).toHaveURL(/#\/settings\/map$/);
   await expect(page.getByRole('radio', { name: /Releases/ })).toBeEnabled();
+});
+
+test('AC11.2 the first Escape closes the help, the second closes the settings and returns to the board', async ({ page }) => {
+  // Given the settings are open from the board, and the help is open next to them
+  await page.getByRole('button', { name: 'No thanks' }).click();
+  await page.getByRole('link', { name: 'Settings', exact: true }).click();
+  await expect(page).toHaveURL(/#\/settings\/fields$/);
+  await helpButton(page).click();
+  await expect(panel(page)).toBeVisible();
+
+  // When I press Escape
+  await page.keyboard.press('Escape');
+
+  // Then only the help is closed
+  await expect(panel(page)).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/settings\/fields$/);
+
+  // When I press Escape again
+  await page.keyboard.press('Escape');
+
+  // Then the settings are closed and I am back on the board
+  await expect(page).toHaveURL(/#\/board$/);
+  await expect(page.getByRole('heading', { name: 'Sprint 1', level: 1 })).toBeVisible();
+});
+
+test('AC11.4 Escape in the field of a new status only cancels the field, and the settings stay open', async ({ page }) => {
+  await page.getByRole('button', { name: 'No thanks' }).click();
+  await page.goto('/#/settings/statuses');
+  await page.getByRole('button', { name: '+ Status in "In progress"' }).click();
+  await page.getByRole('textbox', { name: 'Name of the new status in "In progress"' }).fill('Test');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('textbox', { name: 'Name of the new status in "In progress"' })).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/settings\/statuses$/);
+  await page.keyboard.press('Escape');
+  await expect(page).not.toHaveURL(/settings/);
 });
