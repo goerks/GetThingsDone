@@ -1,6 +1,6 @@
 ---
 name: start
-description: Session start overview for the product owner. Lists the top 5 open issues of the GitHub backlog with a short assessment and ends with 2–3 questions or suggestions on how the product could continue. Use at the start of a session when the PO's first message has no concrete task, or when the PO types /start.
+description: "Session start overview for the product owner. Lists the top 5 open issues of the GitHub backlog with a short assessment and ends with 2–3 questions or suggestions on how the product could continue. Use at the start of a session when the PO's first message has no concrete task, or when the PO types /start."
 ---
 
 # Session start overview (#41)
