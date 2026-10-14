@@ -122,7 +122,7 @@ test('AC11.1 gives the sprints of an earlier version their state when the app op
 
   // Then Sprint 1 runs and Sprint 2 is planned; Sprint 0 is completed and not shown; its unfinished story is back in the backlog
   await expect(page.getByRole('region', { name: 'Sprint 1' }).getByText('running')).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Sprint 2' }).getByText('planned')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Sprint 2' }).getByText('planned', { exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Sprint 0' })).toHaveCount(0);
   await expect(page.getByRole('region', { name: 'Not planned' }).getByText('Story S-2')).toBeVisible();
   await expect(page.getByText('Story S-1')).toHaveCount(0);

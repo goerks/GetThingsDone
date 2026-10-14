@@ -4887,3 +4887,186 @@ a.btn {
 .sprint-option:has(input:checked) small {
   color: var(--accent-soft-ink);
 }
+
+/* ---------- Velocity (#24) ---------- */
+
+.velocity {
+  margin-bottom: 20px;
+  padding: 10px 14px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.velocity__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.velocity__head .velocity__summary {
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.velocity__toggle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 4px;
+  margin: 0 -4px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-sm, 4px);
+}
+
+.velocity__toggle::before {
+  content: '▸' / '';
+}
+
+.velocity__toggle[aria-expanded='true']::before {
+  content: '▾' / '';
+}
+
+.velocity__body {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.velocity__body[hidden] {
+  display: none;
+}
+
+.velocity__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.velocity__legend {
+  flex: 1;
+}
+
+.velocity__key--planned::before {
+  border-top-width: 9px;
+  width: 12px;
+  border-color: var(--epic-amber);
+}
+
+.velocity__key--done::before {
+  border-top-width: 9px;
+  width: 12px;
+  border-color: var(--accent);
+}
+
+.velocity__key--average::before {
+  border-top: 2px dashed var(--text);
+}
+
+.velocity__chart {
+  position: relative;
+}
+
+.velocity-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.velocity-chart text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-family: var(--font-sans);
+}
+
+.velocity-chart text.velocity-chart__value {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.velocity-chart__hit {
+  fill: transparent;
+}
+
+.velocity-chart__planned {
+  fill: var(--epic-amber);
+}
+
+.velocity-chart__done {
+  fill: var(--accent);
+}
+
+.velocity-chart__average {
+  stroke: var(--text);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+}
+
+.velocity-chart text.velocity-chart__average-label {
+  fill: var(--text);
+  font-weight: 600;
+}
+
+.velocity-chart__sprint {
+  outline: none;
+}
+
+.velocity-chart__sprint:focus-visible .velocity-chart__hit,
+.velocity-chart__sprint--active .velocity-chart__hit {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.velocity__tip {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 180px;
+  padding: 8px 10px;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 18%);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.velocity__empty p {
+  margin: 4px 0 0;
+}
+
+.velocity__explain {
+  margin: 0;
+  font-size: 12px;
+}
+
+.sprint-plan,
+.backlog__plan,
+.map-sprint__plan {
+  font-size: 12px;
+  color: var(--muted);
+}

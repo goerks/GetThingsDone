@@ -108,7 +108,8 @@ describe('backlog', () => {
     const names = screen
       .getAllByRole('region')
       .map((section) => document.getElementById(section.getAttribute('aria-labelledby') ?? '')?.textContent);
-    expect(names).toEqual(['Sprint 1', 'Sprint 2', 'Not planned']);
+    // The velocity panel (#24) sits above the sprint sections.
+    expect(names).toEqual(['Velocity', 'Sprint 1', 'Sprint 2', 'Not planned']);
     const sprint = screen.getByRole('region', { name: 'Sprint 1' });
     const rest = screen.getByRole('region', { name: 'Not planned' });
     expect(within(sprint).getByText('running')).toBeInTheDocument();
