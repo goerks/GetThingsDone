@@ -21,19 +21,19 @@ flowchart TD
   IDEA -- "/neu &lt;Text&gt;" --> ISSUE["KI: legt das Issue in deinen Worten an<br/>(Regel 1: keine Arbeit ohne Issue)"]
   ISSUE --> REFINE["KI: Stories, Design mit Mockups,<br/>offene Fragen zum Anklicken<br/>(Regeln 2, 3: alles steht im Issue)"]
   REFINE --> AC{"PO: Abnahmekriterien<br/>in Ordnung?"}
-  AC -- "Antwort oder /feedback" --> REFINE
+  AC -- "Antwort oder /korrektur" --> REFINE
   AC -- "/freigabe #Nr" --> TC["KI: Testfälle auf Deutsch,<br/>mindestens einer pro Kriterium (Regel 4)"]
   TC --> TCOK{"PO: Testfälle<br/>in Ordnung?"}
-  TCOK -- "Änderung oder /feedback" --> TC
+  TCOK -- "Änderung oder /korrektur" --> TC
   TCOK -- "/freigabe #Nr" --> GO{"PO: jetzt bauen?"}
   GO -- "/go #Nr" --> BUILD["KI: Feature-Branch, Code,<br/>ein automatischer Test pro Testfall,<br/>Hilfe und Doku, alle Tests grün<br/>(Regel 5, Definition of Done)"]
   BUILD --> PR["GitHub: Pull Request «Closes #Nr»,<br/>Web-Vorschau, Windows-Build (Regeln 6, 7)"]
   PR --> CHECK{"PO: testet in der Vorschau<br/>(Fenster «Abnahme»)"}
-  CHECK -- "/feedback #Nr oder eingefügter Text «Abnahme …»" --> FIX["KI: korrigiert, hält es im Issue fest,<br/>neue Vorschau"]
+  CHECK -- "/korrektur #Nr oder eingefügter Text «Abnahme …»" --> FIX["KI: korrigiert, hält es im Issue fest,<br/>neue Vorschau"]
   FIX --> CHECK
   CHECK -- "/abgenommen #Nr" --> MERGE["GitHub: «Rebase and merge»,<br/>Branch gelöscht, Issue geschlossen (Regel 8)"]
   MERGE --> START
-  ANY["Jederzeit:<br/>/status #Nr (Stand und nächster Schritt)<br/>/hilfe (alle Befehle)"]
+  ANY["Jederzeit:<br/>/stand #Nr (Stand und nächster Schritt)<br/>/hilfe (alle Befehle)"]
 
   classDef po fill:#fff4c2,stroke:#b38f00,color:#222
   classDef ai fill:#dcebff,stroke:#2f6fb3,color:#222
@@ -56,13 +56,13 @@ The PO can use short commands in the chat. They are shortcuts: plain sentences (
 | Command | Step | What the AI does |
 |---|---|---|
 | `/start` | – | Top 5 open issues and 2–3 questions on how to continue |
-| `/hilfe` | – | Lists and explains the commands (`/help` is built into Claude Code) |
+| `/hilfe` | – | Lists and explains the commands. The commands are German because `/help`, `/status` and `/feedback` are built into Claude Code and would take precedence |
 | `/neu <text>` | 1–2 | Creates the issue in the PO's words, proposes stories, asks the open questions |
 | `/freigabe #<n>` | 3, 5 | Records the approval of the acceptance criteria (then proposes test cases) or of the test cases (then asks whether to build) |
 | `/go #<n>` | 5–7 | Builds the feature and opens the pull request with the preview link |
-| `/feedback #<n> <text>` | 8 | Records the feedback in the issue, fixes it, posts the new preview link |
+| `/korrektur #<n> <text>` | 8 | Records the feedback in the issue, fixes it, posts the new preview link |
 | `/abgenommen #<n>` | 8–9 | Records the acceptance, merges the pull request, deletes the branch; the issue closes |
-| `/status #<n>` | – | State, what is open, next step |
+| `/stand #<n>` | – | State, what is open, next step |
 
 ## Steps
 
