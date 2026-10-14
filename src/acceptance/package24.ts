@@ -12,7 +12,7 @@ const E2E = 'e2e/velocity.spec.ts';
 
 export const PACKAGE_24: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
   issue: 24,
-  pullRequest: 0,
+  pullRequest: 45,
   title: 'Velocity-Diagramm',
   criteria: [
     {
