@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NewReleaseDialog } from '../components/ReleaseForm';
+import { NewButton } from '../components/NewButton';
 import { formatPeriod } from '../components/releaseFormat';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { useBuiltin } from '../components/useBuiltin';
@@ -10,7 +11,7 @@ import { todayIso } from '../domain/sprints';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
 
-/** All releases as cards; a click opens the release in a dialog. Ctrl+N or the last card creates a release. */
+/** All releases as cards; a click opens the release in a dialog. Ctrl+N or the button in the page head creates a release. */
 export function ReleasesPage() {
   const { t, i18n } = useTranslation();
   const app = useApp();
@@ -29,6 +30,7 @@ export function ReleasesPage() {
       <div className="page-head">
         <h1>{t('releases.title')}</h1>
         <span className="muted">{app.releases.length > 0 ? `${t('releases.count', { count: app.releases.length })} · ${builtin.summary(planned.length, planned.reduce((sum, story) => sum + story.points, 0))}` : t('releases.hint')}</span>
+        <NewButton label={t('releases.newCard')} onClick={open} />
       </div>
       {creating && <NewReleaseDialog onClose={() => setCreating(false)} />}
       {app.releases.length === 0 && <p className="muted">{t('releases.none')}</p>}
@@ -85,12 +87,6 @@ export function ReleasesPage() {
             </li>
           );
         })}
-        <li>
-          <button type="button" className="release-card release-card--new" onClick={open} aria-keyshortcuts="Control+N Meta+N">
-            <span>{t('releases.newCard')}</span>
-            <kbd className="release-card__keys">{t('releases.shortcut')}</kbd>
-          </button>
-        </li>
       </ul>
     </>
   );

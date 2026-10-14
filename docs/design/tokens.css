@@ -23,6 +23,10 @@
   /* Search: matched text. */
   --mark: #fff1b8;
   --mark-ink: #14181f;
+  /* Preview acceptance tool only (magenta): used nowhere in the product, so the tool never looks like part of it. */
+  --tool: #e5188a;
+  --tool-ink: #ffffff;
+  --tool-dark: #0b0f14;
 
   /* Epic palette: at least 3:1 against --surface and --column, the name is always written next to it. */
   --epic-blue: #2457d6;
@@ -55,6 +59,9 @@
   --warn-soft: #3a2a14;
   --mark: #5a4a12;
   --mark-ink: #fff4cc;
+  --tool: #e5188a;
+  --tool-ink: #ffffff;
+  --tool-dark: #0b0f14;
 
   --epic-blue: #7aa2ff;
   --epic-amber: #f0a050;

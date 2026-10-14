@@ -142,20 +142,12 @@ test('FR-MAP-04.1 moves an upcoming sprint forward and keeps the sprint lengths 
 });
 
 test('FR-MAP-03.1 creates a story in a cell and finds it on the map, the board and the backlog', async ({ page }) => {
-  // When I click "+" in "Local storage" / Sprint 1
+  // When I click "+" in "Local storage" / Sprint 1, type the title "Export data" and press Enter (quick add, #32)
   await page.getByRole('button', { name: 'New story in Local storage, Sprint 1' }).click();
+  await page.getByRole('textbox', { name: 'Title of the new story in Sprint 1, Local storage' }).fill('Export data');
+  await page.keyboard.press('Enter');
 
-  // Then "New story" has epic "Local storage" and Sprint 1 filled in
-  const dialog = page.getByRole('dialog', { name: 'New story' });
-  await expect(dialog.getByLabel('Epic').locator('option:checked')).toHaveText('Local storage');
-  await expect(dialog.getByLabel('Sprint').locator('option:checked')).toHaveText(/^Sprint 1/);
-
-  // When I enter the title "Export data" and 3 points and save
-  await dialog.getByLabel('Title').fill('Export data');
-  await dialog.getByLabel('Points').selectOption('3');
-  await dialog.getByRole('button', { name: 'Add story' }).click();
-
-  // Then the card is in that cell and Sprint 1 shows 3 points more
+  // Then the card is in that cell (with the default 3 points) and Sprint 1 shows 3 points more
   await expect(cell(page, 'Sprint 1', 'Local storage').getByRole('group', { name: 'S-8: Export data' })).toBeVisible();
   await expect(sprintLabel(page, 'Sprint 1')).toContainText('7 stories · 26 points');
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NewEpicDialog } from '../components/EpicDialogs';
+import { NewButton } from '../components/NewButton';
 import { sortEpics, storiesInEpic } from '../domain/epics';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
@@ -23,9 +24,7 @@ export function EpicsPage() {
       <div className="page-head">
         <h1>{t('epics.title')}</h1>
         <span className="muted">{t('epics.hint')}</span>
-        <button type="button" className="btn btn--primary page-head__action" aria-keyshortcuts="Control+N Meta+N" onClick={() => setCreating(true)}>
-          {t('epics.new')}
-        </button>
+        <NewButton label={t('epics.new')} onClick={() => setCreating(true)} />
       </div>
       {creating && <NewEpicDialog onClose={() => setCreating(false)} />}
       <div className="epics">
@@ -56,7 +55,6 @@ function EpicRow({ epic }: { epic: Epic }) {
         className={`epic-row${match ? ` ${match}` : ''}`}
         data-epic-id={epic.id}
         onClick={() => details.openEpic(epic.id)}
-        onDoubleClick={() => details.openEpic(epic.id)}
       >
         {builtin.shown('epic', 'color') && (
           <span className="epic__dot epic-row__dot" style={{ background: `var(--epic-${epic.colorKey})` }} aria-hidden="true" />

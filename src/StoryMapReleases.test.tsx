@@ -130,10 +130,7 @@ describe('story map with releases as rows', () => {
     const user = userEvent.setup();
     const repository = await renderMap('releases');
     await user.click(screen.getByRole('button', { name: 'New story in Local storage, Release 1.1 – Story map' }));
-    const dialog = screen.getByRole('dialog', { name: 'New story' });
-    expect(within(dialog).getByLabelText('Release')).toHaveDisplayValue('Release 1.1 – Story map');
-    await user.type(within(dialog).getByLabelText('Title'), 'Planned in a release');
-    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+    await user.type(screen.getByRole('textbox', { name: 'Title of the new story in Release 1.1 – Story map, Local storage' }), 'Planned in a release{Enter}');
     const saved = (await repository.load()).stories.find((story) => story.title === 'Planned in a release');
     expect(saved).toMatchObject({ releaseId: 'release-map', epicId: 'epic-storage', sprintId: null });
   });
@@ -142,10 +139,7 @@ describe('story map with releases as rows', () => {
     const user = userEvent.setup();
     const repository = await renderMap('releases');
     await user.click(screen.getByRole('button', { name: 'New story in Boards, No release' }));
-    const dialog = screen.getByRole('dialog', { name: 'New story' });
-    expect(within(dialog).getByLabelText('Release')).toHaveDisplayValue('No release');
-    await user.type(within(dialog).getByLabelText('Title'), 'Loose');
-    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+    await user.type(screen.getByRole('textbox', { name: 'Title of the new story in No release, Boards' }), 'Loose{Enter}');
     expect((await repository.load()).stories.find((story) => story.title === 'Loose')?.releaseId).toBeNull();
   });
 

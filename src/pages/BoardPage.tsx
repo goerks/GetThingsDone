@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { BoardColumn } from '../components/BoardColumn';
 import { CompleteSprintDialog } from '../components/CompleteSprintDialog';
 import { NewStoryDialog } from '../components/NewStoryDialog';
+import { NewButton } from '../components/NewButton';
 import { StartSprintDialog } from '../components/StartSprintDialog';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { OverlayCard } from '../components/StoryCard';
@@ -174,9 +175,7 @@ export function BoardPage() {
               {t('lifecycle.completeButton')}
             </button>
           )}
-          <button type="button" className="btn btn--primary" aria-keyshortcuts="Control+N Meta+N" onClick={() => setCreating(true)}>
-            {t('newStory.open')}
-          </button>
+          <NewButton label={t('newStory.open')} onClick={() => setCreating(true)} />
         </span>
       </div>
 
@@ -253,6 +252,7 @@ export function BoardPage() {
                     <BoardColumn
                       key={status.id}
                       status={status.id}
+                      sprintId={sprintId}
                       stories={storiesInColumn(app.stories, sprintId, status.id)}
                       epics={epics}
                       drop={target?.group === status.id ? { beforeId: target.beforeId } : undefined}

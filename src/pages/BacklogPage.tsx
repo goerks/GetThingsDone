@@ -14,6 +14,8 @@ import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
+import { NewButton } from '../components/NewButton';
+import { StoryQuickAdd } from '../components/QuickAdd';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import { formatSprintDates } from '../components/sprintFormat';
@@ -22,6 +24,7 @@ import { mapSprints } from '../domain/sprints';
 import type { Epic, Sprint, Story } from '../domain/types';
 import { TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
+import { useStoryMenu } from '../state/StoryMenu';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
@@ -67,6 +70,8 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
 function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
   const { t } = useTranslation();
   const details = useDetails();
+  const menu = useStoryMenu();
+  const app = useApp();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('backlog.rowRole') }
@@ -82,7 +87,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
   };
 
   const match = useMatchClass(story.id, 'backlog__row');
-  const classes = ['backlog__row', isDragging && 'backlog__row--dragging', dropLabel && 'drop-before', match]
+  const classes = ['backlog__row', isDragging && 'backlog__row--dragging', dropLabel && 'drop-before', app.flashed === story.id && 'flash', menu.openId === story.id && 'ctx-target', match]
     .filter(Boolean)
     .join(' ');
 
@@ -96,7 +101,8 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
       aria-label={t('backlog.rowLabel', { rank, code: story.code, title: story.title })}
       {...listeners}
       onKeyDown={onKeyDown}
-      onDoubleClick={() => details.openStory(story.id)}
+      onClick={() => details.openStory(story.id)}
+      onContextMenu={(event) => menu.openFor(story.id, event)}
     >
       <RowContent story={story} rank={rank} epic={epic} />
     </li>
@@ -155,6 +161,7 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
           )}
         </ol>
       </SortableContext>
+      <StoryQuickAdd place={sprint ? sprint.name : t('sprint.notPlanned')} sprintId={sprint?.id ?? null} />
     </section>
   );
 }
@@ -253,9 +260,7 @@ export function BacklogPage() {
       <div className="page-head">
         <h1>{t('backlog.title')}</h1>
         <span className="muted">{t('backlog.hint')}</span>
-        <button type="button" className="btn btn--primary page-head__action" aria-keyshortcuts="Control+N Meta+N" onClick={() => setCreating(true)}>
-          {t('newStory.open')}
-        </button>
+        <NewButton label={t('newStory.open')} onClick={() => setCreating(true)} />
       </div>
 
       <HighlightBar storyIds={app.stories.map((story) => story.id)} />

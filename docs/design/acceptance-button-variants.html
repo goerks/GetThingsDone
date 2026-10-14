@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abnahmeknopf Varianten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column; four button designs, each shown in a mock of the app with its popup header.
+   Tokens mirror the app's "Focus" design (docs/design/tokens.css). The app uses blue, amber, teal, violet, rose, green,
+   cyan and slate; the four tool colours below are used nowhere in the product. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.18);
+  --ok: #11713a; --ok-soft: #e1f3e8;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; --r: 8px;
+  --lime: #b6f400; --night: #0b0f14; --magenta: #e5188a; --tape: #ffd23f;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.5);
+  --ok: #6fd69a; --ok-soft: #133222; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.5);
+  --ok: #6fd69a; --ok-soft: #133222; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; padding-inline: 16px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 80px; display: grid; gap: 52px; }
+h1, h2 { margin: 0; line-height: 1.25; text-wrap: balance; } h1 { font-size: 28px; } h2 { font-size: 22px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; } .muted { color: var(--muted); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+.variant { display: grid; gap: 14px; min-width: 0; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.id { font-family: var(--font-mono); font-size: 12px; background: var(--pill); padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+.pc { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.pc div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 14px; font-size: 14px; }
+.pc b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 2px; }
+.states { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); }
+.states small { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.scroll { overflow-x: auto; border-radius: var(--r); }
+
+/* mock of the app */
+.frame { position: relative; min-width: 760px; height: 430px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); font-size: 13px; }
+.m-bar { display: flex; align-items: center; gap: 18px; padding: 0 14px; height: 38px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.m-nav { display: flex; gap: 14px; color: var(--muted); } .m-nav .on { color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+.m-page { padding: 12px 14px; display: grid; gap: 10px; }
+.m-head { display: flex; align-items: center; gap: 12px; } .m-head h3 { margin: 0; font-size: 17px; }
+.m-btn { margin-left: auto; height: 28px; padding: 0 11px; border-radius: 6px; background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; font-weight: 500; }
+.m-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.m-col { background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 7px; align-content: start; min-height: 320px; }
+.m-col h4 { margin: 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.m-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; } .m-card span { display: block; font: 11px var(--font-mono); color: var(--muted); }
+
+/* popup sample: header carries the tool colour, body is plain */
+.pop { position: absolute; width: 330px; background: var(--surface); color: var(--text); overflow: hidden; z-index: 15; }
+.pop-b { padding: 10px 12px; display: grid; gap: 6px; font-size: 12px; } .pop-b b { font-size: 13px; }
+.pop-b .row { display: flex; gap: 6px; } .pop-b .btn { height: 26px; padding: 0 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); font: 12px var(--font-sans); color: var(--text); }
+.pop-b .ok { border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.pop-h { display: flex; align-items: center; gap: 8px; padding: 7px 12px; font-weight: 700; font-size: 13px; }
+
+/* ---- 1 · edge tab: a tab on the left edge of the window, text standing upright ---- */
+.b1 { position: absolute; left: 0; top: 50%; transform: translateY(-50%) rotate(180deg); z-index: 20; writing-mode: vertical-rl; display: inline-flex; align-items: center; gap: 10px; padding: 16px 9px; background: var(--night); color: #fff; border: 0; border-left: 5px solid var(--lime); border-radius: 0 10px 10px 0; font: 700 13px var(--font-sans); letter-spacing: .06em; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.b1 .n { font-family: var(--font-mono); color: var(--lime); } .b1 .t { font-size: 10px; border: 1px solid var(--lime); color: var(--lime); padding: 5px 1px; border-radius: 3px; }
+.b1:hover, .b1.hv { padding-right: 14px; }
+.p1 { left: 46px; top: 90px; border: 2px solid var(--night); border-left: 6px solid var(--lime); border-radius: 0 10px 10px 0; box-shadow: 6px 6px 0 rgba(0,0,0,.35); } .p1 .pop-h { background: var(--night); color: var(--lime); font-family: var(--font-mono); }
+
+/* ---- 2 · round button with a progress ring ---- */
+.b2 { position: absolute; left: 14px; bottom: 14px; z-index: 20; width: 66px; height: 66px; border: 0; border-radius: 50%; background: var(--magenta); color: #fff; display: grid; place-items: center; cursor: pointer; box-shadow: 0 8px 20px rgba(229,24,138,.45); }
+.b2 svg.ring { position: absolute; inset: -6px; width: 78px; height: 78px; rotate: -90deg; }
+.b2 .n { position: absolute; right: -10px; top: -8px; min-width: 30px; text-align: center; padding: 1px 6px; border-radius: 999px; background: var(--night); color: #fff; font: 600 11px var(--font-mono); border: 2px solid var(--bg); }
+.b2 .t { position: absolute; left: 76px; top: 50%; transform: translateY(-50%); white-space: nowrap; padding: 3px 9px; border-radius: 6px; background: var(--night); color: #fff; font: 700 11px var(--font-sans); letter-spacing: .08em; text-transform: uppercase; }
+.p2 { left: 14px; bottom: 100px; border-radius: 16px; border: 2px solid var(--magenta); box-shadow: 0 12px 30px rgba(229,24,138,.35); } .p2 .pop-h { background: var(--magenta); color: #fff; }
+
+/* ---- 3 · hazard tape: straight edges, diagonal stripes, slightly tilted like a label stuck on ---- */
+.b3 { position: absolute; left: 14px; bottom: 16px; z-index: 20; rotate: -2deg; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 0; color: #111; font: 800 13px var(--font-sans); letter-spacing: .05em; text-transform: uppercase; cursor: pointer; background: repeating-linear-gradient(-45deg, var(--tape) 0 12px, #111 12px 24px); }
+.b3 > span { background: var(--tape); padding: 6px 10px; display: inline-flex; gap: 8px; align-items: center; margin: 6px 0; } .b3 .n { font-family: var(--font-mono); }
+.p3 { left: 14px; bottom: 84px; border: 0; border-radius: 0; box-shadow: 5px 5px 0 #111; } .p3 .pop-h { background: repeating-linear-gradient(-45deg, var(--tape) 0 12px, #111 12px 24px); padding: 0; } .p3 .pop-h span { background: var(--tape); color: #111; padding: 6px 12px; margin: 6px 0 6px 12px; text-transform: uppercase; letter-spacing: .05em; }
+
+/* ---- 4 · console pill: near black, mono type, a blinking test dot ---- */
+.b4 { position: absolute; left: 14px; bottom: 14px; z-index: 20; display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 14px; background: var(--night); color: var(--lime); border: 1px solid var(--lime); border-radius: 4px; font: 600 13px var(--font-mono); letter-spacing: .04em; cursor: pointer; box-shadow: 0 0 0 3px rgba(182,244,0,.25), 0 8px 20px rgba(0,0,0,.4); }
+.b4 .d { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); animation: blink 1.4s steps(2) infinite; } .b4 .t { color: #fff; opacity: .7; }
+@keyframes blink { 50% { opacity: .15; } } @media (prefers-reduced-motion: reduce) { .b4 .d { animation: none; } }
+.p4 { left: 14px; bottom: 70px; border: 1px solid var(--lime); border-radius: 4px; box-shadow: 0 0 0 3px rgba(182,244,0,.25), 0 12px 30px rgba(0,0,0,.4); } .p4 .pop-h { background: var(--night); color: var(--lime); font-family: var(--font-mono); }
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+  <div class="meta"><span>Issue #32</span><span>Abnahme in der Preview</span><span>Knopf, 4 Entwürfe</span></div>
+  <h1>Abnahmeknopf: Varianten</h1>
+  <p class="muted">Die Abnahme bleibt Variante B (durchsteppen). Hier geht es nur um den Knopf und die Kopfzeile des Popups: Er soll sich in Form und Farbe von allen Bedienelementen der App unterscheiden. Die Farben unten kommen im Produkt nirgends vor (die App nutzt Blau, Bernstein, Petrol, Violett, Rosé, Grün, Cyan und Schiefer). Jede Variante steht in einer Skizze der App, mit geöffnetem Popup darüber, und darunter in ihren Zuständen.</p>
+</header>
+
+<section class="variant" aria-labelledby="v1">
+  <div class="variant__head"><span class="id">1</span><h2 id="v1">Randlasche</h2></div>
+  <p>Eine schwarze Lasche am linken Fensterrand, die Schrift steht senkrecht, mit Limetten-Kante. Völlig andere Form als alle Knöpfe der App; sie liegt am Rand und verdeckt kaum etwas, wächst beim Darüberfahren etwas heraus.</p>
+  <div class="pc"><div><b>Gut</b>Unverwechselbar, braucht fast keinen Platz, überdeckt keine Karte.</div><div><b>Schwach</b>Senkrechte Schrift liest sich schlechter; am linken Rand schwer zu treffen auf grossen Bildschirmen.</div></div>
+  <div class="scroll"><div class="frame" id="f1"></div></div>
+  <div class="states"><div><small>Ruhe</small><button class="b1" style="position:static;transform:none;writing-mode:horizontal-tb;padding:10px 14px;border-radius:0 10px 10px 0" type="button">ABNAHME <span class="n">12/47</span> <span class="t" style="padding:1px 5px">PREVIEW</span></button></div></div>
+</section>
+
+<section class="variant" aria-labelledby="v2">
+  <div class="variant__head"><span class="id">2</span><h2 id="v2">Runder Knopf mit Fortschrittsring</h2></div>
+  <p>Ein runder, magentafarbener Knopf mit Klemmbrett-Symbol. Ein Ring um den Knopf füllt sich mit dem Fortschritt, die Zahl sitzt als kleine Marke am Rand, das Wort «Preview» daneben. Rund ist in der App sonst nur der Epic-Punkt.</p>
+  <div class="pc"><div><b>Gut</b>Fortschritt auf einen Blick, sehr kompakt, deutlich anders in Form und Farbe.</div><div><b>Schwach</b>Rund und magenta wirkt verspielter als der Rest; die Beschriftung ist ein Zusatz neben dem Knopf.</div></div>
+  <div class="scroll"><div class="frame" id="f2"></div></div>
+</section>
+
+<section class="variant" aria-labelledby="v3">
+  <div class="variant__head"><span class="id">3</span><h2 id="v3">Warnband</h2></div>
+  <p>Ein eckiges Etikett mit gelb-schwarzem Warnstreifen, leicht schief aufgeklebt, in Grossbuchstaben «Abnahme». Gelbe Fläche mit Schrift in der Mitte. Es sagt wie eine Baustellenabsperrung: Das ist Werkzeug, nicht Produkt.</p>
+  <div class="pc"><div><b>Gut</b>Sofort als Fremdkörper erkennbar, scharfe Ecken gibt es sonst nirgends.</div><div><b>Schwach</b>Laut, kann ablenken, wenn man lange testet; Streifen sind bei Sehschwäche unruhig.</div></div>
+  <div class="scroll"><div class="frame" id="f3"></div></div>
+</section>
+
+<section class="variant" aria-labelledby="v4">
+  <div class="variant__head"><span class="id">4</span><h2 id="v4">Konsolen-Kapsel</h2></div>
+  <p>Fast schwarz mit Limettenschrift in Monospace, scharfe Ecken, ein blinkender Punkt wie bei einer Aufnahme. Wirkt wie ein Entwicklerwerkzeug, das über der App liegt. Der Punkt blinkt nicht bei «Bewegung reduzieren».</p>
+  <div class="pc"><div><b>Gut</b>Ruhig und kompakt, klar «Werkzeug», passt zu Monospace-Zahlen der App.</div><div><b>Schwach</b>Dunkel auf dem hellen Thema weniger auffällig als Gelb oder Magenta; der blinkende Punkt kann stören.</div></div>
+  <div class="scroll"><div class="frame" id="f4"></div></div>
+</section>
+</main>
+
+<script>
+function mock(frame) {
+  frame.innerHTML = `<div class="m-bar"><b>Get It Done</b><span class="m-nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></span></div>
+  <div class="m-page"><div class="m-head"><h3>Sprint 1</h3><span class="muted">6 Stories · 23 Punkte</span><span class="m-btn">Neue Story</span></div>
+  <div class="m-board">
+    <div class="m-col"><h4>Offen</h4><div class="m-card"><span>S-3</span>Reorder the backlog by priority</div><div class="m-card"><span>S-6</span>Operate the board with the keyboard only</div></div>
+    <div class="m-col"><h4>In Arbeit</h4><div class="m-card"><span>S-1</span>Create a story with title and description</div><div class="m-card"><span>S-4</span>Keep all data in a local database</div></div>
+    <div class="m-col"><h4>Review</h4><div class="m-card"><span>S-2</span>Tick off acceptance criteria</div></div>
+    <div class="m-col"><h4>Erledigt</h4><div class="m-card"><span>S-5</span>Switch the UI language</div></div></div></div>`;
+}
+const popBody = `<div class="pop-b"><b>AC1.1 Karte mit einem Klick öffnen</b><span class="muted">Schritt 1 von 47 · Erwartet: Die Details von «S-3» öffnen sich.</span><div class="row"><span class="btn ok">✓ In Ordnung</span><span class="btn">✗ Problem</span><span class="btn">›</span></div></div>`;
+const clip = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12l2 2 4-4"/></svg>';
+const add = (id, cls, html, pcls, head) => { const f = document.getElementById(id); mock(f); f.insertAdjacentHTML('beforeend', `<div class="pop ${pcls}"><div class="pop-h">${head}</div>${popBody}</div>` + html); };
+add('f1', 'b1', `<button type="button" class="b1" aria-label="Abnahme 12 von 47, Preview">${clip}<span>ABNAHME</span><span class="n">12/47</span><span class="t">PREVIEW</span></button>`, 'p1', '▤ ABNAHME · PAKET 1');
+add('f2', 'b2', `<button type="button" class="b2" aria-label="Abnahme 12 von 47, Preview"><svg class="ring" viewBox="0 0 78 78" aria-hidden="true"><circle cx="39" cy="39" r="35" fill="none" stroke="rgba(229,24,138,.25)" stroke-width="5"/><circle cx="39" cy="39" r="35" fill="none" stroke="#e5188a" stroke-width="5" stroke-linecap="round" stroke-dasharray="${(2*Math.PI*35).toFixed(1)}" stroke-dashoffset="${(2*Math.PI*35*(1-12/47)).toFixed(1)}"/></svg>${clip}<span class="n">12/47</span><span class="t">Preview</span></button>`, 'p2', 'Abnahme · Paket 1');
+add('f3', 'b3', `<button type="button" class="b3" aria-label="Abnahme 12 von 47, Preview"><span>${clip.replace('width="20" height="20"','width="16" height="16"')} Abnahme <span class="n">12/47</span> · Preview</span></button>`, 'p3', '<span>Abnahme · Paket 1</span>');
+add('f4', 'b4', `<button type="button" class="b4" aria-label="Abnahme 12 von 47, Preview"><span class="d"></span>ABNAHME <span>12/47</span><span class="t">PREVIEW</span></button>`, 'p4', '● ABNAHME · PAKET 1');
+</script>
+
+</body>
+</html>

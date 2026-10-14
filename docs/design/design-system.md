@@ -24,7 +24,7 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Category band | Above the columns of each status category (#5): name in uppercase, story count in mono, 3 px top edge in the category colour (`--epic-slate` not started, `--epic-blue` in progress, `--epic-green` done) |
 | Status dot | The colour of a status: the category colour for the first status of a category, lighter `color-mix` shades with `--surface` for the following ones. Always next to the status name |
 | Status value list | Settings › Status values: one group per category with the category colour as top edge and its rule in the head; rows with drag handle, status dot, name field, story count and remove button (lock for the last status of "not started" and "done"); dashed "+ Status in …" button per group |
-| Story card | ID (mono), title as link, criteria progress bar with count, epic dot and name, points pill. The whole card is the drag source (cursor `grab`); double click or Enter opens it |
+| Story card | ID (mono), title as link, criteria progress bar with count, epic dot and name, points pill. The whole card is the drag source; a click or Enter opens it (cursor `pointer`, `grabbing` while dragging); right click, menu key or Shift+F10 open the context menu |
 | Backlog row | Rank (mono), ID, title, epic, points. Dragged as a whole, no buttons |
 | Backlog sections | One section per sprint on a `--column` surface with name, dates and a "running" badge; a 3 px rule in `--text` separates "Not planned" |
 | Story map | Variant A of `story-map.md`: epic headers with a 4 px colour stripe, sticky sprint labels (running sprint with a 4 px accent edge), cells in `--column`, compact cards with a status dot and the status name. "Not planned" row dashed below a 3 px rule. While dragging: target cell in `--accent-soft`, epic header and sprint label with an accent ring (crosshair), drop line |
@@ -36,6 +36,14 @@ Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for
 | Epic swatches | Eight 18 px dots as a radio group; the selected one has a ring. Shown in the new-epic and the epic dialog |
 | Compact cards | On the story map, a pressed "Compact" switch turns cards into one-line chips: key and title, ellipsis |
 | Sprint drop line | Reordering a sprint shows a 4 px accent line across the map row with a pill naming the sprint and its new dates |
+| Create dialog footer | "Cancel" and the primary button at the right, the hint "Ctrl+Enter saves · Esc cancels" in muted 12 px text under them; "Add and add another" between them in the new-story dialog. "Discard input?" appears as a bar in `--danger-soft` under the form (focus on "Keep editing") |
+| New button | The primary "New …" button at the right of every page head, with the shortcut in a small mono key (`Ctrl+N`) inside the button |
+| Context menu | 190 px panel (`--surface`, border, shadow) at the pointer or the card, items 34 px, marked item in `--accent-soft`, status and epic with their colour dot, current choice with a tick, submenu at the right (left when it would leave the window); a transparent layer behind it catches the click beside it |
+| Quick add | Dashed "+ Story" row under a column or section, 44 px high; open it becomes a title field of the same height (placeholder "Title – Enter adds, Esc closes"), so the page does not shift. In a map cell the existing "+" |
+| Notice (toast) | Dark `--text` bar at the bottom centre, 5 s, with a close button; live region `role="status"` |
+| Highlight frame | A moved or new story: 2 px `--epic-green` border and a 3 px soft ring for 2 s, a short pulse unless "reduce motion" |
+| Shortcut overview | Dialog with a group per page and "Everywhere"; keys as small mono keycaps |
+| Acceptance popup | Preview only, in magenta (`--tool`, used nowhere in the product): round 66 px button with a progress ring, a count badge and a "Preview" tag at the bottom left; 400 px popup above it with a magenta header, a strip of all steps (green, red, outlined for the current one), one test case at a time; it moves to the side without the target; the target glows magenta for 3 s (`.acceptance-glow`) |
 | Dialog | Native modal `<dialog>`, 560 px wide (detail dialogs 1040 px), dimmed backdrop, title and form; used for creating and for the details of stories, epics and sprints, which never get a page of their own. Primary actions on pages ("New story", "New epic") open a dialog instead of an inline form |
 | Acceptance criteria list | Drag handle, checkbox, editable text and delete button per criterion, progress bar, "all accepted" status message |
 | Details panel | Status, epic, points as selects, sprint as checkbox, "Delete story" with confirmation below a rule |

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usability Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Tokens mirror the app's "Focus" design (tokens.css). Mockups are static; text is German because the PO reviews it in German. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.12); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea; --warn-soft: #fff4d6;
+  --c-blue: #2457d6; --c-amber: #b45309; --c-teal: #0f766e; --c-violet: #7c3aed; --c-green: #15803d; --c-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.45); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a; --warn-soft: #3a2f12;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff; --c-green: #6ee7a0; --c-slate: #a3b1c6;
+  color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 40px 16px 80px; display: grid; gap: 56px; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; } h2 { font-size: 22px; font-weight: 600; } h3 { font-size: 17px; font-weight: 600; }
+h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+p { margin: 0; max-width: 72ch; } .muted { color: var(--muted); }
+code, kbd { font-family: var(--font-mono); font-size: 12px; }
+kbd { background: var(--pill); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--text); white-space: nowrap; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+.group { display: grid; gap: 40px; }
+.item { display: grid; gap: 12px; }
+.item__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.id { font-family: var(--font-mono); font-size: 12px; background: var(--accent-soft); color: var(--accent-soft-ink); padding: 2px 8px; border-radius: 999px; font-weight: 500; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+.cap { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+/* Mockup frame and parts */
+.app { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 18px; padding: 0 14px; height: 38px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { font-weight: 600; white-space: nowrap; } .nav { display: flex; gap: 12px; color: var(--muted); } .nav .on { color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+.page { padding: 12px 14px 16px; display: grid; gap: 10px; position: relative; }
+.ph { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .ph b { font-size: 16px; } .ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 13px; color: var(--text); }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--p kbd { background: transparent; border-color: color-mix(in oklab, var(--accent-ink) 45%, transparent); color: var(--accent-ink); }
+.btn--d { background: var(--bad); color: #fff; border-color: var(--bad); }
+.btn--q { border-color: transparent; background: transparent; color: var(--bad); }
+.btn--s { height: 24px; padding: 0 8px; font-size: 12px; }
+.hint { font-size: 12px; color: var(--muted); }
+.board { display: flex; gap: 10px; overflow: hidden; }
+.col { flex: 1 1 0; min-width: 0; background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 7px; align-content: start; }
+.col--target { background: var(--accent-soft); border-color: var(--accent); }
+.col__head { display: flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.col__head .n { margin-left: auto; font-family: var(--font-mono); color: var(--muted); font-weight: 400; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; display: grid; gap: 4px; position: relative; }
+.card .k { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.card .b { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.card--sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.card--focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card--new { border-color: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.card--ghost { opacity: .5; }
+.bar4 { height: 4px; border-radius: 2px; background: var(--pill); position: relative; } .bar4 i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--ok); }
+.pill { margin-left: auto; font-family: var(--font-mono); font-size: 11px; background: var(--pill); border-radius: 999px; padding: 0 7px; color: var(--text); }
+.pill--act { background: var(--accent-soft); color: var(--accent-soft-ink); box-shadow: 0 0 0 1px var(--accent); }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.s1 { background: var(--c-slate); } .s2 { background: var(--c-blue); } .s3 { background: var(--c-green); } .eb { background: var(--c-violet); } .ea { background: var(--c-amber); } .et { background: var(--c-teal); }
+.menu { position: absolute; z-index: 3; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 4px; min-width: 190px; display: grid; gap: 1px; font-size: 13px; }
+.menu > div { display: flex; align-items: center; gap: 8px; padding: 5px 9px; border-radius: 5px; }
+.menu > div kbd { margin-left: auto; } .menu > div .arr { margin-left: auto; color: var(--muted); }
+.menu .on { background: var(--accent-soft); color: var(--accent-soft-ink); } .menu hr { border: 0; border-top: 1px solid var(--border); margin: 3px 0; width: 100%; }
+.menu .danger { color: var(--bad); }
+.dlg { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 11px; font-size: 13px; }
+.dlg h3 { font-size: 15px; }
+.field { display: grid; gap: 3px; } .field label { font-size: 12px; color: var(--muted); }
+.input { min-height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 4px 9px; background: var(--surface); display: flex; align-items: center; gap: 6px; }
+.input--f { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.foot { display: flex; gap: 8px; justify-content: flex-end; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px; } .foot .l { margin-right: auto; }
+.toast { display: inline-flex; align-items: center; gap: 12px; background: var(--text); color: var(--bg); border-radius: 8px; padding: 8px 12px; box-shadow: 0 10px 30px var(--shadow); font-size: 13px; }
+.toast b { color: var(--accent); cursor: pointer; text-decoration: underline; } .toast kbd { background: transparent; border-color: color-mix(in oklab, var(--bg) 40%, transparent); color: var(--bg); }
+:root[data-theme="dark"] .toast b { color: #1f3c9c; }
+.note { background: var(--warn-soft); border-radius: 6px; padding: 7px 10px; font-size: 12px; }
+.note--b { background: var(--bad-soft); color: var(--bad); }
+table.cmp { border-collapse: collapse; width: 100%; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+table.cmp th, table.cmp td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.cmp th { background: var(--pill); font-size: 12px; color: var(--muted); } table.cmp .old { color: var(--bad); } table.cmp .new { color: var(--ok); font-weight: 500; }
+.add { border: 1px dashed var(--border); border-radius: 6px; padding: 5px 8px; color: var(--muted); font-size: 12px; background: transparent; }
+.add--open { border: 1px solid var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface); color: var(--text); display: grid; gap: 4px; }
+.brow { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; }
+.brow .k { font-family: var(--font-mono); font-size: 11px; color: var(--muted); } .brow .r { font-family: var(--font-mono); font-size: 11px; color: var(--muted); width: 16px; }
+.brow--sel { border-color: var(--accent); background: var(--accent-soft); }
+.chk { width: 14px; height: 14px; border: 1.5px solid var(--muted); border-radius: 3px; display: inline-grid; place-items: center; font-size: 10px; flex: none; } .chk.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.sec { background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 5px; }
+.sec h5 { margin: 0; font-size: 12px; display: flex; gap: 8px; align-items: center; } .sec h5 span { font-weight: 400; color: var(--muted); }
+.floatbar { display: flex; gap: 8px; align-items: center; background: var(--text); color: var(--bg); border-radius: 10px; padding: 7px 10px; box-shadow: 0 10px 30px var(--shadow); width: max-content; max-width: 100%; flex-wrap: wrap; }
+.floatbar .btn { background: transparent; color: var(--bg); border-color: color-mix(in oklab, var(--bg) 35%, transparent); height: 26px; }
+.sc { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 28px; } .sc div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-bottom: 1px solid var(--border); }
+.sc h4 { grid-column: 1 / -1; margin-top: 6px; }
+
+/* Phone mockups */
+.phones { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+.phone { width: 270px; border: 6px solid var(--text); border-radius: 26px; background: var(--bg); overflow: hidden; position: relative; font-size: 12px; height: 420px; display: flex; flex-direction: column; }
+.phone .bar { height: 34px; padding: 0 10px; gap: 8px; } .phone .page { padding: 10px; flex: 1; align-content: start; overflow: hidden; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 16px 16px 0 0; box-shadow: 0 -8px 30px var(--shadow); padding: 8px 14px 14px; display: grid; gap: 4px; z-index: 3; }
+.sheet::before { content: ""; width: 38px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 6px; }
+.sheet .it { display: flex; align-items: center; gap: 10px; padding: 0 6px; min-height: 44px; border-radius: 8px; border-bottom: 1px solid var(--border); } .sheet .it:last-child { border-bottom: 0; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); z-index: 2; }
+.seg { display: flex; gap: 4px; overflow: hidden; } .seg span { flex: none; padding: 0 12px; min-height: 36px; display: inline-flex; align-items: center; border-radius: 999px; background: var(--pill); font-size: 12px; } .seg .on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.swipe { position: relative; border-radius: 6px; overflow: hidden; }
+.swipe__act { position: absolute; inset: 0 auto 0 0; width: 120px; background: var(--c-blue); color: #fff; display: flex; align-items: center; padding-left: 12px; font-weight: 600; }
+.swipe .card { transform: translateX(96px); }
+.edge { position: absolute; top: 0; bottom: 0; width: 44px; background: linear-gradient(to right, var(--accent-soft), transparent); display: grid; place-items: center; color: var(--accent); font-size: 18px; }
+.empty { border: 1px dashed var(--border); border-radius: 6px; padding: 14px 10px; text-align: center; color: var(--muted); display: grid; gap: 6px; justify-items: center; font-size: 12px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+  <div class="meta"><span>Issue #32</span><span>Usability</span><span>Entwürfe zu allen Vorschlägen</span></div>
+  <h1>Usability: Design-Entwürfe</h1>
+  <p class="muted">Ein Entwurf pro Vorschlag aus der Liste im Issue (U, Q, G, F). Die Mockups zeigen die Absicht, nicht die endgültigen Pixel; sie nutzen die Farben und Bausteine des bestehenden Designs «Focus». Zu jedem Vorschlag steht, was sich ändert und was bewusst unverändert bleibt.</p>
+</header>
+
+<!-- =============================== A · VEREINHEITLICHEN =============================== -->
+<section class="group" id="sec-a" aria-labelledby="ha">
+<h2 id="ha">A · Aktionen vereinheitlichen</h2>
+
+<div class="item" id="u1">
+  <div class="item__head"><span class="id">U1</span><h3>Ein Klick öffnet, überall</h3></div>
+  <p>Karte, Zeile, Chip, Epic, Release und Suchtreffer öffnen mit einem Klick. Ziehen beginnt weiterhin erst nach 4 px Mausbewegung, ein Klick bleibt also ein Klick. Doppelklick und Enter funktionieren weiter. Der Mauszeiger ist über allen öffnenden Flächen eine Hand, über dem Ziehgriff (Kriterien) ein Griff.</p>
+  <table class="cmp">
+    <tr><th>Ort</th><th>Heute</th><th>Neu</th></tr>
+    <tr><td>Board-Karte, Backlog-Zeile, Map-Chip</td><td class="old">Klick nur auf den Titel; Doppelklick auf die übrige Karte</td><td class="new">Klick irgendwo auf die Karte</td></tr>
+    <tr><td>Epic (Liste und Map-Kopf)</td><td class="old">Einfachklick</td><td class="new">Einfachklick (unverändert)</td></tr>
+    <tr><td>Release, Sprint</td><td class="old">Einfachklick</td><td class="new">Einfachklick (unverändert)</td></tr>
+    <tr><td>Tastatur</td><td class="old">Enter auf der Karte</td><td class="new">Enter auf der Karte (unverändert)</td></tr>
+  </table>
+</div>
+
+<div class="item" id="u2">
+  <div class="item__head"><span class="id">U2</span><h3>Löschen sieht überall gleich aus</h3></div>
+  <p>In jedem Detail-Dialog (Story, Epic, Sprint, Release) steht links im Fuss derselbe Knopf «Löschen». Gelöscht wird sofort, danach erscheint ein Hinweis mit «Rückgängig» (siehe F1; bis Undo aus #27 da ist, bleibt eine einheitliche Rückfrage). Hängen Stories am Epic oder Sprint, sagt der Dialog das vorher und fragt, was mit ihnen geschieht.</p>
+  <div class="grid2">
+    <div>
+      <div class="dlg" role="img" aria-label="Epic-Dialog mit Löschen und Frage nach den Stories">
+        <h3>Epic «Login» löschen?</h3>
+        <p>5 Stories gehören zu diesem Epic.</p>
+        <div class="field"><label>Was passiert mit den Stories?</label>
+          <div class="input"><span class="chk on">●</span> Behalten, ohne Epic</div>
+          <div class="input"><span class="chk">○</span> Mitlöschen (5 Stories, 14 Kriterien)</div></div>
+        <div class="foot"><span class="btn btn--s">Abbrechen</span><span class="btn btn--s btn--d">Epic löschen</span></div>
+      </div>
+      <div class="cap">Epic, Sprint und Release mit Stories: Wahl, standardmässig «behalten».</div>
+    </div>
+    <div>
+      <div class="dlg" role="img" aria-label="Story-Dialog Fuss mit Löschen links">
+        <h3>S-12 Login-Seite</h3><p class="hint">… Felder …</p>
+        <div class="foot"><span class="btn btn--q l">🗑 Löschen</span><span class="btn btn--s">Schliessen</span></div>
+      </div>
+      <div class="cap">Gleiche Stelle, gleiche Beschriftung in allen vier Dialogen. Ein leerer Sprint hat bisher gar keinen Löschknopf, jetzt auch.</div>
+      <p style="margin-top:10px"><span class="toast">S-12 «Login-Seite» gelöscht <b>Rückgängig</b> <kbd>Strg+Z</kbd></span></p>
+    </div>
+  </div>
+</div>
+
+<div class="item" id="u3">
+  <div class="item__head"><span class="id">U3</span><h3>Ein Speichermodell in allen Dialogen</h3></div>
+  <p>Anlegen-Dialoge bekommen einen festen Fuss: «Abbrechen» und der Hauptknopf rechts, <kbd>Strg+Enter</kbd> speichert aus jedem Feld (auch aus der Beschreibung). <kbd>Esc</kbd> bricht ab. Ein Klick neben den Dialog schliesst nur dann, wenn nichts eingegeben wurde; sonst fragt eine Zeile im Dialog nach. Detail-Dialoge speichern weiter sofort.</p>
+  <div class="grid2">
+    <div class="dlg" role="img" aria-label="Neue Story Dialog mit Fuss">
+      <h3>Neue Story</h3>
+      <div class="field"><label>Titel</label><div class="input input--f">Passwort zurücksetzen</div></div>
+      <div class="field"><label>Beschreibung</label><div class="input" style="min-height:44px;align-items:flex-start">Als Nutzer möchte ich …</div></div>
+      <div class="foot"><span class="hint l"><kbd>Strg</kbd>+<kbd>Enter</kbd> speichert · <kbd>Esc</kbd> bricht ab</span><span class="btn btn--s">Abbrechen</span><span class="btn btn--s btn--p">Story anlegen</span></div>
+    </div>
+    <div class="dlg" role="img" aria-label="Neue Story Dialog mit Rückfrage zum Verwerfen">
+      <h3>Neue Story</h3>
+      <div class="field"><label>Titel</label><div class="input">Passwort zurücksetzen</div></div>
+      <div class="note note--b" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">Eingaben verwerfen? <span class="btn btn--s" style="margin-left:auto">Weiter bearbeiten</span><span class="btn btn--s btn--d">Verwerfen</span></div>
+      <div class="cap">Erscheint nach Klick neben den Dialog oder <kbd>Esc</kbd>, aber nur bei ausgefülltem Dialog. Der Fokus liegt auf «Weiter bearbeiten».</div>
+    </div>
+  </div>
+</div>
+
+<div class="item" id="u4">
+  <div class="item__head"><span class="id">U4</span><h3>«Neu» sitzt überall am selben Platz</h3></div>
+  <p>Jede Seite hat rechts oben im Seitenkopf den Hauptknopf mit dem Kürzel auf dem Knopf. Die Story Map bekommt ihn ebenfalls (heute nur Strg+N und «+» je Zelle). Auf der Map und beim Board legt <kbd>Strg+N</kbd> eine Story an, bei Epics ein Epic, bei Releases ein Release; der Knopf nennt es.</p>
+  <div class="app" role="img" aria-label="Story Map Seitenkopf mit neuem Knopf Neue Story Strg+N"><div class="bar"><span class="brand">Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span class="on">Story Map</span><span>Epics</span></span></div>
+    <div class="page"><div class="ph"><b>Story Map</b><span class="hint">4 Epics · 3 Sprints · 18 Stories</span><span class="btn" style="margin-left:auto">Zeilen: Sprints ⚙</span><span class="btn">Kompakt</span><span class="btn btn--p" style="margin-left:0">Neue Story <kbd>Strg+N</kbd></span></div></div></div>
+</div>
+</section>
+
+<!-- =============================== B · SCHNELL-AKTIONEN =============================== -->
+<section class="group" id="sec-b1" aria-labelledby="hb">
+<h2 id="hb">B · Schnell-Aktionen</h2>
+
+<div class="item" id="q1">
+  <div class="item__head"><span class="id">Q1</span><h3>Kontextmenü auf Karten und Zeilen</h3></div>
+  <p>Rechtsklick, Menütaste oder <kbd>Umschalt+F10</kbd> öffnen das Menü an der Karte (Backlog-Zeile, Map-Chip ebenso); auf Touch der lange Druck (G1). Pfeiltasten wählen, <kbd>→</kbd> öffnet ein Untermenü, <kbd>Esc</kbd> schliesst. Die Einträge zeigen das Tastenkürzel von Q4. Untermenüs: Status, Sprint, Epic, Punkte.</p>
+  <div class="app" role="img" aria-label="Board mit Kontextmenü auf einer Karte und geöffnetem Untermenü Status">
+    <div class="page" style="min-height:380px"><div class="board">
+      <div class="col"><div class="col__head"><span class="dot s1"></span>Zu erledigen<span class="n">2</span></div>
+        <div class="card"><span class="k">S-4</span>Passwort zurücksetzen<div class="b"><span class="dot eb"></span>Login<span class="pill">3</span></div></div></div>
+      <div class="col"><div class="col__head"><span class="dot s2"></span>In Arbeit<span class="n">2</span></div>
+        <div class="card card--sel"><span class="k">S-3</span>Login-Seite<div class="b"><span class="dot eb"></span>Login<span class="pill">5</span></div></div>
+        <div class="card"><span class="k">S-7</span>Profilbild hochladen<div class="b"><span class="dot ea"></span>Profil<span class="pill">2</span></div></div></div>
+      <div class="col"><div class="col__head"><span class="dot s3"></span>Erledigt<span class="n">1</span></div></div>
+      <div class="menu" style="left:150px;top:60px;width:210px">
+        <div>Öffnen<kbd>Enter</kbd></div><hr>
+        <div class="on">Status<span class="arr">▸</span></div><div>Sprint<span class="arr">▸</span></div><div>Epic<span class="arr">▸</span></div><div>Punkte<span class="arr">▸</span></div><hr>
+        <div>Im Backlog nach oben<kbd>Strg+Pos1</kbd></div><div class="danger">Löschen<kbd>Entf</kbd></div></div>
+      <div class="menu" style="left:366px;top:90px;width:170px">
+        <div><span class="dot s1"></span>Zu erledigen<kbd>1</kbd></div><div><span class="dot s2"></span>In Arbeit ✓<kbd>2</kbd></div><div class="on"><span class="dot s3"></span>Erledigt<kbd>3</kbd></div></div>
+    </div></div></div>
+</div>
+
+<div class="item" id="q2">
+  <div class="item__head"><span class="id">Q2</span><h3>Direkt in der Spalte anlegen</h3></div>
+  <p>Am Ende jeder Board-Spalte, jedes Backlog-Abschnitts und jeder Map-Zelle steht «+ Story». Klick (oder <kbd>N</kbd> auf der fokussierten Spalte) öffnet ein Titelfeld. <kbd>Enter</kbd> legt an und bleibt für die nächste offen, <kbd>Esc</kbd> schliesst. Status, Sprint bzw. Epic folgen dem Ort. Alles andere bleibt auf den Standardwerten und wird später im Dialog ergänzt.</p>
+  <div class="grid2">
+    <div class="app" role="img" aria-label="Board-Spalte mit offenem Schnell-Anlegen"><div class="page"><div class="board">
+      <div class="col"><div class="col__head"><span class="dot s2"></span>In Arbeit<span class="n">2</span></div>
+        <div class="card"><span class="k">S-3</span>Login-Seite</div><div class="card"><span class="k">S-7</span>Profilbild</div>
+        <div class="add add--open"><span>Rechnung als PDF</span><span class="hint"><kbd>Enter</kbd> anlegen · <kbd>Esc</kbd> fertig</span></div></div>
+      <div class="col"><div class="col__head"><span class="dot s3"></span>Erledigt<span class="n">0</span></div><div class="add">+ Story</div></div></div></div></div>
+    <div class="app" role="img" aria-label="Backlog-Abschnitt mit Schnell-Anlegen und Story-Map-Zelle mit plus"><div class="page">
+      <div class="sec"><h5>Sprint 4 <span>12.–25. Okt · 8 Punkte</span></h5>
+        <div class="brow"><span class="r">1</span><span class="k">S-3</span>Login-Seite<span class="pill">5</span></div>
+        <div class="brow"><span class="r">2</span><span class="k">S-4</span>Passwort zurücksetzen<span class="pill">3</span></div><div class="add">+ Story in Sprint 4</div></div>
+      <div class="sec"><h5>Nicht geplant</h5><div class="add">+ Story</div></div></div></div>
+  </div>
+</div>
+
+<div class="item" id="q3">
+  <div class="item__head"><span class="id">Q3</span><h3>«Anlegen und weitere»</h3></div>
+  <p>Im Dialog «Neue Story» ein zweiter Knopf (<kbd>Strg+Umschalt+Enter</kbd>): legt an, leert den Titel und behält Epic, Sprint, Release und Punkte der letzten Story. Eine Zeile nennt, was angelegt wurde.</p>
+  <div class="dlg" style="max-width:520px" role="img" aria-label="Neue Story mit Knopf Anlegen und weitere">
+    <h3>Neue Story</h3>
+    <div class="note" style="background:var(--ok-soft);color:var(--ok)">✓ S-13 «Passwort zurücksetzen» angelegt. Epic Login, Sprint 4 und 3 Punkte bleiben.</div>
+    <div class="field"><label>Titel</label><div class="input input--f"> </div></div>
+    <div class="foot"><span class="btn btn--s">Schliessen</span><span class="btn btn--s">Anlegen und weitere <kbd>Strg+⇧+Enter</kbd></span><span class="btn btn--s btn--p">Anlegen <kbd>Strg+Enter</kbd></span></div>
+  </div>
+</div>
+</section>
+
+<section class="group" id="sec-b2" aria-labelledby="hb2">
+<h2 id="hb2">B · Schnell-Aktionen (Fortsetzung)</h2>
+
+<div class="item" id="q4">
+  <div class="item__head"><span class="id">Q4</span><h3>Tasten auf der fokussierten Karte</h3></div>
+  <p>Ist eine Karte (Zeile, Chip) fokussiert und kein Textfeld aktiv, gelten Einzeltasten. Beim Fokus erscheint unter der Karte eine kleine Hilfezeile (nur bei Tastaturbedienung, nicht bei Mausklick). Die Tasten stehen auch im Kontextmenü.</p>
+  <div class="grid2"><div class="app" role="img" aria-label="Fokussierte Karte mit Tastenhilfe"><div class="page"><div class="board" style="max-width:300px"><div class="col"><div class="col__head"><span class="dot s2"></span>In Arbeit</div>
+    <div class="card card--focus"><span class="k">S-3</span>Login-Seite<div class="b"><span class="dot eb"></span>Login<span class="pill">5</span></div></div>
+    <div class="hint" style="display:grid;gap:3px"><span><kbd>1</kbd>–<kbd>3</kbd> Status · <kbd>E</kbd> bearbeiten</span><span><kbd>[</kbd> <kbd>]</kbd> Sprint zurück/vor · <kbd>Entf</kbd> löschen</span><span><kbd>Strg+↑</kbd><kbd>Strg+↓</kbd> in der Liste verschieben</span></div></div></div></div></div>
+  <table class="cmp"><tr><th>Taste</th><th>Wirkung</th></tr><tr><td><kbd>1</kbd>…<kbd>9</kbd></td><td>Status Nr. n der Reihenfolge</td></tr><tr><td><kbd>E</kbd></td><td>Titel direkt bearbeiten</td></tr><tr><td><kbd>[</kbd> <kbd>]</kbd></td><td>Vorheriger / nächster Sprint</td></tr><tr><td><kbd>Strg+↑/↓</kbd></td><td>Eine Position hoch / runter (ersetzt das Ziehen)</td></tr><tr><td><kbd>Entf</kbd></td><td>Löschen (mit Rückgängig)</td></tr><tr><td><kbd>Leertaste</kbd></td><td>Ziehen per Tastatur, wie heute</td></tr></table></div>
+</div>
+
+<div class="item" id="q5">
+  <div class="item__head"><span class="id">Q5</span><h3>Nächste und vorherige Story im Dialog</h3></div>
+  <p>Wie die Ergebnisleiste der Suche: eine schmale Leiste oben im Story-Dialog («3 von 8» mit ‹ ›). Die Reihenfolge ist die der Seite, von der aus geöffnet wurde (Spalte, Sprint, Map-Zelle). <kbd>J</kbd>/<kbd>K</kbd> oder <kbd>←</kbd>/<kbd>→</kbd> blättern, ausser ein Feld hat den Fokus.</p>
+  <div class="dlg" style="max-width:560px" role="img" aria-label="Story-Dialog mit Leiste 3 von 8">
+    <div class="note" style="background:var(--accent-soft);color:var(--accent-soft-ink);display:flex;gap:10px;align-items:center">Spalte «In Arbeit» · <b>3 von 8</b><span style="margin-left:auto;display:flex;gap:6px"><span class="btn btn--s">‹ <kbd>K</kbd></span><span class="btn btn--s">› <kbd>J</kbd></span></span></div>
+    <h3>S-3 Login-Seite</h3><p class="hint">Beschreibung, Kriterien, Felder …</p></div>
+</div>
+
+<div class="item" id="q6">
+  <div class="item__head"><span class="id">Q6</span><h3>Kürzel-Übersicht und Navigation</h3></div>
+  <p><kbd>?</kbd> öffnet die Übersicht (auch über ein «⌨»-Symbol im Kopf). Sie zeigt die Kürzel der aktuellen Seite zuerst. Zusätzlich: <kbd>/</kbd> fokussiert die Suche wie Strg+F; <kbd>G</kbd> dann <kbd>B</kbd>/<kbd>L</kbd>/<kbd>M</kbd>/<kbd>E</kbd>/<kbd>R</kbd> springt zu Board, Backlog, Map, Epics, Releases.</p>
+  <div class="dlg" style="max-width:640px" role="img" aria-label="Dialog Tastenkürzel"><h3>Tastenkürzel</h3>
+    <div class="sc"><h4>Auf dieser Seite (Board)</h4>
+      <div><span>Neue Story</span><span><kbd>Strg+N</kbd></span></div><div><span>Karte öffnen</span><span><kbd>Enter</kbd></span></div>
+      <div><span>Karte ziehen</span><span><kbd>Leertaste</kbd></span></div><div><span>Status setzen</span><span><kbd>1</kbd>–<kbd>9</kbd></span></div>
+      <h4>Überall</h4>
+      <div><span>Suchen</span><span><kbd>/</kbd> <kbd>Strg+F</kbd></span></div><div><span>Rückgängig</span><span><kbd>Strg+Z</kbd></span></div>
+      <div><span>Zum Board</span><span><kbd>G</kbd> <kbd>B</kbd></span></div><div><span>Zum Backlog</span><span><kbd>G</kbd> <kbd>L</kbd></span></div>
+      <div><span>Zur Story Map</span><span><kbd>G</kbd> <kbd>M</kbd></span></div><div><span>Diese Übersicht</span><span><kbd>?</kbd></span></div></div>
+    <div class="hint">Einzeltasten gelten nie, solange ein Textfeld den Fokus hat.</div></div>
+</div>
+
+<div class="item" id="q7">
+  <div class="item__head"><span class="id">Q7</span><h3>Mehrfachauswahl</h3></div>
+  <p>Strg-/Umschalt-Klick wählt Karten und Zeilen aus (Umschalt auch als Bereich); Umschalt+Pfeil per Tastatur; ein Häkchen erscheint beim Überfahren der Karte, auf Touch nach langem Druck. Eine schwebende Leiste unten nennt die Anzahl und bietet dieselben Aktionen wie das Kontextmenü für die ganze Auswahl. Eine ausgewählte Karte ziehen nimmt alle ausgewählten mit (Zähler am Mauszeiger).</p>
+  <div class="app" role="img" aria-label="Backlog mit drei ausgewählten Zeilen und schwebender Aktionsleiste"><div class="page" style="min-height:260px">
+    <div class="sec"><h5>Nicht geplant <span>5 Stories · 14 Punkte <a style="margin-left:8px;color:var(--accent)">Alle auswählen</a></span></h5>
+      <div class="brow brow--sel"><span class="chk on">✓</span><span class="k">S-8</span>Passwort zurücksetzen<span class="pill">3</span></div>
+      <div class="brow brow--sel"><span class="chk on">✓</span><span class="k">S-9</span>Konto sperren<span class="pill">5</span></div>
+      <div class="brow brow--sel"><span class="chk on">✓</span><span class="k">S-10</span>Abmelden<span class="pill">1</span></div>
+      <div class="brow"><span class="chk"></span><span class="k">S-11</span>Cookies-Hinweis<span class="pill">2</span></div></div>
+    <div class="floatbar"><b>3 ausgewählt</b><span class="btn">In Sprint ▾</span><span class="btn">Epic ▾</span><span class="btn">Status ▾</span><span class="btn">Löschen</span><span class="btn">✕ <kbd>Esc</kbd></span></div></div></div>
+</div>
+
+<div class="item" id="q8">
+  <div class="item__head"><span class="id">Q8</span><h3>Punkte und Status direkt auf der Karte ändern</h3></div>
+  <p>Ein Klick auf die Punkte-Pille öffnet eine kleine Auswahl mit den Werten; ein Klick auf den Status-Punkt (Map, Backlog) öffnet die Statusliste. Der Rest der Karte öffnet weiter die Story. Beide Elemente sind echte Knöpfe mit sichtbarem Fokus.</p>
+  <div class="app" role="img" aria-label="Karte mit geöffneter Punkteauswahl"><div class="page" style="min-height:190px"><div class="board" style="max-width:300px"><div class="col"><div class="col__head"><span class="dot s2"></span>In Arbeit</div>
+    <div class="card"><span class="k">S-3</span>Login-Seite<div class="b"><span class="dot eb"></span>Login<span class="pill pill--act">5 ▾</span></div></div></div></div>
+    <div class="menu" style="left:210px;top:92px;min-width:0;grid-template-columns:repeat(4,38px)"><div>1</div><div>2</div><div>3</div><div class="on">5</div><div>8</div><div>13</div><div>21</div><div>?</div></div></div></div>
+</div>
+
+<div class="item" id="q9">
+  <div class="item__head"><span class="id">Q9</span><h3>Mehrere Kriterien auf einmal</h3></div>
+  <p>Fügt man mehrzeiligen Text in «Neues Kriterium» ein (z. B. eine Liste aus einem Dokument), erscheint eine Vorschau, und ein Knopf legt jede Zeile als eigenes Kriterium an. Aufzählungszeichen und Nummern am Zeilenanfang werden entfernt. <kbd>Enter</kbd> im leeren Feld ändert nichts.</p>
+  <div class="dlg" style="max-width:520px" role="img" aria-label="Eingefügte Liste wird als drei Kriterien angeboten"><div class="field"><label>Neues Kriterium</label><div class="input input--f" style="display:grid">Nutzer sieht Fehler bei falschem Passwort<br>Nach 5 Fehlversuchen wird das Konto gesperrt<br>Link zum Zurücksetzen ist 1 Stunde gültig</div></div>
+    <div class="note">Eingefügt: <b>3 Zeilen</b> → 3 Kriterien <span class="btn btn--s btn--p" style="margin-left:8px">3 Kriterien anlegen</span> <span class="btn btn--s">Als eines anlegen</span></div></div>
+</div>
+</section>
+
+<!-- =============================== C · GESTEN =============================== -->
+<section class="group" id="sec-c" aria-labelledby="hc">
+<h2 id="hc">C · Gesten und Touch</h2>
+<p class="muted">Gemeinsam: alle Touch-Flächen mindestens 44 × 44 px; jede Geste hat einen sichtbaren Knopf oder ein Menü als Alternative (Barrierefreiheit).</p>
+
+<div class="item" id="g1">
+  <div class="item__head"><span class="id">G1</span><h3>Langer Druck öffnet das Menü</h3></div>
+  <p>Ein langer Druck (ca. 400 ms) auf eine Karte gibt eine leichte Vibration und öffnet das Kontextmenü aus Q1 als Bottom-Sheet. Ziehen beginnt, sobald der Finger nach dem Druck bewegt wird, ohne das Menü zu öffnen. Das Sheet bietet grosse Zeilen (44 px).</p>
+  <div class="phones">
+    <div class="phone" role="img" aria-label="Smartphone: Board mit Bottom-Sheet Menü"><div class="bar"><span class="brand">Get It Done</span></div><div class="page"><div class="ph"><b>Sprint 4</b></div><div class="card card--sel"><span class="k">S-3</span>Login-Seite<div class="b"><span class="dot eb"></span>Login<span class="pill">5</span></div></div><div class="card"><span class="k">S-7</span>Profilbild hochladen</div></div>
+      <div class="scrim"></div><div class="sheet"><b style="padding:4px 6px">S-3 Login-Seite</b><div class="it">Öffnen</div><div class="it">Status ändern ▸</div><div class="it">In anderen Sprint ▸</div><div class="it">Mehrere auswählen</div><div class="it" style="color:var(--bad)">Löschen</div></div></div>
+    <div class="cap" style="max-width:300px">Das Menü ist dasselbe wie am Desktop (Q1), nur als Sheet. «Mehrere auswählen» startet Q7.</div>
+  </div>
+</div>
+
+<div class="item" id="g2">
+  <div class="item__head"><span class="id">G2</span><h3>Wischen auf der Karte</h3></div>
+  <p>Nach rechts wischen schiebt die Karte in den nächsten Status, nach links in den vorherigen. Während des Wischens erscheint dahinter der Zielstatus; ab etwa der halben Kartenbreite löst es beim Loslassen aus, sonst springt die Karte zurück. Danach gibt es einen Hinweis mit «Rückgängig» (F1). Am Rand (erster/letzter Status) wischt nichts.</p>
+  <div class="phones"><div class="phone" role="img" aria-label="Smartphone: Karte wird nach rechts gewischt, dahinter In Arbeit"><div class="bar"><span class="brand">Get It Done</span></div><div class="page"><div class="ph"><b>Sprint 4</b></div>
+    <div class="swipe"><div class="swipe__act">→ In Arbeit</div><div class="card"><span class="k">S-4</span>Passwort zurücksetzen<div class="b"><span class="dot eb"></span>Login<span class="pill">3</span></div></div></div>
+    <div class="card"><span class="k">S-7</span>Profilbild hochladen</div></div></div></div>
+</div>
+
+<div class="item" id="g3">
+  <div class="item__head"><span class="id">G3</span><h3>Board auf dem Smartphone: eine Spalte pro Ansicht</h3></div>
+  <p>Unter etwa 600 px Breite zeigt das Board eine Spalte, darüber eine Leiste mit den Status (Anzahl dahinter). Seitwärts wischen oder auf die Leiste tippen wechselt. Beim Ziehen einer Karte an den Rand wechselt die Spalte nach kurzer Verzögerung. Auf Tablet und Desktop bleibt das Board wie bisher.</p>
+  <div class="phones"><div class="phone" role="img" aria-label="Smartphone: Statusleiste und eine Spalte"><div class="bar"><span class="brand">Get It Done</span></div><div class="page"><div class="ph"><b>Sprint 4</b></div>
+    <div class="seg"><span>Zu erledigen 2</span><span class="on">In Arbeit 2</span><span>Erledigt 1</span></div>
+    <div class="card"><span class="k">S-3</span>Login-Seite<div class="b"><span class="dot eb"></span>Login<span class="pill">5</span></div></div>
+    <div class="card"><span class="k">S-7</span>Profilbild hochladen<div class="b"><span class="dot ea"></span>Profil<span class="pill">2</span></div></div>
+    <div class="add" style="min-height:44px;display:grid;place-items:center">+ Story</div></div></div></div>
+</div>
+
+<div class="item" id="g4">
+  <div class="item__head"><span class="id">G4</span><h3>Dialoge als Bottom-Sheet auf schmalen Bildschirmen</h3></div>
+  <p>Auf schmalen Bildschirmen füllen Dialoge die Breite und wachsen von unten ins Bild, mit Griff oben. Nach unten wischen am Griff oder an der Titelzeile schliesst (mit Abbruchfrage nach U3, wenn etwas eingegeben wurde). Titel und «Schliessen» bleiben beim Scrollen sichtbar.</p>
+  <div class="phones"><div class="phone" role="img" aria-label="Smartphone: Story-Dialog als Bottom-Sheet"><div class="bar"><span class="brand">Get It Done</span></div><div class="page"><div class="card">…</div></div><div class="scrim"></div>
+    <div class="sheet" style="top:70px;align-content:start;gap:8px"><div style="display:flex;align-items:center"><b>S-3 Login-Seite</b><span class="btn" style="margin-left:auto;min-height:44px">✕</span></div>
+      <div class="field"><label>Status</label><div class="input" style="min-height:44px">In Arbeit ▾</div></div><div class="field"><label>Punkte</label><div class="input" style="min-height:44px">5 ▾</div></div><div class="field"><label>Kriterien</label><div class="input" style="min-height:44px"><span class="chk on">✓</span> Login mit E-Mail</div></div></div></div></div>
+</div>
+
+<div class="item" id="g5">
+  <div class="item__head"><span class="id">G5</span><h3>Automatisches Scrollen am Rand beim Ziehen</h3></div>
+  <p>Zieht man eine Karte in die Randzone (ca. 48 px) des scrollenden Bereichs, scrollt der Bereich mit, schneller je näher am Rand. Die Randzone ist durch einen weichen Farbverlauf und einen Pfeil sichtbar, solange gezogen wird. Gilt für Board (seitwärts), Backlog und Map (beides). Wird zuerst im Code geprüft; wo es schon geht, wird nur die Anzeige ergänzt.</p>
+  <div class="app" role="img" aria-label="Board beim Ziehen mit Randzone rechts"><div class="page"><div class="board" style="position:relative"><div class="col"><div class="col__head"><span class="dot s1"></span>Zu erledigen</div></div><div class="col"><div class="col__head"><span class="dot s2"></span>In Arbeit</div><div class="card card--ghost"><span class="k">S-3</span>Login-Seite</div></div><div class="col"><div class="col__head"><span class="dot s2"></span>Review</div></div><div class="col"><div class="col__head"><span class="dot s3"></span>Erledigt</div></div>
+    <div class="edge" style="right:0">›</div></div></div></div>
+</div>
+
+<div class="item" id="g6">
+  <div class="item__head"><span class="id">G6</span><h3>Verschieben der Ansicht mit Mausrad und Ziehen</h3></div>
+  <p>Auf breiten Ansichten (Board, Map): Umschalt+Mausrad scrollt seitwärts, ein Trackpad-Wisch ebenso. Ziehen auf leerer Fläche (Spaltenzwischenraum, Hintergrund) verschiebt die Ansicht wie eine Karte; der Mauszeiger ist dort eine offene Hand. Karten und Dialoge sind nicht betroffen. Keine sichtbaren Bedienelemente, nur der Mauszeiger ändert sich.</p>
+  <div class="app" role="img" aria-label="Board mit Hand-Mauszeiger auf leerer Fläche"><div class="page"><div class="board"><div class="col"><div class="col__head"><span class="dot s1"></span>Zu erledigen</div><div class="card"><span class="k">S-4</span>Passwort</div></div><div class="col"><div class="col__head"><span class="dot s2"></span>In Arbeit</div></div><div class="col" style="flex:.4;border-style:dashed;background:transparent;display:grid;place-items:center;font-size:26px">✋</div></div></div></div>
+</div>
+</section>
+
+<!-- =============================== F · RÜCKMELDUNG =============================== -->
+<section class="group" id="sec-f" aria-labelledby="hf">
+<h2 id="hf">D · Rückmeldung und Orientierung</h2>
+
+<div class="item" id="f1">
+  <div class="item__head"><span class="id">F1</span><h3>Hinweise nach Aktionen</h3></div>
+  <p>Unten mittig erscheint 5 Sekunden lang ein dunkler Hinweis («S-3 nach Erledigt verschoben», «S-13 angelegt», «S-12 gelöscht»), solange man darüber fährt oder den Fokus darauf hat, bleibt er stehen. Mit «Rückgängig», sobald #27 da ist; bis dahin nur Text. Er wird auch Screenreadern angesagt (ersetzt die bisherigen Einzelansagen nicht, ergänzt nur). Mehrere Aktionen kurz nacheinander ergeben einen Hinweis («3 Stories verschoben»). Er verdeckt nie den Dialog-Fuss.</p>
+  <div class="app" role="img" aria-label="Board mit Hinweis unten"><div class="page" style="min-height:150px"><div class="board"><div class="col"><div class="col__head"><span class="dot s1"></span>In Arbeit</div></div><div class="col"><div class="col__head"><span class="dot s3"></span>Erledigt</div><div class="card card--new"><span class="k">S-3</span>Login-Seite</div></div></div>
+    <div style="display:grid;justify-items:center;padding-top:20px"><span class="toast">S-3 «Login-Seite» nach <b style="text-decoration:none;color:inherit">Erledigt</b> verschoben <b>Rückgängig</b> <kbd>Strg+Z</kbd></span></div></div></div>
+</div>
+
+<div class="item" id="f2">
+  <div class="item__head"><span class="id">F2</span><h3>Das Neue und Verschobene sichtbar machen</h3></div>
+  <p>Eine neu angelegte oder per Menü, Tastatur oder Dialog verschobene Story wird in den sichtbaren Bereich gescrollt und 2 Sekunden mit grünem Rahmen hervorgehoben. Bei «Bewegung reduzieren» ohne Animation, nur der Rahmen. Nach dem Schliessen eines Dialogs bleibt die Scrollposition der Seite erhalten.</p>
+  <div class="app" role="img" aria-label="Board mit hervorgehobener neuer Karte"><div class="page"><div class="board" style="max-width:520px"><div class="col"><div class="col__head"><span class="dot s1"></span>Zu erledigen<span class="n">3</span></div><div class="card"><span class="k">S-4</span>Passwort</div><div class="card card--new"><span class="k">S-13</span>Rechnung als PDF<div class="b"><span style="color:var(--ok);font-weight:600">NEU</span></div></div></div><div class="col"><div class="col__head"><span class="dot s2"></span>In Arbeit</div></div></div></div></div>
+</div>
+
+<div class="item" id="f3">
+  <div class="item__head"><span class="id">F3</span><h3>Die App merkt sich, wo man war</h3></div>
+  <p>Nach einem Neuladen oder App-Start öffnet die zuletzt besuchte Seite (nicht immer das Board). «Kompakt» auf der Map, das gewählte Sprint-/Release-Raster, der Suchbereich und die Scrollposition je Seite bleiben erhalten. Die Daten bleiben lokal, nichts wird übertragen. Es gibt kein Bedienelement; in den Einstellungen steht ein Schalter «Beim Start zur letzten Seite» (Standard: an).</p>
+  <div class="dlg" style="max-width:520px" role="img" aria-label="Einstellung: Beim Start zur letzten Seite"><div class="field"><label>Allgemein</label><div class="input"><span class="chk on">✓</span> Beim Start zur zuletzt besuchten Seite</div><div class="input"><span class="chk on">✓</span> Ansichts-Einstellungen merken (Kompakt, Zeilen, Scrollposition)</div></div></div>
+</div>
+
+<div class="item" id="f4">
+  <div class="item__head"><span class="id">F4</span><h3>Leere Zustände bieten die nächste Aktion an</h3></div>
+  <p>Leere Spalten, Abschnitte, Zellen und Seiten erklären kurz, was hierher gehört, und bieten die Aktion an. Die Texte unterscheiden «noch nichts da» und «Filter blendet alles aus».</p>
+  <div class="grid2"><div class="col" role="img" aria-label="Leere Spalte Erledigt"><div class="col__head"><span class="dot s3"></span>Erledigt<span class="n">0</span></div><div class="empty">Noch nichts erledigt.<br>Ziehe eine Story hierher.</div></div>
+    <div class="sec" role="img" aria-label="Leerer Sprint im Backlog"><h5>Sprint 5 <span>noch leer</span></h5><div class="empty">Keine Stories im Sprint.<span class="btn btn--s btn--p">+ Story anlegen</span><span class="hint">oder Stories aus «Nicht geplant» hierher ziehen</span></div></div>
+    <div class="sec" role="img" aria-label="Leere Epic-Liste"><h5>Epics</h5><div class="empty">Noch kein Epic.<span class="btn btn--s btn--p">Neues Epic <kbd>Strg+N</kbd></span></div></div></div>
+</div>
+
+<div class="item" id="f5">
+  <div class="item__head"><span class="id">F5</span><h3>Rückgängig und Wiederholen per Tastatur</h3></div>
+  <p>Gehört zu #27; hier nur die Bedienung: <kbd>Strg+Z</kbd> macht die letzte Änderung rückgängig, <kbd>Strg+Umschalt+Z</kbd> stellt sie wieder her, ausser ein Textfeld hat den Fokus (dort gilt das Rückgängig des Feldes). Der Hinweis (F1) nennt jedes Mal, was rückgängig gemacht wurde. Ein Eintrag «Rückgängig: …» steht im Kontextmenü der Seite und in der Kürzel-Übersicht.</p>
+</div>
+</section>
+
+</main>
+</body>
+</html>

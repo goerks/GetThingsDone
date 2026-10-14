@@ -11,6 +11,7 @@ import { fieldLabel } from './fieldLabel';
 import { EpicTag } from './EpicTag';
 import { useBuiltin } from './useBuiltin';
 import { useMatchClass } from './search/HighlightBar';
+import { useStoryMenu } from '../state/StoryMenu';
 
 /** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
 export function TitleButton({ story, className }: { story: Story; className: string }) {
@@ -20,8 +21,11 @@ export function TitleButton({ story, className }: { story: Story; className: str
       type="button"
       className={`title-button ${className}`}
       tabIndex={-1}
-      onClick={() => details.openStory(story.id)}
-      onDoubleClick={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        // The card opens the story itself; the title button only gives it a name for assistive technology.
+        event.stopPropagation();
+        details.openStory(story.id);
+      }}
     >
       {story.title}
     </button>
@@ -116,11 +120,13 @@ interface SortableProps {
 
 /**
  * A card that is dragged as a whole with mouse, touch or keyboard.
- * Double click or Enter opens the story.
+ * A click or Enter opens the story; the context menu offers status, sprint, epic and points (#32).
  */
 export function SortableStoryCard({ story, epic, dropBefore = false }: SortableProps) {
   const { t } = useTranslation();
   const details = useDetails();
+  const menu = useStoryMenu();
+  const app = useApp();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -136,7 +142,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false }: SortableP
   };
 
   const match = useMatchClass(story.id, 'card');
-  const classes = ['card', isDragging && 'card--dragging', dropBefore && 'drop-before', match].filter(Boolean).join(' ');
+  const classes = ['card', isDragging && 'card--dragging', dropBefore && 'drop-before', app.flashed === story.id && 'flash', menu.openId === story.id && 'ctx-target', match].filter(Boolean).join(' ');
 
   return (
     <article
@@ -147,7 +153,8 @@ export function SortableStoryCard({ story, epic, dropBefore = false }: SortableP
       aria-label={`${story.code}: ${story.title}`}
       {...listeners}
       onKeyDown={onKeyDown}
-      onDoubleClick={() => details.openStory(story.id)}
+      onClick={() => details.openStory(story.id)}
+      onContextMenu={(event) => menu.openFor(story.id, event)}
     >
       <CardContent story={story} epic={epic} />
     </article>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { LANGUAGES, setLanguage, type LanguageCode } from '../i18n';
 import { hrefs, type Route } from '../router';
 import type { Theme } from '../theme';
-import { GearIcon } from './icons';
+import { GearIcon, KeyboardIcon } from './icons';
 import { useFeature } from './useFeature';
 import { useHelp } from '../state/Help';
 import { SearchBox } from './search/SearchBox';
@@ -12,9 +12,11 @@ interface Props {
   route: Route;
   theme: Theme;
   onToggleTheme: () => void;
+  /** Opens the overview of the keyboard shortcuts. */
+  onShowShortcuts: () => void;
 }
 
-export function Header({ route, theme, onToggleTheme }: Props) {
+export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) {
   const { t, i18n } = useTranslation();
   const language = (i18n.resolvedLanguage ?? 'en') as LanguageCode;
   const dark = theme === 'dark';
@@ -89,6 +91,16 @@ export function Header({ route, theme, onToggleTheme }: Props) {
 
       <div className="header__tools">
         <SearchBox />
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={onShowShortcuts}
+          aria-label={t('header.shortcuts')}
+          title={t('header.shortcuts')}
+          aria-keyshortcuts="Control+/ Meta+/"
+        >
+          <KeyboardIcon />
+        </button>
         <button
           type="button"
           className="icon-btn"

@@ -484,15 +484,11 @@ describe('story map', () => {
     expect((await repository.load()).epics.find((epic) => epic.name === 'Reporting')?.position).toBe(4);
   });
 
-  it('creates a story directly in a cell with epic and sprint prefilled', async () => {
+  it('creates a story directly in a cell with epic and sprint of that cell (quick add)', async () => {
     const user = userEvent.setup();
     const repository = await openMap();
     await user.click(screen.getByRole('button', { name: 'New story in Local storage, Sprint 2' }));
-    const dialog = screen.getByRole('dialog', { name: 'New story' });
-    expect(within(dialog).getByLabelText('Epic')).toHaveDisplayValue('Local storage');
-    expect(within(dialog).getByLabelText('Sprint')).toHaveDisplayValue(/^Sprint 2/);
-    await user.type(within(dialog).getByLabelText('Title'), 'Back up the database');
-    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
+    await user.type(screen.getByRole('textbox', { name: 'Title of the new story in Sprint 2, Local storage' }), 'Back up the database{Enter}');
 
     expect(within(cell('Sprint 2', 'Local storage')).getByRole('group', { name: 'S-8: Back up the database' })).toBeInTheDocument();
     expect((await repository.load()).stories.find((story) => story.code === 'S-8')).toMatchObject({
@@ -501,10 +497,10 @@ describe('story map', () => {
     });
   });
 
-  it('has no "New story" or "+ Sprint" buttons at the top, only in the map', async () => {
+  it('has the "New story" button at the top like every page, and "+ Sprint" only in the map', async () => {
     await openMap();
     const head = screen.getByRole('heading', { name: 'Story Map', level: 1 }).parentElement as HTMLElement;
-    expect(within(head).queryByRole('button', { name: 'New story' })).not.toBeInTheDocument();
+    expect(within(head).getByRole('button', { name: 'New story' })).toBeInTheDocument();
     expect(within(head).queryByRole('button', { name: '+ Sprint' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: '+ Sprint' })).toHaveLength(1);
   });
