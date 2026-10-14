@@ -6,6 +6,8 @@ import type { Theme } from '../theme';
 import { GearIcon, KeyboardIcon } from './icons';
 import { useFeature } from './useFeature';
 import { useHelp } from '../state/Help';
+import { RECORDER_ATTR } from '../state/recorderDom';
+import { useRecorder } from '../state/Recorder';
 import { SearchBox } from './search/SearchBox';
 
 interface Props {
@@ -22,6 +24,7 @@ export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) 
   const dark = theme === 'dark';
   const releasesEnabled = useFeature('releases');
   const help = useHelp();
+  const recorder = useRecorder();
   const inSettings = route.name === 'settings';
   // The gear opens the settings; pressed again, it goes back to the page shown before.
   const lastView = useRef<string>(hrefs.board);
@@ -140,6 +143,19 @@ export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) 
         >
           <GearIcon />
         </a>
+        {recorder.enabled && (
+          <button
+            type="button"
+            ref={recorder.buttonRef}
+            {...{ [RECORDER_ATTR]: 'true' }}
+            className={`btn recorder-btn${recorder.state.draft ? ' recorder-btn--live' : ''}${recorder.panel === 'open' ? ' icon-btn--on' : ''}`}
+            aria-expanded={recorder.panel === 'open'}
+            onClick={recorder.togglePanel}
+          >
+            <span className="recorder-btn__dot" aria-hidden="true" />
+            {t('recorder.button')}
+          </button>
+        )}
         <button
           type="button"
           ref={help.buttonRef}

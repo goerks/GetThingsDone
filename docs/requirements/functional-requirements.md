@@ -1,6 +1,6 @@
 # Functional requirements
 
-Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints), issue #4 (configurable fields), issue #10 (release planning) and issue #5 (configurable status values) and issue #33 (help system). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
+Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints), issue #4 (configurable fields), issue #10 (release planning) and issue #5 (configurable status values) and issue #33 (help system) and issue #37 (test builder). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
 
 ## Board (BOARD)
 
@@ -625,6 +625,48 @@ The help (FR-HELP-01) has the topics "Change a story from its menu" and "Add sto
 
 Verified by: component AC13.1–AC13.3 (`src/Help.test.tsx`), `src/help/topics.test.ts` (texts in all languages)
 
+## Test builder (TEST)
+
+Only in the web preview (not in the desktop app). Design: `docs/design/test-recorder.md`.
+
+### FR-TEST-01 Start a recording
+As the PO, I want to build a new test by clicking, so that I do not have to write test cases by hand.
+- "Record test" in the header opens the test builder; "Build a new test" asks for a name (required), a requirement (optional, for example AC2.1) and the starting point: fresh demo data (the app loads again) or the data as they are.
+- The recording and the saved tests are kept on the device (`localStorage`, key `getitdone.recorder`), also over a reload.
+- The button does not exist in the desktop app.
+
+Source: #37 · Status: Implemented · Verified by: #37 AC1.1 to AC1.3 (`src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC1.1"); desktop app: manual check
+
+### FR-TEST-02 Bar at the right edge
+- The builder is a bar fixed to the right edge; the app gets narrower instead of being covered (also when the help is open). On a narrow screen it sits at the bottom.
+- The bar folds away to a narrow strip with the number of steps; recording goes on while it is folded away.
+
+Source: #37 · Status: Implemented · Verified by: #37 AC2.1 to AC2.4 (`src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC2.1", "AC2.4")
+
+### FR-TEST-03 Steps as sentences
+- Clicks, double clicks, typed values (one step per field), chosen options, Enter and Escape, cards dragged with the mouse (with the column they landed in), changes of the page and a reload become sentences in the language of the UI. What is done in the builder itself is not recorded.
+- Sentences can be rewritten and removed; a step can be added by hand; the recording can be paused.
+
+Source: #37 · Status: Implemented · Verified by: #37 AC3.1 to AC3.7 (`src/domain/testRecorder.test.ts`, `src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC3.2", "AC7.1"); dragging with the keyboard is not recorded (add the step by hand)
+
+### FR-TEST-04 Expected result
+- "Point at the result" frames the element under the pointer; a click chooses it without doing anything else, and the builder offers sentences ("I see …"), or the user writes their own. Escape stops pointing.
+- A test can only be saved with an expected result and a name.
+
+Source: #37 · Status: Implemented · Verified by: #37 AC4.1 to AC4.5 (`src/domain/testRecorder.test.ts`, `src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC4.1 to AC4.4")
+
+### FR-TEST-05 My tests and handing over to the AI
+- "My tests" lists the saved tests; a test can be edited and deleted (after a confirmation).
+- "Copy everything" puts one text on the clipboard: a note for the AI, the preview address, date, language and window width, and every test in the form "Ausgangslage / Ich mache / Erwartet" with its technical steps as JSON. The text can be shown first. The list of entries is built so that feedback can follow as a further kind of entry.
+- Nothing is sent anywhere; the user pastes the text.
+
+Source: #37 · Status: Implemented · Verified by: #37 AC7.1 to AC7.3, AC8.1, AC8.2, AC8.4, AC8.5 (`src/domain/testRecorder.test.ts`, `src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC8.1")
+
+### FR-TEST-06 Languages and help
+- All texts of the builder in DE, EN, FR and IT; help topic "Record a test" with "Show me" for the button.
+
+Source: #37 · Status: Implemented · Verified by: #37 AC9.1, AC9.2 (`src/Recorder.test.tsx`, `src/help/topics.test.ts`, `e2e/testRecorder.spec.ts` "AC9.2")
+
 ## Later
 
 | ID | Requirement | Status |
@@ -632,4 +674,6 @@ Verified by: component AC13.1–AC13.3 (`src/Help.test.tsx`), `src/help/topics.t
 | FR-MAP-06 | Activities above epics on the map | Open (out of scope of #2) |
 | FR-SEARCH-06 | Search in a side panel next to the board (rest of variant D) | Open (out of scope of #7) |
 | FR-SEARCH-07 | Saved searches with a name | Proposed (PO undecided) |
+| FR-TEST-07 | Feedback and acceptance results as further entries of the collection, a feedback button at the bottom | Proposed (PO: leave out for now, #37) |
+| FR-TEST-08 | Replay recorded tests in the preview | Open |
 | FR-MAP-07 | Release slices in addition to sprints | Implemented in #10, phase 2 (see FR-REL-09) |

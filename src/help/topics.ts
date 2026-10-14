@@ -66,6 +66,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }, { id: 'map', requires: 'releases' }] },
   { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsFeatures' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
+  { id: 'recorder.basics', pages: ALL_VIEWS, general: true, show: { selector: '.recorder-btn', missing: 'plain' } },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
 ];
 
