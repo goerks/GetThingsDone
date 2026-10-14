@@ -8,6 +8,10 @@ How the product owner (PO) and the AI developer work together on a feature. The 
 - **The issue is the record.** Every proposal, design (with screenshots of the mockups), open question, decision, test case and approval is posted in the issue, not only in the conversation.
 - **The PO checks twice:** the test cases before building, and the result in the pull request. Nothing in between.
 
+## Session start
+
+The AI cannot write first; a session starts with the PO's first message. If that message has no concrete task (for example "Hallo" or "Was steht an?"), the AI answers with an overview: the **top 5 open issues** of the backlog, each with its state and a short assessment, followed by **2–3 questions or suggestions** on how the product could continue. The PO can ask for the same overview at any time with `/start`. A first message with a concrete task is worked on directly. Introduced with #41; the instructions are in `.claude/skills/start/SKILL.md`.
+
 ## Steps
 
 | # | Who | What | Where |
