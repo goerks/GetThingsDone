@@ -797,7 +797,7 @@ const CASES = PACKAGE_1.criteria.flatMap((criterion) => criterion.cases);
 const panelOf = (page: Page): Locator => page.getByRole('complementary', { name: 'Abnahme' });
 /** Opens the popup. By default it shows every test case, like the first versions did (`all`); the default view is tested apart (AC11.9). */
 const openAcceptance = async (page: Page, hash = '#/board', all = true): Promise<void> => {
-  await page.goto(`/?acceptance=1${hash}`);
+  await page.goto(`/?acceptance=1&package=32${hash}`);
   await page.locator('.acceptance__toggle').click();
   await expect(panelOf(page)).toBeVisible();
   if (all) {
@@ -811,7 +811,7 @@ const stepHeading = (page: Page, n: number): Locator => panelOf(page).getByRole(
 
 test('AC11.1 shows one test case at a time with a strip of all of them', async ({ page }) => {
   // Given I open the preview (the panel shows with ?acceptance=1)
-  await page.goto('/?acceptance=1#/board');
+  await page.goto('/?acceptance=1&package=32#/board');
   // When I click the round button "Abnahme"
   const toggle = page.locator('.acceptance__toggle');
   await expect(toggle).toBeVisible();
@@ -907,7 +907,7 @@ test('AC11.6 lights up what is to be tested and moves the popup to the other sid
 
 test('AC11.7 shows a round button with a progress ring and the Preview tag; the popup does not move the page', async ({ page }) => {
   // Given the preview with the button
-  await page.goto('/?acceptance=1#/board');
+  await page.goto('/?acceptance=1&package=32#/board');
   const toggle = page.locator('.acceptance__toggle');
   const head = page.locator('.page-head');
   const before = await head.boundingBox();

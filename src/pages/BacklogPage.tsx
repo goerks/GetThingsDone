@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
 import { NewButton } from '../components/NewButton';
+import { SprintPlan } from '../components/SprintPlan';
+import { VelocityPanel } from '../components/VelocityPanel';
 import { StoryQuickAdd } from '../components/QuickAdd';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
@@ -139,6 +141,7 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
         {sprint?.state === 'planned' && <span className="badge-planned">{t('sprint.planned')}</span>}
         {sprint && <span className="muted backlog__dates">{formatSprintDates(sprint, i18n.language)}</span>}
         <span className="muted">{builtin.summary(rows.length, totalPoints(rows))}</span>
+        {sprint && <SprintPlan points={totalPoints(rows)} className="muted backlog__plan" />}
       </h2>
       <SortableContext items={rows.map((story) => story.id)} strategy={keepInPlace}>
         <ol ref={setNodeRef} className="backlog" start={firstRank}>
@@ -266,6 +269,8 @@ export function BacklogPage() {
       <HighlightBar storyIds={app.stories.map((story) => story.id)} />
 
       {creating && <NewStoryDialog sprintId={null} onClose={() => setCreating(false)} />}
+
+      <VelocityPanel />
 
       <DndContext
         sensors={sensors}

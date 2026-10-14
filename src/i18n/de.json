@@ -871,6 +871,11 @@
         "keywords": "sprint planung abschnitt linie kommend laufend",
         "body": "Das Backlog zeigt die Sprints untereinander, danach die Stories, die noch nicht geplant sind. Die Sprintlinie ist die Grenze zwischen zwei Abschnitten: Was darüber steht, gehört zu diesem Sprint. Laufende und geplante Sprints sind gekennzeichnet; abgeschlossene Sprints werden nicht mehr angezeigt.\nZiehe Stories über die Linie, um sie zu planen."
       },
+      "backlog.velocity": {
+        "title": "Velocity",
+        "keywords": "velocity durchschnitt geplant erledigt punkte sprint diagramm tabelle team kapazität",
+        "body": "Das Backlog zeigt über den Sprints die Velocity deines Teams: pro abgeschlossenem Sprint zwei Balken, die beim Start geplanten und die erledigten Punkte. Eine gestrichelte Linie zeigt den Durchschnitt der letzten drei abgeschlossenen Sprints.\nFahre mit der Maus über einen Sprint oder gehe mit der Tab-Taste hin, um Zeitraum, Anteil und Dazugekommenes zu sehen. „Ältere Sprints“ zeigt acht weitere; „Tabelle“ listet alle Sprints mit denselben Werten. Mit dem Titel klappst du den Bereich zu.\nJeder offene Sprint im Backlog, auf der Story Map und im Start-Dialog zeigt seine Punkte neben dem Durchschnitt, zum Beispiel „30 geplant · Ø 21“. So planst du den nächsten Sprint realistisch. Der Bereich erscheint, sobald du einen Sprint abgeschlossen hast."
+      },
       "sprint.lifecycle": {
         "title": "Sprint starten und abschliessen",
         "keywords": "sprint starten abschliessen beenden fertig geplant läuft beendet unerledigte stories nächster sprint",
@@ -995,5 +1000,58 @@
       "points_other": "{{code}} hat jetzt {{count}} Punkte",
       "reordered": "{{code}} verschoben"
     }
+  },
+  "velocity": {
+    "title": "Velocity",
+    "chartLabel_one": "Velocity-Diagramm: geplante und erledigte Punkte des letzten abgeschlossenen Sprints",
+    "chartLabel_other": "Velocity-Diagramm: geplante und erledigte Punkte der letzten {{count}} abgeschlossenen Sprints",
+    "plan": "{{points}} geplant",
+    "planAverage": "{{points}} geplant · Ø {{average}}",
+    "head": {
+      "last": "Ø {{points}} Punkte · letzte 3 Sprints",
+      "few_one": "Ø {{points}} Punkte · {{count}} Sprint",
+      "few_other": "Ø {{points}} Punkte · {{count}} Sprints"
+    },
+    "line": {
+      "last": "Ø {{points}} (letzte 3)",
+      "few_one": "Ø {{points}} ({{count}} Sprint)",
+      "few_other": "Ø {{points}} ({{count}} Sprints)"
+    },
+    "foot": {
+      "last": "Ø der letzten 3 Sprints: {{points}}",
+      "few_one": "Ø von {{count}} Sprint: {{points}}",
+      "few_other": "Ø von {{count}} Sprints: {{points}}"
+    },
+    "legend": {
+      "planned": "Geplant",
+      "done": "Erledigt",
+      "average": "Durchschnitt"
+    },
+    "view": {
+      "label": "Ansicht",
+      "chart": "Diagramm",
+      "table": "Tabelle"
+    },
+    "older": "Ältere Sprints",
+    "tip": {
+      "figures": "Geplant beim Start {{planned}} · Erledigt {{done}}",
+      "added_one": "+{{stories}} Story, +{{points}} Punkte dazugekommen",
+      "added_other": "+{{stories}} Stories, +{{points}} Punkte dazugekommen"
+    },
+    "tableLabel": "Velocity pro abgeschlossenem Sprint",
+    "table": {
+      "sprint": "Sprint",
+      "period": "Zeitraum",
+      "completed": "Abgeschlossen",
+      "planned": "Geplant beim Start",
+      "added": "Dazugekommen",
+      "done": "Erledigt",
+      "share": "Anteil"
+    },
+    "empty": {
+      "title": "Noch kein Sprint abgeschlossen",
+      "text": "Sobald du einen Sprint auf dem Board abschliesst, siehst du hier, wie viele Punkte geplant und erledigt wurden."
+    },
+    "explain": "Geplant sind die Punkte im Sprint beim Start; erledigt sind die Punkte der Stories, die beim Abschluss fertig waren. Der Durchschnitt gilt für die letzten drei abgeschlossenen Sprints."
   }
 }

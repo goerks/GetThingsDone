@@ -60,6 +60,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'story.quickAdd', pages: ['board', 'backlog', 'map'], show: { selector: '.quick-add, .map-cell__add', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'map' }] },
   { id: 'backlog.order', pages: ['backlog'], show: { selector: '.backlog__row', missing: 'story' }, links: [{ id: 'backlog' }] },
   { id: 'backlog.sprints', pages: ['backlog'], show: { selector: '.backlog__heading', missing: 'plain' }, links: [{ id: 'backlog' }] },
+  { id: 'backlog.velocity', pages: ['backlog'], show: { selector: '.velocity', missing: 'plain' }, links: [{ id: 'backlog' }] },
   { id: 'sprint.lifecycle', pages: ['board', 'backlog', 'map'], show: { selector: '.page-head__actions', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'map' }] },
   { id: 'map.basics', pages: ['map'], links: [{ id: 'map' }, { id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }] },
   { id: 'epics.basics', pages: ['epics'], links: [{ id: 'epics' }] },
