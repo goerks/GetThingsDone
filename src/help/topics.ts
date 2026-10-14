@@ -1,5 +1,7 @@
 import type { Route } from '../router';
 import type { TourStepId } from '../domain/helpTour';
+import type { FeatureKey } from '../domain/types';
+import { hrefs } from '../router';
 
 export type PageKey = Route['name'];
 
@@ -10,6 +12,26 @@ export interface ShowSpec {
   missing: 'story' | 'plain';
 }
 
+/** The places a topic can point to. Texts: help.links.<id>. */
+export const LINK_TARGETS = {
+  board: hrefs.board,
+  backlog: hrefs.backlog,
+  map: hrefs.map,
+  epics: hrefs.epics,
+  releases: hrefs.releases,
+  settingsFields: hrefs.settings,
+  settingsStatuses: hrefs.settingsStatuses,
+  settingsMap: hrefs.settingsMap,
+  settingsFeatures: hrefs.settingsFeatures
+} as const;
+export type LinkId = keyof typeof LINK_TARGETS;
+
+/** A link of a topic. With `requires`, the place only exists while that feature is switched on (Settings → Features). */
+export interface HelpLinkDef {
+  id: LinkId;
+  requires?: FeatureKey;
+}
+
 export interface TopicDef {
   id: string;
   /** The pages this topic is about. It is listed first on these pages. */
@@ -17,6 +39,8 @@ export interface TopicDef {
   /** Listed on every page, under "General". */
   general?: boolean;
   show?: ShowSpec;
+  /** Where to find what the topic talks about. A feature that must be switched on first is linked before the places that need it. */
+  links?: readonly HelpLinkDef[];
 }
 
 /** The id of the introduction in the search and in the texts: help.topics.tour. */
@@ -26,16 +50,16 @@ const ALL_VIEWS: readonly PageKey[] = ['board', 'backlog', 'map', 'epics', 'rele
 
 /** The help topics in the order of their lists. Texts are in help.topics.<id> of the translations. */
 export const TOPICS: readonly TopicDef[] = [
-  { id: 'board.move', pages: ['board'], show: { selector: '.card[data-story-id]', missing: 'story' } },
-  { id: 'board.columns', pages: ['board', 'settings'], show: { selector: '.column', missing: 'plain' } },
-  { id: 'story.open', pages: ['board', 'backlog'], show: { selector: '.card__title, .backlog__title', missing: 'story' } },
-  { id: 'story.create', pages: ['board', 'backlog'], show: { selector: '.page-head__action', missing: 'plain' } },
-  { id: 'backlog.order', pages: ['backlog'], show: { selector: '.backlog__row', missing: 'story' } },
-  { id: 'backlog.sprints', pages: ['backlog'], show: { selector: '.backlog__heading', missing: 'plain' } },
-  { id: 'map.basics', pages: ['map'] },
-  { id: 'epics.basics', pages: ['epics'] },
-  { id: 'releases.basics', pages: ['releases'] },
-  { id: 'settings.basics', pages: ['settings'] },
+  { id: 'board.move', pages: ['board'], show: { selector: '.card[data-story-id]', missing: 'story' }, links: [{ id: 'board' }] },
+  { id: 'board.columns', pages: ['board', 'settings'], show: { selector: '.column', missing: 'plain' }, links: [{ id: 'settingsStatuses' }, { id: 'board' }] },
+  { id: 'story.open', pages: ['board', 'backlog'], show: { selector: '.card__title, .backlog__title', missing: 'story' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'settingsFields' }] },
+  { id: 'story.create', pages: ['board', 'backlog'], show: { selector: '.page-head__action', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'settingsFields' }] },
+  { id: 'backlog.order', pages: ['backlog'], show: { selector: '.backlog__row', missing: 'story' }, links: [{ id: 'backlog' }] },
+  { id: 'backlog.sprints', pages: ['backlog'], show: { selector: '.backlog__heading', missing: 'plain' }, links: [{ id: 'backlog' }] },
+  { id: 'map.basics', pages: ['map'], links: [{ id: 'map' }, { id: 'settingsFeatures' }, { id: 'settingsMap', requires: 'releases' }] },
+  { id: 'epics.basics', pages: ['epics'], links: [{ id: 'epics' }] },
+  { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsFeatures' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases' }, { id: 'map', requires: 'releases' }] },
+  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsFeatures' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
 ];

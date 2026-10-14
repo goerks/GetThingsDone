@@ -776,8 +776,8 @@
       },
       "map.basics": {
         "title": "Story Map",
-        "keywords": "carte activites epics sprints lignes colonnes release planification",
-        "body": "La Story Map a une colonne par epic et une ligne par sprint, ou par release si vous le choisissez dans les paramètres. Chaque cellule contient les stories de cet epic dans ce sprint.\nFaites glisser une story dans une autre cellule pour changer son sprint et son epic."
+        "keywords": "carte activites epics sprints lignes colonnes release planification tableau des releases fonction",
+        "body": "La Story Map a une colonne par epic et une ligne par sprint. Chaque cellule contient les stories de cet epic dans ce sprint.\nFaites glisser une story dans une autre cellule pour changer son sprint et son epic.\nPour planifier par release plutôt que par sprint, activez d’abord la fonction « Releases » (Paramètres → Fonctions), puis choisissez « Releases » comme lignes (Paramètres → Story map)."
       },
       "epics.basics": {
         "title": "Epics",
@@ -786,13 +786,13 @@
       },
       "releases.basics": {
         "title": "Releases",
-        "keywords": "release version perimetre burndown historique",
-        "body": "Une release rassemble les stories livrées ensemble. Ouvrez une release pour voir son périmètre, son avancement et son historique.\nLa page Releases peut être désactivée sous Paramètres, Fonctions."
+        "keywords": "release version perimetre burndown historique fonction activer allumer story map lignes tableau des releases",
+        "body": "Les releases ne fonctionnent que si la fonction « Releases » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Fonctions. La page Releases apparaît alors dans la navigation.\n2. Ouvrez la page Releases pour créer une release et voir son périmètre, son avancement et son historique.\n3. Pour planifier par release dans la Story Map, choisissez « Releases » comme lignes sous Paramètres → Story map. La Story Map montre alors une ligne par release.\nSi vous désactivez la fonction, tout ce qui concerne les releases est masqué, mais conservé."
       },
       "settings.basics": {
         "title": "Paramètres",
-        "keywords": "champs valeurs de statut fonctions story map lignes roue",
-        "body": "Ouvrez les paramètres avec la roue dentée. Les champs décrivent vos stories, les valeurs de statut sont les colonnes du tableau, d’autres sections fixent les lignes de la Story Map et activent ou désactivent des fonctions.\nLa roue vous ramène à la page d’où vous venez."
+        "keywords": "champs valeurs de statut fonctions story map lignes roue activer",
+        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont quatre sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases.\nLa roue vous ramène à la page d’où vous venez."
       },
       "search.basics": {
         "title": "Recherche",
@@ -809,6 +809,19 @@
         "keywords": "introduction tutoriel visite guidee parcours demarrer",
         "body": "Une courte introduction facultative en quatre étapes : découvrir le tableau, déplacer une story, créer une story et ordonner le backlog. Les étapes se cochent toutes seules quand vous les faites."
       }
-    }
+    },
+    "links": {
+      "board": "Ouvrir Tableau",
+      "backlog": "Ouvrir Backlog",
+      "map": "Ouvrir Story Map",
+      "epics": "Ouvrir Epics",
+      "releases": "Ouvrir Releases",
+      "settingsFields": "Ouvrir Paramètres → Champs",
+      "settingsStatuses": "Ouvrir Paramètres → Valeurs de statut",
+      "settingsMap": "Ouvrir Paramètres → Story map",
+      "settingsFeatures": "Ouvrir Paramètres → Fonctions"
+    },
+    "linksTitle": "Où le trouver",
+    "linkLocked": "{{label}} : activez d’abord la fonction « {{feature}} » (voir ci-dessus)."
   }
 }

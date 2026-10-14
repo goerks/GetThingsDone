@@ -776,8 +776,8 @@
       },
       "map.basics": {
         "title": "Story Map",
-        "keywords": "karte aktivitäten epics sprints zeilen spalten release planung",
-        "body": "Die Story Map hat eine Spalte pro Epic und eine Zeile pro Sprint, oder pro Release, wenn du das in den Einstellungen so wählst. Jede Zelle enthält die Stories dieses Epics in diesem Sprint.\nZiehe eine Story in eine andere Zelle, um Sprint und Epic zu ändern."
+        "keywords": "karte aktivitäten epics sprints zeilen spalten release planung release board funktion",
+        "body": "Die Story Map hat eine Spalte pro Epic und eine Zeile pro Sprint. Jede Zelle enthält die Stories dieses Epics in diesem Sprint.\nZiehe eine Story in eine andere Zelle, um Sprint und Epic zu ändern.\nUm statt nach Sprint nach Release zu planen, schalte zuerst die Funktion «Releases» ein (Einstellungen → Funktionen) und wähle dann «Releases» als Zeilen (Einstellungen → Story Map)."
       },
       "epics.basics": {
         "title": "Epics",
@@ -786,13 +786,13 @@
       },
       "releases.basics": {
         "title": "Releases",
-        "keywords": "release version umfang burndown verlauf",
-        "body": "Ein Release sammelt Stories, die zusammen ausgeliefert werden. Öffne ein Release, um seinen Umfang, seinen Fortschritt und seinen Verlauf zu sehen.\nDie Seite Releases kannst du unter Einstellungen, Funktionen ausschalten."
+        "keywords": "release version umfang burndown verlauf funktion aktivieren einschalten story map zeilen release board",
+        "body": "Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist. Gehe so vor:\n1. Schalte die Funktion unter Einstellungen → Funktionen ein. Danach erscheint die Seite Releases in der Navigation.\n2. Öffne die Seite Releases, um ein Release anzulegen und seinen Umfang, seinen Fortschritt und seinen Verlauf zu sehen.\n3. Um in der Story Map nach Release zu planen, wähle unter Einstellungen → Story Map «Releases» als Zeilen. Die Story Map zeigt dann eine Zeile pro Release.\nSchaltest du die Funktion wieder aus, ist alles zu Releases ausgeblendet, bleibt aber erhalten."
       },
       "settings.basics": {
         "title": "Einstellungen",
-        "keywords": "felder status werte funktionen story map zeilen zahnrad",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Felder beschreiben deine Stories, Status-Werte sind die Spalten des Boards, weitere Bereiche legen die Zeilen der Story Map fest und schalten Funktionen ein oder aus.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren",
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben vier Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -809,6 +809,19 @@
         "keywords": "einführung tutorial rundgang tour einstieg anleitung starten",
         "body": "Eine kurze, freiwillige Einführung in vier Schritten: das Board kennenlernen, eine Story verschieben, eine Story anlegen und das Backlog ordnen. Schritte werden von selbst abgehakt, wenn du sie machst."
       }
-    }
+    },
+    "links": {
+      "board": "Board öffnen",
+      "backlog": "Backlog öffnen",
+      "map": "Story Map öffnen",
+      "epics": "Epics öffnen",
+      "releases": "Releases öffnen",
+      "settingsFields": "Einstellungen → Felder öffnen",
+      "settingsStatuses": "Einstellungen → Status-Werte öffnen",
+      "settingsMap": "Einstellungen → Story Map öffnen",
+      "settingsFeatures": "Einstellungen → Funktionen öffnen"
+    },
+    "linksTitle": "Hier findest du es",
+    "linkLocked": "{{label}}: Schalte zuerst die Funktion «{{feature}}» ein (siehe oben)."
   }
 }

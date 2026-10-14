@@ -776,8 +776,8 @@
       },
       "map.basics": {
         "title": "Story Map",
-        "keywords": "map activities epics sprints rows columns release planning",
-        "body": "The Story Map has one column per epic and one row per sprint, or per release if you choose so in the settings. Every cell holds the stories of that epic in that sprint.\nDrag a story into another cell to change its sprint and epic."
+        "keywords": "map activities epics sprints rows columns release planning release board feature",
+        "body": "The Story Map has one column per epic and one row per sprint. Every cell holds the stories of that epic in that sprint.\nDrag a story into another cell to change its sprint and epic.\nTo plan by release instead of by sprint, first switch the feature “Releases” on (Settings → Features), then choose “Releases” as the rows (Settings → Story map)."
       },
       "epics.basics": {
         "title": "Epics",
@@ -786,13 +786,13 @@
       },
       "releases.basics": {
         "title": "Releases",
-        "keywords": "release version scope burndown history",
-        "body": "A release collects stories that ship together. Open a release to see its scope, its progress and its history.\nThe Releases page can be switched off under Settings, Features."
+        "keywords": "release version scope burndown history feature activate switch on enable toggle story map rows release board",
+        "body": "Releases only work when the feature “Releases” is switched on. Do it in this order:\n1. Switch the feature on under Settings → Features. The page Releases then appears in the navigation.\n2. Open the Releases page to create a release and to see its scope, progress and history.\n3. To plan by release on the story map, choose “Releases” as the rows of the story map under Settings → Story map. The Story Map then shows one row per release.\nIf you switch the feature off again, everything about releases is hidden, but kept."
       },
       "settings.basics": {
         "title": "Settings",
-        "keywords": "fields status values features story map rows gear",
-        "body": "Open the settings with the gear button. Fields describe your stories, status values are the columns of the board, and further sections set the rows of the Story Map and switch features on or off.\nThe gear takes you back to the page you came from."
+        "keywords": "fields status values features story map rows gear switch on activate",
+        "body": "Open the settings with the gear button. They have four sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Features switch parts of the app on or off, for example Releases.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -809,6 +809,19 @@
         "keywords": "introduction tutorial tour onboarding walkthrough guide start",
         "body": "A short, optional introduction in four steps: get to know the board, move a story, create a story and order the backlog. Steps are ticked off by themselves when you do them."
       }
-    }
+    },
+    "links": {
+      "board": "Open Board",
+      "backlog": "Open Backlog",
+      "map": "Open Story Map",
+      "epics": "Open Epics",
+      "releases": "Open Releases",
+      "settingsFields": "Open Settings → Fields",
+      "settingsStatuses": "Open Settings → Status values",
+      "settingsMap": "Open Settings → Story map",
+      "settingsFeatures": "Open Settings → Features"
+    },
+    "linksTitle": "Where to find it",
+    "linkLocked": "{{label}}: switch the feature “{{feature}}” on first (see above)."
   }
 }

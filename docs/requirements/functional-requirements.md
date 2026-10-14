@@ -527,6 +527,14 @@ As a new user, I want to be asked once whether I want the introduction, so that 
 
 Source: #33 · Status: Implemented · Verified by: #33 AC8.1 to AC8.4 (`src/Help.test.tsx`, `e2e/help.spec.ts`)
 
+### FR-HELP-06 Links to the right pages
+As a team member, I want help topics to lead me to the pages they talk about, so that I find the feature without searching.
+- A topic lists the places it talks about as links: pages, and the sections of the settings (fields, status values, story map, features). The help stays open and follows the page. A link to the page the user is on is left out.
+- A feature that has to be switched on first (today Releases, Settings → Features) is explained first, and linked before the places that need it. While the feature is off, those places are not links but say to switch the feature on first; they become links when it is on.
+- The help is extended with every feature, like the technical documentation (Definition of Done). The topics of the first steps are agreed with the PO first.
+
+Source: #33 (PO feedback) · Status: Implemented · Verified by: #33 AC10.1 to AC10.5 (`src/Help.test.tsx`, `src/help/topics.test.ts`, `e2e/help.spec.ts` "AC10.3")
+
 ## Later
 
 | ID | Requirement | Status |

@@ -776,8 +776,8 @@
       },
       "map.basics": {
         "title": "Story Map",
-        "keywords": "mappa attivita epic sprint righe colonne release pianificazione",
-        "body": "La Story Map ha una colonna per epic e una riga per sprint, oppure per release se lo scegli nelle impostazioni. Ogni cella contiene le story di quell’epic in quello sprint.\nTrascina una story in un’altra cella per cambiare sprint ed epic."
+        "keywords": "mappa attivita epic sprint righe colonne release pianificazione board delle release funzione",
+        "body": "La Story Map ha una colonna per epic e una riga per sprint. Ogni cella contiene le story di quell’epic in quello sprint.\nTrascina una story in un’altra cella per cambiare sprint ed epic.\nPer pianificare per release invece che per sprint, attiva prima la funzione «Release» (Impostazioni → Funzioni), poi scegli «Release» come righe (Impostazioni → Story map)."
       },
       "epics.basics": {
         "title": "Epic",
@@ -786,13 +786,13 @@
       },
       "releases.basics": {
         "title": "Release",
-        "keywords": "release versione ambito burndown cronologia",
-        "body": "Una release raccoglie le story che vengono consegnate insieme. Apri una release per vedere il suo ambito, i progressi e la cronologia.\nLa pagina Release si può disattivare in Impostazioni, Funzioni."
+        "keywords": "release versione ambito burndown cronologia funzione attivare accendere story map righe board delle release",
+        "body": "Le release funzionano solo se la funzione «Release» è attiva. Procedi in questo ordine:\n1. Attiva la funzione in Impostazioni → Funzioni. La pagina Release compare poi nella navigazione.\n2. Apri la pagina Release per creare una release e vedere ambito, progressi e cronologia.\n3. Per pianificare per release nella Story Map, scegli «Release» come righe in Impostazioni → Story map. La Story Map mostra poi una riga per release.\nSe disattivi di nuovo la funzione, tutto ciò che riguarda le release è nascosto, ma conservato."
       },
       "settings.basics": {
         "title": "Impostazioni",
-        "keywords": "campi valori di stato funzioni story map righe ingranaggio",
-        "body": "Apri le impostazioni con l’ingranaggio. I campi descrivono le story, i valori di stato sono le colonne della board, altre sezioni definiscono le righe della Story Map e attivano o disattivano funzioni.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare",
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno quattro sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le funzioni attivano o disattivano parti dell’app, per esempio Release.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -809,6 +809,19 @@
         "keywords": "introduzione tutorial tour percorso guidato iniziare",
         "body": "Una breve introduzione facoltativa in quattro passi: conoscere la board, spostare una story, creare una story e ordinare il backlog. I passi si spuntano da soli quando li fai."
       }
-    }
+    },
+    "links": {
+      "board": "Apri Board",
+      "backlog": "Apri Backlog",
+      "map": "Apri Story Map",
+      "epics": "Apri Epic",
+      "releases": "Apri Release",
+      "settingsFields": "Apri Impostazioni → Campi",
+      "settingsStatuses": "Apri Impostazioni → Valori di stato",
+      "settingsMap": "Apri Impostazioni → Story map",
+      "settingsFeatures": "Apri Impostazioni → Funzioni"
+    },
+    "linksTitle": "Dove trovarlo",
+    "linkLocked": "{{label}}: attiva prima la funzione «{{feature}}» (vedi sopra)."
   }
 }

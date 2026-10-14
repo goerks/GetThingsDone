@@ -3799,3 +3799,21 @@ mark {
     --help-width: 100%;
   }
 }
+
+.help__links {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.help__link {
+  display: block;
+  padding: 6px 0;
+  color: var(--accent);
+}
+
+.help__link--locked {
+  color: var(--muted);
+}

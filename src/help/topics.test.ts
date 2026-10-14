@@ -5,7 +5,7 @@ import fr from '../i18n/fr.json';
 import it_ from '../i18n/it.json';
 import { searchHelp, type HelpEntry } from '../domain/helpSearch';
 import { TOUR_STEPS } from '../domain/helpTour';
-import { TOPICS, TOUR_TOPIC_ID } from './topics';
+import { LINK_TARGETS, TOPICS, TOUR_TOPIC_ID } from './topics';
 
 const languages = [
   ['de', de],
@@ -65,6 +65,19 @@ describe.each(languages)('help topics in %s', (code, file) => {
     }
   });
 
+  it('AC10.1 has a label for every place a topic can link to, and the text for a place that needs a feature', () => {
+    for (const id of Object.keys(LINK_TARGETS)) expect((help.links as Record<string, string>)[id]?.trim(), `${code} link ${id}`).toBeTruthy();
+    expect(help.linkLocked).toContain('{{label}}');
+    expect(help.linkLocked).toContain('{{feature}}');
+    expect(help.linksTitle.trim()).not.toBe('');
+  });
+
+  it('AC10.2 tells the order for releases: the feature first, in every language', () => {
+    const body = help.topics['releases.basics'].body.split('\n');
+    expect(body[1].startsWith('1.')).toBe(true);
+    expect(body[1]).toContain(help.links.settingsFeatures.replace(/^(Open |Ouvrir |Apri )|( öffnen)$/g, ''));
+  });
+
   it('AC2.1 names every page', () => {
     for (const page of ['board', 'backlog', 'map', 'epics', 'releases', 'settings'] as const) {
       expect(help.pages[page].trim()).not.toBe('');
@@ -73,6 +86,17 @@ describe.each(languages)('help topics in %s', (code, file) => {
 });
 
 describe('help topics', () => {
+  it('AC10.1 every link of a topic points to a known place, and a place that needs a feature comes after the feature page', () => {
+    for (const topic of TOPICS) {
+      const ids = (topic.links ?? []).map((link) => link.id);
+      expect(new Set(ids).size, topic.id).toBe(ids.length);
+      for (const link of topic.links ?? []) expect(Object.keys(LINK_TARGETS), `${topic.id}: ${link.id}`).toContain(link.id);
+      const needing = (topic.links ?? []).findIndex((link) => link.requires);
+      if (needing !== -1) expect(ids.indexOf('settingsFeatures'), `${topic.id} links to the features before the places that need one`).toBeGreaterThanOrEqual(0);
+      if (needing !== -1) expect(ids.indexOf('settingsFeatures')).toBeLessThan(needing);
+    }
+  });
+
   it('has no topic id twice', () => {
     const ids = [...TOPICS.map((topic) => topic.id), TOUR_TOPIC_ID];
     expect(new Set(ids).size).toBe(ids.length);
