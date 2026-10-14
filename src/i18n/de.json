@@ -822,6 +822,10 @@
       "settingsFeatures": "Einstellungen → Funktionen öffnen"
     },
     "linksTitle": "Hier findest du es",
-    "linkLocked": "{{label}}: Schalte zuerst die Funktion «{{feature}}» ein (siehe oben)."
+    "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",
+    "linkHints": {
+      "featureFirst": "Zuerst die Funktion einschalten",
+      "releaseRows": "Zeilen «Releases» wählen"
+    }
   }
 }

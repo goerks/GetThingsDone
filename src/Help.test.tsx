@@ -541,7 +541,10 @@ describe('links to the right pages', () => {
     expect(text[2]).toMatch(/^2\. Open the Releases page/);
     expect(text[3]).toMatch(/^3\. .*Settings → Story map/);
     expect(link('Open Settings → Features')).toHaveAttribute('href', '#/settings/features');
+    expect(link('Open Settings → Features')).toHaveClass('linkbtn--first');
     expect(link('Open Releases')).toHaveAttribute('href', '#/releases');
+    expect(link('Open Releases')).not.toHaveClass('linkbtn--first');
+    expect(link('Open Settings → Story map')).toHaveTextContent('Choose “Releases” as the rows');
     expect(link('Open Settings → Story map')).toHaveAttribute('href', '#/settings/map');
     expect(link('Open Story Map')).toHaveAttribute('href', '#/map');
     // The feature is first in the list of places
@@ -555,8 +558,14 @@ describe('links to the right pages', () => {
     await openTopic(user, 'Releases');
     expect(link('Open Settings → Features')).toBeInTheDocument();
     for (const name of ['Open Releases', 'Open Settings → Story map']) expect(within(panel()).queryByRole('link', { name })).not.toBeInTheDocument();
-    expect(within(panel()).getByText('Open Releases: switch the feature “Releases” on first (see above).')).toBeInTheDocument();
-    expect(within(panel()).getByText('Open Story Map: switch the feature “Releases” on first (see above).')).toBeInTheDocument();
+    for (const name of ['Open Releases', 'Open Settings → Story map', 'Open Story Map']) {
+      const locked = within(panel()).getByText(name).closest('.linkbtn');
+      expect(locked).toHaveClass('linkbtn--locked');
+      expect(locked).toHaveTextContent('Switch the feature “Releases” on first');
+    }
+    // The feature itself stands out, with its hint, and is a link
+    expect(link('Open Settings → Features')).toHaveClass('linkbtn--first');
+    expect(link('Open Settings → Features')).toHaveTextContent('Switch the feature on first');
   });
 
   it('AC10.3 turns the places into links when the feature is switched on, with the help open', async () => {
@@ -575,6 +584,8 @@ describe('links to the right pages', () => {
     await openTopic(user, 'Columns and status values');
     expect(link('Open Settings → Status values')).toBeInTheDocument();
     expect(within(panel()).queryByRole('link', { name: 'Open Board' })).not.toBeInTheDocument();
+    // Nothing has to be switched on first here, so no button stands out
+    expect(link('Open Settings → Status values')).not.toHaveClass('linkbtn--first');
   });
 
   it('AC10.5 lists the sections of the settings, except the one that is open', async () => {
