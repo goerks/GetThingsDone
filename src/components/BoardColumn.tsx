@@ -9,16 +9,19 @@ import { statusLabel } from './statusLabel';
 import type { Epic, Status, Story } from '../domain/types';
 import { keepInPlace } from '../dnd/dnd';
 import { SortableStoryCard } from './StoryCard';
+import { StoryQuickAdd } from './QuickAdd';
 
 interface Props {
   status: Status;
   stories: Story[];
   epics: Map<string, Epic>;
+  /** The running sprint: stories added with "+ Story" belong to it. */
+  sprintId: string | null;
   /** Set while a dragged story would land in this column: in front of `beforeId`, or at the end when null. */
   drop?: { beforeId: string | null };
 }
 
-export function BoardColumn({ status, stories, epics, drop }: Props) {
+export function BoardColumn({ status, stories, epics, sprintId, drop }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   const { setNodeRef } = useDroppable({ id: columnId(status) });
@@ -49,6 +52,7 @@ export function BoardColumn({ status, stories, epics, drop }: Props) {
           {stories.length === 0 && <li className="column__empty">{t('board.emptyColumn')}</li>}
         </ul>
       </SortableContext>
+      <StoryQuickAdd place={statusLabel(t, app.statuses, status)} sprintId={sprintId} status={status} />
     </section>
   );
 }

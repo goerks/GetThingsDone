@@ -24,11 +24,11 @@ As a team member, I want to drag a story to another column or position, so that 
 Source: Vision, PO feedback · Status: Implemented · Verified by: board.test "dropStory" (all cases), App "makes the whole card a keyboard stop…"; highlight and line: manual check in Chromium
 
 ### FR-BOARD-07 Open a story from the board
-As a team member, I want to open a story by double-clicking its card.
-- Double click on the card, Enter on the focused card or a click on the title opens the story.
-- A single click on the card surface does nothing, so grabbing a card never opens it by accident.
+As a team member, I want to open a story with one click on its card.
+- A click anywhere on the card, Enter on the focused card or a click on the title opens the story; this holds on the board, in the backlog and on the story map (FR-UX-01).
+- A drag starts after 4 px of movement, so a drag never opens the story.
 
-Source: PO feedback · Status: Implemented · Verified by: App "opens a story on double click", "makes the whole card a keyboard stop…"
+Source: PO feedback, changed by #32 (was: double click) · Status: Implemented · Verified by: e2e AC1.1–AC1.4, App "opens a story on double click", "makes the whole card a keyboard stop…"
 
 ### FR-BOARD-03 Announce drag and drop to screen readers
 As a screen reader user, I want each drag step to be announced in my language, so that I can move stories without seeing the board.
@@ -561,6 +561,69 @@ As a team member, I want help topics to lead me to the pages they talk about, so
 - The help is extended with every feature, like the technical documentation (Definition of Done). The topics of the first steps are agreed with the PO first.
 
 Source: #33 (PO feedback) · Status: Implemented · Verified by: #33 AC10.1 to AC10.5 (`src/Help.test.tsx`, `src/help/topics.test.ts`, `e2e/help.spec.ts` "AC10.3")
+## Usability (UX)
+
+Issue #32, package 1. Verified by `e2e/usability1.spec.ts` (Playwright, with screenshot checks of the new elements), `src/QuickAdd.test.tsx` and `src/acceptance/preview.test.ts`; the test case IDs are those of the issue and of `src/acceptance/package1.ts`.
+
+### FR-UX-01 One click opens
+A click on a card, a backlog row or a story map chip opens the story; Enter and a double click still do (one dialog). Dragging does not open. The pointer over cards is a hand. A click beside a dialog within 0.4 s of opening is ignored (second click of a double click).
+
+Verified by: e2e AC1.1, AC1.2, AC1.3, AC1.4
+
+### FR-UX-02 Create dialogs work the same
+Story, epic, sprint and release dialogs end in "Cancel" and the primary button, with the hint "Ctrl+Enter saves · Esc cancels"; `Ctrl+Enter` saves from any field. Escape or a click beside the dialog closes it, but asks "Discard input?" (Keep editing / Discard) when something was typed. "Cancel" closes at once. A missing title or name is reported under the field in the language of the app (the form does not use the browser's own validation bubble), the field is marked and focused.
+
+Verified by: e2e AC2.1–AC2.6, component AC2.6 (German)
+
+### FR-UX-03 "New" at the same place on every page
+Board, backlog, story map, epics and releases have the primary "New …" button with its shortcut at the right of the page head (the releases page no longer has the extra "+ Release" card).
+
+Verified by: e2e AC3.1, AC3.2
+
+### FR-UX-04 Context menu of a story
+Right click, the menu key or `Shift+F10` on a card, row or chip opens a menu: Open, Status ▸, Sprint ▸, Epic ▸, Points ▸ (Epic and Points only while shown, FR-FIELD-10). Arrow keys, `→` for a submenu, `←` back, Enter, Escape; the focus returns to the card. While the menu is open, the story it acts on is marked with a blue frame (card, row or chip). A click beside the menu only closes it. Choosing changes the story, tells the user (FR-UX-08) and highlights it (FR-UX-09). Delete joins the menu with undo.
+
+Verified by: e2e AC4.1–AC4.8
+
+### FR-UX-05 Quick add
+"+ Story" at the end of every board column, backlog section and the "+" of a story map cell turns into a title field: Enter adds and keeps the field for the next story, Escape closes, an empty title adds nothing. The story gets the status, sprint, epic and release of the place, 3 points and the default values of custom fields. When a required custom field has no default, the "New story" dialog opens with the title filled in and the field marked.
+
+Verified by: e2e AC5.1–AC5.5, component AC5.6
+
+### FR-UX-06 Add and add another
+"New story" has "Add and add another" (`Ctrl+Shift+Enter`): the story is added, the dialog stays with an empty title and the same epic, sprint, release and points, and a line names the added story.
+
+Verified by: e2e AC6.1–AC6.3
+
+### FR-UX-07 Shortcut overview
+`Ctrl+/` or the keyboard button in the header opens "Keyboard shortcuts": the shortcuts of the current page first, then the general ones; only existing shortcuts are listed. The shortcuts of package 1 are combinations with Ctrl (Cmd on a Mac) (PO decision in #32: no single-key shortcuts); the only single key is `?` for the help (FR-HELP-01), which works only when no text field has the focus.
+
+Verified by: e2e AC7.1–AC7.3
+
+### FR-UX-08 Notices
+After a story, epic, sprint or release was added and after a story was moved (drag and drop, menu), a notice appears at the bottom for 5 seconds (it stays while the pointer or focus is on it) in a polite live region, so screen readers read it.
+
+Verified by: e2e AC8.1–AC8.4 (the reading itself: manual)
+
+### FR-UX-09 Highlight
+A story that was just added or moved scrolls into view and gets a green frame for 2 seconds; with "reduce motion" the frame shows without animation.
+
+Verified by: e2e AC9.1–AC9.3
+
+### FR-UX-10 Empty states offer the next action
+An empty board column shows the drop hint and "+ Story"; an empty sprint in the backlog explains how to fill it and offers "+ Story"; the epics page without epics shows the text and "New epic".
+
+Verified by: e2e AC10.1–AC10.3
+
+### FR-UX-11 Acceptance aid in previews
+In the pull request previews (`getthingsdone-pr-<n>.onrender.com`, the dev server and with `?acceptance=1`; never in the desktop app and not on `main`), a round magenta button "Abnahme" with a progress ring, a count and the tag "Preview" at the bottom left (unlike every other control of the app) opens a popup (no sidebar, the page does not move) that steps through the test cases of the pull request, one at a time: starting point, action, expectation, a strip with all steps as traffic lights, "Zur Seite und markieren" (opens the page and lights up the element under test for 3 seconds; the popup moves to the side that does not hold it), "In Ordnung" (marks and goes on to the next test case and its page), "Problem" (with a comment), back and forward, "Alle Punkte anzeigen" (list by criterion, jump to any). "Ergebnis kopieren" puts the state as text on the clipboard for the chat with the AI: summary, every problem with expectation and comment, other comments, ids in order and still open. By default only the test cases the PO has to check are shown (`poCheck` in `src/acceptance/package<n>.ts`: judgement calls and things only a person on a real machine can see); a switch shows all, the automated ones marked as such, and the copied result says how many are covered by automated tests. Each test case names its automated tests, and a unit test checks that they exist. Notes and the current step stay in the browser (`localStorage`). The panel is German only, like the test cases it shows. Design and variants: `docs/design/acceptance.md`.
+
+Verified by: e2e AC11.1–AC11.9, unit AC11.5
+
+### FR-UX-12 The help knows the new functions
+The help (FR-HELP-01) has the topics "Change a story from its menu" and "Add stories quickly" (with "Show me"), and the topics "Open and edit a story", "Create a story" and "Keyboard shortcuts" describe one click to open, "Add and add another", `Ctrl+/`, `Ctrl+Enter`, `Ctrl+Shift+Enter` and `Shift+F10`, in DE, EN, FR and IT. The first steps are unchanged.
+
+Verified by: component AC13.1–AC13.3 (`src/Help.test.tsx`), `src/help/topics.test.ts` (texts in all languages)
 
 ## Later
 

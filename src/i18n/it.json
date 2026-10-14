@@ -15,7 +15,8 @@
   "header": {
     "toDark": "Passa al tema scuro",
     "toLight": "Passa al tema chiaro",
-    "language": "Lingua"
+    "language": "Lingua",
+    "shortcuts": "Scorciatoie da tastiera"
   },
   "status": {
     "todo": "Da fare",
@@ -53,7 +54,12 @@
     "points": "Punti",
     "add": "Aggiungi storia",
     "cancel": "Annulla",
-    "dialogTitle": "Nuova story"
+    "dialogTitle": "Nuova story",
+    "addAnother": "Aggiungi e aggiungine un’altra",
+    "addedAnother": "“{{title}}” aggiunta. Epic, sprint e punti restano.",
+    "problem": {
+      "title": "Inserisci un titolo."
+    }
   },
   "backlog": {
     "title": "Backlog",
@@ -138,7 +144,10 @@
     "inUse_other": "Usato da {{count}} story. Assegnale prima a un altro epic.",
     "notFound": "Questo epic non esiste più.",
     "deleteButton": "Elimina epic",
-    "noEpic": "Nessun epic"
+    "noEpic": "Nessun epic",
+    "problem": {
+      "name": "Inserisci un nome."
+    }
   },
   "sprint": {
     "label": "Sprint",
@@ -834,13 +843,23 @@
       },
       "story.open": {
         "title": "Aprire e modificare una story",
-        "keywords": "story dettaglio finestra titolo descrizione criteri punti",
-        "body": "Fai clic sul titolo di una story, oppure scegli la scheda e premi Invio, per aprirla. Nella finestra modifichi titolo, descrizione, punti e stato e spunti i criteri di accettazione.\nEsc chiude la finestra."
+        "keywords": "story dettaglio finestra titolo descrizione criteri punti clic",
+        "body": "Fai clic su una story (ovunque sulla scheda o sulla riga), oppure scegli la scheda e premi Invio, per aprirla. Nella finestra modifichi titolo, descrizione, punti e stato e spunti i criteri di accettazione.\nEsc chiude la finestra."
       },
       "story.create": {
         "title": "Creare una story",
-        "keywords": "nuova story aggiungere ctrl+n",
-        "body": "Premi Ctrl+N (Cmd+N su Mac) oppure usa il pulsante «Nuova story» nella board o nel backlog. Dai un titolo alla story e salvala.\nUna nuova story inizia nella prima colonna."
+        "keywords": "nuova story aggiungere ctrl+n un'altra",
+        "body": "Premi Ctrl+N (Cmd+N su Mac) oppure usa il pulsante «Nuova story» nella board o nel backlog. Dai un titolo alla story e salvala con il pulsante o con Ctrl+Invio. Se manca il titolo, un messaggio sotto il campo lo dice.\n«Aggiungi e aggiungine un’altra» (Ctrl+Maiusc+Invio) mantiene epic, sprint e punti per la story successiva.\nUna nuova story inizia nella prima colonna."
+      },
+      "story.menu": {
+        "title": "Modificare una story dal suo menu",
+        "keywords": "menu contestuale clic destro stato sprint epic punti maiusc f10 spostare",
+        "body": "Fai clic con il tasto destro su una scheda o una riga (oppure sceglila e premi il tasto menu o Maiusc+F10). Il menu cambia stato, sprint, epic e punti senza aprire la story.\nCon le frecce ti muovi nel menu, con la freccia destra apri un sottomenu, con Invio scegli e con Esc chiudi.\nUn avviso dice cosa è cambiato e la story viene incorniciata di verde per un momento."
+      },
+      "story.quickAdd": {
+        "title": "Aggiungere story rapidamente",
+        "keywords": "aggiunta rapida plus story colonna sprint cella titolo invio",
+        "body": "Fai clic su «+ Story» alla fine di una colonna della board o di una sezione del backlog, oppure sul «+» in una cella della story map. Scrivi un titolo e premi Invio: la story viene aggiunta in quel punto e il campo resta aperto per la successiva. Esc chiude il campo.\nViene chiesto solo il titolo; punti, epic e il resto li aggiungi dopo nella story."
       },
       "backlog.order": {
         "title": "Ordinare il backlog",
@@ -885,7 +904,7 @@
       "shortcuts": {
         "title": "Scorciatoie da tastiera",
         "keywords": "tasti tastiera scorciatoia",
-        "body": "?  Apri o chiudi la guida.\nCtrl+F  Cerca.\nCtrl+N  Crea una story, un epic o una release, a seconda della pagina.\nSpazio, frecce, Spazio  Solleva, sposta e rilascia una scheda o una riga.\nEsc  Annulla, oppure chiudi una finestra o la guida."
+        "body": "?  Apri o chiudi la guida.\nCtrl+/  Mostra tutte le scorciatoie da tastiera.\nCtrl+F  Cerca.\nCtrl+N  Crea una story, un epic o una release, a seconda della pagina.\nCtrl+Invio  Salva una finestra di creazione. Ctrl+Maiusc+Invio  Salva una nuova story e aggiungine un’altra.\nMaiusc+F10 o tasto menu  Apri il menu della scheda scelta.\nSpazio, frecce, Spazio  Solleva, sposta e rilascia una scheda o una riga.\nEsc  Annulla, oppure chiudi una finestra o la guida."
       },
       "tour": {
         "title": "Primi passi",
@@ -909,6 +928,72 @@
     "linkHints": {
       "featureFirst": "Prima attivare la funzione",
       "releaseRows": "Scegliere «Release» come righe"
+    }
+  },
+  "dialog": {
+    "saveHint": "{{mod}}+Invio salva · Esc annulla",
+    "discardTitle": "Scartare l’inserimento?",
+    "keepEditing": "Continua a modificare",
+    "discard": "Scarta"
+  },
+  "quickAdd": {
+    "button": "+ Story",
+    "in": "in {{place}}",
+    "open": "Aggiungi una story a {{place}}",
+    "input": "Titolo della nuova story in {{place}}",
+    "placeholder": "Titolo – Invio aggiunge, Esc chiude"
+  },
+  "menu": {
+    "open": "Apri",
+    "status": "Stato",
+    "sprint": "Sprint",
+    "epic": "Epic",
+    "points": "Punti",
+    "label": "Azioni per {{code}}"
+  },
+  "shortcuts": {
+    "title": "Scorciatoie da tastiera",
+    "everywhere": "Ovunque",
+    "note": "Ctrl corrisponde a Cmd su Mac. Le scorciatoie a un solo tasto funzionano solo se nessun campo di testo ha il focus.",
+    "page": {
+      "board": "Nella bacheca",
+      "backlog": "Nel backlog",
+      "map": "Nella story map",
+      "epics": "Nella pagina degli epic",
+      "releases": "Nella pagina delle release",
+      "settings": "Nelle impostazioni"
+    },
+    "newStory": "Nuova story",
+    "newEpic": "Nuovo epic",
+    "newRelease": "Nuova release",
+    "openCard": "Apri la scheda selezionata",
+    "dragCard": "Prendi o rilascia la scheda selezionata (le frecce la spostano)",
+    "cardMenu": "Menu della scheda selezionata (o tasto menu)",
+    "search": "Cerca",
+    "overview": "Questa panoramica",
+    "close": "Chiudi una finestra o un menu",
+    "save": "Salva una finestra di creazione",
+    "addAnother": "Salva una nuova story e aggiungine un’altra",
+    "help": "Apri la guida"
+  },
+  "toast": {
+    "close": "Chiudi",
+    "created": {
+      "story": "{{code}} “{{title}}” aggiunta",
+      "epic": "Epic “{{name}}” aggiunto",
+      "sprint": "Sprint “{{name}}” aggiunto",
+      "release": "Release “{{title}}” aggiunta"
+    },
+    "moved": {
+      "status": "{{code}} spostata in {{target}}",
+      "sprint": "{{code}} spostata in {{target}}",
+      "epic": "{{code}} ora appartiene all’epic “{{target}}”",
+      "noEpic": "{{code}} ora non ha un epic",
+      "release": "{{code}} ora appartiene alla release “{{target}}”",
+      "noRelease": "{{code}} ora non ha una release",
+      "points_one": "{{code}} ora ha {{count}} punto",
+      "points_other": "{{code}} ora ha {{count}} punti",
+      "reordered": "{{code}} spostata"
     }
   }
 }

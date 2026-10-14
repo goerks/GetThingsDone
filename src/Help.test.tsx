@@ -692,3 +692,48 @@ describe('help in all languages', () => {
     expect(aside.textContent).not.toMatch(/help\.[a-z]+\./);
   });
 });
+
+describe('help for the usability features (#32)', () => {
+  it('AC13.1 finds the topic about the context menu by "right click" and frames a card', async () => {
+    // Given the help is open on the board
+    const user = userEvent.setup();
+    await renderApp();
+    await openHelp(user);
+    // When I search for "right click" and open the topic
+    await user.type(field(), 'right click');
+    await user.click(screen.getByRole('button', { name: /^Change a story from its menu/ }));
+    // Then "Show me" frames a card
+    await user.click(within(panel()).getByRole('button', { name: 'Show me' }));
+    const marked = document.querySelectorAll('[data-help-highlight]');
+    expect(marked).toHaveLength(1);
+    expect(marked[0]).toHaveAttribute('data-story-id');
+  });
+
+  it('AC13.2 frames the "+ Story" of a column for the topic about adding stories quickly', async () => {
+    // Given the help is open on the board
+    const user = userEvent.setup();
+    await renderApp();
+    await openHelp(user);
+    // When I open "Add stories quickly" and click "Show me"
+    await user.click(within(panel()).getByRole('button', { name: 'Add stories quickly' }));
+    await user.click(within(panel()).getByRole('button', { name: 'Show me' }));
+    // Then the first "+ Story" of the page is framed
+    const marked = document.querySelectorAll('[data-help-highlight]');
+    expect(marked).toHaveLength(1);
+    expect(marked[0]).toHaveClass('quick-add');
+  });
+
+  it('AC13.3 lists the new keyboard shortcuts in the topic about shortcuts', async () => {
+    // Given the help is open
+    const user = userEvent.setup();
+    await renderApp();
+    await openHelp(user);
+    // When I open "Keyboard shortcuts"
+    await user.click(within(panel()).getByRole('button', { name: 'Keyboard shortcuts' }));
+    // Then it names the overview, the menu and saving with the keyboard
+    const text = within(panel()).getByText(/Show all keyboard shortcuts/).closest('div, p, li')?.parentElement?.textContent ?? panel().textContent ?? '';
+    expect(text).toContain('Ctrl+/');
+    expect(text).toContain('Shift+F10');
+    expect(text).toContain('Ctrl+Shift+Enter');
+  });
+});

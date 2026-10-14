@@ -15,7 +15,8 @@
   "header": {
     "toDark": "Zum dunklen Design wechseln",
     "toLight": "Zum hellen Design wechseln",
-    "language": "Sprache"
+    "language": "Sprache",
+    "shortcuts": "Tastenkürzel"
   },
   "status": {
     "todo": "Offen",
@@ -53,7 +54,12 @@
     "points": "Punkte",
     "add": "Story hinzufügen",
     "cancel": "Abbrechen",
-    "dialogTitle": "Neue Story"
+    "dialogTitle": "Neue Story",
+    "addAnother": "Hinzufügen und weitere",
+    "addedAnother": "„{{title}}“ hinzugefügt. Epic, Sprint und Punkte bleiben.",
+    "problem": {
+      "title": "Bitte einen Titel eingeben."
+    }
   },
   "backlog": {
     "title": "Backlog",
@@ -138,7 +144,10 @@
     "inUse_other": "Wird von {{count}} Stories verwendet. Zuerst einem anderen Epic zuordnen.",
     "notFound": "Dieses Epic existiert nicht mehr.",
     "deleteButton": "Epic löschen",
-    "noEpic": "Kein Epic"
+    "noEpic": "Kein Epic",
+    "problem": {
+      "name": "Bitte einen Namen eingeben."
+    }
   },
   "sprint": {
     "label": "Sprint",
@@ -834,13 +843,23 @@
       },
       "story.open": {
         "title": "Story öffnen und bearbeiten",
-        "keywords": "story detail dialog titel beschreibung kriterien punkte",
-        "body": "Klicke auf den Titel einer Story, oder wähle die Karte und drücke Enter, um sie zu öffnen. Im Dialog änderst du Titel, Beschreibung, Punkte und Status und hakst die Akzeptanzkriterien ab.\nMit Esc schliesst du den Dialog."
+        "keywords": "story detail dialog titel beschreibung kriterien punkte klick",
+        "body": "Klicke auf eine Story (irgendwo auf der Karte oder Zeile), oder wähle die Karte und drücke Enter, um sie zu öffnen. Im Dialog änderst du Titel, Beschreibung, Punkte und Status und hakst die Akzeptanzkriterien ab.\nMit Esc schliesst du den Dialog."
       },
       "story.create": {
         "title": "Eine Story anlegen",
-        "keywords": "neue story hinzufügen strg+n",
-        "body": "Drücke Strg+N (Cmd+N auf dem Mac) oder klicke auf „Neue Story“ im Board oder im Backlog. Gib der Story einen Titel und speichere sie.\nEine neue Story beginnt in der ersten Spalte."
+        "keywords": "neue story hinzufügen strg+n weitere",
+        "body": "Drücke Strg+N (Cmd+N auf dem Mac) oder klicke auf „Neue Story“ im Board oder im Backlog. Gib der Story einen Titel und speichere sie mit dem Knopf oder mit Strg+Enter. Fehlt der Titel, steht unter dem Feld eine Meldung.\n„Hinzufügen und weitere“ (Strg+Umschalt+Enter) behält Epic, Sprint und Punkte für die nächste Story.\nEine neue Story beginnt in der ersten Spalte."
+      },
+      "story.menu": {
+        "title": "Story über das Menü ändern",
+        "keywords": "kontextmenü rechtsklick status sprint epic punkte umschalt f10 verschieben",
+        "body": "Klicke mit der rechten Maustaste auf eine Karte oder Zeile (oder wähle sie und drücke die Menütaste oder Umschalt+F10). Das Menü ändert Status, Sprint, Epic und Punkte, ohne die Story zu öffnen.\nMit den Pfeiltasten gehst du durch das Menü, mit Pfeil rechts öffnest du ein Untermenü, mit Enter wählst du, mit Esc schliesst du.\nEin Hinweis sagt, was sich geändert hat, und die Story ist kurz grün umrahmt."
+      },
+      "story.quickAdd": {
+        "title": "Stories schnell anlegen",
+        "keywords": "schnell anlegen plus story spalte sprint zelle titel enter",
+        "body": "Klicke auf „+ Story“ am Ende einer Spalte im Board oder eines Abschnitts im Backlog, oder auf das „+“ in einer Zelle der Story Map. Tippe einen Titel und drücke Enter: Die Story entsteht an dieser Stelle, und das Feld bleibt für die nächste offen. Mit Esc schliesst du das Feld.\nGefragt wird nur der Titel; Punkte, Epic und den Rest ergänzt du später in der Story."
       },
       "backlog.order": {
         "title": "Das Backlog ordnen",
@@ -885,7 +904,7 @@
       "shortcuts": {
         "title": "Tastenkürzel",
         "keywords": "tasten tastatur kürzel shortcut",
-        "body": "?  Hilfe öffnen oder schliessen.\nStrg+F  Suchen.\nStrg+N  Je nach Seite eine Story, ein Epic oder ein Release anlegen.\nLeertaste, Pfeiltasten, Leertaste  Karte oder Zeile aufheben, bewegen und ablegen.\nEsc  Abbrechen, oder einen Dialog oder die Hilfe schliessen."
+        "body": "?  Hilfe öffnen oder schliessen.\nStrg+/  Alle Tastenkürzel anzeigen.\nStrg+F  Suchen.\nStrg+N  Je nach Seite eine Story, ein Epic oder ein Release anlegen.\nStrg+Enter  Dialog für etwas Neues speichern. Strg+Umschalt+Enter  Neue Story speichern und weitere anlegen.\nUmschalt+F10 oder Menütaste  Menü der gewählten Karte öffnen.\nLeertaste, Pfeiltasten, Leertaste  Karte oder Zeile aufheben, bewegen und ablegen.\nEsc  Abbrechen, oder einen Dialog oder die Hilfe schliessen."
       },
       "tour": {
         "title": "Erste Schritte",
@@ -909,6 +928,72 @@
     "linkHints": {
       "featureFirst": "Zuerst die Funktion einschalten",
       "releaseRows": "Zeilen «Releases» wählen"
+    }
+  },
+  "dialog": {
+    "saveHint": "{{mod}}+Enter speichert · Esc bricht ab",
+    "discardTitle": "Eingaben verwerfen?",
+    "keepEditing": "Weiter bearbeiten",
+    "discard": "Verwerfen"
+  },
+  "quickAdd": {
+    "button": "+ Story",
+    "in": "in {{place}}",
+    "open": "Story zu {{place}} hinzufügen",
+    "input": "Titel der neuen Story in {{place}}",
+    "placeholder": "Titel – Enter fügt hinzu, Esc schliesst"
+  },
+  "menu": {
+    "open": "Öffnen",
+    "status": "Status",
+    "sprint": "Sprint",
+    "epic": "Epic",
+    "points": "Punkte",
+    "label": "Aktionen für {{code}}"
+  },
+  "shortcuts": {
+    "title": "Tastenkürzel",
+    "everywhere": "Überall",
+    "note": "Ctrl heisst auf dem Mac Cmd. Einzeltasten gelten nur, wenn kein Textfeld den Fokus hat.",
+    "page": {
+      "board": "Auf dem Board",
+      "backlog": "Im Backlog",
+      "map": "Auf der Story Map",
+      "epics": "Auf der Seite Epics",
+      "releases": "Auf der Seite Releases",
+      "settings": "In den Einstellungen"
+    },
+    "newStory": "Neue Story",
+    "newEpic": "Neues Epic",
+    "newRelease": "Neues Release",
+    "openCard": "Fokussierte Karte öffnen",
+    "dragCard": "Fokussierte Karte aufnehmen oder ablegen (Pfeiltasten verschieben)",
+    "cardMenu": "Menü der fokussierten Karte (oder Menütaste)",
+    "search": "Suchen",
+    "overview": "Diese Übersicht",
+    "close": "Dialog oder Menü schliessen",
+    "save": "Anlegen-Dialog speichern",
+    "addAnother": "Neue Story speichern und weitere anlegen",
+    "help": "Hilfe öffnen"
+  },
+  "toast": {
+    "close": "Schliessen",
+    "created": {
+      "story": "{{code}} „{{title}}“ hinzugefügt",
+      "epic": "Epic „{{name}}“ hinzugefügt",
+      "sprint": "Sprint „{{name}}“ hinzugefügt",
+      "release": "Release „{{title}}“ hinzugefügt"
+    },
+    "moved": {
+      "status": "{{code}} nach {{target}} verschoben",
+      "sprint": "{{code}} nach {{target}} verschoben",
+      "epic": "{{code}} gehört jetzt zum Epic „{{target}}“",
+      "noEpic": "{{code}} hat jetzt kein Epic",
+      "release": "{{code}} gehört jetzt zum Release „{{target}}“",
+      "noRelease": "{{code}} hat jetzt kein Release",
+      "points_one": "{{code}} hat jetzt {{count}} Punkt",
+      "points_other": "{{code}} hat jetzt {{count}} Punkte",
+      "reordered": "{{code}} verschoben"
     }
   }
 }

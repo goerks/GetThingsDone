@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { validateRelease, type ReleaseInput } from '../domain/releases';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
+import { DialogFooter } from './DialogFooter';
 import { useBuiltin } from './useBuiltin';
 
 /** Dialog for a new release: title (required), description, and optional start and end day. */
@@ -33,7 +34,7 @@ export function NewReleaseDialog({ onClose, onCreated }: { onClose: () => void; 
     setInput((current) => ({ ...current, [field]: field === 'startDate' || field === 'endDate' ? event.target.value || null : event.target.value }));
 
   return (
-    <Dialog title={t('releases.new')} onClose={onClose}>
+    <Dialog title={t('releases.new')} dirty={Boolean(input.title.trim() || input.description.trim() || input.startDate || input.endDate)} submitShortcut onClose={onClose}>
       <form className="form" onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor={`${uid}-title`}>{builtin.label('title', t('releases.name'))}</label>
@@ -65,14 +66,7 @@ export function NewReleaseDialog({ onClose, onCreated }: { onClose: () => void; 
             {t(`releases.problem.${problem}`)}
           </p>
         )}
-        <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
-            {t('releases.add')}
-          </button>
-          <button type="button" className="btn" onClick={onClose}>
-            {t('newStory.cancel')}
-          </button>
-        </div>
+        <DialogFooter submit={t('releases.add')} onCancel={onClose} />
       </form>
     </Dialog>
   );

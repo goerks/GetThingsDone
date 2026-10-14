@@ -15,7 +15,8 @@
   "header": {
     "toDark": "Passer au thème sombre",
     "toLight": "Passer au thème clair",
-    "language": "Langue"
+    "language": "Langue",
+    "shortcuts": "Raccourcis clavier"
   },
   "status": {
     "todo": "À faire",
@@ -53,7 +54,12 @@
     "points": "Points",
     "add": "Ajouter la story",
     "cancel": "Annuler",
-    "dialogTitle": "Nouvelle story"
+    "dialogTitle": "Nouvelle story",
+    "addAnother": "Ajouter et en ajouter une autre",
+    "addedAnother": "« {{title}} » ajoutée. Epic, sprint et points restent.",
+    "problem": {
+      "title": "Veuillez saisir un titre."
+    }
   },
   "backlog": {
     "title": "Backlog",
@@ -138,7 +144,10 @@
     "inUse_other": "Utilisé par {{count}} stories. Attribuez-les d’abord à un autre epic.",
     "notFound": "Cet epic n’existe plus.",
     "deleteButton": "Supprimer l’epic",
-    "noEpic": "Aucun epic"
+    "noEpic": "Aucun epic",
+    "problem": {
+      "name": "Veuillez saisir un nom."
+    }
   },
   "sprint": {
     "label": "Sprint",
@@ -834,13 +843,23 @@
       },
       "story.open": {
         "title": "Ouvrir et modifier une story",
-        "keywords": "story detail dialogue titre description criteres points",
-        "body": "Cliquez sur le titre d’une story, ou choisissez la carte et appuyez sur Entrée, pour l’ouvrir. Dans la fenêtre, vous modifiez le titre, la description, les points et le statut, et vous cochez les critères d’acceptation.\nÉchap ferme la fenêtre."
+        "keywords": "story detail dialogue titre description criteres points clic",
+        "body": "Cliquez sur une story (n’importe où sur la carte ou la ligne), ou choisissez la carte et appuyez sur Entrée, pour l’ouvrir. Dans la fenêtre, vous modifiez le titre, la description, les points et le statut, et vous cochez les critères d’acceptation.\nÉchap ferme la fenêtre."
       },
       "story.create": {
         "title": "Créer une story",
-        "keywords": "nouvelle story ajouter ctrl+n",
-        "body": "Appuyez sur Ctrl+N (Cmd+N sur Mac) ou utilisez le bouton « Nouvelle story » du tableau ou du backlog. Donnez un titre à la story et enregistrez-la.\nUne nouvelle story commence dans la première colonne."
+        "keywords": "nouvelle story ajouter ctrl+n une autre",
+        "body": "Appuyez sur Ctrl+N (Cmd+N sur Mac) ou utilisez le bouton « Nouvelle story » du tableau ou du backlog. Donnez un titre à la story et enregistrez-la avec le bouton ou avec Ctrl+Entrée. Si le titre manque, un message sous le champ le dit.\n« Ajouter et en ajouter une autre » (Ctrl+Maj+Entrée) garde l’epic, le sprint et les points pour la story suivante.\nUne nouvelle story commence dans la première colonne."
+      },
+      "story.menu": {
+        "title": "Modifier une story depuis son menu",
+        "keywords": "menu contextuel clic droit statut sprint epic points maj f10 deplacer",
+        "body": "Faites un clic droit sur une carte ou une ligne (ou choisissez-la et appuyez sur la touche menu ou Maj+F10). Le menu modifie le statut, le sprint, l’epic et les points sans ouvrir la story.\nLes flèches parcourent le menu, la flèche droite ouvre un sous-menu, Entrée choisit et Échap ferme.\nUne notification indique ce qui a changé, et la story est brièvement entourée de vert."
+      },
+      "story.quickAdd": {
+        "title": "Ajouter des stories rapidement",
+        "keywords": "ajout rapide plus story colonne sprint cellule titre entree",
+        "body": "Cliquez sur « + Story » à la fin d’une colonne du tableau ou d’une section du backlog, ou sur le « + » d’une cellule de la story map. Saisissez un titre et appuyez sur Entrée : la story est ajoutée à cet endroit et le champ reste ouvert pour la suivante. Échap ferme le champ.\nSeul le titre est demandé ; points, epic et le reste s’ajoutent plus tard dans la story."
       },
       "backlog.order": {
         "title": "Ordonner le backlog",
@@ -885,7 +904,7 @@
       "shortcuts": {
         "title": "Raccourcis clavier",
         "keywords": "touches clavier raccourci",
-        "body": "?  Ouvrir ou fermer l’aide.\nCtrl+F  Rechercher.\nCtrl+N  Créer une story, un epic ou une release, selon la page.\nEspace, flèches, Espace  Saisir, déplacer et déposer une carte ou une ligne.\nÉchap  Annuler, ou fermer une fenêtre ou l’aide."
+        "body": "?  Ouvrir ou fermer l’aide.\nCtrl+/  Afficher tous les raccourcis clavier.\nCtrl+F  Rechercher.\nCtrl+N  Créer une story, un epic ou une release, selon la page.\nCtrl+Entrée  Enregistrer une fenêtre de création. Ctrl+Maj+Entrée  Enregistrer une nouvelle story et en ajouter une autre.\nMaj+F10 ou touche menu  Ouvrir le menu de la carte choisie.\nEspace, flèches, Espace  Saisir, déplacer et déposer une carte ou une ligne.\nÉchap  Annuler, ou fermer une fenêtre ou l’aide."
       },
       "tour": {
         "title": "Premiers pas",
@@ -909,6 +928,72 @@
     "linkHints": {
       "featureFirst": "D’abord activer la fonction",
       "releaseRows": "Choisir « Releases » comme lignes"
+    }
+  },
+  "dialog": {
+    "saveHint": "{{mod}}+Entrée enregistre · Échap annule",
+    "discardTitle": "Abandonner la saisie ?",
+    "keepEditing": "Continuer la saisie",
+    "discard": "Abandonner"
+  },
+  "quickAdd": {
+    "button": "+ Story",
+    "in": "dans {{place}}",
+    "open": "Ajouter une story à {{place}}",
+    "input": "Titre de la nouvelle story dans {{place}}",
+    "placeholder": "Titre – Entrée ajoute, Échap ferme"
+  },
+  "menu": {
+    "open": "Ouvrir",
+    "status": "Statut",
+    "sprint": "Sprint",
+    "epic": "Epic",
+    "points": "Points",
+    "label": "Actions pour {{code}}"
+  },
+  "shortcuts": {
+    "title": "Raccourcis clavier",
+    "everywhere": "Partout",
+    "note": "Ctrl correspond à Cmd sur Mac. Les raccourcis à une touche ne fonctionnent que si aucun champ de texte n’a le focus.",
+    "page": {
+      "board": "Sur le tableau",
+      "backlog": "Dans le backlog",
+      "map": "Sur la story map",
+      "epics": "Sur la page des epics",
+      "releases": "Sur la page des releases",
+      "settings": "Dans les paramètres"
+    },
+    "newStory": "Nouvelle story",
+    "newEpic": "Nouvel epic",
+    "newRelease": "Nouvelle release",
+    "openCard": "Ouvrir la carte sélectionnée",
+    "dragCard": "Prendre ou déposer la carte sélectionnée (les flèches la déplacent)",
+    "cardMenu": "Menu de la carte sélectionnée (ou touche menu)",
+    "search": "Rechercher",
+    "overview": "Cet aperçu",
+    "close": "Fermer une boîte de dialogue ou un menu",
+    "save": "Enregistrer une boîte de création",
+    "addAnother": "Enregistrer une nouvelle story et en ajouter une autre",
+    "help": "Ouvrir l’aide"
+  },
+  "toast": {
+    "close": "Fermer",
+    "created": {
+      "story": "{{code}} « {{title}} » ajoutée",
+      "epic": "Epic « {{name}} » ajouté",
+      "sprint": "Sprint « {{name}} » ajouté",
+      "release": "Release « {{title}} » ajoutée"
+    },
+    "moved": {
+      "status": "{{code}} déplacée vers {{target}}",
+      "sprint": "{{code}} déplacée vers {{target}}",
+      "epic": "{{code}} appartient maintenant à l’epic « {{target}} »",
+      "noEpic": "{{code}} n’a plus d’epic",
+      "release": "{{code}} appartient maintenant à la release « {{target}} »",
+      "noRelease": "{{code}} n’a plus de release",
+      "points_one": "{{code}} a maintenant {{count}} point",
+      "points_other": "{{code}} a maintenant {{count}} points",
+      "reordered": "{{code}} déplacée"
     }
   }
 }

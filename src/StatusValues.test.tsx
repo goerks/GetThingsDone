@@ -155,7 +155,7 @@ describe('settings › status values', () => {
     await user.click(screen.getByRole('button', { name: 'New story' }));
     const dialog = await screen.findByRole('dialog', { name: 'New story' });
     await user.type(within(dialog).getByRole('textbox', { name: /Title/ }), 'Fresh idea');
-    await user.click(within(dialog).getByRole('button', { name: /Create|Add/ }));
+    await user.click(within(dialog).getByRole('button', { name: 'Add story' }));
     expect(await within(screen.getByRole('region', { name: 'Idea' })).findByText('Fresh idea')).toBeInTheDocument();
   });
 

@@ -1,5 +1,5 @@
 import { featureOn } from '../domain/settings';
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NewStoryInput } from '../domain/board';
 import { releaseLayout } from '../domain/fields';
@@ -7,6 +7,7 @@ import { POINT_VALUES } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
+import { DialogFooter } from './DialogFooter';
 import { EpicSelect } from './EpicSelect';
 import { ReleaseSelect } from './ReleaseSelect';
 import { SprintSelect } from './SprintSelect';
@@ -19,15 +20,25 @@ interface Props {
   epicId?: string | null;
   /** Prefilled release (from a release row of the story map); otherwise none. */
   releaseId?: string | null;
+  /** Prefilled title, when the dialog takes over from a quick add that lacked a required field. */
+  initialTitle?: string;
+  /** The status the new story starts in; without it the first status of "not started". */
+  status?: string;
+  /** Shows at once which required field is missing (after a quick add). */
+  flagMissing?: boolean;
   onClose: () => void;
 }
 
-export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicId, releaseId: initialReleaseId, onClose }: Props) {
+export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicId, releaseId: initialReleaseId, initialTitle = '', status, flagMissing = false, onClose }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   const builtin = useBuiltin();
   const uid = useId();
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(initialTitle);
+  const [added, setAdded] = useState<string | null>(null);
+  // A missing title is reported in the app's own words under the field, not by the browser.
+  const [titleMissing, setTitleMissing] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
   const [epicId, setEpicId] = useState<string | null>(initialEpicId ?? null);
   const [points, setPoints] = useState(3);
@@ -37,29 +48,74 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const releaseShown = featureOn(app.settings, 'releases') && (releaseLayout(app.assignments).inCreate || initialReleaseId !== undefined);
   const custom = useCreateFields('story');
 
-  const submit = (event: FormEvent): void => {
-    event.preventDefault();
-    if (!title.trim()) return;
+  useEffect(() => {
+    if (flagMissing) custom.collect();
+    // Only once, when the dialog takes over from the quick add.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Creates the story; with `another` the dialog stays open for the next one and keeps epic, sprint, release and points. */
+  const create = (another: boolean): void => {
+    if (!title.trim()) {
+      setTitleMissing(true);
+      titleRef.current?.focus();
+      return;
+    }
     const values = custom.collect();
     if (!values) return;
-    const input: NewStoryInput = { title, description, epicId, points, sprintId, releaseId, values };
+    const input: NewStoryInput = { title, description, epicId, points, sprintId, releaseId, values, status };
     app.createStory(input);
-    onClose();
+    if (!another) {
+      onClose();
+      return;
+    }
+    setAdded(title.trim());
+    setTitle('');
+    setDescription('');
+    titleRef.current?.focus();
+  };
+
+  const submit = (event: FormEvent): void => {
+    event.preventDefault();
+    create(false);
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLFormElement>): void => {
+    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey) && event.shiftKey && !event.altKey) {
+      event.preventDefault();
+      create(true);
+    }
   };
 
   return (
-    <Dialog title={t('newStory.dialogTitle')} onClose={onClose}>
-      <form className="form" onSubmit={submit}>
+    <Dialog title={t('newStory.dialogTitle')} dirty={Boolean(title.trim() || description.trim())} submitShortcut onClose={onClose}>
+      <form className="form" onSubmit={submit} onKeyDown={onKeyDown} noValidate>
+        {added && (
+          <p role="status" className="notice notice--ok create-added">
+            {t('newStory.addedAnother', { title: added })}
+          </p>
+        )}
         <div className="field">
           <label htmlFor={`${uid}-title`}>{builtin.label('title', t('newStory.title'))}</label>
           <input
             id={`${uid}-title`}
             className="input"
             value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            required
+            onChange={(event) => {
+              setTitle(event.target.value);
+              setTitleMissing(false);
+            }}
+            ref={titleRef}
+            aria-required="true"
+            aria-invalid={titleMissing || undefined}
+            aria-describedby={titleMissing ? `${uid}-title-problem` : undefined}
             autoFocus
           />
+          {titleMissing && (
+            <p id={`${uid}-title-problem`} role="alert" className="field-error">
+              {t('newStory.problem.title')}
+            </p>
+          )}
         </div>
         {builtin.shown('story', 'description') && (
           <div className="field">
@@ -107,14 +163,11 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
           </div>
         )}
         {custom.fields}
-        <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
-            {t('newStory.add')}
+        <DialogFooter submit={t('newStory.add')} onCancel={onClose}>
+          <button type="button" className="btn" onClick={() => create(true)}>
+            {t('newStory.addAnother')}
           </button>
-          <button type="button" className="btn" onClick={onClose}>
-            {t('newStory.cancel')}
-          </button>
-        </div>
+        </DialogFooter>
       </form>
     </Dialog>
   );

@@ -405,6 +405,8 @@ export interface NewStoryInput {
   releaseId?: string | null;
   /** Values of custom fields, from the create dialog. */
   values?: Record<string, FieldValue>;
+  /** The status to start in, from a quick add in a board column; without it the start status is used. */
+  status?: Status;
 }
 
 export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId' | 'releaseId'>>;
@@ -433,7 +435,7 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string, 
     description: input.description.trim(),
     epicId: input.epicId,
     points: input.points,
-    status,
+    status: input.status ?? status,
     sprintId: input.sprintId,
     releaseId: input.releaseId ?? null,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,

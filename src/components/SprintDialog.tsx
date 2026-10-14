@@ -4,6 +4,7 @@ import { newSprintDefaults, todayIso, validateSprint, type SprintInput } from '.
 import type { Sprint } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
+import { DialogFooter } from './DialogFooter';
 
 interface Props {
   /** The sprint to edit; without it the dialog creates a new, prefilled sprint. */
@@ -15,11 +16,13 @@ export function SprintDialog({ sprint, onClose }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   const uid = useId();
-  const [input, setInput] = useState<SprintInput>(() =>
+  const [initial] = useState<SprintInput>(() =>
     sprint
       ? { name: sprint.name, startDate: sprint.startDate, endDate: sprint.endDate }
       : newSprintDefaults(app.sprints, todayIso(), (number) => t('sprint.defaultName', { number }))
   );
+  const [input, setInput] = useState<SprintInput>(initial);
+  const dirty = input.name !== initial.name || input.startDate !== initial.startDate || input.endDate !== initial.endDate;
   const [showProblem, setShowProblem] = useState(false);
   const problem = validateSprint(input);
 
@@ -38,7 +41,7 @@ export function SprintDialog({ sprint, onClose }: Props) {
     setInput((current) => ({ ...current, [field]: event.target.value }));
 
   return (
-    <Dialog title={sprint ? t('sprint.edit') : t('sprint.new')} onClose={onClose}>
+    <Dialog title={sprint ? t('sprint.edit') : t('sprint.new')} dirty={dirty} submitShortcut onClose={onClose}>
       <form className="form" onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor={`${uid}-name`}>{t('sprint.name')}</label>
@@ -59,14 +62,7 @@ export function SprintDialog({ sprint, onClose }: Props) {
             {t(`sprint.problem.${problem}`)}
           </p>
         )}
-        <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
-            {sprint ? t('sprint.save') : t('sprint.add')}
-          </button>
-          <button type="button" className="btn" onClick={onClose}>
-            {t('newStory.cancel')}
-          </button>
-        </div>
+        <DialogFooter submit={sprint ? t('sprint.save') : t('sprint.add')} onCancel={onClose} />
       </form>
     </Dialog>
   );
