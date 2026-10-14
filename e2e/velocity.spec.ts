@@ -95,7 +95,7 @@ test('AC1.1 shows two bars with numbers per sprint, in order, with a legend', as
   await expect(sprintBars(page).nth(5)).toHaveAttribute('aria-label', 'Sprint 6: 26 / 22');
   await expect(sprintBars(page).nth(0).locator('text.velocity-chart__value')).toHaveText(['18', '12']);
   await expect(panel(page).locator('.velocity__legend')).toHaveText(/Planned.*Done.*Average/);
-  await expect(panel(page)).toHaveScreenshot('velocity-window.png', { maxDiffPixelRatio: 0.08 });
+  await expect(panel(page).locator('svg.velocity-chart')).toHaveScreenshot('velocity-chart.png', { maxDiffPixelRatio: 0.08 });
 });
 
 test('AC1.2 draws the done bar of Sprint 4 higher than its planned bar', async ({ page }) => {
