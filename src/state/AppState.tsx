@@ -55,6 +55,7 @@ import {
   updateSprint as updateSprintIn,
   type SprintInput
 } from '../domain/sprints';
+import { completeSprint as completeSprintIn, startSprint as startSprintIn, type Completion, type UnfinishedTarget } from '../domain/sprintLife';
 import {
   createRelease as createReleaseIn,
   deleteRelease as deleteReleaseIn,
@@ -134,6 +135,13 @@ interface AppApi {
   updateSprint(id: string, input: SprintInput): void;
   /** Moves an upcoming sprint before or after another one; the dates of the upcoming sprints are recalculated. */
   moveSprint(activeId: string, overId: string, placement: Placement): void;
+  /** Starts a planned sprint (#17), when none is running. Returns false when it cannot be started. */
+  startSprint(id: string, dates: 'today' | 'keep'): boolean;
+  /**
+   * Completes the running sprint: stores its result and moves the unfinished stories to the target.
+   * Returns what happened, or null when the sprint cannot be completed.
+   */
+  completeSprint(id: string, input: { target: UnfinishedTarget; endDate: 'today' | 'keep' }): Completion | null;
   /** Returns the id of the new release, or null when the input is invalid. */
   createRelease(input: ReleaseInput): string | null;
   /** Changes a release; invalid input is ignored. */
@@ -437,6 +445,34 @@ export function AppProvider({ repository, children }: Props) {
           for (const sprint of changed) await repo.updateSprint(sprint);
         });
       },
+      startSprint(id, dates) {
+        const after = startSprintIn(sprintsRef.current, storiesRef.current, id, dates, todayIso());
+        const sprint = after?.find((item) => item.id === id);
+        if (!after || !sprint) return false;
+        updateSprints(after);
+        persist((repo) => repo.updateSprint(sprint));
+        return true;
+      },
+      completeSprint(id, input) {
+        const sprintsBefore = sprintsRef.current;
+        const storiesBefore = storiesRef.current;
+        const completion = completeSprintIn(sprintsBefore, storiesBefore, id, isDoneIn(statusesRef.current), {
+          ...input,
+          today: todayIso(),
+          newId: newId(),
+          nameFor: (number) => t('sprint.defaultName', { number })
+        });
+        if (!completion) return null;
+        updateSprints(completion.sprints);
+        update(completion.stories);
+        const moved = changedPositions(storiesBefore, completion.stories);
+        persist(async (repo) => {
+          if (completion.created && completion.targetSprint) await repo.addSprint(completion.targetSprint);
+          await repo.updateSprint(completion.completed);
+          if (moved.length > 0) await repo.savePositions(moved);
+        });
+        return completion;
+      },
       updateSprint(id, input) {
         const after = updateSprintIn(sprintsRef.current, id, input);
         const sprint = after.find((item) => item.id === id);
@@ -644,7 +680,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify]
+    [snapshot, loading, error, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify, t]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

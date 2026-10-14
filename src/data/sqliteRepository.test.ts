@@ -8,7 +8,7 @@ import type { CustomDataType, FieldDefinition } from '../domain/types';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');

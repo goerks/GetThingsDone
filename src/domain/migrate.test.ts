@@ -26,7 +26,15 @@ describe('migrating a snapshot of release 0.1', () => {
   it('turns the fixed sprint into a real sprint running from today for two weeks', () => {
     const snapshot = migrateSnapshot(old, '2026-10-11');
     expect(snapshot.sprints).toEqual([
-      { id: MIGRATED_SPRINT_ID, name: 'Sprint 1', startDate: '2026-10-11', endDate: '2026-10-24' }
+      {
+        id: MIGRATED_SPRINT_ID,
+        name: 'Sprint 1',
+        startDate: '2026-10-11',
+        endDate: '2026-10-24',
+        state: 'running',
+        startItems: [{ storyId: 'a', code: 'a', points: 1 }],
+        result: null
+      }
     ]);
     expect(snapshot.stories.map((s) => [s.id, s.sprintId])).toEqual([
       ['a', MIGRATED_SPRINT_ID],
@@ -50,7 +58,7 @@ describe('migrating a snapshot of release 0.1', () => {
   it('leaves a current snapshot unchanged', () => {
     const current = {
       epics: [{ id: 'e1', name: 'Boards', colorKey: 'rose', position: 3 }],
-      sprints: [{ id: 's9', name: 'Sprint 9', startDate: '2026-10-01', endDate: '2026-10-14' }],
+      sprints: [{ id: 's9', name: 'Sprint 9', startDate: '2026-10-01', endDate: '2026-10-14', state: 'planned' as const, startItems: null, result: null }],
       stories: [{ ...story('a', false), inSprint: undefined, sprintId: 's9' }]
     };
     const snapshot = migrateSnapshot(current, '2026-10-11');

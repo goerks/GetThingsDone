@@ -35,8 +35,8 @@ const TODAY = '2026-10-11';
 const S1 = 'sprint-1';
 const S2 = 'sprint-2';
 const sprints: Sprint[] = [
-  { id: S2, name: 'Sprint 2', startDate: '2026-10-19', endDate: '2026-11-01' },
-  { id: S1, name: 'Sprint 1', startDate: '2026-10-05', endDate: '2026-10-18' }
+  { id: S2, name: 'Sprint 2', startDate: '2026-10-19', endDate: '2026-11-01', state: 'planned', startItems: null, result: null },
+  { id: S1, name: 'Sprint 1', startDate: '2026-10-05', endDate: '2026-10-18', state: 'planned', startItems: null, result: null }
 ];
 
 function story(id: string, status: Story['status'], rank: number, sprintId: string | null = S1, epicId = 'e'): Story {
@@ -215,7 +215,7 @@ describe('backlog', () => {
   });
 
   it('places a story into an empty sprint between the sprints around it', () => {
-    const three = [...sprints, { id: 'sprint-3', name: 'Sprint 3', startDate: '2026-11-02', endDate: '2026-11-15' }];
+    const three = [...sprints, { id: 'sprint-3', name: 'Sprint 3', startDate: '2026-11-02', endDate: '2026-11-15', state: 'planned' as const, startItems: null, result: null }];
     const next = dropInBacklog(base, three, 'd', sectionId('sprint-3'));
     expect(backlogOrder(next, three).map((s) => s.id)).toEqual(['a', 'b', 'c', 'f', 'd', 'e']);
     expect(next.find((s) => s.id === 'd')?.sprintId).toBe('sprint-3');

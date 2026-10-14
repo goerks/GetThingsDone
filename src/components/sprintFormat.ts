@@ -12,3 +12,9 @@ export function formatSprintDates(sprint: Pick<Sprint, 'startDate' | 'endDate'>,
   const format = new Intl.DateTimeFormat(language, sameYear ? { day: 'numeric', month: 'short' } : { dateStyle: 'medium' });
   return `${format.format(start)} – ${format.format(end)}`;
 }
+
+/** A day without the year, for example "20. October": for texts that say when a sprint ended or was planned. */
+export function formatDayLong(day: string, language: string): string {
+  const [year, month, date] = day.split('-').map(Number);
+  return new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long' }).format(new Date(year, month - 1, date));
+}

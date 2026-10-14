@@ -21,31 +21,33 @@ export function isValidDay(day: string): boolean {
 }
 
 /** Sprints in time order: by start date, then by name. */
-export function sortSprints(sprints: readonly Sprint[]): Sprint[] {
+export function sortSprints<T extends Pick<Sprint, 'startDate' | 'name'>>(sprints: readonly T[]): T[] {
   return [...sprints].sort((a, b) => a.startDate.localeCompare(b.startDate) || a.name.localeCompare(b.name));
 }
 
-export const isPast = (sprint: Sprint, today: string): boolean => sprint.endDate < today;
-export const isRunning = (sprint: Sprint, today: string): boolean => sprint.startDate <= today && today <= sprint.endDate;
-
-/**
- * The sprint the board shows: the one whose dates include today; if none runs, the next upcoming one;
- * if there is no upcoming one either, the last one. Null when there are no sprints.
- */
-export function runningSprint(sprints: readonly Sprint[], today: string): Sprint | null {
-  const sorted = sortSprints(sprints);
-  return (
-    sorted.find((sprint) => isRunning(sprint, today)) ??
-    sorted.find((sprint) => sprint.startDate > today) ??
-    sorted[sorted.length - 1] ??
-    null
-  );
+/** The running sprint (#17): at most one. */
+export function runningSprint(sprints: readonly Sprint[]): Sprint | null {
+  return sprints.find((sprint) => sprint.state === 'running') ?? null;
 }
 
-/** Sprints shown on the story map: the running and the future ones, in time order. */
-export function mapSprints(sprints: readonly Sprint[], today: string): Sprint[] {
-  return sortSprints(sprints).filter((sprint) => !isPast(sprint, today));
+/** The sprint the board shows: the running one; without one, the next planned one. Null when there is neither. */
+export function boardSprint(sprints: readonly Sprint[]): Sprint | null {
+  return runningSprint(sprints) ?? sortSprints(sprints).find((sprint) => sprint.state === 'planned') ?? null;
 }
+
+/** A running sprint whose end date has passed: it stays on the board until it is completed. */
+export const isEnded = (sprint: Sprint, today: string): boolean => sprint.state === 'running' && sprint.endDate < today;
+
+/** Sprints shown on the story map and in the backlog: the running and the planned ones, in time order. */
+export function mapSprints(sprints: readonly Sprint[]): Sprint[] {
+  return sortSprints(sprints).filter((sprint) => sprint.state !== 'completed');
+}
+
+/** Planned sprints in time order. */
+export const plannedSprints = (sprints: readonly Sprint[]): Sprint[] => sortSprints(sprints).filter((sprint) => sprint.state === 'planned');
+
+/** The planned sprints that can be started: none while a sprint runs. */
+export const startableSprints = (sprints: readonly Sprint[]): Sprint[] => (runningSprint(sprints) ? [] : plannedSprints(sprints));
 
 export interface SprintInput {
   name: string;
@@ -80,7 +82,15 @@ export function validateSprint(input: SprintInput): SprintProblem | null {
 
 export function createSprint(sprints: Sprint[], input: SprintInput, id: string): { sprints: Sprint[]; sprint: Sprint } | null {
   if (validateSprint(input)) return null;
-  const sprint: Sprint = { id, name: input.name.trim(), startDate: input.startDate, endDate: input.endDate };
+  const sprint: Sprint = {
+    id,
+    name: input.name.trim(),
+    startDate: input.startDate,
+    endDate: input.endDate,
+    state: 'planned',
+    startItems: null,
+    result: null
+  };
   return { sprints: [...sprints, sprint], sprint };
 }
 
@@ -91,11 +101,11 @@ export function updateSprint(sprints: Sprint[], id: string, input: SprintInput):
   );
 }
 
-/** Sprints that have not started yet; only these can be reordered. */
-export const isUpcoming = (sprint: Sprint, today: string): boolean => sprint.startDate > today;
+/** Sprints that have not been started yet (planned); only these can be reordered. */
+export const isUpcoming = (sprint: Sprint): boolean => sprint.state === 'planned';
 
 /** Number of days between two calendar days. */
-function daysBetween(from: string, to: string): number {
+export function daysBetween(from: string, to: string): number {
   const toTime = (day: string): number => {
     const [year, month, date] = day.split('-').map(Number);
     return Date.UTC(year, month - 1, date);
@@ -106,7 +116,7 @@ function daysBetween(from: string, to: string): number {
 /**
  * Moves an upcoming sprint before or after another upcoming sprint and recalculates the dates of all upcoming
  * sprints: each keeps its length, and they follow each other without gaps from the end of the last sprint that
- * has started (or from the first upcoming start when none has started). Running and past sprints never move.
+ * has been started (or from the first upcoming start when none has been started). Running and completed sprints never move.
  * Returns the same list when the move is not allowed or changes nothing.
  */
 export function moveSprint(
@@ -117,7 +127,7 @@ export function moveSprint(
   placement: 'before' | 'after'
 ): Sprint[] {
   if (activeId === overId) return sprints;
-  const upcoming = sortSprints(sprints).filter((sprint) => isUpcoming(sprint, today));
+  const upcoming = sortSprints(sprints).filter((sprint) => isUpcoming(sprint));
   const active = upcoming.find((sprint) => sprint.id === activeId);
   if (!active || !upcoming.some((sprint) => sprint.id === overId)) return sprints;
 
@@ -125,7 +135,7 @@ export function moveSprint(
   const targetIndex = order.findIndex((sprint) => sprint.id === overId);
   order.splice(placement === 'after' ? targetIndex + 1 : targetIndex, 0, active);
 
-  const started = sprints.filter((sprint) => !isUpcoming(sprint, today));
+  const started = sprints.filter((sprint) => !isUpcoming(sprint));
   const lastStartedEnd = started.reduce<string | null>((max, s) => (max === null || s.endDate > max ? s.endDate : max), null);
   let start = lastStartedEnd ? addDays(lastStartedEnd, 1) : upcoming[0].startDate;
   if (start <= today) start = addDays(today, 1);

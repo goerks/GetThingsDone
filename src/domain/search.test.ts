@@ -57,8 +57,8 @@ const snapshot: SearchSnapshot = {
     { id: 'e2', name: 'Local storage', colorKey: 'teal', position: 1, values: {} }
   ],
   sprints: [
-    { id: 's2', name: 'Sprint 2', startDate: '2026-10-20', endDate: '2026-11-02' },
-    { id: 's1', name: 'Sprint 1', startDate: '2026-10-06', endDate: '2026-10-19' }
+    { id: 's2', name: 'Sprint 2', startDate: '2026-10-20', endDate: '2026-11-02', state: 'planned', startItems: null, result: null },
+    { id: 's1', name: 'Sprint 1', startDate: '2026-10-06', endDate: '2026-10-19', state: 'running', startItems: [], result: null }
   ],
   stories: [
     story('1', { title: 'Tick off acceptance criteria', status: 'review', criteria: [{ id: 'c1', text: 'Every criterion has a box', done: true }] }),
@@ -349,30 +349,36 @@ describe('custom fields', () => {
 });
 
 describe('where a result is shown', () => {
-  // Sprint 1 runs from 6 to 19 October, Sprint 2 follows.
-  const today = '2026-10-10';
+  // Sprint 1 runs, Sprint 2 is planned.
 
   it('shows a story of the running sprint on the board first, then backlog and map', () => {
-    expect(whereShown(snapshot, 'story', '1', today)).toEqual(['board', 'backlog', 'map']);
+    expect(whereShown(snapshot, 'story', '1')).toEqual(['board', 'backlog', 'map']);
   });
 
   it('shows a story of a later sprint or without sprint in the backlog and on the map', () => {
-    expect(whereShown(snapshot, 'story', '12', today)).toEqual(['backlog', 'map']);
-    expect(whereShown(snapshot, 'story', '3', today)).toEqual(['backlog', 'map']);
+    expect(whereShown(snapshot, 'story', '12')).toEqual(['backlog', 'map']);
+    expect(whereShown(snapshot, 'story', '3')).toEqual(['backlog', 'map']);
   });
 
-  it('keeps stories of past sprints to the backlog', () => {
-    expect(whereShown(snapshot, 'story', '1', '2026-10-25')).toEqual(['backlog']);
+  it('shows stories and the sprint of a completed sprint on no page', () => {
+    const completed = { ...snapshot, sprints: snapshot.sprints.map((sprint) => (sprint.id === 's1' ? { ...sprint, state: 'completed' as const } : sprint)) };
+    expect(whereShown(completed, 'story', '1')).toEqual([]);
+    expect(whereShown(completed, 'sprint', 's1')).toEqual([]);
+  });
+
+  it('shows the next planned sprint on the board when none runs', () => {
+    const planned = { ...snapshot, sprints: snapshot.sprints.map((sprint) => (sprint.id === 's1' ? { ...sprint, state: 'completed' as const } : sprint)) };
+    expect(whereShown(planned, 'sprint', 's2')).toEqual(['board', 'map', 'backlog']);
   });
 
   it('shows epics on the epics page and the map, sprints on board, map and backlog', () => {
-    expect(whereShown(snapshot, 'epic', 'e1', today)).toEqual(['epics', 'map']);
-    expect(whereShown(snapshot, 'sprint', 's1', today)).toEqual(['board', 'map', 'backlog']);
-    expect(whereShown(snapshot, 'sprint', 's2', today)).toEqual(['map', 'backlog']);
+    expect(whereShown(snapshot, 'epic', 'e1')).toEqual(['epics', 'map']);
+    expect(whereShown(snapshot, 'sprint', 's1')).toEqual(['board', 'map', 'backlog']);
+    expect(whereShown(snapshot, 'sprint', 's2')).toEqual(['map', 'backlog']);
   });
 
   it('knows nothing about items that do not exist', () => {
-    expect(whereShown(snapshot, 'story', 'gone', today)).toEqual([]);
+    expect(whereShown(snapshot, 'story', 'gone')).toEqual([]);
   });
 
   it('prefers the current page, then the first page that shows the item, else none', () => {

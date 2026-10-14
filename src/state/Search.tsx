@@ -21,7 +21,6 @@ import {
   type RecentItem,
   type SearchHistory
 } from '../domain/searchHistory';
-import { todayIso } from '../domain/sprints';
 import type { SearchSnapshot } from '../domain/types';
 import { hrefs, parseHash } from '../router';
 import { useApp } from './AppState';
@@ -238,7 +237,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const reveal = useCallback(
     (kind: SearchResult['kind'], id: string, then: () => void) => {
       const current = parseHash(window.location.hash).name;
-      const view = viewFor(current, whereShown(snapshot, kind, id, todayIso()));
+      const view = viewFor(current, whereShown(snapshot, kind, id));
       if (view && view !== current) window.location.hash = hrefs[view];
       locate(kind, id, then);
     },

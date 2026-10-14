@@ -28,12 +28,50 @@ export interface Epic {
   values: Record<string, FieldValue>;
 }
 
-/** A time box. Dates are local calendar days as `YYYY-MM-DD`; both days belong to the sprint. */
+/** Where a sprint is in its life (#17): planned, running (at most one) or completed. */
+export type SprintState = 'planned' | 'running' | 'completed';
+
+/** A story as it was in a sprint when the sprint was started. The code stays readable after the story is deleted. */
+export interface SprintStartItem {
+  storyId: string;
+  code: string;
+  points: number;
+}
+
+/** What a sprint achieved, stored when it is completed. Points of stories without points count as 0. */
+export interface SprintResult {
+  /** The day the sprint was completed, `YYYY-MM-DD`. */
+  completedOn: string;
+  plannedPoints: number;
+  plannedStories: number;
+  donePoints: number;
+  doneStories: number;
+  notDonePoints: number;
+  notDoneStories: number;
+  /** Stories that joined the sprint after its start, and their points. */
+  addedStories: number;
+  addedPoints: number;
+  /** Stories that left the sprint after its start, with their points at the start. */
+  removedStories: number;
+  removedPoints: number;
+  /** Net change of the points of the stories that stayed in the sprint. */
+  changedPoints: number;
+}
+
+/**
+ * A time box. Dates are local calendar days as `YYYY-MM-DD`; both days belong to the sprint.
+ * A sprint runs when it is started, not by its dates (#17).
+ */
 export interface Sprint {
   id: string;
   name: string;
   startDate: string;
   endDate: string;
+  state: SprintState;
+  /** The stories in the sprint when it was started, or null while it is planned. */
+  startItems: SprintStartItem[] | null;
+  /** Set when the sprint is completed. */
+  result: SprintResult | null;
 }
 
 /**
