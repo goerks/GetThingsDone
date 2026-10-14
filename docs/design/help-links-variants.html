@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hilfe: Link-Buttons Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a small app window mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --e-rose: #be123c; --e-amber: #b45309; --e-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.tag--now { background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+/* ---------- App window mockup ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 760px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.nav .flag { color: var(--bad); font-weight: 600; border-bottom-color: var(--bad); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); position: relative; }
+.ibtn svg { width: 15px; height: 15px; }
+.ibtn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.sel { height: 30px; padding: 0 22px 0 8px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; color: var(--text); background: var(--surface); }
+.hint { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: baseline; gap: 12px; }
+.ph b { font-size: 17px; }
+.ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+
+table.ft { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.ft th, .ft td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ft thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.ft tr:last-child td, .ft tr:last-child th { border-bottom: 0; }
+.ft tbody th { font-weight: 500; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; }
+.badge--c { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+/* Settings layout of variant A */
+.settings { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 0 10px 6px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.side .later { opacity: .7; }
+.side small { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 5px; }
+
+/* Board ghost behind menus and dialogs */
+.ghost { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 150px; }
+.lane i { font-style: normal; color: var(--muted); font-size: 11px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; height: 38px; }
+
+/* Variant B menu */
+.menu { position: absolute; top: 42px; right: 52px; width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; z-index: 2; }
+.menu span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+.menu .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu .later { color: var(--muted); }
+.menu hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* Variant C dialog */
+.scrim { position: absolute; inset: 46px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 640px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 12px; z-index: 2; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+.tabs span { padding: 6px 12px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs .on { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.x { margin-left: auto; color: var(--muted); }
+.stack { position: absolute; top: 160px; left: 50%; transform: translateX(-38%); width: 360px; background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 14px 16px; display: grid; gap: 8px; z-index: 3; }
+.field { height: 26px; border: 1px solid var(--border); border-radius: 5px; }
+
+/* Phone mockup of variant A */
+.phone { width: 300px; border: 1px solid var(--border); border-radius: 18px; background: var(--bg); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); font-size: 12px; justify-self: start; }
+.phone .bar { height: auto; flex-wrap: wrap; padding: 8px 12px; gap: 6px 10px; }
+.phone .nav { height: 30px; }
+.phone .nav span { padding: 0 6px; }
+.chips { display: flex; gap: 6px; overflow: hidden; }
+.chips span { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; color: var(--muted); }
+.chips .on { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: transparent; font-weight: 600; }
+.row { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.rows .row:last-child { border-bottom: 0; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+
+/* ---------- Help mockups ---------- */
+.card { height:auto; padding:7px 9px; display:grid; gap:3px; font-size:12px; }
+.card small { color: var(--muted); font-size: 11px; }
+.card .pts { justify-self:start; }
+.lane { min-height: 190px; }
+.ibtn--q { font-weight: 700; font-size: 14px; }
+.drawer { position:absolute; top:46px; right:0; bottom:0; width:300px; background:var(--surface); border-left:1px solid var(--border); box-shadow:-10px 0 30px var(--shadow); padding:14px 16px; display:grid; gap:10px; align-content:start; z-index:3; }
+.drawer h4 { margin:0; font-size:15px; }
+.search { height:30px; border:1px solid var(--border); border-radius:6px; padding:0 10px; display:flex; align-items:center; gap:8px; color:var(--muted); background:var(--bg); }
+.search--on { border-color:var(--accent); color:var(--text); box-shadow:0 0 0 2px var(--accent-soft); }
+kbd { font-family:var(--font-mono); font-size:11px; border:1px solid var(--border); border-bottom-width:2px; border-radius:4px; padding:0 5px; background:var(--surface); color:var(--text); }
+.lbl2 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.link { color:var(--accent); }
+.lst { display:grid; gap:2px; }
+.lst span { padding:6px 8px; border-radius:6px; display:flex; justify-content:space-between; gap:8px; }
+.lst .on { background:var(--accent-soft); color:var(--accent-soft-ink); }
+.steps { display:grid; gap:6px; }
+.step { display:flex; gap:8px; align-items:flex-start; }
+.chk { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); flex:none; margin-top:1px; display:grid; place-items:center; font-size:10px; }
+.chk--ok { background:var(--ok); border-color:var(--ok); color:#fff; }
+.chk--now { border-color:var(--accent); }
+.bar2 { height:6px; border-radius:3px; background:var(--track,#e6e9ee); overflow:hidden; }
+.bar2 i { display:block; height:100%; background:var(--accent); }
+.tryit { background:var(--accent-soft); color:var(--accent-soft-ink); border-radius:6px; padding:8px 10px; display:grid; gap:6px; }
+.welcome { background:var(--surface); border:1px solid var(--accent); border-radius:10px; padding:12px 14px; display:flex; gap:14px; align-items:center; box-shadow:0 4px 16px var(--shadow); }
+.welcome > div { display:grid; gap:2px; flex:1; }
+.welcome .btn--g { border-color:transparent; color:var(--muted); background:transparent; }
+.hl { outline:3px solid var(--accent); outline-offset:2px; position:relative; z-index:2; }
+.dim { position:absolute; inset:46px 0 0 0; background:var(--scrim); z-index:1; }
+.pop { position:absolute; width:290px; background:var(--surface); border:1px solid var(--accent); border-radius:10px; box-shadow:0 14px 36px var(--shadow); padding:12px 14px; display:grid; gap:8px; z-index:4; }
+.pop .foot { display:flex; align-items:center; gap:8px; }
+.pop .foot .right { margin-left:auto; display:flex; gap:6px; }
+.dots { display:flex; gap:4px; }
+.dots i { width:7px; height:7px; border-radius:50%; background:var(--border); }
+.dots i.on { background:var(--accent); }
+.hot { display:inline-grid; place-items:center; width:16px; height:16px; border-radius:50%; background:var(--accent-soft); color:var(--accent-soft-ink); font-size:10px; font-weight:700; border:1px solid var(--accent); }
+.tip { position:absolute; width:250px; background:var(--text); color:var(--bg); border-radius:8px; padding:9px 11px; font-size:12px; z-index:4; display:grid; gap:4px; box-shadow:0 8px 24px var(--shadow); }
+.tip .link { color:var(--accent); filter:brightness(1.4); }
+.palette { position:absolute; top:70px; left:50%; transform:translateX(-50%); width:520px; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:0 16px 40px var(--shadow); padding:10px; display:grid; gap:8px; z-index:4; }
+.help-layout { display:grid; grid-template-columns:200px 1fr; gap:18px; align-items:start; }
+.tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.tile { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 12px; display:grid; gap:3px; }
+.tile b { font-size:13px; }
+.sandbox { background:var(--pill); border:1px dashed var(--accent); border-radius:6px; padding:8px; display:grid; gap:6px; }
+.demo { font-size:11px; color:var(--accent-soft-ink); background:var(--accent-soft); border-radius:999px; padding:1px 8px; justify-self:start; }
+.stage { display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); gap:16px; }
+.cap { font-size:13px; color:var(--muted); margin-top:6px; }
+
+.pn { width: 330px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 6px 24px var(--shadow); overflow: hidden; font-size: 13px; }
+.pn__head { display:flex; justify-content:space-between; align-items:center; padding: 12px 14px 4px; }
+.pn__head b { font-size: 15px; }
+.pn__body { display:grid; gap:10px; padding: 8px 14px 16px; }
+.pn__body p { margin:0; }
+.pn h3 { font-size: 17px; margin:0; }
+.state { font-size: 12px; font-weight:600; color: var(--muted); margin-bottom: 6px; }
+.pair2 { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; }
+.col { display:grid; gap:2px; }
+.h4 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; margin-top:4px; }
+svg.i { width:16px; height:16px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* A: full-width row buttons */
+.rowbtn { display:flex; align-items:center; gap:10px; min-height:44px; padding:0 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text); }
+.rowbtn .go { margin-left:auto; color:var(--accent); }
+.rowbtn .ic { color:var(--accent); }
+.rowbtn .sub { font-size:11px; color:var(--muted); display:block; }
+.rowbtn--first { border-color:var(--accent); background:var(--accent-soft); color:var(--accent-soft-ink); }
+.rowbtn--locked { background:var(--pill); color:var(--muted); border-style:dashed; }
+.rowbtn--locked .ic, .rowbtn--locked .go { color:var(--muted); }
+/* B: grouped chips */
+.grp { display:grid; gap:6px; }
+.chips2 { display:flex; flex-wrap:wrap; gap:6px; }
+.chip { display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--accent); color:var(--accent-soft-ink); background:var(--accent-soft); font-weight:500; }
+.chip--sec { background:var(--surface); color:var(--accent); }
+.chip--locked { border-color:var(--border); border-style:dashed; background:var(--pill); color:var(--muted); font-weight:400; }
+.note { font-size:12px; color:var(--muted); }
+/* C: guided path */
+.path { display:grid; gap:0; }
+.stp { display:grid; grid-template-columns: 28px 1fr; gap:10px; padding-bottom:12px; position:relative; }
+.stp:not(:last-child)::before { content:""; position:absolute; left:13px; top:28px; bottom:0; width:2px; background:var(--border); }
+.num { width:28px; height:28px; border-radius:50%; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center; font-weight:700; font-size:13px; }
+.num--off { background:var(--pill); color:var(--muted); border:1px solid var(--border); }
+.stp b { display:block; margin-bottom:4px; }
+.btn2 { display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink); font-weight:500; }
+.btn2--sec { background:var(--surface); color:var(--accent); }
+.btn2--off { background:var(--pill); border-color:var(--border); color:var(--muted); font-weight:400; }
+</style>
+</head>
+<body><main class="wrap"><header class="intro"><div class="meta"><span>Issue #33</span><span>PO-Feedback zum Pull Request</span></div><h1>Hilfe: richtige Buttons für die Links</h1>
+<p class="muted">Heute sind die Links der Hilfe einfache blaue Textzeilen. Drei Varianten für richtige Buttons, jeweils am Thema «Releases» gezeigt, links mit eingeschalteter, rechts mit ausgeschalteter Funktion. Alle Buttons sind mindestens 44 px hoch (Zielgrösse), per Tastatur erreichbar und haben einen sichtbaren Fokusrahmen.</p></header>
+<section class="variant"><div class="variant__head"><h3>A · Zeilen-Buttons</h3><span class="tag tag--rec">Empfehlung</span></div><p>Jeder Ort ist ein breiter Button mit Symbol, Name und Pfeil. Die Funktion, die zuerst eingeschaltet werden muss, ist hervorgehoben (blaue Fläche) und steht oben. Orte, die noch nicht gehen, sind gestrichelt und grau mit Schloss und Hinweis.</p><div class="pair2" id="va"><div><div class="state">Funktion eingeschaltet</div><div class="pn"><div class="pn__head"><b>Hilfe · Board</b><span class="muted">✕</span></div><div class="pn__body">
+<span class="btn" style="justify-self:start">← Zurück</span><h3>Releases</h3>
+<p><b>Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist.</b></p>
+<p>1. Schalte die Funktion unter Einstellungen → Funktionen ein.</p>
+<p>2. Öffne die Seite Releases, um ein Release anzulegen.</p>
+<p>3. Wähle «Releases» als Zeilen der Story Map.</p>
+<div class="h4">Hier findest du es</div><div class="col" style="gap:6px"><div class="rowbtn rowbtn--first"><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Einstellungen → Funktionen<span class="sub">Zuerst die Funktion einschalten</span></span><svg class="i go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="rowbtn "><svg class="i ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Releases</span><svg class="i go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="rowbtn "><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Einstellungen → Story Map<span class="sub">Zeilen «Releases» wählen</span></span><svg class="i go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="rowbtn "><svg class="i ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Story Map</span><svg class="i go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></div></div></div></div><div><div class="state">Funktion ausgeschaltet</div><div class="pn"><div class="pn__head"><b>Hilfe · Board</b><span class="muted">✕</span></div><div class="pn__body">
+<span class="btn" style="justify-self:start">← Zurück</span><h3>Releases</h3>
+<p><b>Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist.</b></p>
+<p>1. Schalte die Funktion unter Einstellungen → Funktionen ein.</p>
+<p>2. Öffne die Seite Releases, um ein Release anzulegen.</p>
+<p>3. Wähle «Releases» als Zeilen der Story Map.</p>
+<div class="h4">Hier findest du es</div><div class="col" style="gap:6px"><div class="rowbtn rowbtn--first"><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Einstellungen → Funktionen<span class="sub">Zuerst die Funktion einschalten</span></span><svg class="i go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="rowbtn rowbtn--locked"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Releases<span class="sub">Erst die Funktion einschalten</span></span></div><div class="rowbtn rowbtn--locked"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Einstellungen → Story Map<span class="sub">Erst die Funktion einschalten</span></span></div><div class="rowbtn rowbtn--locked"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Story Map<span class="sub">Erst die Funktion einschalten</span></span></div></div></div></div></div></div><div class="proscons"><div class="box"><b>Dafür</b><ul><li>Gross und klar, auch auf dem Handy leicht zu treffen</li><li>Die Reihenfolge «zuerst die Funktion» ist sofort sichtbar</li><li>Platz für eine zweite Zeile (Hinweis, warum gesperrt)</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Braucht am meisten Höhe bei vielen Links</li></ul></div></div></section>
+<section class="variant"><div class="variant__head"><h3>B · Gruppierte Chips</h3><span class="tag ">möglich</span></div><p>Kurze runde Buttons in zwei Gruppen: «Zuerst» (die Funktion) und «Dann» (die Orte). Gesperrte Chips sind grau und gestrichelt, ein Satz darunter erklärt, warum.</p><div class="pair2" id="vb"><div><div class="state">Funktion eingeschaltet</div><div class="pn"><div class="pn__head"><b>Hilfe · Board</b><span class="muted">✕</span></div><div class="pn__body">
+<span class="btn" style="justify-self:start">← Zurück</span><h3>Releases</h3>
+<p><b>Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist.</b></p>
+<p>1. Schalte die Funktion unter Einstellungen → Funktionen ein.</p>
+<p>2. Öffne die Seite Releases, um ein Release anzulegen.</p>
+<p>3. Wähle «Releases» als Zeilen der Story Map.</p>
+<div class="grp"><div class="h4">Zuerst</div><div class="chips2"><span class="chip "><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Funktionen</span></div><div class="h4">Dann</div><div class="chips2"><span class="chip chip--sec"><svg class="i ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Releases</span><span class="chip chip--sec"><svg class="i ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Story Map</span><span class="chip chip--sec"><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Story-Map-Zeilen</span></div></div></div></div></div><div><div class="state">Funktion ausgeschaltet</div><div class="pn"><div class="pn__head"><b>Hilfe · Board</b><span class="muted">✕</span></div><div class="pn__body">
+<span class="btn" style="justify-self:start">← Zurück</span><h3>Releases</h3>
+<p><b>Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist.</b></p>
+<p>1. Schalte die Funktion unter Einstellungen → Funktionen ein.</p>
+<p>2. Öffne die Seite Releases, um ein Release anzulegen.</p>
+<p>3. Wähle «Releases» als Zeilen der Story Map.</p>
+<div class="grp"><div class="h4">Zuerst</div><div class="chips2"><span class="chip "><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Funktionen</span></div><div class="h4">Dann</div><div class="chips2"><span class="chip chip--locked"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Releases</span><span class="chip chip--locked"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Story Map</span><span class="chip chip--locked"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Story-Map-Zeilen</span></div><span class="note">Die grauen Knöpfe gehen erst, wenn die Funktion «Releases» eingeschaltet ist.</span></div></div></div></div></div><div class="proscons"><div class="box"><b>Dafür</b><ul><li>Sehr kompakt, viele Links auf wenig Platz</li><li>Zwei Gruppen erklären die Reihenfolge</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Kurze Namen nötig («Funktionen» statt «Einstellungen → Funktionen»)</li><li>Gesperrter Grund steht nur einmal, nicht pro Button</li></ul></div></div></section>
+<section class="variant"><div class="variant__head"><h3>C · Weg in Schritten</h3><span class="tag ">möglich</span></div><p>Die Links sind Teil einer Schrittfolge 1, 2, 3 mit je einem Button. Der erste Schritt ist der Hauptbutton; die folgenden sind Nebenbuttons, bis sie möglich sind. Ausgeschaltet: grau mit Schloss und «Erst Schritt 1».</p><div class="pair2" id="vc"><div><div class="state">Funktion eingeschaltet</div><div class="pn"><div class="pn__head"><b>Hilfe · Board</b><span class="muted">✕</span></div><div class="pn__body">
+<span class="btn" style="justify-self:start">← Zurück</span><h3>Releases</h3>
+<p><b>Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist.</b></p>
+<p>1. Schalte die Funktion unter Einstellungen → Funktionen ein.</p>
+<p>2. Öffne die Seite Releases, um ein Release anzulegen.</p>
+<p>3. Wähle «Releases» als Zeilen der Story Map.</p>
+<div class="h4">Dein Weg</div><div class="path"><div class="stp"><span class="num">1</span><div><b>Funktion einschalten</b><span class="btn2 "><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Einstellungen → Funktionen </span></div></div><div class="stp"><span class="num">2</span><div><b>Releases anlegen</b><span class="btn2 btn2--sec"><svg class="i ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Releases öffnen</span></div></div><div class="stp"><span class="num">3</span><div><b>Nach Release planen</b><span class="btn2 btn2--sec"><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Story-Map-Zeilen wählen</span> <span class="btn2 btn2--sec"><svg class="i ic" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Story Map öffnen</span></div></div></div></div></div></div><div><div class="state">Funktion ausgeschaltet</div><div class="pn"><div class="pn__head"><b>Hilfe · Board</b><span class="muted">✕</span></div><div class="pn__body">
+<span class="btn" style="justify-self:start">← Zurück</span><h3>Releases</h3>
+<p><b>Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist.</b></p>
+<p>1. Schalte die Funktion unter Einstellungen → Funktionen ein.</p>
+<p>2. Öffne die Seite Releases, um ein Release anzulegen.</p>
+<p>3. Wähle «Releases» als Zeilen der Story Map.</p>
+<div class="h4">Dein Weg</div><div class="path"><div class="stp"><span class="num">1</span><div><b>Funktion einschalten</b><span class="btn2 "><svg class="i ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Einstellungen → Funktionen </span></div></div><div class="stp"><span class="num num--off">2</span><div><b>Releases anlegen</b><span class="btn2 btn2--off"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Releases öffnen</span><span class="note" style="display:block;margin-top:4px">Erst Schritt 1</span></div></div><div class="stp"><span class="num num--off">3</span><div><b>Nach Release planen</b><span class="btn2 btn2--off"><svg class="i ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Story-Map-Zeilen wählen</span><span class="note" style="display:block;margin-top:4px">Erst Schritt 1</span></div></div></div></div></div></div></div><div class="proscons"><div class="box"><b>Dafür</b><ul><li>Erklärt den Ablauf und die Buttons in einem</li><li>Passt genau zu «zuerst das Feature aktivieren»</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Nur sinnvoll bei Themen mit einer Reihenfolge; Themen ohne Ablauf (z. B. Einstellungen) brauchen eine andere Form</li><li>Mehr Aufwand, die Schritte pro Thema zu pflegen</li></ul></div></div></section>
+<section class="variant"><h2>Vorschlag</h2><div class="proscons"><div class="box"><b>Bauen</b><span>Variante A für alle Themen. Bei Themen mit einer Reihenfolge (Releases) steht die Funktion zuoberst und ist hervorgehoben.</span></div><div class="box"><b>Dazu</b><span>Der Name steht immer voll («Einstellungen → Funktionen»), mit Symbol für Seite oder Einstellung. Schloss und Hinweis für gesperrte Orte.</span></div></div></section>
+</main></body></html>
