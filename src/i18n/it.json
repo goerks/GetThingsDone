@@ -752,6 +752,110 @@
       "confirmMove_other": "Sposta {{count}} story e rimuovi"
     }
   },
+  "recorder": {
+    "button": "Registra test",
+    "panelLabel": "Costruttore di test",
+    "title": "Costruttore di test",
+    "close": "Chiudi il costruttore di test",
+    "collapse": "Riduci la barra",
+    "expand": "Apri il costruttore di test",
+    "rail": "{{count}} passaggi",
+    "untitled": "Test senza nome",
+    "cancel": "Annulla",
+    "add": "Aggiungi",
+    "pause": "Pausa",
+    "resume": "Continua",
+    "finish": "Termina il test",
+    "save": "Salva le modifiche",
+    "discard": "Scarta il test",
+    "discardYes": "Sì, scarta",
+    "cancelEdit": "Scarta le modifiche",
+    "recorded": "Passaggio registrato: {{step}}",
+    "started": "Registrazione di «{{name}}» in corso. Naviga nell’app.",
+    "saved": "«{{name}}» salvato.",
+    "copied": "Copiato. Incollalo all’IA.",
+    "copyFailed": "Copia non riuscita. Mostra il testo e copialo a mano.",
+    "status": {
+      "recording": "Registrazione in corso",
+      "paused": "In pausa",
+      "editing": "Modifica"
+    },
+    "new": {
+      "title": "Costruisci un nuovo test",
+      "name": "Nome del test",
+      "nameMissing": "Inserisci un nome.",
+      "requirement": "Requisito (facoltativo)",
+      "requirementHint": "Per esempio AC2.1",
+      "start": "Punto di partenza",
+      "startFresh": "Dati demo nuovi",
+      "startCurrent": "I dati come sono adesso",
+      "begin": "Avvia la registrazione"
+    },
+    "home": {
+      "intro": "Costruisci nuovi test navigando nell’app. Alla fine copia tutto in un solo testo e consegnalo all’IA.",
+      "newTest": "Costruisci un nuovo test",
+      "yourTests": "I miei test ({{count}})",
+      "none": "Ancora nessun test.",
+      "stepCount_one": "{{count}} passaggio",
+      "stepCount_other": "{{count}} passaggi",
+      "edit": "Modifica",
+      "editNamed": "Modifica «{{name}}»",
+      "delete": "Elimina",
+      "deleteNamed": "Elimina «{{name}}»",
+      "confirmDelete": "Eliminare «{{name}}»?",
+      "deleteYes": "Sì, elimina",
+      "export": "Consegna all’IA",
+      "exportNone": "Ancora niente da copiare.",
+      "exportHint": "Un testo con tutti i nuovi test, pronto da incollare all’IA.",
+      "copyAll": "Copia tutto",
+      "showText": "Mostra il testo",
+      "hideText": "Nascondi il testo",
+      "textLabel": "Testo per l’IA"
+    },
+    "steps": {
+      "title_one": "Passaggio ({{count}})",
+      "title_other": "Passaggi ({{count}})",
+      "label": "Passaggi del test",
+      "none": "Naviga nell’app. Ogni passaggio compare qui.",
+      "sentence": "Frase del passaggio",
+      "edit": "Riscrivi il passaggio",
+      "remove": "Rimuovi il passaggio",
+      "add": "Aggiungi un passaggio"
+    },
+    "expected": {
+      "title": "Risultato atteso",
+      "label": "Risultati attesi",
+      "none": "Non ancora registrato.",
+      "point": "Indica il risultato",
+      "pointing": "Clicca sull’elemento che mostra il risultato. Non succede altro. Esc annulla.",
+      "choose": "Scegli una frase:",
+      "own": "Oppure scrivi una frase tua",
+      "sentence": "Frase del risultato atteso",
+      "edit": "Riscrivi il risultato atteso",
+      "remove": "Rimuovi il risultato atteso",
+      "missing": "Registra prima il risultato atteso."
+    },
+    "step": {
+      "open": "Apro la pagina «{{page}}».",
+      "click": "Clicco su «{{name}}».",
+      "clickElement": "Clicco su un elemento.",
+      "dblclick": "Faccio doppio clic su «{{name}}».",
+      "type": "Scrivo «{{value}}» nel campo «{{field}}».",
+      "select": "Scelgo «{{value}}» nel campo «{{field}}».",
+      "drag": "Trascino «{{name}}» in «{{place}}».",
+      "dragNoPlace": "Trascino «{{name}}» in un altro punto.",
+      "enter": "Premo Invio nel campo «{{field}}».",
+      "escape": "Premo Esc.",
+      "reload": "Ricarico l’app."
+    },
+    "expect": {
+      "see": "Vedo «{{name}}».",
+      "seeIn": "Vedo «{{name}}» in «{{place}}».",
+      "seeText": "Vedo il testo «{{text}}».",
+      "seeElement": "Vedo l’elemento che ho indicato.",
+      "fieldShows": "Il campo «{{field}}» mostra «{{value}}»."
+    }
+  },
   "help": {
     "button": "Guida",
     "close": "Chiudi la guida",
@@ -910,6 +1014,11 @@
         "title": "Primi passi",
         "keywords": "introduzione tutorial tour percorso guidato iniziare",
         "body": "Una breve introduzione facoltativa in quattro passi: conoscere la board, spostare una story, creare una story e ordinare il backlog. I passi si spuntano da soli quando li fai."
+      },
+      "recorder.basics": {
+        "title": "Registrare un test",
+        "keywords": "test registrare registrazione costruttore cliccare risultato atteso feedback copiare esportare ia anteprima",
+        "body": "Funziona solo nell’anteprima web. Clicca su «Registra test» nell’intestazione: a destra si apre il costruttore di test.\n1. Scegli «Costruisci un nuovo test», dagli un nome e avvia la registrazione.\n2. Naviga nell’app come faresti per un test. Ogni clic, ogni inserimento e ogni trascinamento diventa una frase nella barra. Puoi riscrivere o rimuovere le frasi, oppure aggiungere un passaggio a mano.\n3. Scegli «Indica il risultato», clicca sull’elemento che mostra ciò che ti aspetti e scegli una frase. Termina il test.\n4. Alla fine scegli «Copia tutto» e incolla il testo all’IA."
       }
     },
     "links": {
