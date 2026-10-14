@@ -752,6 +752,109 @@
       "confirmMove_other": "Move {{count}} stories and remove"
     }
   },
+  "recorder": {
+    "panelLabel": "Test builder",
+    "title": "Test builder",
+    "close": "Close the test builder",
+    "collapse": "Fold the bar away",
+    "expand": "Open the test builder",
+    "rail": "{{count}} steps",
+    "untitled": "Untitled test",
+    "cancel": "Cancel",
+    "add": "Add",
+    "pause": "Pause",
+    "resume": "Continue",
+    "finish": "Finish test",
+    "save": "Save changes",
+    "discard": "Discard test",
+    "discardYes": "Yes, discard",
+    "cancelEdit": "Discard changes",
+    "recorded": "Step recorded: {{step}}",
+    "started": "Recording “{{name}}”. Click through the app.",
+    "saved": "Saved “{{name}}”.",
+    "copied": "Copied. Paste it to the AI.",
+    "copyFailed": "Could not copy. Show the text and copy it by hand.",
+    "status": {
+      "recording": "Recording",
+      "paused": "Paused",
+      "editing": "Editing"
+    },
+    "new": {
+      "title": "Build a new test",
+      "name": "Name of the test",
+      "nameMissing": "Please enter a name.",
+      "requirement": "Requirement (optional)",
+      "requirementHint": "For example AC2.1",
+      "start": "Starting point",
+      "startFresh": "Fresh demo data",
+      "startCurrent": "The data as they are now",
+      "begin": "Start recording"
+    },
+    "home": {
+      "intro": "Build new tests by clicking through the app. At the end, copy the result in one text and hand it to the AI.",
+      "newTest": "Build a new test",
+      "yourTests": "My tests ({{count}})",
+      "none": "No tests yet.",
+      "stepCount_one": "{{count}} step",
+      "stepCount_other": "{{count}} steps",
+      "edit": "Edit",
+      "editNamed": "Edit “{{name}}”",
+      "delete": "Delete",
+      "deleteNamed": "Delete “{{name}}”",
+      "confirmDelete": "Delete “{{name}}”?",
+      "deleteYes": "Yes, delete",
+      "export": "Hand over to the AI",
+      "exportHint": "One text with the acceptance and all new tests, ready to paste to the AI.",
+      "copyAll": "Copy result",
+      "showText": "Show the text",
+      "hideText": "Hide the text",
+      "textLabel": "Text for the AI"
+    },
+    "steps": {
+      "title_one": "Step ({{count}})",
+      "title_other": "Steps ({{count}})",
+      "label": "Steps of the test",
+      "none": "Click through the app. Every step appears here.",
+      "sentence": "Sentence of the step",
+      "edit": "Rewrite the step",
+      "remove": "Remove the step",
+      "add": "Add a step"
+    },
+    "expected": {
+      "title": "Expected result",
+      "label": "Expected results",
+      "none": "Not recorded yet.",
+      "point": "Point at the result",
+      "pointing": "Click the element that shows the result. Nothing else happens. Escape cancels.",
+      "choose": "Choose a sentence:",
+      "own": "Or write your own sentence",
+      "sentence": "Sentence of the expected result",
+      "edit": "Rewrite the expected result",
+      "remove": "Remove the expected result",
+      "missing": "Please record the expected result first."
+    },
+    "step": {
+      "open": "I open the page “{{page}}”.",
+      "click": "I click on “{{name}}”.",
+      "clickElement": "I click on an element.",
+      "dblclick": "I double-click on “{{name}}”.",
+      "type": "I write “{{value}}” in the field “{{field}}”.",
+      "select": "I choose “{{value}}” in the field “{{field}}”.",
+      "drag": "I drag “{{name}}” to “{{place}}”.",
+      "dragNoPlace": "I drag “{{name}}” to another place.",
+      "enter": "I press Enter in the field “{{field}}”.",
+      "escape": "I press Escape.",
+      "reload": "I reload the app."
+    },
+    "expect": {
+      "see": "I see “{{name}}”.",
+      "seeIn": "I see “{{name}}” in “{{place}}”.",
+      "seeText": "I see the text “{{text}}”.",
+      "seeElement": "I see the element I pointed at.",
+      "fieldShows": "The field “{{field}}” shows “{{value}}”."
+    },
+    "copyNothing": "Nothing to copy yet."
+  },
   "help": {
     "button": "Help",
     "close": "Close help",
@@ -910,6 +1013,11 @@
         "title": "First steps",
         "keywords": "introduction tutorial tour onboarding walkthrough guide start",
         "body": "A short, optional introduction in four steps: get to know the board, move a story, create a story and order the backlog. Steps are ticked off by themselves when you do them."
+      },
+      "recorder.basics": {
+        "title": "Record a test",
+        "keywords": "test record builder recorder click expected result feedback acceptance copy export ai preview",
+        "body": "This works in pull request previews only, next to the round “Preview” button at the bottom of the page. Click that button and open the tab “Neuer Test”: the test builder opens on the right.\n1. Choose “Build a new test”, give it a name and start the recording.\n2. Click through the app as you would for a test. Every click, input and drag becomes a sentence in the bar. Rewrite or remove sentences, or add a step by hand.\n3. Choose “Point at the result” and click the element that shows what you expect, then pick a sentence. Finish the test.\n4. When you are done, choose “Copy result” (in the bar or in the popup) and paste the text to the AI: it holds the acceptance and all new tests."
       }
     },
     "links": {

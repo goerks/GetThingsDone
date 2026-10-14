@@ -752,6 +752,109 @@
       "confirmMove_other": "Déplacer {{count}} stories et supprimer"
     }
   },
+  "recorder": {
+    "panelLabel": "Constructeur de tests",
+    "title": "Constructeur de tests",
+    "close": "Fermer le constructeur de tests",
+    "collapse": "Replier la barre",
+    "expand": "Ouvrir le constructeur de tests",
+    "rail": "{{count}} étapes",
+    "untitled": "Test sans nom",
+    "cancel": "Annuler",
+    "add": "Ajouter",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "finish": "Terminer le test",
+    "save": "Enregistrer les modifications",
+    "discard": "Abandonner le test",
+    "discardYes": "Oui, abandonner",
+    "cancelEdit": "Abandonner les modifications",
+    "recorded": "Étape enregistrée : {{step}}",
+    "started": "Enregistrement de « {{name}} ». Parcourez l’application.",
+    "saved": "« {{name}} » enregistré.",
+    "copied": "Copié. Collez-le chez l’IA.",
+    "copyFailed": "La copie a échoué. Affichez le texte et copiez-le à la main.",
+    "status": {
+      "recording": "Enregistrement en cours",
+      "paused": "En pause",
+      "editing": "Modification"
+    },
+    "new": {
+      "title": "Construire un nouveau test",
+      "name": "Nom du test",
+      "nameMissing": "Veuillez saisir un nom.",
+      "requirement": "Exigence (facultatif)",
+      "requirementHint": "Par exemple AC2.1",
+      "start": "Point de départ",
+      "startFresh": "Données de démo neuves",
+      "startCurrent": "Les données telles qu’elles sont",
+      "begin": "Démarrer l’enregistrement"
+    },
+    "home": {
+      "intro": "Construisez de nouveaux tests en parcourant l’application. À la fin, copiez le résultat dans un seul texte et donnez-le à l’IA.",
+      "newTest": "Construire un nouveau test",
+      "yourTests": "Mes tests ({{count}})",
+      "none": "Aucun test pour l’instant.",
+      "stepCount_one": "{{count}} étape",
+      "stepCount_other": "{{count}} étapes",
+      "edit": "Modifier",
+      "editNamed": "Modifier « {{name}} »",
+      "delete": "Supprimer",
+      "deleteNamed": "Supprimer « {{name}} »",
+      "confirmDelete": "Supprimer « {{name}} » ?",
+      "deleteYes": "Oui, supprimer",
+      "export": "Transmettre à l’IA",
+      "exportHint": "Un texte avec la recette et tous les nouveaux tests, prêt à coller chez l’IA.",
+      "copyAll": "Copier le résultat",
+      "showText": "Afficher le texte",
+      "hideText": "Masquer le texte",
+      "textLabel": "Texte pour l’IA"
+    },
+    "steps": {
+      "title_one": "Étape ({{count}})",
+      "title_other": "Étapes ({{count}})",
+      "label": "Étapes du test",
+      "none": "Parcourez l’application. Chaque étape apparaît ici.",
+      "sentence": "Phrase de l’étape",
+      "edit": "Réécrire l’étape",
+      "remove": "Supprimer l’étape",
+      "add": "Ajouter une étape"
+    },
+    "expected": {
+      "title": "Résultat attendu",
+      "label": "Résultats attendus",
+      "none": "Pas encore noté.",
+      "point": "Désigner le résultat",
+      "pointing": "Cliquez sur l’élément qui montre le résultat. Rien d’autre ne se passe. Échap annule.",
+      "choose": "Choisissez une phrase :",
+      "own": "Ou écrivez votre propre phrase",
+      "sentence": "Phrase du résultat attendu",
+      "edit": "Réécrire le résultat attendu",
+      "remove": "Supprimer le résultat attendu",
+      "missing": "Veuillez d’abord noter le résultat attendu."
+    },
+    "step": {
+      "open": "J’ouvre la page « {{page}} ».",
+      "click": "Je clique sur « {{name}} ».",
+      "clickElement": "Je clique sur un élément.",
+      "dblclick": "Je double-clique sur « {{name}} ».",
+      "type": "J’écris « {{value}} » dans le champ « {{field}} ».",
+      "select": "Je choisis « {{value}} » dans le champ « {{field}} ».",
+      "drag": "Je glisse « {{name}} » vers « {{place}} ».",
+      "dragNoPlace": "Je glisse « {{name}} » à un autre endroit.",
+      "enter": "J’appuie sur Entrée dans le champ « {{field}} ».",
+      "escape": "J’appuie sur Échap.",
+      "reload": "Je recharge l’application."
+    },
+    "expect": {
+      "see": "Je vois « {{name}} ».",
+      "seeIn": "Je vois « {{name}} » dans « {{place}} ».",
+      "seeText": "Je vois le texte « {{text}} ».",
+      "seeElement": "Je vois l’élément que j’ai désigné.",
+      "fieldShows": "Le champ « {{field}} » affiche « {{value}} »."
+    },
+    "copyNothing": "Rien à copier pour l’instant."
+  },
   "help": {
     "button": "Aide",
     "close": "Fermer l’aide",
@@ -910,6 +1013,11 @@
         "title": "Premiers pas",
         "keywords": "introduction tutoriel visite guidee parcours demarrer",
         "body": "Une courte introduction facultative en quatre étapes : découvrir le tableau, déplacer une story, créer une story et ordonner le backlog. Les étapes se cochent toutes seules quand vous les faites."
+      },
+      "recorder.basics": {
+        "title": "Enregistrer un test",
+        "keywords": "test enregistrer enregistrement constructeur cliquer résultat attendu feedback recette copier exporter ia aperçu",
+        "body": "Cela ne fonctionne que dans les aperçus de pull requests, avec le bouton rond « Preview » en bas de la page. Cliquez sur ce bouton et ouvrez l’onglet « Neuer Test » : le constructeur de tests s’ouvre à droite.\n1. Choisissez « Construire un nouveau test », donnez-lui un nom et démarrez l’enregistrement.\n2. Parcourez l’application comme pour un test. Chaque clic, chaque saisie et chaque glissement devient une phrase dans la barre. Vous pouvez réécrire ou supprimer des phrases, ou ajouter une étape à la main.\n3. Choisissez « Désigner le résultat », cliquez sur l’élément qui montre ce que vous attendez, puis choisissez une phrase. Terminez le test.\n4. À la fin, choisissez « Copier le résultat » (dans la barre ou dans la fenêtre) et collez le texte chez l’IA : il contient la recette et tous les nouveaux tests."
       }
     },
     "links": {

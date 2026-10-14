@@ -18,6 +18,8 @@ import { MapPage } from './pages/MapPage';
 import { hrefs, useRoute } from './router';
 import { AppProvider, useApp } from './state/AppState';
 import { HelpProvider, useHelp } from './state/Help';
+import { RecorderProvider, useRecorder } from './state/Recorder';
+import { RecorderBar } from './components/recorder/RecorderBar';
 import { DetailsProvider } from './state/Details';
 import { StoryMenuProvider } from './state/StoryMenu';
 import { ToastProvider } from './state/Toast';
@@ -30,6 +32,8 @@ function Shell() {
   const { theme, toggleTheme } = useTheme();
   const { loading, error, settings, flashed, flashScroll } = useApp();
   const help = useHelp();
+  const recorder = useRecorder();
+  const recorderShown = recorder.enabled && recorder.panel !== 'hidden';
   const [showShortcuts, setShowShortcuts] = useState(false);
   const openShortcuts = useCallback(() => setShowShortcuts(true), []);
   useShortcutsKey(openShortcuts);
@@ -50,7 +54,7 @@ function Shell() {
   }, [hidden]);
 
   return (
-    <div className={`app${help.open ? ' app--help' : ''}`}>
+    <div className={`app${help.open ? ' app--help' : ''}${recorderShown ? (recorder.panel === 'rail' ? ' app--recorder app--recorder-rail' : ' app--recorder') : ''}`}>
       <Header route={route} theme={theme} onToggleTheme={toggleTheme} onShowShortcuts={openShortcuts} />
       <main className="main">
         {/* The settings are no place for an invitation: they are a task of their own. */}
@@ -80,6 +84,7 @@ function Shell() {
       </main>
       {help.open && <HelpPanel route={route} />}
       {showShortcuts && <ShortcutsDialog route={route} onClose={() => setShowShortcuts(false)} />}
+      {recorderShown && <RecorderBar />}
       {acceptanceEnabled() && <AcceptancePanel />}
     </div>
   );
@@ -94,7 +99,9 @@ export default function App({ repository }: { repository?: Promise<Repository> |
           <StoryMenuProvider>
             <SearchProvider>
               <HelpProvider>
-                <Shell />
+                <RecorderProvider>
+                  <Shell />
+                </RecorderProvider>
               </HelpProvider>
             </SearchProvider>
           </StoryMenuProvider>

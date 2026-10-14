@@ -4887,3 +4887,434 @@ a.btn {
 .sprint-option:has(input:checked) small {
   color: var(--accent-soft-ink);
 }
+
+/* ---------- Test builder (#37): a bar fixed to the right edge of the web preview ---------- */
+.recorder__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  flex: none;
+  display: inline-block;
+}
+
+.recorder__dot--live {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.app--recorder {
+  --recorder-width: 320px;
+}
+
+.app--recorder-rail {
+  --recorder-width: 52px;
+}
+
+/* The app makes room next to the bar instead of lying under it. */
+.app--recorder .main {
+  max-width: none;
+  padding-right: calc(var(--recorder-width) + 28px);
+}
+
+.app--recorder .help {
+  right: var(--recorder-width);
+}
+
+.app--help.app--recorder .main {
+  padding-right: calc(var(--help-width) + var(--recorder-width) + 28px);
+}
+
+.recorder {
+  position: fixed;
+  z-index: 21;
+  top: var(--header-height, 60px);
+  right: 0;
+  bottom: 0;
+  width: var(--recorder-width, 320px);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-left: 2px solid var(--tool);
+  box-shadow: -8px 0 24px var(--shadow);
+  overflow-y: auto;
+}
+
+.recorder--rail {
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  overflow: hidden;
+}
+
+.recorder__rail-count {
+  writing-mode: vertical-rl;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.recorder__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--tool);
+  color: var(--tool-ink);
+}
+
+/* Like the header of the acceptance popup: the builder is a tool of the preview, not part of the product. */
+.recorder__head .icon-btn {
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+}
+
+.recorder__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.recorder__body,
+.recorder__form {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 8px 16px 20px;
+  font-size: 14px;
+}
+
+.recorder__body h3,
+.recorder__body h4,
+.recorder__form h3,
+.recorder__body p,
+.recorder__form p {
+  margin: 0;
+}
+
+.recorder__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.recorder__body .recorder__sub {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.recorder__meta {
+  margin: 0;
+}
+
+.recorder__rename {
+  display: grid;
+  gap: 8px;
+}
+
+.recorder__wide {
+  width: 100%;
+}
+
+.recorder__choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.recorder__steps {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: recorder-step;
+}
+
+.recorder__step {
+  counter-increment: recorder-step;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.recorder__step::before {
+  content: counter(recorder-step);
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 11px;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+
+.recorder__step--expected {
+  border-color: var(--epic-green);
+}
+
+.recorder__step--expected::before {
+  content: '✓';
+  background: var(--epic-green);
+  color: var(--accent-ink);
+}
+
+.recorder__end {
+  height: 0;
+  list-style: none;
+}
+
+.recorder__text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.recorder__edit {
+  flex: 1;
+  min-width: 0;
+  min-height: 32px;
+}
+
+.recorder__row-actions {
+  display: flex;
+  flex: none;
+  gap: 2px;
+}
+
+.recorder__small {
+  min-width: 28px;
+  min-height: 28px;
+  border-color: transparent;
+  background: transparent;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.recorder__add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recorder__add .input {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.recorder__pick {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px dashed var(--epic-green);
+  border-radius: var(--radius-sm);
+}
+
+.recorder__pick p {
+  margin: 0;
+}
+
+.recorder__suggestions {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recorder__suggestion {
+  width: 100%;
+  height: auto;
+  padding: 8px 12px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.recorder__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.recorder__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recorder__entry {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.recorder__entry-main {
+  display: grid;
+  gap: 2px;
+  overflow-wrap: anywhere;
+}
+
+.recorder__entry-actions,
+.recorder__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.recorder__text-preview {
+  min-height: 220px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* Pointing at the expected result: the element under the pointer is framed. */
+[data-recorder-hover] {
+  outline: 3px solid var(--danger);
+  outline-offset: 2px;
+  cursor: crosshair;
+}
+
+@media (max-width: 760px) {
+  /* On a phone the bar sits at the bottom, over the lower part of the page. */
+  .app--recorder .main,
+  .app--help.app--recorder .main {
+    padding-right: 28px;
+    padding-bottom: 48vh;
+  }
+
+  .app--recorder-rail .main {
+    padding-bottom: 64px;
+  }
+
+  .app--recorder .help {
+    right: 0;
+  }
+
+  .recorder {
+    top: auto;
+    left: 0;
+    width: 100%;
+    max-height: 48vh;
+    border-left: 0;
+    border-top: 2px solid var(--tool);
+    box-shadow: 0 -8px 24px var(--shadow);
+  }
+
+  .recorder--rail {
+    flex-direction: row;
+    max-height: none;
+    padding: 8px 12px;
+  }
+
+  .recorder__rail-count {
+    writing-mode: horizontal-tb;
+  }
+}
+
+/* The tab "Neuer Test" in the acceptance popup (#37) and what goes with it. */
+.acceptance__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.acceptance__tab {
+  flex: 1;
+  min-height: 40px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.acceptance__tab[aria-selected='true'] {
+  border-bottom-color: var(--tool);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.acceptance__tab:focus-visible {
+  outline: 3px solid var(--tool-dark);
+  outline-offset: -3px;
+}
+
+.acceptance__rec {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  display: inline-block;
+}
+
+/* On the round button the dot is ringed, so it can be told from the magenta. */
+.acceptance__rec--fab {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--surface);
+}
+
+.acceptance__builder {
+  display: grid;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.acceptance__builder p {
+  margin: 0;
+}
+
+.acceptance__builder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* The popup keeps clear of the test builder bar at the right edge. */
+.app--recorder .acceptance--right {
+  right: calc(var(--recorder-width) + 16px);
+}
+
+@media (max-width: 760px) {
+  .app--recorder .acceptance {
+    bottom: calc(48vh + 16px);
+  }
+
+  .app--recorder-rail .acceptance {
+    bottom: 80px;
+  }
+}

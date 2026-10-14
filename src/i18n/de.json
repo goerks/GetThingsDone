@@ -752,6 +752,109 @@
       "confirmMove_other": "{{count}} Stories verschieben und entfernen"
     }
   },
+  "recorder": {
+    "panelLabel": "Test-Builder",
+    "title": "Test-Builder",
+    "close": "Test-Builder schliessen",
+    "collapse": "Leiste einklappen",
+    "expand": "Test-Builder öffnen",
+    "rail": "{{count}} Schritte",
+    "untitled": "Test ohne Namen",
+    "cancel": "Abbrechen",
+    "add": "Hinzufügen",
+    "pause": "Pause",
+    "resume": "Weiter",
+    "finish": "Test beenden",
+    "save": "Änderungen speichern",
+    "discard": "Test verwerfen",
+    "discardYes": "Ja, verwerfen",
+    "cancelEdit": "Änderungen verwerfen",
+    "recorded": "Schritt aufgenommen: {{step}}",
+    "started": "Aufnahme von «{{name}}» läuft. Klicke dich durch die App.",
+    "saved": "«{{name}}» gespeichert.",
+    "copied": "Kopiert. Füge es bei der KI ein.",
+    "copyFailed": "Kopieren hat nicht geklappt. Zeige den Text an und kopiere ihn von Hand.",
+    "status": {
+      "recording": "Aufnahme läuft",
+      "paused": "Pausiert",
+      "editing": "Bearbeiten"
+    },
+    "new": {
+      "title": "Neuen Test aufbauen",
+      "name": "Name des Tests",
+      "nameMissing": "Bitte einen Namen eingeben.",
+      "requirement": "Anforderung (optional)",
+      "requirementHint": "Zum Beispiel AC2.1",
+      "start": "Ausgangslage",
+      "startFresh": "Frische Demo-Daten",
+      "startCurrent": "Die Daten, wie sie jetzt sind",
+      "begin": "Aufnahme starten"
+    },
+    "home": {
+      "intro": "Baue neue Tests, indem du dich durch die App klickst. Am Ende kopierst du das Ergebnis in einem Text und gibst ihn der KI.",
+      "newTest": "Neuen Test aufbauen",
+      "yourTests": "Meine Tests ({{count}})",
+      "none": "Noch keine Tests.",
+      "stepCount_one": "{{count}} Schritt",
+      "stepCount_other": "{{count}} Schritte",
+      "edit": "Bearbeiten",
+      "editNamed": "«{{name}}» bearbeiten",
+      "delete": "Löschen",
+      "deleteNamed": "«{{name}}» löschen",
+      "confirmDelete": "«{{name}}» löschen?",
+      "deleteYes": "Ja, löschen",
+      "export": "An die KI übergeben",
+      "exportHint": "Ein Text mit der Abnahme und allen neuen Tests, bereit zum Einfügen bei der KI.",
+      "copyAll": "Ergebnis kopieren",
+      "showText": "Text anzeigen",
+      "hideText": "Text verbergen",
+      "textLabel": "Text für die KI"
+    },
+    "steps": {
+      "title_one": "Schritt ({{count}})",
+      "title_other": "Schritte ({{count}})",
+      "label": "Schritte des Tests",
+      "none": "Klicke dich durch die App. Jeder Schritt erscheint hier.",
+      "sentence": "Satz des Schritts",
+      "edit": "Schritt umschreiben",
+      "remove": "Schritt entfernen",
+      "add": "Schritt hinzufügen"
+    },
+    "expected": {
+      "title": "Erwartetes Ergebnis",
+      "label": "Erwartete Ergebnisse",
+      "none": "Noch nicht festgehalten.",
+      "point": "Auf das Ergebnis zeigen",
+      "pointing": "Klicke auf das Element, das das Ergebnis zeigt. Es passiert sonst nichts. Mit Escape brichst du ab.",
+      "choose": "Wähle einen Satz:",
+      "own": "Oder schreibe einen eigenen Satz",
+      "sentence": "Satz des erwarteten Ergebnisses",
+      "edit": "Erwartetes Ergebnis umschreiben",
+      "remove": "Erwartetes Ergebnis entfernen",
+      "missing": "Bitte zuerst das erwartete Ergebnis festhalten."
+    },
+    "step": {
+      "open": "Ich öffne die Seite «{{page}}».",
+      "click": "Ich klicke auf «{{name}}».",
+      "clickElement": "Ich klicke auf ein Element.",
+      "dblclick": "Ich doppelklicke auf «{{name}}».",
+      "type": "Ich schreibe «{{value}}» in das Feld «{{field}}».",
+      "select": "Ich wähle «{{value}}» im Feld «{{field}}».",
+      "drag": "Ich ziehe «{{name}}» nach «{{place}}».",
+      "dragNoPlace": "Ich ziehe «{{name}}» an eine andere Stelle.",
+      "enter": "Ich drücke Enter im Feld «{{field}}».",
+      "escape": "Ich drücke Escape.",
+      "reload": "Ich lade die App neu."
+    },
+    "expect": {
+      "see": "Ich sehe «{{name}}».",
+      "seeIn": "Ich sehe «{{name}}» in «{{place}}».",
+      "seeText": "Ich sehe den Text «{{text}}».",
+      "seeElement": "Ich sehe das Element, auf das ich gezeigt habe.",
+      "fieldShows": "Das Feld «{{field}}» zeigt «{{value}}»."
+    },
+    "copyNothing": "Noch nichts zum Kopieren."
+  },
   "help": {
     "button": "Hilfe",
     "close": "Hilfe schliessen",
@@ -910,6 +1013,11 @@
         "title": "Erste Schritte",
         "keywords": "einführung tutorial rundgang tour einstieg anleitung starten",
         "body": "Eine kurze, freiwillige Einführung in vier Schritten: das Board kennenlernen, eine Story verschieben, eine Story anlegen und das Backlog ordnen. Schritte werden von selbst abgehakt, wenn du sie machst."
+      },
+      "recorder.basics": {
+        "title": "Test aufnehmen",
+        "keywords": "test aufnehmen aufnahme builder klicken erwartet ergebnis feedback abnahme kopieren export ki vorschau",
+        "body": "Das gibt es nur in Vorschauen von Pull Requests, beim runden Knopf «Preview» unten auf der Seite. Klicke auf den Knopf und öffne den Reiter «Neuer Test»: Rechts öffnet sich der Test-Builder.\n1. Wähle «Neuen Test aufbauen», gib einen Namen ein und starte die Aufnahme.\n2. Klicke dich durch die App, wie du es für einen Test tun würdest. Jeder Klick, jede Eingabe und jedes Ziehen wird als Satz in der Leiste notiert. Du kannst Sätze umschreiben, entfernen oder einen Schritt von Hand ergänzen.\n3. Wähle «Auf das Ergebnis zeigen», klicke auf das Element, das zeigt, was du erwartest, und wähle einen Satz. Beende den Test.\n4. Zum Schluss wählst du «Ergebnis kopieren» (in der Leiste oder im Popup) und fügst den Text bei der KI ein: Er enthält die Abnahme und alle neuen Tests."
       }
     },
     "links": {
