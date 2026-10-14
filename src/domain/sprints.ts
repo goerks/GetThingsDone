@@ -55,7 +55,7 @@ export interface SprintInput {
   endDate: string;
 }
 
-/** Prefilled values for a new sprint: "Sprint n", starting after the last sprint (or today), two weeks long. */
+/** Prefilled values for a new sprint: "Sprint n" (one more than the highest number in a name, or than the count when no name has one), starting after the last sprint (or today), two weeks long. */
 export function newSprintDefaults(sprints: readonly Sprint[], today: string, nameFor: (number: number) => string): SprintInput {
   const highest = sprints.reduce((max, sprint) => {
     const match = /(\d+)\s*$/.exec(sprint.name);
@@ -65,7 +65,7 @@ export function newSprintDefaults(sprints: readonly Sprint[], today: string, nam
   const afterLast = lastEnd ? addDays(lastEnd, 1) : today;
   const startDate = afterLast < today ? today : afterLast;
   return {
-    name: nameFor(Math.max(highest, sprints.length) + 1),
+    name: nameFor((highest > 0 ? highest : sprints.length) + 1),
     startDate,
     endDate: addDays(startDate, SPRINT_LENGTH_DAYS - 1)
   };

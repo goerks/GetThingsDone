@@ -4890,12 +4890,25 @@ a.btn {
 
 /* ---------- Velocity (#24) ---------- */
 
+.velocity-menu {
+  position: relative;
+  display: inline-block;
+}
+
 .velocity {
-  margin-bottom: 20px;
-  padding: 10px 14px 12px;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  width: min(700px, calc(100vw - 32px));
+  max-height: calc(100vh - 130px);
+  overflow: auto;
+  padding: 12px 14px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 22%);
+  text-align: left;
 }
 
 .velocity__head {
@@ -4903,6 +4916,10 @@ a.btn {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 14px;
+  margin-bottom: 10px;
+}
+
+.velocity__title {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
@@ -4911,45 +4928,17 @@ a.btn {
   color: var(--muted);
 }
 
-.velocity__head .velocity__summary {
+.velocity__summary {
   font-size: 13px;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
 }
 
-.velocity__toggle {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 2px 4px;
-  margin: 0 -4px;
-  border: 0;
-  background: none;
-  font: inherit;
-  text-transform: inherit;
-  letter-spacing: inherit;
-  color: inherit;
-  cursor: pointer;
-  border-radius: var(--radius-sm, 4px);
-}
-
-.velocity__toggle::before {
-  content: '▸' / '';
-}
-
-.velocity__toggle[aria-expanded='true']::before {
-  content: '▾' / '';
+.velocity__close {
+  margin-left: auto;
 }
 
 .velocity__body {
   display: grid;
   gap: 10px;
-  margin-top: 10px;
-}
-
-.velocity__body[hidden] {
-  display: none;
 }
 
 .velocity__tools {

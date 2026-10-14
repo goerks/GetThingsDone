@@ -417,15 +417,16 @@ Source: Issue #17 · Status: Implemented · Verified by: sprintLife.test AC11.1�
 
 ### FR-SPRINT-07 Velocity
 As a team, we want to see how many points we planned and completed per sprint, so that we plan the next sprints realistically.
-- The backlog shows a collapsible "Velocity" panel above the sprint sections (open by default; the choice is remembered). For the last 8 completed sprints, in sprint order, two bars each: the points planned when the sprint was started and the completed points, with the numbers at the bars. "Older sprints" pages back by 8 more. Hover or focus on a sprint shows its dates, planned, done (with the share in percent) and the stories and points that joined after the start.
-- A dashed, labelled line and the head of the panel show the average of the completed points of the last three completed sprints, rounded to whole points; with fewer sprints the average of those there are and their number ("Ø 18 points · 2 sprints").
-- Every running and planned sprint in the backlog and on the story map, and the start dialog, show the points currently in the sprint next to the average ("30 planned · Ø 21"; without a completed sprint only "30 planned"). The points planned at the start are those of the completed sprints (FR-SPRINT-04).
-- Without a completed sprint the panel explains why there is no chart.
-- "Table" shows all completed sprints, newest first, with the points added during the sprint, the share and the average in the footer. Screen readers always get the table and a description of the chart; colour never carries meaning alone (numbers, legend, dashed labelled line).
-- Panel and labels are hidden while the built-in field "points" is hidden (FR-FIELD-10).
-- Texts in DE, EN, FR and IT; keyboard operable; help topic "Velocity".
+- The head of the board has a button "Velocity · Ø 21" next to "Complete sprint" and "New story" (also while no sprint runs). It shows the average; without a completed sprint it is just "Velocity". It opens a window under the button; the button, Esc (focus returns to the button), the close button or a click next to the window close it.
+- The window shows the chart and the table together. Chart: for the last 8 completed sprints, in sprint order, two bars each: the points planned when the sprint was started and the completed points, with the numbers at the bars. "Older sprints" pages back by 8 more. Hover or focus on a sprint shows its dates, planned, done (with the share in percent) and the stories and points that joined after the start. A dashed, labelled line and the head of the window show the average of the completed points of the last three completed sprints, rounded to whole points; with fewer sprints the average of those there are and their number ("Ø 18 points · 2 sprints"). Table: all completed sprints, newest first, with the points added during the sprint, the share and the average in the footer.
+- Every running and planned sprint in the backlog and on the story map, and the start dialog, show the points currently in the sprint next to the average ("30 planned · Ø 21"; without a completed sprint only "30 planned"). The backlog has no velocity panel of its own. The points planned at the start are those of the completed sprints (FR-SPRINT-04).
+- Without a completed sprint the window explains why there is no chart.
+- Colour never carries meaning alone (numbers, legend, dashed labelled line); the chart has a description and the table a name for screen readers.
+- Button and labels are hidden while the built-in field "points" is hidden (FR-FIELD-10).
+- The demo data has five completed sprints ("Pre-sprint A" to "E") before the running "Sprint 1", so the velocity can be tried in the preview (FR-DATA-02). Their names end in a letter, so the next new sprint is still numbered after "Sprint 2".
+- Texts in DE, EN, FR and IT; keyboard operable; help topic "Velocity" (at the board).
 
-Source: Issue #24 · Status: Implemented · Verified by: velocity.test AC1.1–AC1.3, AC2.1–AC2.3, Velocity.test AC1.1–AC1.6, AC2.1–AC2.3, AC3.1–AC3.5, AC4.1, AC5.1–AC5.3, AC6.1–AC6.3, e2e `velocity.spec.ts` (all but AC5.4, which is checked by hand: greyscale look)
+Source: Issue #24 · Status: Implemented · Verified by: velocity.test AC1.1–AC1.3, AC2.1–AC2.3, Velocity.test AC1.1–AC1.7, AC2.1–AC2.3, AC3.1–AC3.6, AC4.1, AC5.1–AC5.3, AC6.1–AC6.3, AC7.1, e2e `velocity.spec.ts` (all but AC5.4, which is checked by hand: greyscale look)
 
 ## Story map (MAP)
 

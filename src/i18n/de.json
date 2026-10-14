@@ -871,10 +871,10 @@
         "keywords": "sprint planung abschnitt linie kommend laufend",
         "body": "Das Backlog zeigt die Sprints untereinander, danach die Stories, die noch nicht geplant sind. Die Sprintlinie ist die Grenze zwischen zwei Abschnitten: Was darüber steht, gehört zu diesem Sprint. Laufende und geplante Sprints sind gekennzeichnet; abgeschlossene Sprints werden nicht mehr angezeigt.\nZiehe Stories über die Linie, um sie zu planen."
       },
-      "backlog.velocity": {
+      "board.velocity": {
         "title": "Velocity",
         "keywords": "velocity durchschnitt geplant erledigt punkte sprint diagramm tabelle team kapazität",
-        "body": "Das Backlog zeigt über den Sprints die Velocity deines Teams: pro abgeschlossenem Sprint zwei Balken, die beim Start geplanten und die erledigten Punkte. Eine gestrichelte Linie zeigt den Durchschnitt der letzten drei abgeschlossenen Sprints.\nFahre mit der Maus über einen Sprint oder gehe mit der Tab-Taste hin, um Zeitraum, Anteil und Dazugekommenes zu sehen. „Ältere Sprints“ zeigt acht weitere; „Tabelle“ listet alle Sprints mit denselben Werten. Mit dem Titel klappst du den Bereich zu.\nJeder offene Sprint im Backlog, auf der Story Map und im Start-Dialog zeigt seine Punkte neben dem Durchschnitt, zum Beispiel „30 geplant · Ø 21“. So planst du den nächsten Sprint realistisch. Der Bereich erscheint, sobald du einen Sprint abgeschlossen hast."
+        "body": "Das Board hat neben „Neue Story“ einen Knopf „Velocity“. Er zeigt den Durchschnitt deines Teams und öffnet ein Fenster mit Diagramm und Tabelle.\nDas Diagramm hat pro abgeschlossenem Sprint zwei Balken: die beim Start geplanten und die erledigten Punkte. Eine gestrichelte Linie zeigt den Durchschnitt der letzten drei abgeschlossenen Sprints. Fahre mit der Maus über einen Sprint oder gehe mit der Tab-Taste hin, um Zeitraum, Anteil und Dazugekommenes zu sehen. „Ältere Sprints“ zeigt acht weitere; die Tabelle listet alle Sprints mit denselben Werten. Esc schliesst das Fenster.\nJeder offene Sprint im Backlog, auf der Story Map und im Start-Dialog zeigt seine Punkte neben dem Durchschnitt, zum Beispiel „30 geplant · Ø 21“. So planst du den nächsten Sprint realistisch. Das Fenster hat Daten, sobald du einen Sprint abgeschlossen hast."
       },
       "sprint.lifecycle": {
         "title": "Sprint starten und abschliessen",
@@ -1027,11 +1027,6 @@
       "done": "Erledigt",
       "average": "Durchschnitt"
     },
-    "view": {
-      "label": "Ansicht",
-      "chart": "Diagramm",
-      "table": "Tabelle"
-    },
     "older": "Ältere Sprints",
     "tip": {
       "figures": "Geplant beim Start {{planned}} · Erledigt {{done}}",
@@ -1052,6 +1047,9 @@
       "title": "Noch kein Sprint abgeschlossen",
       "text": "Sobald du einen Sprint auf dem Board abschliesst, siehst du hier, wie viele Punkte geplant und erledigt wurden."
     },
-    "explain": "Geplant sind die Punkte im Sprint beim Start; erledigt sind die Punkte der Stories, die beim Abschluss fertig waren. Der Durchschnitt gilt für die letzten drei abgeschlossenen Sprints."
+    "explain": "Geplant sind die Punkte im Sprint beim Start; erledigt sind die Punkte der Stories, die beim Abschluss fertig waren. Der Durchschnitt gilt für die letzten drei abgeschlossenen Sprints.",
+    "button": "Velocity",
+    "buttonAverage": "Velocity · Ø {{points}}",
+    "close": "Schliessen"
   }
 }

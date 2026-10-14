@@ -10,6 +10,7 @@ import {
   type UniqueIdentifier
 } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
+import { VelocityButton } from '../components/VelocityButton';
 import { BoardColumn } from '../components/BoardColumn';
 import { CompleteSprintDialog } from '../components/CompleteSprintDialog';
 import { NewStoryDialog } from '../components/NewStoryDialog';
@@ -134,6 +135,9 @@ export function BoardPage() {
         {startDialog}
         <div className="page-head">
           <h1>{noSprintAtAll ? t('board.noSprintTitle') : t('lifecycle.allDoneTitle')}</h1>
+          <span className="page-head__actions">
+            <VelocityButton />
+          </span>
         </div>
         {noSprintAtAll ? (
           <p className="muted">
@@ -170,6 +174,7 @@ export function BoardPage() {
           {atStart !== null && atStart !== points && ` (${t('lifecycle.atStart', { points: atStart })})`}
         </span>
         <span className="page-head__actions">
+          <VelocityButton />
           {sprint.state === 'running' && !ended && (
             <button type="button" className="btn" onClick={() => setCompleting(true)}>
               {t('lifecycle.completeButton')}

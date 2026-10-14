@@ -871,10 +871,10 @@
         "keywords": "sprint pianificazione sezione linea prossimo in corso",
         "body": "Il backlog mostra gli sprint uno sotto l’altro, poi le story non ancora pianificate. La linea dello sprint è il confine tra due sezioni: ciò che sta sopra appartiene a quello sprint. Gli sprint in corso e pianificati sono contrassegnati; gli sprint conclusi non vengono più mostrati.\nTrascina le story oltre la linea per pianificarle."
       },
-      "backlog.velocity": {
+      "board.velocity": {
         "title": "Velocity",
         "keywords": "velocity media pianificato completato punti sprint grafico tabella team capacità",
-        "body": "Il Backlog mostra la velocity del team sopra gli sprint: per ogni sprint concluso due barre, i punti pianificati all’avvio e quelli completati. Una linea tratteggiata mostra la media degli ultimi tre sprint conclusi.\nPassa il mouse su uno sprint o raggiungilo con il tasto Tab per vedere periodo, quota completata e ciò che è stato aggiunto. «Sprint precedenti» ne mostra altri otto; «Tabella» elenca tutti gli sprint con gli stessi valori. Con il titolo chiudi l’area.\nOgni sprint aperto nel Backlog, nella Story Map e nella finestra di avvio mostra i suoi punti accanto alla media, ad esempio «30 pianificati · Ø 21». Così pianifichi lo sprint successivo in modo realistico. L’area compare dopo aver concluso uno sprint."
+        "body": "Il Board ha un pulsante «Velocity» accanto a «Nuova story». Mostra la media del team e apre una finestra con il grafico e la tabella.\nIl grafico ha due barre per ogni sprint concluso: i punti pianificati all’avvio e quelli completati. Una linea tratteggiata mostra la media degli ultimi tre sprint conclusi. Passa il mouse su uno sprint o raggiungilo con il tasto Tab per vedere periodo, quota completata e ciò che è stato aggiunto. «Sprint precedenti» ne mostra altri otto; la tabella elenca tutti gli sprint con gli stessi valori. Esc chiude la finestra.\nOgni sprint aperto nel Backlog, nella Story Map e nella finestra di avvio mostra i suoi punti accanto alla media, ad esempio «30 pianificati · Ø 21». Così pianifichi lo sprint successivo in modo realistico. La finestra contiene dati dopo aver concluso uno sprint."
       },
       "sprint.lifecycle": {
         "title": "Avviare e concludere uno sprint",
@@ -1027,11 +1027,6 @@
       "done": "Completato",
       "average": "Media"
     },
-    "view": {
-      "label": "Vista",
-      "chart": "Grafico",
-      "table": "Tabella"
-    },
     "older": "Sprint precedenti",
     "tip": {
       "figures": "Pianificato all’inizio {{planned}} · Completato {{done}}",
@@ -1052,6 +1047,9 @@
       "title": "Nessuno sprint concluso finora",
       "text": "Appena concludi uno sprint sulla bacheca, qui vedi quanti punti erano pianificati e completati."
     },
-    "explain": "Pianificato: i punti dello sprint all’avvio; completato: i punti delle story finite alla chiusura. La media riguarda gli ultimi tre sprint conclusi."
+    "explain": "Pianificato: i punti dello sprint all’avvio; completato: i punti delle story finite alla chiusura. La media riguarda gli ultimi tre sprint conclusi.",
+    "button": "Velocity",
+    "buttonAverage": "Velocity · Ø {{points}}",
+    "close": "Chiudi"
   }
 }
