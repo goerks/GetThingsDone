@@ -16,7 +16,6 @@ import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
 import { NewButton } from '../components/NewButton';
 import { SprintPlan } from '../components/SprintPlan';
-import { VelocityPanel } from '../components/VelocityPanel';
 import { StoryQuickAdd } from '../components/QuickAdd';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
@@ -269,8 +268,6 @@ export function BacklogPage() {
       <HighlightBar storyIds={app.stories.map((story) => story.id)} />
 
       {creating && <NewStoryDialog sprintId={null} onClose={() => setCreating(false)} />}
-
-      <VelocityPanel />
 
       <DndContext
         sensors={sensors}
