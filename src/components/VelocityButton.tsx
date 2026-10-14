@@ -1,28 +1,10 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { averageVelocity, chartRows, velocityRows, type VelocityAverage, type VelocityRow } from '../domain/velocity';
 import { useApp } from '../state/AppState';
 import { niceMax } from './ScopeReport';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
 import { useBuiltin } from './useBuiltin';
-
-const OPEN_KEY = 'getitdone.velocity.open';
-
-function readOpen(): boolean {
-  try {
-    return window.localStorage.getItem(OPEN_KEY) !== 'false';
-  } catch {
-    return true;
-  }
-}
-
-function storeOpen(open: boolean): void {
-  try {
-    window.localStorage.setItem(OPEN_KEY, String(open));
-  } catch {
-    // the choice just will not be remembered
-  }
-}
 
 const W = 720;
 const H = 260;
@@ -129,109 +111,125 @@ function Chart({ rows, average, line, label }: { rows: VelocityRow[]; average: V
 }
 
 /**
- * The velocity of the team (#24): planned and completed points of the last completed sprints as two bars each, the
- * average of the last three, and the same values as a table. Collapsible; the choice is remembered.
+ * The velocity of the team (#24): a button in the head of the board that shows the average and opens a window under it
+ * with the chart (planned and completed points of the last completed sprints as two bars each, the average of the last
+ * three) and the table of all completed sprints. Esc, a click next to the window or the close button close it.
  */
-export function VelocityPanel() {
+export function VelocityButton() {
   const { t, i18n } = useTranslation();
   const app = useApp();
   const builtin = useBuiltin();
   const uid = useId();
   const language = i18n.resolvedLanguage ?? 'en';
-  const [open, setOpen] = useState(readOpen);
-  const [view, setView] = useState<'chart' | 'table'>('chart');
+  const [open, setOpen] = useState(false);
   const [pages, setPages] = useState(1);
+  const root = useRef<HTMLSpanElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
   const all = velocityRows(app.sprints);
   const average = averageVelocity(all);
   const text = useAverageText(average);
   const shown = chartRows(all, pages);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape') return;
+      event.stopPropagation();
+      setOpen(false);
+      button.current?.focus();
+    };
+    const onPointer = (event: MouseEvent): void => {
+      if (root.current && !root.current.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onPointer);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onPointer);
+    };
+  }, [open]);
+
   if (!builtin.shown('story', 'points')) return null;
 
-  const toggle = (): void => {
-    storeOpen(!open);
-    setOpen(!open);
-  };
   const label = t('velocity.chartLabel', { count: shown.rows.length });
-  const bodyId = `${uid}-body`;
+  const panelId = `${uid}-panel`;
 
   return (
-    <section className="velocity" aria-labelledby={`${uid}-title`}>
-      <h2 className="velocity__head">
-        <button type="button" id={`${uid}-title`} className="velocity__toggle" aria-expanded={open} aria-controls={bodyId} onClick={toggle}>
-          {t('velocity.title')}
-        </button>
-        {average && <span className="muted velocity__summary">{text.head}</span>}
-      </h2>
-      <div id={bodyId} className="velocity__body" hidden={!open}>
-        {all.length === 0 ? (
-          <div className="velocity__empty">
-            <strong>{t('velocity.empty.title')}</strong>
-            <p className="muted">{t('velocity.empty.text')}</p>
+    <span className="velocity-menu" ref={root}>
+      <button ref={button} type="button" className="btn velocity-button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(!open)}>
+        {average ? t('velocity.buttonAverage', { points: average.points }) : t('velocity.button')}
+      </button>
+      {open && (
+        <section id={panelId} className="velocity" role="region" aria-label={t('velocity.title')}>
+          <div className="velocity__head">
+            <h2 className="velocity__title">{t('velocity.title')}</h2>
+            {average && <span className="muted velocity__summary">{text.head}</span>}
+            <button type="button" className="btn btn--small velocity__close" aria-label={t('velocity.close')} onClick={() => { setOpen(false); button.current?.focus(); }}>
+              ✕
+            </button>
           </div>
-        ) : (
-          <>
-            <div className="velocity__tools">
-              <div className="unit-switch" role="group" aria-label={t('velocity.view.label')}>
-                {(['chart', 'table'] as const).map((choice) => (
-                  <button key={choice} type="button" className={`btn${view === choice ? ' btn--pressed' : ''}`} aria-pressed={view === choice} onClick={() => setView(choice)}>
-                    {t(`velocity.view.${choice}`)}
+          {all.length === 0 ? (
+            <div className="velocity__empty">
+              <strong>{t('velocity.empty.title')}</strong>
+              <p className="muted">{t('velocity.empty.text')}</p>
+            </div>
+          ) : (
+            <div className="velocity__body">
+              <div className="velocity__tools">
+                <div className="scope__legend velocity__legend">
+                  <span className="scope__key velocity__key--planned">{t('velocity.legend.planned')}</span>
+                  <span className="scope__key velocity__key--done">{t('velocity.legend.done')}</span>
+                  <span className="scope__key velocity__key--average">{t('velocity.legend.average')}</span>
+                </div>
+                {shown.hasOlder && (
+                  <button type="button" className="btn" onClick={() => setPages(pages + 1)}>
+                    ‹ {t('velocity.older')}
                   </button>
-                ))}
-              </div>
-              <div className="scope__legend velocity__legend">
-                <span className="scope__key velocity__key--planned">{t('velocity.legend.planned')}</span>
-                <span className="scope__key velocity__key--done">{t('velocity.legend.done')}</span>
-                <span className="scope__key velocity__key--average">{t('velocity.legend.average')}</span>
-              </div>
-              {shown.hasOlder && view === 'chart' && (
-                <button type="button" className="btn" onClick={() => setPages(pages + 1)}>
-                  ‹ {t('velocity.older')}
-                </button>
-              )}
-            </div>
-            {view === 'chart' && <Chart rows={shown.rows} average={average} line={text.line} label={label} />}
-            <div className={view === 'table' ? 'release-table-wrap' : 'sr-only'} data-testid="velocity-table">
-              <table className="release-table" aria-label={t('velocity.tableLabel')}>
-                <thead>
-                  <tr>
-                    <th scope="col">{t('velocity.table.sprint')}</th>
-                    <th scope="col">{t('velocity.table.period')}</th>
-                    <th scope="col">{t('velocity.table.completed')}</th>
-                    <th scope="col">{t('velocity.table.planned')}</th>
-                    <th scope="col">{t('velocity.table.added')}</th>
-                    <th scope="col">{t('velocity.table.done')}</th>
-                    <th scope="col">{t('velocity.table.share')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...all].reverse().map((row) => (
-                    <tr key={row.id}>
-                      <th scope="row">{row.name}</th>
-                      <td>{formatSprintDates(row, language)}</td>
-                      <td>{formatDayLong(row.completedOn, language)}</td>
-                      <td>{row.planned}</td>
-                      <td>{row.addedPoints > 0 ? `+${row.addedPoints}` : '–'}</td>
-                      <td>{row.done}</td>
-                      <td>{row.share === null ? '–' : `${row.share} %`}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                {average && (
-                  <tfoot>
-                    <tr>
-                      <th scope="row" colSpan={7}>
-                        {text.foot}
-                      </th>
-                    </tr>
-                  </tfoot>
                 )}
-              </table>
+              </div>
+              <Chart rows={shown.rows} average={average} line={text.line} label={label} />
+              <div className="release-table-wrap" data-testid="velocity-table">
+                <table className="release-table" aria-label={t('velocity.tableLabel')}>
+                  <thead>
+                    <tr>
+                      <th scope="col">{t('velocity.table.sprint')}</th>
+                      <th scope="col">{t('velocity.table.period')}</th>
+                      <th scope="col">{t('velocity.table.completed')}</th>
+                      <th scope="col">{t('velocity.table.planned')}</th>
+                      <th scope="col">{t('velocity.table.added')}</th>
+                      <th scope="col">{t('velocity.table.done')}</th>
+                      <th scope="col">{t('velocity.table.share')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...all].reverse().map((row) => (
+                      <tr key={row.id}>
+                        <th scope="row">{row.name}</th>
+                        <td>{formatSprintDates(row, language)}</td>
+                        <td>{formatDayLong(row.completedOn, language)}</td>
+                        <td>{row.planned}</td>
+                        <td>{row.addedPoints > 0 ? `+${row.addedPoints}` : '–'}</td>
+                        <td>{row.done}</td>
+                        <td>{row.share === null ? '–' : `${row.share} %`}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  {average && (
+                    <tfoot>
+                      <tr>
+                        <th scope="row" colSpan={7}>
+                          {text.foot}
+                        </th>
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              </div>
+              <p className="muted velocity__explain">{t('velocity.explain')}</p>
             </div>
-            <p className="muted velocity__explain">{t('velocity.explain')}</p>
-          </>
-        )}
-      </div>
-    </section>
+          )}
+        </section>
+      )}
+    </span>
   );
 }

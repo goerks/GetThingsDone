@@ -871,10 +871,10 @@
         "keywords": "sprint planification section ligne a venir en cours",
         "body": "Le backlog montre les sprints les uns sous les autres, puis les stories pas encore planifiées. La ligne de sprint est la limite entre deux sections : ce qui est au-dessus appartient à ce sprint. Les sprints en cours et planifiés sont signalés ; les sprints clôturés ne sont plus affichés.\nFaites glisser des stories par-dessus la ligne pour les planifier."
       },
-      "backlog.velocity": {
+      "board.velocity": {
         "title": "Vélocité",
         "keywords": "vélocité velocity moyenne planifié terminé points sprint diagramme tableau équipe capacité",
-        "body": "Le Backlog affiche la vélocité de votre équipe au-dessus des sprints : pour chaque sprint clôturé deux barres, les points planifiés au démarrage et les points terminés. Une ligne en pointillés montre la moyenne des trois derniers sprints clôturés.\nSurvolez un sprint ou allez-y avec la touche Tab pour voir ses dates, la part terminée et ce qui s’est ajouté pendant le sprint. « Sprints précédents » en affiche huit de plus ; « Tableau » liste tous les sprints avec les mêmes valeurs. Le titre replie la zone.\nChaque sprint ouvert dans le Backlog, sur la Story Map et dans la fenêtre de démarrage affiche ses points à côté de la moyenne, par exemple « 30 planifiés · Ø 21 ». Utilisez-le pour planifier le prochain sprint de façon réaliste. La zone apparaît dès qu’un sprint est clôturé."
+        "body": "Le Board a un bouton « Vélocité » à côté de « Nouvelle story ». Il affiche la moyenne de votre équipe et ouvre une fenêtre avec le diagramme et le tableau.\nLe diagramme a deux barres par sprint clôturé : les points planifiés au démarrage et les points terminés. Une ligne en pointillés montre la moyenne des trois derniers sprints clôturés. Survolez un sprint ou allez-y avec la touche Tab pour voir ses dates, la part terminée et ce qui s’est ajouté pendant le sprint. « Sprints précédents » en affiche huit de plus ; le tableau liste tous les sprints avec les mêmes valeurs. Échap ferme la fenêtre.\nChaque sprint ouvert dans le Backlog, sur la Story Map et dans la fenêtre de démarrage affiche ses points à côté de la moyenne, par exemple « 30 planifiés · Ø 21 ». Utilisez-le pour planifier le prochain sprint de façon réaliste. La fenêtre contient des données dès qu’un sprint est clôturé."
       },
       "sprint.lifecycle": {
         "title": "Démarrer et clôturer un sprint",
@@ -1027,11 +1027,6 @@
       "done": "Terminé",
       "average": "Moyenne"
     },
-    "view": {
-      "label": "Vue",
-      "chart": "Diagramme",
-      "table": "Tableau"
-    },
     "older": "Sprints précédents",
     "tip": {
       "figures": "Planifié au début {{planned}} · Terminé {{done}}",
@@ -1052,6 +1047,9 @@
       "title": "Aucun sprint clôturé pour le moment",
       "text": "Dès que vous clôturez un sprint sur le tableau, vous voyez ici combien de points étaient planifiés et terminés."
     },
-    "explain": "Planifié : les points du sprint à son démarrage ; terminé : les points des stories terminées à la clôture. La moyenne porte sur les trois derniers sprints clôturés."
+    "explain": "Planifié : les points du sprint à son démarrage ; terminé : les points des stories terminées à la clôture. La moyenne porte sur les trois derniers sprints clôturés.",
+    "button": "Vélocité",
+    "buttonAverage": "Vélocité · Ø {{points}}",
+    "close": "Fermer"
   }
 }
