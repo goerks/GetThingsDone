@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test aufnehmen: Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a small app window mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --e-rose: #be123c; --e-amber: #b45309; --e-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; font-size: 14px; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.shot { margin: 0; display: grid; gap: 6px; }
+.shot figcaption { font-size: 13px; color: var(--muted); }
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 820px; height: 440px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.demo { font-size: 11px; background: var(--pill); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
+.ibtn { flex: none; height: 30px; min-width: 30px; padding: 0 8px; border: 1px solid var(--border); border-radius: 6px; display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted); background: var(--surface); white-space: nowrap; }
+.ibtn--rec { color: var(--bad); border-color: var(--bad); background: var(--bad-soft); font-weight: 600; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--bad); display: inline-block; }
+.dot--pulse { box-shadow: 0 0 0 3px var(--bad-soft); }
+.page { padding: 14px 20px; display: grid; gap: 10px; }
+.ghost { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 250px; }
+.lane i { font-style: normal; color: var(--muted); font-size: 11px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 7px 9px; display: grid; gap: 2px; font-size: 12px; }
+.card small { color: var(--muted); font-size: 11px; }
+.card--hit { outline: 2px solid var(--bad); outline-offset: 2px; }
+.flash { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--bad); background: var(--bad-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--d { color: var(--bad); border-color: var(--bad); }
+.field { min-height: 28px; border: 1px solid var(--border); border-radius: 5px; padding: 4px 8px; background: var(--bg); display: flex; align-items: center; }
+.lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.dock { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 2px solid var(--bad); box-shadow: 0 -8px 24px var(--shadow); padding: 10px 16px 12px; display: grid; gap: 8px; }
+.dock__head { display: flex; align-items: center; gap: 10px; }
+.dock__head b { font-size: 14px; }
+.dock__head .r { margin-left: auto; display: flex; gap: 6px; }
+.steps { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+.steps li { counter-increment: s; display: flex; align-items: center; gap: 8px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 5px; background: var(--bg); }
+.steps li::before { content: counter(s); width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-soft-ink); font-size: 11px; font-weight: 600; display: grid; place-items: center; flex: none; }
+.steps .x { margin-left: auto; color: var(--muted); }
+.steps .exp { border-color: var(--ok); background: var(--ok-soft); }
+.steps .exp::before { content: "✓"; background: var(--ok); color: var(--bg); }
+.panel { position: absolute; top: 56px; right: 12px; width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 12px 32px var(--shadow); padding: 12px 14px; display: grid; gap: 8px; }
+.seg { display: flex; gap: 4px; flex-wrap: wrap; }
+.seg span { padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px; }
+.seg .on { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: transparent; font-weight: 600; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); }
+.dialog { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); width: 560px; max-width: calc(100% - 24px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 10px; }
+.dialog h4 { margin: 0; font-size: 16px; }
+.row2 { display: flex; gap: 8px; justify-content: flex-end; }
+.pill { position: absolute; right: 16px; bottom: 16px; background: var(--surface); border: 2px solid var(--bad); border-radius: 999px; padding: 6px 8px 6px 14px; display: flex; gap: 10px; align-items: center; box-shadow: 0 8px 24px var(--shadow); }
+.md { font-family: var(--font-mono); font-size: 12px; background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; white-space: pre-wrap; line-height: 1.55; }
+.list { display: grid; gap: 4px; }
+.list div { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); }
+.list .r { margin-left: auto; color: var(--muted); font-size: 12px; }
+</style></head>
+<body><main class="wrap">
+<header class="intro"><div class="meta"><span>Issue #37</span><span>Design-Vorschlag</span></div><h1>Web-Preview: Tests zusammenklicken</h1>
+<p class="muted">Idee des PO: In der Web-Preview einen neuen Test wählen, durch die App klicken, das erwartete Ergebnis festhalten und den Test danach wie Feedback exportieren. Drei Varianten, wie die Schritte festgehalten werden, und ein gemeinsamer Export. Die Aufnahme gibt es nur in der Preview mit Demo-Daten, nicht in der Windows-App.</p></header>
+
+<section class="variant"><div class="variant__head"><h3>A · Automatische Aufnahme mit Leiste unten</h3><span class="tag tag--rec">Empfehlung (mit Start- und Abschluss-Dialog aus C)</span></div>
+<p>Oben erscheint der Knopf «Test aufnehmen». Ab dann schreibt die App jeden Klick, jede Eingabe und jedes Ziehen als Satz in eine Leiste am unteren Rand. Du arbeitest ganz normal. Schritte kannst du umschreiben oder löschen. Mit «Erwartet festhalten» fügst du ein grünes Ergebnis hinzu.</p>
+<figure class="shot"><div class="scroll"><div class="app" id="va">
+<div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Releases</span></span><span class="tools"><span class="demo">Demo</span><span class="ibtn ibtn--rec"><span class="dot dot--pulse"></span>Aufnahme läuft</span><span class="ibtn">?</span></div>
+<div class="page"><div class="ghost">
+<div class="lane"><i>To do</i><div class="card"><b>S-1 Konto anlegen</b><small>3 Punkte</small></div></div>
+<div class="lane"><i>In Arbeit</i><div class="card card--hit"><b>S-3 Login-Seite</b><small>5 Punkte</small></div></div>
+<div class="lane"><i>Erledigt</i><div class="card"><b>S-2 Passwort ändern</b><small>2 Punkte</small></div></div>
+<div class="lane"><i>Blockiert</i></div></div></div>
+<span class="flash" style="left:300px;top:120px">Klick aufgenommen</span>
+<div class="dock"><div class="dock__head"><span class="dot dot--pulse"></span><b>Neuer Test: Story verschieben</b><span class="muted">3 Schritte</span><span class="r"><span class="btn">Pause</span><span class="btn">✓ Erwartet festhalten</span><span class="btn btn--p">Beenden</span></span></div>
+<ul class="steps"><li>Ich öffne das Board.<span class="x">✎ ✕</span></li><li>Ich ziehe «S-3 Login-Seite» in die Spalte «Erledigt».<span class="x">✎ ✕</span></li><li class="exp">Erwartet: «S-3» steht in «Erledigt», auch nach dem Neuladen.<span class="x">✎ ✕</span></li></ul></div>
+</div></div><figcaption>Aufnahme läuft: der rote Rahmen zeigt, was gerade aufgenommen wurde.</figcaption></figure>
+<div class="proscons"><div class="box"><b>Dafür</b><ul><li>Am schnellsten: einfach normal klicken</li><li>Die Sätze sind schon im Testfall-Format (Ich mache …)</li><li>Die App bleibt voll sichtbar, nur ein schmaler Streifen unten</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Unnötige Klicks landen mit in der Liste (löschbar)</li><li>Die automatischen Sätze brauchen manchmal eine Korrektur</li></ul></div></div></section>
+
+<section class="variant"><div class="variant__head"><h3>B · Schritte von Hand setzen</h3><span class="tag">möglich</span></div>
+<p>Es wird nichts automatisch aufgenommen. Du klickst «Schritt hinzufügen», zeigst im Auswahlmodus auf ein Element (rote Umrandung), wählst die Aktion und schreibst den Satz selbst. Damit hat der Test genau die Schritte, die du willst.</p>
+<figure class="shot"><div class="scroll"><div class="app" id="vb">
+<div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Releases</span></span><span class="tools"><span class="demo">Demo</span><span class="ibtn ibtn--rec"><span class="dot"></span>Test: Story verschieben</span><span class="ibtn">?</span></div>
+<div class="page"><div class="ghost">
+<div class="lane"><i>To do</i><div class="card"><b>S-1 Konto anlegen</b><small>3 Punkte</small></div></div>
+<div class="lane"><i>In Arbeit</i><div class="card card--hit"><b>S-3 Login-Seite</b><small>5 Punkte</small></div></div>
+<div class="lane"><i>Erledigt</i><div class="card"><b>S-2 Passwort ändern</b><small>2 Punkte</small></div></div>
+<div class="lane"><i>Blockiert</i></div></div></div>
+<span class="flash" style="left:300px;top:120px">Element gewählt</span>
+<div class="panel"><b>Schritt hinzufügen</b>
+<span class="lbl">Element</span><div class="field">Karte «S-3 Login-Seite»</div>
+<span class="lbl">Aktion</span><div class="seg"><span>Klicken</span><span class="on">Ziehen nach …</span><span>Eingeben</span><span>Ich sehe</span></div>
+<div class="field">Spalte «Erledigt»</div>
+<span class="lbl">Satz im Test</span><div class="field">Ich ziehe «S-3» in «Erledigt».</div>
+<div class="row2"><span class="btn">Abbrechen</span><span class="btn btn--p">Schritt speichern</span></div>
+<span class="muted" style="font-size:12px">Bisher 1 Schritt</span></div>
+</div></div><figcaption>Auswahlmodus: Element zeigen, Aktion wählen, Satz kontrollieren.</figcaption></figure>
+<div class="proscons"><div class="box"><b>Dafür</b><ul><li>Sehr saubere Tests, keine überflüssigen Schritte</li><li>«Ich sehe …» prüft einen Text auf der Seite</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Langsam: jeder Schritt braucht mehrere Klicks</li><li>Die App kann nicht normal bedient werden, solange der Auswahlmodus an ist</li></ul></div></div></section>
+
+<section class="variant"><div class="variant__head"><h3>C · Geführter Ablauf in drei Dialogen</h3><span class="tag">möglich</span></div>
+<p>Ein Dialog fragt zuerst nach Name und Ausgangslage. Danach schrumpft er zu einer kleinen Aufnahme-Pille, die nur Schritte zählt. Am Ende öffnet sich der Abschluss-Dialog: Schritte prüfen, erwartetes Ergebnis schreiben, speichern.</p>
+<div class="proscons" style="grid-template-columns:1fr">
+<figure class="shot"><div class="scroll"><div class="app" id="vc1"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span></span><span class="tools"><span class="demo">Demo</span><span class="ibtn">Test aufnehmen</span><span class="ibtn">?</span></div>
+<div class="page"><div class="ghost"><div class="lane"><i>To do</i><div class="card"><b>S-1 Konto anlegen</b></div></div><div class="lane"><i>In Arbeit</i><div class="card"><b>S-3 Login-Seite</b></div></div><div class="lane"><i>Erledigt</i></div><div class="lane"><i>Blockiert</i></div></div></div>
+<div class="scrim"></div><div class="dialog"><h4>Neuer Test</h4>
+<span class="lbl">Name</span><div class="field">Story verschieben</div>
+<span class="lbl">Gehört zu Anforderung (optional)</span><div class="field">AC2.1</div>
+<span class="lbl">Ausgangslage</span><div class="seg"><span class="on">Frische Demo-Daten</span><span>So wie es jetzt ist</span></div>
+<div class="row2"><span class="btn">Abbrechen</span><span class="btn btn--p">Aufnahme starten</span></div></div></div></div><figcaption>1 · Start: Name, Anforderung, Ausgangslage.</figcaption></figure>
+<figure class="shot"><div class="scroll"><div class="app" id="vc2"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span></span><span class="tools"><span class="demo">Demo</span><span class="ibtn">?</span></div>
+<div class="page"><div class="ghost"><div class="lane"><i>To do</i><div class="card"><b>S-1 Konto anlegen</b></div></div><div class="lane"><i>In Arbeit</i></div><div class="lane"><i>Erledigt</i><div class="card"><b>S-3 Login-Seite</b></div></div><div class="lane"><i>Blockiert</i></div></div></div>
+<div class="pill"><span class="dot dot--pulse"></span><b>2 Schritte</b><span class="btn">Pause</span><span class="btn btn--p">Fertig</span></div></div></div><figcaption>2 · Aufnahme: nur eine kleine Pille, die App bleibt frei.</figcaption></figure>
+<figure class="shot"><div class="scroll"><div class="app" id="vc3"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="tools"><span class="demo">Demo</span></span></div><div class="scrim" style="inset:46px 0 0 0"></div>
+<div class="dialog" style="top:56px"><h4>Test abschliessen: Story verschieben</h4>
+<span class="lbl">Schritte</span><ul class="steps"><li>Ich öffne das Board.<span class="x">✎ ✕</span></li><li>Ich ziehe «S-3 Login-Seite» in «Erledigt».<span class="x">✎ ✕</span></li></ul>
+<span class="lbl">Erwartet</span><div class="field" style="min-height:48px;align-items:flex-start">«S-3» steht in «Erledigt», auch nachdem ich die App neu geladen habe.</div>
+<div class="row2"><span class="btn btn--d">Verwerfen</span><span class="btn">Weiter aufnehmen</span><span class="btn btn--p">Speichern</span></div></div></div></div><figcaption>3 · Abschluss: Schritte prüfen und das erwartete Ergebnis schreiben.</figcaption></figure></div>
+<div class="proscons"><div class="box"><b>Dafür</b><ul><li>Klare Reihenfolge, nichts vergessen (Name, Erwartet)</li><li>Während der Aufnahme fast nichts im Weg</li></ul></div><div class="box"><b>Dagegen</b><ul><li>Das erwartete Ergebnis wird erst am Schluss notiert, wenn man den Bildschirm nicht mehr sieht</li><li>Drei Dialoge sind mehr Aufwand zu bauen</li></ul></div></div></section>
+
+<section class="variant"><div class="variant__head"><h3>Export (für alle Varianten gleich)</h3><span class="tag tag--rec">Empfehlung</span></div>
+<p>Gespeicherte Tests liegen in der Liste «Meine Tests» (im Hilfe-Menü bzw. unter dem Knopf «Test aufnehmen»), pro Gerät im Browser. Jeder Test lässt sich als Text kopieren oder als Datei laden. Der Text ist im selben Format wie unsere Testfälle, damit du ihn direkt in ein Issue oder in den Chat einfügen kannst. Die Datei (.json) enthält zusätzlich die genauen technischen Schritte, damit daraus ein automatischer Test gebaut werden kann.</p>
+<div class="proscons" style="grid-template-columns:1fr 1fr"><figure class="shot"><div class="scroll"><div class="app" style="min-width:0;height:380px" id="vx1"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="tools"><span class="demo">Demo</span></span></div><div class="scrim" style="inset:46px 0 0 0"></div>
+<div class="dialog" style="top:56px;width:92%"><h4>Meine Tests (3)</h4>
+<div class="list"><div><b>Story verschieben</b><span class="r">2 Schritte · heute</span><span class="btn">Export</span></div><div><b>Neue Story anlegen</b><span class="r">4 Schritte · heute</span><span class="btn">Export</span></div><div><b>Sprache wechseln</b><span class="r">3 Schritte · gestern</span><span class="btn">Export</span></div></div>
+<div class="row2"><span class="btn">Alle exportieren</span><span class="btn btn--p">Neuer Test</span></div></div></div></div><figcaption>Liste der aufgenommenen Tests.</figcaption></figure>
+<figure class="shot"><div class="scroll"><div class="app" style="min-width:0;height:380px" id="vx2"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="tools"><span class="demo">Demo</span></span></div><div class="scrim" style="inset:46px 0 0 0"></div>
+<div class="dialog" style="top:56px;width:92%"><h4>Test exportieren</h4>
+<div class="md">**Story verschieben**
+- Ausgangslage: Frische Demo-Daten, Board.
+- Ich mache: Ich ziehe «S-3 Login-Seite» in «Erledigt».
+- Erwartet: «S-3» steht in «Erledigt», auch nachdem ich die App neu geladen habe.</div>
+<div class="row2"><span class="btn">Als Datei (.json)</span><span class="btn">Als Datei (.md)</span><span class="btn btn--p">Text kopieren</span></div></div></div></div><figcaption>Export als Text und als Datei.</figcaption></figure></div></section>
+</main></body></html>
