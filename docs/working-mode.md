@@ -24,6 +24,10 @@ How the product owner (PO) and the AI developer work together on a feature. The 
 
 If something during building would change an approved acceptance criterion or test case, the AI stops, updates the issue and asks the PO again.
 
+## The help
+
+The interactive help (question mark in the header) grows with every feature, like the technical documentation: every pull request that changes what a user sees also adds or updates its help topics in DE, EN, FR and IT, with links to where to find the feature and, where a feature has to be switched on first, that step first. The topics of the **first steps (tutorial)** are different: the AI never adds or changes a step on its own. It asks the PO first, with short interactive questions, and builds only after an explicit approval.
+
 ## A test case
 
 Each test case has an ID (`AC<n>.<m>`, or the requirement ID such as `FR-MAP-02.1` for existing behaviour), a title and three parts in plain German:

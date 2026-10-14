@@ -58,6 +58,8 @@ See `docs/definition-of-done.md`.
 
 - Keep decisions traceable: any architecture decision goes into an ADR in `docs/adr/` and needs PO approval.
 - Keep `docs/arc42/` and `docs/requirements/` current with every feature.
+- **Keep the help current, like the technical documentation.** The interactive help (#33, `src/help/topics.ts` and `help.*` in the language files) grows with the product. Every feature that adds or changes something a user sees updates the help in the same pull request: a topic (title, keywords, text) in DE, EN, FR and IT, links to where to find it (`links` of the topic; a place that needs a feature is marked `requires`), "Show me" where an element can be framed, and a test. When a feature has to be switched on first (Settings → Features), the text starts with that step and links to the settings. How to extend it: `docs/arc42/08-crosscutting-concepts.md`, chapter "Help".
+- **The first steps (tutorial) belong to the PO.** Never add, change, reorder or remove a step of the first steps on your own. Propose the topics for the tutorial to the PO first, interactively with short questions and options (so the PO does not have to read much), post the proposal and the answer in the issue, and build only after the PO has explicitly approved. Everything else in the help (topics, links, texts) needs no extra approval, but is part of the acceptance in the pull request.
 - The preview is public: no secrets, no telemetry, demo data only, clearly labelled as a demo.
 - Prefer small, reviewable pull requests.
 - You may suggest feature ideas to the PO in conversation. Do not turn them into issues unasked.

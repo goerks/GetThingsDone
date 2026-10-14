@@ -18,10 +18,14 @@ beforeAll(() => {
   initI18n('en');
 });
 
-async function renderApp(hash = '#/board', options: { withoutStories?: boolean } = {}): Promise<LocalStorageRepository> {
+async function renderApp(hash = '#/board', options: { withoutStories?: boolean; releasesOff?: boolean } = {}): Promise<LocalStorageRepository> {
   const repository = new LocalStorageRepository();
   const snapshot = seedSnapshot(todayIso());
-  await repository.replaceAll(options.withoutStories ? { ...snapshot, stories: [] } : snapshot);
+  await repository.replaceAll({
+    ...snapshot,
+    stories: options.withoutStories ? [] : snapshot.stories,
+    settings: options.releasesOff ? { ...snapshot.settings, features: { ...snapshot.settings.features, releases: false } } : snapshot.settings
+  });
   window.location.hash = hash;
   render(<App repository={repository} />);
   await screen.findByRole('heading', { level: 1 });
@@ -505,6 +509,81 @@ describe('first steps', () => {
     await user.click(within(panel()).getByRole('button', { name: 'Yes, start again' }));
     expect(within(panel()).getByText('0 of 4 done')).toBeInTheDocument();
     expect((await repository.load()).stories).toHaveLength(before);
+  });
+});
+
+describe('links to the right pages', () => {
+  async function openTopic(user: ReturnType<typeof userEvent.setup>, title: string): Promise<void> {
+    await openHelp(user);
+    await user.type(field(), title);
+    await user.click(within(panel()).getByRole('button', { name: new RegExp(`^${title}`) }));
+  }
+  const link = (name: string): HTMLElement => within(panel()).getByRole('link', { name });
+
+  it('AC10.1 leads to the page of a topic, and the help stays open and follows the page', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board');
+    await openTopic(user, 'Columns and status values');
+    await user.click(link('Open Settings → Status values'));
+    expect(window.location.hash).toBe('#/settings/statuses');
+    expect(panel()).toBeInTheDocument();
+    expect(within(panel()).getByRole('heading', { level: 2, name: 'Help · Settings' })).toBeInTheDocument();
+    expect(within(panel()).getByRole('heading', { level: 3, name: 'Columns and status values' })).toBeInTheDocument();
+  });
+
+  it('AC10.2 explains Releases in the order: switch the feature on, then the page, then the rows of the story map, and links to each place', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board');
+    await openTopic(user, 'Releases');
+    const text = within(panel()).getAllByText(/^(Releases only work|1\.|2\.|3\.)/).map((node) => node.textContent ?? '');
+    expect(text[0]).toMatch(/^Releases only work when the feature “Releases” is switched on/);
+    expect(text[1]).toMatch(/^1\. Switch the feature on under Settings → Features/);
+    expect(text[2]).toMatch(/^2\. Open the Releases page/);
+    expect(text[3]).toMatch(/^3\. .*Settings → Story map/);
+    expect(link('Open Settings → Features')).toHaveAttribute('href', '#/settings/features');
+    expect(link('Open Releases')).toHaveAttribute('href', '#/releases');
+    expect(link('Open Settings → Story map')).toHaveAttribute('href', '#/settings/map');
+    expect(link('Open Story Map')).toHaveAttribute('href', '#/map');
+    // The feature is first in the list of places
+    const places = within(panel()).getAllByRole('link').map((anchor) => anchor.textContent);
+    expect(places.indexOf('Open Settings → Features')).toBeLessThan(places.indexOf('Open Releases'));
+  });
+
+  it('AC10.3 does not link to places that need Releases while the feature is off, and says to switch it on first', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board', { releasesOff: true });
+    await openTopic(user, 'Releases');
+    expect(link('Open Settings → Features')).toBeInTheDocument();
+    for (const name of ['Open Releases', 'Open Settings → Story map']) expect(within(panel()).queryByRole('link', { name })).not.toBeInTheDocument();
+    expect(within(panel()).getByText('Open Releases: switch the feature “Releases” on first (see above).')).toBeInTheDocument();
+    expect(within(panel()).getByText('Open Story Map: switch the feature “Releases” on first (see above).')).toBeInTheDocument();
+  });
+
+  it('AC10.3 turns the places into links when the feature is switched on, with the help open', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board', { releasesOff: true });
+    await openTopic(user, 'Releases');
+    await user.click(link('Open Settings → Features'));
+    await user.click(await screen.findByRole('switch', { name: /Releases/ }));
+    expect(link('Open Releases')).toHaveAttribute('href', '#/releases');
+    expect(within(panel()).queryByText(/switch the feature “Releases” on first/)).not.toBeInTheDocument();
+  });
+
+  it('AC10.4 leaves out the link to the page the user is on', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board');
+    await openTopic(user, 'Columns and status values');
+    expect(link('Open Settings → Status values')).toBeInTheDocument();
+    expect(within(panel()).queryByRole('link', { name: 'Open Board' })).not.toBeInTheDocument();
+  });
+
+  it('AC10.5 lists the sections of the settings, except the one that is open', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/settings/fields');
+    await openHelp(user);
+    await user.click(within(panel()).getByRole('button', { name: /^Settings/ }));
+    const places = within(panel()).getAllByRole('link').map((anchor) => anchor.textContent);
+    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Features']);
   });
 });
 
