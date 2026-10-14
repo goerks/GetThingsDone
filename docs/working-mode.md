@@ -10,30 +10,30 @@ How the product owner (PO) and the AI developer work together on a feature. The 
 
 ## Overview
 
-The whole flow at a glance (#43). Yellow: the PO decides; blue: the AI works; grey: GitHub. The labels on the arrows are the commands; the rules in brackets are the steps of the workflow in [`CLAUDE.md`](../CLAUDE.md).
+The whole flow at a glance (#43). The diagram is for the PO and therefore in German (see "Language" in `CLAUDE.md`). Yellow: the PO decides; blue: the AI works; grey: GitHub. The labels on the arrows are the commands; the rules in brackets are the steps of the workflow in [`CLAUDE.md`](../CLAUDE.md).
 
 ```mermaid
 flowchart TD
-  S(["New session"]) --> Q{"First message:<br/>a concrete task?"}
-  Q -- "yes" --> T["AI works on the task directly"]
-  Q -- "no, or /start" --> START["AI: top 5 open issues<br/>+ 2–3 questions on how to continue"]
-  START --> IDEA["PO: idea or wish"]
-  IDEA -- "/neu &lt;text&gt;" --> ISSUE["AI: creates the issue in the PO's words<br/>(rule 1: no work without an issue)"]
-  ISSUE --> REFINE["AI: stories, design with mockups,<br/>open questions with options<br/>(rules 2, 3: everything recorded in the issue)"]
-  REFINE --> AC{"PO: acceptance<br/>criteria OK?"}
-  AC -- "answer or /feedback" --> REFINE
-  AC -- "/freigabe #n" --> TC["AI: test cases in German,<br/>one or more per criterion (rule 4)"]
-  TC --> TCOK{"PO: test cases OK?"}
-  TCOK -- "change or /feedback" --> TC
-  TCOK -- "/freigabe #n" --> GO{"PO: build now?"}
-  GO -- "/go #n" --> BUILD["AI: feature branch, code,<br/>an automated test per test case,<br/>help and docs, npm test + e2e<br/>(rule 5, Definition of Done)"]
-  BUILD --> PR["GitHub: pull request 'Closes #n',<br/>web preview, Windows build (rules 6, 7)"]
-  PR --> CHECK{"PO: tests in the preview<br/>(panel 'Abnahme')"}
-  CHECK -- "/feedback #n or pasted 'Abnahme …'" --> FIX["AI: fixes, records it in the issue,<br/>new preview"]
+  S(["Neue Session"]) --> Q{"Erste Nachricht:<br/>konkreter Auftrag?"}
+  Q -- "ja" --> T["KI erledigt den Auftrag direkt"]
+  Q -- "nein, oder /start" --> START["KI: Top 5 offene Issues<br/>+ 2–3 Fragen, wie es weitergeht"]
+  START --> IDEA["PO: Idee oder Wunsch"]
+  IDEA -- "/neu &lt;Text&gt;" --> ISSUE["KI: legt das Issue in deinen Worten an<br/>(Regel 1: keine Arbeit ohne Issue)"]
+  ISSUE --> REFINE["KI: Stories, Design mit Mockups,<br/>offene Fragen zum Anklicken<br/>(Regeln 2, 3: alles steht im Issue)"]
+  REFINE --> AC{"PO: Abnahmekriterien<br/>in Ordnung?"}
+  AC -- "Antwort oder /feedback" --> REFINE
+  AC -- "/freigabe #Nr" --> TC["KI: Testfälle auf Deutsch,<br/>mindestens einer pro Kriterium (Regel 4)"]
+  TC --> TCOK{"PO: Testfälle<br/>in Ordnung?"}
+  TCOK -- "Änderung oder /feedback" --> TC
+  TCOK -- "/freigabe #Nr" --> GO{"PO: jetzt bauen?"}
+  GO -- "/go #Nr" --> BUILD["KI: Feature-Branch, Code,<br/>ein automatischer Test pro Testfall,<br/>Hilfe und Doku, alle Tests grün<br/>(Regel 5, Definition of Done)"]
+  BUILD --> PR["GitHub: Pull Request «Closes #Nr»,<br/>Web-Vorschau, Windows-Build (Regeln 6, 7)"]
+  PR --> CHECK{"PO: testet in der Vorschau<br/>(Fenster «Abnahme»)"}
+  CHECK -- "/feedback #Nr oder eingefügter Text «Abnahme …»" --> FIX["KI: korrigiert, hält es im Issue fest,<br/>neue Vorschau"]
   FIX --> CHECK
-  CHECK -- "/abgenommen #n" --> MERGE["GitHub: 'Rebase and merge',<br/>branch deleted, issue closed (rule 8)"]
+  CHECK -- "/abgenommen #Nr" --> MERGE["GitHub: «Rebase and merge»,<br/>Branch gelöscht, Issue geschlossen (Regel 8)"]
   MERGE --> START
-  ANY["Anytime:<br/>/status #n (state and next step)<br/>/hilfe (all commands)"]
+  ANY["Jederzeit:<br/>/status #Nr (Stand und nächster Schritt)<br/>/hilfe (alle Befehle)"]
 
   classDef po fill:#fff4c2,stroke:#b38f00,color:#222
   classDef ai fill:#dcebff,stroke:#2f6fb3,color:#222
@@ -43,7 +43,7 @@ flowchart TD
   class S,PR,MERGE,ANY gh
 ```
 
-Changing an approved acceptance criterion or test case always goes back to the PO for approval (rule 5).
+Legende: gelb = du (PO) entscheidest · blau = die KI arbeitet · grau = GitHub. Wenn sich ein freigegebenes Abnahmekriterium oder ein Testfall ändern müsste, geht es immer zurück zu dir zur Freigabe (Regel 5).
 
 ## Session start
 
