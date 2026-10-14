@@ -66,6 +66,12 @@ pub fn run() {
             sql: include_str!("../migrations/010_status_values.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 11,
+            description: "sprint_states",
+            sql: include_str!("../migrations/011_sprint_states.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

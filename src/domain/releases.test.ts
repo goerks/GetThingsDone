@@ -164,8 +164,8 @@ describe('order and choice', () => {
 
 describe('sprint after release end', () => {
   const sprints: Sprint[] = [
-    { id: 'p1', name: 'Sprint 1', startDate: '2026-11-02', endDate: '2026-11-15' },
-    { id: 'p2', name: 'Sprint 2', startDate: '2026-11-16', endDate: '2026-11-29' }
+    { id: 'p1', name: 'Sprint 1', startDate: '2026-11-02', endDate: '2026-11-15', state: 'planned', startItems: null, result: null },
+    { id: 'p2', name: 'Sprint 2', startDate: '2026-11-16', endDate: '2026-11-29', state: 'planned', startItems: null, result: null }
   ];
   const target = release('r1', '2026-10-05', '2026-11-20');
   const stories = [story('s1', 'r1', { sprintId: 'p1' }), story('s2', 'r1', { sprintId: 'p2' }), story('s3', 'r1'), story('s4', 'r2', { sprintId: 'p2' })];

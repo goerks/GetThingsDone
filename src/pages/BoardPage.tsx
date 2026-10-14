@@ -11,13 +11,16 @@ import {
 } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
 import { BoardColumn } from '../components/BoardColumn';
+import { CompleteSprintDialog } from '../components/CompleteSprintDialog';
 import { NewStoryDialog } from '../components/NewStoryDialog';
+import { StartSprintDialog } from '../components/StartSprintDialog';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { OverlayCard } from '../components/StoryCard';
 import { dropTargetIn, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import { dropStory, parseColumnId, sprintStories, storiesInColumn, totalPoints, type Placement } from '../domain/board';
-import { runningSprint, todayIso } from '../domain/sprints';
-import { formatSprintDates } from '../components/sprintFormat';
+import { summarizeSprint, type Completion } from '../domain/sprintLife';
+import { boardSprint, isEnded, todayIso } from '../domain/sprints';
+import { formatDayLong, formatSprintDates } from '../components/sprintFormat';
 import { hrefs } from '../router';
 import { CATEGORY_COLORS, STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import type { Status } from '../domain/types';
@@ -36,11 +39,15 @@ export function BoardPage() {
   const { t, i18n } = useTranslation();
   const builtin = useBuiltin();
   const app = useApp();
-  const sprint = runningSprint(app.sprints, todayIso());
+  const sprint = boardSprint(app.sprints);
+  const today = todayIso();
   const sprintId = sprint?.id ?? null;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
   const [creating, setCreating] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [startingId, setStartingId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   useNewShortcut(() => setCreating(true), !creating);
 
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
@@ -94,34 +101,121 @@ export function BoardPage() {
   const inSprint = sprintStories(app.stories, sprintId);
   useSearchPage(t('nav.board'), { story: inSprint.map((story) => story.id), sprint: sprintId ? [sprintId] : [] });
 
+  const completedText = (completion: Completion): string => {
+    const { summary, completed, targetSprint } = completion;
+    const base = t('lifecycle.completed.base', { name: completed.name, done: summary.donePoints, planned: summary.plannedPoints });
+    if (summary.notDone.length === 0) return base;
+    const moved = { count: summary.notDone.length, points: summary.notDonePoints };
+    return `${base} ${targetSprint ? t('lifecycle.completed.movedToSprint', { ...moved, target: targetSprint.name }) : t('lifecycle.completed.movedToBacklog', moved)}`;
+  };
+  const onCompleted = (completion: Completion, startId: string | null): void => {
+    setMessage(completedText(completion));
+    if (startId) setStartingId(startId);
+  };
+  const messageBox = message && (
+    <div className="sprint-message" role="status">
+      <span className="sprint-message__icon" aria-hidden="true">
+        ✓
+      </span>
+      <span className="sprint-message__text">{message}</span>
+      <button type="button" className="btn btn--small" aria-label={t('lifecycle.closeMessage')} onClick={() => setMessage(null)}>
+        ✕
+      </button>
+    </div>
+  );
+  const startDialog = startingId && <StartSprintDialog sprintId={startingId} onClose={() => setStartingId(null)} />;
+
   if (!sprint) {
+    const noSprintAtAll = app.sprints.length === 0;
     return (
       <>
+        {messageBox}
+        {startDialog}
         <div className="page-head">
-          <h1>{t('board.noSprintTitle')}</h1>
+          <h1>{noSprintAtAll ? t('board.noSprintTitle') : t('lifecycle.allDoneTitle')}</h1>
         </div>
-        <p className="muted">
-          {t('board.noSprint')} <a href={hrefs.map}>{t('board.toMap')}</a>
-        </p>
+        {noSprintAtAll ? (
+          <p className="muted">
+            {t('board.noSprint')} <a href={hrefs.map}>{t('board.toMap')}</a>
+          </p>
+        ) : (
+          <div className="sprint-empty">
+            <p>
+              <strong>{t('lifecycle.allDone')}</strong>
+            </p>
+            <p className="muted">{t('lifecycle.allDoneHint')}</p>
+            <a className="btn btn--primary" href={hrefs.map}>
+              {t('lifecycle.toMap')}
+            </a>
+          </div>
+        )}
       </>
     );
   }
+
+  const ended = isEnded(sprint, today);
+  const atStart = sprint.state === 'running' && sprint.startItems ? summarizeSprint(sprint, app.stories, app.isDone).plannedPoints : null;
+  const points = totalPoints(inSprint);
 
   return (
     <>
       <div className="page-head">
         <h1>{sprint.name}</h1>
-        <span className="muted">
-          {formatSprintDates(sprint, i18n.language)} · {builtin.summary(inSprint.length, totalPoints(inSprint))}
+        <span className={sprint.state === 'running' ? (ended ? 'badge-ended' : 'badge-running') : 'badge-planned'}>
+          {t(ended ? 'sprint.ended' : `sprint.${sprint.state}`)}
         </span>
-        <button type="button" className="btn btn--primary page-head__action" aria-keyshortcuts="Control+N Meta+N" onClick={() => setCreating(true)}>
-          {t('newStory.open')}
-        </button>
+        <span className="muted">
+          {formatSprintDates(sprint, i18n.language)} · {builtin.summary(inSprint.length, points)}
+          {atStart !== null && atStart !== points && ` (${t('lifecycle.atStart', { points: atStart })})`}
+        </span>
+        <span className="page-head__actions">
+          {sprint.state === 'running' && !ended && (
+            <button type="button" className="btn" onClick={() => setCompleting(true)}>
+              {t('lifecycle.completeButton')}
+            </button>
+          )}
+          <button type="button" className="btn btn--primary" aria-keyshortcuts="Control+N Meta+N" onClick={() => setCreating(true)}>
+            {t('newStory.open')}
+          </button>
+        </span>
       </div>
+
+      {messageBox}
+
+      {sprint.state === 'planned' && (
+        <div className="sprint-hint" role="status">
+          <span className="sprint-hint__icon" aria-hidden="true">
+            ▶
+          </span>
+          <span className="sprint-hint__text">
+            <span className="sprint-hint__title">{t('lifecycle.plannedTitle', { name: sprint.name })}</span>
+            <span className="sprint-hint__more">{t('lifecycle.plannedText')}</span>
+          </span>
+          <button type="button" className="btn btn--primary" onClick={() => setStartingId(sprint.id)}>
+            {t('lifecycle.startButton')}
+          </button>
+        </div>
+      )}
+      {ended && (
+        <div className="sprint-hint sprint-hint--ended" role="status">
+          <span className="sprint-hint__icon" aria-hidden="true">
+            ⏱
+          </span>
+          <span className="sprint-hint__text">
+            <span className="sprint-hint__title">{t('lifecycle.endedTitle', { name: sprint.name, date: formatDayLong(sprint.endDate, i18n.language) })}</span>
+            <span className="sprint-hint__more">{t('lifecycle.endedText')}</span>
+          </span>
+          <button type="button" className="btn btn--primary" onClick={() => setCompleting(true)}>
+            {t('lifecycle.completeButton')}
+          </button>
+        </div>
+      )}
 
       <HighlightBar storyIds={inSprint.map((story) => story.id)} />
 
       {creating && <NewStoryDialog sprintId={sprintId} onClose={() => setCreating(false)} />}
+      {completing && <CompleteSprintDialog sprint={sprint} onClose={() => setCompleting(false)} onCompleted={onCompleted} />}
+      {startDialog}
 
       <DndContext
         sensors={sensors}

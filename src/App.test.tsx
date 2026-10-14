@@ -450,7 +450,7 @@ describe('story map', () => {
     expect(within(dialog).getByRole('alert')).toHaveTextContent('the end cannot be before the start');
   });
 
-  it('edits a sprint from its label and hides it once it is over', async () => {
+  it('edits a sprint from its label', async () => {
     const user = userEvent.setup();
     const repository = await openMap();
     await user.click(screen.getByRole('button', { name: /^Sprint 2/ }));
@@ -463,7 +463,7 @@ describe('story map', () => {
     await user.type(within(dialog).getByLabelText('End'), '2020-01-19');
     await user.click(within(dialog).getByRole('button', { name: 'Save' }));
 
-    expect(screen.queryByRole('button', { name: /Release prep/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Release prep/ })).toBeInTheDocument();
     expect((await repository.load()).sprints.find((sprint) => sprint.id === 'sprint-2')).toMatchObject({
       name: 'Release prep',
       startDate: '2020-01-06',

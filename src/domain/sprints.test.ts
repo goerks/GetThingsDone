@@ -1,22 +1,34 @@
 import { describe, expect, it } from 'vitest';
 import {
   addDays,
+  boardSprint,
   createSprint,
+  isEnded,
   isValidDay,
   mapSprints,
   moveSprint,
   newSprintDefaults,
+  plannedSprints,
   runningSprint,
   sortSprints,
+  startableSprints,
   todayIso,
   updateSprint,
   validateSprint
 } from './sprints';
 import type { Sprint } from './types';
 
-const sprint = (id: string, startDate: string, endDate: string, name = id): Sprint => ({ id, name, startDate, endDate });
-const past = sprint('past', '2026-09-21', '2026-10-04', 'Sprint 1');
-const now = sprint('now', '2026-10-05', '2026-10-18', 'Sprint 2');
+const sprint = (id: string, startDate: string, endDate: string, name = id, state: Sprint['state'] = 'planned'): Sprint => ({
+  id,
+  name,
+  startDate,
+  endDate,
+  state,
+  startItems: state === 'planned' ? null : [],
+  result: null
+});
+const past = sprint('past', '2026-09-21', '2026-10-04', 'Sprint 1', 'completed');
+const now = sprint('now', '2026-10-05', '2026-10-18', 'Sprint 2', 'running');
 const next = sprint('next', '2026-10-19', '2026-11-01', 'Sprint 3');
 const nameFor = (number: number): string => `Sprint ${number}`;
 
@@ -39,22 +51,37 @@ describe('calendar days', () => {
 });
 
 describe('running sprint', () => {
-  it('is the sprint whose dates include today, including the first and last day', () => {
-    expect(runningSprint([next, now, past], '2026-10-11')?.id).toBe('now');
-    expect(runningSprint([next, now, past], '2026-10-05')?.id).toBe('now');
-    expect(runningSprint([next, now, past], '2026-10-18')?.id).toBe('now');
+  it('is the sprint that was started, whatever its dates are', () => {
+    expect(runningSprint([next, now, past])?.id).toBe('now');
+    expect(runningSprint([past, sprint('late', '2027-01-01', '2027-01-14', 'Late', 'running'), next])?.id).toBe('late');
   });
 
-  it('is the next upcoming sprint when none runs', () => {
-    expect(runningSprint([next, past], '2026-10-11')?.id).toBe('next');
+  it('is null when no sprint runs', () => {
+    expect(runningSprint([past, next])).toBeNull();
+    expect(runningSprint([])).toBeNull();
   });
 
-  it('is the last sprint when all are over', () => {
-    expect(runningSprint([past, now], '2026-12-01')?.id).toBe('now');
+  it('is ended when its end date has passed, but only while it runs', () => {
+    expect(isEnded(now, '2026-10-18')).toBe(false);
+    expect(isEnded(now, '2026-10-19')).toBe(true);
+    expect(isEnded(next, '2027-01-01')).toBe(false);
+    expect(isEnded(past, '2027-01-01')).toBe(false);
+  });
+});
+
+describe('sprint on the board', () => {
+  it('is the running sprint', () => {
+    expect(boardSprint([next, now, past])?.id).toBe('now');
   });
 
-  it('is null without sprints', () => {
-    expect(runningSprint([], '2026-10-11')).toBeNull();
+  it('is the next planned sprint when none runs', () => {
+    const later = sprint('later', '2026-11-02', '2026-11-15', 'Sprint 4');
+    expect(boardSprint([later, next, past])?.id).toBe('next');
+  });
+
+  it('is null when every sprint is completed or there is none', () => {
+    expect(boardSprint([past])).toBeNull();
+    expect(boardSprint([])).toBeNull();
   });
 });
 
@@ -63,9 +90,14 @@ describe('sprints on the map', () => {
     expect(sortSprints([next, past, now]).map((s) => s.id)).toEqual(['past', 'now', 'next']);
   });
 
-  it('leaves out sprints that ended before today', () => {
-    expect(mapSprints([next, past, now], '2026-10-11').map((s) => s.id)).toEqual(['now', 'next']);
-    expect(mapSprints([next, past, now], '2026-10-04').map((s) => s.id)).toEqual(['past', 'now', 'next']);
+  it('leaves out completed sprints', () => {
+    expect(mapSprints([next, past, now]).map((s) => s.id)).toEqual(['now', 'next']);
+  });
+
+  it('lists the planned sprints, and offers them to start only while none runs', () => {
+    expect(plannedSprints([next, past, now]).map((s) => s.id)).toEqual(['next']);
+    expect(startableSprints([next, past, now])).toEqual([]);
+    expect(startableSprints([next, past]).map((s) => s.id)).toEqual(['next']);
   });
 });
 
@@ -96,21 +128,21 @@ describe('new sprint', () => {
 
   it('creates a sprint with a trimmed name and refuses invalid input', () => {
     const result = createSprint([now], { name: ' Sprint 3 ', startDate: '2026-10-19', endDate: '2026-11-01' }, 'id');
-    expect(result?.sprint).toEqual({ id: 'id', name: 'Sprint 3', startDate: '2026-10-19', endDate: '2026-11-01' });
+    expect(result?.sprint).toEqual({ id: 'id', name: 'Sprint 3', startDate: '2026-10-19', endDate: '2026-11-01', state: 'planned', startItems: null, result: null });
     expect(result?.sprints).toHaveLength(2);
     expect(createSprint([now], { name: '', startDate: '2026-10-19', endDate: '2026-11-01' }, 'id')).toBeNull();
   });
 
   it('updates a sprint and ignores invalid input', () => {
     const changed = updateSprint([now], 'now', { name: 'Kick-off', startDate: '2026-10-06', endDate: '2026-10-19' });
-    expect(changed[0]).toEqual({ id: 'now', name: 'Kick-off', startDate: '2026-10-06', endDate: '2026-10-19' });
+    expect(changed[0]).toEqual({ ...now, name: 'Kick-off', startDate: '2026-10-06', endDate: '2026-10-19' });
     const list = [now];
     expect(updateSprint(list, 'now', { name: 'x', startDate: '2026-10-19', endDate: '2026-10-06' })).toBe(list);
   });
 });
 
 describe('reordering upcoming sprints', () => {
-  // today 2026-10-11: "now" runs until 10-18; next, later and last are upcoming.
+  // "now" runs until 10-18; next, later and last are planned (upcoming).
   const later = sprint('later', '2026-11-02', '2026-11-08', 'Sprint 4'); // one week
   const last = sprint('last', '2026-11-09', '2026-11-22', 'Sprint 5');
   const all = [past, now, next, later, last];

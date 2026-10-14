@@ -141,6 +141,22 @@ function insertMoved(
   return reindex([...without.slice(0, insertAt), moved, ...without.slice(insertAt)]);
 }
 
+/**
+ * Moves stories into a sprint (or out of every sprint for null) and puts them at the top of its section, in the
+ * order they had. Ranks follow the shown order afterwards. Used when a sprint is completed (#17).
+ */
+export function moveStoriesToSprint(stories: Story[], sprints: readonly Sprint[], ids: readonly string[], sprintId: string | null): Story[] {
+  const moving = new Set(ids);
+  const list = backlogOrder(stories, sprints);
+  const moved = list.filter((story) => moving.has(story.id)).map((story): Story => ({ ...story, sprintId }));
+  if (moved.length === 0) return stories;
+  const without = list.filter((story) => !moving.has(story.id));
+  const order = sprintOrder(sprints);
+  const first = without.findIndex((story) => order(story.sprintId) >= order(sprintId));
+  const insertAt = first >= 0 ? first : without.length;
+  return reindex([...without.slice(0, insertAt), ...moved, ...without.slice(insertAt)]);
+}
+
 /** Places a moved story directly before or after a target story and stores the order as ranks. */
 function insertNextTo(without: Story[], moved: Story, targetId: string, after: boolean): Story[] {
   const targetIndex = without.findIndex((story) => story.id === targetId);
