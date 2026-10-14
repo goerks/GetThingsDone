@@ -328,3 +328,43 @@ test('AC9.2 the help is a sheet over the whole page on a phone, and can be close
   await panel(page).getByRole('button', { name: 'Close help' }).click();
   await expect(panel(page)).toHaveCount(0);
 });
+
+test('AC10.3 explains that the feature Releases must be switched on first, and leads to the right pages once it is', async ({ page }) => {
+  // Given the feature Releases is switched off in the settings
+  await page.getByRole('button', { name: 'No thanks' }).click();
+  await page.goto('/#/settings/features');
+  await page.getByRole('switch', { name: /Releases/ }).uncheck();
+  await page.getByRole('link', { name: 'Close settings' }).click();
+  await expect(page.getByRole('link', { name: 'Releases', exact: true })).toHaveCount(0);
+
+  // When I open the help topic "Releases"
+  await helpButton(page).click();
+  await panel(page).getByRole('searchbox', { name: 'Search help' }).fill('releases');
+  await panel(page).getByRole('button', { name: /^Releases/ }).first().click();
+
+  // Then it starts with the feature, and the places that need it say so instead of leading nowhere
+  await expect(panel(page).getByText('Releases only work when the feature “Releases” is switched on.')).toBeVisible();
+  await expect(panel(page).getByText('Open Releases: switch the feature “Releases” on first (see above).')).toBeVisible();
+  await expect(panel(page).getByRole('link', { name: 'Open Releases' })).toHaveCount(0);
+
+  // When I follow the link to the features and switch Releases on, with the help still open
+  await panel(page).getByRole('link', { name: 'Open Settings → Features' }).click();
+  await expect(page).toHaveURL(/#\/settings\/features$/);
+  await expect(panel(page).getByRole('heading', { name: 'Help · Settings', level: 2 })).toBeVisible();
+  await page.getByRole('switch', { name: /Releases/ }).check();
+
+  // Then the places are links now: the Releases page, the settings of the story map and the Story Map
+  await expect(panel(page).getByRole('link', { name: 'Open Settings → Story map' })).toBeVisible();
+  await expect(panel(page).getByRole('link', { name: 'Open Story Map' })).toBeVisible();
+  await panel(page).getByRole('link', { name: 'Open Releases' }).click();
+  await expect(page).toHaveURL(/#\/releases$/);
+  await expect(page.getByRole('heading', { name: 'Releases', level: 1 })).toBeVisible();
+  await expect(panel(page).getByRole('heading', { name: 'Help · Releases', level: 2 })).toBeVisible();
+
+  // When I follow the link to the settings of the story map
+  await panel(page).getByRole('link', { name: 'Open Settings → Story map' }).click();
+
+  // Then the page offers the rows "Releases"
+  await expect(page).toHaveURL(/#\/settings\/map$/);
+  await expect(page.getByRole('radio', { name: /Releases/ })).toBeEnabled();
+});

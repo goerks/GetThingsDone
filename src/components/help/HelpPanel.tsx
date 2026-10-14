@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next';
 import { searchHelp } from '../../domain/helpSearch';
 import { TOUR_STEPS, activeStep, doneCount, type TourStepId } from '../../domain/helpTour';
-import { TOPICS, TOUR_STEP_VIEW, TOUR_TOPIC_ID, pageOfStep, type PageKey, type ShowSpec, type TopicDef } from '../../help/topics';
+import { LINK_TARGETS, TOPICS, TOUR_STEP_VIEW, TOUR_TOPIC_ID, pageOfStep, type HelpLinkDef, type LinkId, type PageKey, type ShowSpec, type TopicDef } from '../../help/topics';
 import { useHelpEntries } from '../../help/useTopics';
 import { hrefs, type Route } from '../../router';
 import { useHelp } from '../../state/Help';
+import { useApp } from '../../state/AppState';
+import { featureOn } from '../../domain/settings';
 import { Highlighted } from '../search/Highlighted';
 import { CloseIcon } from './icons';
 
@@ -268,6 +270,9 @@ function TopicView({
   const { t } = useTranslation();
   const topic = TOPICS.find((item) => item.id === id);
   const paragraphs = t(`help.topics.${id}.body`).split('\n');
+  const onPage = topic?.pages.includes(route.name) ?? false;
+  // The link to the page of the topic is in the list of places already.
+  const pageLinked = topic?.links?.some((link) => link.id === topic.pages[0]) ?? false;
   return (
     <div className="help__body">
       <BackButton />
@@ -277,13 +282,55 @@ function TopicView({
       {paragraphs.map((text, index) => (
         <p key={index}>{text}</p>
       ))}
-      {topic?.show && (
-        <div className="help__actions">{showButton(topic.show, topic.pages, topic.pages.includes(route.name) ? route.name : topic.pages[0])}</div>
+      {topic?.links && <TopicLinks links={topic.links} route={route} />}
+      {topic?.show && (onPage || !pageLinked) && (
+        <div className="help__actions">{showButton(topic.show, topic.pages, onPage ? route.name : topic.pages[0])}</div>
       )}
       <p className="help__notice muted" role="status">
         {notice}
       </p>
     </div>
+  );
+}
+
+/** Whether a link leads to the page the user is on, so it is left out. */
+function isHere(id: LinkId, route: Route): boolean {
+  if (route.name === 'settings') return (id === 'settingsFields' && route.section === 'fields') || (id === 'settingsStatuses' && route.section === 'statuses') || (id === 'settingsMap' && route.section === 'map') || (id === 'settingsFeatures' && route.section === 'features');
+  return id === route.name;
+}
+
+/**
+ * Where to find what a topic talks about. A place that needs a feature is only a link while the feature is on;
+ * otherwise it says that the feature has to be switched on first.
+ */
+function TopicLinks({ links, route }: { links: readonly HelpLinkDef[]; route: Route }) {
+  const { t } = useTranslation();
+  const { settings } = useApp();
+  const shown = links.filter((link) => !isHere(link.id, route));
+  if (shown.length === 0) return null;
+  return (
+    <>
+      <h4 className="help__heading">{t('help.linksTitle')}</h4>
+      <ul className="help__links">
+        {shown.map((link) => {
+          const label = t(`help.links.${link.id}`);
+          const locked = link.requires !== undefined && !featureOn(settings, link.requires);
+          return (
+            <li key={link.id}>
+              {locked ? (
+                <span className="help__link help__link--locked">
+                  {t('help.linkLocked', { label, feature: t(`settings.features.${link.requires}.name`) })}
+                </span>
+              ) : (
+                <a className="help__link" href={LINK_TARGETS[link.id]}>
+                  {label}
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }
 

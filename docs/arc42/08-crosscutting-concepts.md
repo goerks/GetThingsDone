@@ -53,6 +53,16 @@ Colours, spacing and radii are CSS custom properties in `docs/design/tokens.css`
 
 Load and save errors are caught in `AppState` and shown as a translated alert with the technical message. The UI does not roll back optimistic changes yet.
 
+## Help
+
+The interactive help (#33) is documentation for users and grows with every feature, like this documentation. To extend it:
+
+1. Add the topic to `TOPICS` in `src/help/topics.ts`: an id, the pages it belongs to (`pages`), `general` for topics of every page, a `show` target (a CSS selector and what to say when it is missing), and `links` to where to find the feature. Places are listed in `LINK_TARGETS`; add a new one there and its label under `help.links.<id>` in all four language files.
+2. A place that only exists while a feature is switched on gets `requires: '<feature>'`. It is shown as a link while the feature is on, and as the text "switch the feature on first" otherwise. List the settings page of the features (`settingsFeatures`) before such places, and start the text of the topic with that step.
+3. Write `help.topics.<id>` (`title`, `keywords`, `body`; lines of `body` are paragraphs) in DE, EN, FR and IT. `keywords` are extra words that find the topic (also the synonyms users type). `src/help/topics.test.ts` checks that every topic and link has its texts in all languages and that every topic is found by its own title.
+4. Add a component test for new behaviour in `src/Help.test.tsx` and, for a journey across pages, in `e2e/help.spec.ts`.
+5. The steps of the first steps (`TOUR_STEPS` in `src/domain/helpTour.ts`) are the PO's: no step is added or changed without the PO's approval (see `CLAUDE.md`).
+
 ## Testing
 
 Tests are derived from test cases the PO approves per acceptance criterion (see `CLAUDE.md`, "Test cases"). A test name starts with the ID of its test case (`AC2.1`, or `FR-MAP-02.1` for existing requirements).

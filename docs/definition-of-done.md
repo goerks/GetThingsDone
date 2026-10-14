@@ -19,6 +19,7 @@ A feature is done when all of the following hold.
 - [ ] arc42 chapters updated where the architecture is affected
 - [ ] ADR written for any new architecture decision
 - [ ] User-facing documentation updated
+- [ ] Help updated: topics in DE, EN, FR and IT with links to where to find the feature (and the step "switch the feature on first" where there is one), a test for it. Steps of the first steps (tutorial) only after the PO approved the topics
 
 ## Acceptance
 
