@@ -390,10 +390,30 @@ As a PO, I want to plan several sprints, each with a name, a start date and an e
 
 Source: Issue #2 · Status: Implemented · Verified by: sprints.test, migrate.test, App "adds a sprint…", "refuses a sprint…", "migrates browser data of release 0.1…"
 
-### FR-SPRINT-02 Running sprint on the board
-The board shows the running sprint: the sprint whose dates include today; if none runs, the next upcoming one; otherwise the last one. Without any sprint, the board asks to create one on the story map.
+### FR-SPRINT-02 Sprint on the board
+The board shows the running sprint (see FR-SPRINT-03). While none runs it shows the next planned sprint with a hint and "Start sprint"; once every sprint is completed it shows an empty state with the way to the story map. Without any sprint, the board asks to create one on the story map.
 
-Source: Issue #2 · Status: Implemented · Verified by: sprints.test "running sprint", App "asks to create a sprint when there is none"
+Source: Issue #2, changed by #17 · Status: Implemented · Verified by: sprints.test "sprint on the board", Sprints.test AC4.1–AC4.4, e2e `sprints.spec.ts` AC4.1
+
+### FR-SPRINT-03 States of a sprint
+A sprint is **planned**, **running** or **completed**; at most one sprint runs. A sprint runs when it is started, not by its dates. A new sprint is planned. A running sprint whose end date has passed stays on the board, marked "ended", until it is completed. Backlog and story map mark running and planned sprints and show no completed sprint (neither the sprint nor its stories). A completed sprint is offered in the sprint select only to the stories that are in it.
+
+Source: Issue #17 · Status: Implemented · Verified by: sprintLife.test AC1.2, Sprints.test AC1.1, AC1.2, AC5.1, AC5.2, AC9.1, AC9.4, e2e `sprints.spec.ts` AC9.2
+
+### FR-SPRINT-04 Start a sprint
+As a team, we start a planned sprint when none runs: the dialog shows its stories and points, which are kept as the planned scope (`startItems`). When today is not the planned start day it asks whether the sprint starts today (preselected; the end date moves along so the length stays) or keeps its dates. A start cannot be undone.
+
+Source: Issue #17 · Status: Implemented · Verified by: sprintLife.test AC2.1, AC2.3, AC2.4, AC3.1–AC3.4, Sprints.test AC2.1–AC2.4, AC3.1–AC3.3, AC12.2
+
+### FR-SPRINT-05 Complete a sprint
+As a team, we complete the running sprint. The summary shows what was planned at the start, what is done and not done, and what joined or left during the sprint (stories without points count as 0 and are named). For the unfinished stories there is one choice: the next planned sprint, a new sprint or the backlog; they go to the top of the target. When today is not the planned end day, the dialog asks whether the end date becomes today (preselected) or stays. The result (planned, done, not done, added, removed, changed points) is stored in the sprint. "Then start Sprint n" opens the start dialog right away. After completing, a message says what happened; the board then shows the next planned sprint or the empty state.
+
+Source: Issue #17 · Status: Implemented · Verified by: sprintLife.test AC6.1–AC6.4, AC7.1–AC7.5, AC8.1–AC8.4, AC9.1, Sprints.test AC6.1–AC6.4, AC7.1–AC7.5, AC8.1–AC8.4, AC10.1–AC10.4, AC12.1, AC12.3, AC12.4, AC12.5, e2e `sprints.spec.ts` AC7.1
+
+### FR-SPRINT-06 Existing sprints get a state
+When the app opens data of an earlier version, every sprint gets its state by its dates: the sprint that includes today runs (its stories are kept as the planned scope), earlier sprints are completed with their result (their unfinished stories go back to the backlog), later sprints are planned. This happens once, in the browser build when the data is read and in the desktop app when the database is loaded (migration `011_sprint_states.sql` adds the columns).
+
+Source: Issue #17 · Status: Implemented · Verified by: sprintLife.test AC11.1–AC11.3, sqliteRepository.test AC11.1, AC11.2, e2e `sprints.spec.ts` AC11.1
 
 ## Story map (MAP)
 
