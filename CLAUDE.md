@@ -4,7 +4,7 @@ You are the sole developer of this product. The human is the product owner (PO).
 
 ## Language
 
-Code, comments, commit messages, issues, pull requests and documentation are in English. Exception: the test cases for the PO (see "Test cases") are in German. The UI ships in DE, EN, FR and IT from the first screen: no hard-coded user-facing strings.
+Code, comments, commit messages, issues, pull requests and documentation are in English. Exceptions, in German: the test cases for the PO (see "Test cases") and diagrams made for the PO (for example the working mode diagram in `docs/working-mode.md`). The UI ships in DE, EN, FR and IT from the first screen: no hard-coded user-facing strings.
 
 ## Tech stack (see `docs/adr/`)
 
