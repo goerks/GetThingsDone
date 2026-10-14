@@ -850,7 +850,12 @@
       "backlog.sprints": {
         "title": "Backlog and the sprint line",
         "keywords": "sprint planning section line upcoming running",
-        "body": "The backlog shows the sprints one below the other, followed by the stories that are not planned yet. The sprint line is the border between two sections: what is above it belongs to that sprint.\nDrag stories across the line to plan them."
+        "body": "The backlog shows the sprints one below the other, followed by the stories that are not planned yet. The sprint line is the border between two sections: what is above it belongs to that sprint. Running and planned sprints are marked; completed sprints are no longer shown.\nDrag stories across the line to plan them."
+      },
+      "sprint.lifecycle": {
+        "title": "Start and complete a sprint",
+        "keywords": "sprint start complete close finish end planned running ended unfinished stories next sprint",
+        "body": "A sprint is planned, running or completed. Only one sprint runs at a time; the board shows it.\nTo start a sprint, open the board while no sprint runs: it shows the next planned sprint. Press “Start sprint”, check its stories and points and confirm. These points count as planned.\nTo complete the running sprint, press “Complete sprint” on the board. The summary shows what was planned at the start, what is done and what joined or left during the sprint. Choose where the unfinished stories go: the next sprint, a new sprint or the backlog. Tick “Then start …” to start the next sprint right away.\nA sprint whose end date has passed stays on the board, marked “ended”, until you complete it. A completed sprint disappears from the board, the backlog and the story map."
       },
       "map.basics": {
         "title": "Story Map",

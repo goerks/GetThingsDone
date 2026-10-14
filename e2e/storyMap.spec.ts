@@ -116,14 +116,14 @@ test('FR-MAP-04.1 moves an upcoming sprint forward and keeps the sprint lengths 
   await expect(dialog.getByLabel('Start')).toHaveValue('2026-11-03');
   await dialog.getByLabel('End').fill('2026-11-09');
   await dialog.getByRole('button', { name: 'Add sprint' }).click();
-  await expect(sprintLabel(page, 'Sprint 3')).toHaveAccessibleName('Sprint 3, Nov 3 – Nov 9');
+  await expect(sprintLabel(page, 'Sprint 3')).toHaveAccessibleName('Sprint 3, Nov 3 – Nov 9, planned');
 
   // When I drag Sprint 3 above Sprint 2
   await drag(page, sprintLabel(page, 'Sprint 3'), sprintLabel(page, 'Sprint 2'), undefined, 'top');
 
   // Then the order is Sprint 1, Sprint 3, Sprint 2; Sprint 3 starts right after Sprint 1 and still lasts one week,
   // and Sprint 2 follows without a gap and still lasts two weeks
-  const expected = ['Sprint 1, Oct 6 – Oct 19, running', 'Sprint 3, Oct 20 – Oct 26', 'Sprint 2, Oct 27 – Nov 9'];
+  const expected = ['Sprint 1, Oct 6 – Oct 19, running', 'Sprint 3, Oct 20 – Oct 26, planned', 'Sprint 2, Oct 27 – Nov 9, planned'];
   await expect.poll(() => sprintRows(page)).toEqual(expected);
 
   // And the running Sprint 1 cannot be dragged

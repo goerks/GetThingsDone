@@ -850,7 +850,12 @@
       "backlog.sprints": {
         "title": "Backlog und Sprintlinie",
         "keywords": "sprint planung abschnitt linie kommend laufend",
-        "body": "Das Backlog zeigt die Sprints untereinander, danach die Stories, die noch nicht geplant sind. Die Sprintlinie ist die Grenze zwischen zwei Abschnitten: Was darüber steht, gehört zu diesem Sprint.\nZiehe Stories über die Linie, um sie zu planen."
+        "body": "Das Backlog zeigt die Sprints untereinander, danach die Stories, die noch nicht geplant sind. Die Sprintlinie ist die Grenze zwischen zwei Abschnitten: Was darüber steht, gehört zu diesem Sprint. Laufende und geplante Sprints sind gekennzeichnet; abgeschlossene Sprints werden nicht mehr angezeigt.\nZiehe Stories über die Linie, um sie zu planen."
+      },
+      "sprint.lifecycle": {
+        "title": "Sprint starten und abschliessen",
+        "keywords": "sprint starten abschliessen beenden fertig geplant läuft beendet unerledigte stories nächster sprint",
+        "body": "Ein Sprint ist geplant, läuft oder ist abgeschlossen. Es läuft immer nur ein Sprint; das Board zeigt ihn.\nZum Starten öffnest du das Board, solange kein Sprint läuft: Es zeigt den nächsten geplanten Sprint. Drücke «Sprint starten», prüfe die Stories und Punkte und bestätige. Diese Punkte gelten als geplant.\nZum Abschliessen drückst du auf dem Board «Sprint abschliessen». Die Zusammenfassung zeigt, was beim Start geplant war, was erledigt ist und was während des Sprints dazukam oder wegfiel. Wähle, wohin die unerledigten Stories gehen: in den nächsten Sprint, in einen neuen Sprint oder ins Backlog. Mit dem Häkchen «Danach … starten» startest du gleich den nächsten Sprint.\nEin Sprint, dessen Enddatum vorbei ist, bleibt als «beendet» auf dem Board, bis du ihn abschliesst. Ein abgeschlossener Sprint verschwindet von Board, Backlog und Story Map."
       },
       "map.basics": {
         "title": "Story Map",

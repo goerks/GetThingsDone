@@ -28,7 +28,11 @@
 
 ## Sprints
 
-An upcoming sprint is reordered by dragging its label on the map: `moveSprint` places it before or after another upcoming sprint and recalculates the dates of all upcoming sprints (each keeps its length, start dates follow each other from the end of the running sprint). Only changed sprints are saved. A sprint is created or edited in `SprintDialog` (from the map). The dialog prefills a new sprint with `newSprintDefaults` and checks the input with `validateSprint`. The board, the backlog and the map compute the running sprint and the visible sprints from today's date on every render, so a new day needs no stored state.
+An upcoming sprint is reordered by dragging its label on the map: `moveSprint` places it before or after another upcoming sprint and recalculates the dates of all upcoming sprints (each keeps its length, start dates follow each other from the end of the running sprint). Only changed sprints are saved. A sprint is created or edited in `SprintDialog` (from the map). The dialog prefills a new sprint with `newSprintDefaults` and checks the input with `validateSprint`. The board shows the running sprint (`boardSprint`); the backlog and the map show the sprints that are not completed (`mapSprints`).
+
+### Start and complete a sprint (#17)
+
+A sprint is planned, running or completed. `startSprint` (`sprintLife.ts`) runs a planned sprint when none runs, optionally from today (the end moves along so the length stays), and keeps its stories and points as `startItems`. `StartSprintDialog` shows them and asks about the date only when today is not the planned start day. `summarizeSprint` compares the stories now in a running sprint with `startItems`: planned, done, not done, added, removed and changed points. `completeSprint` stores that as the `result`, sets the state to completed (and the end date to today when the user chose so) and moves the unfinished stories to the top of the target section (`moveStoriesToSprint` in `board.ts`): the next planned sprint, a new sprint created with `newSprintDefaults`, or the backlog. `CompleteSprintDialog` calls the same function on a copy to show the new sprint and the sprint that could start next, so preview and result agree. `AppState` saves the changed sprints and the moved stories through the repository in one write queue. A running sprint whose end date has passed is marked ended (`isEnded`) and stays on the board until it is completed.
 
 ## Editing
 
