@@ -1,10 +1,10 @@
 ---
-name: status
-description: "The PO asks where an issue stands (/status #<n>). Short state and next step, read only."
+name: stand
+description: "The PO asks where an issue stands (/stand #<n>). Short state and next step, read only."
 argument-hint: "#<issue>"
 ---
 
-# /status: where does it stand? (#43)
+# /stand: where does it stand? (#43; /status is built into Claude Code)
 
 Arguments: $ARGUMENTS. Without a number, give the state of the issue this conversation is about; if there is none, run the `start` skill instead.
 

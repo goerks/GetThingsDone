@@ -44,6 +44,16 @@ describe('PO commands', () => {
     }
   });
 
+  test('no command uses the name of a built-in Claude Code command', () => {
+    // Built-in commands take precedence over skills, so a skill with such a name never runs
+    const builtIn = [
+      'help', 'status', 'feedback', 'bug', 'clear', 'compact', 'config', 'cost', 'doctor', 'init',
+      'login', 'logout', 'memory', 'model', 'review', 'resume', 'agents', 'mcp', 'permissions',
+      'hooks', 'context', 'export', 'exit', 'add-dir', 'release-notes', 'rewind', 'usage', 'plugin'
+    ];
+    expect(skills.filter((skill) => builtIn.includes(skill))).toEqual([]);
+  });
+
   test('/hilfe lists exactly the existing commands', () => {
     // Given the overview of /hilfe
     const help = read('.claude/skills/hilfe/SKILL.md');
