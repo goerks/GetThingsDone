@@ -32,6 +32,7 @@ Mockups: [`test-recorder-variants.html`](test-recorder-variants.html) (German, b
 
 - The bar is fixed to the right edge (variant A); folded away it is a 52 px strip with the number of steps. On a narrow screen it sits at the bottom.
 - The start dialog of C is a form inside the bar (name, requirement, starting point), so the app stays visible.
-- "Record test" in the header opens the bar; it lists "My tests" and has "Copy everything", which puts one text on the clipboard for the AI (a preview of the text can be shown).
+- PO feedback on the pull request: the button in the header was in the wrong place. The way in is the round button of the acceptance ([#35](https://github.com/goerks/GetThingsDone/pull/35), `feedback-button-pr35-*.png`): its popup has the tabs "Abnahme" and "Neuer Test"; "Neuer Test" opens the bar. Shown only where the acceptance shows.
+- The bar lists "My tests" and has "Ergebnis kopieren": one text for the AI with the acceptance result and the new tests; the popup copies the same text (a preview of the text can be shown).
 - Left out on the PO's decision: feedback entries and the feedback button at the bottom, acceptance results, file download, replay. The entries are built so that feedback can follow.
 - Pointing at the expected result offers "I see …" sentences; keyboard drags are not recorded (add the step by hand).

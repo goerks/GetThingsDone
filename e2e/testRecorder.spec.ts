@@ -10,7 +10,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 test.beforeEach(async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.clock.setFixedTime(new Date('2026-10-13T10:00:00+02:00'));
-  await page.goto('/#/board');
+  await page.goto('/?acceptance=1#/board');
   await expect(page.getByRole('heading', { name: 'Sprint 1', level: 1 })).toBeVisible();
 });
 
@@ -19,8 +19,17 @@ const card = (page: Page, code: string): Locator => page.getByRole('group', { na
 const column = (page: Page, name: string): Locator => page.getByRole('region', { name, exact: true });
 const steps = (page: Page): Locator => bar(page).getByRole('list', { name: 'Steps of the test' }).getByRole('listitem').filter({ hasText: /\S/ });
 
+/** The way in is the round button of the acceptance and its tab "Neuer Test". */
+async function openBuilder(page: Page): Promise<void> {
+  if (await bar(page).isVisible()) return;
+  const popup = page.getByRole('complementary', { name: 'Abnahme', exact: true });
+  if (!(await popup.isVisible())) await page.locator('.acceptance__toggle').click();
+  await popup.getByRole('tab', { name: /Neuer Test/ }).click();
+  await expect(bar(page)).toBeVisible();
+}
+
 async function startTest(page: Page, name: string, requirement = 'AC2.1'): Promise<void> {
-  if (!(await bar(page).isVisible())) await page.getByRole('button', { name: 'Record test' }).click();
+  await openBuilder(page);
   await bar(page).getByRole('button', { name: 'Build a new test' }).click();
   await bar(page).getByRole('textbox', { name: 'Name of the test' }).fill(name);
   await bar(page).getByRole('textbox', { name: 'Requirement (optional)' }).fill(requirement);
@@ -71,7 +80,7 @@ test('AC2.1 puts the bar at the right edge and makes the board narrower so that 
 
 test('AC2.4 puts the bar at the bottom on a narrow screen', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
-  await page.getByRole('button', { name: 'Record test' }).click();
+  await openBuilder(page);
   const box = await bar(page).boundingBox();
   if (!box) throw new Error('no bar');
   expect(box.x).toBe(0);
@@ -123,7 +132,7 @@ test('AC7.1 keeps the saved tests and writes a reload during a recording as a st
   await expect(bar(page).getByRole('heading', { name: 'Second' })).toBeVisible();
   await expect(steps(page)).toHaveText([/I open the page “Board”\./, /I reload the app\./]);
   await bar(page).getByRole('button', { name: 'Fold the bar away' }).click();
-  await page.getByRole('button', { name: 'Record test' }).click();
+  await page.getByRole('button', { name: 'Open the test builder' }).click();
   await bar(page).getByRole('button', { name: 'Discard test' }).click();
   await bar(page).getByRole('button', { name: 'Yes, discard' }).click();
   await expect(bar(page).getByText('First', { exact: true })).toBeVisible();
@@ -138,7 +147,7 @@ test('AC8.1 copies everything as one text that starts with the note for the AI a
     await bar(page).getByRole('button', { name: 'Finish test' }).click();
   }
   // When I copy everything
-  await bar(page).getByRole('button', { name: 'Copy everything' }).click();
+  await bar(page).getByRole('button', { name: 'Copy result' }).click();
   await expect(bar(page).getByRole('status').filter({ hasText: 'Copied. Paste it to the AI.' })).toHaveCount(1);
   // Then the clipboard holds one text with the context and both tests
   const text = await page.evaluate(() => navigator.clipboard.readText());
@@ -153,10 +162,62 @@ test('AC8.1 copies everything as one text that starts with the note for the AI a
   expect(text).toContain('  - Move a story: it works.');
 });
 
-test('AC9.2 shows "Show me" for the record button in the help', async ({ page }) => {
+test('AC9.2 shows "Show me" for the round button in the help', async ({ page }) => {
   await page.getByRole('button', { name: 'Help', exact: true }).click();
   await page.getByRole('searchbox', { name: 'Search help' }).fill('record');
   await page.getByRole('complementary', { name: 'Help' }).getByRole('button', { name: /Record a test/ }).click();
   await page.getByRole('button', { name: 'Show me' }).click();
-  await expect(page.getByRole('button', { name: 'Record test' })).toHaveAttribute('data-help-highlight', 'true');
+  await expect(page.locator('.acceptance__toggle')).toHaveAttribute('data-help-highlight', 'true');
+});
+
+test('AC1.5 puts the way in at the round button at the bottom, not in the header', async ({ page }) => {
+  // Given the preview with the acceptance button
+  await expect(page.getByRole('banner').getByRole('button', { name: 'Record test' })).toHaveCount(0);
+  // When I open the tab "Neuer Test" of the popup
+  await openBuilder(page);
+  // Then the builder is on the right edge, the popup and its round button stay at the bottom left
+  const toggle = await page.locator('.acceptance__toggle').boundingBox();
+  const barBox = await bar(page).boundingBox();
+  if (!toggle || !barBox) throw new Error('missing box');
+  expect(toggle.x).toBeLessThan(100);
+  expect(toggle.y).toBeGreaterThan(800);
+  expect(barBox.x).toBeGreaterThan(1200);
+});
+
+test('AC2.5 keeps the acceptance popup clear of the builder bar when it moves to the right', async ({ page }) => {
+  // Given the builder is open
+  await openBuilder(page);
+  const popup = page.getByRole('complementary', { name: 'Abnahme', exact: true });
+  await popup.getByRole('tab', { name: 'Abnahme' }).click();
+  // When I jump to AC1.1 from the list: it lights up the card S-3 in the left column
+  await popup.getByRole('button', { name: 'Alle Punkte anzeigen' }).click();
+  await popup.locator('[data-case="AC1.1"] .acceptance__row').click();
+  // Then the popup moves to the right side, next to the bar and not over it
+  await expect(page.locator('.acceptance')).toHaveClass(/acceptance--right/);
+  const popupBox = await popup.boundingBox();
+  const barBox = await bar(page).boundingBox();
+  if (!popupBox || !barBox) throw new Error('missing box');
+  expect(popupBox.x + popupBox.width).toBeLessThanOrEqual(barBox.x);
+});
+
+test('AC8.6 copies the acceptance and the new tests as one text', async ({ page }) => {
+  // Given a problem noted in the acceptance and a saved test
+  const popup = page.getByRole('complementary', { name: 'Abnahme', exact: true });
+  await page.locator('.acceptance__toggle').click();
+  await popup.getByRole('button', { name: /Problem/ }).click();
+  await popup.getByRole('textbox', { name: /^Kommentar zu / }).fill('Der Knopf fehlt');
+  await startTest(page, 'Move a story');
+  await bar(page).getByRole('textbox', { name: 'Or write your own sentence' }).fill('It works.');
+  await bar(page).getByRole('button', { name: 'Add', exact: true }).click();
+  await bar(page).getByRole('button', { name: 'Finish test' }).click();
+  // When I copy from the popup (it closed when the page loaded again for the fresh demo data)
+  await page.locator('.acceptance__toggle').click();
+  await popup.getByRole('tab', { name: /Neuer Test/ }).click();
+  await popup.getByRole('button', { name: 'Ergebnis kopieren' }).click();
+  // Then the text has the result of the acceptance first and the new test after it
+  const text = await page.evaluate(() => navigator.clipboard.readText());
+  expect(text.indexOf('## Abnahme')).toBeGreaterThan(0);
+  expect(text.indexOf('## Abnahme')).toBeLessThan(text.indexOf('## Neue Tests (1)'));
+  expect(text).toContain('Der Knopf fehlt');
+  expect(text).toContain('### 1. Move a story');
 });

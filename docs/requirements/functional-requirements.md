@@ -627,21 +627,21 @@ Verified by: component AC13.1–AC13.3 (`src/Help.test.tsx`), `src/help/topics.t
 
 ## Test builder (TEST)
 
-Only in the web preview (not in the desktop app). Design: `docs/design/test-recorder.md`.
+Only where the acceptance popup of the pull request previews shows (pull request previews, the dev server and `?acceptance=1`; never the desktop app, never `main`). Design: `docs/design/test-recorder.md`.
 
 ### FR-TEST-01 Start a recording
 As the PO, I want to build a new test by clicking, so that I do not have to write test cases by hand.
-- "Record test" in the header opens the test builder; "Build a new test" asks for a name (required), a requirement (optional, for example AC2.1) and the starting point: fresh demo data (the app loads again) or the data as they are.
+- The way in is the round "Preview" button at the bottom left (#32): the popup has the tabs "Abnahme" and "Neuer Test"; "Neuer Test" opens the test builder on the right edge. There is no button in the header. A running recording shows as a dot on the round button and in the tab. "Build a new test" asks for a name (required), a requirement (optional, for example AC2.1) and the starting point: fresh demo data (the app loads again) or the data as they are.
 - The recording and the saved tests are kept on the device (`localStorage`, key `getitdone.recorder`), also over a reload.
-- The button does not exist in the desktop app.
+- Neither the button nor the builder exist in the desktop app or on `main`.
 
-Source: #37 · Status: Implemented · Verified by: #37 AC1.1 to AC1.3 (`src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC1.1"); desktop app: manual check
+Source: #37 (PO feedback on the place of the button) · Status: Implemented · Verified by: #37 AC1.1 to AC1.3, AC1.5 to AC1.7 (`src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC1.1", "AC1.5"); desktop app and `main`: manual check, `src/acceptance/preview.test.ts` "AC11.5"
 
 ### FR-TEST-02 Bar at the right edge
-- The builder is a bar fixed to the right edge; the app gets narrower instead of being covered (also when the help is open). On a narrow screen it sits at the bottom.
+- The builder is a bar fixed to the right edge; the app gets narrower instead of being covered (also when the help is open). On a narrow screen it sits at the bottom. The acceptance popup keeps clear of it when it moves to the right.
 - The bar folds away to a narrow strip with the number of steps; recording goes on while it is folded away.
 
-Source: #37 · Status: Implemented · Verified by: #37 AC2.1 to AC2.4 (`src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC2.1", "AC2.4")
+Source: #37 · Status: Implemented · Verified by: #37 AC2.1 to AC2.5 (`src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC2.1", "AC2.4", "AC2.5")
 
 ### FR-TEST-03 Steps as sentences
 - Clicks, double clicks, typed values (one step per field), chosen options, Enter and Escape, cards dragged with the mouse (with the column they landed in), changes of the page and a reload become sentences in the language of the UI. What is done in the builder itself is not recorded.
@@ -657,13 +657,13 @@ Source: #37 · Status: Implemented · Verified by: #37 AC4.1 to AC4.5 (`src/doma
 
 ### FR-TEST-05 My tests and handing over to the AI
 - "My tests" lists the saved tests; a test can be edited and deleted (after a confirmation).
-- "Copy everything" puts one text on the clipboard: a note for the AI, the preview address, date, language and window width, and every test in the form "Ausgangslage / Ich mache / Erwartet" with its technical steps as JSON. The text can be shown first. The list of entries is built so that feedback can follow as a further kind of entry.
+- "Ergebnis kopieren" (in the bar and in the popup, the same text) puts one text on the clipboard: a note for the AI, the preview address, date, language and window width, the result of the acceptance (section "Abnahme", only if something was noted), and every new test in the form "Ausgangslage / Ich mache / Erwartet" with its technical steps as JSON. Without new tests the text is the text of the acceptance alone, as before. The text can be shown first. The list of entries is built so that feedback can follow as a further kind of entry.
 - Nothing is sent anywhere; the user pastes the text.
 
-Source: #37 · Status: Implemented · Verified by: #37 AC7.1 to AC7.3, AC8.1, AC8.2, AC8.4, AC8.5 (`src/domain/testRecorder.test.ts`, `src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC8.1")
+Source: #37 · Status: Implemented · Verified by: #37 AC7.1 to AC7.3, AC8.1, AC8.2, AC8.4 to AC8.7 (`src/domain/testRecorder.test.ts`, `src/Recorder.test.tsx`, `e2e/testRecorder.spec.ts` "AC8.1", "AC8.6")
 
 ### FR-TEST-06 Languages and help
-- All texts of the builder in DE, EN, FR and IT; help topic "Record a test" with "Show me" for the button.
+- All texts of the builder in DE, EN, FR and IT; help topic "Record a test" with "Show me" for the round button. The popup and its tab are in German like the acceptance.
 
 Source: #37 · Status: Implemented · Verified by: #37 AC9.1, AC9.2 (`src/Recorder.test.tsx`, `src/help/topics.test.ts`, `e2e/testRecorder.spec.ts` "AC9.2")
 

@@ -753,7 +753,6 @@
     }
   },
   "recorder": {
-    "button": "Registra test",
     "panelLabel": "Costruttore di test",
     "title": "Costruttore di test",
     "close": "Chiudi il costruttore di test",
@@ -792,7 +791,7 @@
       "begin": "Avvia la registrazione"
     },
     "home": {
-      "intro": "Costruisci nuovi test navigando nell’app. Alla fine copia tutto in un solo testo e consegnalo all’IA.",
+      "intro": "Costruisci nuovi test navigando nell’app. Alla fine copia il risultato in un solo testo e consegnalo all’IA.",
       "newTest": "Costruisci un nuovo test",
       "yourTests": "I miei test ({{count}})",
       "none": "Ancora nessun test.",
@@ -805,9 +804,8 @@
       "confirmDelete": "Eliminare «{{name}}»?",
       "deleteYes": "Sì, elimina",
       "export": "Consegna all’IA",
-      "exportNone": "Ancora niente da copiare.",
-      "exportHint": "Un testo con tutti i nuovi test, pronto da incollare all’IA.",
-      "copyAll": "Copia tutto",
+      "exportHint": "Un testo con il collaudo e tutti i nuovi test, pronto da incollare all’IA.",
+      "copyAll": "Copia il risultato",
       "showText": "Mostra il testo",
       "hideText": "Nascondi il testo",
       "textLabel": "Testo per l’IA"
@@ -854,7 +852,8 @@
       "seeText": "Vedo il testo «{{text}}».",
       "seeElement": "Vedo l’elemento che ho indicato.",
       "fieldShows": "Il campo «{{field}}» mostra «{{value}}»."
-    }
+    },
+    "copyNothing": "Ancora niente da copiare."
   },
   "help": {
     "button": "Guida",
@@ -1017,8 +1016,8 @@
       },
       "recorder.basics": {
         "title": "Registrare un test",
-        "keywords": "test registrare registrazione costruttore cliccare risultato atteso feedback copiare esportare ia anteprima",
-        "body": "Funziona solo nell’anteprima web. Clicca su «Registra test» nell’intestazione: a destra si apre il costruttore di test.\n1. Scegli «Costruisci un nuovo test», dagli un nome e avvia la registrazione.\n2. Naviga nell’app come faresti per un test. Ogni clic, ogni inserimento e ogni trascinamento diventa una frase nella barra. Puoi riscrivere o rimuovere le frasi, oppure aggiungere un passaggio a mano.\n3. Scegli «Indica il risultato», clicca sull’elemento che mostra ciò che ti aspetti e scegli una frase. Termina il test.\n4. Alla fine scegli «Copia tutto» e incolla il testo all’IA."
+        "keywords": "test registrare registrazione costruttore cliccare risultato atteso feedback collaudo copiare esportare ia anteprima",
+        "body": "Funziona solo nelle anteprime delle pull request, con il pulsante rotondo «Preview» in basso nella pagina. Clicca sul pulsante e apri la scheda «Neuer Test»: a destra si apre il costruttore di test.\n1. Scegli «Costruisci un nuovo test», dagli un nome e avvia la registrazione.\n2. Naviga nell’app come faresti per un test. Ogni clic, ogni inserimento e ogni trascinamento diventa una frase nella barra. Puoi riscrivere o rimuovere le frasi, oppure aggiungere un passaggio a mano.\n3. Scegli «Indica il risultato», clicca sull’elemento che mostra ciò che ti aspetti e scegli una frase. Termina il test.\n4. Alla fine scegli «Copia il risultato» (nella barra o nella finestra) e incolla il testo all’IA: contiene il collaudo e tutti i nuovi test."
       }
     },
     "links": {

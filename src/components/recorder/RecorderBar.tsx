@@ -391,8 +391,8 @@ function HomeView() {
       )}
 
       <h3 className="recorder__heading">{t('recorder.home.export')}</h3>
-      <p className="muted">{collection.length === 0 ? t('recorder.home.exportNone') : t('recorder.home.exportHint')}</p>
-      <button type="button" className="btn btn--primary recorder__wide" disabled={collection.length === 0} onClick={() => void recorder.copyAll()}>
+      <p className="muted">{t('recorder.home.exportHint')}</p>
+      <button type="button" className="btn btn--primary recorder__wide" onClick={() => void recorder.copyAll()}>
         {t('recorder.home.copyAll')}
       </button>
       {collection.length > 0 && (

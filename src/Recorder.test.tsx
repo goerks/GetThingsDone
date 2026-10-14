@@ -29,12 +29,17 @@ async function renderApp(hash = '#/board'): Promise<void> {
 }
 
 const bar = (): HTMLElement => screen.getByRole('complementary', { name: 'Test builder' });
-const recordButton = (): HTMLElement => screen.getByRole('button', { name: 'Record test' });
+const toggle = (): HTMLElement => screen.getByRole('button', { name: /^Abnahme, / });
+const popup = (): HTMLElement => screen.getByRole('complementary', { name: 'Abnahme' });
 const steps = (): string[] => within(within(bar()).getByRole('list', { name: 'Steps of the test' })).getAllByRole('listitem').map((item) => item.textContent ?? '').filter((text) => text !== '');
 const stepTexts = (): string[] => steps().map((text) => text.replace(/[✎✕]/g, '').trim());
 
 async function openBuilder(user: User): Promise<void> {
-  if (!screen.queryByRole('complementary', { name: 'Test builder' })) await user.click(recordButton());
+  // The way in is the round button of the acceptance and its tab "Neuer Test"
+  if (!screen.queryByRole('complementary', { name: 'Test builder' })) {
+    if (!screen.queryByRole('complementary', { name: 'Abnahme' })) await user.click(toggle());
+    await user.click(within(popup()).getByRole('tab', { name: /Neuer Test/ }));
+  }
   expect(bar()).toBeInTheDocument();
 }
 
@@ -87,6 +92,53 @@ describe('starting a recording', () => {
     expect(within(bar()).getByRole('alert')).toHaveTextContent('Please enter a name.');
     expect(within(bar()).getByRole('textbox', { name: 'Name of the test' })).toBeInvalid();
     expect(parseRecorderState(window.localStorage.getItem(RECORDER_STORAGE_KEY)).draft).toBeNull();
+  });
+});
+
+describe('the way in', () => {
+  it('AC1.5 has no button in the header; the way in is the tab "Neuer Test" of the acceptance popup', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    expect(screen.queryByRole('button', { name: 'Record test' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('complementary', { name: 'Test builder' })).not.toBeInTheDocument();
+    await user.click(toggle());
+    expect(within(popup()).getByRole('tab', { name: 'Abnahme' })).toHaveAttribute('aria-selected', 'true');
+    await user.click(within(popup()).getByRole('tab', { name: /Neuer Test/ }));
+    expect(within(popup()).getByRole('tab', { name: /Neuer Test/ })).toHaveAttribute('aria-selected', 'true');
+    expect(bar()).toBeInTheDocument();
+    expect(within(popup()).getByText('0 Tests gespeichert.')).toBeInTheDocument();
+  });
+
+  it('AC1.8 switches between the tabs with the arrow keys', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await user.click(toggle());
+    within(popup()).getByRole('tab', { name: 'Abnahme' }).focus();
+    await user.keyboard('{ArrowRight}');
+    expect(within(popup()).getByRole('tab', { name: /Neuer Test/ })).toHaveFocus();
+    expect(within(popup()).getByRole('tab', { name: /Neuer Test/ })).toHaveAttribute('aria-selected', 'true');
+    expect(bar()).toBeInTheDocument();
+    await user.keyboard('{ArrowLeft}');
+    expect(within(popup()).getByRole('tab', { name: 'Abnahme' })).toHaveFocus();
+    expect(within(popup()).getByRole('tab', { name: 'Abnahme' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('AC1.6 shows that a recording is running on the round button and in the tab', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await startTest(user);
+    expect(toggle()).toHaveAccessibleName(/Aufnahme läuft/);
+    expect(within(popup()).getByRole('img', { name: 'Aufnahme läuft' })).toBeInTheDocument();
+    expect(within(popup()).getByRole('status')).toHaveTextContent('Aufnahme läuft: «Move a story», 1 Schritt.');
+  });
+
+  it('AC1.7 does not record what is done in the acceptance popup', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await startTest(user);
+    await user.click(within(popup()).getByRole('tab', { name: 'Abnahme' }));
+    await user.click(within(popup()).getByRole('button', { name: /In Ordnung/ }));
+    expect(stepTexts()).toEqual(['I open the page “Board”.']);
   });
 });
 
@@ -213,8 +265,8 @@ describe('recording steps', () => {
     await user.click(within(bar()).getByRole('button', { name: 'Cancel' }));
     expect(stepTexts()).toEqual(['I open the page “Board”.']);
     // Folding the bar away and opening it again is no step either
-    await user.click(recordButton());
-    await user.click(recordButton());
+    await user.click(screen.getByRole('button', { name: 'Fold the bar away' }));
+    await user.click(screen.getByRole('button', { name: 'Open the test builder' }));
     expect(stepTexts()).toEqual(['I open the page “Board”.']);
   });
 });
@@ -355,7 +407,7 @@ describe('handing over to the AI', () => {
     await renderApp();
     await saveTest(user, 'First');
     await saveTest(user, 'Second');
-    await user.click(within(bar()).getByRole('button', { name: 'Copy everything' }));
+    await user.click(within(bar()).getByRole('button', { name: 'Copy result' }));
     const text = await navigator.clipboard.readText();
     expect(text).toContain('# Feedback aus der Vorschau von Get It Done');
     expect(text).toContain('Hinweis für die KI:');
@@ -374,16 +426,47 @@ describe('handing over to the AI', () => {
     await saveTest(user, 'First');
     await user.click(within(bar()).getByRole('button', { name: 'Show the text' }));
     const shown = (within(bar()).getByRole('textbox', { name: 'Text for the AI' }) as HTMLTextAreaElement).value;
-    await user.click(within(bar()).getByRole('button', { name: 'Copy everything' }));
+    await user.click(within(bar()).getByRole('button', { name: 'Copy result' }));
     expect(await navigator.clipboard.readText()).toBe(shown);
   });
 
-  it('AC8.4 has nothing to copy while there are no tests', async () => {
+  it('AC8.4 says there is nothing to copy while there are no tests and no notes of the acceptance', async () => {
     const user = userEvent.setup();
     await renderApp();
     await openBuilder(user);
-    expect(within(bar()).getByRole('button', { name: 'Copy everything' })).toBeDisabled();
-    expect(within(bar()).getByText('Nothing to copy yet.')).toBeInTheDocument();
+    await user.click(within(bar()).getByRole('button', { name: 'Copy result' }));
+    expect(within(bar()).getAllByRole('status').some((item) => item.textContent === 'Nothing to copy yet.')).toBe(true);
+  });
+
+  it('AC8.6 puts the result of the acceptance first and the new tests after it, in the popup and in the bar', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    // Given a problem noted in the acceptance and a saved test
+    await user.click(toggle());
+    await user.click(within(popup()).getByRole('button', { name: /Problem/ }));
+    await user.type(within(popup()).getByRole('textbox', { name: /^Kommentar zu / }), 'Der Knopf fehlt');
+    await saveTest(user, 'First');
+    // When I copy from the popup
+    await user.click(within(popup()).getByRole('tab', { name: /Neuer Test/ }));
+    await user.click(within(popup()).getByRole('button', { name: 'Ergebnis kopieren' }));
+    const fromPopup = await navigator.clipboard.readText();
+    // Then the text has the acceptance and the new tests, and the bar copies the same text
+    expect(fromPopup.indexOf('## Abnahme')).toBeGreaterThan(0);
+    expect(fromPopup.indexOf('## Abnahme')).toBeLessThan(fromPopup.indexOf('## Neue Tests (1)'));
+    expect(fromPopup).toContain('Probleme:');
+    expect(fromPopup).toContain('Der Knopf fehlt');
+    await user.click(within(bar()).getByRole('button', { name: 'Copy result' }));
+    expect(await navigator.clipboard.readText()).toBe(fromPopup);
+  });
+
+  it('AC8.7 copies only the acceptance, as before, while there are no new tests', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await user.click(toggle());
+    await user.click(within(popup()).getByRole('button', { name: 'Ergebnis kopieren' }));
+    const text = await navigator.clipboard.readText();
+    expect(text.startsWith('Abnahme ')).toBe(true);
+    expect(text).not.toContain('Neue Tests');
   });
 });
 
@@ -394,7 +477,8 @@ describe('languages and help', () => {
     await act(async () => {
       await i18n.changeLanguage('de');
     });
-    await user.click(screen.getByRole('button', { name: 'Test aufnehmen' }));
+    await user.click(toggle());
+    await user.click(within(popup()).getByRole('tab', { name: /Neuer Test/ }));
     expect(screen.getByRole('complementary', { name: 'Test-Builder' })).toBeInTheDocument();
     const german = screen.getByRole('complementary', { name: 'Test-Builder' });
     await user.click(within(german).getByRole('button', { name: 'Neuen Test aufbauen' }));
@@ -418,6 +502,6 @@ describe('languages and help', () => {
     await user.click(within(help).getByRole('button', { name: /Record a test/ }));
     expect(within(help).getByText(/Choose “Point at the result”/)).toBeInTheDocument();
     await user.click(within(help).getByRole('button', { name: 'Show me' }));
-    expect(recordButton()).toHaveAttribute('data-help-highlight', 'true');
+    expect(toggle()).toHaveAttribute('data-help-highlight', 'true');
   });
 });
