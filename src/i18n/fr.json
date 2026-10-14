@@ -822,6 +822,10 @@
       "settingsFeatures": "Ouvrir Paramètres → Fonctions"
     },
     "linksTitle": "Où le trouver",
-    "linkLocked": "{{label}} : activez d’abord la fonction « {{feature}} » (voir ci-dessus)."
+    "linkLocked": "Activez d’abord la fonction « {{feature}} »",
+    "linkHints": {
+      "featureFirst": "D’abord activer la fonction",
+      "releaseRows": "Choisir « Releases » comme lignes"
+    }
   }
 }

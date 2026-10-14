@@ -344,7 +344,7 @@ test('AC10.3 explains that the feature Releases must be switched on first, and l
 
   // Then it starts with the feature, and the places that need it say so instead of leading nowhere
   await expect(panel(page).getByText('Releases only work when the feature “Releases” is switched on.')).toBeVisible();
-  await expect(panel(page).getByText('Open Releases: switch the feature “Releases” on first (see above).')).toBeVisible();
+  await expect(panel(page).locator('.linkbtn--locked', { hasText: 'Open Releases' })).toContainText('Switch the feature “Releases” on first');
   await expect(panel(page).getByRole('link', { name: 'Open Releases' })).toHaveCount(0);
 
   // When I follow the link to the features and switch Releases on, with the help still open

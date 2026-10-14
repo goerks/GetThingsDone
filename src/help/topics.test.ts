@@ -67,9 +67,10 @@ describe.each(languages)('help topics in %s', (code, file) => {
 
   it('AC10.1 has a label for every place a topic can link to, and the text for a place that needs a feature', () => {
     for (const id of Object.keys(LINK_TARGETS)) expect((help.links as Record<string, string>)[id]?.trim(), `${code} link ${id}`).toBeTruthy();
-    expect(help.linkLocked).toContain('{{label}}');
     expect(help.linkLocked).toContain('{{feature}}');
     expect(help.linksTitle.trim()).not.toBe('');
+    expect(help.linkHints.featureFirst.trim()).not.toBe('');
+    expect(help.linkHints.releaseRows.trim()).not.toBe('');
   });
 
   it('AC10.2 tells the order for releases: the feature first, in every language', () => {
