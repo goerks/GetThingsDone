@@ -12,6 +12,21 @@ How the product owner (PO) and the AI developer work together on a feature. The 
 
 The AI cannot write first; a session starts with the PO's first message. If that message has no concrete task (for example "Hallo" or "Was steht an?"), the AI answers with an overview: the **top 5 open issues** of the backlog, each with its state and a short assessment, followed by **2–3 questions or suggestions** on how the product could continue. The PO can ask for the same overview at any time with `/start`. A first message with a concrete task is worked on directly. Introduced with #41; the instructions are in `.claude/skills/start/SKILL.md`.
 
+## Commands
+
+The PO can use short commands in the chat. They are shortcuts: plain sentences ("passt", "bau es") mean the same. The PO only talks in the chat; the AI records every decision in the issue. Introduced with #43; the instructions are in `.claude/skills/`.
+
+| Command | Step | What the AI does |
+|---|---|---|
+| `/start` | – | Top 5 open issues and 2–3 questions on how to continue |
+| `/hilfe` | – | Lists and explains the commands (`/help` is built into Claude Code) |
+| `/neu <text>` | 1–2 | Creates the issue in the PO's words, proposes stories, asks the open questions |
+| `/freigabe #<n>` | 3, 5 | Records the approval of the acceptance criteria (then proposes test cases) or of the test cases (then asks whether to build) |
+| `/go #<n>` | 5–7 | Builds the feature and opens the pull request with the preview link |
+| `/feedback #<n> <text>` | 8 | Records the feedback in the issue, fixes it, posts the new preview link |
+| `/abgenommen #<n>` | 8–9 | Records the acceptance, merges the pull request, deletes the branch; the issue closes |
+| `/status #<n>` | – | State, what is open, next step |
+
 ## Steps
 
 | # | Who | What | Where |
