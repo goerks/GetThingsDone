@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { PACKAGE_1 } from './package1';
+import { PACKAGES } from './packages';
 
 /** Every test case names the automated tests that cover it; this checks the names against the test files. */
 describe('acceptance test cases and their automated tests', () => {
-  const cases = PACKAGE_1.criteria.flatMap((criterion) => criterion.cases);
+  const cases = Object.values(PACKAGES).flatMap((pack) => pack.criteria.flatMap((criterion) => criterion.cases));
 
   it('every test case has an automated test, except those that only a person can check (manual, with a check for the PO)', () => {
     expect(cases.filter((testCase) => testCase.tests.length === 0 && !(testCase.manual && testCase.poCheck)).map((testCase) => testCase.id)).toEqual([]);

@@ -75,6 +75,10 @@ Every change of the stories goes through one function in `AppProvider` (`update`
 
 `BurndownReport` calls `burndownReport(release, events, today)`. It takes the days of `scopeReport` (scope and done per calendar day up to today), subtracts done from scope to get what is left, and extends the days to the end date when that is later than today (those days have no value). With a start and an end date it adds the target line: linear from what was left on the start day (or on the first recorded day when the history starts later) to nothing on the end day, in both units. The difference between what is left today and the line today is shown as behind or ahead. The chart is drawn like the scope chart, with the same units, markers for the changes of the scope and a table for screen readers.
 
+## Velocity (#24)
+
+Completing a sprint (#17) stores its result in the sprint (`result`: planned at the start, done, added). `VelocityPanel` and `SprintPlan` read the sprints from the app state and call `velocityRows` (completed sprints with a result, in time order, with the share done of planned), `averageVelocity` (the done points of the last three rows, rounded to whole points, with the number of sprints it covers) and `chartRows` (the last 8 rows, 8 more per "Older sprints"). No new data is stored: the chart is computed from the results of the sprints, so it works the same in the browser build and in the desktop app. The chart is hand-drawn SVG like the release reports; each sprint is a focusable group that shows its details on hover or focus. The table is always in the page (visually hidden while the chart shows) for screen readers. Only the open or closed state of the panel is remembered, in `localStorage` (`getitdone.velocity.open`).
+
 ## Change the status values (#5)
 
 1. `StatusValuesSection` turns a drop (or Alt+Arrow up/down in a name field) into a new order with categories (`moveStatus`, `stepStatus`) and checks it with `reorderStatuses`: categories in their fixed order, "not started" and "done" not empty. An invalid order is refused with a message.

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PACKAGE_1 } from './package1';
+import { selectPackage } from './packages';
 import type { TestCase } from './types';
 
 /*
@@ -17,8 +17,8 @@ interface Note {
 }
 type Notes = Record<string, Note>;
 
-const PACKAGE = PACKAGE_1;
-const STORAGE_KEY = `getitdone.acceptance.${PACKAGE.issue}.package1`;
+const PACKAGE = selectPackage(typeof window === 'undefined' ? '' : window.location.search);
+const STORAGE_KEY = `getitdone.acceptance.${PACKAGE.issue}.package${PACKAGE.issue === 32 ? 1 : PACKAGE.issue}`;
 const STEP_KEY = `${STORAGE_KEY}.step`;
 const CASES: TestCase[] = PACKAGE.criteria.flatMap((criterion) => criterion.cases);
 /** The test cases only the product owner can check; the others are covered by automated tests. */

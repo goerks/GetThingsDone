@@ -871,6 +871,11 @@
         "keywords": "sprint pianificazione sezione linea prossimo in corso",
         "body": "Il backlog mostra gli sprint uno sotto l’altro, poi le story non ancora pianificate. La linea dello sprint è il confine tra due sezioni: ciò che sta sopra appartiene a quello sprint. Gli sprint in corso e pianificati sono contrassegnati; gli sprint conclusi non vengono più mostrati.\nTrascina le story oltre la linea per pianificarle."
       },
+      "backlog.velocity": {
+        "title": "Velocity",
+        "keywords": "velocity media pianificato completato punti sprint grafico tabella team capacità",
+        "body": "Il Backlog mostra la velocity del team sopra gli sprint: per ogni sprint concluso due barre, i punti pianificati all’avvio e quelli completati. Una linea tratteggiata mostra la media degli ultimi tre sprint conclusi.\nPassa il mouse su uno sprint o raggiungilo con il tasto Tab per vedere periodo, quota completata e ciò che è stato aggiunto. «Sprint precedenti» ne mostra altri otto; «Tabella» elenca tutti gli sprint con gli stessi valori. Con il titolo chiudi l’area.\nOgni sprint aperto nel Backlog, nella Story Map e nella finestra di avvio mostra i suoi punti accanto alla media, ad esempio «30 pianificati · Ø 21». Così pianifichi lo sprint successivo in modo realistico. L’area compare dopo aver concluso uno sprint."
+      },
       "sprint.lifecycle": {
         "title": "Avviare e concludere uno sprint",
         "keywords": "sprint avviare concludere terminare fine pianificato in corso story non completate sprint successivo",
@@ -995,5 +1000,58 @@
       "points_other": "{{code}} ora ha {{count}} punti",
       "reordered": "{{code}} spostata"
     }
+  },
+  "velocity": {
+    "title": "Velocity",
+    "chartLabel_one": "Grafico della velocity: punti pianificati e completati dell’ultimo sprint concluso",
+    "chartLabel_other": "Grafico della velocity: punti pianificati e completati degli ultimi {{count}} sprint conclusi",
+    "plan": "{{points}} pianificati",
+    "planAverage": "{{points}} pianificati · Ø {{average}}",
+    "head": {
+      "last": "Ø {{points}} punti · ultimi 3 sprint",
+      "few_one": "Ø {{points}} punti · {{count}} sprint",
+      "few_other": "Ø {{points}} punti · {{count}} sprint"
+    },
+    "line": {
+      "last": "Ø {{points}} (ultimi 3)",
+      "few_one": "Ø {{points}} ({{count}} sprint)",
+      "few_other": "Ø {{points}} ({{count}} sprint)"
+    },
+    "foot": {
+      "last": "Ø degli ultimi 3 sprint: {{points}}",
+      "few_one": "Ø di {{count}} sprint: {{points}}",
+      "few_other": "Ø di {{count}} sprint: {{points}}"
+    },
+    "legend": {
+      "planned": "Pianificato",
+      "done": "Completato",
+      "average": "Media"
+    },
+    "view": {
+      "label": "Vista",
+      "chart": "Grafico",
+      "table": "Tabella"
+    },
+    "older": "Sprint precedenti",
+    "tip": {
+      "figures": "Pianificato all’inizio {{planned}} · Completato {{done}}",
+      "added_one": "+{{stories}} story, +{{points}} punti aggiunti",
+      "added_other": "+{{stories}} story, +{{points}} punti aggiunti"
+    },
+    "tableLabel": "Velocity per sprint concluso",
+    "table": {
+      "sprint": "Sprint",
+      "period": "Periodo",
+      "completed": "Concluso",
+      "planned": "Pianificato all’inizio",
+      "added": "Aggiunto",
+      "done": "Completato",
+      "share": "Quota"
+    },
+    "empty": {
+      "title": "Nessuno sprint concluso finora",
+      "text": "Appena concludi uno sprint sulla bacheca, qui vedi quanti punti erano pianificati e completati."
+    },
+    "explain": "Pianificato: i punti dello sprint all’avvio; completato: i punti delle story finite alla chiusura. La media riguarda gli ultimi tre sprint conclusi."
   }
 }

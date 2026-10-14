@@ -871,6 +871,11 @@
         "keywords": "sprint planning section line upcoming running",
         "body": "The backlog shows the sprints one below the other, followed by the stories that are not planned yet. The sprint line is the border between two sections: what is above it belongs to that sprint. Running and planned sprints are marked; completed sprints are no longer shown.\nDrag stories across the line to plan them."
       },
+      "backlog.velocity": {
+        "title": "Velocity",
+        "keywords": "velocity average planned completed points sprint chart table team capacity",
+        "body": "The Backlog shows the velocity of your team above the sprints: for each completed sprint two bars, the points planned when it was started and the points done. A dashed line shows the average of the last three completed sprints.\nHover over or tab to a sprint to see its dates, the share done and what joined during the sprint. “Older sprints” shows eight more; “Table” lists all sprints with the same values. Fold the panel with its title.\nEvery open sprint in the Backlog, on the Story Map and in the start dialog shows its points next to the average, for example “30 planned · Ø 21”. Use it to plan the next sprint realistically. The panel appears once you complete a sprint."
+      },
       "sprint.lifecycle": {
         "title": "Start and complete a sprint",
         "keywords": "sprint start complete close finish end planned running ended unfinished stories next sprint",
@@ -995,5 +1000,58 @@
       "points_other": "{{code}} now has {{count}} points",
       "reordered": "{{code}} moved"
     }
+  },
+  "velocity": {
+    "title": "Velocity",
+    "chartLabel_one": "Velocity chart: planned and completed points of the last completed sprint",
+    "chartLabel_other": "Velocity chart: planned and completed points of the last {{count}} completed sprints",
+    "plan": "{{points}} planned",
+    "planAverage": "{{points}} planned · Ø {{average}}",
+    "head": {
+      "last": "Ø {{points}} points · last 3 sprints",
+      "few_one": "Ø {{points}} points · {{count}} sprint",
+      "few_other": "Ø {{points}} points · {{count}} sprints"
+    },
+    "line": {
+      "last": "Ø {{points}} (last 3)",
+      "few_one": "Ø {{points}} ({{count}} sprint)",
+      "few_other": "Ø {{points}} ({{count}} sprints)"
+    },
+    "foot": {
+      "last": "Ø of the last 3 sprints: {{points}}",
+      "few_one": "Ø of {{count}} sprint: {{points}}",
+      "few_other": "Ø of {{count}} sprints: {{points}}"
+    },
+    "legend": {
+      "planned": "Planned",
+      "done": "Done",
+      "average": "Average"
+    },
+    "view": {
+      "label": "View",
+      "chart": "Chart",
+      "table": "Table"
+    },
+    "older": "Older sprints",
+    "tip": {
+      "figures": "Planned at start {{planned}} · Done {{done}}",
+      "added_one": "+{{stories}} story, +{{points}} points added",
+      "added_other": "+{{stories}} stories, +{{points}} points added"
+    },
+    "tableLabel": "Velocity per completed sprint",
+    "table": {
+      "sprint": "Sprint",
+      "period": "Period",
+      "completed": "Completed",
+      "planned": "Planned at start",
+      "added": "Added",
+      "done": "Done",
+      "share": "Share"
+    },
+    "empty": {
+      "title": "No sprint completed yet",
+      "text": "As soon as you complete a sprint on the board, you see here how many points were planned and done."
+    },
+    "explain": "Planned is the points in the sprint when it was started; done are the points of the stories that were done when it was completed. The average covers the last three completed sprints."
   }
 }

@@ -22,6 +22,7 @@ import { useStoryMenu } from '../state/StoryMenu';
 import { NewReleaseDialog } from '../components/ReleaseForm';
 import { formatPeriod } from '../components/releaseFormat';
 import { SprintDialog } from '../components/SprintDialog';
+import { SprintPlan } from '../components/SprintPlan';
 import { formatSprintDates } from '../components/sprintFormat';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors } from '../dnd/dnd';
 import {
@@ -200,6 +201,7 @@ function SprintLabelContent({ sprint, stories, labelId }: Omit<SprintLabelProps,
       </span>
       <span className="map-sprint__dates">{formatSprintDates(sprint, i18n.language)}</span>
       <span className="map-sprint__sum">{builtin.summary(stories.length, totalPoints(stories))}</span>
+      <SprintPlan points={totalPoints(stories)} className="map-sprint__plan" />
     </>
   );
 }

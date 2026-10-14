@@ -4,6 +4,7 @@ import { contentsOf, startNeedsDates } from '../domain/sprintLife';
 import { addDays, daysBetween, startableSprints, todayIso } from '../domain/sprints';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
+import { SprintPlan } from './SprintPlan';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
 
 interface Props {
@@ -64,6 +65,7 @@ export function StartSprintDialog({ sprintId, onClose }: Props) {
             </span>
           </div>
         </div>
+        <SprintPlan points={contents.points} className="muted sprint-plan" />
         <p className="muted">{t('lifecycle.start.note', { points: contents.points })}</p>
         {contents.withoutPoints.length > 0 && (
           <p className="muted">
