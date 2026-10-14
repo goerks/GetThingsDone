@@ -18,3 +18,13 @@ The PO wants help to look things up (preferably interactive) and an optional int
 - The invitation on the first start is a small dismissible card. The introduction has four steps (board, move a story, create a story, order the backlog); only the first is confirmed by the user, the others are ticked off by the app when the user does them after the start. The steps work on the user's own data and can be skipped.
 - First version topics: board, backlog, story map, epics, releases, settings, search and keyboard shortcuts, in DE, EN, FR and IT.
 - What the help remembers (invitation answered, progress) is kept per device in `localStorage`, like theme and language. It is not part of the team's data, so the repository (SQLite) is unchanged.
+
+## Link buttons (PO feedback on #33)
+
+The links of a topic ("Where to find it") were plain text lines. Three variants for real buttons, shown with the topic Releases with the feature on and off: [`help-links-variants.html`](help-links-variants.html), images `help-links-va.png` to `help-links-vc.png`.
+
+| Variant | Idea | Outcome |
+|---|---|---|
+| A · Row buttons | Wide button per place with icon, name and arrow; the feature to switch on first is highlighted and on top; places that cannot be used yet are dashed and grey with a lock and a hint | Proposed |
+| B · Grouped chips | Short round buttons in two groups, "First" and "Then" | Not proposed |
+| C · Path in steps | Numbered steps with one button each; the first is the main button | Not proposed (only fits topics with an order) |
