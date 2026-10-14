@@ -2,7 +2,10 @@ import Database from '@tauri-apps/plugin-sql';
 import { normalizeColorKey } from '../domain/epics';
 import { missingBuiltins } from '../domain/fields';
 import { FEATURE_KEYS, normalizeSettings } from '../domain/settings';
-import { normalizeStatuses } from '../domain/statuses';
+import { isDoneIn, normalizeStatuses } from '../domain/statuses';
+import { changedPositions } from '../domain/board';
+import { settleSprints, type StoredSprint } from '../domain/sprintLife';
+import { todayIso } from '../domain/sprints';
 import type {
   BuiltinKey,
   Criterion,
@@ -44,6 +47,21 @@ interface SprintRow {
   name: string;
   start_date: string;
   end_date: string;
+  /** NULL for a sprint of an earlier version; the app settles it when it loads. */
+  state: string | null;
+  start_items: string | null;
+  result: string | null;
+}
+
+const json = (value: unknown): string | null => (value === null ? null : JSON.stringify(value));
+
+function parseJson<T>(text: string | null): T | null {
+  if (!text) return null;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
 }
 
 interface ReleaseRow {
@@ -161,7 +179,7 @@ export class SqliteRepository implements Repository {
   async load(): Promise<Snapshot> {
     const epicRows = await this.db.select<EpicRow[]>('SELECT id, name, color_key, position FROM epics ORDER BY position, name');
     const sprintRows = await this.db.select<SprintRow[]>(
-      'SELECT id, name, start_date, end_date FROM sprints ORDER BY start_date, name'
+      'SELECT id, name, start_date, end_date, state, start_items, result FROM sprints ORDER BY start_date, name'
     );
     const releaseRows = await this.db.select<ReleaseRow[]>(
       'SELECT id, title, description, start_date, end_date FROM releases ORDER BY rowid'
@@ -212,11 +230,14 @@ export class SqliteRepository implements Repository {
       position: row.position,
       values: valuesByItem.get(row.id) ?? {}
     }));
-    const sprints: Sprint[] = sprintRows.map((row) => ({
+    const storedSprints: StoredSprint[] = sprintRows.map((row) => ({
       id: row.id,
       name: row.name,
       startDate: row.start_date,
-      endDate: row.end_date
+      endDate: row.end_date,
+      state: (row.state ?? undefined) as Sprint['state'] | undefined,
+      startItems: parseJson<Sprint['startItems']>(row.start_items),
+      result: parseJson<Sprint['result']>(row.result)
     }));
     const eventRows = await this.db.select<EventRow[]>(
       'SELECT id, at, release_id, story_id, code, kind, points, done FROM release_events ORDER BY at, rowid'
@@ -268,7 +289,14 @@ export class SqliteRepository implements Repository {
       'SELECT id, label, category FROM status_values ORDER BY position'
     );
     const statuses = normalizeStatuses(statusRows.map((row) => ({ id: row.id, label: row.label, category: row.category as StatusCategory })));
-    return { epics, sprints, releases, events, stories, statuses, fields, assignments, settings };
+    // Sprints of an earlier version get their state by their dates; what that changes is stored right away.
+    const settled = settleSprints(storedSprints, stories, isDoneIn(statuses), todayIso());
+    if (storedSprints.some((sprint) => sprint.state === undefined)) {
+      for (const sprint of settled.sprints) await this.updateSprint(sprint);
+      const moved = changedPositions(stories, settled.stories);
+      if (moved.length > 0) await this.savePositions(moved);
+    }
+    return { epics, sprints: settled.sprints, releases, events, stories: settled.stories, statuses, fields, assignments, settings };
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
@@ -438,19 +466,20 @@ export class SqliteRepository implements Repository {
   }
 
   async addSprint(sprint: Sprint): Promise<void> {
-    await this.db.execute('INSERT INTO sprints (id, name, start_date, end_date) VALUES ($1, $2, $3, $4)', [
-      sprint.id,
-      sprint.name,
-      sprint.startDate,
-      sprint.endDate
-    ]);
+    await this.db.execute(
+      'INSERT INTO sprints (id, name, start_date, end_date, state, start_items, result) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [sprint.id, sprint.name, sprint.startDate, sprint.endDate, sprint.state, json(sprint.startItems), json(sprint.result)]
+    );
   }
 
   async updateSprint(sprint: Sprint): Promise<void> {
-    await this.db.execute('UPDATE sprints SET name = $1, start_date = $2, end_date = $3 WHERE id = $4', [
+    await this.db.execute('UPDATE sprints SET name = $1, start_date = $2, end_date = $3, state = $4, start_items = $5, result = $6 WHERE id = $7', [
       sprint.name,
       sprint.startDate,
       sprint.endDate,
+      sprint.state,
+      json(sprint.startItems),
+      json(sprint.result),
       sprint.id
     ]);
   }

@@ -1,5 +1,6 @@
 import { assignTo, missingBuiltins } from '../domain/fields';
 import { DEFAULT_SETTINGS } from '../domain/settings';
+import { startItemsOf } from '../domain/sprintLife';
 import { addDays } from '../domain/sprints';
 import { DEFAULT_STATUSES } from '../domain/statuses';
 import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
@@ -110,7 +111,7 @@ function demoEvents(today: string): ReleaseEvent[] {
 
 /**
  * Demo data shown on the first start so the board is not empty.
- * Sprint 1 runs around `today`, Sprint 2 follows it, so the board and the story map always have content.
+ * Sprint 1 runs around `today`, Sprint 2 is planned after it, so the board and the story map always have content.
  */
 export function seedSnapshot(today: string): Snapshot {
   const sprint1Start = addDays(today, -7);
@@ -126,6 +127,7 @@ export function seedSnapshot(today: string): Snapshot {
     if (item.fieldId === 'field-demo-labels') return { ...item, onCard: true };
     return item;
   });
+  const stories: Story[] = demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {} }));
   return {
     settings: DEFAULT_SETTINGS,
     statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
@@ -138,8 +140,24 @@ export function seedSnapshot(today: string): Snapshot {
       { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'violet', position: 3, values: {} }
     ],
     sprints: [
-      { id: 'sprint-1', name: 'Sprint 1', startDate: sprint1Start, endDate: addDays(sprint1Start, 13) },
-      { id: 'sprint-2', name: 'Sprint 2', startDate: addDays(sprint1Start, 14), endDate: addDays(sprint1Start, 27) }
+      {
+        id: 'sprint-1',
+        name: 'Sprint 1',
+        startDate: sprint1Start,
+        endDate: addDays(sprint1Start, 13),
+        state: 'running',
+        startItems: startItemsOf(stories, 'sprint-1'),
+        result: null
+      },
+      {
+        id: 'sprint-2',
+        name: 'Sprint 2',
+        startDate: addDays(sprint1Start, 14),
+        endDate: addDays(sprint1Start, 27),
+        state: 'planned',
+        startItems: null,
+        result: null
+      }
     ],
     events: demoEvents(today),
     releases: [
@@ -152,7 +170,7 @@ export function seedSnapshot(today: string): Snapshot {
       },
       { id: 'release-map', title: 'Release 1.1 – Story map', description: 'Release planning and reports. Demo data.', startDate: null, endDate: null }
     ],
-    stories: demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {} }))
+    stories
   };
 }
 

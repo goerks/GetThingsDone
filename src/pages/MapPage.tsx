@@ -36,7 +36,7 @@ import {
 import { effectiveMapRows, featureOn } from '../domain/settings';
 import { isReleaseDone, releaseState, sortReleases, storiesAfterReleaseEnd } from '../domain/releases';
 import { sortEpics } from '../domain/epics';
-import { isRunning, isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints';
+import { isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints';
 import type { Epic, Release, Sprint, Story } from '../domain/types';
 import { hrefs } from '../router';
 import { GearIcon } from '../components/icons';
@@ -175,18 +175,18 @@ const sprintOfDragId = (id: UniqueIdentifier): string => String(id).slice(SPRINT
 
 interface SprintLabelProps {
   sprint: Sprint;
-  today: string;
   stories: Story[];
   labelId: string;
   isTarget: boolean;
 }
 
-function SprintLabelContent({ sprint, today, stories, labelId }: Omit<SprintLabelProps, 'isTarget'>) {
+function SprintLabelContent({ sprint, stories, labelId }: Omit<SprintLabelProps, 'isTarget'>) {
   const { t, i18n } = useTranslation();
   const builtin = useBuiltin();
   return (
     <>
-      {isRunning(sprint, today) && <span className="badge-running">{t('sprint.running')}</span>}
+      {sprint.state === 'running' && <span className="badge-running">{t('sprint.running')}</span>}
+      {sprint.state === 'planned' && <span className="badge-planned">{t('sprint.planned')}</span>}
       <span id={labelId} className="map-sprint__name">
         {sprint.name}
       </span>
@@ -200,10 +200,10 @@ function SprintLabelContent({ sprint, today, stories, labelId }: Omit<SprintLabe
  * The label of a sprint row. A click opens the sprint; a sprint that has not started yet can also be dragged
  * up or down to reorder the upcoming sprints.
  */
-function SprintLabel({ sprint, today, stories, labelId, isTarget }: SprintLabelProps) {
+function SprintLabel({ sprint, stories, labelId, isTarget }: SprintLabelProps) {
   const { t, i18n } = useTranslation();
   const details = useDetails();
-  const movable = isUpcoming(sprint, today);
+  const movable = isUpcoming(sprint);
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({
     id: sprintDragId(sprint.id),
     disabled: !movable,
@@ -213,7 +213,7 @@ function SprintLabel({ sprint, today, stories, labelId, isTarget }: SprintLabelP
   const classes = [
     'map-sprint',
     match,
-    isRunning(sprint, today) && 'map-sprint--running',
+    sprint.state === 'running' && 'map-sprint--running',
     movable && 'map-sprint--movable',
     isTarget && 'map-sprint--target',
     isDragging && 'map-sprint--dragging'
@@ -230,13 +230,13 @@ function SprintLabel({ sprint, today, stories, labelId, isTarget }: SprintLabelP
       {...(movable ? attributes : {})}
       {...(movable ? listeners : {})}
       onClick={() => details.openSprint(sprint.id)}
-      aria-label={[sprint.name, formatSprintDates(sprint, i18n.language), isRunning(sprint, today) ? t('sprint.running') : null]
+      aria-label={[sprint.name, formatSprintDates(sprint, i18n.language), t(`sprint.${sprint.state}`)]
         .filter(Boolean)
         .join(', ')}
       aria-describedby={`${labelId}-edit`}
       title={movable ? t('map.editOrMoveSprint') : t('map.editSprint')}
     >
-      <SprintLabelContent sprint={sprint} today={today} stories={stories} labelId={labelId} />
+      <SprintLabelContent sprint={sprint} stories={stories} labelId={labelId} />
       <span id={`${labelId}-edit`} className="sr-only">
         {movable ? t('map.editOrMoveSprint') : t('map.editSprint')}
       </span>
@@ -339,7 +339,7 @@ export function MapPage() {
   // Stories without an epic get their own column at the end, shown only while there are such stories.
   const hasLooseStories = app.stories.some((story) => story.epicId === null);
   const columns = useMemo<Array<Epic | null>>(() => (hasLooseStories ? [...epics, null] : epics), [epics, hasLooseStories]);
-  const sprints = mapSprints(app.sprints, today);
+  const sprints = mapSprints(app.sprints);
   // Releases that are done are left out like past sprints; their stories are done as well.
   const releases = sortReleases(app.releases, app.stories, app.isDone).filter((release) => !isReleaseDone(app.stories, release.id, app.isDone));
   const shownStories = releaseMode
@@ -378,7 +378,7 @@ export function MapPage() {
     const after = sprintPreview(activeId, hover.overId, hover.placement);
     if (!after) return null;
     const moved = after.find((sprint) => sprint.id === sprintOfDragId(activeId));
-    const order = mapSprints(after, today);
+    const order = mapSprints(after);
     const index = order.findIndex((sprint) => sprint.id === moved?.id);
     const next = order[index + 1];
     return moved ? { overId: sprintOfDragId(hover.overId), beforeId: next?.id ?? null, moved } : null;
@@ -417,7 +417,7 @@ export function MapPage() {
     const after = sprintPreview(String(active), String(over), undefined);
     const moved = after?.find((sprint) => sprint.id === sprintOfDragId(active));
     if (!after || !moved) return undefined;
-    const position = mapSprints(after, today).findIndex((sprint) => sprint.id === moved.id) + 1;
+    const position = mapSprints(after).findIndex((sprint) => sprint.id === moved.id) + 1;
     return t(`map.dnd.${key}`, { name: moved.name, position, dates: formatSprintDates(moved, i18n.language) });
   };
   const titleOf = (id: UniqueIdentifier): string =>
@@ -498,7 +498,7 @@ export function MapPage() {
         </span>
       )}
       {sprint ? (
-        <SprintLabel sprint={sprint} today={today} stories={inSprint} labelId={labelId} isTarget={isTarget || sprintTarget?.overId === sprint.id} />
+        <SprintLabel sprint={sprint} stories={inSprint} labelId={labelId} isTarget={isTarget || sprintTarget?.overId === sprint.id} />
       ) : (
         <div className={`map-sprint map-sprint--unplanned${isTarget ? ' map-sprint--target' : ''}`}>
           <span id={labelId} className="map-sprint__name">
@@ -699,7 +699,6 @@ export function MapPage() {
               <div className="map-sprint map-sprint--overlay" aria-hidden="true">
                 <SprintLabelContent
                   sprint={activeSprint}
-                  today={today}
                   stories={shownStories.filter((story) => story.sprintId === activeSprint.id)}
                   labelId="map-sprint-overlay"
                 />

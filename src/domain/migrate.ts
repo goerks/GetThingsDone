@@ -1,19 +1,21 @@
 import { normalizeColorKey } from './epics';
 import { missingBuiltins } from './fields';
 import { normalizeSettings } from './settings';
-import { normalizeStatuses } from './statuses';
+import { isDoneIn, normalizeStatuses } from './statuses';
+import { settleSprints, type StoredSprint } from './sprintLife';
 import { addDays, SPRINT_LENGTH_DAYS } from './sprints';
-import type { Epic, FieldAssignment, FieldDefinition, Release, ReleaseEvent, Settings, Snapshot, Sprint, StatusValue, Story } from './types';
+import type { Epic, FieldAssignment, FieldDefinition, Release, ReleaseEvent, Settings, Snapshot, StatusValue, Story } from './types';
 
 /**
  * Snapshot as stored by an older release. Release 0.1: one fixed sprint, stories with `inSprint`, epics without
  * a position. Before configurable fields (#4): no field library, no values, and every story has an epic.
  * Before release planning (#10): no releases, no release on stories and no settings.
  * Before configurable status values (#5): no status values, so the four defaults apply.
+ * Before starting and completing sprints (#17): sprints without a state.
  */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
-  sprints?: Sprint[];
+  sprints?: StoredSprint[];
   releases?: Release[];
   events?: ReleaseEvent[];
   stories?: Array<
@@ -34,7 +36,8 @@ export const MIGRATED_SPRINT_ID = 'sprint-1';
 
 /**
  * Brings a stored snapshot to the current shape. Release 0.1 had one fixed "Sprint 1": it becomes a real sprint
- * running from today for two weeks, and stories marked `inSprint` are planned in it.
+ * running from today for two weeks, and stories marked `inSprint` are planned in it. Sprints without a state get
+ * one by their dates (#17).
  */
 export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot {
   const epics: Epic[] = (stored.epics ?? []).map((epic, index) => ({
@@ -45,7 +48,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     values: epic.values ?? {}
   }));
   const rawStories = stored.stories ?? [];
-  let sprints: Sprint[] = stored.sprints ?? [];
+  let sprints: StoredSprint[] = stored.sprints ?? [];
   const needsSprint = stored.sprints === undefined && rawStories.some((story) => story.inSprint);
   if (needsSprint) {
     sprints = [
@@ -62,14 +65,16 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
   const fields: FieldDefinition[] = (stored.fields ?? []).map((field) => ({ ...field, defaultValue: field.defaultValue ?? null }));
   const assignments = stored.assignments ?? [];
   const missing = missingBuiltins(fields, assignments);
+  const statuses = normalizeStatuses(stored.statuses);
+  const settled = settleSprints(sprints, stories, isDoneIn(statuses), today);
   return {
     epics,
-    sprints,
+    sprints: settled.sprints,
     releases: stored.releases ?? [],
     events: stored.events ?? [],
     settings: normalizeSettings(stored.settings),
-    stories,
-    statuses: normalizeStatuses(stored.statuses),
+    stories: settled.stories,
+    statuses,
     fields: [...fields, ...missing.fields],
     assignments: [...assignments, ...missing.assignments]
   };

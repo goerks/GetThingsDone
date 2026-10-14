@@ -18,7 +18,7 @@ export class LocalStorageRepository implements Repository {
         const stored = JSON.parse(raw) as Parameters<typeof migrateSnapshot>[0];
         const snapshot = migrateSnapshot(stored, todayIso());
         // Store a migrated snapshot right away, so a migrated sprint keeps the dates it got today.
-        if (stored.sprints === undefined || stored.fields === undefined || stored.releases === undefined || stored.settings === undefined || stored.events === undefined || stored.statuses === undefined) this.write(snapshot);
+        if (stored.sprints === undefined || stored.fields === undefined || stored.releases === undefined || stored.settings === undefined || stored.events === undefined || stored.statuses === undefined || stored.sprints.some((sprint) => sprint.state === undefined)) this.write(snapshot);
         return snapshot;
       }
     } catch {

@@ -18,7 +18,7 @@ import { useNewShortcut } from '../components/useNewShortcut';
 import { dropTargetIn, keepInPlace, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import { formatSprintDates } from '../components/sprintFormat';
 import { backlogOrder, dropInBacklog, parseSectionId, sectionId, totalPoints, type Placement } from '../domain/board';
-import { isRunning, sortSprints, todayIso } from '../domain/sprints';
+import { mapSprints } from '../domain/sprints';
 import type { Epic, Sprint, Story } from '../domain/types';
 import { TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
@@ -119,7 +119,6 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
   const { setNodeRef } = useDroppable({ id: sectionId(sprint?.id ?? null) });
   const headingId = `backlog-${key}`;
   const drop = target?.group === key ? target : null;
-  const running = sprint ? isRunning(sprint, todayIso()) : false;
   const kind = sprint ? 'sprint' : 'backlog';
 
   return (
@@ -130,7 +129,8 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
     >
       <h2 className="backlog__heading">
         <span id={headingId}>{sprint ? sprint.name : t('sprint.notPlanned')}</span>
-        {running && <span className="badge-running">{t('sprint.running')}</span>}
+        {sprint?.state === 'running' && <span className="badge-running">{t('sprint.running')}</span>}
+        {sprint?.state === 'planned' && <span className="badge-planned">{t('sprint.planned')}</span>}
         {sprint && <span className="muted backlog__dates">{formatSprintDates(sprint, i18n.language)}</span>}
         <span className="muted">{builtin.summary(rows.length, totalPoints(rows))}</span>
       </h2>
@@ -169,11 +169,15 @@ export function BacklogPage() {
   const sensors = useDragSensors();
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
 
-  const ordered = backlogOrder(app.stories, app.sprints);
-  useSearchPage(t('nav.backlog'), { story: ordered.map((story) => story.id), sprint: app.sprints.map((sprint) => sprint.id) });
+  // Completed sprints are not shown (#17): neither their sections nor their stories.
+  const openSprints = mapSprints(app.sprints);
+  const openIds = new Set(openSprints.map((sprint) => sprint.id));
+  const shown = (list: Story[]): Story[] => list.filter((story) => story.sprintId === null || openIds.has(story.sprintId));
+  const ordered = shown(backlogOrder(app.stories, app.sprints));
+  useSearchPage(t('nav.backlog'), { story: ordered.map((story) => story.id), sprint: openSprints.map((sprint) => sprint.id) });
   const sections: Array<{ sprint: Sprint | null; rows: Story[]; firstRank: number }> = [];
   let nextRank = 1;
-  for (const sprint of [...sortSprints(app.sprints), null]) {
+  for (const sprint of [...openSprints, null]) {
     const rows = ordered.filter((story) => story.sprintId === (sprint?.id ?? null));
     sections.push({ sprint, rows, firstRank: nextRank });
     nextRank += rows.length;
@@ -183,7 +187,7 @@ export function BacklogPage() {
   const preview = (active: string, over: string, placement?: Placement): Story[] | null => {
     if (active === over) return null;
     const after = dropInBacklog(app.stories, app.sprints, active, over, placement);
-    return after === app.stories ? null : backlogOrder(after, app.sprints);
+    return after === app.stories ? null : shown(backlogOrder(after, app.sprints));
   };
 
   const rankAfterDrop = (active: string, over: string, placement?: Placement): number | null => {

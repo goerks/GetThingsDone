@@ -17,6 +17,9 @@
   --column: #eceff3;
   --danger: #b42318;
   --danger-soft: #fdecea;
+  /* Warning: a sprint that has ended but is not completed (#17). Always with an icon and a text. */
+  --warn: #a14a08;
+  --warn-soft: #fdf1e3;
   /* Search: matched text. */
   --mark: #fff1b8;
   --mark-ink: #14181f;
@@ -48,6 +51,8 @@
   --column: #13181e;
   --danger: #ff8a7a;
   --danger-soft: #3a1d1a;
+  --warn: #f0a050;
+  --warn-soft: #3a2a14;
   --mark: #5a4a12;
   --mark-ink: #fff4cc;
 
