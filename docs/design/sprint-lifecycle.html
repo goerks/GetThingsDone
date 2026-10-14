@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprint starten und abschliessen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Tokens mirror the app's "Focus" design (docs/design/tokens.css). */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --track: #e6e9ee; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea; --warn: #b45309; --warn-soft: #fdf1e3;
+  --c-blue: #2457d6; --c-amber: #b45309; --c-teal: #0f766e; --c-violet: #7c3aed;
+  --c-rose: #be123c; --c-green: #15803d; --c-cyan: #0e7490; --c-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --track: #2b3340; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a; --warn: #f0a050; --warn-soft: #3a2a14;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --track: #2b3340; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a; --warn: #f0a050; --warn-soft: #3a2a14;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 75ch; }
+ul { margin: 0; padding-left: 20px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; align-content: start; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+/* Mockup frame */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 1000px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 44px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 16px; color: var(--muted); }
+.nav .on { color: var(--text); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); padding-bottom: 2px; }
+.page { padding: 16px 20px 22px; display: grid; gap: 14px; }
+.ph { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ph b.title { font-size: 19px; }
+.ph .right { margin-left: auto; display: flex; gap: 8px; }
+.btn { height: 32px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font: inherit; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--focus { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.btn[disabled] { opacity: .5; }
+.badge { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; border-radius: 6px; padding: 1px 6px; white-space: nowrap; background: var(--accent-soft); color: var(--accent-soft-ink); }
+.badge--ended { background: var(--warn-soft); color: var(--warn); }
+.count, .mono { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.blue { background: var(--c-blue); } .amber { background: var(--c-amber); } .teal { background: var(--c-teal); }
+.violet { background: var(--c-violet); } .green { background: var(--c-green); } .slate { background: var(--c-slate); }
+.pts { font-family: var(--font-mono); font-size: 11px; font-weight: 600; background: var(--pill); border-radius: 999px; min-width: 20px; height: 20px; display: inline-grid; place-items: center; padding: 0 6px; }
+
+/* Board */
+.bands { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; }
+.band { display: flex; align-items: center; padding: 4px 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; border-top: 3px solid; background: var(--surface); border: 1px solid var(--border); border-top-width: 3px; border-radius: 6px 6px 0 0; }
+.band .count { margin-left: auto; }
+.band--new { border-top-color: var(--c-slate); } .band--wip { border-top-color: var(--c-blue); } .band--done { border-top-color: var(--c-green); }
+.cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.col { background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 8px; align-content: start; min-height: 190px; }
+.col__head { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.col__head .count { margin-left: auto; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: grid; gap: 4px; }
+.card .k { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.card .foot { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.card .foot .pts { margin-left: auto; color: var(--text); }
+
+/* Banner and toast */
+.banner { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--warn); background: var(--warn-soft); }
+.banner .icon { font-size: 18px; color: var(--warn); }
+.banner .txt { display: grid; }
+.banner .btn { margin-left: auto; }
+.toast { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--ok); background: var(--ok-soft); color: var(--text); }
+.toast .icon { color: var(--ok); font-weight: 700; }
+.toast .x { margin-left: auto; color: var(--muted); }
+
+/* Dialog */
+.scrim { position: absolute; inset: 44px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); width: 580px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 18px 22px 20px; display: grid; gap: 14px; z-index: 2; font-size: 14px; }
+.dialog.static { position: static; transform: none; box-shadow: 0 6px 24px var(--shadow); }
+.dialog__head { display: flex; align-items: baseline; gap: 10px; }
+.dialog__head b { font-size: 18px; }
+.dialog__head .x { margin-left: auto; color: var(--muted); }
+.actions { display: flex; gap: 8px; justify-content: flex-end; padding-top: 4px; border-top: 1px solid var(--border); margin-top: 2px; padding-top: 14px; }
+.figs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fig { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px; }
+.fig .lbl { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.fig .num { font-size: 22px; font-weight: 600; font-family: var(--font-mono); }
+.fig .num small { font-size: 13px; font-weight: 400; color: var(--muted); font-family: var(--font-sans); }
+.meter { display: grid; gap: 4px; }
+.meter__track { height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; }
+.meter__fill { height: 100%; background: var(--c-green); border-radius: 4px; }
+.meter__txt { font-size: 12px; color: var(--muted); }
+details { border: 1px solid var(--border); border-radius: 8px; }
+summary { padding: 7px 12px; cursor: default; font-weight: 500; list-style: none; display: flex; gap: 8px; align-items: center; }
+summary::before { content: "▸"; color: var(--muted); font-size: 11px; }
+details[open] summary::before { content: "▾"; }
+summary .count { margin-left: auto; }
+.srow { display: grid; grid-template-columns: 44px minmax(0,1fr) auto 26px; gap: 10px; align-items: center; padding: 5px 12px; border-top: 1px solid var(--border); font-size: 13px; }
+.srow .st { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 6px; }
+legend { font-weight: 600; padding: 0; margin-bottom: 6px; }
+.radio { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; }
+.radio .r { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--muted); margin-top: 2px; }
+.radio.sel { border-color: var(--accent); background: var(--accent-soft); }
+.radio.sel .r { border: 5px solid var(--accent); }
+.radio.off { opacity: .5; }
+.radio small { display: block; color: var(--muted); font-size: 12px; }
+.note { font-size: 12px; color: var(--muted); }
+.warnline { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--text); background: var(--warn-soft); border-radius: 6px; padding: 6px 10px; }
+.warnline .icon { color: var(--warn); font-weight: 700; }
+.steps { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+.steps .on { color: var(--accent-soft-ink); font-weight: 600; }
+.steps span::before { content: attr(data-n); display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--pill); margin-right: 6px; font-family: var(--font-mono); font-size: 11px; }
+.steps .on::before { background: var(--accent); color: var(--accent-ink); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.empty { border: 1px dashed var(--border); border-radius: 8px; padding: 36px; text-align: center; display: grid; gap: 8px; justify-items: center; color: var(--muted); }
+.empty b { color: var(--text); font-size: 16px; }
+.banner--info { border-color: var(--accent); background: var(--accent-soft); }
+.banner--info .icon { color: var(--accent-soft-ink); }
+.badge--planned { background: var(--pill); color: var(--muted); }
+.check { display: grid; grid-template-columns: 18px 1fr; gap: 8px; align-items: start; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; }
+.check .c { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--muted); margin-top: 2px; }
+.check.sel { border-color: var(--accent); background: var(--accent-soft); }
+.check.sel .c { background: var(--accent); border-color: var(--accent); }
+.check small { display: block; color: var(--muted); font-size: 12px; }
+.figs3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.chg { font-size: 13px; display: flex; gap: 8px; align-items: center; padding: 6px 10px; background: var(--pill); border-radius: 6px; }
+.chg .mono { color: var(--text); }
+.field { display: grid; gap: 4px; }
+.field .lbl { font-size: 12px; color: var(--muted); font-weight: 500; }
+.select { height: 34px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; gap: 8px; background: var(--surface); }
+.select::after { content: "▾"; margin-left: auto; color: var(--muted); font-size: 11px; }
+.sec { background: var(--column); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px 10px; display: grid; gap: 6px; }
+.sec__head { display: flex; gap: 10px; align-items: center; font-size: 12px; }
+.sec__head b { text-transform: uppercase; letter-spacing: .06em; font-size: 12px; }
+.brow { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: grid; grid-template-columns: 26px 44px 1fr auto auto; gap: 10px; align-items: center; padding: 6px 10px; }
+.brow .rank { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; }
+.brow .ep { font-size: 12px; display: flex; gap: 6px; align-items: center; }
+.maprow { display: grid; grid-template-columns: 200px 1fr 1fr 1fr; gap: 8px; }
+.maplbl { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: grid; gap: 3px; font-size: 12px; }
+.maplbl--run { border-left: 4px solid var(--accent); }
+.maplbl b { font-size: 13px; display: flex; gap: 6px; align-items: center; }
+.mapcell { background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 6px; display: grid; gap: 6px; align-content: start; }
+.chip { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
+.chip .mono { margin-right: 6px; }
+.maphead { display: grid; grid-template-columns: 200px 1fr 1fr 1fr; gap: 8px; font-size: 12px; font-weight: 600; }
+.maphead span { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid; border-radius: 6px; padding: 5px 8px; }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="intro">
+    <div class="meta"><span>Issue #17</span><span>Sprint starten und abschliessen</span><span>Entwurf 2</span></div>
+    <h1>Sprint starten und abschliessen</h1>
+    <p class="muted">Entwurf 2 nach den Entscheidungen vom 14.10. (Runde 2). Ein Sprint ist <b>geplant</b>, <b>läuft</b> (höchstens einer) oder ist <b>abgeschlossen</b>. Beispiel: «Sprint 1» vom 7. bis 20. Oktober, beim Start 6 Stories mit 23 Punkten; während des Sprints kam S-8 (3 Punkte) dazu. Danach sind «Sprint 2» (21. Okt. – 3. Nov.) und «Sprint 3» (4. – 17. Nov.) geplant.</p>
+  </header>
+
+  <section class="variant" aria-labelledby="rules">
+    <h2 id="rules">Regeln</h2>
+    <div class="rules">
+      <div class="box"><b>Zustände</b><span><i>Geplant</i> → <i>läuft</i> → <i>abgeschlossen</i>. Es läuft höchstens ein Sprint. Ein Start lässt sich nicht zurücknehmen.</span></div>
+      <div class="box"><b>Starten</b><span>Jeder geplante Sprint, solange keiner läuft; vorgeschlagen ist der erste. Weicht heute vom Startdatum ab, fragt der Dialog: Start auf heute (vorgewählt, das Ende rückt mit) oder behalten.</span></div>
+      <div class="box"><b>Geplant</b><span>Die Punkte beim Start. Was später dazukommt oder entfernt wird, zeigt der Abschluss separat; erledigt kann mehr sein als geplant.</span></div>
+      <div class="box"><b>Abschliessen</b><span>Nur der laufende Sprint. Eine Wahl für alle nicht erledigten Stories. Weicht heute vom Enddatum ab, wird gefragt. Ein Häkchen startet danach gleich den nächsten.</span></div>
+      <div class="box"><b>Board</b><span>Zeigt den laufenden Sprint; ohne laufenden den nächsten geplanten mit «Sprint starten»; ohne geplanten den leeren Zustand.</span></div>
+      <div class="box"><b>Backlog, Story Map</b><span>Badges «läuft» und «geplant». Abgeschlossene Sprints verschwinden dort; ihre Übersicht kommt mit dem Velocity-Diagramm (#24).</span></div>
+      <div class="box"><b>Update bestehender Daten</b><span>Nach Datum: Der heute laufende Sprint läuft, frühere sind abgeschlossen (Ergebnis beim Update berechnet), spätere geplant.</span></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="v1">
+    <div class="variant__head"><h3 id="v1">1 · Board: kein Sprint läuft</h3><span class="tag">Q13</span></div>
+    <p>Das Board zeigt den nächsten geplanten Sprint mit dem Badge «geplant» und einem Hinweis mit «Sprint starten». Stories lassen sich schon verschieben und anlegen.</p>
+    <div class="scroll"><div class="app" id="shot-planned" role="img" aria-label="Board von Sprint 2, Badge geplant, Hinweis: Sprint 2 läuft noch nicht, Knopf Sprint starten">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page">
+        <div class="ph"><b class="title">Sprint 2</b><span class="badge badge--planned">geplant</span><span class="muted">21. Okt. – 3. Nov. · 5 Stories · 21 Punkte</span><span class="right"><span class="btn btn--p">Neue Story</span></span></div>
+        <div class="banner banner--info" role="status"><span class="icon" aria-hidden="true">▶</span><span class="txt"><b>Sprint 2 ist geplant und läuft noch nicht.</b><span class="muted">Starte ihn, wenn das Team loslegt. Die Punkte beim Start gelten als geplant.</span></span><span class="btn btn--p">Sprint starten</span></div>
+        <div class="bands"><div class="band band--new">Nicht begonnen<span class="count">5</span></div><div class="band band--wip">In Arbeit<span class="count">0</span></div><div class="band band--done">Erledigt<span class="count">0</span></div></div>
+        <div class="cols">
+          <div class="col" style="min-height:120px"><div class="col__head"><span class="dot slate"></span>Offen<span class="count">5</span></div><div class="card"><span class="k">S-3</span>Reorder the backlog by priority</div><div class="card"><span class="k">S-6</span>Operate the board with the keyboard only</div></div>
+          <div class="col" style="min-height:120px"><div class="col__head"><span class="dot blue"></span>In Arbeit<span class="count">0</span></div></div>
+          <div class="col" style="min-height:120px"><div class="col__head"><span class="dot blue" style="opacity:.6"></span>Review<span class="count">0</span></div></div>
+          <div class="col" style="min-height:120px"><div class="col__head"><span class="dot green"></span>Erledigt<span class="count">0</span></div></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="variant" aria-labelledby="v2">
+    <div class="variant__head"><h3 id="v2">2 · Start-Dialog</h3><span class="tag">Q11, Q12, Q15</span></div>
+    <p>Oben die Wahl des Sprints (vorgewählt: der erste geplante; jeder geplante ist möglich). Darunter Zeitraum, Stories und Punkte, die als geplant festgehalten werden. Die Frage zum Startdatum erscheint nur, wenn heute nicht der geplante Starttag ist. Hier: heute ist der 23. Oktober. Mit #24 kommt «Ø 21» dazu, mit #25 die Kapazität.</p>
+    <div class="scroll"><div class="app" id="shot-start" style="min-height:640px" role="img" aria-label="Dialog Sprint starten">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page"><div class="ph"><b class="title">Sprint 2</b><span class="badge badge--planned">geplant</span></div></div>
+      <div class="scrim"></div>
+      <div class="dialog">
+        <div class="dialog__head"><b>Sprint starten</b><span class="x">✕</span></div>
+        <div class="field"><span class="lbl">Sprint</span><span class="select"><b>Sprint 2</b><span class="muted">21. Okt. – 3. Nov.</span></span></div>
+        <div class="figs">
+          <div class="fig"><span class="lbl">Stories</span><span class="num">5</span></div>
+          <div class="fig"><span class="lbl">Geplante Punkte</span><span class="num">21 <small>Punkte</small></span></div>
+        </div>
+        <span class="note">Diese 21 Punkte gelten als geplant. Was später dazukommt oder entfernt wird, zeigt der Abschluss separat. 1 Story hat noch keine Punkte (S-9).</span>
+        <fieldset><legend>Startdatum</legend>
+          <span class="note">Geplant war der 21. Oktober, heute ist der 23. Oktober.</span>
+          <div class="radio sel"><span class="r"></span><span>Ab heute starten: <b>23. Okt. – 5. Nov.</b><small>Das Ende rückt mit, der Sprint dauert weiter 14 Tage.</small></span></div>
+          <div class="radio"><span class="r"></span><span>Geplante Daten behalten: <b>21. Okt. – 3. Nov.</b></span></div>
+        </fieldset>
+        <div class="actions"><span class="btn">Abbrechen</span><span class="btn btn--p">Sprint starten</span></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="variant" aria-labelledby="v3">
+    <div class="variant__head"><h3 id="v3">3 · Board: Sprint läuft</h3><span class="tag">wie Entwurf 1</span></div>
+    <p>Badge «läuft», Knopf «Sprint abschliessen» neben «Neue Story». In der Kopfzeile stehen die aktuellen Punkte und in Klammern die beim Start geplanten. Ist das Enddatum vorbei, wird das Badge zu «beendet» und ein Hinweis bittet ums Abschliessen (Bild 4).</p>
+    <div class="scroll"><div class="app" id="shot-running" role="img" aria-label="Board von Sprint 1, Badge läuft, Knopf Sprint abschliessen">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page">
+        <div class="ph"><b class="title">Sprint 1</b><span class="badge">läuft</span><span class="muted">7. Okt. – 20. Okt. · 7 Stories · 26 Punkte (23 beim Start)</span><span class="right"><span class="btn btn--focus">Sprint abschliessen</span><span class="btn btn--p">Neue Story</span></span></div>
+        <div class="bands"><div class="band band--new">Nicht begonnen<span class="count">2</span></div><div class="band band--wip">In Arbeit<span class="count">0</span></div><div class="band band--done">Erledigt<span class="count">5</span></div></div>
+        <div class="cols">
+          <div class="col"><div class="col__head"><span class="dot slate"></span>Offen<span class="count">2</span></div>
+            <div class="card"><span class="k">S-3</span>Reorder the backlog by priority<div class="foot"><span class="dot amber"></span>Backlog<span class="pts">5</span></div></div>
+            <div class="card"><span class="k">S-6</span>Operate the board with the keyboard only<div class="foot"><span class="dot violet"></span>Accessibility<span class="pts">5</span></div></div></div>
+          <div class="col"><div class="col__head"><span class="dot blue"></span>In Arbeit<span class="count">0</span></div></div>
+          <div class="col"><div class="col__head"><span class="dot blue" style="opacity:.6"></span>Review<span class="count">0</span></div></div>
+          <div class="col"><div class="col__head"><span class="dot green"></span>Erledigt<span class="count">5</span></div>
+            <div class="card"><span class="k">S-1</span>Create a story with title and description<div class="foot"><span class="dot blue"></span>Boards<span class="pts">3</span></div></div>
+            <div class="card"><span class="k">S-8</span>Plan releases on a story map<div class="foot"><span class="dot amber"></span>Backlog<span class="pts">3</span></div></div></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="variant" aria-labelledby="v4">
+    <div class="variant__head"><h3 id="v4">4 · Board: Sprint läuft, Enddatum vorbei</h3><span class="tag">wie Entwurf 1</span></div>
+    <div class="scroll"><div class="app" id="shot-ended" role="img" aria-label="Board von Sprint 1 mit Badge beendet und Hinweis zum Abschliessen">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page">
+        <div class="ph"><b class="title">Sprint 1</b><span class="badge badge--ended">beendet</span><span class="muted">7. Okt. – 20. Okt. · 7 Stories · 26 Punkte (23 beim Start)</span><span class="right"><span class="btn btn--p">Neue Story</span></span></div>
+        <div class="banner" role="status"><span class="icon" aria-hidden="true">⏱</span><span class="txt"><b>Sprint 1 ist seit dem 20. Oktober vorbei.</b><span class="muted">Schliesse ihn ab, damit sein Ergebnis gespeichert wird und der nächste Sprint starten kann.</span></span><span class="btn btn--p">Sprint abschliessen</span></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="variant" aria-labelledby="v5">
+    <div class="variant__head"><h3 id="v5">5 · Abschluss-Dialog</h3><span class="tag tag--rec">gewählt: ein Schritt</span></div>
+    <p>Drei Zahlen: beim Start geplant, erledigt, nicht erledigt. Eine Zeile nennt, was während des Sprints dazukam oder entfernt wurde. Dann die Wahl für die nicht erledigten Stories, die Frage zum Enddatum (nur wenn nötig) und das Häkchen «Danach Sprint 2 starten», das gleich den Start-Dialog öffnet. Hier: früher abgeschlossen, heute ist der 16. Oktober.</p>
+    <div class="scroll"><div class="app" id="shot-complete" style="min-height:1010px" role="img" aria-label="Dialog Sprint 1 abschliessen">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page"><div class="ph"><b class="title">Sprint 1</b><span class="badge">läuft</span></div></div>
+      <div class="scrim"></div>
+      <div class="dialog" style="top:56px">
+        <div class="dialog__head"><b>Sprint 1 abschliessen</b><span class="muted">7. Okt. – 20. Okt.</span><span class="x">✕</span></div>
+        <div class="figs3">
+          <div class="fig"><span class="lbl">Geplant beim Start</span><span class="num">23 <small>P · 6 Stories</small></span></div>
+          <div class="fig"><span class="lbl"><span aria-hidden="true">✓</span>Erledigt</span><span class="num">16 <small>P · 5 Stories</small></span></div>
+          <div class="fig"><span class="lbl"><span aria-hidden="true">○</span>Nicht erledigt</span><span class="num">10 <small>P · 2 Stories</small></span></div>
+        </div>
+        <div class="chg"><span aria-hidden="true">±</span><span>Während des Sprints: <b>+1 Story, +3 Punkte</b> dazugekommen (<span class="mono">S-8</span>), nichts entfernt.</span></div>
+        <div class="meter"><div class="meter__track"><div class="meter__fill" style="width:61.5%"></div></div><span class="meter__txt">16 von 26 Punkten im Sprint erledigt · 70 % der beim Start geplanten 23</span></div>
+        <details><summary>Erledigte Stories <span class="count">5 · 16 P</span></summary></details>
+        <details open><summary>Nicht erledigte Stories <span class="count">2 · 10 P</span></summary>
+          <div class="srow"><span class="mono">S-3</span>Reorder the backlog by priority<span class="st"><span class="dot slate"></span>Offen</span><span class="pts">5</span></div>
+          <div class="srow"><span class="mono">S-6</span>Operate the board with the keyboard only<span class="st"><span class="dot slate"></span>Offen</span><span class="pts">5</span></div>
+        </details>
+        <fieldset><legend>Wohin mit den 2 nicht erledigten Stories?</legend>
+          <div class="radio sel"><span class="r"></span><span>In den nächsten Sprint: <b>Sprint 2</b><small>geplant · 21. Okt. – 3. Nov. · hat schon 3 Stories, 11 Punkte</small></span></div>
+          <div class="radio"><span class="r"></span><span>In einen neuen Sprint<small>Sprint 4 · nach Sprint 3 (lässt sich danach ändern)</small></span></div>
+          <div class="radio"><span class="r"></span><span>Zurück ins Backlog<small>Nicht geplant</small></span></div>
+        </fieldset>
+        <fieldset><legend>Enddatum</legend>
+          <span class="note">Geplant war der 20. Oktober, heute ist der 16. Oktober.</span>
+          <div class="radio sel"><span class="r"></span><span>Enddatum auf heute setzen: <b>16. Okt.</b></span></div>
+          <div class="radio"><span class="r"></span><span>Geplantes Enddatum behalten: <b>20. Okt.</b></span></div>
+        </fieldset>
+        <div class="check"><span class="c"></span><span>Danach Sprint 2 starten<small>Öffnet gleich den Start-Dialog.</small></span></div>
+        <div class="actions"><span class="btn">Abbrechen</span><span class="btn btn--p">Sprint abschliessen</span></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="variant" aria-labelledby="v6">
+    <div class="variant__head"><h3 id="v6">6 · Sonderfälle im Abschluss-Dialog</h3></div>
+    <div class="pair" id="shot-cases">
+      <div class="dialog static">
+        <div class="dialog__head"><b>Sprint 1 abschliessen</b><span class="muted">am Enddatum, alles erledigt</span></div>
+        <div class="figs3">
+          <div class="fig"><span class="lbl">Geplant beim Start</span><span class="num">23 <small>P</small></span></div>
+          <div class="fig"><span class="lbl">✓ Erledigt</span><span class="num">26 <small>P</small></span></div>
+          <div class="fig"><span class="lbl">○ Nicht erledigt</span><span class="num">0 <small>P</small></span></div>
+        </div>
+        <div class="chg"><span aria-hidden="true">±</span><span>Während des Sprints: <b>+1 Story, +3 Punkte</b> (<span class="mono">S-8</span>).</span></div>
+        <div class="meter"><div class="meter__track"><div class="meter__fill" style="width:100%"></div></div><span class="meter__txt">26 von 26 Punkten erledigt · 113 % der beim Start geplanten 23</span></div>
+        <span class="note"><b style="color:var(--text)">Alle Stories sind erledigt.</b> Heute ist das Enddatum, darum gibt es keine Fragen.</span>
+        <div class="check sel"><span class="c"></span><span>Danach Sprint 2 starten</span></div>
+        <div class="actions"><span class="btn">Abbrechen</span><span class="btn btn--p">Sprint abschliessen</span></div>
+      </div>
+      <div class="dialog static">
+        <div class="dialog__head"><b>Sprint 3 abschliessen</b><span class="muted">kein geplanter Sprint mehr</span></div>
+        <div class="figs3">
+          <div class="fig"><span class="lbl">Geplant beim Start</span><span class="num">20 <small>P</small></span></div>
+          <div class="fig"><span class="lbl">✓ Erledigt</span><span class="num">12 <small>P</small></span></div>
+          <div class="fig"><span class="lbl">○ Nicht erledigt</span><span class="num">5 <small>P</small></span></div>
+        </div>
+        <div class="chg"><span aria-hidden="true">±</span><span>Während des Sprints: <b>1 Story, −3 Punkte</b> entfernt (<span class="mono">S-12</span>). 1 Story ohne Punkte (<span class="mono">S-9</span>) zählt 0.</span></div>
+        <fieldset><legend>Wohin mit den 2 nicht erledigten Stories?</legend>
+          <div class="radio sel"><span class="r"></span><span>In einen neuen Sprint<small>Sprint 4 · 18. Nov. – 1. Dez.</small></span></div>
+          <div class="radio"><span class="r"></span><span>Zurück ins Backlog</span></div>
+        </fieldset>
+        <div class="check"><span class="c"></span><span>Danach Sprint 4 starten</span></div>
+        <div class="actions"><span class="btn">Abbrechen</span><span class="btn btn--p">Sprint abschliessen</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="v7">
+    <div class="variant__head"><h3 id="v7">7 · Nach dem Abschluss</h3></div>
+    <p>Eine Meldung fasst zusammen. Ohne Häkchen zeigt das Board den nächsten geplanten Sprint mit «Sprint starten» (wie Bild 1); mit Häkchen öffnet sich der Start-Dialog. Gibt es keinen geplanten Sprint, zeigt das Board den leeren Zustand mit dem Weg zur Story Map.</p>
+    <div class="scroll"><div class="app" id="shot-after" role="img" aria-label="Board von Sprint 2 geplant mit Meldung: Sprint 1 abgeschlossen">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page">
+        <div class="toast" role="status"><span class="icon" aria-hidden="true">✓</span><span><b>Sprint 1 abgeschlossen:</b> 16 Punkte erledigt (beim Start geplant: 23). 2 Stories (10 Punkte) sind jetzt in Sprint 2.</span><span class="x">✕</span></div>
+        <div class="ph"><b class="title">Sprint 2</b><span class="badge badge--planned">geplant</span><span class="muted">21. Okt. – 3. Nov. · 5 Stories · 21 Punkte</span><span class="right"><span class="btn btn--p">Neue Story</span></span></div>
+        <div class="banner banner--info"><span class="icon" aria-hidden="true">▶</span><span class="txt"><b>Sprint 2 ist geplant und läuft noch nicht.</b><span class="muted">Starte ihn, wenn das Team loslegt.</span></span><span class="btn btn--p">Sprint starten</span></div>
+      </div>
+    </div></div>
+    <div class="scroll"><div class="app" id="shot-empty" role="img" aria-label="Board ohne laufenden oder geplanten Sprint">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page">
+        <div class="ph"><b class="title">Kein Sprint geplant</b></div>
+        <div class="empty"><b>Alle Sprints sind abgeschlossen.</b><span>Lege auf der Story Map den nächsten Sprint an und plane Stories hinein.</span><span class="btn btn--p">Zur Story Map</span></div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="variant" aria-labelledby="v8">
+    <div class="variant__head"><h3 id="v8">8 · Backlog und Story Map</h3><span class="tag">Q18</span></div>
+    <p>Badges «läuft» und «geplant» an den Sprints; abgeschlossene Sprints erscheinen nicht mehr. Die Story Map hebt den laufenden Sprint wie heute mit einer Akzentkante hervor.</p>
+    <div class="scroll"><div class="app" id="shot-lists" role="img" aria-label="Backlog und Story Map mit Badges läuft und geplant">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span class="on">Backlog</span><span>Story Map</span><span>Epics</span><span>Releases</span></span></div>
+      <div class="page">
+        <div class="sec"><div class="sec__head"><b>Sprint 2</b><span class="badge">läuft</span><span class="mono">23. Okt. – 5. Nov.</span><span class="muted">5 Stories · 21 Punkte</span></div>
+          <div class="brow"><span class="rank">1</span><span class="mono">S-3</span>Reorder the backlog by priority<span class="ep"><span class="dot amber"></span>Backlog</span><span class="pts">5</span></div></div>
+        <div class="sec"><div class="sec__head"><b>Sprint 3</b><span class="badge badge--planned">geplant</span><span class="mono">6. Nov. – 19. Nov.</span><span class="muted">2 Stories · 8 Punkte</span></div>
+          <div class="brow"><span class="rank">6</span><span class="mono">S-11</span>Export all data as a backup<span class="ep"><span class="dot teal"></span>Local storage</span><span class="pts">5</span></div></div>
+        <div class="maphead" style="margin-top:8px"><span style="border-top-color:transparent">Story Map</span><span style="border-top-color:var(--c-blue)">Boards</span><span style="border-top-color:var(--c-amber)">Backlog</span><span style="border-top-color:var(--c-teal)">Local storage</span></div>
+        <div class="maprow"><div class="maplbl maplbl--run"><b>Sprint 2 <span class="badge">läuft</span></b><span class="mono">23. Okt. – 5. Nov.</span></div><div class="mapcell"><div class="chip"><span class="mono">S-10</span>Board filters</div></div><div class="mapcell"><div class="chip"><span class="mono">S-3</span>Reorder the backlog</div></div><div class="mapcell"></div></div>
+        <div class="maprow"><div class="maplbl"><b>Sprint 3 <span class="badge badge--planned">geplant</span></b><span class="mono">6. Nov. – 19. Nov.</span></div><div class="mapcell"></div><div class="mapcell"></div><div class="mapcell"><div class="chip"><span class="mono">S-11</span>Export all data</div></div></div>
+      </div>
+    </div></div>
+  </section>
+</main>
+
+</body>
+</html>

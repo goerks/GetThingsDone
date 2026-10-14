@@ -1,6 +1,6 @@
 # Design: velocity chart
 
-Issue: [#24 Velocity chart for sprints](https://github.com/goerks/GetThingsDone/issues/24), built on [#17](complete-sprint.md).
+Issue: [#24 Velocity chart for sprints](https://github.com/goerks/GetThingsDone/issues/24), built on [#17](sprint-lifecycle.md).
 
 The mockups are in [`velocity-variants.html`](velocity-variants.html) (open the file in a browser; the mockup text is in German because it is reviewed in German). Screenshots: `velocity-*.png`.
 
@@ -8,7 +8,8 @@ The mockups are in [`velocity-variants.html`](velocity-variants.html) (open the 
 
 | | Topic | Decision |
 |---|---|---|
-| Q1 | Planned points | The points in the sprint when it is completed, so done is never more than planned |
+| Q1 | Planned points | The points in the sprint when it is started (#17); done can be more than planned |
+| V2 | Chart | Two bars per sprint |
 | Q7 | Where | In the backlog above the sprint sections, collapsible |
 | Q8 | Fewer than three completed sprints | Average over the completed sprints there are, with their number ("Ø 18 · 2 sprints") |
 | Q9 | How many sprints | The last 8; "‹ Older sprints" pages back; the table shows all |
@@ -17,9 +18,8 @@ The mockups are in [`velocity-variants.html`](velocity-variants.html) (open the 
 
 | # | View | New or changed | Notes |
 |---|---|---|---|
-| 1A | Velocity panel, two bars per sprint | New, alternative | Planned (`--epic-amber`) and done (`--accent`) side by side, values above |
-| 1B | Velocity panel, done inside planned | New, **recommended** | Planned as an outlined bar, done as the accent fill inside it, "done / planned" above; one colour |
-| 2 | Table | New | Switch "Chart / Table"; newest first, all completed sprints; screen readers always get the table |
+| 1 | Velocity panel, two bars per sprint | New, **chosen** | Planned at start (`--epic-amber`) and done (`--accent`) side by side, values above; tooltip with dates, share and added stories |
+| 2 | Table | New | Switch "Chart / Table"; newest first, all completed sprints, with the points added during the sprint; screen readers always get the table |
 | 3 | States | New | Collapsed (head shows the average), fewer than three sprints, empty state, sprint sections of backlog and story map show "30 planned · Ø 21" |
 
 ## Rules
