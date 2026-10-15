@@ -46,6 +46,8 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
     rank: Number(id),
     criteria: [],
     values: {},
+    checks: {},
+    doneItems: null,
     ...overrides
   };
 }

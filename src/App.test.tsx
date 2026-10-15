@@ -6,7 +6,8 @@ import { LocalStorageRepository } from './data/localStorageRepository';
 import { initI18n } from './i18n';
 import { parseHash } from './router';
 import { seedSnapshot } from './data/seed';
-import { addDays } from './domain/sprints';
+import { withoutDefinitions } from './test/noDefinitions';
+import { addDays, todayIso } from './domain/sprints';
 
 beforeAll(() => {
   initI18n('en');
@@ -14,6 +15,8 @@ beforeAll(() => {
 
 async function renderApp(): Promise<LocalStorageRepository> {
   const repository = new LocalStorageRepository();
+  // A second call (a reload) keeps what the first one stored.
+  if ((await repository.load()).stories.length === 0) await repository.replaceAll(withoutDefinitions(seedSnapshot(todayIso())));
   render(<App repository={repository} />);
   await screen.findByRole('heading', { name: 'Sprint 1', level: 1 });
   return repository;

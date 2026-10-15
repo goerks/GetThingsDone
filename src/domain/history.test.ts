@@ -22,6 +22,8 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
     rank: 0,
     criteria: [],
     values: {},
+    checks: {},
+    doneItems: null,
     ...overrides
   };
 }

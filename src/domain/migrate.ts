@@ -12,6 +12,7 @@ import type { Epic, FieldAssignment, FieldDefinition, Release, ReleaseEvent, Set
  * Before release planning (#10): no releases, no release on stories and no settings.
  * Before configurable status values (#5): no status values, so the four defaults apply.
  * Before starting and completing sprints (#17): sprints without a state.
+ * Before the definitions (#26): no definitions in the settings, and stories without checks.
  */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
@@ -19,11 +20,13 @@ interface StoredSnapshot {
   releases?: Release[];
   events?: ReleaseEvent[];
   stories?: Array<
-    Omit<Story, 'sprintId' | 'values' | 'releaseId'> & {
+    Omit<Story, 'sprintId' | 'values' | 'releaseId' | 'checks' | 'doneItems'> & {
       sprintId?: string | null;
       releaseId?: string | null;
       inSprint?: boolean;
       values?: Story['values'];
+      checks?: Story['checks'];
+      doneItems?: Story['doneItems'];
     }
   >;
   fields?: Array<Omit<FieldDefinition, 'defaultValue'> & { defaultValue?: FieldDefinition['defaultValue'] }>;
@@ -60,7 +63,10 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     epicId: story.epicId || null,
     sprintId: sprintId !== undefined ? sprintId : inSprint && needsSprint ? MIGRATED_SPRINT_ID : null,
     releaseId: story.releaseId ?? null,
-    values: story.values ?? {}
+    values: story.values ?? {},
+    checks: story.checks ?? {},
+    // Stories done before the definitions existed are never marked.
+    doneItems: story.doneItems ?? null
   }));
   const fields: FieldDefinition[] = (stored.fields ?? []).map((field) => ({ ...field, defaultValue: field.defaultValue ?? null }));
   const assignments = stored.assignments ?? [];

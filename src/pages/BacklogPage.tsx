@@ -23,6 +23,7 @@ import { formatSprintDates } from '../components/sprintFormat';
 import { backlogOrder, dropInBacklog, parseSectionId, sectionId, totalPoints, type Placement } from '../domain/board';
 import { mapSprints } from '../domain/sprints';
 import type { Epic, Sprint, Story } from '../domain/types';
+import { DefinitionChip } from '../components/definitions';
 import { TitleButton } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
 import { useStoryMenu } from '../state/StoryMenu';
@@ -58,6 +59,7 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
       </span>
       <span className="card__code backlog__code">{story.code}</span>
       <TitleButton story={story} className="backlog__title" />
+      <DefinitionChip story={story} kind="ready" />
       <EpicTag epic={epic} inCard />
       {builtin.shown('story', 'points') && (
         <span className="pill" title={builtin.pointsTitle(story.points)}>

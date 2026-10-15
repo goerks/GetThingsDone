@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { hrefs, type SettingsSection } from '../router';
 import { FieldsSection } from './FieldsSection';
 import { MapSection } from './MapSection';
+import { DefinitionsSection } from './DefinitionsSection';
 import { FeaturesSection } from './FeaturesSection';
 import { StatusValuesSection } from './StatusValuesSection';
 
@@ -25,6 +26,9 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           <a href={hrefs.settingsMap} className="settings__link" aria-current={section === 'map' ? 'page' : undefined}>
             {t('settings.map.title')}
           </a>
+          <a href={hrefs.settingsDefinitions} className="settings__link" aria-current={section === 'definitions' ? 'page' : undefined}>
+            {t('definitions.title')}
+          </a>
           <a href={hrefs.settingsFeatures} className="settings__link" aria-current={section === 'features' ? 'page' : undefined}>
             {t('settings.features.title')}
           </a>
@@ -34,6 +38,8 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <StatusValuesSection />
           ) : section === 'map' ? (
             <MapSection />
+          ) : section === 'definitions' ? (
+            <DefinitionsSection />
           ) : section === 'features' ? (
             <FeaturesSection />
           ) : (

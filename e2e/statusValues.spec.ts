@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { pressUntilAnnounced } from './keyboardDrag';
+import { switchDefinitionsOff } from './definitionsOff';
 
 /*
  * End-to-end tests of the configurable status values in a real browser (#5), following the test cases the PO approved
@@ -10,6 +11,7 @@ import { pressUntilAnnounced } from './keyboardDrag';
 
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-10-13T10:00:00+02:00'));
+  await switchDefinitionsOff(page);
   await page.goto('/#/settings/statuses');
   await expect(page.getByRole('heading', { name: 'Status values', level: 2 })).toBeVisible();
 });

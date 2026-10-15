@@ -33,6 +33,8 @@ function story(id: string, releaseId: string | null, overrides: Partial<Story> =
     rank: Number(id.replace(/\D/g, '')) || 0,
     criteria: [],
     values: {},
+    checks: {},
+    doneItems: null,
     ...overrides
   };
 }

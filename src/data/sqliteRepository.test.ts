@@ -8,8 +8,10 @@ import type { CustomDataType, FieldDefinition } from '../domain/types';
 import { addDays, todayIso } from '../domain/sprints';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
+import { EMPTY_DEFINITIONS } from '../domain/definitions';
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql'];
+
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -54,6 +56,35 @@ async function freshRepository(): Promise<{ db: DatabaseSync; repository: Sqlite
   await repository.replaceAll(seedSnapshot('2026-10-11'));
   return { db, repository };
 }
+
+describe('definitions (#26)', () => {
+  it('AC1.1 stores the lists with the settings and the states of a story with the story', async () => {
+    // Given the demo data with its demo lists
+    const { repository } = await freshRepository();
+    const snapshot = await repository.load();
+    expect(snapshot.settings.definitions.ready.groups.length).toBeGreaterThan(0);
+    // When the team changes a list and a story gets states and a Done snapshot
+    const definitions = { ...snapshot.settings.definitions, ready: { enforce: true, groups: [{ id: 'g1', name: 'Technical', items: [{ id: 'i1', text: 'Dependencies are clarified', rule: null, mayBeIrrelevant: true }] }] } };
+    await repository.saveSettings({ ...snapshot.settings, definitions });
+    await repository.saveStoryChecks('story-1', { i1: 'na' }, ['d1']);
+    // Then both are there after loading again, and other stories have none
+    const loaded = await repository.load();
+    expect(loaded.settings.definitions).toEqual(definitions);
+    const story = loaded.stories.find((item) => item.id === 'story-1');
+    expect([story?.checks, story?.doneItems]).toEqual([{ i1: 'na' }, ['d1']]);
+    expect(loaded.stories.find((item) => item.id === 'story-2')).toMatchObject({ checks: {}, doneItems: null });
+  });
+
+  it('AC5.4 a database of an earlier version gets stories without states and empty lists', async () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 11));
+    db.exec(`INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, rank) VALUES ('a', 'S-1', 'Old', '', NULL, 1, 'done', NULL, 0)`);
+    migrate(db, MIGRATIONS.slice(11));
+    const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
+    expect(loaded.stories[0]).toMatchObject({ checks: {}, doneItems: null });
+    expect(loaded.settings.definitions).toEqual({ ready: { enforce: true, groups: [] }, done: { enforce: true, groups: [] } });
+  });
+});
 
 describe('migration 004', () => {
   it('keeps every story and criterion of release 0.1 and lets a story lose its epic', () => {
@@ -117,13 +148,13 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true } });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true } });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true } });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true } });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true }, definitions: seedSnapshot(todayIso()).settings.definitions });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false } });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false } });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
   });
 
   it('falls back to the default for a value it does not know', async () => {
@@ -591,7 +622,7 @@ describe('sprint states (#17)', () => {
         ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
-    migrate(db, ['011_sprint_states.sql']);
+    migrate(db, ['011_sprint_states.sql', '012_definitions.sql']);
     return db;
   }
 

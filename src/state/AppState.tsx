@@ -64,6 +64,7 @@ import {
   updateRelease as updateReleaseIn,
   type ReleaseInput
 } from '../domain/releases';
+import { gatesToAsk, pruneChecks, setCheck as setCheckIn, withDoneSnapshots } from '../domain/definitions';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import {
   DEFAULT_STATUSES,
@@ -78,6 +79,9 @@ import {
   type StatusPlace
 } from '../domain/statuses';
 import type {
+  DefinitionCheck,
+  DefinitionKind,
+  Definitions,
   Epic,
   FieldAssignment,
   FieldDefinition,
@@ -94,6 +98,14 @@ import type {
   StatusValue,
   Story
 } from '../domain/types';
+
+/** A change of status that waits for the user: the story and the lists it crosses, in order. */
+export interface Transition {
+  storyId: string;
+  from: string;
+  to: string;
+  gates: DefinitionKind[];
+}
 
 interface AppApi {
   epics: Epic[];
@@ -155,6 +167,16 @@ interface AppApi {
   updateStory(id: string, patch: StoryPatch): void;
   /** Changes a story from a menu: like `updateStory`, plus a notice and the highlight (#32). */
   changeStory(id: string, patch: StoryPatch): void;
+  /** Sets the Definition of Ready and Done lists of the team (#26); checks of removed items are dropped. */
+  setDefinitions(definitions: Definitions): void;
+  /** Sets an item of a story to "checked" or "not relevant", or makes it open again (null). */
+  setCheck(storyId: string, itemId: string, state: DefinitionCheck | null): void;
+  /**
+   * A change of status that crosses a list the story does not meet is held back until the user decides (#26).
+   * `move` carries it out as it was asked, `cancel` drops it.
+   */
+  transition: Transition | null;
+  resolveTransition(action: 'move' | 'cancel'): void;
   /** The story that was just created or moved and is highlighted for a moment, or null. */
   flashed: string | null;
   /** Whether the highlighted story is also scrolled into view: not after a drag, the drop put it where the user is looking. */
@@ -221,6 +243,8 @@ export function AppProvider({ repository, children }: Props) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const bypassGate = useRef(false);
+  const [pending, setPending] = useState<(Transition & { commit: () => void }) | null>(null);
   const repoRef = useRef<Repository | null>(null);
   const storiesRef = useRef<Story[]>([]);
   const epicsRef = useRef<Epic[]>([]);
@@ -289,8 +313,21 @@ export function AppProvider({ repository, children }: Props) {
    * (also through a status value that moves into or out of "done") is appended to the history of the releases.
    */
   const update = useCallback(
-    (stories: Story[], statuses: StatusValue[] = statusesRef.current) => {
-      const events = releaseEventsFor(storiesRef.current, stories, new Date().toISOString(), newId, isDoneIn(statuses), isDoneIn(statusesRef.current));
+    (changed: Story[], statuses: StatusValue[] = statusesRef.current) => {
+      const before = storiesRef.current;
+      // A story that becomes done remembers the Done list it is held to (#26).
+      const stories = withDoneSnapshots(before, changed, isDoneIn(statusesRef.current), isDoneIn(statuses), settingsRef.current.definitions);
+      const events = releaseEventsFor(before, stories, new Date().toISOString(), newId, isDoneIn(statuses), isDoneIn(statusesRef.current));
+      const previous = new Map(before.map((story) => [story.id, story]));
+      const checked = stories.filter((story) => {
+        const old = previous.get(story.id);
+        return old !== undefined && (old.checks !== story.checks || old.doneItems !== story.doneItems);
+      });
+      if (checked.length > 0) {
+        persist(async (repo) => {
+          for (const story of checked) await repo.saveStoryChecks(story.id, story.checks, story.doneItems);
+        });
+      }
       storiesRef.current = stories;
       statusesRef.current = statuses;
       setSnapshot((current) => ({ ...current, stories, statuses, events: events.length > 0 ? [...current.events, ...events] : current.events }));
@@ -375,6 +412,20 @@ export function AppProvider({ repository, children }: Props) {
     for (const listener of [...activityListeners.current]) listener(activity);
   }, []);
 
+  /**
+   * Holds back a change of status that crosses a Definition list the story does not meet (#26): the change waits in
+   * `pending` until the user decides. Returns true when the change was held back.
+   */
+  const gate = useCallback((storyId: string, to: string, commit: () => void): boolean => {
+    if (bypassGate.current) return false;
+    const story = storiesRef.current.find((item) => item.id === storyId);
+    if (!story || story.status === to) return false;
+    const gates = gatesToAsk(settingsRef.current.definitions, statusesRef.current, story, to);
+    if (gates.length === 0) return false;
+    setPending({ storyId, from: story.status, to, gates, commit });
+    return true;
+  }, []);
+
   const api = useMemo<AppApi>(
     () => ({
       epics: snapshot.epics,
@@ -399,6 +450,8 @@ export function AppProvider({ repository, children }: Props) {
         const before = storiesRef.current;
         const after = dropStory(before, activeId, overId, placement);
         if (after === before) return;
+        const target = after.find((story) => story.id === activeId)?.status;
+        if (target !== undefined && gate(activeId, target, () => api.drop(activeId, overId, placement))) return;
         update(after);
         announceMove(before, after, activeId, false);
         const changed = changedPositions(before, after);
@@ -577,6 +630,7 @@ export function AppProvider({ repository, children }: Props) {
         const after = updateStoryIn(storiesRef.current, id, patch);
         const story = after.find((item) => item.id === id);
         if (!story) return;
+        if (patch.status !== undefined && gate(id, patch.status, () => api.updateStory(id, patch))) return;
         update(after);
         persist((repo) => repo.updateStory(story));
       },
@@ -586,9 +640,34 @@ export function AppProvider({ repository, children }: Props) {
         const story = after.find((item) => item.id === id);
         const was = before.find((item) => item.id === id);
         if (!story || !was || (Object.keys(patch) as Array<keyof StoryPatch>).every((key) => was[key] === story[key])) return;
+        if (patch.status !== undefined && gate(id, patch.status, () => api.changeStory(id, patch))) return;
         update(after);
         persist((repo) => repo.updateStory(story));
         announceMove(before, after, id, true);
+      },
+      setDefinitions(definitions) {
+        const settings = { ...settingsRef.current, definitions };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
+        // Items that are gone take their states with them.
+        const pruned = pruneChecks(storiesRef.current, definitions);
+        if (pruned !== storiesRef.current) update(pruned);
+      },
+      setCheck(storyId, itemId, state) {
+        update(setCheckIn(storiesRef.current, storyId, itemId, state));
+      },
+      transition: pending ? { storyId: pending.storyId, from: pending.from, to: pending.to, gates: pending.gates } : null,
+      resolveTransition(action) {
+        const held = pending;
+        setPending(null);
+        if (action !== 'move' || !held) return;
+        // "Move" and the deliberate override carry the change out without asking again.
+        bypassGate.current = true;
+        try {
+          held.commit();
+        } finally {
+          bypassGate.current = false;
+        }
       },
       flashed,
       flashScroll,
@@ -750,7 +829,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify, announceMove, flash, toast, t]
+    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify, announceMove, flash, toast, t]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

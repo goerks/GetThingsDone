@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AcceptancePanel } from './acceptance/Panel';
 import { acceptanceEnabled } from './acceptance/preview';
 import { Header } from './components/Header';
+import { TransitionDialog } from './components/TransitionDialog';
 import { HelpPanel } from './components/help/HelpPanel';
 import { WelcomeCard } from './components/help/WelcomeCard';
 import { ShortcutsDialog, useShortcutsKey } from './components/Shortcuts';
@@ -28,7 +29,7 @@ function Shell() {
   const { t } = useTranslation();
   const route = useRoute();
   const { theme, toggleTheme } = useTheme();
-  const { loading, error, settings, flashed, flashScroll } = useApp();
+  const { loading, error, settings, flashed, flashScroll, transition } = useApp();
   const help = useHelp();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const openShortcuts = useCallback(() => setShowShortcuts(true), []);
@@ -79,6 +80,7 @@ function Shell() {
         )}
       </main>
       {help.open && <HelpPanel route={route} />}
+      {transition && <TransitionDialog key={`${transition.storyId}:${transition.to}`} storyId={transition.storyId} to={transition.to} gates={transition.gates} />}
       {showShortcuts && <ShortcutsDialog route={route} onClose={() => setShowShortcuts(false)} />}
       {acceptanceEnabled() && <AcceptancePanel />}
     </div>
