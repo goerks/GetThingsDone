@@ -5558,3 +5558,111 @@ a.btn {
   background: var(--pill);
   color: var(--muted);
 }
+
+/* Definition cards in the story dialog (#26) */
+
+.definitions-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.definition-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.definition-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px 4px 4px;
+}
+
+.definition-card__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  min-height: var(--target-min);
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.definition-card__name {
+  font-weight: 600;
+}
+
+.definition-card__caret {
+  color: var(--muted);
+  width: 12px;
+}
+
+.definition-card__meter {
+  flex: none;
+  width: 120px;
+}
+
+.definition-card__body {
+  padding: 4px 14px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.definition-menu {
+  position: relative;
+}
+
+.definition-menu__list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 5;
+  display: grid;
+  min-width: 220px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.definition-menu__item {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.definition-menu__item:hover,
+.definition-menu__item:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.definitions-panel--hidden {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+}
+
+.definition-allmet {
+  margin: 8px 0 0;
+}
+
+.definition-route {
+  margin: 0 0 8px;
+  color: var(--muted);
+}

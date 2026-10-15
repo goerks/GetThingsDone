@@ -1089,7 +1089,6 @@
       "inSprint": "Ist einem Sprint zugeordnet"
     },
     "transition": {
-      "met": "{{counter}} erfüllt",
       "move": "Verschieben",
       "next": "Nächste Liste",
       "openStory": "Story öffnen",
@@ -1100,15 +1099,14 @@
         "done_one": "{{code}} kann nicht nach „{{target}}“: {{count}} Punkt der Definition of Done ist noch offen",
         "done_other": "{{code}} kann nicht nach „{{target}}“: {{count}} Punkte der Definition of Done sind noch offen"
       },
-      "problem": {
-        "ready": "Die Definition of Ready ist ein Quality Gate. Erledige die offenen Punkte unten, um die Story zu verschieben, oder übergehe das Gate bewusst.",
-        "done": "Die Definition of Done ist ein Quality Gate. Erledige die offenen Punkte unten, um die Story zu verschieben, oder übergehe das Gate bewusst."
-      },
       "override": "Gate übergehen …",
       "overrideTitle": "{{list}} für {{code}} übergehen?",
       "overrideText": "Die Story wird mit diesen offenen Punkten verschoben. Das ist eine bewusste Ausnahme vom Quality Gate, nicht der normale Weg.",
       "overrideConfirm": "Übergehen und verschieben",
-      "overrideBack": "Zurück zu den Punkten"
+      "overrideBack": "Zurück zu den Punkten",
+      "gate": "Quality Gate",
+      "route": "{{from}} → {{to}} · {{list}}",
+      "progress": "{{met}} von {{total}} Punkten erfüllt · {{open}} offen"
     },
     "toast": {
       "open": "Story öffnen",
@@ -1158,6 +1156,14 @@
       "hasEpic": "Die Story gehört zu einem Epic.",
       "allCriteriaAccepted": "Jedes Akzeptanzkriterium ist abgehakt.",
       "inSprint": "Die Story ist in einem Sprint eingeplant."
+    },
+    "allMet": "Alle Punkte sind erfüllt.",
+    "show": "Definitionen einblenden",
+    "hiddenHint": "ausgeblendet (nur in diesem Browser)",
+    "menu": {
+      "label": "Optionen der {{name}}",
+      "onlyOpen": "Nur offene Punkte zeigen",
+      "hide": "Definitionen ausblenden"
     }
   }
 }

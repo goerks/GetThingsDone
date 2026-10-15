@@ -44,6 +44,9 @@ async function openStory(user: User, code: string): Promise<HTMLElement> {
 
 const panel = (dialog: HTMLElement): HTMLElement => within(dialog).getByRole('region', { name: 'Definitions of this story' });
 
+/** The header button of the card of a list; it folds and unfolds the card. */
+const cardHead = (dialog: HTMLElement, list: 'Ready' | 'Done'): HTMLElement => within(panel(dialog)).getByRole('button', { name: new RegExp(`^Definition of ${list}`) });
+
 async function moveTo(user: User, dialog: HTMLElement, status: string): Promise<void> {
   await user.selectOptions(within(dialog).getByRole('combobox', { name: 'Status' }), status);
 }
@@ -185,19 +188,71 @@ describe('Settings › Definitions', () => {
 });
 
 describe('Story dialog', () => {
-  it('AC3.1 shows a tab per list with counters, and the groups with their own counters', async () => {
-    // Given S-6 with a description and 4 open criteria
+  it('AC3.1 shows a card per list with counter and progress, the card of the status open, and the groups with their own counters', async () => {
+    // Given S-6 in "To do" with a description and 4 open criteria
     const user = userEvent.setup();
     await open('#/board');
     const dialog = await openStory(user, 'S-6');
-    // Then the panel has the tabs with the counters and the groups of the Ready list
-    const tabs = within(panel(dialog)).getAllByRole('tab');
-    expect(tabs.map((tab) => tab.textContent?.replace(/\s+/g, ' ').trim())).toEqual(['Definition of Ready · 2/5 ⚠ 3 items open', 'Definition of Done · 0/3 ⚠ 3 items open']);
+    // Then both cards show their counters, the Ready card is open and the Done card is closed
+    const heads = within(panel(dialog)).getAllByRole('button', { name: /^Definition of/ });
+    expect(heads.map((head) => head.textContent?.replace(/\s+/g, ' ').trim())).toEqual(['▾Definition of Ready· 2/5⚠ 3 items open3', '▸Definition of Done· 0/3⚠ 3 items open3']);
+    expect(cardHead(dialog, 'Ready')).toHaveAttribute('aria-expanded', 'true');
+    expect(cardHead(dialog, 'Done')).toHaveAttribute('aria-expanded', 'false');
     expect(within(panel(dialog)).getByRole('button', { name: /Functional/ })).toHaveAttribute('aria-expanded', 'true');
     expect(within(panel(dialog)).getByText('2/2')).toBeInTheDocument();
-    // And a group can be folded away
+    // And a group can be folded away, and the Done card opens with a click
     await user.click(within(panel(dialog)).getByRole('button', { name: /Functional/ }));
     expect(within(panel(dialog)).queryByRole('checkbox', { name: /Has a description/ })).not.toBeInTheDocument();
+    await user.click(cardHead(dialog, 'Done'));
+    expect(within(panel(dialog)).getByRole('checkbox', { name: /Code is reviewed/ })).toBeInTheDocument();
+  });
+
+  it('AC3.1 a story in "In progress" opens the Done card', async () => {
+    const user = userEvent.setup();
+    await open('#/board');
+    const dialog = await openStory(user, 'S-1');
+    expect(cardHead(dialog, 'Done')).toHaveAttribute('aria-expanded', 'true');
+    expect(cardHead(dialog, 'Ready')).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('AC3.4 hides the definitions in the story and shows them again, and remembers the choice in this browser', async () => {
+    // Given S-6 with both cards
+    const user = userEvent.setup();
+    await open('#/board');
+    let dialog = await openStory(user, 'S-6');
+    // When I choose "Hide the definitions" in the menu of a card
+    await user.click(within(panel(dialog)).getByRole('button', { name: 'Options of the Definition of Ready' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Hide the definitions' }));
+    // Then only a line with "Show definitions" and the counters is left
+    expect(within(panel(dialog)).queryByRole('checkbox')).not.toBeInTheDocument();
+    expect(panel(dialog)).toHaveTextContent('Definition of Ready 2/5 · Definition of Done 0/3 · hidden (in this browser only)');
+    // And it stays hidden in another story, until I show it again
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    dialog = await openStory(user, 'S-3');
+    expect(within(panel(dialog)).queryByRole('button', { name: /^Definition of Ready/ })).not.toBeInTheDocument();
+    await user.click(within(panel(dialog)).getByRole('button', { name: 'Show definitions' }));
+    expect(cardHead(dialog, 'Ready')).toBeInTheDocument();
+    expect(window.localStorage.getItem('getitdone.definitions.hidden')).toBe('0');
+  }, 20000);
+
+  it('AC3.5 shows only the open items on request, and says so when all are met', async () => {
+    const user = userEvent.setup();
+    await open('#/board');
+    const dialog = await openStory(user, 'S-6');
+    expect(within(panel(dialog)).getByRole('checkbox', { name: /Has a description/ })).toBeInTheDocument();
+    // When I choose "Show only open items"
+    await user.click(within(panel(dialog)).getByRole('button', { name: 'Options of the Definition of Ready' }));
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /Show only open items/ }));
+    // Then the met items and the groups without open items are gone
+    expect(within(panel(dialog)).queryByRole('checkbox', { name: /Has a description/ })).not.toBeInTheDocument();
+    expect(within(panel(dialog)).queryByRole('button', { name: /Functional/ })).not.toBeInTheDocument();
+    expect(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ })).toBeInTheDocument();
+    // And once the three open items are resolved, the card says that all are met
+    await user.click(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ }));
+    await user.click(within(panel(dialog)).getByRole('button', { name: 'Set “Design is available” to not relevant' }));
+    await user.click(within(panel(dialog)).getByRole('button', { name: 'Set “Texts are agreed” to not relevant' }));
+    expect(within(panel(dialog)).getByText('All items are met.')).toBeInTheDocument();
   });
 
   it('AC2.1 an item goes from open to checked, to not relevant and back', async () => {
@@ -224,7 +279,7 @@ describe('Story dialog', () => {
     const user = userEvent.setup();
     await open('#/board');
     const dialog = await openStory(user, 'S-6');
-    await user.click(within(panel(dialog)).getByRole('tab', { name: /Definition of Done/ }));
+    await user.click(cardHead(dialog, 'Done'));
     expect(within(panel(dialog)).getByRole('checkbox', { name: /Code is reviewed/ })).toBeInTheDocument();
     expect(within(panel(dialog)).queryByRole('button', { name: /Code is reviewed/ })).not.toBeInTheDocument();
     expect(within(panel(dialog)).getByRole('button', { name: /Documentation is updated/ })).toBeInTheDocument();
@@ -239,7 +294,7 @@ describe('Story dialog', () => {
     const user = userEvent.setup();
     await open('#/board');
     const dialog = await openStory(user, 'S-3');
-    await user.click(within(panel(dialog)).getByRole('tab', { name: /Definition of Done/ }));
+    await user.click(cardHead(dialog, 'Done'));
     const item = within(panel(dialog)).getByRole('checkbox', { name: /All criteria accepted/ });
     expect(item).toBeDisabled();
     expect(item).not.toBeChecked();
@@ -262,7 +317,7 @@ describe('Story dialog', () => {
     expect(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ })).toBeDisabled();
     expect(within(panel(dialog)).getByText('0/1 · 1 n/a')).toBeInTheDocument();
     // N on an item that does not allow it does nothing
-    await user.click(within(panel(dialog)).getByRole('tab', { name: /Definition of Done/ }));
+    await user.click(cardHead(dialog, 'Done'));
     const review = within(panel(dialog)).getByRole('checkbox', { name: /Code is reviewed/ });
     review.focus();
     await user.keyboard('n');
@@ -270,29 +325,37 @@ describe('Story dialog', () => {
     expect(review).toBeEnabled();
   });
 
-  it('AC3.2 the tabs follow the arrow keys', async () => {
+  it('AC3.2 the cards open and close with Enter and the menu works with the keyboard', async () => {
     const user = userEvent.setup();
     await open('#/board');
     const dialog = await openStory(user, 'S-6');
-    within(panel(dialog)).getByRole('tab', { name: /Definition of Ready/ }).focus();
-    await user.keyboard('{ArrowRight}');
-    expect(within(panel(dialog)).getByRole('tab', { name: /Definition of Done/ })).toHaveAttribute('aria-selected', 'true');
+    cardHead(dialog, 'Done').focus();
+    await user.keyboard('{Enter}');
+    expect(cardHead(dialog, 'Done')).toHaveAttribute('aria-expanded', 'true');
+    // The menu opens with Enter, Escape closes it and the focus returns to its button
+    const menuButton = within(panel(dialog)).getByRole('button', { name: 'Options of the Definition of Ready' });
+    menuButton.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('menuitemcheckbox', { name: /Show only open items/ })).toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(menuButton).toHaveFocus();
   });
 
-  it('AC3.3 a list that is empty or off has no tab, and two lists that are off no panel', async () => {
+  it('AC3.3 a list that is empty or off has no card, and two lists that are off no panel', async () => {
     const user = userEvent.setup();
     // Given the Ready list is on and the Done list is empty
     await open('#/board', { ready: demoDefinitions().ready, done: EMPTY_DEFINITIONS.done });
     let dialog = await openStory(user, 'S-6');
-    expect(within(panel(dialog)).getAllByRole('tab')).toHaveLength(1);
-    expect(within(panel(dialog)).queryByRole('tab', { name: /Definition of Done/ })).not.toBeInTheDocument();
+    expect(within(panel(dialog)).getAllByRole('button', { name: /^Definition of/ })).toHaveLength(1);
+    expect(within(panel(dialog)).queryByRole('button', { name: /^Definition of Done/ })).not.toBeInTheDocument();
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     // Given the Done list has items but is switched off
     cleanup();
     await open('#/board', { ready: demoDefinitions().ready, done: demoDefinitions(false).done });
     dialog = await openStory(user, 'S-6');
-    expect(within(panel(dialog)).queryByRole('tab', { name: /Definition of Done/ })).not.toBeInTheDocument();
+    expect(within(panel(dialog)).queryByRole('button', { name: /^Definition of Done/ })).not.toBeInTheDocument();
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     // Given both lists are switched off (the default)
@@ -362,7 +425,7 @@ describe('Change of status', () => {
     // Then only "Override and move" moves it
     await overrideGate(user, ask);
     expect(within(dialog).getByRole('combobox', { name: 'Status' })).toHaveValue('in_progress');
-    expect(within(panel(dialog)).getByRole('tab', { name: /Definition of Ready · 2\/5/ })).toBeInTheDocument();
+    expect(cardHead(dialog, 'Ready')).toHaveTextContent('2/5');
   });
 
   it('AC4.4 "Cancel" keeps the story, "Open story" leads to its dialog', async () => {
@@ -411,7 +474,7 @@ describe('Change of status', () => {
     // Then the Done list is asked: the 3 open items of it ("All criteria accepted" is open, 2 of 4 criteria are accepted)
     const ask = transition();
     expect(ask).toHaveAccessibleName('S-1 cannot move to “Done”: 3 items of the Definition of Done are still open');
-    expect(within(ask).getByText(/^Definition of Done · /)).toBeInTheDocument();
+    expect(within(ask).getByText(/→ Done · Definition of Done/)).toBeInTheDocument();
     expect(within(ask).queryByText(/Dependencies are clarified/)).not.toBeInTheDocument();
     await overrideGate(user, ask);
     expect(within(dialog).getByRole('combobox', { name: 'Status' })).toHaveValue('done');
@@ -424,14 +487,14 @@ describe('Change of status', () => {
     await moveTo(user, dialog, 'Done');
     // Then first the Ready list
     let ask = transition();
-    expect(within(ask).getByText(/^Definition of Ready · /)).toBeInTheDocument();
+    expect(within(ask).getByText(/To do → Done · Definition of Ready/)).toBeInTheDocument();
     await user.click(within(ask).getByRole('checkbox', { name: /Dependencies are clarified/ }));
     await user.click(within(ask).getByRole('button', { name: 'Set “Design is available” to not relevant' }));
     await user.click(within(ask).getByRole('button', { name: 'Set “Texts are agreed” to not relevant' }));
     await user.click(within(ask).getByRole('button', { name: 'Next list' }));
     // Then the Done list
     ask = transition();
-    expect(within(ask).getByText(/^Definition of Done · /)).toBeInTheDocument();
+    expect(within(ask).getByText(/→ Done · Definition of Done/)).toBeInTheDocument();
     expect(within(ask).getByRole('checkbox', { name: /Code is reviewed/ })).toBeInTheDocument();
     await overrideGate(user, ask);
     expect(within(dialog).getByRole('combobox', { name: 'Status' })).toHaveValue('done');

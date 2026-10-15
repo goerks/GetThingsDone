@@ -167,10 +167,11 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           target: '[data-story-id="story-6"]',
           given: 'Ready- und Done-Liste mit Gruppen.',
           when: 'Ich öffne „S-6“.',
-          then: 'Unter den Kriterien steht ein Panel mit den Reitern „Definition of Ready“ und „Definition of Done“, je mit Zähler. Die Gruppen haben Namen, Zähler und Balken und lassen sich zu- und aufklappen.',
+          then: 'Unter den Kriterien stehen zwei Karten untereinander: „Definition of Ready“ (offen) und „Definition of Done“ (zu), je mit Zähler, Warnzeichen und Fortschrittsbalken. Die Gruppen haben Namen, Zähler und Balken und lassen sich zu- und aufklappen. Bei einer Story in „In progress“ ist die Done-Karte offen.',
           preset: 'definitionsOn',
           tests: [
-            'src/Definitions.test.tsx › AC3.1 shows a tab per list with counters, and the groups with their own counters',
+            'src/Definitions.test.tsx › AC3.1 shows a card per list with counter and progress, the card of the status open, and the groups with their own counters',
+            'src/Definitions.test.tsx › AC3.1 a story in "In progress" opens the Done card',
             'src/domain/definitions.test.ts › AC3.1 groups carry their own counters'
           ],
           manual: 'Das Aussehen (Abstände, Balken, Farben) prüft nur ein Mensch.',
@@ -182,12 +183,12 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           link: '#/board',
           target: '[data-story-id="story-6"]',
           given: 'Story „S-6“ offen.',
-          when: 'Ich gehe nur mit Tab und Pfeiltasten zum Panel, wechsle den Reiter, hake mit der Leertaste ab und setze mit N „nicht relevant“.',
+          when: 'Ich gehe nur mit Tab zu den Karten, öffne und schliesse sie mit Enter, hake mit der Leertaste ab, setze mit N „nicht relevant“ und öffne das Menü „⋯“ mit Enter (Escape schliesst es).',
           then: 'Alles geht ohne Maus; der Fokus ist immer sichtbar.',
           preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC3.2 works with the keyboard only: Space ticks, N sets not relevant',
-            'src/Definitions.test.tsx › AC3.2 the tabs follow the arrow keys'
+            'src/Definitions.test.tsx › AC3.2 the cards open and close with Enter and the menu works with the keyboard'
           ]
         },
         {
@@ -197,9 +198,9 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           target: '.definitions-settings',
           given: 'Nur die Definition of Ready ist eingeschaltet, die Done-Liste ist aus.',
           when: 'Ich öffne eine Story.',
-          then: 'Es gibt nur den Reiter „Definition of Ready“; „Definition of Done“ fehlt. Sind beide Listen aus oder leer, fehlt das ganze Panel.',
+          then: 'Es gibt nur die Karte „Definition of Ready“; „Definition of Done“ fehlt. Sind beide Listen aus oder leer, fehlt das ganze Panel.',
           preset: 'definitionsReadyOnly',
-          tests: ['src/Definitions.test.tsx › AC3.3 a list that is empty or off has no tab, and two lists that are off no panel']
+          tests: ['src/Definitions.test.tsx › AC3.3 a list that is empty or off has no card, and two lists that are off no panel']
         }
       ]
     },
@@ -224,6 +225,30 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           ],
           manual: 'Das Aussehen des Dialogs prüft nur ein Mensch.',
           poCheck: 'Ist der Dialog gut lesbar? Ist klar, was das Problem ist und dass „Override the gate…“ nur die bewusste Ausnahme ist?'
+        },
+        {
+          id: 'AC3.4',
+          title: 'Definitionen in der Story aus- und einblenden',
+          link: '#/board',
+          target: '[data-story-id="story-6"]',
+          given: 'Beide Listen sind eingeschaltet; „S-6“ zeigt beide Karten.',
+          when: 'Ich öffne in einer Karte das Menü „⋯“ und wähle „Hide the definitions“. Dann öffne ich „S-3“ und wähle „Show definitions“.',
+          then: 'Nach dem Ausblenden bleibt eine Zeile mit „Show definitions“ und den Zählern (ausgeblendet, nur in diesem Browser). Das gilt auch für andere Stories und nach dem Neuladen, bis ich sie wieder einblende. Das Gate und die Markierungen bleiben unverändert.',
+          preset: 'definitionsOn',
+          tests: [
+            'src/Definitions.test.tsx › AC3.4 hides the definitions in the story and shows them again, and remembers the choice in this browser'
+          ]
+        },
+        {
+          id: 'AC3.5',
+          title: 'Nur offene Punkte zeigen',
+          link: '#/board',
+          target: '[data-story-id="story-6"]',
+          given: '„S-6“ zeigt die Ready-Karte mit erfüllten und offenen Punkten.',
+          when: 'Ich wähle im Menü „⋯“ „Show only open items“. Danach erledige ich die offenen Punkte.',
+          then: 'Erfüllte Punkte und Gruppen ohne offene Punkte sind ausgeblendet. Sind alle erfüllt, steht „All items are met.“ da.',
+          preset: 'definitionsOn',
+          tests: ['src/Definitions.test.tsx › AC3.5 shows only the open items on request, and says so when all are met']
         },
         {
           id: 'AC4.2',
