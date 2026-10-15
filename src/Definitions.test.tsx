@@ -259,6 +259,28 @@ describe('Story dialog', () => {
     expect(cardHead(dialog, 'Ready')).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('AC3.1 a story in "Done" opens no card, and a card whose items are all met stays closed when the story opens', async () => {
+    const user = userEvent.setup();
+    await open('#/board');
+    // Given S-5 in "Done"
+    let dialog = await openStory(user, 'S-5');
+    // Then neither card is open
+    expect(cardHead(dialog, 'Ready')).toHaveAttribute('aria-expanded', 'false');
+    expect(cardHead(dialog, 'Done')).toHaveAttribute('aria-expanded', 'false');
+    // When I meet the last open Ready items of S-6 and open it again
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    dialog = await openStory(user, 'S-6');
+    for (const item of [/Dependencies are clarified/, /Design is available/, /Texts are agreed/]) {
+      await user.click(within(panel(dialog)).getByRole('checkbox', { name: item }));
+    }
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    dialog = await openStory(user, 'S-6');
+    // Then the Ready card stays closed, as nothing in it is open
+    expect(cardHead(dialog, 'Ready')).toHaveAttribute('aria-expanded', 'false');
+  }, 20000);
+
   it('AC3.4 hides the definitions in the story and shows them again, and remembers the choice in this browser', async () => {
     // Given S-6 with both cards
     const user = userEvent.setup();
@@ -613,7 +635,8 @@ describe('Marks', () => {
     expect(within(screen.getByRole('group', { name: /S-6:/ })).queryByText(/Not ready/)).not.toBeInTheDocument();
     // When the demo item is unchecked in the story, the mark returns
     const dialog = await openStory(user, 'S-6');
-    // (done → ignored → not set: two clicks)
+    // (the card is closed, as nothing in it is open; done → ignored → not set: two clicks)
+    await user.click(cardHead(dialog, 'Ready'));
     await user.click(control(panel(dialog), /Dependencies are clarified/));
     await user.click(control(panel(dialog), /Dependencies are clarified/));
     expect(within(screen.getByRole('group', { name: /S-6:/, hidden: true })).getByText(/Not ready 2\/5 · 2 n\/a/)).toBeInTheDocument();

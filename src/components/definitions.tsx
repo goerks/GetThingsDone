@@ -239,7 +239,11 @@ export function DefinitionsPanel({ story }: { story: Story }) {
   const [hidden, setHidden] = useBrowserFlag(HIDDEN_KEY);
   const [onlyOpen, setOnlyOpen] = useBrowserFlag(ONLY_OPEN_KEY);
   const category = categoryOf(app.statuses, story.status);
-  const [expanded, setExpanded] = useState<Record<DefinitionKind, boolean>>({ ready: category === 'not_started', done: category !== 'not_started' });
+  // Only the list that fits the status of the story opens, and only while something in it is still open: Ready in "not started", Done in "in progress".
+  const [expanded, setExpanded] = useState<Record<DefinitionKind, boolean>>({
+    ready: category === 'not_started' && evaluate(definitions.ready, story).open > 0,
+    done: category === 'in_progress' && evaluate(definitions.done, story).open > 0
+  });
   const uid = useId();
   const showButton = useRef<HTMLButtonElement>(null);
   const focusShow = useRef(false);

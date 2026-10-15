@@ -5733,6 +5733,13 @@ a.btn {
   gap: 16px;
 }
 
+.definition-listcard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 14px 18px;
+}
+
 .definition-listcard--off {
   background: var(--column);
 }
@@ -5740,17 +5747,166 @@ a.btn {
 .definition-listcard__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
 }
 
-.definition-listcard__head h3 {
+.definition-listcard__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.definition-listcard__title h3 {
   margin: 0;
-  font-size: inherit;
+  font-size: 17px;
 }
 
-.definition-listcard .feature__text {
-  margin-top: 6px;
+.definition-listcard__title p {
+  margin: 2px 0 0;
+  font-size: 14px;
+}
+
+.definition-switch {
+  appearance: none;
+  flex: none;
+  width: 46px;
+  height: 26px;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--pill);
+  position: relative;
+  cursor: pointer;
+}
+
+.definition-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: left 0.12s;
+}
+
+.definition-switch:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.definition-switch:checked::after {
+  left: 23px;
+  background: var(--accent-ink);
+}
+
+.definition-switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .definition-switch::after {
+    transition: none;
+  }
+}
+
+/* Editor rows as in the chosen mockup: text that edits in place, icons at the right, a rule under a group head */
+
+.definition-block {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.definition-block__head {
+  padding: 0 0 2px;
+  border-radius: 0;
+  background: transparent;
+  border-bottom: 2px solid var(--border);
+  font-weight: 600;
+}
+
+.definition-block__items.definition-edit,
+.definition-block__items .definition-edit__row {
+  background: transparent;
+}
+
+.definition-block__items .definition-edit__row {
+  padding-left: 0;
+  border-top: 0;
+}
+
+.definition-listcard .input {
+  border-color: transparent;
+  background: transparent;
+}
+
+.definition-listcard .input:hover,
+.definition-listcard .input:focus {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.definition-listcard .definition-edit__name {
+  font: inherit;
+}
+
+.definition-block__head .definition-edit__name {
+  font-weight: 600;
+}
+
+.definition-block__head .definition-edit__count {
+  margin-left: 0;
+  font-size: 13px;
+}
+
+.definition-block__head .icon-btn {
+  margin-left: auto;
+}
+
+.definition-edit__kind {
+  flex: none;
+  color: var(--muted);
+}
+
+.definition-edit__na {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.definition-edit__nabox {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.definition-edit__na:has(input:checked) .definition-edit__nabox {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.definition-edit__na:has(input:focus-visible) .definition-edit__nabox {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.definition-block__add {
+  padding: 4px 0 8px;
+  border-top: 0;
+}
+
+.definition-block__add .input::placeholder,
+.definition-newgroup .input::placeholder {
+  color: var(--muted);
 }
 
 .definition-listcard__body {
@@ -5786,3 +5942,9 @@ a.btn {
   margin: 8px 0 0;
 }
 
+
+.definition-block__add .library > .btn {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
