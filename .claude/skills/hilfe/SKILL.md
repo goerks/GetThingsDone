@@ -19,6 +19,7 @@ Answer exactly with this overview in German (keep it in line with the other skil
 | `/korrektur #<Nr> <Text>` | Beim Testen passt etwas nicht | Ich korrigiere es und schicke den neuen Link |
 | `/abgenommen #<Nr>` | Alles passt | Ich übernehme die Änderung in `main` und schliesse das Issue |
 | `/stand #<Nr>` | Wo steht etwas? | Stand, was offen ist, und der nächste Schritt |
+| `/design-vorschlag <Anzahl> <Text>` | Du willst Design-Varianten sehen | Ich zeige dir die gewünschte Anzahl Varianten (1–x, Optionen A–D) als Seite, jede mit Bewertung und am Ende eine klare Empfehlung. Du bestätigst die Empfehlung oder wählst um. Alles steht auch im Issue |
 | `/hilfe` | Jederzeit | Diese Übersicht |
 
 `#<Nr>` ist die Nummer des Issues (oder des Pull Requests). Ohne Nummer nehme ich das Issue, um das es gerade geht.

@@ -33,7 +33,7 @@ flowchart TD
   FIX --> CHECK
   CHECK -- "/abgenommen #Nr" --> MERGE["GitHub: «Rebase and merge»,<br/>Branch gelöscht, Issue geschlossen (Regel 8)"]
   MERGE --> START
-  ANY["Jederzeit:<br/>/stand #Nr (Stand und nächster Schritt)<br/>/hilfe (alle Befehle)"]
+  ANY["Jederzeit:<br/>/stand #Nr (Stand und nächster Schritt)<br/>/design-vorschlag Anzahl (Design-Varianten mit Empfehlung)<br/>/hilfe (alle Befehle)"]
 
   classDef po fill:#fff4c2,stroke:#b38f00,color:#222
   classDef ai fill:#dcebff,stroke:#2f6fb3,color:#222
@@ -63,6 +63,7 @@ The PO can use short commands in the chat. They are shortcuts: plain sentences (
 | `/korrektur #<n> <text>` | 8 | Records the feedback in the issue, fixes it, posts the new preview link |
 | `/abgenommen #<n>` | 8–9 | Records the acceptance, merges the pull request, deletes the branch; the issue closes |
 | `/stand #<n>` | – | State, what is open, next step |
+| `/design-vorschlag <number> [text]` | 2 | Publishes an Artifact with the asked number of design variants (1–x, options A–D), each rated, with a clear recommendation; documents it in the issue; the PO confirms the recommendation interactively |
 
 ## Questions are interactive
 
