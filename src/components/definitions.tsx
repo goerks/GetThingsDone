@@ -22,56 +22,58 @@ export function counterText(t: TFunction, result: { checked: number; total: numb
 }
 
 /**
- * One item of a list for one story: a checkbox, and a quiet button for "not relevant" where the item allows it.
- * Automatic items show their own state and cannot be ticked. Space ticks, N toggles "not relevant".
+ * One item of a list for one story, with one control of three click states: not set, done, ignored ("not relevant"). A click
+ * goes on to the next state; an item that may not be ignored only toggles between not set and done. An automatic item shows
+ * its own state and can only be set to ignored and back. N sets "ignored" at once (and back) where the item allows it.
  */
 export function ItemRow({ story, item, state }: { story: Story; item: DefinitionItem; state: ItemState }) {
   const { t } = useTranslation();
   const app = useApp();
-  const box = useRef<HTMLInputElement>(null);
   const automatic = item.rule !== null;
   const text = itemText(t, item);
-  // A "not relevant" item shows a dash; a checkbox only knows "mixed" for that.
-  useEffect(() => {
-    if (box.current) box.current.indeterminate = state === 'na';
-  }, [state]);
+  const id = useId();
   const canNa = item.mayBeIrrelevant || state === 'na';
-  const toggleNa = (): void => app.setCheck(story.id, item.id, state === 'na' ? null : 'na');
+  const set = (next: 'checked' | 'na' | null): void => app.setCheck(story.id, item.id, next);
+  /** The next click state: not set → done → ignored → not set, leaving out what the item does not allow. */
+  const advance = (): void => {
+    if (state === 'na') set(null);
+    else if (automatic) {
+      if (canNa) set('na');
+    } else if (state === 'open') set('checked');
+    else set(canNa ? 'na' : null);
+  };
   const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     if (event.key.toLowerCase() !== 'n' || event.ctrlKey || event.metaKey || event.altKey || !canNa) return;
     event.preventDefault();
-    toggleNa();
+    set(state === 'na' ? null : 'na');
   };
+  const disabled = automatic && !canNa;
+  const label = t(`definitions.state.${state}`);
   return (
     <li className={`definition-item${state === 'na' ? ' definition-item--na' : ''}`} data-state={state}>
-      <label className="definition-item__label">
-        <input
-          ref={box}
-          type="checkbox"
-          checked={state === 'checked'}
-          disabled={automatic || state === 'na'}
-          aria-describedby={undefined}
-          onKeyDown={onKeyDown}
-          onChange={() => app.setCheck(story.id, item.id, state === 'checked' ? null : 'checked')}
-        />
-        <span className="definition-item__text">{text}</span>
-        {automatic && (
-          <span className="definition-item__auto" title={t('definitions.autoHint')}>
-            {t('definitions.automatic')}
-          </span>
-        )}
-        {state === 'na' && <span className="sr-only">{t('definitions.stateNa')}</span>}
-      </label>
-      {canNa && (
-        <button
-          type="button"
-          className="btn btn--small btn--quiet"
-          onKeyDown={onKeyDown}
-          aria-label={t(state === 'na' ? 'definitions.relevantAgainFor' : 'definitions.notRelevantFor', { text })}
-          onClick={toggleNa}
-        >
-          {t(state === 'na' ? 'definitions.relevantAgain' : 'definitions.notRelevant')}
-        </button>
+      <button
+        type="button"
+        role="checkbox"
+        className={`definition-box definition-box--${state}`}
+        aria-checked={state === 'checked' ? true : state === 'na' ? 'mixed' : false}
+        aria-labelledby={`${id}-text`}
+        aria-describedby={`${id}-state`}
+        disabled={disabled}
+        onKeyDown={onKeyDown}
+        onClick={advance}
+      >
+        <span aria-hidden="true">{state === 'checked' ? '✓' : state === 'na' ? '–' : ''}</span>
+      </button>
+      <span id={`${id}-text`} className="definition-item__text" onClick={disabled ? undefined : advance}>
+        {text}
+      </span>
+      <span id={`${id}-state`} className="sr-only">
+        {label}
+      </span>
+      {automatic && (
+        <span className="definition-item__auto" title={t('definitions.autoHint')}>
+          {t('definitions.automatic')}
+        </span>
       )}
     </li>
   );

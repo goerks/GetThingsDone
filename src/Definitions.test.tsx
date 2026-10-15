@@ -45,10 +45,21 @@ async function openStory(user: User, code: string): Promise<HTMLElement> {
 const panel = (dialog: HTMLElement): HTMLElement => within(dialog).getByRole('region', { name: 'Definitions of this story' });
 
 /** The header button of the card of a list; it folds and unfolds the card. */
+const list = (name: string): HTMLElement => screen.getByRole('region', { name });
+
 const cardHead = (dialog: HTMLElement, list: 'Ready' | 'Done'): HTMLElement => within(panel(dialog)).getByRole('button', { name: new RegExp(`^Definition of ${list}`) });
 
 async function moveTo(user: User, dialog: HTMLElement, status: string): Promise<void> {
   await user.selectOptions(within(dialog).getByRole('combobox', { name: 'Status' }), status);
+}
+
+/** The control of an item, which goes through three click states: not set, done, ignored. */
+const control = (scope: HTMLElement, name: RegExp): HTMLElement => within(scope).getByRole('checkbox', { name });
+
+/** Two clicks: not set → done → ignored ("not relevant"), for an item that allows it. */
+async function ignore(user: User, scope: HTMLElement, name: RegExp): Promise<void> {
+  await user.click(control(scope, name));
+  await user.click(control(scope, name));
 }
 
 const transition = (): HTMLElement => screen.getByRole('dialog', { name: /cannot move to “/ });
@@ -61,18 +72,20 @@ async function overrideGate(user: User, ask: HTMLElement): Promise<void> {
 
 describe('Settings › Definitions', () => {
   it('AC1.1 adds a group and a manual item directly in the list with Enter', async () => {
-    // Given the Definition of Ready tab of the settings with the demo lists
+    // Given the settings with the demo lists, both on, one under the other
     const user = userEvent.setup();
     const repository = await open('#/settings/definitions');
-    expect(screen.getByRole('tab', { name: 'Definition of Ready · 5' })).toHaveAttribute('aria-selected', 'true');
+    const ready = list('Definition of Ready');
+    expect(within(ready).getAllByRole('textbox', { name: /^Name of group / })).toHaveLength(3);
     // When I write "Security" in the row "New group" and press Enter, and "Threats are reviewed" in the add row of the new block
-    await user.type(screen.getByRole('textbox', { name: 'New group' }), 'Security{Enter}');
-    await user.type(screen.getByRole('textbox', { name: 'New item in group Security' }), 'Threats are reviewed{Enter}');
-    // Then block and item are in the list and saved, the rows are empty again, and the tab counts 6 items
+    await user.type(within(ready).getByRole('textbox', { name: 'New group' }), 'Security{Enter}');
+    await user.type(within(ready).getByRole('textbox', { name: 'New item in group Security' }), 'Threats are reviewed{Enter}');
+    // Then block and item are in the list and saved, the rows are empty again, and the folded card counts 4 groups and 6 items
     expect(screen.getByRole('textbox', { name: 'Name of group Security' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Text of item Threats are reviewed' })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: 'New group' })).toHaveValue('');
-    expect(screen.getByRole('tab', { name: 'Definition of Ready · 6' })).toBeInTheDocument();
+    expect(within(ready).getByRole('textbox', { name: 'New group' })).toHaveValue('');
+    await user.click(within(ready).getByRole('button', { name: 'Fold the Definition of Ready' }));
+    expect(ready).toHaveTextContent('4 groups · 6 items');
     await waitFor(async () => {
       const group = (await repository.load()).settings.definitions.ready.groups.find((item) => item.name === 'Security');
       expect(group?.items.map((item) => item.text)).toEqual(['Threats are reviewed']);
@@ -80,10 +93,9 @@ describe('Settings › Definitions', () => {
   });
 
   it('AC1.2 adds an automatic item from the library with the keyboard; it cannot be renamed or chosen twice', async () => {
-    // Given the Definition of Done tab, block "Quality"
+    // Given the Definition of Done card, block "Quality"
     const user = userEvent.setup();
     await open('#/settings/definitions');
-    await user.click(screen.getByRole('tab', { name: /Definition of Done/ }));
     // When I open "From library" of the block, choose "Must be estimated" with the arrow keys and press Enter
     await user.click(screen.getByRole('button', { name: 'Add a check from the library to group Quality' }));
     const library = screen.getByRole('listbox', { name: 'Library of automatic checks' });
@@ -159,7 +171,6 @@ describe('Settings › Definitions', () => {
     const user = userEvent.setup();
     await open('#/settings/definitions');
     expect(screen.getByRole('checkbox', { name: 'Dependencies are clarified may be set to not relevant' })).toBeChecked();
-    await user.click(screen.getByRole('tab', { name: /Definition of Done/ }));
     const review = screen.getByRole('checkbox', { name: 'Code is reviewed may be set to not relevant' });
     expect(review).not.toBeChecked();
     // When I allow it
@@ -168,12 +179,44 @@ describe('Settings › Definitions', () => {
     expect(review).toBeChecked();
   });
 
-  it('AC1.5 both lists are off in the demo data and say so', async () => {
+  it('AC1.5 both lists are off in the demo data and say so, with nothing of their content shown', async () => {
     await open('#/settings/definitions', seedSnapshot(todayIso()).settings.definitions);
-    expect(screen.getByRole('switch', { name: /Activate the Definition of Ready/ })).not.toBeChecked();
-    expect(screen.getByRole('note')).toHaveTextContent('The list is off: it is not shown in stories and nothing is checked or marked.');
-    await userEvent.setup().click(screen.getByRole('tab', { name: /Definition of Done/ }));
-    expect(screen.getByRole('switch', { name: /Activate the Definition of Done/ })).not.toBeChecked();
+    for (const name of ['Definition of Ready', 'Definition of Done']) {
+      expect(within(list(name)).getByRole('switch', { name: new RegExp(`Activate the ${name}`) })).not.toBeChecked();
+      expect(within(list(name)).getByRole('note')).toHaveTextContent('The list is off: it is not shown in stories and nothing is checked or marked.');
+      expect(within(list(name)).queryByRole('textbox')).not.toBeInTheDocument();
+    }
+  });
+
+  it('AC1.6 an empty list that is off offers the example list or an empty start, and both switch it on', async () => {
+    const user = userEvent.setup();
+    const repository = await open('#/settings/definitions', EMPTY_DEFINITIONS);
+    expect(within(list('Definition of Ready')).getByRole('note')).toHaveTextContent('This list is empty and off.');
+    // When I insert the example list into Ready and start Done empty
+    await user.click(within(list('Definition of Ready')).getByRole('button', { name: 'Insert example list' }));
+    await user.click(within(list('Definition of Done')).getByRole('button', { name: 'Start empty' }));
+    // Then Ready is on with the example groups, Done is on and empty, and both are saved
+    expect(within(list('Definition of Ready')).getByRole('switch')).toBeChecked();
+    expect(within(list('Definition of Ready')).getByRole('textbox', { name: 'Name of group Functional' })).toBeInTheDocument();
+    expect(within(list('Definition of Done')).getByRole('switch')).toBeChecked();
+    expect(within(list('Definition of Done')).getByText(/This list has no items yet/)).toBeInTheDocument();
+    await waitFor(async () => {
+      const { ready, done } = (await repository.load()).settings.definitions;
+      expect([ready.enforce, ready.groups.length, done.enforce, done.groups.length]).toEqual([true, 3, true, 0]);
+    });
+  });
+
+  it('AC1.7 an active list folds to a summary and unfolds again; the settings keep what it holds', async () => {
+    const user = userEvent.setup();
+    await open('#/settings/definitions');
+    const ready = list('Definition of Ready');
+    // When I fold the card
+    await user.click(within(ready).getByRole('button', { name: 'Fold the Definition of Ready' }));
+    // Then only the heading with the summary stays, and the content comes back on unfolding
+    expect(ready).toHaveTextContent('3 groups · 5 items');
+    expect(within(ready).queryByRole('textbox', { name: 'Name of group Technical' })).not.toBeInTheDocument();
+    await user.click(within(ready).getByRole('button', { name: 'Unfold the Definition of Ready' }));
+    expect(within(ready).getByRole('textbox', { name: 'Name of group Technical' })).toBeVisible();
   });
 
   it('AC1.5 a list is switched on and off with its own switch', async () => {
@@ -181,6 +224,7 @@ describe('Settings › Definitions', () => {
     const repository = await open('#/settings/definitions');
     const readySwitch = screen.getByRole('switch', { name: /Activate the Definition of Ready/ });
     expect(readySwitch).toBeChecked();
+    expect(screen.getByRole('switch', { name: /Activate the Definition of Done/ })).toBeChecked();
     await user.click(readySwitch);
     await waitFor(async () => expect((await repository.load()).settings.definitions.ready.enforce).toBe(false));
     expect((await repository.load()).settings.definitions.done.enforce).toBe(true);
@@ -248,45 +292,58 @@ describe('Story dialog', () => {
     expect(within(panel(dialog)).queryByRole('checkbox', { name: /Has a description/ })).not.toBeInTheDocument();
     expect(within(panel(dialog)).queryByRole('button', { name: /Functional/ })).not.toBeInTheDocument();
     expect(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ })).toBeInTheDocument();
-    // And once the three open items are resolved, the card says that all are met
-    await user.click(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ }));
-    await user.click(within(panel(dialog)).getByRole('button', { name: 'Set “Design is available” to not relevant' }));
-    await user.click(within(panel(dialog)).getByRole('button', { name: 'Set “Texts are agreed” to not relevant' }));
+    // And an item that is done leaves the view at once
+    await user.click(control(panel(dialog), /Dependencies are clarified/));
+    expect(within(panel(dialog)).queryByRole('checkbox', { name: /Dependencies are clarified/ })).not.toBeInTheDocument();
+    // And once the other two are resolved too, the card says that all are met
+    await user.click(control(panel(dialog), /Design is available/));
+    await user.click(control(panel(dialog), /Texts are agreed/));
     expect(within(panel(dialog)).getByText('All items are met.')).toBeInTheDocument();
   });
 
-  it('AC2.1 an item goes from open to checked, to not relevant and back', async () => {
+  it('AC2.1 one control goes through the three click states: not set, done, ignored, and back', async () => {
     const user = userEvent.setup();
     const repository = await open('#/board');
     const dialog = await openStory(user, 'S-6');
     const ready = panel(dialog);
-    // When I check "Design is available"
-    await user.click(within(ready).getByRole('checkbox', { name: /Design is available/ }));
-    expect(within(ready).getByRole('checkbox', { name: /Design is available/ })).toBeChecked();
-    // And set it to not relevant
-    await user.click(within(ready).getByRole('button', { name: 'Set “Design is available” to not relevant' }));
-    // Then it shows as not relevant: the checkbox is off and the counter names it
-    expect(within(ready).getByRole('checkbox', { name: /Design is available/ })).toBeDisabled();
+    const checks = async () => (await repository.load()).stories.find((item) => item.code === 'S-6')?.checks;
+    // Given "Design is available" is not set
+    expect(control(ready, /Design is available/)).toHaveAttribute('aria-checked', 'false');
+    // When I click once, it is done
+    await user.click(control(ready, /Design is available/));
+    expect(control(ready, /Design is available/)).toHaveAttribute('aria-checked', 'true');
+    await waitFor(async () => expect(await checks()).toEqual({ 'def-ready-design': 'checked' }));
+    // When I click again, it is ignored: the counter names it and it is struck through
+    await user.click(control(ready, /Design is available/));
+    expect(control(ready, /Design is available/)).toHaveAttribute('aria-checked', 'mixed');
+    expect(control(ready, /Design is available/)).toHaveAccessibleDescription('ignored (not relevant)');
     expect(within(ready).getByText('0/2 · 1 n/a')).toBeInTheDocument();
-    await waitFor(async () => expect((await repository.load()).stories.find((item) => item.code === 'S-6')?.checks).toEqual({ 'def-ready-design': 'na' }));
-    // When I make it relevant again, it is open
-    await user.click(within(ready).getByRole('button', { name: 'Make “Design is available” relevant again' }));
-    expect(within(ready).getByRole('checkbox', { name: /Design is available/ })).not.toBeChecked();
-    await waitFor(async () => expect((await repository.load()).stories.find((item) => item.code === 'S-6')?.checks).toEqual({}));
+    await waitFor(async () => expect(await checks()).toEqual({ 'def-ready-design': 'na' }));
+    // When I click a third time, it is not set again
+    await user.click(control(ready, /Design is available/));
+    expect(control(ready, /Design is available/)).toHaveAttribute('aria-checked', 'false');
+    await waitFor(async () => expect(await checks()).toEqual({}));
   });
 
-  it('AC2.2 an item that does not allow "not relevant" has no such button', async () => {
+  it('AC2.2 an item that does not allow "not relevant" only goes between not set and done', async () => {
     const user = userEvent.setup();
     await open('#/board');
     const dialog = await openStory(user, 'S-6');
     await user.click(cardHead(dialog, 'Done'));
-    expect(within(panel(dialog)).getByRole('checkbox', { name: /Code is reviewed/ })).toBeInTheDocument();
-    expect(within(panel(dialog)).queryByRole('button', { name: /Code is reviewed/ })).not.toBeInTheDocument();
-    expect(within(panel(dialog)).getByRole('button', { name: /Documentation is updated/ })).toBeInTheDocument();
+    const review = (): HTMLElement => control(panel(dialog), /Code is reviewed/);
+    // When I click twice, it is done and then not set again; it is never ignored
+    await user.click(review());
+    expect(review()).toHaveAttribute('aria-checked', 'true');
+    await user.click(review());
+    expect(review()).toHaveAttribute('aria-checked', 'false');
     // And the key N does nothing there
-    within(panel(dialog)).getByRole('checkbox', { name: /Code is reviewed/ }).focus();
+    review().focus();
     await user.keyboard('n');
-    expect(within(panel(dialog)).getByRole('checkbox', { name: /Code is reviewed/ })).toBeEnabled();
+    expect(review()).toHaveAttribute('aria-checked', 'false');
+    // While an item that allows it can be ignored
+    await user.click(control(panel(dialog), /Documentation is updated/));
+    await user.click(control(panel(dialog), /Documentation is updated/));
+    expect(control(panel(dialog), /Documentation is updated/)).toHaveAttribute('aria-checked', 'mixed');
   });
 
   it('AC2.3 an automatic item cannot be ticked and follows the story', async () => {
@@ -314,7 +371,7 @@ describe('Story dialog', () => {
     await user.keyboard(' ');
     expect(box).toBeChecked();
     await user.keyboard('n');
-    expect(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ })).toBeDisabled();
+    expect(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ })).toHaveAttribute('aria-checked', 'mixed');
     expect(within(panel(dialog)).getByText('0/1 · 1 n/a')).toBeInTheDocument();
     // N on an item that does not allow it does nothing
     await user.click(cardHead(dialog, 'Done'));
@@ -322,7 +379,7 @@ describe('Story dialog', () => {
     review.focus();
     await user.keyboard('n');
     expect(review).not.toBeChecked();
-    expect(review).toBeEnabled();
+    expect(review).toHaveAttribute('aria-checked', 'false');
   });
 
   it('AC3.2 the cards open and close with Enter and the menu works with the keyboard', async () => {
@@ -378,7 +435,7 @@ describe('Change of status', () => {
     // Then a dialog names the 3 open items by group, and the story is not moved yet
     const ask = transition();
     expect(ask).toHaveAccessibleName('S-6 cannot move to “In progress”: 3 items of the Definition of Ready are still open');
-    expect(within(ask).getAllByRole('checkbox').map((box) => box.closest('label')?.textContent)).toEqual(['Dependencies are clarified', 'Design is available', 'Texts are agreed']);
+    expect(within(ask).getAllByRole('checkbox').map((box) => document.getElementById(box.getAttribute('aria-labelledby') ?? '')?.textContent)).toEqual(['Dependencies are clarified', 'Design is available', 'Texts are agreed']);
     expect(within(ask).queryByRole('checkbox', { name: /Has a description/ })).not.toBeInTheDocument();
     expect(within(ask).getByRole('button', { name: 'Move' })).toBeDisabled();
     expect(within(dialog).getByRole('combobox', { name: 'Status' })).toHaveValue('todo');
@@ -392,9 +449,9 @@ describe('Change of status', () => {
     const ask = transition();
     // When I check one item and set the two others to not relevant
     await user.click(within(ask).getByRole('checkbox', { name: /Dependencies are clarified/ }));
-    await user.click(within(ask).getByRole('button', { name: 'Set “Design is available” to not relevant' }));
+    await ignore(user, ask, /Design is available/);
     expect(within(ask).getByRole('button', { name: 'Move' })).toBeDisabled();
-    await user.click(within(ask).getByRole('button', { name: 'Set “Texts are agreed” to not relevant' }));
+    await ignore(user, ask, /Texts are agreed/);
     // Then the items stay in the dialog and "Move" works
     expect(within(ask).getAllByRole('checkbox')).toHaveLength(3);
     await user.click(within(ask).getByRole('button', { name: 'Move' }));
@@ -489,8 +546,8 @@ describe('Change of status', () => {
     let ask = transition();
     expect(within(ask).getByText(/To do → Done · Definition of Ready/)).toBeInTheDocument();
     await user.click(within(ask).getByRole('checkbox', { name: /Dependencies are clarified/ }));
-    await user.click(within(ask).getByRole('button', { name: 'Set “Design is available” to not relevant' }));
-    await user.click(within(ask).getByRole('button', { name: 'Set “Texts are agreed” to not relevant' }));
+    await ignore(user, ask, /Design is available/);
+    await ignore(user, ask, /Texts are agreed/);
     await user.click(within(ask).getByRole('button', { name: 'Next list' }));
     // Then the Done list
     ask = transition();
@@ -556,7 +613,9 @@ describe('Marks', () => {
     expect(within(screen.getByRole('group', { name: /S-6:/ })).queryByText(/Not ready/)).not.toBeInTheDocument();
     // When the demo item is unchecked in the story, the mark returns
     const dialog = await openStory(user, 'S-6');
-    await user.click(within(panel(dialog)).getByRole('checkbox', { name: /Dependencies are clarified/ }));
+    // (done → ignored → not set: two clicks)
+    await user.click(control(panel(dialog), /Dependencies are clarified/));
+    await user.click(control(panel(dialog), /Dependencies are clarified/));
     expect(within(screen.getByRole('group', { name: /S-6:/, hidden: true })).getByText(/Not ready 2\/5 · 2 n\/a/)).toBeInTheDocument();
   });
 
@@ -610,7 +669,7 @@ describe('Languages', () => {
       await open('#/backlog');
       expect(within(screen.getByRole('group', { name: /S-6/ })).getByText(new RegExp(chip))).toBeInTheDocument();
       window.location.hash = '#/settings/definitions';
-      expect(await screen.findByRole('tab', { name: new RegExp(title) })).toBeInTheDocument();
+      expect(await screen.findByRole('region', { name: new RegExp(title) })).toBeInTheDocument();
     } finally {
       await i18n.changeLanguage('en');
     }

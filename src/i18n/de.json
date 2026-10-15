@@ -919,7 +919,7 @@
       "definitions.basics": {
         "title": "Definition of Ready und Done",
         "keywords": "definition ready done dor dod checkliste kriterien gruppe nicht relevant übergang qualität prüfen",
-        "body": "Definition of Ready und Definition of Done sind zwei Checklisten für alle Stories: was eine Story zum Start braucht und was sie zum Abschluss braucht.\n1. Öffne Einstellungen → Definitionen. Lege Gruppen und Punkte an: von Hand (freier Text) oder automatisch (die App prüft selbst, zum Beispiel „Mindestens ein Akzeptanzkriterium“). Setze „darf n. r. sein“ bei Punkten, die eine Story auslassen darf, zum Beispiel „Design liegt vor“.\n2. Schalte „Prüfen, wenn …“ je Liste ein. Eine leere oder ausgeschaltete Liste prüft und markiert nichts.\n3. In einer Story zeigt das Panel „Definition of Ready“ / „Definition of Done“ die Punkte nach Gruppen. Hake sie ab oder setze sie auf „nicht relevant“, wo das erlaubt ist (Taste N).\nVerlässt eine Story „Nicht begonnen“, fragt die App die Ready-Liste, wechselt sie nach „Erledigt“, die Done-Liste. Das Gate blockiert, bis die offenen Punkte im Dialog abgehakt oder auf „nicht relevant“ gesetzt sind; der einzige andere Weg ist ein bewusstes Übergehen („Gate übergehen …“, dann „Übergehen und verschieben“). Das Backlog markiert Stories, die nicht bereit sind; das Board markiert erledigte Stories, deren Done-Liste nicht erfüllt ist."
+        "body": "Definition of Ready und Definition of Done sind zwei Checklisten für alle Stories: was eine Story zum Start braucht und was sie zum Abschluss braucht.\n1. Öffne Einstellungen → Definitionen. Lege Gruppen und Punkte an: von Hand (freier Text) oder automatisch (die App prüft selbst, zum Beispiel „Mindestens ein Akzeptanzkriterium“). Setze „darf n. r. sein“ bei Punkten, die eine Story auslassen darf, zum Beispiel „Design liegt vor“.\n2. Schalte die Liste mit ihrem Schalter ein („Activate the Definition of Ready“); erst dann erscheint ihr Inhalt. „Beispielliste einfügen“ hilft beim Start. Eine leere oder ausgeschaltete Liste prüft und markiert nichts.\n3. In einer Story zeigt das Panel „Definition of Ready“ / „Definition of Done“ die Punkte nach Gruppen. Klicke einen Punkt an: nicht gesetzt, erledigt, ignoriert (ignoriert nur, wo erlaubt; Taste N).\nVerlässt eine Story „Nicht begonnen“, fragt die App die Ready-Liste, wechselt sie nach „Erledigt“, die Done-Liste. Das Gate blockiert, bis die offenen Punkte im Dialog abgehakt oder auf „nicht relevant“ gesetzt sind; der einzige andere Weg ist ein bewusstes Übergehen („Gate übergehen …“, dann „Übergehen und verschieben“). Das Backlog markiert Stories, die nicht bereit sind; das Board markiert erledigte Stories, deren Done-Liste nicht erfüllt ist."
       }
     },
     "links": {
@@ -1066,16 +1066,11 @@
     "automatic": "automatisch",
     "manual": "von Hand",
     "autoHint": "Wird von der App selbst geprüft",
-    "notRelevant": "Nicht relevant",
-    "relevantAgain": "Wieder relevant",
-    "notRelevantFor": "„{{text}}“ auf nicht relevant setzen",
-    "relevantAgainFor": "„{{text}}“ wieder relevant machen",
-    "stateNa": "(nicht relevant)",
     "naCount": "{{count}} n. r.",
     "openItems_one": "{{count}} Punkt offen",
     "openItems_other": "{{count}} Punkte offen",
     "panelLabel": "Definitionen dieser Story",
-    "keys": "Leertaste hakt einen Punkt ab. N setzt ihn auf „nicht relevant“, wo das erlaubt ist.",
+    "keys": "Klick oder Leertaste schaltet weiter: nicht gesetzt, erledigt, ignoriert („nicht relevant“, wo erlaubt). N setzt gleich „nicht relevant“.",
     "chip": {
       "notReady": "Nicht bereit {{counter}}",
       "notDone": "Nicht fertig {{counter}}"
@@ -1147,7 +1142,14 @@
       "newGroup": "Neue Gruppe",
       "newGroupPlaceholder": "Neue Gruppe – Enter legt an",
       "addGroup": "Gruppe anlegen",
-      "off": "Die Liste ist aus: Stories zeigen sie nicht, und nichts wird geprüft oder markiert."
+      "off": "Die Liste ist aus: Stories zeigen sie nicht, und nichts wird geprüft oder markiert.",
+      "groups_one": "{{count}} Gruppe",
+      "groups_other": "{{count}} Gruppen",
+      "foldList": "{{name}} zuklappen",
+      "unfoldList": "{{name}} aufklappen",
+      "emptyOff": "Diese Liste ist leer und aus. Schalte sie ein, dann legst du Gruppen und Punkte an.",
+      "insertExample": "Beispielliste einfügen",
+      "startEmpty": "Leer beginnen"
     },
     "ruleHelp": {
       "hasDescription": "Die Beschreibung der Story ist nicht leer.",
@@ -1164,6 +1166,11 @@
       "label": "Optionen der {{name}}",
       "onlyOpen": "Nur offene Punkte zeigen",
       "hide": "Definitionen ausblenden"
+    },
+    "state": {
+      "open": "nicht gesetzt",
+      "checked": "erledigt",
+      "na": "ignoriert (nicht relevant)"
     }
   }
 }
