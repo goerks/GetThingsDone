@@ -898,8 +898,8 @@
       },
       "settings.basics": {
         "title": "Settings",
-        "keywords": "fields status values features story map rows gear switch on activate",
-        "body": "Open the settings with the gear button. They have four sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Features switch parts of the app on or off, for example Releases.\nThe gear takes you back to the page you came from."
+        "keywords": "fields status values features story map rows gear switch on activate definitions checklist",
+        "body": "Open the settings with the gear button. They have five sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Features switch parts of the app on or off, for example Releases.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -915,6 +915,11 @@
         "title": "First steps",
         "keywords": "introduction tutorial tour onboarding walkthrough guide start",
         "body": "A short, optional introduction in four steps: get to know the board, move a story, create a story and order the backlog. Steps are ticked off by themselves when you do them."
+      },
+      "definitions.basics": {
+        "title": "Definition of Ready and Done",
+        "keywords": "definition ready done dor dod checklist criteria group not relevant gate quality check",
+        "body": "Definition of Ready and Definition of Done are two checklists for all stories: what a story needs to start, and what it needs to be done.\n1. Open Settings → Definitions. Add groups and items: by hand (free text) or automatic (the app checks it itself, for example “Has acceptance criteria”). Tick “may be n/a” for items a story can skip, for example “Design is available”.\n2. Switch on “Check when …” for each list. A list that is empty or switched off checks and marks nothing.\n3. In a story, the panel “Definition of Ready” / “Definition of Done” shows the items by group. Tick them, or set them to “not relevant” where that is allowed (key N).\nWhen a story leaves “Not started”, the app asks for the Ready list; when it moves to “Done”, for the Done list. The gate blocks the move until the open items are ticked in the dialog or set to “not relevant”; the only other way is a deliberate override (“Override the gate…”, then “Override and move”). The backlog marks stories that are not ready; the board marks done stories whose Done list is not met."
       }
     },
     "links": {
@@ -926,7 +931,8 @@
       "settingsFields": "Open Settings → Fields",
       "settingsStatuses": "Open Settings → Status values",
       "settingsMap": "Open Settings → Story map",
-      "settingsFeatures": "Open Settings → Features"
+      "settingsFeatures": "Open Settings → Features",
+      "settingsDefinitions": "Open Settings → Definitions"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
@@ -1051,5 +1057,106 @@
     "button": "Velocity",
     "buttonAverage": "Velocity · Ø {{points}}",
     "close": "Close"
+  },
+  "definitions": {
+    "title": "Definitions",
+    "ready": "Definition of Ready",
+    "done": "Definition of Done",
+    "generalGroup": "General",
+    "automatic": "automatic",
+    "manual": "manual",
+    "autoHint": "Checked by the app itself",
+    "notRelevant": "Not relevant",
+    "relevantAgain": "Relevant again",
+    "notRelevantFor": "Set “{{text}}” to not relevant",
+    "relevantAgainFor": "Make “{{text}}” relevant again",
+    "stateNa": "(not relevant)",
+    "naCount": "{{count}} n/a",
+    "openItems_one": "{{count}} item open",
+    "openItems_other": "{{count}} items open",
+    "panelLabel": "Definitions of this story",
+    "keys": "Space ticks an item. N sets it to “not relevant” where that is allowed.",
+    "chip": {
+      "notReady": "Not ready {{counter}}",
+      "notDone": "Not done {{counter}}"
+    },
+    "rule": {
+      "hasDescription": "Has a description",
+      "hasCriteria": "Has acceptance criteria",
+      "hasPoints": "Must be estimated",
+      "hasEpic": "Must be attached to an epic",
+      "allCriteriaAccepted": "All criteria accepted",
+      "inSprint": "Is planned in a sprint"
+    },
+    "transition": {
+      "met": "{{counter}} met",
+      "move": "Move",
+      "next": "Next list",
+      "openStory": "Open story",
+      "cancel": "Cancel",
+      "title": {
+        "ready_one": "{{code}} cannot move to “{{target}}”: {{count}} item of the Definition of Ready is still open",
+        "ready_other": "{{code}} cannot move to “{{target}}”: {{count}} items of the Definition of Ready are still open",
+        "done_one": "{{code}} cannot move to “{{target}}”: {{count}} item of the Definition of Done is still open",
+        "done_other": "{{code}} cannot move to “{{target}}”: {{count}} items of the Definition of Done are still open"
+      },
+      "problem": {
+        "ready": "The Definition of Ready is a quality gate. Resolve the open items below to move the story, or override the gate on purpose.",
+        "done": "The Definition of Done is a quality gate. Resolve the open items below to move the story, or override the gate on purpose."
+      },
+      "override": "Override the gate…",
+      "overrideTitle": "Override the {{list}} for {{code}}?",
+      "overrideText": "The story moves with these items still open. This is a deliberate exception to the quality gate, not the normal way.",
+      "overrideConfirm": "Override and move",
+      "overrideBack": "Back to the items"
+    },
+    "toast": {
+      "open": "Open story",
+      "overridden": "{{code}} moved on with the {{list}} overridden."
+    },
+    "settings": {
+      "enforce": {
+        "ready": "Check when a story leaves “Not started”",
+        "done": "Check when a story moves to “Done”"
+      },
+      "enforceHint": {
+        "ready": "The Definition of Ready is asked when a story moves from a “not started” to an “in progress” or “done” status.",
+        "done": "The Definition of Done is asked when a story moves into a “done” status."
+      },
+      "empty": "This list has no items yet. Nothing is checked or marked until you add one.",
+      "moveGroup": "Move group {{name}}",
+      "groupName": "Name of group {{name}}",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "removeGroup": "Remove group {{name}} with its items",
+      "moveItem": "Move item {{text}}",
+      "itemText": "Text of item {{text}}",
+      "mayBeIrrelevant": "may be n/a",
+      "mayBeIrrelevantFor": "{{text}} may be set to not relevant",
+      "removeItem": "Remove item {{text}}",
+      "hint": "Checklists for all stories: what a story needs to start and what it needs to be done. Add groups and items directly in the list, drag a group as a block, or take automatic checks from the library.",
+      "newItemIn": "New item in group {{name}}",
+      "newItemPlaceholder": "New item – Enter adds",
+      "addItemTo": "Add item to group {{name}}",
+      "addItem": "Add",
+      "library": "From library",
+      "libraryFor": "Add a check from the library to group {{name}}",
+      "libraryTitle": "Library of automatic checks",
+      "libraryUsed": "already in this list",
+      "libraryHint": "Arrow keys choose, Enter adds, Esc closes.",
+      "foldGroup": "Fold group {{name}}",
+      "unfoldGroup": "Unfold group {{name}}",
+      "newGroup": "New group",
+      "newGroupPlaceholder": "New group – Enter adds",
+      "addGroup": "Add group"
+    },
+    "ruleHelp": {
+      "hasDescription": "The description of the story is not empty.",
+      "hasCriteria": "The story has at least one acceptance criterion.",
+      "hasPoints": "The story has points: it is estimated.",
+      "hasEpic": "The story belongs to an epic.",
+      "allCriteriaAccepted": "Every acceptance criterion is ticked.",
+      "inSprint": "The story is planned in a sprint."
+    }
   }
 }

@@ -898,8 +898,8 @@
       },
       "settings.basics": {
         "title": "Paramètres",
-        "keywords": "champs valeurs de statut fonctions story map lignes roue activer",
-        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont quatre sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases.\nLa roue vous ramène à la page d’où vous venez."
+        "keywords": "champs valeurs de statut fonctions story map lignes roue activer définitions liste",
+        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont cinq sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases.\nLa roue vous ramène à la page d’où vous venez."
       },
       "search.basics": {
         "title": "Recherche",
@@ -915,6 +915,11 @@
         "title": "Premiers pas",
         "keywords": "introduction tutoriel visite guidee parcours demarrer",
         "body": "Une courte introduction facultative en quatre étapes : découvrir le tableau, déplacer une story, créer une story et ordonner le backlog. Les étapes se cochent toutes seules quand vous les faites."
+      },
+      "definitions.basics": {
+        "title": "Definition of Ready et Done",
+        "keywords": "definition ready done dor dod liste de contrôle critères groupe non pertinent passage qualité vérifier",
+        "body": "Definition of Ready et Definition of Done sont deux listes de contrôle pour toutes les stories : ce qu’une story doit avoir pour démarrer et pour être terminée.\n1. Ouvrez Paramètres → Définitions. Ajoutez des groupes et des points : à la main (texte libre) ou automatiques (l’application vérifie elle-même, par exemple « A des critères d’acceptation »). Cochez « peut être n. p. » pour les points qu’une story peut ignorer, par exemple « Design is available ».\n2. Activez « Vérifier quand … » pour chaque liste. Une liste vide ou désactivée ne vérifie ni ne marque rien.\n3. Dans une story, le panneau « Definition of Ready » / « Definition of Done » montre les points par groupe. Cochez-les ou marquez-les « non pertinents » là où c’est permis (touche N).\nQuand une story quitte « Non commencé », l’application demande la liste Ready ; quand elle passe à « Terminé », la liste Done. Le gate bloque le déplacement tant que les points ouverts ne sont pas cochés ou marqués « non pertinents » ; la seule autre voie est un contournement délibéré (« Contourner le gate… », puis « Contourner et déplacer »). Le backlog marque les stories pas prêtes ; le tableau marque les stories terminées dont la liste Done n’est pas remplie."
       }
     },
     "links": {
@@ -926,7 +931,8 @@
       "settingsFields": "Ouvrir Paramètres → Champs",
       "settingsStatuses": "Ouvrir Paramètres → Valeurs de statut",
       "settingsMap": "Ouvrir Paramètres → Story map",
-      "settingsFeatures": "Ouvrir Paramètres → Fonctions"
+      "settingsFeatures": "Ouvrir Paramètres → Fonctions",
+      "settingsDefinitions": "Ouvrir Paramètres → Définitions"
     },
     "linksTitle": "Où le trouver",
     "linkLocked": "Activez d’abord la fonction « {{feature}} »",
@@ -1051,5 +1057,106 @@
     "button": "Vélocité",
     "buttonAverage": "Vélocité · Ø {{points}}",
     "close": "Fermer"
+  },
+  "definitions": {
+    "title": "Définitions",
+    "ready": "Definition of Ready",
+    "done": "Definition of Done",
+    "generalGroup": "Général",
+    "automatic": "automatique",
+    "manual": "manuel",
+    "autoHint": "Vérifié par l’application elle-même",
+    "notRelevant": "Non pertinent",
+    "relevantAgain": "De nouveau pertinent",
+    "notRelevantFor": "Marquer « {{text}} » comme non pertinent",
+    "relevantAgainFor": "Rendre « {{text}} » de nouveau pertinent",
+    "stateNa": "(non pertinent)",
+    "naCount": "{{count}} n. p.",
+    "openItems_one": "{{count}} point ouvert",
+    "openItems_other": "{{count}} points ouverts",
+    "panelLabel": "Définitions de cette story",
+    "keys": "La barre d’espace coche un point. N le marque comme « non pertinent » là où c’est permis.",
+    "chip": {
+      "notReady": "Pas prête {{counter}}",
+      "notDone": "Pas terminée {{counter}}"
+    },
+    "rule": {
+      "hasDescription": "A une description",
+      "hasCriteria": "A des critères d’acceptation",
+      "hasPoints": "Doit être estimée",
+      "hasEpic": "Doit être rattachée à une epic",
+      "allCriteriaAccepted": "Tous les critères acceptés",
+      "inSprint": "Est planifiée dans un sprint"
+    },
+    "transition": {
+      "met": "{{counter}} remplis",
+      "move": "Déplacer",
+      "next": "Liste suivante",
+      "openStory": "Ouvrir la story",
+      "cancel": "Annuler",
+      "title": {
+        "ready_one": "{{code}} ne peut pas passer à « {{target}} » : {{count}} point de la Definition of Ready est encore ouvert",
+        "ready_other": "{{code}} ne peut pas passer à « {{target}} » : {{count}} points de la Definition of Ready sont encore ouverts",
+        "done_one": "{{code}} ne peut pas passer à « {{target}} » : {{count}} point de la Definition of Done est encore ouvert",
+        "done_other": "{{code}} ne peut pas passer à « {{target}} » : {{count}} points de la Definition of Done sont encore ouverts"
+      },
+      "problem": {
+        "ready": "La Definition of Ready est un quality gate. Traitez les points ouverts ci-dessous pour déplacer la story, ou contournez le gate en connaissance de cause.",
+        "done": "La Definition of Done est un quality gate. Traitez les points ouverts ci-dessous pour déplacer la story, ou contournez le gate en connaissance de cause."
+      },
+      "override": "Contourner le gate…",
+      "overrideTitle": "Contourner la {{list}} pour {{code}} ?",
+      "overrideText": "La story est déplacée avec ces points encore ouverts. C’est une exception délibérée au quality gate, pas la voie normale.",
+      "overrideConfirm": "Contourner et déplacer",
+      "overrideBack": "Retour aux points"
+    },
+    "toast": {
+      "open": "Ouvrir la story",
+      "overridden": "{{code}} a été déplacée, la {{list}} a été contournée."
+    },
+    "settings": {
+      "enforce": {
+        "ready": "Vérifier quand une story quitte « Non commencé »",
+        "done": "Vérifier quand une story passe à « Terminé »"
+      },
+      "enforceHint": {
+        "ready": "La Definition of Ready est demandée quand une story passe d’un statut « non commencé » à un statut « en cours » ou « terminé ».",
+        "done": "La Definition of Done est demandée quand une story passe à un statut « terminé »."
+      },
+      "empty": "Cette liste n’a pas encore de points. Tant qu’elle est vide, rien n’est vérifié ni marqué.",
+      "moveGroup": "Déplacer le groupe {{name}}",
+      "groupName": "Nom du groupe {{name}}",
+      "items_one": "{{count}} point",
+      "items_other": "{{count}} points",
+      "removeGroup": "Supprimer le groupe {{name}} avec ses points",
+      "moveItem": "Déplacer le point {{text}}",
+      "itemText": "Texte du point {{text}}",
+      "mayBeIrrelevant": "peut être n. p.",
+      "mayBeIrrelevantFor": "{{text}} peut être marqué non pertinent",
+      "removeItem": "Supprimer le point {{text}}",
+      "hint": "Listes de contrôle pour toutes les stories : ce qu’une story doit avoir pour démarrer et pour être terminée. Ajoutez groupes et points directement dans la liste, déplacez un groupe comme un bloc, prenez les vérifications automatiques dans la bibliothèque.",
+      "newItemIn": "Nouveau point dans le groupe {{name}}",
+      "newItemPlaceholder": "Nouveau point – Entrée ajoute",
+      "addItemTo": "Ajouter un point au groupe {{name}}",
+      "addItem": "Ajouter",
+      "library": "Depuis la bibliothèque",
+      "libraryFor": "Ajouter une vérification de la bibliothèque au groupe {{name}}",
+      "libraryTitle": "Bibliothèque de vérifications automatiques",
+      "libraryUsed": "déjà dans cette liste",
+      "libraryHint": "Les flèches choisissent, Entrée ajoute, Échap ferme.",
+      "foldGroup": "Replier le groupe {{name}}",
+      "unfoldGroup": "Déplier le groupe {{name}}",
+      "newGroup": "Nouveau groupe",
+      "newGroupPlaceholder": "Nouveau groupe – Entrée crée",
+      "addGroup": "Ajouter le groupe"
+    },
+    "ruleHelp": {
+      "hasDescription": "La description de la story n’est pas vide.",
+      "hasCriteria": "La story a au moins un critère d’acceptation.",
+      "hasPoints": "La story a des points : elle est estimée.",
+      "hasEpic": "La story appartient à une epic.",
+      "allCriteriaAccepted": "Chaque critère d’acceptation est coché.",
+      "inSprint": "La story est planifiée dans un sprint."
+    }
   }
 }

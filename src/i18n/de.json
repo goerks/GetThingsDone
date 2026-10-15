@@ -898,8 +898,8 @@
       },
       "settings.basics": {
         "title": "Einstellungen",
-        "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben vier Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren definitionen checkliste",
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben fünf Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -915,6 +915,11 @@
         "title": "Erste Schritte",
         "keywords": "einführung tutorial rundgang tour einstieg anleitung starten",
         "body": "Eine kurze, freiwillige Einführung in vier Schritten: das Board kennenlernen, eine Story verschieben, eine Story anlegen und das Backlog ordnen. Schritte werden von selbst abgehakt, wenn du sie machst."
+      },
+      "definitions.basics": {
+        "title": "Definition of Ready und Done",
+        "keywords": "definition ready done dor dod checkliste kriterien gruppe nicht relevant übergang qualität prüfen",
+        "body": "Definition of Ready und Definition of Done sind zwei Checklisten für alle Stories: was eine Story zum Start braucht und was sie zum Abschluss braucht.\n1. Öffne Einstellungen → Definitionen. Lege Gruppen und Punkte an: von Hand (freier Text) oder automatisch (die App prüft selbst, zum Beispiel „Mindestens ein Akzeptanzkriterium“). Setze „darf n. r. sein“ bei Punkten, die eine Story auslassen darf, zum Beispiel „Design liegt vor“.\n2. Schalte „Prüfen, wenn …“ je Liste ein. Eine leere oder ausgeschaltete Liste prüft und markiert nichts.\n3. In einer Story zeigt das Panel „Definition of Ready“ / „Definition of Done“ die Punkte nach Gruppen. Hake sie ab oder setze sie auf „nicht relevant“, wo das erlaubt ist (Taste N).\nVerlässt eine Story „Nicht begonnen“, fragt die App die Ready-Liste, wechselt sie nach „Erledigt“, die Done-Liste. Das Gate blockiert, bis die offenen Punkte im Dialog abgehakt oder auf „nicht relevant“ gesetzt sind; der einzige andere Weg ist ein bewusstes Übergehen („Gate übergehen …“, dann „Übergehen und verschieben“). Das Backlog markiert Stories, die nicht bereit sind; das Board markiert erledigte Stories, deren Done-Liste nicht erfüllt ist."
       }
     },
     "links": {
@@ -926,7 +931,8 @@
       "settingsFields": "Einstellungen → Felder öffnen",
       "settingsStatuses": "Einstellungen → Status-Werte öffnen",
       "settingsMap": "Einstellungen → Story Map öffnen",
-      "settingsFeatures": "Einstellungen → Funktionen öffnen"
+      "settingsFeatures": "Einstellungen → Funktionen öffnen",
+      "settingsDefinitions": "Einstellungen → Definitionen öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",
@@ -1051,5 +1057,106 @@
     "button": "Velocity",
     "buttonAverage": "Velocity · Ø {{points}}",
     "close": "Schliessen"
+  },
+  "definitions": {
+    "title": "Definitionen",
+    "ready": "Definition of Ready",
+    "done": "Definition of Done",
+    "generalGroup": "Allgemein",
+    "automatic": "automatisch",
+    "manual": "von Hand",
+    "autoHint": "Wird von der App selbst geprüft",
+    "notRelevant": "Nicht relevant",
+    "relevantAgain": "Wieder relevant",
+    "notRelevantFor": "„{{text}}“ auf nicht relevant setzen",
+    "relevantAgainFor": "„{{text}}“ wieder relevant machen",
+    "stateNa": "(nicht relevant)",
+    "naCount": "{{count}} n. r.",
+    "openItems_one": "{{count}} Punkt offen",
+    "openItems_other": "{{count}} Punkte offen",
+    "panelLabel": "Definitionen dieser Story",
+    "keys": "Leertaste hakt einen Punkt ab. N setzt ihn auf „nicht relevant“, wo das erlaubt ist.",
+    "chip": {
+      "notReady": "Nicht bereit {{counter}}",
+      "notDone": "Nicht fertig {{counter}}"
+    },
+    "rule": {
+      "hasDescription": "Beschreibung ist vorhanden",
+      "hasCriteria": "Mindestens ein Akzeptanzkriterium",
+      "hasPoints": "Muss geschätzt sein",
+      "hasEpic": "Muss an ein Epic hängen",
+      "allCriteriaAccepted": "Alle Kriterien akzeptiert",
+      "inSprint": "Ist einem Sprint zugeordnet"
+    },
+    "transition": {
+      "met": "{{counter}} erfüllt",
+      "move": "Verschieben",
+      "next": "Nächste Liste",
+      "openStory": "Story öffnen",
+      "cancel": "Abbrechen",
+      "title": {
+        "ready_one": "{{code}} kann nicht nach „{{target}}“: {{count}} Punkt der Definition of Ready ist noch offen",
+        "ready_other": "{{code}} kann nicht nach „{{target}}“: {{count}} Punkte der Definition of Ready sind noch offen",
+        "done_one": "{{code}} kann nicht nach „{{target}}“: {{count}} Punkt der Definition of Done ist noch offen",
+        "done_other": "{{code}} kann nicht nach „{{target}}“: {{count}} Punkte der Definition of Done sind noch offen"
+      },
+      "problem": {
+        "ready": "Die Definition of Ready ist ein Quality Gate. Erledige die offenen Punkte unten, um die Story zu verschieben, oder übergehe das Gate bewusst.",
+        "done": "Die Definition of Done ist ein Quality Gate. Erledige die offenen Punkte unten, um die Story zu verschieben, oder übergehe das Gate bewusst."
+      },
+      "override": "Gate übergehen …",
+      "overrideTitle": "{{list}} für {{code}} übergehen?",
+      "overrideText": "Die Story wird mit diesen offenen Punkten verschoben. Das ist eine bewusste Ausnahme vom Quality Gate, nicht der normale Weg.",
+      "overrideConfirm": "Übergehen und verschieben",
+      "overrideBack": "Zurück zu den Punkten"
+    },
+    "toast": {
+      "open": "Story öffnen",
+      "overridden": "{{code}} wurde verschoben, die {{list}} wurde übergangen."
+    },
+    "settings": {
+      "enforce": {
+        "ready": "Prüfen, wenn eine Story „Nicht begonnen“ verlässt",
+        "done": "Prüfen, wenn eine Story nach „Erledigt“ wechselt"
+      },
+      "enforceHint": {
+        "ready": "Die Definition of Ready wird gefragt, wenn eine Story von einem Status „Nicht begonnen“ in einen Status „In Arbeit“ oder „Erledigt“ wechselt.",
+        "done": "Die Definition of Done wird gefragt, wenn eine Story in einen Status „Erledigt“ wechselt."
+      },
+      "empty": "Diese Liste hat noch keine Punkte. Solange nichts drinsteht, wird nichts geprüft oder markiert.",
+      "moveGroup": "Gruppe {{name}} verschieben",
+      "groupName": "Name der Gruppe {{name}}",
+      "items_one": "{{count}} Punkt",
+      "items_other": "{{count}} Punkte",
+      "removeGroup": "Gruppe {{name}} mit ihren Punkten entfernen",
+      "moveItem": "Punkt {{text}} verschieben",
+      "itemText": "Text des Punkts {{text}}",
+      "mayBeIrrelevant": "darf n. r. sein",
+      "mayBeIrrelevantFor": "{{text}} darf auf nicht relevant gesetzt werden",
+      "removeItem": "Punkt {{text}} entfernen",
+      "hint": "Checklisten für alle Stories: was eine Story zum Start und was sie zum Abschluss braucht. Gruppen und Punkte legst du direkt in der Liste an, eine Gruppe ziehst du als Block, automatische Prüfungen holst du aus der Bibliothek.",
+      "newItemIn": "Neuer Punkt in Gruppe {{name}}",
+      "newItemPlaceholder": "Neuer Punkt – Enter fügt hinzu",
+      "addItemTo": "Punkt zur Gruppe {{name}} hinzufügen",
+      "addItem": "Hinzufügen",
+      "library": "Aus Bibliothek",
+      "libraryFor": "Prüfung aus der Bibliothek zur Gruppe {{name}} hinzufügen",
+      "libraryTitle": "Bibliothek automatischer Prüfungen",
+      "libraryUsed": "schon in dieser Liste",
+      "libraryHint": "Pfeiltasten wählen, Enter fügt hinzu, Esc schließt.",
+      "foldGroup": "Gruppe {{name}} zuklappen",
+      "unfoldGroup": "Gruppe {{name}} aufklappen",
+      "newGroup": "Neue Gruppe",
+      "newGroupPlaceholder": "Neue Gruppe – Enter legt an",
+      "addGroup": "Gruppe anlegen"
+    },
+    "ruleHelp": {
+      "hasDescription": "Die Beschreibung der Story ist nicht leer.",
+      "hasCriteria": "Die Story hat mindestens ein Akzeptanzkriterium.",
+      "hasPoints": "Die Story hat Punkte, ist also geschätzt.",
+      "hasEpic": "Die Story gehört zu einem Epic.",
+      "allCriteriaAccepted": "Jedes Akzeptanzkriterium ist abgehakt.",
+      "inSprint": "Die Story ist in einem Sprint eingeplant."
+    }
   }
 }

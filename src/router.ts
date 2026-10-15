@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 /** Sections of the settings page. */
-export type SettingsSection = 'fields' | 'statuses' | 'map' | 'features';
+export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'features';
 
 export type Route =
   | { name: 'board' }
@@ -20,6 +20,7 @@ export const hrefs = {
   settings: '#/settings/fields',
   settingsStatuses: '#/settings/statuses',
   settingsMap: '#/settings/map',
+  settingsDefinitions: '#/settings/definitions',
   settingsFeatures: '#/settings/features'
 };
 
@@ -31,6 +32,7 @@ export function parseHash(hash: string): Route {
   if (path === 'releases') return { name: 'releases' };
   if (path === 'settings/features') return { name: 'settings', section: 'features' };
   if (path === 'settings/statuses') return { name: 'settings', section: 'statuses' };
+  if (path === 'settings/definitions') return { name: 'settings', section: 'definitions' };
   if (path === 'settings/map') return { name: 'settings', section: 'map' };
   // "#/fields" was the address of the fields page before it moved into the settings.
   if (path === 'settings' || path === 'settings/fields' || path === 'fields') return { name: 'settings', section: 'fields' };

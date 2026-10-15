@@ -440,7 +440,9 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string, 
     releaseId: input.releaseId ?? null,
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
     criteria: [],
-    values: input.values ?? {}
+    values: input.values ?? {},
+    checks: {},
+    doneItems: null
   };
   return { stories: [...stories, story], story };
 }

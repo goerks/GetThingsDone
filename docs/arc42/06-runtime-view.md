@@ -79,6 +79,13 @@ Every change of the stories goes through one function in `AppProvider` (`update`
 
 Completing a sprint (#17) stores its result in the sprint (`result`: planned at the start, done, added). `VelocityButton` and `SprintPlan` read the sprints from the app state and call `velocityRows` (completed sprints with a result, in time order, with the share done of planned), `averageVelocity` (the done points of the last three rows, rounded to whole points, with the number of sprints it covers) and `chartRows` (the last 8 rows, 8 more per "Older sprints"). No new data is stored: the chart is computed from the results of the sprints, so it works the same in the browser build and in the desktop app. The chart is hand-drawn SVG like the release reports; each sprint is a focusable group that shows its details on hover or focus. The chart and the table are shown together in a window under the button in the head of the board; it is not modal, closes with Esc, its close button or a click next to it, and nothing about it is remembered. The demo data has no completed sprint; in the preview the acceptance panel loads test data with completed sprints (`acceptance/presets.ts`, `applyPreset` replaces the snapshot in `localStorage` and reloads).
 
+## Change the status of a story across a Definition list (#26)
+
+1. A change of status comes from the board (`drop`), the context menu (`changeStory`) or the story dialog (`updateStory`). Each first calls `gate`, which asks `gatesToAsk` which lists the change crosses (`gatesCrossed`: leaving "not started" is Ready, entering "done" is Done) and whether they are in use and not met.
+2. If there is such a list, the change waits in `pending`; `AppApi.transition` shows it and `TransitionDialog` (rendered by the shell) asks. The checkboxes in the dialog call `setCheck`, the same call as in the story dialog.
+3. "Move" (all items resolved) and the deliberate override ("Override the gate…", then "Override and move", a second step with the items that stay open) call `resolveTransition('move')`, which runs the held change again with the gate bypassed; "Cancel", Escape and "Open story" drop it. The override is a quality-gate exception: a later story logs it.
+4. `update` gives a story that enters "done" its `doneItems` (`withDoneSnapshots`) and saves changed checks through `saveStoryChecks`.
+
 ## Change the status values (#5)
 
 1. `StatusValuesSection` turns a drop (or Alt+Arrow up/down in a name field) into a new order with categories (`moveStatus`, `stepStatus`) and checks it with `reorderStatuses`: categories in their fixed order, "not started" and "done" not empty. An invalid order is refused with a message.

@@ -4,6 +4,7 @@ import { DndContext, closestCenter, type Announcements, type DragEndEvent, type 
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
+import { DefinitionsPanel } from './definitions';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
 import { EpicSelect } from './EpicSelect';
@@ -228,6 +229,8 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               </form>
             </section>
           )}
+
+          <DefinitionsPanel story={story} />
         </div>
 
         <aside className="panel detail__side">

@@ -1,14 +1,21 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+/** A button in a notice, such as "Open story". */
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 interface ToastItem {
   id: number;
   message: string;
+  action?: ToastAction;
 }
 
 interface ToastApi {
   /** Shows a short notice at the bottom of the window. It goes away by itself and is read out by screen readers. */
-  notify(message: string): void;
+  notify(message: string, action?: ToastAction): void;
 }
 
 const ToastContext = createContext<ToastApi | null>(null);
@@ -40,6 +47,18 @@ function Toast({ item, onDone }: { item: ToastItem; onDone: (id: number) => void
   return (
     <div className="toast" onMouseEnter={stop} onMouseLeave={start} onFocus={stop} onBlur={start}>
       <span>{item.message}</span>
+      {item.action && (
+        <button
+          type="button"
+          className="toast__action"
+          onClick={() => {
+            item.action?.onClick();
+            onDone(item.id);
+          }}
+        >
+          {item.action.label}
+        </button>
+      )}
       <button type="button" className="toast__close" aria-label={t('toast.close')} title={t('toast.close')} onClick={() => onDone(item.id)}>
         ×
       </button>
@@ -50,10 +69,10 @@ function Toast({ item, onDone }: { item: ToastItem; onDone: (id: number) => void
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const next = useRef(1);
-  const notify = useCallback((message: string) => {
+  const notify = useCallback((message: string, action?: ToastAction) => {
     const id = next.current++;
     // Only the newest notices stay; a series of actions does not pile up.
-    setItems((current) => [...current.slice(-2), { id, message }]);
+    setItems((current) => [...current.slice(-2), { id, message, action }]);
   }, []);
   const done = useCallback((id: number) => setItems((current) => current.filter((item) => item.id !== id)), []);
   const api = useMemo<ToastApi>(() => ({ notify }), [notify]);

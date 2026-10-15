@@ -3,7 +3,7 @@ import { DEFAULT_SETTINGS } from '../domain/settings';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays } from '../domain/sprints';
 import { DEFAULT_STATUSES } from '../domain/statuses';
-import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
+import type { Definitions, FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
 
 /** Demo custom fields, so the preview shows what teams can add. */
 const DEMO_FIELDS: FieldDefinition[] = [
@@ -110,6 +110,57 @@ function demoEvents(today: string): ReleaseEvent[] {
 }
 
 /**
+ * Demo lists for the Definition of Ready and Done (#26). They are switched off ("check on status change"), so the board
+ * behaves as before until the team switches them on; the story dialog already shows them.
+ */
+const DEMO_DEFINITIONS: Definitions = {
+  ready: {
+    enforce: true,
+    groups: [
+      {
+        id: 'group-ready-functional',
+        name: 'Functional',
+        items: [
+          { id: 'def-ready-description', text: '', rule: 'hasDescription', mayBeIrrelevant: false },
+          { id: 'def-ready-criteria', text: '', rule: 'hasCriteria', mayBeIrrelevant: false }
+        ]
+      },
+      {
+        id: 'group-ready-technical',
+        name: 'Technical',
+        items: [{ id: 'def-ready-dependencies', text: 'Dependencies are clarified', rule: null, mayBeIrrelevant: true }]
+      },
+      {
+        id: 'group-ready-design',
+        name: 'Design',
+        items: [
+          { id: 'def-ready-design', text: 'Design is available', rule: null, mayBeIrrelevant: true },
+          { id: 'def-ready-texts', text: 'Texts are agreed', rule: null, mayBeIrrelevant: true }
+        ]
+      }
+    ]
+  },
+  done: {
+    enforce: true,
+    groups: [
+      {
+        id: 'group-done-quality',
+        name: 'Quality',
+        items: [
+          { id: 'def-done-accepted', text: '', rule: 'allCriteriaAccepted', mayBeIrrelevant: false },
+          { id: 'def-done-review', text: 'Code is reviewed', rule: null, mayBeIrrelevant: false }
+        ]
+      },
+      {
+        id: 'group-done-docs',
+        name: 'Documentation',
+        items: [{ id: 'def-done-docs', text: 'Documentation is updated', rule: null, mayBeIrrelevant: true }]
+      }
+    ]
+  }
+};
+
+/**
  * Demo data shown on the first start so the board is not empty.
  * Sprint 1 runs around `today`, Sprint 2 is planned after it, so the board and the story map always have content.
  */
@@ -127,9 +178,9 @@ export function seedSnapshot(today: string): Snapshot {
     if (item.fieldId === 'field-demo-labels') return { ...item, onCard: true };
     return item;
   });
-  const stories: Story[] = demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {} }));
+  const stories: Story[] = demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {}, checks: {}, doneItems: null }));
   return {
-    settings: DEFAULT_SETTINGS,
+    settings: { ...DEFAULT_SETTINGS, definitions: DEMO_DEFINITIONS },
     statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
     fields: [...builtins.fields, ...DEMO_FIELDS],
     assignments,
@@ -174,7 +225,7 @@ export function seedSnapshot(today: string): Snapshot {
   };
 }
 
-const demoStories: Omit<Story, 'values' | 'releaseId'>[] = [
+const demoStories: Omit<Story, 'values' | 'releaseId' | 'checks' | 'doneItems'>[] = [
   {
     id: 'story-1',
     code: 'S-1',

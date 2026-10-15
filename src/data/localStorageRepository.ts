@@ -60,7 +60,10 @@ export class LocalStorageRepository implements Repository {
     this.changeStories((stories) =>
       stories.map((story) => {
         const position = byId.get(story.id);
-        return position ? { ...story, ...position } : story;
+        // Only the position fields: a caller may pass whole stories, and their checks must not overwrite the stored ones.
+        return position
+          ? { ...story, status: position.status, rank: position.rank, sprintId: position.sprintId, epicId: position.epicId, releaseId: position.releaseId }
+          : story;
       })
     );
   }
@@ -71,8 +74,12 @@ export class LocalStorageRepository implements Repository {
 
   async updateStory(story: Story): Promise<void> {
     this.changeStories((stories) =>
-      stories.map((item) => (item.id === story.id ? { ...story, criteria: item.criteria, values: item.values } : item))
+      stories.map((item) => (item.id === story.id ? { ...story, criteria: item.criteria, values: item.values, checks: item.checks, doneItems: item.doneItems } : item))
     );
+  }
+
+  async saveStoryChecks(storyId: string, checks: Story['checks'], doneItems: Story['doneItems']): Promise<void> {
+    this.changeStories((stories) => stories.map((story) => (story.id === storyId ? { ...story, checks, doneItems } : story)));
   }
 
   async deleteStory(storyId: string): Promise<void> {

@@ -17,6 +17,8 @@ export interface Repository {
   updateStory(story: Story): Promise<void>;
   /** Deletes a story with its criteria. */
   deleteStory(storyId: string): Promise<void>;
+  /** Saves the manual states of the definitions (#26) and the Done snapshot of a story. */
+  saveStoryChecks(storyId: string, checks: Story['checks'], doneItems: Story['doneItems']): Promise<void>;
   addCriterion(storyId: string, criterion: Criterion, position: number): Promise<void>;
   setCriterionDone(criterionId: string, done: boolean): Promise<void>;
   setCriterionText(criterionId: string, text: string): Promise<void>;
