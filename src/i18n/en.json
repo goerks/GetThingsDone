@@ -1089,7 +1089,6 @@
       "inSprint": "Is planned in a sprint"
     },
     "transition": {
-      "met": "{{counter}} met",
       "move": "Move",
       "next": "Next list",
       "openStory": "Open story",
@@ -1100,15 +1099,14 @@
         "done_one": "{{code}} cannot move to “{{target}}”: {{count}} item of the Definition of Done is still open",
         "done_other": "{{code}} cannot move to “{{target}}”: {{count}} items of the Definition of Done are still open"
       },
-      "problem": {
-        "ready": "The Definition of Ready is a quality gate. Resolve the open items below to move the story, or override the gate on purpose.",
-        "done": "The Definition of Done is a quality gate. Resolve the open items below to move the story, or override the gate on purpose."
-      },
       "override": "Override the gate…",
       "overrideTitle": "Override the {{list}} for {{code}}?",
       "overrideText": "The story moves with these items still open. This is a deliberate exception to the quality gate, not the normal way.",
       "overrideConfirm": "Override and move",
-      "overrideBack": "Back to the items"
+      "overrideBack": "Back to the items",
+      "gate": "Quality gate",
+      "route": "{{from}} → {{to}} · {{list}}",
+      "progress": "{{met}} of {{total}} items met · {{open}} open"
     },
     "toast": {
       "open": "Open story",
@@ -1158,6 +1156,14 @@
       "hasEpic": "The story belongs to an epic.",
       "allCriteriaAccepted": "Every acceptance criterion is ticked.",
       "inSprint": "The story is planned in a sprint."
+    },
+    "allMet": "All items are met.",
+    "show": "Show definitions",
+    "hiddenHint": "hidden (in this browser only)",
+    "menu": {
+      "label": "Options of the {{name}}",
+      "onlyOpen": "Show only open items",
+      "hide": "Hide the definitions"
     }
   }
 }

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog } from './Dialog';
-import { counterText, itemText, ListView } from './definitions';
+import { itemText, ListView } from './definitions';
 import { statusLabel } from './statusLabel';
 import { evaluate } from '../domain/definitions';
 import type { DefinitionKind } from '../domain/types';
@@ -73,13 +73,17 @@ export function TransitionDialog({ storyId, to, gates }: { storyId: string; to: 
         </div>
       ) : (
         <>
-          <p className="definition-problem">
-            <span aria-hidden="true">⚠ </span>
-            {t(`definitions.transition.problem.${kind}`)}
+          <p className="definition-route">
+            <span className="chip chip--warn">
+              <span aria-hidden="true">⚠ </span>
+              {t('definitions.transition.gate')}
+            </span>{' '}
+            {t('definitions.transition.route', { from: statusLabel(t, app.statuses, story.status), to: target, list: t(`definitions.${kind}`) })}
           </p>
-          <p className="muted">
-            {t(`definitions.${kind}`)} · {t('definitions.transition.met', { counter: counterText(t, overall) })}
-          </p>
+          <div className="progress progress--wide" role="img" aria-label={t('definitions.transition.progress', { met: overall.checked + overall.na, total: overall.total, open: overall.open })}>
+            <div className="progress__bar" style={{ width: `${overall.total === 0 ? 0 : Math.round(((overall.checked + overall.na) / overall.total) * 100)}%` }} />
+          </div>
+          <p className="muted">{t('definitions.transition.progress', { met: overall.checked + overall.na, total: overall.total, open: overall.open })}</p>
           <ListView story={story} result={result} collapsible={false} />
           <p className="muted definition-keys">{t('definitions.keys')}</p>
           <div className="form__actions definition-actions">

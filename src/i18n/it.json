@@ -1089,7 +1089,6 @@
       "inSprint": "È pianificata in uno sprint"
     },
     "transition": {
-      "met": "{{counter}} soddisfatti",
       "move": "Sposta",
       "next": "Lista successiva",
       "openStory": "Apri la storia",
@@ -1100,15 +1099,14 @@
         "done_one": "{{code}} non può passare a «{{target}}»: {{count}} punto della Definition of Done è ancora aperto",
         "done_other": "{{code}} non può passare a «{{target}}»: {{count}} punti della Definition of Done sono ancora aperti"
       },
-      "problem": {
-        "ready": "La Definition of Ready è un quality gate. Risolvi i punti aperti qui sotto per spostare la storia, oppure aggira il gate consapevolmente.",
-        "done": "La Definition of Done è un quality gate. Risolvi i punti aperti qui sotto per spostare la storia, oppure aggira il gate consapevolmente."
-      },
       "override": "Aggira il gate…",
       "overrideTitle": "Aggirare la {{list}} per {{code}}?",
       "overrideText": "La storia viene spostata con questi punti ancora aperti. È un’eccezione deliberata al quality gate, non la via normale.",
       "overrideConfirm": "Aggira e sposta",
-      "overrideBack": "Torna ai punti"
+      "overrideBack": "Torna ai punti",
+      "gate": "Quality gate",
+      "route": "{{from}} → {{to}} · {{list}}",
+      "progress": "{{met}} punti su {{total}} soddisfatti · {{open}} aperti"
     },
     "toast": {
       "open": "Apri la storia",
@@ -1158,6 +1156,14 @@
       "hasEpic": "La storia appartiene a un’epica.",
       "allCriteriaAccepted": "Ogni criterio di accettazione è spuntato.",
       "inSprint": "La storia è pianificata in uno sprint."
+    },
+    "allMet": "Tutti i punti sono soddisfatti.",
+    "show": "Mostra le definizioni",
+    "hiddenHint": "nascoste (solo in questo browser)",
+    "menu": {
+      "label": "Opzioni della {{name}}",
+      "onlyOpen": "Mostra solo i punti aperti",
+      "hide": "Nascondi le definizioni"
     }
   }
 }
