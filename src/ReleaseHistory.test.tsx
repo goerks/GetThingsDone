@@ -4,8 +4,11 @@ import userEvent from '@testing-library/user-event';
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
+import { withoutDefinitions } from './test/noDefinitions';
 import { addDays, todayIso } from './domain/sprints';
 import { initI18n } from './i18n';
+import { EMPTY_DEFINITIONS } from './domain/definitions';
+
 
 beforeAll(() => {
   initI18n('en');
@@ -119,7 +122,7 @@ describe('recording the history', () => {
     const repository = new LocalStorageRepository();
     const seed = seedSnapshot(todayIso());
     // Release 1.1 has no stories left to start from, so its history is easy to read.
-    await repository.replaceAll({ ...seed, events: seed.events.filter((event) => event.releaseId !== 'release-map') });
+    await repository.replaceAll(withoutDefinitions({ ...seed, events: seed.events.filter((event) => event.releaseId !== 'release-map') }));
     window.location.hash = '#/board';
     render(<App repository={repository} />);
     await screen.findByRole('heading', { level: 1 });
@@ -183,7 +186,7 @@ describe('recording the history', () => {
     const user = userEvent.setup();
     const repository = new LocalStorageRepository();
     const seed = seedSnapshot(todayIso());
-    await repository.replaceAll({ ...seed, settings: { mapRows: 'releases', features: { releases: true } } });
+    await repository.replaceAll({ ...seed, settings: { mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS } });
     window.location.hash = '#/map';
     render(<App repository={repository} />);
     await screen.findByRole('heading', { name: 'Story Map', level: 1 });

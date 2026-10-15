@@ -62,7 +62,9 @@ function story(id: string, values: Story['values'] = {}): Story {
     releaseId: null,
     rank: 0,
     criteria: [],
-    values
+    values,
+    checks: {},
+    doneItems: null
   };
 }
 

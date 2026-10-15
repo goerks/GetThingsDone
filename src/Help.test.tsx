@@ -666,13 +666,25 @@ describe('links to the right pages', () => {
     expect(link('Open Settings → Status values')).not.toHaveClass('linkbtn--first');
   });
 
+  it('AC6.2 explains the definitions of Ready and Done and links to where to set them up', async () => {
+    // Given the board with the help open
+    const user = userEvent.setup();
+    await renderApp('#/board');
+    // When I search for "Definition of Done"
+    await openTopic(user, 'Definition of Ready and Done');
+    // Then the topic names the steps and links to Settings → Definitions
+    expect(within(panel()).getByText(/Open Settings → Definitions\. Add groups and items/)).toBeInTheDocument();
+    expect(link('Open Settings → Definitions')).toHaveAttribute('href', '#/settings/definitions');
+    expect(link('Open Backlog')).toBeInTheDocument();
+  });
+
   it('AC10.5 lists the sections of the settings, except the one that is open', async () => {
     const user = userEvent.setup();
     await renderApp('#/settings/fields');
     await openHelp(user);
     await user.click(within(panel()).getByRole('button', { name: /^Settings/ }));
     const places = within(panel()).getAllByRole('link').map((anchor) => anchor.textContent);
-    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Features']);
+    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Definitions', 'Open Settings → Features']);
   });
 });
 

@@ -22,6 +22,7 @@ export const LINK_TARGETS = {
   settingsFields: hrefs.settings,
   settingsStatuses: hrefs.settingsStatuses,
   settingsMap: hrefs.settingsMap,
+  settingsDefinitions: hrefs.settingsDefinitions,
   settingsFeatures: hrefs.settingsFeatures
 } as const;
 export type LinkId = keyof typeof LINK_TARGETS;
@@ -65,7 +66,8 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'map.basics', pages: ['map'], links: [{ id: 'map' }, { id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }] },
   { id: 'epics.basics', pages: ['epics'], links: [{ id: 'epics' }] },
   { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }, { id: 'map', requires: 'releases' }] },
-  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsFeatures' }] },
+  { id: 'definitions.basics', pages: ['board', 'backlog', 'settings'], show: { selector: '.definition-chip, .definitions-settings, .card[data-story-id]', missing: 'plain' }, links: [{ id: 'settingsDefinitions' }, { id: 'backlog' }, { id: 'board' }] },
+  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsFeatures' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
 ];

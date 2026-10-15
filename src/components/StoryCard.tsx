@@ -8,6 +8,7 @@ import type { Epic, Story } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
 import { fieldLabel } from './fieldLabel';
+import { DefinitionChip } from './definitions';
 import { EpicTag } from './EpicTag';
 import { useBuiltin } from './useBuiltin';
 import { useMatchClass } from './search/HighlightBar';
@@ -99,6 +100,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
           </span>
         </div>
       )}
+      <DefinitionChip story={story} kind="done" />
       <div className="card__bottom">
         <EpicTag epic={epic} inCard />
         {builtin.shown('story', 'points') && (

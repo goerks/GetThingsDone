@@ -1,3 +1,4 @@
+import { EMPTY_DEFINITIONS, normalizeDefinitions } from './definitions';
 import type { FeatureKey, Features, MapRows, Settings } from './types';
 
 export const MAP_ROWS: readonly MapRows[] = ['sprints', 'releases'];
@@ -7,16 +8,16 @@ export const FEATURE_KEYS: readonly FeatureKey[] = ['releases'];
 
 export const DEFAULT_FEATURES: Features = { releases: true };
 
-export const DEFAULT_SETTINGS: Settings = { mapRows: 'sprints', features: DEFAULT_FEATURES };
+export const DEFAULT_SETTINGS: Settings = { mapRows: 'sprints', features: DEFAULT_FEATURES, definitions: EMPTY_DEFINITIONS };
 
 const isOff = (value: unknown): boolean => value === false || value === 'false' || value === '0';
 
 /** Settings from stored data; a missing or unknown value gets its default. */
-export function normalizeSettings(stored: { mapRows?: unknown; features?: Partial<Record<FeatureKey, unknown>> | null } | null | undefined): Settings {
+export function normalizeSettings(stored: { mapRows?: unknown; features?: Partial<Record<FeatureKey, unknown>> | null; definitions?: unknown } | null | undefined): Settings {
   const mapRows = MAP_ROWS.find((rows) => rows === stored?.mapRows);
   const features = { ...DEFAULT_FEATURES };
   for (const key of FEATURE_KEYS) if (isOff(stored?.features?.[key])) features[key] = false;
-  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features };
+  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, definitions: normalizeDefinitions(stored?.definitions) };
 }
 
 /** Whether a feature is switched on. */

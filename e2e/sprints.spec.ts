@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { pressUntilAnnounced } from './keyboardDrag';
+import { switchDefinitionsOff } from './definitionsOff';
 
 /*
  * End-to-end tests of starting and completing a sprint (#17) in a real browser, following the test cases the PO
@@ -10,6 +11,7 @@ import { pressUntilAnnounced } from './keyboardDrag';
 
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-10-13T10:00:00+02:00'));
+  await switchDefinitionsOff(page);
   await page.goto('/#/board');
   await expect(page.getByRole('heading', { name: 'Sprint 1', level: 1 })).toBeVisible();
 });

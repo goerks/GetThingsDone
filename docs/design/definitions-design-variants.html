@@ -1,0 +1,277 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Definition of Ready und Done: Design-Varianten</title><style>
+/* Layout: one reading column; each variant is a mockup of the settings page. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --c-blue: #2457d6; --c-amber: #b45309; --c-teal: #0f766e; --c-violet: #7c3aed;
+  --c-rose: #be123c; --c-green: #15803d; --c-cyan: #0e7490; --c-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 16px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; align-content: start; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+/* ---------- Mockup frame ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 860px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 42px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 14px; color: var(--muted); }
+.gear { margin-left: auto; width: 28px; height: 28px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); border-radius: 6px; display: grid; place-items: center; font-size: 14px; }
+.page { padding: 16px 18px 20px; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side span { padding: 6px 10px; border-radius: 6px; color: var(--muted); }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.content { display: grid; gap: 10px; min-width: 0; }
+.ph { display: flex; align-items: center; gap: 12px; }
+.ph b { font-size: 16px; }
+.ph .btn { margin-left: auto; }
+.hint { font-size: 12px; color: var(--muted); }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--danger { background: var(--bad); color: var(--surface); border-color: var(--bad); font-weight: 500; }
+.btn--ghost { border-style: dashed; color: var(--muted); }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; white-space: nowrap; color: var(--muted); }
+
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex: none; }
+.blue { background: var(--c-blue); } .amber { background: var(--c-amber); } .teal { background: var(--c-teal); }
+.violet { background: var(--c-violet); } .green { background: var(--c-green); } .slate { background: var(--c-slate); } .cyan { background: var(--c-cyan); }
+.grip { color: var(--muted); letter-spacing: -2px; }
+.x { color: var(--muted); }
+.lock { color: var(--muted); font-size: 11px; }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.input { height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; background: var(--surface); min-width: 0; }
+.input--focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.select { height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; background: var(--surface); white-space: nowrap; }
+.select::after { content: "▾"; color: var(--muted); font-size: 11px; }
+
+/* Variant A: grouped by category */
+.group { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.group__head { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--pill); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.group__head .rule { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.row { display: grid; grid-template-columns: 18px 14px minmax(0, 1fr) 80px 22px; gap: 10px; align-items: center; padding: 6px 10px; border-top: 1px solid var(--border); }
+.row--drop { box-shadow: inset 0 3px 0 var(--accent); }
+.add { padding: 6px 10px; border-top: 1px solid var(--border); color: var(--muted); }
+
+/* Variant B: flat list with category select */
+.list { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+.frow { display: grid; grid-template-columns: 18px 34px 14px minmax(0, 1fr) 150px 80px 22px; gap: 10px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.frow:last-child { border-bottom: 0; }
+.frow--head { color: var(--muted); font-size: 12px; font-weight: 600; padding-block: 5px; }
+.pos { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.warn { display: flex; gap: 8px; align-items: center; background: var(--bad-soft); color: var(--bad); border-radius: 6px; padding: 6px 10px; font-size: 12px; }
+
+/* Variant C: board preview */
+.lanes { display: flex; gap: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+.lane-group { display: grid; grid-template-rows: auto 1fr; border-right: 1px solid var(--border); min-width: 0; }
+.lane-group:last-child { border-right: 0; }
+.lane-group__head { padding: 5px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; background: var(--pill); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; gap: 8px; }
+.lane-row { display: flex; gap: 8px; padding: 10px; align-items: stretch; }
+.lane { width: 122px; background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 8px; align-content: start; }
+.lane--edit { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.lane__head { display: flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.lane__head .grip { margin-left: auto; }
+.lane__meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
+.lane--add { border-style: dashed; background: transparent; color: var(--muted); place-items: center; min-height: 90px; text-align: center; width: 44px; }
+.pop { position: absolute; width: 250px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 12px; display: grid; gap: 8px; z-index: 2; }
+.lbl { font-size: 12px; color: var(--muted); }
+.swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.swatches .dot { width: 18px; height: 18px; }
+.swatches .sel { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
+
+/* Shared: removal dialog and board */
+.scrim { position: absolute; inset: 42px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 440px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 18px 20px; display: grid; gap: 12px; z-index: 2; }
+.board { display: flex; gap: 10px; padding: 14px 18px; overflow: hidden; position: relative; }
+.col { flex: none; width: 190px; background: var(--column); border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: grid; gap: 8px; align-content: start; min-height: 200px; }
+.col__head { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.col__head .count { margin-left: auto; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; display: grid; gap: 4px; }
+.card .k { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.fade { position: absolute; top: 0; right: 0; bottom: 0; width: 60px; background: linear-gradient(to right, transparent, var(--bg)); }
+.scrollbar { margin: 0 18px 12px; height: 6px; border-radius: 3px; background: var(--pill); position: relative; }
+.scrollbar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 62%; border-radius: 3px; background: var(--muted); opacity: .5; }
+
+/* Category colours and their shades: the first status of a category is the base colour, later ones get lighter. */
+:root { --cat-new: var(--c-slate); --cat-wip: var(--c-blue); --cat-done: var(--c-green); }
+.new1 { background: var(--cat-new); } .new2 { background: color-mix(in oklab, var(--cat-new) 65%, var(--surface)); }
+.wip1 { background: var(--cat-wip); } .wip2 { background: color-mix(in oklab, var(--cat-wip) 72%, var(--surface)); } .wip3 { background: color-mix(in oklab, var(--cat-wip) 48%, var(--surface)); }
+.done1 { background: var(--cat-done); } .done2 { background: color-mix(in oklab, var(--cat-done) 60%, var(--surface)); }
+.group__head .dot { width: 10px; height: 10px; }
+
+/* Board with category bands */
+.bboard { padding: 14px 18px; display: grid; gap: 6px; overflow: hidden; position: relative; }
+.bands { display: flex; gap: 10px; }
+.band { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 6px 6px 0 0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; border-top: 3px solid; background: var(--surface); border-left: 1px solid var(--border); border-right: 1px solid var(--border); flex: none; }
+.band--new { border-top-color: var(--cat-new); } .band--wip { border-top-color: var(--cat-wip); } .band--done { border-top-color: var(--cat-done); }
+.band .count { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 400; }
+.cols { display: flex; gap: 10px; }
+.cgroup { display: flex; gap: 6px; flex: none; }
+.w1 { width: 190px; } .w2 { width: 386px; } .w3 { width: 582px; }
+.mini { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; font-size: 14px; }
+
+/* Definitions */
+.chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:1px 7px; border-radius:999px; white-space:nowrap; }
+.chip--warn { background:#fbeed8; color:#8a4a07; }
+.chip--ok { background:var(--ok-soft); color:var(--ok); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip--warn { background:#3a2a12; color:#f0a050; } }
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border); }
+.tabs span { padding:6px 14px; color:var(--muted); border-bottom:2px solid transparent; }
+.tabs .on { color:var(--accent-soft-ink); border-bottom-color:var(--accent); font-weight:600; }
+.item { display:grid; grid-template-columns:18px minmax(0,1fr) 130px 120px 22px; gap:10px; align-items:center; padding:6px 10px; border-top:1px solid var(--border); }
+.item:first-child { border-top:0; }
+.auto { font-size:11px; color:var(--accent-soft-ink); background:var(--accent-soft); border-radius:999px; padding:1px 8px; white-space:nowrap; justify-self:start; }
+.manual { font-size:11px; color:var(--muted); background:var(--pill); border-radius:999px; padding:1px 8px; white-space:nowrap; justify-self:start; }
+.dlg { display:grid; grid-template-columns:minmax(0,1fr) 230px; gap:16px; padding:16px 18px; align-items:start; }
+.panel { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 12px; display:grid; gap:6px; }
+.panel h4 { margin:0; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); display:flex; gap:8px; align-items:center; }
+.panel h4 .chip { margin-left:auto; text-transform:none; letter-spacing:0; }
+.cl { display:grid; grid-template-columns:16px minmax(0,1fr) auto; gap:8px; align-items:center; }
+.cb { width:14px; height:14px; border:1.5px solid var(--muted); border-radius:3px; display:grid; place-items:center; font-size:10px; line-height:1; }
+.cb--on { background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+.cb--auto { background:var(--pill); border-style:dashed; }
+.cb--auto.cb--on { background:var(--ok); border-color:var(--ok); color:var(--surface); border-style:solid; }
+.brow { display:grid; grid-template-columns:34px 52px minmax(0,1fr) 90px 34px; gap:10px; align-items:center; padding:7px 10px; border-top:1px solid var(--border); background:var(--surface); }
+.brow--sec { background:var(--column); font-weight:600; border-top:1px solid var(--border); padding:6px 10px; display:flex; gap:10px; }
+.nr { opacity:1; box-shadow: inset 3px 0 0 var(--c-amber); }
+.sbar { background:var(--text); color:var(--surface); border-radius:6px; padding:8px 14px; display:flex; gap:12px; align-items:center; margin:0 18px 14px; width:fit-content; }
+.sbar a { text-decoration:underline; }
+.ctitle { font-weight:500; }
+
+/* v2: groups, three states, transitions */
+.grp { background:var(--pill); padding:5px 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); display:flex; gap:8px; align-items:center; border-top:1px solid var(--border); }
+.grp:first-child { border-top:0; }
+.grp .count { margin-left:auto; text-transform:none; letter-spacing:0; font-weight:400; }
+.tri { display:inline-flex; border:1px solid var(--border); border-radius:6px; overflow:hidden; background:var(--surface); }
+.tri span { width:24px; height:22px; display:grid; place-items:center; font-size:11px; color:var(--muted); border-left:1px solid var(--border); }
+.tri span:first-child { border-left:0; }
+.tri .t-open { background:var(--accent-soft); color:var(--accent-soft-ink); font-weight:700; }
+.tri .t-ok { background:var(--ok); color:var(--surface); font-weight:700; }
+.tri .t-na { background:var(--pill); color:var(--text); font-weight:700; }
+.na { color:var(--muted); text-decoration:line-through; }
+.tl { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; padding:3px 0; }
+.sw { display:inline-flex; align-items:center; gap:8px; }
+.sw i { width:30px; height:17px; border-radius:9px; background:var(--pill); border:1px solid var(--border); position:relative; display:inline-block; }
+.sw i::after { content:""; position:absolute; top:2px; left:2px; width:11px; height:11px; border-radius:50%; background:var(--muted); }
+.sw--on i { background:var(--accent); border-color:var(--accent); }
+.sw--on i::after { left:15px; background:var(--accent-ink); }
+.flow { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; }
+.flow .st { padding:4px 12px; border-radius:6px; border-top:3px solid; background:var(--surface); border:1px solid var(--border); border-top-width:3px; font-weight:600; }
+.flow .gate { padding:2px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent-soft-ink); font-weight:600; font-size:12px; }
+.dialog--wide { width:520px; top:56px; }
+.btns { display:flex; gap:8px; flex-wrap:wrap; }
+.mayna { font-size:11px; color:var(--muted); white-space:nowrap; display:inline-flex; gap:4px; align-items:center; }
+.mayna b { width:12px; height:12px; border:1.5px solid var(--muted); border-radius:3px; display:inline-grid; place-items:center; font-size:9px; line-height:1; }
+.mayna--on b { background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+.tri--two span:last-child { display:none; }
+.ghostlink { color:var(--muted); text-decoration:underline; align-self:center; }
+
+/* design variants */
+.pair { display:grid; gap:16px; }
+.frame { min-width:860px; }
+.dlghead { display:flex; align-items:center; gap:10px; padding:14px 18px 0; }
+.tabs2 { display:flex; border-bottom:1px solid var(--border); margin:10px 18px 0; }
+.tabs2 span { padding:6px 14px; color:var(--muted); border-bottom:2px solid transparent; }
+.tabs2 .on { color:var(--accent-soft-ink); border-bottom-color:var(--accent); font-weight:600; }
+.body { padding:14px 18px 18px; display:grid; gap:10px; }
+.meter { height:5px; border-radius:3px; background:var(--pill); overflow:hidden; width:90px; }
+.meter i { display:block; height:100%; background:var(--ok); }
+.gh { display:flex; align-items:center; gap:10px; font-weight:600; font-size:13px; }
+.gh .count { margin-left:auto; font-weight:400; }
+.caret { color:var(--muted); width:12px; }
+/* tri-state checkbox */
+.tcb { width:18px; height:18px; border:1.5px solid var(--muted); border-radius:4px; display:grid; place-items:center; font-size:12px; line-height:1; flex:none; }
+.tcb--ok { background:var(--ok); border-color:var(--ok); color:var(--surface); font-weight:700; }
+.tcb--na { background:var(--pill); border-color:var(--muted); color:var(--text); font-weight:700; }
+.tcb--auto { border-style:dashed; }
+.irow { display:grid; grid-template-columns:18px minmax(0,1fr) auto; gap:10px; align-items:center; padding:5px 0; }
+.nbtn { font-size:11px; border:1px solid var(--border); border-radius:6px; padding:1px 8px; color:var(--muted); background:var(--surface); white-space:nowrap; }
+/* state pill */
+.sp { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:2px 10px; border-radius:999px; border:1px solid var(--border); background:var(--surface); white-space:nowrap; }
+.sp::after { content:"▾"; color:var(--muted); font-size:10px; }
+.sp--ok { background:var(--ok-soft); color:var(--ok); border-color:transparent; }
+.sp--open { background:var(--accent-soft); color:var(--accent-soft-ink); border-color:transparent; }
+.sp--na { background:var(--pill); color:var(--muted); }
+.menu { position:absolute; width:190px; background:var(--surface); border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 30px var(--shadow); padding:4px; z-index:3; display:grid; gap:1px; }
+.menu span { padding:6px 10px; border-radius:6px; display:flex; gap:8px; }
+.menu .cur { background:var(--accent-soft); color:var(--accent-soft-ink); font-weight:600; }
+.gcard { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 12px; display:grid; gap:4px; }
+.side2 { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:16px; padding:14px 18px 18px; align-items:start; }
+</style></head><body><main class="wrap">
+<header class="intro"><div class="meta"><span>Issue #26</span><span>Design-Varianten</span></div><h1>Definition of Ready und Done: drei Gestaltungen</h1>
+<p class="muted">Gleiche Funktion (Variante C: Stand an der Story, Übergang zeigt die offenen Punkte), drei Gestaltungen. Sie unterscheiden sich darin, <b>wie ein Punkt seinen Zustand zeigt und ändert</b> und <b>wo die Listen im Story-Dialog stehen</b>. Je Variante: Story-Dialog und Übergangsdialog.</p></header>
+<section class="variant" id="d1"><div class="variant__head"><h3>Design 1 · Dreier-Schalter im Panel</h3><span class="tag">Standard der App-Muster</span></div><p>Zwei Panels in der rechten Spalte, je Punkt ein Schalter mit drei Feldern ○ ✓ –. Alle Zustände sind immer sichtbar und mit einem Klick erreichbar. Tastatur: Tab zum Schalter, Pfeile wechseln. Schmale Spalte, Gruppen als Zwischenüberschriften.</p><div class="pair"><div class="scroll"><div class="app frame" role="img" aria-label="Design 1: Story-Dialog mit Panel rechts und Dreier-Schalter"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span></span></div>
+<div class="dlg"><div class="content"><span class="count">S-8 · ● Konto</span><b style="font-size:18px">Passwort zurücksetzen</b>
+<div class="panel"><h4>Beschreibung</h4><span>Nutzer fordern einen Link per E-Mail an.</span></div>
+<div class="panel"><h4>Akzeptanzkriterien <span class="count" style="margin-left:auto">1/2</span></h4><div class="cl"><span class="cb cb--on">✓</span><span>Mail kommt in 1 Minute an</span><span></span></div><div class="cl"><span class="cb"></span><span>Link läuft nach 24 h ab</span><span></span></div></div></div>
+<div class="content"><div class="panel"><h4>Definition of Ready <span class="chip chip--warn">⚠ 3/5</span></h4>
+<div class="hint" style="font-weight:600">Fachlich · 2/2</div><div class="tl"><span>Beschreibung vorhanden <span class="auto">⚙</span></span><span class="tri"><span class="">○</span><span class="t-ok">✓</span><span class="">–</span></span></div><div class="tl"><span>Akzeptanzkriterium <span class="auto">⚙</span></span><span class="tri"><span class="">○</span><span class="t-ok">✓</span><span class="">–</span></span></div>
+<div class="hint" style="font-weight:600">Technik · 0/1</div><div class="tl"><span>Abhängigkeiten geklärt</span><span class="tri"><span class="t-open">○</span><span class="">✓</span><span class="">–</span></span></div>
+<div class="hint" style="font-weight:600">Design · 1/2</div><div class="tl"><span class="na">Entwurf liegt vor</span><span class="tri"><span class="">○</span><span class="">✓</span><span class="t-na">–</span></span></div><div class="tl"><span>Texte abgestimmt</span><span class="tri"><span class="">○</span><span class="t-ok">✓</span><span class="">–</span></span></div></div>
+<div class="panel"><h4>Definition of Done <span class="chip chip--warn">⚠ 0/3</span></h4><span class="hint">zugeklappt</span></div></div></div></div></div><div class="scroll"><div class="app frame" role="img" aria-label="Design 1: Übergangsdialog mit Dreier-Schaltern"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span></span></div><div class="board" style="min-height:300px"><div class="col"><div class="col__head"><span class="dot new1"></span>Zu erledigen<span class="count">2</span></div><div class="card"><span class="k">S-8</span><span>Passwort zurücksetzen</span></div></div><div class="col"><div class="col__head"><span class="dot wip1"></span>In Arbeit<span class="count">1</span></div></div><div class="col"><div class="col__head"><span class="dot done1"></span>Erledigt<span class="count">1</span></div></div></div><div class="scrim"></div><div class="dialog dialog--wide"><b style="font-size:16px">S-8 nach «In Arbeit»: 2 Punkte noch offen</b><span class="hint">Definition of Ready · 3 von 5 erfüllt</span><div class="hint" style="font-weight:600">Technik</div><div class="tl"><span>Abhängigkeiten geklärt</span><span class="tri"><span class="t-open">○</span><span class="">✓</span><span class="">–</span></span></div><div class="hint" style="font-weight:600">Design</div><div class="tl"><span>Texte abgestimmt</span><span class="tri"><span class="t-open">○</span><span class="">✓</span><span class="">–</span></span></div><div class="btns"><span class="btn btn--p">Verschieben</span><span class="btn">Story öffnen</span><span class="btn">Abbrechen</span><span class="ghostlink hint">Trotzdem verschieben</span></div></div></div></div></div></section>
+<section class="variant" id="d2"><div class="variant__head"><h3>Design 2 · Checkbox wie bei den Akzeptanzkriterien</h3><span class="tag tag--rec">empfohlen: vertraut und ruhig</span></div><p>Ein Panel unter den Kriterien mit Reitern Ready und Done. Je Punkt eine Checkbox (✓ abgehakt, – nicht relevant); «nicht relevant» ist ein zweiter, leiser Knopf nur bei Punkten, die es erlauben. Gruppen sind klappbar und haben einen kleinen Fortschrittsbalken. Fühlt sich an wie die Kriterienliste. Tastatur: Leertaste hakt ab, N setzt «nicht relevant».</p><div class="pair"><div class="scroll"><div class="app frame" role="img" aria-label="Design 2: Story-Dialog mit Reitern Ready und Done und Checkbox je Punkt"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span></span></div>
+<div class="dlghead"><span class="count">S-8 · ● Konto</span></div><div class="dlghead" style="padding-top:2px"><b style="font-size:18px">Passwort zurücksetzen</b></div>
+<div class="side2"><div class="content"><div class="panel"><h4>Beschreibung</h4><span>Nutzer fordern einen Link per E-Mail an.</span></div>
+<div class="panel"><h4>Akzeptanzkriterien <span class="count" style="margin-left:auto">1/2</span></h4><div class="cl"><span class="cb cb--on">✓</span><span>Mail kommt in 1 Minute an</span><span></span></div><div class="cl"><span class="cb"></span><span>Link läuft nach 24 h ab</span><span></span></div></div>
+<div class="panel"><div class="tabs2" style="margin:0 0 6px"><span class="on">Definition of Ready · 3/5 ⚠</span><span>Definition of Done · 0/3 ⚠</span></div>
+<div class="gh"><span class="caret">▾</span>Fachlich<span class="meter"><i style="width:100%"></i></span><span class="count">2/2</span></div><div class="irow"><span class="tcb tcb--ok tcb--auto">✓</span><span>Beschreibung vorhanden <span class=auto>⚙</span></span><span></span></div><div class="irow"><span class="tcb tcb--ok tcb--auto">✓</span><span>Akzeptanzkriterium <span class=auto>⚙</span></span><span></span></div>
+<div class="gh"><span class="caret">▾</span>Technik<span class="meter"><i style="width:0"></i></span><span class="count">0/1</span></div><div class="irow"><span class="tcb" style="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></span><span>Abhängigkeiten geklärt</span><span class="nbtn">nicht relevant</span></div>
+<div class="gh"><span class="caret">▾</span>Design<span class="meter"><i style="width:50%"></i></span><span class="count">1/2 · 1 n. r.</span></div><div class="irow"><span class="tcb tcb--na">–</span><span class="na">Entwurf liegt vor</span><span class="nbtn" style="color:var(--accent-soft-ink)">↩ wieder relevant</span></div><div class="irow"><span class="tcb tcb--ok">✓</span><span>Texte abgestimmt</span><span class="nbtn">nicht relevant</span></div>
+<span class="hint">Leertaste hakt ab · N setzt «nicht relevant» (nur wo erlaubt)</span></div></div>
+<div class="content"><div class="panel"><h4>Details</h4><span class="hint">Status · Zu erledigen<br>Epic · Konto<br>Punkte · 3</span></div></div></div></div></div><div class="scroll"><div class="app frame" role="img" aria-label="Design 2: Übergangsdialog mit Checkboxen"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span></span></div><div class="board" style="min-height:300px"><div class="col"><div class="col__head"><span class="dot new1"></span>Zu erledigen<span class="count">2</span></div><div class="card"><span class="k">S-8</span><span>Passwort zurücksetzen</span></div></div><div class="col"><div class="col__head"><span class="dot wip1"></span>In Arbeit<span class="count">1</span></div></div><div class="col"><div class="col__head"><span class="dot done1"></span>Erledigt<span class="count">1</span></div></div></div><div class="scrim"></div><div class="dialog dialog--wide"><b style="font-size:16px">S-8 nach «In Arbeit»: 2 Punkte noch offen</b><span class="hint">Definition of Ready · 3 von 5 erfüllt</span>
+<div class="gh"><span class="caret">▾</span>Technik</div><div class="irow"><span class="tcb" style="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)"></span><span>Abhängigkeiten geklärt</span><span class="nbtn">nicht relevant</span></div><div class="gh"><span class="caret">▾</span>Design</div><div class="irow"><span class="tcb"></span><span>Texte abgestimmt</span><span class="nbtn">nicht relevant</span></div>
+<div class="btns"><span class="btn btn--p">Verschieben</span><span class="btn">Story öffnen</span><span class="btn">Abbrechen</span><span class="ghostlink hint">Trotzdem verschieben</span></div></div></div></div></div></section>
+<section class="variant" id="d3"><div class="variant__head"><h3>Design 3 · Zustand als Auswahl (Pille mit Menü)</h3><span class="tag">am deutlichsten beschriftet</span></div><p>Eigener Reiter «Checklisten» im Story-Dialog, Gruppen und Listen als Karten mit Fortschritt. Der Zustand steht als Wort in einer Pille («Offen», «Erledigt», «Nicht relevant») und wird über ein Menü geändert, wie Status und Epic. Braucht zwei Klicks, ist aber nie nur Farbe und passt zum Rest der Detailfelder.</p><div class="pair"><div class="scroll"><div class="app frame" style="min-height:520px" role="img" aria-label="Design 3: Story-Dialog mit Reiter Checklisten, Zustand als Auswahl-Pille"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span></span></div>
+<div class="dlghead"><span class="count">S-8 · ● Konto</span></div><div class="dlghead" style="padding-top:2px"><b style="font-size:18px">Passwort zurücksetzen</b></div>
+<div class="tabs2"><span>Details</span><span class="on">Checklisten <span class="chip chip--warn">⚠ 2 offen</span></span></div>
+<div class="body" style="grid-template-columns:1fr 1fr;align-items:start">
+<div class="gcard"><b style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Definition of Ready · 3 von 5</b><div class="meter" style="width:100%"><i style="width:60%"></i></div>
+<div class="gh" style="margin-top:6px">Fachlich<span class="count">2/2</span></div><div class="tl"><span>Beschreibung vorhanden <span class=auto>⚙ automatisch</span></span><span class="sp sp--ok">✓ Erledigt</span></div><div class="tl"><span>Akzeptanzkriterium <span class=auto>⚙ automatisch</span></span><span class="sp sp--ok">✓ Erledigt</span></div>
+<div class="gh">Technik<span class="count">0/1</span></div><div class="tl"><span>Abhängigkeiten geklärt</span><span class="sp sp--open">○ Offen</span></div>
+<div class="gh">Design<span class="count">1/2 · 1 n. r.</span></div><div class="tl"><span class="na">Entwurf liegt vor</span><span class="sp sp--na">– Nicht relevant</span></div><div class="tl"><span>Texte abgestimmt</span><span class="sp sp--ok">✓ Erledigt</span></div></div>
+<div class="gcard"><b style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Definition of Done · 0 von 3</b><div class="meter" style="width:100%"><i style="width:0"></i></div><span class="hint">Wird beim Wechsel nach «Erledigt» eingefordert.</span></div></div>
+<div class="menu" style="left:275px;top:364px"><span class="cur">○ Offen</span><span>✓ Erledigt</span><span>– Nicht relevant</span></div></div></div><div class="scroll"><div class="app frame" role="img" aria-label="Design 3: Übergangsdialog mit Auswahl-Pillen"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span></span></div><div class="board" style="min-height:300px"><div class="col"><div class="col__head"><span class="dot new1"></span>Zu erledigen<span class="count">2</span></div><div class="card"><span class="k">S-8</span><span>Passwort zurücksetzen</span></div></div><div class="col"><div class="col__head"><span class="dot wip1"></span>In Arbeit<span class="count">1</span></div></div><div class="col"><div class="col__head"><span class="dot done1"></span>Erledigt<span class="count">1</span></div></div></div><div class="scrim"></div><div class="dialog dialog--wide"><b style="font-size:16px">S-8 nach «In Arbeit»: 2 Punkte noch offen</b><span class="hint">Definition of Ready · 3 von 5 erfüllt</span>
+<div class="gh">Technik</div><div class="tl"><span>Abhängigkeiten geklärt</span><span class="sp sp--open">○ Offen</span></div><div class="gh">Design</div><div class="tl"><span>Texte abgestimmt</span><span class="sp sp--open">○ Offen</span></div>
+<div class="btns"><span class="btn btn--p">Verschieben</span><span class="btn">Story öffnen</span><span class="btn">Abbrechen</span><span class="ghostlink hint">Trotzdem verschieben</span></div></div></div></div></div></section>
+</main></body></html>

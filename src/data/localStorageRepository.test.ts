@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { LocalStorageRepository } from './localStorageRepository';
 import { seedSnapshot } from './seed';
+import { EMPTY_DEFINITIONS } from '../domain/definitions';
+
 
 describe('LocalStorageRepository', () => {
   it('never deletes a system or built-in field', async () => {
@@ -75,12 +77,12 @@ describe('LocalStorageRepository', () => {
   it('keeps the settings and the release of a moved story', async () => {
     const repository = new LocalStorageRepository();
     await repository.replaceAll(seedSnapshot('2026-10-12'));
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true } });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
     const story = (await repository.load()).stories.find((item) => item.id === 'story-7');
     if (!story) throw new Error('story missing');
     await repository.savePositions([{ ...story, releaseId: 'release-beta' }]);
     const after = await new LocalStorageRepository().load();
-    expect(after.settings).toEqual({ mapRows: 'releases', features: { releases: true } });
+    expect(after.settings).toEqual({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
     expect(after.stories.find((item) => item.id === 'story-7')?.releaseId).toBe('release-beta');
   });
 
@@ -111,5 +113,45 @@ describe('LocalStorageRepository', () => {
       { id: 'todo', label: 'Backlog', category: 'not_started' },
       { id: 'done', label: null, category: 'done' }
     ]);
+  });
+
+  it('AC1.1 stores the definitions with the settings and the states of a story with the story', async () => {
+    // Given the demo data
+    const repository = new LocalStorageRepository();
+    await repository.replaceAll(seedSnapshot('2026-10-12'));
+    const { settings } = await repository.load();
+    // When a list is changed and a story gets states
+    const definitions = { ...settings.definitions, done: { enforce: false, groups: [{ id: 'g1', name: '', items: [{ id: 'i1', text: 'Reviewed', rule: null, mayBeIrrelevant: false }] }] } };
+    await repository.saveSettings({ ...settings, definitions });
+    await repository.saveStoryChecks('story-1', { i1: 'checked' }, ['i1']);
+    // Then both survive a reload
+    const loaded = await repository.load();
+    expect(loaded.settings.definitions).toEqual(definitions);
+    expect(loaded.stories.find((story) => story.id === 'story-1')).toMatchObject({ checks: { i1: 'checked' }, doneItems: ['i1'] });
+  });
+
+  it('gives browser data of an earlier version stories without states', async () => {
+    window.localStorage.setItem(
+      'getitdone.snapshot.v1',
+      JSON.stringify({ epics: [], sprints: [], stories: [{ id: 's1', code: 'S-1', title: 'A', description: '', epicId: null, points: 1, status: 'done', sprintId: null, rank: 0, criteria: [], values: {} }], fields: [], assignments: [] })
+    );
+    const snapshot = await new LocalStorageRepository().load();
+    expect(snapshot.stories[0]).toMatchObject({ checks: {}, doneItems: null });
+    expect(snapshot.settings.definitions).toEqual(EMPTY_DEFINITIONS);
+  });
+
+  it('AC5.4 saving positions with whole stories does not overwrite their states', async () => {
+    // Given a story with states and a Done snapshot
+    const repository = new LocalStorageRepository();
+    await repository.replaceAll(seedSnapshot('2026-10-12'));
+    const before = (await repository.load()).stories.find((item) => item.id === 'story-1');
+    if (!before) throw new Error('story missing');
+    await repository.saveStoryChecks('story-1', { i1: 'checked' }, ['i1']);
+    // When positions are saved from a whole, older copy of the story, and the story is updated from it
+    await repository.savePositions([{ ...before, rank: 9 }]);
+    await repository.updateStory({ ...before, rank: 9, title: 'Renamed' });
+    // Then the position and the title changed, the states did not
+    const after = (await repository.load()).stories.find((item) => item.id === 'story-1');
+    expect(after).toMatchObject({ rank: 9, title: 'Renamed', checks: { i1: 'checked' }, doneItems: ['i1'] });
   });
 });

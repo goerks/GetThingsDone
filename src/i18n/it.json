@@ -898,8 +898,8 @@
       },
       "settings.basics": {
         "title": "Impostazioni",
-        "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare",
-        "body": "Apri le impostazioni con l’ingranaggio. Hanno quattro sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le funzioni attivano o disattivano parti dell’app, per esempio Release.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare definizioni lista",
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno cinque sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Le funzioni attivano o disattivano parti dell’app, per esempio Release.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -915,6 +915,11 @@
         "title": "Primi passi",
         "keywords": "introduzione tutorial tour percorso guidato iniziare",
         "body": "Una breve introduzione facoltativa in quattro passi: conoscere la board, spostare una story, creare una story e ordinare il backlog. I passi si spuntano da soli quando li fai."
+      },
+      "definitions.basics": {
+        "title": "Definition of Ready e Done",
+        "keywords": "definition ready done dor dod lista di controllo criteri gruppo non rilevante passaggio qualità verificare",
+        "body": "Definition of Ready e Definition of Done sono due liste di controllo per tutte le story: cosa serve a una story per iniziare e per essere finita.\n1. Apri Impostazioni → Definizioni. Aggiungi gruppi e punti: a mano (testo libero) o automatici (verifica l’app stessa, per esempio «Ha criteri di accettazione»). Spunta «può essere n. r.» per i punti che una story può saltare, per esempio «Design is available».\n2. Attiva «Verifica quando …» per ogni lista. Una lista vuota o disattivata non verifica e non contrassegna nulla.\n3. In una story il pannello «Definition of Ready» / «Definition of Done» mostra i punti per gruppo. Spuntali o impostali su «non rilevante» dove è consentito (tasto N).\nQuando una story lascia «Da iniziare», l’app chiede la lista Ready; quando passa a «Completato», la lista Done. Il gate blocca lo spostamento finché i punti aperti non sono spuntati o impostati su «non rilevante»; l’unica altra via è un’eccezione deliberata («Aggira il gate…», poi «Aggira e sposta»). Il backlog contrassegna le story non pronte; la board contrassegna le story completate la cui lista Done non è soddisfatta."
       }
     },
     "links": {
@@ -926,7 +931,8 @@
       "settingsFields": "Apri Impostazioni → Campi",
       "settingsStatuses": "Apri Impostazioni → Valori di stato",
       "settingsMap": "Apri Impostazioni → Story map",
-      "settingsFeatures": "Apri Impostazioni → Funzioni"
+      "settingsFeatures": "Apri Impostazioni → Funzioni",
+      "settingsDefinitions": "Apri Impostazioni → Definizioni"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",
@@ -1051,5 +1057,106 @@
     "button": "Velocity",
     "buttonAverage": "Velocity · Ø {{points}}",
     "close": "Chiudi"
+  },
+  "definitions": {
+    "title": "Definizioni",
+    "ready": "Definition of Ready",
+    "done": "Definition of Done",
+    "generalGroup": "Generale",
+    "automatic": "automatico",
+    "manual": "manuale",
+    "autoHint": "Verificato dall’app stessa",
+    "notRelevant": "Non rilevante",
+    "relevantAgain": "Di nuovo rilevante",
+    "notRelevantFor": "Imposta «{{text}}» come non rilevante",
+    "relevantAgainFor": "Rendi «{{text}}» di nuovo rilevante",
+    "stateNa": "(non rilevante)",
+    "naCount": "{{count}} n. r.",
+    "openItems_one": "{{count}} punto aperto",
+    "openItems_other": "{{count}} punti aperti",
+    "panelLabel": "Definizioni di questa storia",
+    "keys": "La barra spaziatrice spunta un punto. N lo imposta su «non rilevante» dove è consentito.",
+    "chip": {
+      "notReady": "Non pronta {{counter}}",
+      "notDone": "Non finita {{counter}}"
+    },
+    "rule": {
+      "hasDescription": "Ha una descrizione",
+      "hasCriteria": "Ha criteri di accettazione",
+      "hasPoints": "Deve essere stimata",
+      "hasEpic": "Deve appartenere a un’epica",
+      "allCriteriaAccepted": "Tutti i criteri accettati",
+      "inSprint": "È pianificata in uno sprint"
+    },
+    "transition": {
+      "met": "{{counter}} soddisfatti",
+      "move": "Sposta",
+      "next": "Lista successiva",
+      "openStory": "Apri la storia",
+      "cancel": "Annulla",
+      "title": {
+        "ready_one": "{{code}} non può passare a «{{target}}»: {{count}} punto della Definition of Ready è ancora aperto",
+        "ready_other": "{{code}} non può passare a «{{target}}»: {{count}} punti della Definition of Ready sono ancora aperti",
+        "done_one": "{{code}} non può passare a «{{target}}»: {{count}} punto della Definition of Done è ancora aperto",
+        "done_other": "{{code}} non può passare a «{{target}}»: {{count}} punti della Definition of Done sono ancora aperti"
+      },
+      "problem": {
+        "ready": "La Definition of Ready è un quality gate. Risolvi i punti aperti qui sotto per spostare la storia, oppure aggira il gate consapevolmente.",
+        "done": "La Definition of Done è un quality gate. Risolvi i punti aperti qui sotto per spostare la storia, oppure aggira il gate consapevolmente."
+      },
+      "override": "Aggira il gate…",
+      "overrideTitle": "Aggirare la {{list}} per {{code}}?",
+      "overrideText": "La storia viene spostata con questi punti ancora aperti. È un’eccezione deliberata al quality gate, non la via normale.",
+      "overrideConfirm": "Aggira e sposta",
+      "overrideBack": "Torna ai punti"
+    },
+    "toast": {
+      "open": "Apri la storia",
+      "overridden": "{{code}} è stata spostata, la {{list}} è stata aggirata."
+    },
+    "settings": {
+      "enforce": {
+        "ready": "Verifica quando una storia lascia «Da iniziare»",
+        "done": "Verifica quando una storia passa a «Completato»"
+      },
+      "enforceHint": {
+        "ready": "La Definition of Ready viene richiesta quando una storia passa da uno stato «da iniziare» a uno stato «in corso» o «completato».",
+        "done": "La Definition of Done viene richiesta quando una storia passa a uno stato «completato»."
+      },
+      "empty": "Questa lista non ha ancora punti. Finché è vuota, nulla viene verificato o contrassegnato.",
+      "moveGroup": "Sposta il gruppo {{name}}",
+      "groupName": "Nome del gruppo {{name}}",
+      "items_one": "{{count}} punto",
+      "items_other": "{{count}} punti",
+      "removeGroup": "Rimuovi il gruppo {{name}} con i suoi punti",
+      "moveItem": "Sposta il punto {{text}}",
+      "itemText": "Testo del punto {{text}}",
+      "mayBeIrrelevant": "può essere n. r.",
+      "mayBeIrrelevantFor": "{{text}} può essere impostato come non rilevante",
+      "removeItem": "Rimuovi il punto {{text}}",
+      "hint": "Liste di controllo per tutte le storie: cosa serve a una storia per iniziare e per essere finita. Aggiungi gruppi e punti direttamente nella lista, trascina un gruppo come blocco, prendi le verifiche automatiche dalla libreria.",
+      "newItemIn": "Nuovo punto nel gruppo {{name}}",
+      "newItemPlaceholder": "Nuovo punto – Invio aggiunge",
+      "addItemTo": "Aggiungi un punto al gruppo {{name}}",
+      "addItem": "Aggiungi",
+      "library": "Dalla libreria",
+      "libraryFor": "Aggiungi una verifica dalla libreria al gruppo {{name}}",
+      "libraryTitle": "Libreria di verifiche automatiche",
+      "libraryUsed": "già in questa lista",
+      "libraryHint": "Le frecce scelgono, Invio aggiunge, Esc chiude.",
+      "foldGroup": "Comprimi il gruppo {{name}}",
+      "unfoldGroup": "Espandi il gruppo {{name}}",
+      "newGroup": "Nuovo gruppo",
+      "newGroupPlaceholder": "Nuovo gruppo – Invio crea",
+      "addGroup": "Aggiungi gruppo"
+    },
+    "ruleHelp": {
+      "hasDescription": "La descrizione della storia non è vuota.",
+      "hasCriteria": "La storia ha almeno un criterio di accettazione.",
+      "hasPoints": "La storia ha punti: è stimata.",
+      "hasEpic": "La storia appartiene a un’epica.",
+      "allCriteriaAccepted": "Ogni criterio di accettazione è spuntato.",
+      "inSprint": "La storia è pianificata in uno sprint."
+    }
   }
 }

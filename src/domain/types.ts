@@ -218,6 +218,13 @@ export interface Story {
   criteria: Criterion[];
   /** Values of custom fields by field id. */
   values: Record<string, FieldValue>;
+  /** Manual state of the items of the definitions (#26) by item id; a missing entry means open. */
+  checks: Record<string, DefinitionCheck>;
+  /**
+   * The ids of the items of the Definition of Done that applied when the story became done, or null when the story
+   * is not done or became done before the definitions existed. Such a story is never marked.
+   */
+  doneItems: string[] | null;
 }
 
 /** What the rows of the story map are. */
@@ -227,11 +234,47 @@ export type Features = Record<FeatureKey, boolean>;
 
 export type MapRows = 'sprints' | 'releases';
 
+/** The two checklists of the team (#26): what a story needs to start, and what it needs to be done. */
+export type DefinitionKind = 'ready' | 'done';
+
+/** The checks the app does by itself. */
+export type DefinitionRule = 'hasDescription' | 'hasCriteria' | 'hasPoints' | 'hasEpic' | 'allCriteriaAccepted' | 'inSprint';
+
+/** The manual states of an item; an item without an entry is open. */
+export type DefinitionCheck = 'checked' | 'na';
+
+export interface DefinitionItem {
+  id: string;
+  /** The text of a manual item. An automatic item takes its text from the language files. */
+  text: string;
+  /** The check of an automatic item, null for a manual item. */
+  rule: DefinitionRule | null;
+  /** Whether a story may set the item to "not relevant". */
+  mayBeIrrelevant: boolean;
+}
+
+export interface DefinitionGroup {
+  id: string;
+  /** An empty name shows the translated name of the general group. */
+  name: string;
+  items: DefinitionItem[];
+}
+
+export interface DefinitionList {
+  /** Whether a change of the status category asks for this list. */
+  enforce: boolean;
+  groups: DefinitionGroup[];
+}
+
+export type Definitions = Record<DefinitionKind, DefinitionList>;
+
 /** Settings of the workspace, shared by the whole team. */
 export interface Settings {
   mapRows: MapRows;
   /** Feature toggles; a feature that is off is hidden everywhere but its data is kept. */
   features: Features;
+  /** The Definition of Ready and the Definition of Done (#26). */
+  definitions: Definitions;
 }
 
 export interface Snapshot {

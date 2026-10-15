@@ -639,6 +639,35 @@ The help (FR-HELP-01) has the topics "Change a story from its menu" and "Add sto
 
 Verified by: component AC13.1–AC13.3 (`src/Help.test.tsx`), `src/help/topics.test.ts` (texts in all languages)
 
+## Definition of Ready and Done (DEF)
+
+Issue #26. Verified by `src/domain/definitions.test.ts` (unit), `src/Definitions.test.tsx` (component), `e2e/definitions.spec.ts` (Playwright), `src/data/*Repository.test.ts` and `src/Help.test.tsx`; the test case IDs are those of the issue and of `src/acceptance/package2.ts`. Design: `docs/design/definitions.md`.
+
+### FR-DEF-01 The lists of the team
+Settings › Definitions has one tab per list, Definition of Ready and Definition of Done. A list is a column of blocks, one per named group, with items. New groups and items are added directly in the list: a row "New group" under the blocks and a row "New item" (Enter adds) in every block. An item is manual (free text) or automatic, taken from a library: a picker ("From library" in every block; arrow keys, Enter, Escape) with a description per check; the library holds "Has a description", "Has acceptance criteria", "Must be estimated" (has points), "Must be attached to an epic", "All criteria accepted" and "Is planned in a sprint", and a check that is in the list already cannot be taken again. Blocks are dragged as a whole by their handle (open or folded) and folded to their head; items are dragged between blocks; Alt+Arrow keys move an item or a block, groups and items are renamed and removed in place. Per item "may be n/a" says whether a story may set it to not relevant. Per list a switch says whether a change of status asks for the list. Saved at once; the demo data has example lists that are switched off.
+
+Source: #26 · Status: Implemented · Verified by: #26 AC1.1 to AC1.5
+
+### FR-DEF-02 The state of an item in a story
+An item is open, checked or (where allowed) not relevant for each story. An automatic item shows its own state; it can be set to not relevant but not ticked. Not relevant counts as met, is shown struck through, and stays when the item stops allowing it. The story dialog shows a panel with a tab per list that has items (counter such as "3/5 · 1 n/a" and a warning while something is open), the groups folded or open with their own counters, and a checkbox per item with a quiet "Not relevant" button where allowed. Space ticks, N sets not relevant, arrow keys change the tab. Empty lists have no tab; two empty lists no panel.
+
+Source: #26 · Status: Implemented · Verified by: #26 AC2.1 to AC2.4, AC3.1 to AC3.3
+
+### FR-DEF-03 The lists are asked at the transitions
+A change of status that leaves "not started" asks for the Ready list; one that enters "done" asks for the Done list; from "not started" straight to "done" both, one after the other. Moves inside a category, backwards, and lists that are switched off, empty or already met ask nothing. This holds for the board (mouse and keyboard drag), the context menu and the status field of the story dialog. The dialog shows only the items that were open, with the same checkboxes; "Move" works when they are all resolved, "Open story" and "Cancel" (Escape) leave the story where it is. The gate blocks: the only other way is a deliberate override, a second step ("Override the gate…" then "Override and move") that names the items that stay open and ends with a notice with a way to the story. The answers are kept on the story. Logging the overrides (who, when, why) is a later story (see the issue).
+
+Source: #26 · Status: Implemented · Verified by: #26 AC4.1 to AC4.9
+
+### FR-DEF-04 Marks in the backlog and on the board
+The backlog marks a story that is not done and does not meet the Ready list: "Not ready 3/5" with an icon and an edge in the warning colour. The board marks a story in a "done" status that does not meet the Done list that applied when it became done: "Not done 1/3". A story remembers the Done items at the moment it enters "done" (`doneItems`); stories done before the feature existed, and stories that became done while the list was off, are never marked. Empty or switched off lists mark nothing.
+
+Source: #26 · Status: Implemented · Verified by: #26 AC5.1 to AC5.5
+
+### FR-DEF-05 Texts and help
+All texts exist in DE, EN, FR and IT. The help has the topic "Definition of Ready and Done" (steps, links to Settings › Definitions, backlog and board).
+
+Source: #26 · Status: Implemented · Verified by: #26 AC6.1, AC6.2
+
 ## Later
 
 | ID | Requirement | Status |

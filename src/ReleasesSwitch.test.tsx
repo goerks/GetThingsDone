@@ -6,6 +6,8 @@ import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
 import { initI18n } from './i18n';
 import { todayIso } from './domain/sprints';
+import { EMPTY_DEFINITIONS } from './domain/definitions';
+
 
 beforeAll(() => {
   initI18n('en');
@@ -15,7 +17,7 @@ const mainNav = (): HTMLElement => screen.getByRole('navigation', { name: 'Main'
 
 async function renderApp(hash: string, releasesEnabled: boolean, mapRows: 'sprints' | 'releases' = 'sprints'): Promise<LocalStorageRepository> {
   const repository = new LocalStorageRepository();
-  await repository.replaceAll({ ...seedSnapshot(todayIso()), settings: { mapRows, features: { releases: releasesEnabled } } });
+  await repository.replaceAll({ ...seedSnapshot(todayIso()), settings: { mapRows, features: { releases: releasesEnabled }, definitions: EMPTY_DEFINITIONS } });
   window.location.hash = hash;
   render(<App repository={repository} />);
   await screen.findByRole('heading', { level: 1 });
