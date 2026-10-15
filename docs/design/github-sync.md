@@ -8,7 +8,7 @@ Mockups (clickable): [`github-sync-variants.html`](github-sync-variants.html); s
 
 | Variant | Idea | Status |
 |---|---|---|
-| A · Everything in Settings → Features | Switch "GitHub connection" in the list of features; the form (repository, token, milestone → epic) and the buttons import / sync open below it | Proposed |
+| A · Everything in Settings → Features | Switch "GitHub connection" in the list of features; the form (repository, token) and the buttons import / sync open below it | Proposed |
 | B · Switch in Features, own section "GitHub", sync in the Backlog | Switch in Features (like Releases); when on, Settings gets a section "GitHub" for the connection; the Backlog gets a "Synchronise" button, the last sync time and a result dialog | **Recommended** |
 | C · Wizard in the Backlog | Features only has the switch; the Backlog offers "Connect with GitHub", a three step dialog | Proposed |
 
@@ -19,3 +19,7 @@ Mockups (clickable): [`github-sync-variants.html`](github-sync-variants.html); s
 - Import and sync run only by hand. Read access only.
 - GitHub wins on title, description, labels, criteria and their ticks; sprint, points, rank and the board column of open stories stay local.
 - Errors (no network, wrong token, repository not found) say what happened and that the local data is unchanged.
+
+## Decision (PO, #30)
+
+Variant B. Milestones and epics are not synchronised for now (no "milestone → epic" option); this replaces the earlier answer in the issue.
