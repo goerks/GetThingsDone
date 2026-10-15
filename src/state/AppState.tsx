@@ -136,6 +136,8 @@ interface AppApi {
   /** Chooses what the rows of the story map are (a team setting). */
   setMapRows(rows: MapRows): void;
   setFeature(key: FeatureKey, enabled: boolean): void;
+  /** Replaces all data with the snapshot of an export file (#16). Rejects when the data could not be stored; then nothing is shown as replaced. */
+  importData(snapshot: Snapshot): Promise<void>;
   /** Adds a status value at the end of a category. Returns its id, or null when the name is empty. */
   addStatus(category: StatusCategory, label: string): string | null;
   /** Renames a status value; an empty name brings back the translated default of a default value. */
@@ -361,6 +363,18 @@ export function AppProvider({ repository, children }: Props) {
     setSnapshot((current) => ({ ...current, fields, assignments }));
   }, []);
 
+  /** Makes a snapshot the data shown by the app. */
+  const adopt = useCallback((loaded: Snapshot) => {
+    storiesRef.current = loaded.stories;
+    epicsRef.current = loaded.epics;
+    fieldsRef.current = { fields: loaded.fields, assignments: loaded.assignments };
+    sprintsRef.current = loaded.sprints;
+    releasesRef.current = loaded.releases;
+    settingsRef.current = loaded.settings;
+    statusesRef.current = loaded.statuses;
+    setSnapshot(loaded);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -386,14 +400,7 @@ export function AppProvider({ repository, children }: Props) {
           loaded = { ...loaded, events: [...loaded.events, ...baseline] };
         }
         if (cancelled) return;
-        storiesRef.current = loaded.stories;
-        epicsRef.current = loaded.epics;
-        fieldsRef.current = { fields: loaded.fields, assignments: loaded.assignments };
-        sprintsRef.current = loaded.sprints;
-        releasesRef.current = loaded.releases;
-        settingsRef.current = loaded.settings;
-        statusesRef.current = loaded.statuses;
-        setSnapshot(loaded);
+        adopt(loaded);
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
         if (!cancelled) setError(t('state.loadFailed', { message }));
@@ -498,6 +505,14 @@ export function AppProvider({ repository, children }: Props) {
         const settings = { ...settingsRef.current, features: { ...settingsRef.current.features, [key]: enabled } };
         updateSettings(settings);
         persist((repo) => repo.saveSettings(settings));
+      },
+      async importData(next) {
+        const repo = repoRef.current;
+        if (!repo) throw new Error('The storage is not ready');
+        // Let the changes that are still being written finish first, so they cannot land on top of the imported data.
+        await queueRef.current;
+        await repo.replaceAll(next);
+        adopt(next);
       },
       addStatus(category, label) {
         const id = newId();
@@ -829,7 +844,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify, announceMove, flash, toast, t]
+    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

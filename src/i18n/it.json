@@ -444,6 +444,63 @@
         "description": "Pianificare con le release: la pagina Release, il campo Release delle storie, le righe di release della story map e i rapporti su ambito e burndown. Disattivare se il team lavora solo con gli sprint.",
         "offNote": "Disattivata. Le release, le loro storie e la cronologia vengono conservate e tornano alla riattivazione."
       }
+    },
+    "data": {
+      "title": "Dati",
+      "subtitle": "Salvare, portare con sé, ripristinare",
+      "count": {
+        "stories_one": "{{count}} story",
+        "stories_other": "{{count}} story",
+        "epics_one": "{{count}} epic",
+        "epics_other": "{{count}} epic",
+        "sprints_one": "{{count}} sprint",
+        "sprints_other": "{{count}} sprint",
+        "releases_one": "{{count}} release",
+        "releases_other": "{{count}} release"
+      },
+      "export": {
+        "title": "Esporta i dati",
+        "text": "Salva tutto in un unico file: story, epic, criteri, sprint, release, campi e i loro valori, impostazioni.",
+        "button": "Esporta tutti i dati",
+        "fileName": "Nome del file:"
+      },
+      "exported": "Esportato: {{name}} ({{counts}})",
+      "import": {
+        "title": "Importa i dati",
+        "text1": "Carica un file di esportazione.",
+        "replaces": "Sostituisce tutti i dati attuali.",
+        "text2": "Prima l'app mostra cosa contiene il file e chiede conferma.",
+        "demo": "Questa è una demo. L'importazione sostituisce i dati demo solo in questo browser.",
+        "button": "Scegli file …",
+        "safe": "Nulla viene sostituito prima della tua conferma.",
+        "fileLabel": "File di esportazione da importare"
+      },
+      "imported": "Importato: {{counts}} sostituiscono i dati precedenti.",
+      "importFailed": "Impossibile importare i dati: {{message}}",
+      "problem": {
+        "empty": "È vuoto.",
+        "notBackup": "Non è un file di esportazione di Get It Done.",
+        "damaged": "È danneggiato o incompleto.",
+        "newer": "Proviene da una versione più recente di Get It Done (formato {{version}}; questa app conosce fino al formato {{known}}).",
+        "unreadable": "Impossibile leggere il file. I tuoi dati sono invariati.",
+        "refused": "Impossibile importare questo file: {{reason}} I tuoi dati sono invariati."
+      },
+      "confirm": {
+        "title": "Importare i dati?",
+        "file": "File {{name}}",
+        "exportedOn": ", esportato il {{date}}",
+        "kind": "Tipo",
+        "inFile": "Nel file",
+        "today": "Oggi nell'app",
+        "stories": "Story",
+        "epics": "Epic",
+        "sprints": "Sprint",
+        "releases": "Release",
+        "warning": "Tutti i dati attuali verranno sostituiti. L'operazione non è reversibile. Esportali prima se vuoi conservarli.",
+        "cancel": "Annulla",
+        "exportFirst": "Esporta prima i dati attuali",
+        "replace": "Sostituisci i dati"
+      }
     }
   },
   "summary": {
@@ -899,7 +956,7 @@
       "settings.basics": {
         "title": "Impostazioni",
         "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare definizioni lista",
-        "body": "Apri le impostazioni con l’ingranaggio. Hanno cinque sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Le funzioni attivano o disattivano parti dell’app, per esempio Release.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno sei sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Le funzioni attivano o disattivano parti dell’app, per esempio Release. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -920,6 +977,11 @@
         "title": "Definition of Ready e Done",
         "keywords": "definition ready done dor dod lista di controllo criteri gruppo non rilevante passaggio qualità verificare",
         "body": "Definition of Ready e Definition of Done sono due liste di controllo per tutte le story: cosa serve a una story per iniziare e per essere finita.\n1. Apri Impostazioni → Definizioni. Aggiungi gruppi e punti: a mano (testo libero) o automatici (verifica l’app stessa, per esempio «Ha criteri di accettazione»). Spunta «può essere n. r.» per i punti che una story può saltare, per esempio «Design is available».\n2. Attiva la lista con il suo interruttore; solo allora appare il contenuto. «Inserisci lista di esempio» aiuta a iniziare. Una lista vuota o disattivata non verifica e non contrassegna nulla.\n3. In una story il pannello «Definition of Ready» / «Definition of Done» mostra i punti per gruppo. Clicca un punto: non impostato, fatto, ignorato (ignorato solo dove consentito; tasto N).\nQuando una story lascia «Da iniziare», l’app chiede la lista Ready; quando passa a «Completato», la lista Done. Il gate blocca lo spostamento finché i punti aperti non sono spuntati o impostati su «non rilevante»; l’unica altra via è un’eccezione deliberata («Aggira il gate…», poi «Aggira e sposta»). Il backlog contrassegna le story non pronte; la board contrassegna le story completate la cui lista Done non è soddisfatta."
+      },
+      "data.backup": {
+        "title": "Salvare e portare con sé i dati",
+        "keywords": "backup salvataggio esporta importa salvare ripristinare file json dati portare computer copia",
+        "body": "Apri Impostazioni → Dati. «Esporta tutti i dati» salva tutto in un file, per esempio getitdone-2026-10-15.json. Conservalo come copia di sicurezza o portalo su un altro computer.\n«Scegli file …» carica un file di questo tipo. Prima di ogni modifica l'app mostra il contenuto del file accanto ai tuoi dati attuali e chiede conferma. Un'importazione sostituisce tutti i dati attuali; esportali prima se vuoi conservarli.\nIl file funziona nell'app Windows e nel browser. Un file non valido o proveniente da una versione più recente viene rifiutato e i tuoi dati restano come sono."
       }
     },
     "links": {
@@ -932,7 +994,8 @@
       "settingsStatuses": "Apri Impostazioni → Valori di stato",
       "settingsMap": "Apri Impostazioni → Story map",
       "settingsFeatures": "Apri Impostazioni → Funzioni",
-      "settingsDefinitions": "Apri Impostazioni → Definizioni"
+      "settingsDefinitions": "Apri Impostazioni → Definizioni",
+      "settingsData": "Apri Impostazioni → Dati"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",

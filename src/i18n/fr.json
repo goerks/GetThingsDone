@@ -444,6 +444,63 @@
         "description": "Planifier avec des releases : la page Releases, le champ Release des stories, les lignes de release de la story map et les rapports de périmètre et de burndown. À désactiver si l’équipe travaille uniquement avec des sprints.",
         "offNote": "Désactivée. Les releases, leurs stories et leur historique sont conservés et reviennent à la réactivation."
       }
+    },
+    "data": {
+      "title": "Données",
+      "subtitle": "Sauvegarder, emporter, restaurer",
+      "count": {
+        "stories_one": "{{count}} story",
+        "stories_other": "{{count}} stories",
+        "epics_one": "{{count}} epic",
+        "epics_other": "{{count}} epics",
+        "sprints_one": "{{count}} sprint",
+        "sprints_other": "{{count}} sprints",
+        "releases_one": "{{count}} release",
+        "releases_other": "{{count}} releases"
+      },
+      "export": {
+        "title": "Exporter les données",
+        "text": "Enregistre tout dans un seul fichier : stories, epics, critères, sprints, releases, champs et leurs valeurs, réglages.",
+        "button": "Exporter toutes les données",
+        "fileName": "Nom du fichier :"
+      },
+      "exported": "Exporté : {{name}} ({{counts}})",
+      "import": {
+        "title": "Importer des données",
+        "text1": "Charge un fichier d'export.",
+        "replaces": "Remplace toutes vos données actuelles.",
+        "text2": "Auparavant, l'application montre ce que contient le fichier et demande confirmation.",
+        "demo": "Ceci est une démo. L'import remplace les données de démo uniquement dans ce navigateur.",
+        "button": "Choisir un fichier …",
+        "safe": "Rien n'est remplacé avant votre confirmation.",
+        "fileLabel": "Fichier d'export à importer"
+      },
+      "imported": "Importé : {{counts}} remplacent vos données précédentes.",
+      "importFailed": "Les données n'ont pas pu être importées : {{message}}",
+      "problem": {
+        "empty": "Il est vide.",
+        "notBackup": "Ce n'est pas un fichier d'export de Get It Done.",
+        "damaged": "Il est endommagé ou incomplet.",
+        "newer": "Il provient d'une version plus récente de Get It Done (format {{version}} ; cette application connaît jusqu'au format {{known}}).",
+        "unreadable": "Le fichier n'a pas pu être lu. Vos données sont inchangées.",
+        "refused": "Ce fichier ne peut pas être importé : {{reason}} Vos données sont inchangées."
+      },
+      "confirm": {
+        "title": "Importer les données ?",
+        "file": "Fichier {{name}}",
+        "exportedOn": ", exporté le {{date}}",
+        "kind": "Type",
+        "inFile": "Dans le fichier",
+        "today": "Aujourd'hui dans l'application",
+        "stories": "Stories",
+        "epics": "Epics",
+        "sprints": "Sprints",
+        "releases": "Releases",
+        "warning": "Toutes vos données actuelles seront remplacées. Cette action est irréversible. Exportez-les d'abord si vous voulez les conserver.",
+        "cancel": "Annuler",
+        "exportFirst": "Exporter d'abord les données actuelles",
+        "replace": "Remplacer les données"
+      }
     }
   },
   "summary": {
@@ -899,7 +956,7 @@
       "settings.basics": {
         "title": "Paramètres",
         "keywords": "champs valeurs de statut fonctions story map lignes roue activer définitions liste",
-        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont cinq sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases.\nLa roue vous ramène à la page d’où vous venez."
+        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont six sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
       },
       "search.basics": {
         "title": "Recherche",
@@ -920,6 +977,11 @@
         "title": "Definition of Ready et Done",
         "keywords": "definition ready done dor dod liste de contrôle critères groupe non pertinent passage qualité vérifier",
         "body": "Definition of Ready et Definition of Done sont deux listes de contrôle pour toutes les stories : ce qu’une story doit avoir pour démarrer et pour être terminée.\n1. Ouvrez Paramètres → Définitions. Ajoutez des groupes et des points : à la main (texte libre) ou automatiques (l’application vérifie elle-même, par exemple « A des critères d’acceptation »). Cochez « peut être n. p. » pour les points qu’une story peut ignorer, par exemple « Design is available ».\n2. Activez la liste avec son interrupteur ; son contenu n’apparaît qu’ensuite. « Insérer la liste d’exemple » aide à démarrer. Une liste vide ou désactivée ne vérifie ni ne marque rien.\n3. Dans une story, le panneau « Definition of Ready » / « Definition of Done » montre les points par groupe. Cliquez sur un point : non défini, fait, ignoré (ignoré seulement là où c’est permis ; touche N).\nQuand une story quitte « Non commencé », l’application demande la liste Ready ; quand elle passe à « Terminé », la liste Done. Le gate bloque le déplacement tant que les points ouverts ne sont pas cochés ou marqués « non pertinents » ; la seule autre voie est un contournement délibéré (« Contourner le gate… », puis « Contourner et déplacer »). Le backlog marque les stories pas prêtes ; le tableau marque les stories terminées dont la liste Done n’est pas remplie."
+      },
+      "data.backup": {
+        "title": "Sauvegarder et emporter les données",
+        "keywords": "backup sauvegarde export import sauvegarder restaurer fichier json données emporter ordinateur copie",
+        "body": "Ouvrez Paramètres → Données. « Exporter toutes les données » enregistre tout dans un fichier, par exemple getitdone-2026-10-15.json. Gardez-le comme sauvegarde ou emportez-le sur un autre ordinateur.\n« Choisir un fichier … » charge un tel fichier. Avant tout changement, l'application montre le contenu du fichier à côté de vos données actuelles et demande confirmation. Un import remplace toutes vos données actuelles ; exportez-les d'abord si vous voulez les conserver.\nLe fichier fonctionne dans l'application Windows et dans le navigateur. Un fichier non valide ou issu d'une version plus récente est refusé, et vos données restent telles quelles."
       }
     },
     "links": {
@@ -932,7 +994,8 @@
       "settingsStatuses": "Ouvrir Paramètres → Valeurs de statut",
       "settingsMap": "Ouvrir Paramètres → Story map",
       "settingsFeatures": "Ouvrir Paramètres → Fonctions",
-      "settingsDefinitions": "Ouvrir Paramètres → Définitions"
+      "settingsDefinitions": "Ouvrir Paramètres → Définitions",
+      "settingsData": "Ouvrir Paramètres → Données"
     },
     "linksTitle": "Où le trouver",
     "linkLocked": "Activez d’abord la fonction « {{feature}} »",

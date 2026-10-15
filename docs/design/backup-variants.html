@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backup Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a small app window mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --e-rose: #be123c; --e-amber: #b45309; --e-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.tag--now { background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+/* ---------- App window mockup ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 760px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.nav .flag { color: var(--bad); font-weight: 600; border-bottom-color: var(--bad); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); position: relative; }
+.ibtn svg { width: 15px; height: 15px; }
+.ibtn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.sel { height: 30px; padding: 0 22px 0 8px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; color: var(--text); background: var(--surface); }
+.hint { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: baseline; gap: 12px; }
+.ph b { font-size: 17px; }
+.ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+
+table.ft { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.ft th, .ft td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ft thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.ft tr:last-child td, .ft tr:last-child th { border-bottom: 0; }
+.ft tbody th { font-weight: 500; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; }
+.badge--c { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+/* Settings layout of variant A */
+.settings { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 0 10px 6px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.side .later { opacity: .7; }
+.side small { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 5px; }
+
+/* Board ghost behind menus and dialogs */
+.ghost { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 150px; }
+.lane i { font-style: normal; color: var(--muted); font-size: 11px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; height: 38px; }
+
+/* Variant B menu */
+.menu { position: absolute; top: 42px; right: 52px; width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; z-index: 2; }
+.menu span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+.menu .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu .later { color: var(--muted); }
+.menu hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* Variant C dialog */
+.scrim { position: absolute; inset: 46px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 640px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 12px; z-index: 2; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+.tabs span { padding: 6px 12px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs .on { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.x { margin-left: auto; color: var(--muted); }
+.stack { position: absolute; top: 160px; left: 50%; transform: translateX(-38%); width: 360px; background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 14px 16px; display: grid; gap: 8px; z-index: 3; }
+.field { height: 26px; border: 1px solid var(--border); border-radius: 5px; }
+
+/* Phone mockup of variant A */
+.phone { width: 300px; border: 1px solid var(--border); border-radius: 18px; background: var(--bg); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); font-size: 12px; justify-self: start; }
+.phone .bar { height: auto; flex-wrap: wrap; padding: 8px 12px; gap: 6px 10px; }
+.phone .nav { height: 30px; }
+.phone .nav span { padding: 0 6px; }
+.chips { display: flex; gap: 6px; overflow: hidden; }
+.chips span { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; color: var(--muted); }
+.chips .on { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: transparent; font-weight: 600; }
+.row { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.rows .row:last-child { border-bottom: 0; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+.cards { display: grid; gap: 10px; }
+.cardx { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.cardx h4 { margin: 0; font-size: 14px; }
+.cardx p { font-size: 12.5px; color: var(--muted); max-width: none; }
+.cardx .act { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cardx .file { font-family: var(--font-mono); font-size: 12px; background: var(--pill); padding: 2px 8px; border-radius: 4px; }
+.cardx--later { border-style: dashed; opacity: .75; }
+.btn--d { background: var(--bad); color: #fff; border-color: var(--bad); font-weight: 500; }
+.sumtab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.sumtab th, .sumtab td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.sumtab thead th { color: var(--muted); font-weight: 600; font-size: 11.5px; }
+.sumtab td.n { font-family: var(--font-mono); }
+.warnbar { background: var(--bad-soft); color: var(--bad); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; display: flex; gap: 8px; }
+.okbar { background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; }
+.dlg { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 520px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px; display: grid; gap: 12px; }
+.dlg .foot { display: flex; gap: 8px; justify-content: flex-end; }
+.tag--demo { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu2 { position: absolute; top: 42px; right: 12px; width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; }
+.menu2 span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; gap: 8px; }
+.menu2 .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu2 hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+.menu2 small { color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+</style>
+
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+</svg>
+
+<main class="wrap">
+  <header class="intro">
+    <div class="meta"><span>Issue #16</span><span>Backup: Export und Import</span><span>Entwurf</span></div>
+    <h1>Wo und wie sichere ich meine Daten?</h1>
+    <p class="muted">Zwei Aktionen: alle Daten in eine Datei exportieren, und eine solche Datei wieder importieren (ersetzt alles). Gezeigt sind zwei Orte für den Einstieg und der Ablauf des Imports mit Bestätigung und Fehlermeldung. Die Texte sind deutsch, die App liefert sie in DE, EN, FR und IT.</p>
+  </header>
+
+  <section class="variant" id="va" aria-labelledby="ta">
+    <div class="variant__head"><h3 id="ta">A · Eigener Bereich «Daten» in den Einstellungen</h3><span class="tag tag--rec">Empfehlung</span></div>
+    <p>Ein neuer Bereich in der Liste der Einstellungen. Zwei Karten: «Daten exportieren» und «Daten importieren». Der Bereich bietet später Platz für den Speicherort und das leere Projekt aus #28 (gestrichelt angedeutet).</p>
+    <div class="scroll"><div class="app" role="img" aria-label="Variante A: Einstellungen mit dem Bereich Daten, Karten Exportieren und Importieren">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+        <div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
+        <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div>
+      <div class="page"><div class="ph"><b>Einstellungen</b></div>
+        <div class="settings">
+          <div class="side"><span class="lbl">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Story Map</span><span>Funktionen</span><span class="on">Daten</span></div>
+          <div class="cards">
+            <div class="ph"><b>Daten</b><span class="muted">Sichern, mitnehmen, wiederherstellen</span></div>
+            <div class="cardx"><h4>Daten exportieren</h4>
+              <p>Speichert alles in einer Datei: Stories, Epics, Kriterien, Sprints, Releases, Felder und ihre Werte, Einstellungen.</p>
+              <div class="act"><span class="btn btn--p">Alle Daten exportieren</span><span class="muted">Dateiname:</span><span class="file">getitdone-2026-10-15.json</span></div></div>
+            <div class="cardx"><h4>Daten importieren</h4>
+              <p>Lädt eine Exportdatei. <b>Ersetzt alle heutigen Daten.</b> Vorher zeigt die App, was in der Datei steht, und fragt nach.</p>
+              <div class="act"><span class="btn">Datei wählen …</span><span class="muted">Es wird erst nach deiner Bestätigung etwas ersetzt.</span></div></div>
+            <div class="cardx cardx--later"><h4>Speicherort und leeres Projekt <small class="muted">#28</small></h4><p>Hier kommen später der Speicherordner und «Leeres Projekt starten» hin.</p></div>
+          </div></div></div></div></div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Passt zur bestehenden Einstellungsseite (Variante A aus #4)</li><li>Ein Ort für alles rund um die Daten, auch für #28</li><li>Platz für Erklärtext und Warnung vor dem Ersetzen</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Zwei Klicks bis zum Export (Zahnrad, Daten)</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" id="vb" aria-labelledby="tb">
+    <div class="variant__head"><h3 id="tb">B · Schnellzugriff im Zahnrad-Menü</h3><span class="tag">möglich, zusätzlich</span></div>
+    <p>Das Zahnrad klappt ein kleines Menü auf mit «Daten exportieren …», «Daten importieren …» und «Alle Einstellungen». Schneller, aber es braucht trotzdem eine Seite für die Erklärung, und das Menü ist neue Logik für Tastatur und Screenreader.</p>
+    <div class="scroll"><div class="app" role="img" aria-label="Variante B: Menü unter dem Zahnrad mit Export und Import">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span>
+        <div class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
+        <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div>
+      <div class="menu2"><span>Alle Einstellungen</span><hr><span class="on">Daten exportieren …</span><span>Daten importieren …</span></div>
+      <div class="page"><div class="ph"><b>Sprint 1</b><span class="muted">6 Stories · 23 Punkte</span></div>
+        <div class="ghost"><div class="lane"><i>Offen</i><div class="card"></div><div class="card"></div></div><div class="lane"><i>In Arbeit</i><div class="card"></div></div><div class="lane"><i>Review</i><div class="card"></div></div><div class="lane"><i>Erledigt</i><div class="card"></div></div></div></div></div></div>
+    <div class="proscons">
+      <div class="box"><b>Dafür</b><ul><li>Ein Klick weniger</li></ul></div>
+      <div class="box"><b>Dagegen</b><ul><li>Ein Import ohne Erklärtext ist riskant, denn er ersetzt alle Daten</li><li>Zwei Orte für dieselbe Aktion</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" id="vi" aria-labelledby="ti">
+    <div class="variant__head"><h3 id="ti">Ablauf Import: Bestätigung (gilt für A und B)</h3><span class="tag tag--rec">Empfehlung</span></div>
+    <p>Nach «Datei wählen …» prüft die App die Datei und zeigt einen Dialog: was in der Datei steht, wie viel du heute hast, und dass alles ersetzt wird. Der Knopf «Daten ersetzen» ist rot, der Fokus liegt auf «Abbrechen».</p>
+    <div class="scroll"><div class="app" style="min-height:500px" role="img" aria-label="Bestätigungsdialog für den Import mit Vergleich Datei und heutige Daten">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div></div>
+      <div class="scrim"></div>
+      <div class="dlg"><b style="font-size:15px">Daten importieren?</b>
+        <p class="muted" style="font-size:13px">Datei <span class="file">getitdone-2026-10-12.json</span>, exportiert am 12.10.2026</p>
+        <table class="sumtab"><thead><tr><th></th><th>In der Datei</th><th>Heute in der App</th></tr></thead><tbody>
+          <tr><th>Stories</th><td class="n">42</td><td class="n">37</td></tr><tr><th>Epics</th><td class="n">6</td><td class="n">5</td></tr>
+          <tr><th>Sprints</th><td class="n">4</td><td class="n">3</td></tr><tr><th>Releases</th><td class="n">2</td><td class="n">2</td></tr></tbody></table>
+        <div class="warnbar"><span aria-hidden="true">⚠</span><span>Alle heutigen Daten werden ersetzt. Das lässt sich nicht rückgängig machen. Exportiere sie vorher, wenn du sie behalten willst.</span></div>
+        <div class="foot"><span class="btn">Abbrechen</span><span class="btn">Heutige Daten zuerst exportieren</span><span class="btn btn--d">Daten ersetzen</span></div></div></div></div>
+  </section>
+
+  <section class="variant" id="vm" aria-labelledby="tm">
+    <div class="variant__head"><h3 id="tm">Rückmeldungen: Erfolg und ungültige Datei</h3><span class="tag tag--rec">Empfehlung</span></div>
+    <p>Nach dem Export und nach dem Import steht eine Meldung in der Karte. Bei einer ungültigen oder zu neuen Datei zeigt die App einen klaren Grund; die Daten bleiben unverändert.</p>
+    <div class="scroll"><div class="app" role="img" aria-label="Meldungen: Export gespeichert, Import erfolgreich, ungültige Datei">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div></div>
+      <div class="page"><div class="cards">
+        <div class="cardx"><h4>Daten exportieren</h4><div class="okbar">✓ Exportiert: getitdone-2026-10-15.json (37 Stories, 5 Epics, 3 Sprints, 2 Releases)</div></div>
+        <div class="cardx"><h4>Daten importieren</h4><div class="okbar">✓ Importiert: 42 Stories, 6 Epics, 4 Sprints, 2 Releases ersetzen deine bisherigen Daten.</div></div>
+        <div class="cardx"><h4>Daten importieren</h4><div class="warnbar"><span aria-hidden="true">⚠</span><span>Diese Datei kann nicht importiert werden: Sie stammt aus einer neueren Version von Get It Done (Format 3, diese App kennt bis Format 2). Deine Daten sind unverändert.</span></div>
+          <div class="warnbar"><span aria-hidden="true">⚠</span><span>Diese Datei kann nicht importiert werden: Sie ist keine Get-It-Done-Exportdatei. Deine Daten sind unverändert.</span></div></div>
+      </div></div></div></div>
+  </section>
+
+  <section class="variant" id="vw" aria-labelledby="tw">
+    <div class="variant__head"><h3 id="tw">Web-Preview</h3><span class="tag tag--demo">Demo</span></div>
+    <p>In der Web-Preview sieht der Bereich gleich aus, mit einem Hinweis in der Importkarte: «Dies ist eine Demo. Der Import ersetzt die Demo-Daten nur in diesem Browser.» Download und Dateiwahl laufen über den Browser.</p>
+  </section>
+</main>
+</body></html>
