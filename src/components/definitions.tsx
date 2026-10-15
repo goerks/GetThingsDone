@@ -85,7 +85,6 @@ function GroupView({ story, result, collapsible, onlyOpen }: { story: Story; res
   const id = useId();
   const name = groupName(t, result.group.name);
   const total = result.items.length;
-  const percent = total === 0 ? 0 : Math.round(((result.checked + result.na) / total) * 100);
   return (
     <div className="definition-group">
       <div className="definition-group__head">
@@ -96,9 +95,6 @@ function GroupView({ story, result, collapsible, onlyOpen }: { story: Story; res
         ) : (
           <h3 className="definition-group__name">{name}</h3>
         )}
-        <div className="progress definition-group__meter" aria-hidden="true">
-          <div className="progress__bar" style={{ width: `${percent}%` }} />
-        </div>
         <span className="muted definition-group__count">{counterText(t, { checked: result.checked, total, na: result.na })}</span>
       </div>
       {open && (
@@ -273,8 +269,8 @@ export function DefinitionsPanel({ story }: { story: Story }) {
     <section className="definitions-panel definitions-cards" aria-label={t('definitions.panelLabel')}>
       {kinds.map((kind) => {
         const result = evaluate(definitions[kind], story);
-        const open = expanded[kind];
         const percent = result.total === 0 ? 0 : Math.round(((result.checked + result.na) / result.total) * 100);
+        const open = expanded[kind];
         const name = t(`definitions.${kind}`);
         return (
           <article key={kind} className="definition-card" data-kind={kind}>
