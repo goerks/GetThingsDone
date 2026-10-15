@@ -203,7 +203,6 @@ function LibraryPicker({ groupName: name, used, onPick }: { groupName: string; u
         aria-label={t('definitions.settings.libraryFor', { name })}
         onClick={() => (open ? close() : openPicker())}
       >
-        <span aria-hidden="true">📚 </span>
         {t('definitions.settings.library')} ▾
       </button>
       {open && (
@@ -375,24 +374,20 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
   const summary = `${t('definitions.settings.groups', { count: list.groups.length })} · ${t('definitions.settings.items', { count: items.length })}`;
 
   return (
-    <section className={`definition-listcard${list.enforce ? '' : ' definition-listcard--off'}`} aria-label={name} data-kind={kind}>
+    <section className={`feature definition-listcard${list.enforce ? '' : ' definition-listcard--off'}`} aria-label={name} data-kind={kind}>
       <div className="definition-listcard__head">
-        <input
-          type="checkbox"
-          role="switch"
-          className="definition-switch"
-          checked={list.enforce}
-          aria-label={t(`definitions.settings.enforce.${kind}`)}
-          aria-describedby={`${bodyId}-hint`}
-          onChange={(event) => change((current) => setEnforce(current, event.target.checked))}
-        />
-        <div className="definition-listcard__title">
-          <h3>{name}</h3>
-          <p id={`${bodyId}-hint`} className="muted">
-            {list.enforce && !open ? summary : t(`definitions.settings.enforceHint.${kind}`)}
-          </p>
-        </div>
-        <span className={`badge${list.enforce ? '' : ' badge--off'}`}>{t(list.enforce ? 'settings.features.on' : 'settings.features.off')}</span>
+        <label className="check feature__toggle">
+          <input
+            type="checkbox"
+            role="switch"
+            checked={list.enforce}
+            aria-label={t(`definitions.settings.enforce.${kind}`)}
+            aria-describedby={`${bodyId}-hint`}
+            onChange={(event) => change((current) => setEnforce(current, event.target.checked))}
+          />
+          <h3 className="feature__name">{name}</h3>
+          <span className={`badge${list.enforce ? '' : ' badge--off'}`}>{t(list.enforce ? 'settings.features.on' : 'settings.features.off')}</span>
+        </label>
         {list.enforce && (
           <button
             type="button"
@@ -407,6 +402,9 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
           </button>
         )}
       </div>
+      <p id={`${bodyId}-hint`} className="muted feature__text">
+        {list.enforce && !open ? summary : t(`definitions.settings.enforceHint.${kind}`)}
+      </p>
       {!list.enforce && list.groups.length === 0 && (
         <div role="note" className="definition-cta">
           <p>{t('definitions.settings.emptyOff')}</p>

@@ -200,3 +200,25 @@ test('AC1.5 both lists are off at first and nothing is asked; the switch in the 
   await expect(ask(page)).toBeVisible();
   await expect(column(page, 'To do').getByRole('group', { name: /^S-3: / })).toBeVisible();
 });
+
+test('AC2.1 draws the boxes of the items in the gate dialog and the story: a visible box, no list bullets, green when done', async ({ page }) => {
+  // Given both lists are on and S-6 is dragged towards "In progress"
+  await switchOn(page);
+  await drag(page, story(page, 'S-6'), column(page, 'In progress'));
+  // When the quality gate asks
+  const box = ask(page).getByRole('checkbox', { name: 'Dependencies are clarified' });
+  // Then the box is drawn with a size and a border, and the list has no bullets
+  const drawn = await box.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const list = getComputedStyle(element.closest('ul') as HTMLElement);
+    return { width: element.getBoundingClientRect().width, border: style.borderTopWidth, bullets: list.listStyleType };
+  });
+  expect(drawn.width).toBeGreaterThanOrEqual(20);
+  expect(drawn.border).not.toBe('0px');
+  expect(drawn.bullets).toBe('none');
+  // And an item that is done is drawn in green
+  await box.click();
+  const done = await box.evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(done).not.toBe('rgba(0, 0, 0, 0)');
+  expect(done).not.toBe('rgb(255, 255, 255)');
+});
