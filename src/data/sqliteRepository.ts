@@ -288,7 +288,8 @@ export class SqliteRepository implements Repository {
     const settings = normalizeSettings({
       mapRows: settingRows.find((row) => row.key === 'map_rows')?.value,
       features: Object.fromEntries(FEATURE_KEYS.map((key) => [key, settingRows.find((row) => row.key === `feature_${key}`)?.value])),
-      definitions: parseJson<unknown>(settingRows.find((row) => row.key === 'definitions')?.value ?? null)
+      definitions: parseJson<unknown>(settingRows.find((row) => row.key === 'definitions')?.value ?? null),
+      workflow: parseJson<unknown>(settingRows.find((row) => row.key === 'workflow')?.value ?? null)
     });
     const statusRows = await this.db.select<{ id: string; label: string | null; category: string }[]>(
       'SELECT id, label, category FROM status_values ORDER BY position'
@@ -519,6 +520,7 @@ export class SqliteRepository implements Repository {
     await this.db.execute(upsert, ['map_rows', settings.mapRows]);
     for (const key of FEATURE_KEYS) await this.db.execute(upsert, [`feature_${key}`, settings.features[key] ? '1' : '0']);
     await this.db.execute(upsert, ['definitions', JSON.stringify(settings.definitions)]);
+    await this.db.execute(upsert, ['workflow', JSON.stringify(settings.workflow)]);
   }
 
   async addRelease(release: Release): Promise<void> {

@@ -21,6 +21,7 @@ import { sprintEndsAfterRelease } from '../domain/releases';
 import { POINT_VALUES, type Criterion } from '../domain/types';
 import { statusLabel } from './statusLabel';
 import { STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
+import { canDelete, canMove } from '../domain/workflow';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
 
@@ -136,9 +137,14 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
     if (event.over) app.moveCriterion(story.id, String(event.active.id), String(event.over.id));
   };
 
+  // A story the workflow does not let go is refused at once, with the reason, instead of asking first (#49).
+  const askDelete = (): void => {
+    if (canDelete(app.settings.workflow, story.status)) setConfirmDelete(true);
+    else app.deleteStory(story.id);
+  };
+
   const remove = (): void => {
-    app.deleteStory(story.id);
-    onClose();
+    if (app.deleteStory(story.id)) onClose();
   };
 
   return (
@@ -244,15 +250,20 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
                 value={story.status}
                 onChange={(event) => app.updateStory(story.id, { status: event.target.value })}
               >
-                {STATUS_CATEGORIES.map((category) => (
-                  <optgroup key={category} label={t(`statusValues.category.${category}`)}>
-                    {statusesIn(app.statuses, category).map((status) => (
-                      <option key={status.id} value={status.id}>
-                        {statusLabel(t, app.statuses, status.id)}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
+                {STATUS_CATEGORIES.map((category) => {
+                  // With the workflow on only the current status and the allowed targets are offered (#49).
+                  const choices = statusesIn(app.statuses, category).filter((status) => status.id === story.status || canMove(app.settings.workflow, story.status, status.id));
+                  if (choices.length === 0) return null;
+                  return (
+                    <optgroup key={category} label={t(`statusValues.category.${category}`)}>
+                      {choices.map((status) => (
+                        <option key={status.id} value={status.id}>
+                          {statusLabel(t, app.statuses, status.id)}
+                        </option>
+                      ))}
+                    </optgroup>
+                  );
+                })}
               </select>
             </div>
             <div className="field">
@@ -321,7 +332,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
                 </div>
               </div>
             ) : (
-              <button type="button" className="btn btn--danger-quiet" onClick={() => setConfirmDelete(true)}>
+              <button type="button" className="btn btn--danger-quiet" onClick={askDelete}>
                 {t('detail.delete')}
               </button>
             )}

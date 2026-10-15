@@ -6042,3 +6042,173 @@ a.btn {
   background: transparent;
   color: var(--muted);
 }
+
+/* Workflows (#49) */
+
+.column--locked {
+  background: repeating-linear-gradient(135deg, var(--column) 0 8px, var(--pill) 8px 16px);
+}
+
+/* The note with the reason stays fully readable while the rest of a locked column is dimmed. */
+.column--locked > :not(.column__reason) {
+  opacity: 0.6;
+}
+
+.column__lock {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.column__reason {
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 12px;
+}
+
+.workflow-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.workflow-warning {
+  margin: 0;
+}
+
+.workflow-group__note {
+  margin: 0;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.workflow-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 170px) minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: start;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.workflow-row:first-child {
+  border-top: 0;
+}
+
+.workflow-row__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  font-weight: 600;
+}
+
+.workflow-row__name::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--status-color, var(--text));
+}
+
+.workflow-row__targets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.workflow-row__to {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.workflow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.workflow-chip--on {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.workflow-chip--end.workflow-chip--on {
+  border-color: var(--danger, var(--accent));
+  background: var(--danger-soft, var(--accent-soft));
+  color: var(--danger, var(--accent-soft-ink));
+}
+
+.workflow-chip__mark {
+  min-width: 1ch;
+  font-weight: 700;
+}
+
+.workflow-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.workflow-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.workflow-free {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+}
+
+.workflow-free__switch {
+  width: 36px;
+  height: 20px;
+}
+
+.workflow-free__switch::after {
+  width: 12px;
+  height: 12px;
+  top: 3px;
+}
+
+.workflow-free__switch:checked::after {
+  left: 19px;
+}
+
+@media (max-width: 640px) {
+  .workflow-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

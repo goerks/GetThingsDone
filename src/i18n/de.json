@@ -956,7 +956,7 @@
       "settings.basics": {
         "title": "Einstellungen",
         "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren definitionen checkliste",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben sechs Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben sieben Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Workflows legen fest, welche Wechsel zwischen Status erlaubt sind. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -978,6 +978,11 @@
         "keywords": "definition ready done dor dod checkliste kriterien gruppe nicht relevant übergang qualität prüfen",
         "body": "Definition of Ready und Definition of Done sind zwei Checklisten für alle Stories: was eine Story zum Start braucht und was sie zum Abschluss braucht.\n1. Öffne Einstellungen → Definitionen. Lege Gruppen und Punkte an: von Hand (freier Text) oder automatisch (die App prüft selbst, zum Beispiel „Mindestens ein Akzeptanzkriterium“). Setze „darf n. r. sein“ bei Punkten, die eine Story auslassen darf, zum Beispiel „Design liegt vor“.\n2. Schalte die Liste mit ihrem Schalter ein („Activate the Definition of Ready“); erst dann erscheint ihr Inhalt. „Beispielliste einfügen“ hilft beim Start. Eine leere oder ausgeschaltete Liste prüft und markiert nichts.\n3. In einer Story zeigt das Panel „Definition of Ready“ / „Definition of Done“ die Punkte nach Gruppen. Klicke einen Punkt an: nicht gesetzt, erledigt, ignoriert (ignoriert nur, wo erlaubt; Taste N).\nVerlässt eine Story „Nicht begonnen“, fragt die App die Ready-Liste, wechselt sie nach „Erledigt“, die Done-Liste. Das Gate blockiert, bis die offenen Punkte im Dialog abgehakt oder auf „nicht relevant“ gesetzt sind; der einzige andere Weg ist ein bewusstes Übergehen („Gate übergehen …“, dann „Übergehen und verschieben“). Das Backlog markiert Stories, die nicht bereit sind; das Board markiert erledigte Stories, deren Done-Liste nicht erfüllt ist."
       },
+      "workflow.basics": {
+        "title": "Workflows: erlaubte Statuswechsel",
+        "keywords": "workflow übergang übergänge erlaubt gesperrt status wechsel start ende löschen sperre kategorie frei",
+        "body": "Ein Workflow legt fest, in welche Status eine Story als Nächstes wechseln darf, wo neue Stories starten und aus welchen Status sie gelöscht werden können. Er gilt für Stories; Epics haben keinen.\n1. Öffne Einstellungen → Workflows und schalte „Workflow aktivieren“ ein. Standardmässig ist er aus, und solange er aus ist, ist jeder Wechsel erlaubt. Was du einstellst, bleibt gespeichert.\n2. Die Liste „von hier aus nach …“ hat eine Zeile pro Status. Eine eingeschaltete Schaltfläche bedeutet erlaubt. „Ende (löschen)“ bestimmt, ob Stories aus diesem Status gelöscht werden können. In der Zeile „Neue Story“ wählst du, wo neue Stories starten; mindestens ein Start bleibt an.\n3. Jede Kategorie hat einen Schalter „Freie Übergänge innerhalb der Kategorie“. Eingeschaltet ist jeder Wechsel innerhalb der Kategorie erlaubt; einzelne kannst du trotzdem sperren („mit Ausnahmen“).\nAuf dem Board sperrt eine gezogene Story die Spalten, in die sie nicht darf; fahre mit dem Zeiger darüber, um den Grund zu lesen. Loslassen dort ändert nichts und nennt den Grund. Das Story-Fenster und die Menüs bieten nur erlaubte Status an. Stories, die schon in einem Status stehen, bleiben dort, wenn der Workflow sich ändert."
+      },
       "data.backup": {
         "title": "Daten sichern und mitnehmen",
         "keywords": "backup sicherung export import sichern wiederherstellen datei json daten mitnehmen computer kopie",
@@ -995,7 +1000,8 @@
       "settingsMap": "Einstellungen → Story Map öffnen",
       "settingsFeatures": "Einstellungen → Funktionen öffnen",
       "settingsDefinitions": "Einstellungen → Definitionen öffnen",
-      "settingsData": "Einstellungen → Daten öffnen"
+      "settingsData": "Einstellungen → Daten öffnen",
+      "settingsWorkflows": "Einstellungen → Workflows öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",
@@ -1234,6 +1240,42 @@
       "open": "nicht gesetzt",
       "checked": "erledigt",
       "na": "ignoriert (nicht relevant)"
+    }
+  },
+  "workflow": {
+    "title": "Workflows",
+    "intro": "Lege fest, in welche Status eine Story als Nächstes wechseln darf, wo neue Stories starten und aus welchen Status sie gelöscht werden können.",
+    "refused": "{{code}} bleibt in «{{from}}»: Der Wechsel nach «{{to}}» ist nicht erlaubt.",
+    "deleteRefused": "{{code}} kann in «{{status}}» nicht gelöscht werden: Der Workflow erlaubt es nicht.",
+    "locked": "{{from}} → {{to}} ist nicht erlaubt",
+    "to": "→ nach",
+    "end": "Ende (löschen)",
+    "hint": "Eine eingeschaltete Schaltfläche bedeutet erlaubt. Schalte «Ende (löschen)» bei einem Status aus, damit dort keine Stories gelöscht werden können.",
+    "targetsOf": "Wohin eine Story von {{name}} aus wechseln darf",
+    "settings": {
+      "activate": "Workflow aktivieren",
+      "hintOff": "Standardmässig aus. Solange er aus ist, sind alle Wechsel zwischen Status erlaubt und nirgends in der App ist von einem Workflow die Rede. Was du einstellst, bleibt gespeichert.",
+      "hintOn": "An: Stories wechseln nur entlang der Übergänge unten. Änderungen werden sofort gespeichert."
+    },
+    "start": {
+      "title": "Start · neue Story",
+      "row": "Neue Story",
+      "group": "Wo eine neue Story starten darf",
+      "last": "Eine neue Story braucht einen Startplatz: Der letzte Start-Status bleibt eingeschaltet."
+    },
+    "chip": {
+      "transition": "Von {{from}} nach {{to}}",
+      "start": "Eine neue Story startet in {{status}}",
+      "end": "Von {{from}} zum Ende (löschen)",
+      "lastStart": "Neue Stories müssen irgendwo starten: Der letzte Start-Status bleibt eingeschaltet"
+    },
+    "free": {
+      "label": "Freie Übergänge innerhalb von «{{name}}»",
+      "exceptions": "mit Ausnahmen",
+      "single": "nur ein Status"
+    },
+    "warning": {
+      "noEnd": "Von keinem Status führt ein Übergang zum Ende, deshalb kann keine Story gelöscht werden. Du kannst trotzdem speichern."
     }
   }
 }

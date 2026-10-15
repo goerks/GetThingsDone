@@ -956,7 +956,7 @@
       "settings.basics": {
         "title": "Impostazioni",
         "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare definizioni lista",
-        "body": "Apri le impostazioni con l’ingranaggio. Hanno sei sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Le funzioni attivano o disattivano parti dell’app, per esempio Release. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno sette sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. I workflow stabiliscono quali passaggi tra gli stati sono consentiti. Le funzioni attivano o disattivano parti dell’app, per esempio Release. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -978,6 +978,11 @@
         "keywords": "definition ready done dor dod lista di controllo criteri gruppo non rilevante passaggio qualità verificare",
         "body": "Definition of Ready e Definition of Done sono due liste di controllo per tutte le story: cosa serve a una story per iniziare e per essere finita.\n1. Apri Impostazioni → Definizioni. Aggiungi gruppi e punti: a mano (testo libero) o automatici (verifica l’app stessa, per esempio «Ha criteri di accettazione»). Spunta «può essere n. r.» per i punti che una story può saltare, per esempio «Design is available».\n2. Attiva la lista con il suo interruttore; solo allora appare il contenuto. «Inserisci lista di esempio» aiuta a iniziare. Una lista vuota o disattivata non verifica e non contrassegna nulla.\n3. In una story il pannello «Definition of Ready» / «Definition of Done» mostra i punti per gruppo. Clicca un punto: non impostato, fatto, ignorato (ignorato solo dove consentito; tasto N).\nQuando una story lascia «Da iniziare», l’app chiede la lista Ready; quando passa a «Completato», la lista Done. Il gate blocca lo spostamento finché i punti aperti non sono spuntati o impostati su «non rilevante»; l’unica altra via è un’eccezione deliberata («Aggira il gate…», poi «Aggira e sposta»). Il backlog contrassegna le story non pronte; la board contrassegna le story completate la cui lista Done non è soddisfatta."
       },
+      "workflow.basics": {
+        "title": "Workflow: cambi di stato consentiti",
+        "keywords": "workflow transizione consentito vietato stato passaggio inizio fine elimina blocco categoria libero",
+        "body": "Un workflow indica verso quali stati una story può passare dopo, dove iniziano le nuove story e da quali stati possono essere eliminate. Vale per le story; gli epic non ne hanno.\n1. Apri Impostazioni → Workflow e attiva «Attiva il workflow». È disattivato per impostazione predefinita e, finché lo è, ogni passaggio è consentito. Ciò che imposti resta salvato.\n2. L’elenco «da qui verso …» ha una riga per stato. Un pulsante attivo significa consentito. «Fine (elimina)» decide se le story possono essere eliminate da quello stato. Nella riga «Nuova story» scegli dove iniziano le nuove story; almeno un inizio resta attivo.\n3. Ogni categoria ha un interruttore «Transizioni libere nella categoria». Se attivo, ogni passaggio nella categoria è consentito; puoi comunque vietarne alcuni («con eccezioni»).\nSulla bacheca, una story trascinata blocca le colonne in cui non può andare; passa il puntatore per leggere il motivo. Rilasciarla lì non cambia nulla e ne dice il motivo. La finestra della story e i menu offrono solo gli stati consentiti. Le story già in uno stato vi restano quando il workflow cambia."
+      },
       "data.backup": {
         "title": "Salvare e portare con sé i dati",
         "keywords": "backup salvataggio esporta importa salvare ripristinare file json dati portare computer copia",
@@ -995,7 +1000,8 @@
       "settingsMap": "Apri Impostazioni → Story map",
       "settingsFeatures": "Apri Impostazioni → Funzioni",
       "settingsDefinitions": "Apri Impostazioni → Definizioni",
-      "settingsData": "Apri Impostazioni → Dati"
+      "settingsData": "Apri Impostazioni → Dati",
+      "settingsWorkflows": "Apri Impostazioni → Workflow"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",
@@ -1234,6 +1240,42 @@
       "open": "non impostato",
       "checked": "fatto",
       "na": "ignorato (non rilevante)"
+    }
+  },
+  "workflow": {
+    "title": "Workflow",
+    "intro": "Definisci verso quali stati una story può passare dopo, dove iniziano le nuove story e da quali stati possono essere eliminate.",
+    "refused": "{{code}} resta in «{{from}}»: il passaggio a «{{to}}» non è consentito.",
+    "deleteRefused": "{{code}} non può essere eliminata da «{{status}}»: il workflow non lo consente.",
+    "locked": "{{from}} → {{to}} non è consentito",
+    "to": "→ verso",
+    "end": "Fine (elimina)",
+    "hint": "Un pulsante attivo significa consentito. Disattiva «Fine (elimina)» per uno stato, così lì le story non si possono eliminare.",
+    "targetsOf": "Dove può andare una story da {{name}}",
+    "settings": {
+      "activate": "Attiva il workflow",
+      "hintOff": "Disattivato per impostazione predefinita. Finché è disattivato, tutti i passaggi tra gli stati sono consentiti e nell’app non si parla di workflow. Ciò che imposti resta salvato.",
+      "hintOn": "Attivo: le story passano solo lungo le transizioni qui sotto. Le modifiche vengono salvate subito."
+    },
+    "start": {
+      "title": "Inizio · nuova story",
+      "row": "Nuova story",
+      "group": "Dove può iniziare una nuova story",
+      "last": "Una nuova story ha bisogno di un punto di partenza: l’ultimo stato iniziale resta attivo."
+    },
+    "chip": {
+      "transition": "Da {{from}} a {{to}}",
+      "start": "Una nuova story inizia in {{status}}",
+      "end": "Da {{from}} alla fine (elimina)",
+      "lastStart": "Le nuove story devono iniziare da qualche parte: l’ultimo stato iniziale resta attivo"
+    },
+    "free": {
+      "label": "Transizioni libere in «{{name}}»",
+      "exceptions": "con eccezioni",
+      "single": "un solo stato"
+    },
+    "warning": {
+      "noEnd": "Nessuno stato porta alla fine, quindi nessuna story può essere eliminata. Puoi comunque salvare."
     }
   }
 }
