@@ -668,6 +668,13 @@ All texts exist in DE, EN, FR and IT. The help has the topic "Definition of Read
 
 Source: #26 · Status: Implemented · Verified by: #26 AC6.1, AC6.2
 
+## Export and import (DATA)
+
+### FR-DATA-01 Export and import of all data
+Settings › Data (`#/settings/data`) has two cards. "Export all data" saves stories, epics, criteria, sprints, releases and their history, fields and values, status values and settings in one readable JSON file `getitdone-<date>.json` with a format name and a version, and says what was exported. "Choose file …" checks the file and shows a confirmation dialog that compares the file with the current data (stories, epics, sprints, releases), warns that everything is replaced (focus on "Cancel", "Export current data first" offered), and replaces all data only after "Replace data". After export and import the app shows the same data. A file that is empty, not a Get It Done export (also other JSON), cut off or from a newer format is refused with the reason and "Your data are unchanged", without a confirmation. The same file works in the Windows app and in the browser build; the import also works in the web preview, which says that it only replaces the demo data of this browser. The Definition of Ready/Done lists of #26 are part of the settings and thereby of the file. Texts in DE, EN, FR and IT, keyboard operable, help topic "Back up and export data".
+
+Verified by: unit `src/domain/backup.test.ts` (AC1.2–AC1.4, AC3.2, AC4.1–AC4.4), component `src/DataSettings.test.tsx` (AC1.1–AC1.2, AC2.1–AC2.5, AC3.1, AC4.1–AC4.4, AC5.3, AC6.1–AC6.3), e2e `e2e/backup.spec.ts` (AC1.1–AC1.2, AC2.1, AC2.3, AC3.1–AC3.2, AC4.1, AC5.3, AC6.2); AC1.3, AC5.1 and AC5.2 are checked by hand
+
 ## Later
 
 | ID | Requirement | Status |
