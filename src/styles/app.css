@@ -4896,12 +4896,10 @@ a.btn {
 }
 
 .velocity {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  /* Fixed under the button, so the window never makes the page scroll; its height is set from the window (JS). */
+  position: fixed;
   z-index: 20;
   width: min(700px, calc(100vw - 32px));
-  max-height: calc(100vh - 130px);
   overflow: auto;
   padding: 12px 14px 14px;
   background: var(--surface);
@@ -4953,15 +4951,22 @@ a.btn {
 }
 
 .velocity__key--planned::before {
-  border-top-width: 9px;
-  width: 12px;
-  border-color: var(--epic-amber);
+  box-sizing: border-box;
+  width: 14px;
+  height: 12px;
+  border: 2px solid var(--epic-amber);
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--epic-amber) 14%, transparent);
+  vertical-align: -2px;
 }
 
 .velocity__key--done::before {
-  border-top-width: 9px;
-  width: 12px;
-  border-color: var(--accent);
+  width: 14px;
+  height: 12px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--accent);
+  vertical-align: -2px;
 }
 
 .velocity__key--average::before {
@@ -4998,8 +5003,19 @@ a.btn {
   fill: transparent;
 }
 
+.velocity-chart__plan-area {
+  fill: color-mix(in oklab, var(--epic-amber) 14%, transparent);
+}
+
 .velocity-chart__planned {
-  fill: var(--epic-amber);
+  fill: none;
+  stroke: var(--epic-amber);
+  stroke-width: 2.5;
+}
+
+.velocity-chart text.velocity-chart__value--on {
+  fill: #fff;
+  stroke: none;
 }
 
 .velocity-chart__done {

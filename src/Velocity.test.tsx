@@ -89,7 +89,7 @@ async function openVelocity(actor = user()): Promise<HTMLElement> {
 const bars = (panel: HTMLElement): Element[] => [...panel.querySelectorAll('[data-sprint-id]')];
 
 describe('velocity window at the board', () => {
-  it('AC1.1 shows two bars with numbers per sprint, in order, with a legend', async () => {
+  it('AC1.1 shows one combined bar with numbers per sprint, in order, with a legend', async () => {
     // Given six completed sprints
     await open(demo(SIX));
     // When I open the Velocity window at the board
@@ -104,16 +104,17 @@ describe('velocity window at the board', () => {
       'Sprint 6: 26 / 22'
     ]);
     expect([...bars(panel)[0].querySelectorAll('text.velocity-chart__value')].map((node) => node.textContent)).toEqual(['18', '12']);
+    expect(bars(panel)[0].querySelectorAll('rect.velocity-chart__planned, rect.velocity-chart__done')).toHaveLength(2);
     const legend = panel.querySelector<HTMLElement>('.velocity__legend')!;
     expect(within(legend).getByText('Planned')).toBeInTheDocument();
     expect(within(legend).getByText('Done')).toBeInTheDocument();
   });
 
-  it('AC1.2 draws the done bar higher than the planned bar when more was done', async () => {
+  it('AC1.2 lets the done part reach above the planned frame when more was done', async () => {
     await open(demo(SIX));
     const sprint = (await openVelocity()).querySelector('[data-sprint-id="done-4"]')!;
-    const height = (selector: string): number => Number(sprint.querySelector(selector)!.getAttribute('height'));
-    expect(height('.velocity-chart__done')).toBeGreaterThan(height('.velocity-chart__planned'));
+    const top = (selector: string): number => Number(sprint.querySelector(selector)!.getAttribute('y'));
+    expect(top('.velocity-chart__done')).toBeLessThan(top('.velocity-chart__planned'));
   });
 
   it('AC1.3 shows the last 8 of 10 sprints and the older ones after "Older sprints"', async () => {

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { averageVelocity, chartRows, velocityRows, type VelocityAverage, type VelocityRow } from '../domain/velocity';
 import { useApp } from '../state/AppState';
@@ -48,7 +48,7 @@ function Chart({ rows, average, line, label }: { rows: VelocityRow[]; average: V
   const { max, step } = niceMax(highest);
   const y = (value: number): number => BOTTOM - (value / max) * (BOTTOM - TOP);
   const slot = (RIGHT - LEFT) / rows.length;
-  const barWidth = Math.min(30, slot / 2 - 6);
+  const barWidth = Math.min(46, slot - 14);
   const yTicks = Array.from({ length: max / step + 1 }, (_, index) => index * step);
   const centre = (index: number): number => LEFT + slot * (index + 0.5);
   const shownRow = active !== null ? rows[active] : null;
@@ -87,12 +87,23 @@ function Chart({ rows, average, line, label }: { rows: VelocityRow[]; average: V
             onBlur={() => setActive((current) => (current === index ? null : current))}
           >
             <rect className="velocity-chart__hit" x={centre(index) - slot / 2} y={TOP - 14} width={slot} height={BOTTOM - TOP + 14 + 30} />
-            <rect className="velocity-chart__planned" x={centre(index) - barWidth - 2} y={y(row.planned)} width={barWidth} height={BOTTOM - y(row.planned)} />
-            <rect className="velocity-chart__done" x={centre(index) + 2} y={y(row.done)} width={barWidth} height={BOTTOM - y(row.done)} />
-            <text className="velocity-chart__value" x={centre(index) - barWidth / 2 - 2} y={y(row.planned) - 5} textAnchor="middle">
+            <rect className="velocity-chart__plan-area" x={centre(index) - barWidth / 2} y={y(row.planned)} width={barWidth} height={BOTTOM - y(row.planned)} />
+            <rect className="velocity-chart__done" x={centre(index) - barWidth / 2 + 3} y={y(row.done)} width={barWidth - 6} height={BOTTOM - y(row.done)} />
+            <rect className="velocity-chart__planned" x={centre(index) - barWidth / 2} y={y(row.planned)} width={barWidth} height={BOTTOM - y(row.planned)} />
+            <text
+              className={`velocity-chart__value${row.done > row.planned ? ' velocity-chart__value--on' : ''}`}
+              x={centre(index)}
+              y={row.done > row.planned ? y(row.planned) + 14 : y(row.planned) - 5}
+              textAnchor="middle"
+            >
               {row.planned}
             </text>
-            <text className="velocity-chart__value" x={centre(index) + barWidth / 2 + 2} y={y(row.done) - 5} textAnchor="middle">
+            <text
+              className={`velocity-chart__value${row.done <= row.planned && BOTTOM - y(row.done) >= 18 ? ' velocity-chart__value--on' : ''}`}
+              x={centre(index)}
+              y={row.done <= row.planned && BOTTOM - y(row.done) >= 18 ? y(row.done) + 14 : y(row.done) - 5}
+              textAnchor="middle"
+            >
               {row.done}
             </text>
             <text x={centre(index)} y={BOTTOM + 18} textAnchor="middle">
@@ -112,7 +123,7 @@ function Chart({ rows, average, line, label }: { rows: VelocityRow[]; average: V
 
 /**
  * The velocity of the team (#24): a button in the head of the board that shows the average and opens a window under it
- * with the chart (planned and completed points of the last completed sprints as two bars each, the average of the last
+ * with the chart (planned and completed points of the last completed sprints as one combined bar each, the average of the last
  * three) and the table of all completed sprints. Esc, a click next to the window or the close button close it.
  */
 export function VelocityButton() {
@@ -125,10 +136,29 @@ export function VelocityButton() {
   const [pages, setPages] = useState(1);
   const root = useRef<HTMLSpanElement>(null);
   const button = useRef<HTMLButtonElement>(null);
+  const [place, setPlace] = useState<CSSProperties>({});
   const all = velocityRows(app.sprints);
   const average = averageVelocity(all);
   const text = useAverageText(average);
   const shown = chartRows(all, pages);
+
+  // The window is fixed under the button and as high as the free space in the browser window; it scrolls inside itself.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place_ = (): void => {
+      const box = button.current?.getBoundingClientRect();
+      if (!box) return;
+      const top = box.bottom + 8;
+      setPlace({ top, right: Math.max(16, window.innerWidth - box.right), maxHeight: Math.max(160, window.innerHeight - top - 16) });
+    };
+    place_();
+    window.addEventListener('resize', place_);
+    window.addEventListener('scroll', place_, true);
+    return () => {
+      window.removeEventListener('resize', place_);
+      window.removeEventListener('scroll', place_, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -160,7 +190,7 @@ export function VelocityButton() {
         {average ? t('velocity.buttonAverage', { points: average.points }) : t('velocity.button')}
       </button>
       {open && (
-        <section id={panelId} className="velocity" role="region" aria-label={t('velocity.title')}>
+        <section id={panelId} className="velocity" role="region" aria-label={t('velocity.title')} style={place}>
           <div className="velocity__head">
             <h2 className="velocity__title">{t('velocity.title')}</h2>
             {average && <span className="muted velocity__summary">{text.head}</span>}
