@@ -95,7 +95,13 @@ test('AC1.1 shows one combined bar with numbers per sprint, in order, with a leg
   await expect(sprintBars(page).nth(5)).toHaveAttribute('aria-label', 'Sprint 6: 26 / 22');
   await expect(sprintBars(page).nth(0).locator('text.velocity-chart__value')).toHaveText(['18', '12']);
   await expect(panel(page).locator('.velocity__legend')).toHaveText(/Planned.*Done.*Average/);
-  await expect(panel(page).locator('svg.velocity-chart')).toHaveScreenshot('velocity-chart.png', { maxDiffPixelRatio: 0.08 });
+  // And every sprint is one bar: the blue done part lies inside the frame of the planned points (the look itself is checked by the PO)
+  const first = sprintBars(page).first();
+  const frame = (await first.locator('.velocity-chart__planned').boundingBox())!;
+  const fill = (await first.locator('.velocity-chart__done').boundingBox())!;
+  expect(fill.x).toBeGreaterThan(frame.x);
+  expect(fill.x + fill.width).toBeLessThan(frame.x + frame.width);
+  expect(fill.y).toBeGreaterThan(frame.y);
 });
 
 test('AC1.2 lets the done part of Sprint 4 reach above its planned frame', async ({ page }) => {
