@@ -3358,6 +3358,100 @@ mark {
   margin: 6px 0 0 28px;
 }
 
+/* ---------- Settings › Data (#16) ---------- */
+
+.data-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.data-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.data-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.data-card__file {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--pill);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.data-card__demo {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.data-card__message {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.data-card__message:empty {
+  display: none;
+}
+
+.data-card__message--ok {
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.data-card__message--problem,
+.data-warning {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.data-warning {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.data-compare {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 12px;
+}
+
+.data-compare th,
+.data-compare td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.data-compare thead th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.data-compare tbody th {
+  font-weight: 600;
+}
+
+.data-compare td {
+  font-family: var(--font-mono);
+}
+
+.data-confirm__actions {
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
 /* ---------- Settings › Status values (#5) ---------- */
 
 /* One group per fixed category; its top edge carries the category colour. */

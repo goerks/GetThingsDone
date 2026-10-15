@@ -444,6 +444,63 @@
         "description": "Mit Releases planen: die Seite «Releases», das Feld «Release» bei Stories, Release-Zeilen in der Story Map sowie Scope- und Burndown-Berichte. Ausschalten, wenn das Team nur mit Sprints arbeitet.",
         "offNote": "Ausgeschaltet. Releases, ihre Stories und ihr Verlauf bleiben erhalten und sind beim Einschalten wieder da."
       }
+    },
+    "data": {
+      "title": "Daten",
+      "subtitle": "Sichern, mitnehmen, wiederherstellen",
+      "count": {
+        "stories_one": "{{count}} Story",
+        "stories_other": "{{count}} Stories",
+        "epics_one": "{{count}} Epic",
+        "epics_other": "{{count}} Epics",
+        "sprints_one": "{{count}} Sprint",
+        "sprints_other": "{{count}} Sprints",
+        "releases_one": "{{count}} Release",
+        "releases_other": "{{count}} Releases"
+      },
+      "export": {
+        "title": "Daten exportieren",
+        "text": "Speichert alles in einer Datei: Stories, Epics, Kriterien, Sprints, Releases, Felder und ihre Werte, Einstellungen.",
+        "button": "Alle Daten exportieren",
+        "fileName": "Dateiname:"
+      },
+      "exported": "Exportiert: {{name}} ({{counts}})",
+      "import": {
+        "title": "Daten importieren",
+        "text1": "Lädt eine Exportdatei.",
+        "replaces": "Ersetzt alle heutigen Daten.",
+        "text2": "Vorher zeigt die App, was in der Datei steht, und fragt nach.",
+        "demo": "Dies ist eine Demo. Der Import ersetzt die Demo-Daten nur in diesem Browser.",
+        "button": "Datei wählen …",
+        "safe": "Es wird erst nach deiner Bestätigung etwas ersetzt.",
+        "fileLabel": "Exportdatei zum Importieren"
+      },
+      "imported": "Importiert: {{counts}} ersetzen deine bisherigen Daten.",
+      "importFailed": "Die Daten konnten nicht importiert werden: {{message}}",
+      "problem": {
+        "empty": "Sie ist leer.",
+        "notBackup": "Sie ist keine Get-It-Done-Exportdatei.",
+        "damaged": "Sie ist beschädigt oder unvollständig.",
+        "newer": "Sie stammt aus einer neueren Version von Get It Done (Format {{version}}; diese App kennt bis Format {{known}}).",
+        "unreadable": "Die Datei konnte nicht gelesen werden. Deine Daten sind unverändert.",
+        "refused": "Diese Datei kann nicht importiert werden: {{reason}} Deine Daten sind unverändert."
+      },
+      "confirm": {
+        "title": "Daten importieren?",
+        "file": "Datei {{name}}",
+        "exportedOn": ", exportiert am {{date}}",
+        "kind": "Art",
+        "inFile": "In der Datei",
+        "today": "Heute in der App",
+        "stories": "Stories",
+        "epics": "Epics",
+        "sprints": "Sprints",
+        "releases": "Releases",
+        "warning": "Alle heutigen Daten werden ersetzt. Das lässt sich nicht rückgängig machen. Exportiere sie vorher, wenn du sie behalten willst.",
+        "cancel": "Abbrechen",
+        "exportFirst": "Heutige Daten zuerst exportieren",
+        "replace": "Daten ersetzen"
+      }
     }
   },
   "summary": {
@@ -899,7 +956,7 @@
       "settings.basics": {
         "title": "Einstellungen",
         "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren definitionen checkliste",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben fünf Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben sechs Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -920,6 +977,11 @@
         "title": "Definition of Ready und Done",
         "keywords": "definition ready done dor dod checkliste kriterien gruppe nicht relevant übergang qualität prüfen",
         "body": "Definition of Ready und Definition of Done sind zwei Checklisten für alle Stories: was eine Story zum Start braucht und was sie zum Abschluss braucht.\n1. Öffne Einstellungen → Definitionen. Lege Gruppen und Punkte an: von Hand (freier Text) oder automatisch (die App prüft selbst, zum Beispiel „Mindestens ein Akzeptanzkriterium“). Setze „darf n. r. sein“ bei Punkten, die eine Story auslassen darf, zum Beispiel „Design liegt vor“.\n2. Schalte die Liste mit ihrem Schalter ein („Activate the Definition of Ready“); erst dann erscheint ihr Inhalt. „Beispielliste einfügen“ hilft beim Start. Eine leere oder ausgeschaltete Liste prüft und markiert nichts.\n3. In einer Story zeigt das Panel „Definition of Ready“ / „Definition of Done“ die Punkte nach Gruppen. Klicke einen Punkt an: nicht gesetzt, erledigt, ignoriert (ignoriert nur, wo erlaubt; Taste N).\nVerlässt eine Story „Nicht begonnen“, fragt die App die Ready-Liste, wechselt sie nach „Erledigt“, die Done-Liste. Das Gate blockiert, bis die offenen Punkte im Dialog abgehakt oder auf „nicht relevant“ gesetzt sind; der einzige andere Weg ist ein bewusstes Übergehen („Gate übergehen …“, dann „Übergehen und verschieben“). Das Backlog markiert Stories, die nicht bereit sind; das Board markiert erledigte Stories, deren Done-Liste nicht erfüllt ist."
+      },
+      "data.backup": {
+        "title": "Daten sichern und mitnehmen",
+        "keywords": "backup sicherung export import sichern wiederherstellen datei json daten mitnehmen computer kopie",
+        "body": "Öffne Einstellungen → Daten. «Alle Daten exportieren» speichert alles in einer Datei, zum Beispiel getitdone-2026-10-15.json. Bewahre sie als Sicherung auf oder nimm sie auf einen anderen Computer mit.\n«Datei wählen …» lädt eine solche Datei. Bevor sich etwas ändert, zeigt die App, was in der Datei steht, neben deinen heutigen Daten und fragt nach. Ein Import ersetzt alle heutigen Daten; exportiere sie vorher, wenn du sie behalten willst.\nDie Datei funktioniert in der Windows-App und im Browser. Eine ungültige Datei oder eine aus einer neueren Version wird abgelehnt, deine Daten bleiben dann, wie sie sind."
       }
     },
     "links": {
@@ -932,7 +994,8 @@
       "settingsStatuses": "Einstellungen → Status-Werte öffnen",
       "settingsMap": "Einstellungen → Story Map öffnen",
       "settingsFeatures": "Einstellungen → Funktionen öffnen",
-      "settingsDefinitions": "Einstellungen → Definitionen öffnen"
+      "settingsDefinitions": "Einstellungen → Definitionen öffnen",
+      "settingsData": "Einstellungen → Daten öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",

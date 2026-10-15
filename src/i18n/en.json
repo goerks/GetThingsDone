@@ -444,6 +444,63 @@
         "description": "Plan with releases: the Releases page, the release field of stories, release rows on the story map and the scope and burndown reports. Switch it off if the team works with sprints only.",
         "offNote": "Switched off. Releases, their stories and their history are kept and come back when you switch it on."
       }
+    },
+    "data": {
+      "title": "Data",
+      "subtitle": "Back up, take along, restore",
+      "count": {
+        "stories_one": "{{count}} story",
+        "stories_other": "{{count}} stories",
+        "epics_one": "{{count}} epic",
+        "epics_other": "{{count}} epics",
+        "sprints_one": "{{count}} sprint",
+        "sprints_other": "{{count}} sprints",
+        "releases_one": "{{count}} release",
+        "releases_other": "{{count}} releases"
+      },
+      "export": {
+        "title": "Export data",
+        "text": "Saves everything in one file: stories, epics, criteria, sprints, releases, fields and their values, settings.",
+        "button": "Export all data",
+        "fileName": "File name:"
+      },
+      "exported": "Exported: {{name}} ({{counts}})",
+      "import": {
+        "title": "Import data",
+        "text1": "Loads an export file.",
+        "replaces": "Replaces all your current data.",
+        "text2": "Before that, the app shows what is in the file and asks.",
+        "demo": "This is a demo. The import replaces the demo data only in this browser.",
+        "button": "Choose file …",
+        "safe": "Nothing is replaced until you confirm.",
+        "fileLabel": "Export file to import"
+      },
+      "imported": "Imported: {{counts}} replace your previous data.",
+      "importFailed": "The data could not be imported: {{message}}",
+      "problem": {
+        "empty": "It is empty.",
+        "notBackup": "It is not a Get It Done export file.",
+        "damaged": "It is damaged or incomplete.",
+        "newer": "It comes from a newer version of Get It Done (format {{version}}; this app knows up to format {{known}}).",
+        "unreadable": "The file could not be read. Your data are unchanged.",
+        "refused": "This file cannot be imported: {{reason}} Your data are unchanged."
+      },
+      "confirm": {
+        "title": "Import data?",
+        "file": "File {{name}}",
+        "exportedOn": ", exported on {{date}}",
+        "kind": "Kind",
+        "inFile": "In the file",
+        "today": "Today in the app",
+        "stories": "Stories",
+        "epics": "Epics",
+        "sprints": "Sprints",
+        "releases": "Releases",
+        "warning": "All your current data will be replaced. This cannot be undone. Export it first if you want to keep it.",
+        "cancel": "Cancel",
+        "exportFirst": "Export current data first",
+        "replace": "Replace data"
+      }
     }
   },
   "summary": {
@@ -899,7 +956,7 @@
       "settings.basics": {
         "title": "Settings",
         "keywords": "fields status values features story map rows gear switch on activate definitions checklist",
-        "body": "Open the settings with the gear button. They have five sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Features switch parts of the app on or off, for example Releases.\nThe gear takes you back to the page you came from."
+        "body": "Open the settings with the gear button. They have six sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Features switch parts of the app on or off, for example Releases. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -920,6 +977,11 @@
         "title": "Definition of Ready and Done",
         "keywords": "definition ready done dor dod checklist criteria group not relevant gate quality check",
         "body": "Definition of Ready and Definition of Done are two checklists for all stories: what a story needs to start, and what it needs to be done.\n1. Open Settings → Definitions. Add groups and items: by hand (free text) or automatic (the app checks it itself, for example “Has acceptance criteria”). Tick “may be n/a” for items a story can skip, for example “Design is available”.\n2. Switch on the list with its switch (“Activate the Definition of Ready”); only then its content appears. “Insert example list” gives a start. A list that is empty or switched off checks and marks nothing.\n3. In a story, the panel “Definition of Ready” / “Definition of Done” shows the items by group. Click an item: not set, done, ignored (ignored only where allowed; key N).\nWhen a story leaves “Not started”, the app asks for the Ready list; when it moves to “Done”, for the Done list. The gate blocks the move until the open items are ticked in the dialog or set to “not relevant”; the only other way is a deliberate override (“Override the gate…”, then “Override and move”). The backlog marks stories that are not ready; the board marks done stories whose Done list is not met."
+      },
+      "data.backup": {
+        "title": "Back up and export data",
+        "keywords": "backup export import save restore file json data computer copy",
+        "body": "Open Settings → Data. \"Export all data\" saves everything in one file, for example getitdone-2026-10-15.json. Keep it as a backup or take it to another computer.\n\"Choose file …\" loads such a file. Before anything changes, the app shows what is in the file next to your current data and asks. An import replaces all your current data, so export first if you want to keep it.\nThe file works in the Windows app and in the browser. A file that is not valid or comes from a newer version is refused, and your data stay as they are."
       }
     },
     "links": {
@@ -932,7 +994,8 @@
       "settingsStatuses": "Open Settings → Status values",
       "settingsMap": "Open Settings → Story map",
       "settingsFeatures": "Open Settings → Features",
-      "settingsDefinitions": "Open Settings → Definitions"
+      "settingsDefinitions": "Open Settings → Definitions",
+      "settingsData": "Open Settings → Data"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
