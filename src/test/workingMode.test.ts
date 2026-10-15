@@ -58,7 +58,7 @@ describe('PO commands', () => {
     // Given the overview of /hilfe
     const help = read('.claude/skills/hilfe/SKILL.md');
     // When we collect the commands in its table
-    const listed = [...help.matchAll(/^\| `\/([a-z]+)/gm)].map((m) => m[1]).sort();
+    const listed = [...help.matchAll(/^\| `\/([a-z-]+)/gm)].map((m) => m[1]).sort();
     // Then they are the skills, no more and no less
     expect(listed).toEqual(skills);
   });
