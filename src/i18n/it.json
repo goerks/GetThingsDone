@@ -919,7 +919,7 @@
       "definitions.basics": {
         "title": "Definition of Ready e Done",
         "keywords": "definition ready done dor dod lista di controllo criteri gruppo non rilevante passaggio qualità verificare",
-        "body": "Definition of Ready e Definition of Done sono due liste di controllo per tutte le story: cosa serve a una story per iniziare e per essere finita.\n1. Apri Impostazioni → Definizioni. Aggiungi gruppi e punti: a mano (testo libero) o automatici (verifica l’app stessa, per esempio «Ha criteri di accettazione»). Spunta «può essere n. r.» per i punti che una story può saltare, per esempio «Design is available».\n2. Attiva «Verifica quando …» per ogni lista. Una lista vuota o disattivata non verifica e non contrassegna nulla.\n3. In una story il pannello «Definition of Ready» / «Definition of Done» mostra i punti per gruppo. Spuntali o impostali su «non rilevante» dove è consentito (tasto N).\nQuando una story lascia «Da iniziare», l’app chiede la lista Ready; quando passa a «Completato», la lista Done. Il gate blocca lo spostamento finché i punti aperti non sono spuntati o impostati su «non rilevante»; l’unica altra via è un’eccezione deliberata («Aggira il gate…», poi «Aggira e sposta»). Il backlog contrassegna le story non pronte; la board contrassegna le story completate la cui lista Done non è soddisfatta."
+        "body": "Definition of Ready e Definition of Done sono due liste di controllo per tutte le story: cosa serve a una story per iniziare e per essere finita.\n1. Apri Impostazioni → Definizioni. Aggiungi gruppi e punti: a mano (testo libero) o automatici (verifica l’app stessa, per esempio «Ha criteri di accettazione»). Spunta «può essere n. r.» per i punti che una story può saltare, per esempio «Design is available».\n2. Attiva la lista con il suo interruttore; solo allora appare il contenuto. «Inserisci lista di esempio» aiuta a iniziare. Una lista vuota o disattivata non verifica e non contrassegna nulla.\n3. In una story il pannello «Definition of Ready» / «Definition of Done» mostra i punti per gruppo. Clicca un punto: non impostato, fatto, ignorato (ignorato solo dove consentito; tasto N).\nQuando una story lascia «Da iniziare», l’app chiede la lista Ready; quando passa a «Completato», la lista Done. Il gate blocca lo spostamento finché i punti aperti non sono spuntati o impostati su «non rilevante»; l’unica altra via è un’eccezione deliberata («Aggira il gate…», poi «Aggira e sposta»). Il backlog contrassegna le story non pronte; la board contrassegna le story completate la cui lista Done non è soddisfatta."
       }
     },
     "links": {
@@ -1066,16 +1066,11 @@
     "automatic": "automatico",
     "manual": "manuale",
     "autoHint": "Verificato dall’app stessa",
-    "notRelevant": "Non rilevante",
-    "relevantAgain": "Di nuovo rilevante",
-    "notRelevantFor": "Imposta «{{text}}» come non rilevante",
-    "relevantAgainFor": "Rendi «{{text}}» di nuovo rilevante",
-    "stateNa": "(non rilevante)",
     "naCount": "{{count}} n. r.",
     "openItems_one": "{{count}} punto aperto",
     "openItems_other": "{{count}} punti aperti",
     "panelLabel": "Definizioni di questa storia",
-    "keys": "La barra spaziatrice spunta un punto. N lo imposta su «non rilevante» dove è consentito.",
+    "keys": "Un clic o la barra spaziatrice passa allo stato successivo: non impostato, fatto, ignorato («non rilevante», dove consentito). N imposta subito «non rilevante».",
     "chip": {
       "notReady": "Non pronta {{counter}}",
       "notDone": "Non finita {{counter}}"
@@ -1147,7 +1142,14 @@
       "newGroup": "Nuovo gruppo",
       "newGroupPlaceholder": "Nuovo gruppo – Invio crea",
       "addGroup": "Aggiungi gruppo",
-      "off": "La lista è disattivata: le storie non la mostrano e nulla viene verificato o contrassegnato."
+      "off": "La lista è disattivata: le storie non la mostrano e nulla viene verificato o contrassegnato.",
+      "groups_one": "{{count}} gruppo",
+      "groups_other": "{{count}} gruppi",
+      "foldList": "Comprimi la {{name}}",
+      "unfoldList": "Espandi la {{name}}",
+      "emptyOff": "Questa lista è vuota e disattivata. Attivala, poi aggiungi gruppi e punti.",
+      "insertExample": "Inserisci la lista di esempio",
+      "startEmpty": "Inizia vuota"
     },
     "ruleHelp": {
       "hasDescription": "La descrizione della storia non è vuota.",
@@ -1164,6 +1166,11 @@
       "label": "Opzioni della {{name}}",
       "onlyOpen": "Mostra solo i punti aperti",
       "hide": "Nascondi le definizioni"
+    },
+    "state": {
+      "open": "non impostato",
+      "checked": "fatto",
+      "na": "ignorato (non rilevante)"
     }
   }
 }

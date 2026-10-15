@@ -11,6 +11,7 @@ import {
   DEFINITION_RULES,
   addGroup,
   addItem,
+  exampleList,
   itemsOf,
   moveRow,
   removeGroup,
@@ -322,23 +323,25 @@ function GroupBlock({
 }
 
 /**
- * Settings › Definitions (#26): the Definition of Ready and the Definition of Done of the team. One tab per list; below a
- * switch that says whether a change of status asks for the list, the groups as blocks that are added to, dragged and
- * folded directly in the list. Saved at once.
+ * One list (#26) as a card: a switch to activate it, and only when it is active its content, the groups as blocks. An off list
+ * shows nothing but its heading; when it is empty too it offers the example list or an empty start. An active list folds to a
+ * summary. Saved at once.
  */
-export function DefinitionsSection() {
+function ListCard({ kind }: { kind: DefinitionKind }) {
   const { t } = useTranslation();
   const app = useApp();
   const sensors = useDragSensors();
-  const [kind, setKind] = useState<DefinitionKind>('ready');
+  const [open, setOpen] = useState(true);
   const [newGroup, setNewGroup] = useState('');
-  const uid = useId();
+  const bodyId = useId();
   const { definitions } = app.settings;
   const list = definitions[kind];
+  const name = t(`definitions.${kind}`);
+  const items = itemsOf(list);
 
   const change = (next: (list: DefinitionList) => DefinitionList): void => app.setDefinitions({ ...definitions, [kind]: next(list) });
   const groupIds = new Set(list.groups.map((group) => group.id));
-  const used = new Set(itemsOf(list).flatMap((item) => (item.rule ? [item.rule] : [])));
+  const used = new Set(items.flatMap((item) => (item.rule ? [item.rule] : [])));
   const rowIds = list.groups.flatMap((group) => [group.id, ...group.items.map((item) => item.id)]);
   const labelOf = (id: UniqueIdentifier): string => {
     for (const group of list.groups) {
@@ -369,65 +372,94 @@ export function DefinitionsSection() {
     change((current) => addGroup(current, newId(), newGroup));
     setNewGroup('');
   };
+  const summary = `${t('definitions.settings.groups', { count: list.groups.length })} · ${t('definitions.settings.items', { count: items.length })}`;
 
+  return (
+    <section className={`definition-listcard${list.enforce ? '' : ' definition-listcard--off'}`} aria-label={name} data-kind={kind}>
+      <div className="definition-listcard__head">
+        <input
+          type="checkbox"
+          role="switch"
+          className="definition-switch"
+          checked={list.enforce}
+          aria-label={t(`definitions.settings.enforce.${kind}`)}
+          aria-describedby={`${bodyId}-hint`}
+          onChange={(event) => change((current) => setEnforce(current, event.target.checked))}
+        />
+        <div className="definition-listcard__title">
+          <h3>{name}</h3>
+          <p id={`${bodyId}-hint`} className="muted">
+            {list.enforce && !open ? summary : t(`definitions.settings.enforceHint.${kind}`)}
+          </p>
+        </div>
+        <span className={`badge${list.enforce ? '' : ' badge--off'}`}>{t(list.enforce ? 'settings.features.on' : 'settings.features.off')}</span>
+        {list.enforce && (
+          <button
+            type="button"
+            className="icon-btn icon-btn--quiet"
+            aria-expanded={open}
+            aria-controls={bodyId}
+            aria-label={t(open ? 'definitions.settings.foldList' : 'definitions.settings.unfoldList', { name })}
+            title={t(open ? 'definitions.settings.foldList' : 'definitions.settings.unfoldList', { name })}
+            onClick={() => setOpen(!open)}
+          >
+            <span aria-hidden="true">{open ? '▾' : '▸'}</span>
+          </button>
+        )}
+      </div>
+      {!list.enforce && list.groups.length === 0 && (
+        <div role="note" className="definition-cta">
+          <p>{t('definitions.settings.emptyOff')}</p>
+          <button type="button" className="btn" onClick={() => change(() => exampleList(kind, newId))}>
+            {t('definitions.settings.insertExample')}
+          </button>
+          <button type="button" className="btn" onClick={() => change((current) => setEnforce(current, true))}>
+            {t('definitions.settings.startEmpty')}
+          </button>
+        </div>
+      )}
+      {!list.enforce && list.groups.length > 0 && (
+        <p role="note" className="definition-off">
+          {t('definitions.settings.off')}
+        </p>
+      )}
+      {list.enforce && (
+        <div id={bodyId} className="definition-listcard__body" hidden={!open}>
+          {list.groups.length === 0 && <p className="muted">{t('definitions.settings.empty')}</p>}
+          <DndContext sensors={sensors} collisionDetection={collision} onDragEnd={onDragEnd} accessibility={{ announcements, screenReaderInstructions: { draggable: t('detail.dnd.instructions') } }}>
+            <SortableContext items={list.groups.map((group) => group.id)} strategy={verticalListSortingStrategy}>
+              <ul className="definition-blocks">
+                {list.groups.map((group) => (
+                  <GroupBlock key={group.id} group={group} used={used} onChange={change} onStep={step} />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
+          <form className="definition-newgroup" onSubmit={submitGroup}>
+            <input className="input" aria-label={t('definitions.settings.newGroup')} placeholder={t('definitions.settings.newGroupPlaceholder')} value={newGroup} onChange={(event) => setNewGroup(event.target.value)} />
+            <button type="submit" className="btn" disabled={!newGroup.trim()}>
+              {t('definitions.settings.addGroup')}
+            </button>
+          </form>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** Settings › Definitions (#26): the Definition of Ready and the Definition of Done one under the other. */
+export function DefinitionsSection() {
+  const { t } = useTranslation();
   return (
     <div className="map-settings definitions-settings">
       <div className="map-settings__head">
         <h2>{t('definitions.title')}</h2>
       </div>
       <p className="muted">{t('definitions.settings.hint')}</p>
-      <div role="tablist" aria-label={t('definitions.title')} className="definitions-tabs">
-        {DEFINITION_KINDS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            role="tab"
-            id={`${uid}-tab-${item}`}
-            aria-selected={item === kind}
-            aria-controls={`${uid}-panel`}
-            tabIndex={item === kind ? 0 : -1}
-            className={`definitions-tab${item === kind ? ' definitions-tab--on' : ''}`}
-            onClick={() => setKind(item)}
-            onKeyDown={(event) => {
-              if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-              event.preventDefault();
-              const next = DEFINITION_KINDS[(DEFINITION_KINDS.indexOf(item) + 1) % DEFINITION_KINDS.length];
-              setKind(next);
-              document.getElementById(`${uid}-tab-${next}`)?.focus();
-            }}
-          >
-            {t(`definitions.${item}`)} · {itemsOf(definitions[item]).length}
-          </button>
+      <div className="definition-lists">
+        {DEFINITION_KINDS.map((kind) => (
+          <ListCard key={kind} kind={kind} />
         ))}
-      </div>
-      <div role="tabpanel" id={`${uid}-panel`} aria-labelledby={`${uid}-tab-${kind}`} className="definitions-settings__panel">
-        <label className="check feature__toggle">
-          <input type="checkbox" role="switch" checked={list.enforce} onChange={(event) => change((current) => setEnforce(current, event.target.checked))} />
-          <span className="feature__name">{t(`definitions.settings.enforce.${kind}`)}</span>
-          <span className={`badge${list.enforce ? '' : ' badge--off'}`}>{t(list.enforce ? 'settings.features.on' : 'settings.features.off')}</span>
-        </label>
-        <p className="muted">{t(`definitions.settings.enforceHint.${kind}`)}</p>
-        {!list.enforce && (
-          <p role="note" className="definition-off">
-            {t('definitions.settings.off')}
-          </p>
-        )}
-        {list.groups.length === 0 && <p className="muted">{t('definitions.settings.empty')}</p>}
-        <DndContext sensors={sensors} collisionDetection={collision} onDragEnd={onDragEnd} accessibility={{ announcements, screenReaderInstructions: { draggable: t('detail.dnd.instructions') } }}>
-          <SortableContext items={list.groups.map((group) => group.id)} strategy={verticalListSortingStrategy}>
-            <ul className="definition-blocks">
-              {list.groups.map((group) => (
-                <GroupBlock key={group.id} group={group} used={used} onChange={change} onStep={step} />
-              ))}
-            </ul>
-          </SortableContext>
-        </DndContext>
-        <form className="definition-newgroup" onSubmit={submitGroup}>
-          <input className="input" aria-label={t('definitions.settings.newGroup')} placeholder={t('definitions.settings.newGroupPlaceholder')} value={newGroup} onChange={(event) => setNewGroup(event.target.value)} />
-          <button type="submit" className="btn" disabled={!newGroup.trim()}>
-            {t('definitions.settings.addGroup')}
-          </button>
-        </form>
       </div>
     </div>
   );

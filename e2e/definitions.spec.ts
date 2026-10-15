@@ -58,30 +58,32 @@ async function overrideGate(page: Page): Promise<void> {
 }
 
 test('AC1.3 drags a block above another one, folded or open, with its items, and keeps the order after a reload', async ({ page }) => {
-  // Given the Ready list with the blocks Functional, Technical and Design
-  await open(page, '#/settings/definitions');
-  const names = page.getByRole('textbox', { name: /^Name of group / });
+  // Given the Ready list with the blocks Functional, Technical and Design (both lists are switched on)
+  await switchOn(page, '#/settings/definitions');
+  const ready = page.getByRole('region', { name: 'Definition of Ready' });
+  const names = ready.getByRole('textbox', { name: /^Name of group / });
   await expect(names).toHaveCount(3);
   // When I fold "Technical" and drag its handle above "Functional"
-  await page.getByRole('button', { name: 'Fold group Technical' }).click();
-  await drag(page, page.getByRole('button', { name: 'Move group Technical', exact: true }), page.getByRole('button', { name: 'Move group Functional', exact: true }));
+  await ready.getByRole('button', { name: 'Fold group Technical' }).click();
+  await drag(page, ready.getByRole('button', { name: 'Move group Technical', exact: true }), ready.getByRole('button', { name: 'Move group Functional', exact: true }));
   // Then "Technical" is first, and the order is the same after a reload
   await expect(names.first()).toHaveValue('Technical');
   await page.reload();
-  await expect(page.getByRole('textbox', { name: /^Name of group / }).first()).toHaveValue('Technical');
+  await expect(page.getByRole('region', { name: 'Definition of Ready' }).getByRole('textbox', { name: /^Name of group / }).first()).toHaveValue('Technical');
   // And the items travelled with their blocks
   await expect(page.getByRole('textbox', { name: 'Text of item Dependencies are clarified' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Remove item Has a description' })).toBeVisible();
 });
 
 test('AC1.1 adds a group and an item directly in the list and takes a check from the library, also after a reload', async ({ page }) => {
-  await open(page, '#/settings/definitions');
+  await switchOn(page, '#/settings/definitions');
+  const ready = page.getByRole('region', { name: 'Definition of Ready' });
   // When I add the group "Security" with Enter and an item into it, and take "Must be attached to an epic" from the library
-  await page.getByRole('textbox', { name: 'New group' }).fill('Security');
+  await ready.getByRole('textbox', { name: 'New group' }).fill('Security');
   await page.keyboard.press('Enter');
-  await page.getByRole('textbox', { name: 'New item in group Security' }).fill('Threats are reviewed');
+  await ready.getByRole('textbox', { name: 'New item in group Security' }).fill('Threats are reviewed');
   await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: 'Add a check from the library to group Security' }).click();
+  await ready.getByRole('button', { name: 'Add a check from the library to group Security' }).click();
   await page.getByRole('option', { name: /Must be attached to an epic/ }).click();
   // Then the block holds both, and the library shows the check as already in the list
   await expect(page.getByRole('textbox', { name: 'Text of item Threats are reviewed' })).toBeVisible();
@@ -111,10 +113,13 @@ test('AC4.2 resolves the open items in the dialog, moves the card and keeps the 
   await switchOn(page);
   await drag(page, story(page, 'S-6'), column(page, 'In progress').locator('.column__list'));
   const question = ask(page);
-  // When I check one item, set the two others to not relevant and press "Move"
-  await question.getByRole('checkbox', { name: /Dependencies are clarified/ }).check();
-  await question.getByRole('button', { name: 'Set “Design is available” to not relevant' }).click();
-  await question.getByRole('button', { name: 'Set “Texts are agreed” to not relevant' }).click();
+  // When I mark one item done, ignore the two others (two clicks each) and press "Move"
+  await question.getByRole('checkbox', { name: /Dependencies are clarified/ }).click();
+  for (const name of [/Design is available/, /Texts are agreed/]) {
+    // not set → done → ignored
+    await question.getByRole('checkbox', { name }).click();
+    await question.getByRole('checkbox', { name }).click();
+  }
   await question.getByRole('button', { name: 'Move', exact: true }).click();
   // Then S-6 is in "In progress", without a mark in the backlog, also after a reload
   await expect(column(page, 'In progress').getByRole('group', { name: /^S-6: / })).toBeVisible();

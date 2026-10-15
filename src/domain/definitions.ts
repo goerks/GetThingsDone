@@ -331,6 +331,71 @@ export function stepRow(list: DefinitionList, id: string, direction: -1 | 1): De
   return rebuild(list, next);
 }
 
+// ----- example lists -----
+
+/**
+ * The example lists the editor offers for an empty list, and the demo data uses (#26). The texts are data of the team, not
+ * interface texts, so they are not translated.
+ */
+const EXAMPLES: Definitions = {
+  ready: {
+    enforce: true,
+    groups: [
+      {
+        id: 'group-ready-functional',
+        name: 'Functional',
+        items: [
+          { id: 'def-ready-description', text: '', rule: 'hasDescription', mayBeIrrelevant: false },
+          { id: 'def-ready-criteria', text: '', rule: 'hasCriteria', mayBeIrrelevant: false }
+        ]
+      },
+      {
+        id: 'group-ready-technical',
+        name: 'Technical',
+        items: [{ id: 'def-ready-dependencies', text: 'Dependencies are clarified', rule: null, mayBeIrrelevant: true }]
+      },
+      {
+        id: 'group-ready-design',
+        name: 'Design',
+        items: [
+          { id: 'def-ready-design', text: 'Design is available', rule: null, mayBeIrrelevant: true },
+          { id: 'def-ready-texts', text: 'Texts are agreed', rule: null, mayBeIrrelevant: true }
+        ]
+      }
+    ]
+  },
+  done: {
+    enforce: true,
+    groups: [
+      {
+        id: 'group-done-quality',
+        name: 'Quality',
+        items: [
+          { id: 'def-done-accepted', text: '', rule: 'allCriteriaAccepted', mayBeIrrelevant: false },
+          { id: 'def-done-review', text: 'Code is reviewed', rule: null, mayBeIrrelevant: false }
+        ]
+      },
+      {
+        id: 'group-done-docs',
+        name: 'Documentation',
+        items: [{ id: 'def-done-docs', text: 'Documentation is updated', rule: null, mayBeIrrelevant: true }]
+      }
+    ]
+  }
+};
+
+/** The example list of a kind, switched on, with fresh ids so it can be added to data that has one already. */
+export function exampleList(kind: DefinitionKind, newId: () => string): DefinitionList {
+  const source = EXAMPLES[kind];
+  return { enforce: true, groups: source.groups.map((group) => ({ ...group, id: newId(), items: group.items.map((item) => ({ ...item, id: newId() })) })) };
+}
+
+/** The demo lists: the example lists with their fixed ids, switched off like every list. */
+export const DEMO_DEFINITIONS: Definitions = {
+  ready: { ...EXAMPLES.ready, enforce: false },
+  done: { ...EXAMPLES.done, enforce: false }
+};
+
 // ----- stored data -----
 
 const isRule = (value: unknown): value is DefinitionRule => DEFINITION_RULES.includes(value as DefinitionRule);

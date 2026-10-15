@@ -7,7 +7,12 @@ import type { Criterion } from './types';
  * The story names are those of the demo data. The demo lists of Ready and Done are switched on, so a change of status asks
  * for them; test case AC1.5 shows how to switch them off (Einstellungen › Definitionen).
  */
-export const PACKAGE_26: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
+export const PACKAGE_26: {
+  issue: number;
+  pullRequest: number;
+  title: string;
+  criteria: Criterion[];
+} = {
   issue: 26,
   pullRequest: 46,
   title: 'Definition of Ready und Done',
@@ -22,9 +27,9 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           title: 'Gruppe und Punkt direkt in der Liste anlegen',
           link: '#/settings/definitions',
           target: '.definition-blocks',
-          given: 'Einstellungen › Definitionen, Reiter „Definition of Ready“ zeigt die Beispielliste mit 5 Punkten.',
+          given: 'Einstellungen › Definitionen, Karte „Definition of Ready“ ist eingeschaltet und zeigt die Beispielliste mit 5 Punkten.',
           when: 'Ich schreibe unter den Blöcken „Security“ in die Zeile „New group“ und drücke Enter. Im neuen Block schreibe ich „Threats are reviewed“ in die Zeile „New item“ und drücke Enter.',
-          then: 'Block und Punkt stehen in der Liste, auch nach dem Neuladen. Der Reiter zeigt „· 6“.',
+          then: 'Block und Punkt stehen in der Liste, auch nach dem Neuladen. Die Karte zeigt „· 6“.',
           preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC1.1 adds a group and a manual item directly in the list with Enter',
@@ -39,7 +44,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           title: 'Automatischen Punkt aus der Bibliothek wählen',
           link: '#/settings/definitions',
           target: '.definition-block__add',
-          given: 'Reiter „Definition of Done“, Block „Quality“.',
+          given: 'Karte „Definition of Done“, Block „Quality“.',
           when: 'Ich öffne „From library“, wähle mit den Pfeiltasten „Must be estimated“ und drücke Enter. Die Bibliothek zeigt auch „Must be attached to an epic“.',
           then: 'Der Punkt steht im Block mit dem Hinweis „automatic“ und ohne Textfeld. In der Bibliothek steht er danach als „already in this list“ und lässt sich nicht nochmals wählen.',
           preset: 'definitionsOn',
@@ -89,11 +94,33 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           then: 'Ausgeschaltet wird ohne Rückfrage verschoben, Stories zeigen die Liste nicht und nichts ist markiert. Eingeschaltet blockiert die App und fragt. Der Hinweis „The list is off…“ steht bei ausgeschalteten Listen in den Einstellungen.',
           preset: 'definitionsOff',
           tests: [
-            'src/Definitions.test.tsx › AC1.5 both lists are off in the demo data and say so',
+            'src/Definitions.test.tsx › AC1.5 both lists are off in the demo data and say so, with nothing of their content shown',
             'src/Definitions.test.tsx › AC1.5 a list is switched on and off with its own switch',
             'src/Definitions.test.tsx › AC1.5 a list that is switched off asks nothing',
             'e2e/definitions.spec.ts › AC1.5 both lists are off at first and nothing is asked; the switch in the settings turns the gate on'
           ]
+        },
+        {
+          id: 'AC1.6',
+          title: 'Leere Liste: Beispielliste einfügen oder leer beginnen',
+          link: '#/settings/definitions',
+          target: '.definitions-settings__panel',
+          given: 'Beide Listen sind leer und ausgeschaltet.',
+          when: 'Ich klicke bei „Definition of Ready“ auf „Insert example list“ und bei „Definition of Done“ auf „Start empty“.',
+          then: 'Ready ist eingeschaltet und zeigt die Beispielgruppen; Done ist eingeschaltet und leer. Nach dem Neuladen bleibt beides so.',
+          preset: 'definitionsEmpty',
+          tests: ['src/Definitions.test.tsx › AC1.6 an empty list that is off offers the example list or an empty start, and both switch it on']
+        },
+        {
+          id: 'AC1.7',
+          title: 'Eine aktive Liste einklappen',
+          link: '#/settings/definitions',
+          target: '.definitions-settings__panel',
+          given: 'Beide Listen sind eingeschaltet und gefüllt.',
+          when: 'Ich klappe die Karte „Definition of Ready“ ein und wieder aus.',
+          then: 'Eingeklappt stehen nur die Überschrift und eine Zusammenfassung wie „3 groups · 5 items“ da. Ausgeklappt ist alles wieder da.',
+          preset: 'definitionsOn',
+          tests: ['src/Definitions.test.tsx › AC1.7 an active list folds to a summary and unfolds again; the settings keep what it holds']
         }
       ]
     },
@@ -108,11 +135,11 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           link: '#/board',
           target: '[data-story-id="story-6"]',
           given: 'Story „S-6“ ist offen, Punkt „Design is available“ (darf nicht relevant sein) ist offen.',
-          when: 'Ich hake ihn ab, setze ihn auf „Not relevant“ und mache ihn wieder relevant.',
-          then: 'Erst abgehakt, dann ein Strich und durchgestrichener Text, dann wieder offen. Nach dem Neuladen bleibt der letzte Zustand.',
+          when: 'Ich klicke den Punkt dreimal hintereinander an: nicht gesetzt, erledigt, ignoriert, und ein viertes Mal.',
+          then: 'Erst offen, dann abgehakt, dann ein Strich mit durchgestrichenem Text, dann wieder offen. Nach dem Neuladen bleibt der letzte Zustand.',
           preset: 'definitionsOn',
           tests: [
-            'src/Definitions.test.tsx › AC2.1 an item goes from open to checked, to not relevant and back',
+            'src/Definitions.test.tsx › AC2.1 one control goes through the three click states: not set, done, ignored, and back',
             'src/domain/definitions.test.ts › AC2.1 an item is open until it is checked or set to not relevant'
           ]
         },
@@ -122,10 +149,10 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           link: '#/board',
           target: '[data-story-id="story-6"]',
           given: 'Punkt „Code is reviewed“ erlaubt es nicht.',
-          when: 'Ich suche den Knopf „Not relevant“ und drücke die Taste N.',
-          then: 'Es gibt den Knopf bei diesem Punkt nicht; die Taste N tut nichts.',
+          when: 'Ich klicke den Punkt zweimal an und drücke die Taste N.',
+          then: 'Er geht nur zwischen offen und abgehakt hin und her; „ignoriert“ gibt es hier nicht, und die Taste N tut nichts.',
           preset: 'definitionsOn',
-          tests: ['src/Definitions.test.tsx › AC2.2 an item that does not allow "not relevant" has no such button']
+          tests: ['src/Definitions.test.tsx › AC2.2 an item that does not allow "not relevant" only goes between not set and done']
         },
         {
           id: 'AC2.3',
@@ -235,9 +262,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich öffne in einer Karte das Menü „⋯“ und wähle „Hide the definitions“. Dann öffne ich „S-3“ und wähle „Show definitions“.',
           then: 'Nach dem Ausblenden bleibt eine Zeile mit „Show definitions“ und den Zählern (ausgeblendet, nur in diesem Browser). Das gilt auch für andere Stories und nach dem Neuladen, bis ich sie wieder einblende. Das Gate und die Markierungen bleiben unverändert.',
           preset: 'definitionsOn',
-          tests: [
-            'src/Definitions.test.tsx › AC3.4 hides the definitions in the story and shows them again, and remembers the choice in this browser'
-          ]
+          tests: ['src/Definitions.test.tsx › AC3.4 hides the definitions in the story and shows them again, and remembers the choice in this browser']
         },
         {
           id: 'AC3.5',
