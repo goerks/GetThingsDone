@@ -73,6 +73,10 @@ The interactive help (#33) is documentation for users and grows with every featu
 4. Add a component test for new behaviour in `src/Help.test.tsx` and, for a journey across pages, in `e2e/help.spec.ts`.
 5. The steps of the first steps (`TOUR_STEPS` in `src/domain/helpTour.ts`) are the PO's: no step is added or changed without the PO's approval (see `CLAUDE.md`).
 
+## GitHub connection (#30, ADR 0004)
+
+The only feature that reaches out of the app. It is off by default, runs only on a button, and reads only. Rules: the token never enters the snapshot, a database, `localStorage` or the settings (keychain on the desktop, memory of the page in the browser); the domain (`src/domain/github.ts`) decides what a sync changes and is pure, the network is behind `GithubSource`, so tests and the preview use a fake or the simulation; every failure is a `GithubError` with a kind and a translated message (`github.errors.<kind>`) and leaves the local data unchanged. Imported stories keep the address of their issue (`Story.github`), which is also their identity across syncs.
+
 ## Testing
 
 Tests are derived from test cases the PO approves per acceptance criterion (see `CLAUDE.md`, "Test cases"). A test name starts with the ID of its test case (`AC2.1`, or `FR-MAP-02.1` for existing requirements).
@@ -80,7 +84,7 @@ Tests are derived from test cases the PO approves per acceptance criterion (see 
 | Level | Tool | Where |
 |---|---|---|
 | Unit | Vitest | `src/domain/*.test.ts` |
-| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, `src/Help.test.tsx`, with `LocalStorageRepository` as test double |
+| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, `src/Help.test.tsx`, `src/Github.test.tsx`, with `LocalStorageRepository` as test double |
 | Integration (data, Tauri boundary) | – | Planned |
 | End-to-end | Playwright, real Chromium, web build with demo data and a fixed clock; visual checks with `toHaveScreenshot` of new elements (baselines in `e2e/*.spec.ts-snapshots`, Chromium on Linux, tolerance 8 % because CI renders text slightly differently) | `e2e/*.spec.ts`, `npm run test:e2e` (story map since #12, help since #33, usability since #32) |
 | Accessibility (axe) | – | Planned |
@@ -88,4 +92,4 @@ Tests are derived from test cases the PO approves per acceptance criterion (see 
 ## Security
 
 - The Tauri capabilities allow only the SQL commands the app needs.
-- No network access at runtime, no telemetry, no secrets in the repository.
+- No network access at runtime except the GitHub connection when the team switched it on (ADR 0004): read only, token in the keychain or in memory, never stored with the data. No telemetry, no secrets in the repository. The public preview only has a simulated GitHub.

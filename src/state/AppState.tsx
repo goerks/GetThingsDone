@@ -64,7 +64,10 @@ import {
   updateRelease as updateReleaseIn,
   type ReleaseInput
 } from '../domain/releases';
+import { linkedNumbersMissingIn, parseRepo, planSync, type SyncSummary } from '../domain/github';
 import { DEFAULT_SETTINGS } from '../domain/settings';
+import { createGithubSource, createTokenStore, GithubError, type GithubSource, type TokenStore } from '../github';
+import { persistSync } from '../github/persist';
 import {
   DEFAULT_STATUSES,
   addStatus as addStatusIn,
@@ -187,6 +190,14 @@ interface AppApi {
   updateFieldLayout(itemType: ItemType, fieldId: string, patch: LayoutPatch): boolean;
   /** Sets or clears (null) the value of a custom field on a story or an epic. */
   setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): void;
+  /** Where the access token for GitHub is kept (#30): the keychain on the desktop, the memory of the page in the browser. */
+  githubTokens: TokenStore;
+  /** Connects the repository for the sync; an empty text disconnects. False when the text is not `owner/name`. */
+  setGithubRepo(text: string): boolean;
+  /** Asks GitHub whether repository and token work. Resolves with the number of open issues; rejects with a `GithubError`. */
+  testGithub(repoText: string, token: string): Promise<number>;
+  /** Imports the open issues and brings the imported stories up to date (#30). Resolves with what changed; rejects with a `GithubError`. */
+  syncGithub(): Promise<SyncSummary>;
 }
 
 const AppContext = createContext<AppApi | null>(null);
@@ -199,10 +210,14 @@ export function useApp(): AppApi {
 
 interface Props {
   repository: Promise<Repository> | Repository;
+  /** Where GitHub issues come from and where the token is kept; the app's own by default, other ones for tests. */
+  github?: { source: GithubSource; tokens: TokenStore };
   children: ReactNode;
 }
 
-export function AppProvider({ repository, children }: Props) {
+export function AppProvider({ repository, github, children }: Props) {
+  // Kept for the whole life of the provider, so the token in memory survives a re-render.
+  const githubRef = useRef(github ?? { source: createGithubSource(), tokens: createTokenStore() });
   const { t } = useTranslation();
   const toast = useToast();
   const [flashed, setFlashed] = useState<string | null>(null);
@@ -748,6 +763,53 @@ export function AppProvider({ repository, children }: Props) {
         if (storiesRef.current.some((story) => story.id === itemId)) update(setItemValue(storiesRef.current, itemId, fieldId, value));
         else updateEpics(setItemValue(epicsRef.current, itemId, fieldId, value));
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
+      },
+      githubTokens: githubRef.current.tokens,
+      setGithubRepo(text) {
+        const trimmed = text.trim();
+        const parsed = trimmed === '' ? null : parseRepo(trimmed);
+        if (trimmed !== '' && !parsed) return false;
+        const repo = parsed ? `${parsed.owner}/${parsed.name}` : '';
+        if (settingsRef.current.github.repo === repo) return true;
+        // Another repository starts without a last sync; the stories already imported stay as they are.
+        const settings = { ...settingsRef.current, github: { repo, lastSyncAt: null } };
+        updateSettings(settings);
+        persist((repoStore) => repoStore.saveSettings(settings));
+        return true;
+      },
+      async testGithub(repoText, token) {
+        const repo = parseRepo(repoText);
+        if (!repo) throw new GithubError('notFound');
+        return (await githubRef.current.source.openIssues(repo, token)).length;
+      },
+      async syncGithub() {
+        const source = githubRef.current.source;
+        const repo = parseRepo(settingsRef.current.github.repo);
+        const token = await githubRef.current.tokens.get();
+        if (!repo || !token) throw new GithubError('config');
+        const open = await source.openIssues(repo, token);
+        // A story whose issue is no longer in the list of open issues may have been closed: ask GitHub for those.
+        const linked = await Promise.all(linkedNumbersMissingIn(storiesRef.current, repo, open).map((number) => source.issue(repo, token, number)));
+        const issues = [...open, ...linked.flatMap((issue) => (issue ? [issue] : []))];
+        const before = { stories: storiesRef.current, fields: fieldsRef.current.fields };
+        const plan = planSync({
+          stories: before.stories,
+          fields: before.fields,
+          assignments: fieldsRef.current.assignments,
+          statuses: statusesRef.current,
+          repo,
+          issues,
+          newId
+        });
+        update(plan.stories);
+        updateFields(plan.fields, plan.assignments);
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, lastSyncAt: new Date().toISOString() } };
+        updateSettings(settings);
+        persist(async (repoStore) => {
+          await persistSync(repoStore, before, plan);
+          await repoStore.saveSettings(settings);
+        });
+        return plan.summary;
       }
     }),
     [snapshot, loading, error, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, notify, announceMove, flash, toast, t]

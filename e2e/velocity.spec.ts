@@ -297,7 +297,7 @@ test('AC7.1 loads the test data from the acceptance panel and keeps it after the
   await expect(button(page)).toHaveText('Velocity');
   // When I open the acceptance panel and load the test data of the first step (after the question)
   page.once('dialog', (dialog) => void dialog.accept());
-  await page.goto('/?acceptance=1#/board');
+  await page.goto('/?acceptance=1&package=24#/board');
   await page.locator('.acceptance__toggle').click();
   const acceptance = page.getByRole('complementary', { name: 'Abnahme' });
   await expect(acceptance.getByText('Sprint 1 bis 6 abgeschlossen')).toBeVisible();

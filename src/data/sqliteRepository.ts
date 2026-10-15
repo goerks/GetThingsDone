@@ -94,6 +94,8 @@ interface StoryRow {
   sprint_id: string | null;
   release_id: string | null;
   rank: number;
+  github_url: string | null;
+  github_state: string | null;
 }
 
 interface CriterionRow {
@@ -185,7 +187,7 @@ export class SqliteRepository implements Repository {
       'SELECT id, title, description, start_date, end_date FROM releases ORDER BY rowid'
     );
     const storyRows = await this.db.select<StoryRow[]>(
-      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, rank FROM stories ORDER BY rank'
+      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, rank, github_url, github_state FROM stories ORDER BY rank'
     );
     const criterionRows = await this.db.select<CriterionRow[]>(
       'SELECT id, story_id, text, done FROM criteria ORDER BY story_id, position'
@@ -271,7 +273,8 @@ export class SqliteRepository implements Repository {
       releaseId: row.release_id,
       rank: row.rank,
       criteria: criteriaByStory.get(row.id) ?? [],
-      values: valuesByItem.get(row.id) ?? {}
+      values: valuesByItem.get(row.id) ?? {},
+      ...(row.github_url ? { github: { url: row.github_url, state: row.github_state === 'closed' ? ('closed' as const) : ('open' as const) } } : {})
     }));
 
     let { fields, assignments } = await this.loadFields();
@@ -283,7 +286,8 @@ export class SqliteRepository implements Repository {
     const settingRows = await this.db.select<{ key: string; value: string }[]>('SELECT key, value FROM settings');
     const settings = normalizeSettings({
       mapRows: settingRows.find((row) => row.key === 'map_rows')?.value,
-      features: Object.fromEntries(FEATURE_KEYS.map((key) => [key, settingRows.find((row) => row.key === `feature_${key}`)?.value]))
+      features: Object.fromEntries(FEATURE_KEYS.map((key) => [key, settingRows.find((row) => row.key === `feature_${key}`)?.value])),
+      github: { repo: settingRows.find((row) => row.key === 'github_repo')?.value, lastSyncAt: settingRows.find((row) => row.key === 'github_last_sync')?.value }
     });
     const statusRows = await this.db.select<{ id: string; label: string | null; category: string }[]>(
       'SELECT id, label, category FROM status_values ORDER BY position'
@@ -385,8 +389,8 @@ export class SqliteRepository implements Repository {
 
   async addStory(story: Story): Promise<void> {
     await this.db.execute(
-      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, rank) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank]
+      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, rank, github_url, github_state) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, story.github?.url ?? null, story.github?.state ?? null]
     );
     for (const [position, criterion] of story.criteria.entries()) {
       await this.addCriterion(story.id, criterion, position);
@@ -398,8 +402,8 @@ export class SqliteRepository implements Repository {
 
   async updateStory(story: Story): Promise<void> {
     await this.db.execute(
-      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, rank = $8 WHERE id = $9',
-      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, story.id]
+      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, rank = $8, github_url = $9, github_state = $10 WHERE id = $11',
+      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, story.github?.url ?? null, story.github?.state ?? null, story.id]
     );
   }
 
@@ -509,6 +513,9 @@ export class SqliteRepository implements Repository {
     const upsert = 'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = excluded.value';
     await this.db.execute(upsert, ['map_rows', settings.mapRows]);
     for (const key of FEATURE_KEYS) await this.db.execute(upsert, [`feature_${key}`, settings.features[key] ? '1' : '0']);
+    await this.db.execute(upsert, ['github_repo', settings.github.repo]);
+    if (settings.github.lastSyncAt) await this.db.execute(upsert, ['github_last_sync', settings.github.lastSyncAt]);
+    else await this.db.execute('DELETE FROM settings WHERE key = $1', ['github_last_sync']);
   }
 
   async addRelease(release: Release): Promise<void> {

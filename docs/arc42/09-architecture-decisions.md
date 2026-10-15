@@ -7,3 +7,4 @@ Decisions are recorded as ADRs in [`docs/adr/`](../adr). An ADR is accepted only
 | [0001](../adr/0001-initial-technology-decisions.md) | Initial technology decisions (Tauri, SQLite, repository interface, Apache 2.0, GitHub) | Proposed |
 | [0002](../adr/0002-visual-direction-focus.md) | Visual direction "Focus" with design tokens and two themes | Proposed |
 | [0003](../adr/0003-configurable-fields.md) | Configurable fields data model (field library, assignments, typed value table) | Accepted |
+| [0004](../adr/0004-github-issues-connector.md) | GitHub Issues connector: first network access, token storage, sync rules | Proposed |

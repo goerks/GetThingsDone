@@ -86,3 +86,13 @@ Completing a sprint (#17) stores its result in the sprint (`result`: planned at 
 3. `reorderStatuses` on the state calls `update(stories, statuses)`, which compares the done check before and after and appends `done` or `reopened` entries for stories in releases, then saves the status values (`saveStatuses`).
 4. Removing a status value with stories moves them to the chosen target (`removeStatus`); the state saves the changed stories first (`savePositions`) and then the status values, so no story is left with a status that is gone.
 
+
+## Synchronise with GitHub (#30)
+
+1. The button "Synchronise" in the head of the backlog (`GithubSync`) calls `syncGithub` of the app state. Without a repository or token it ends with a `config` error.
+2. The state asks the `GithubSource` for the open issues of the repository (`openIssues`, paged, pull requests left out), and for each imported story whose issue is not in that list and was not known as closed (`linkedNumbersMissingIn`) for that one issue (`issue`), so a closed issue is noticed.
+3. `planSync` (pure, `src/domain/github.ts`) turns the issues and the current stories into the new stories, the labels field with its options, and a summary: new stories, stories whose issue was closed, other changes. Issues are matched to stories by their address (`Story.github.url`); criteria by their text; a closed issue puts the story into the first "done" status, a reopened one back to the start status.
+4. The state applies the stories like any other change (`update`, so the history of releases follows), stores the time of the sync in the settings and writes the changes through the repository (`persistSync`: labels field first, then new stories, then changed stories with their criteria and values).
+5. `GithubSync` shows the summary in a dialog. Any `GithubError` (`network`, `auth`, `notFound`, `rateLimit`, `config`, `other`) becomes a message in the same dialog; nothing was changed in that case.
+
+The token comes from the `TokenStore`: the keychain through the Tauri commands on the desktop, memory in the browser. In the browser build and the preview the source is the simulation (`demoSource`).

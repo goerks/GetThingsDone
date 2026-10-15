@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub-Sync: Entwürfe für Aktivierung und Konfiguration</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea; --warn: #8a5a00; --warn-soft: #fff4d6;
+  --font-sans: system-ui, "Segoe UI", sans-serif; --font-mono: ui-monospace, Menlo, Consolas, monospace; --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a; --warn: #f0c060; --warn-soft: #33290f; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 40px 20px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; }
+h1 { font-size: 28px; } h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); } h3 { font-size: 20px; }
+p { margin: 0; max-width: 70ch; } ul { margin: 0; padding-left: 20px; }
+.muted { color: var(--muted); }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.variant { display: grid; gap: 16px; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; font-size: 14px; display: grid; gap: 4px; }
+.box b { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+.app { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); }
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: center; gap: 10px; }
+.ph b { font-size: 17px; }
+.ph .push { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--off { color: var(--muted); }
+.settings { display: grid; grid-template-columns: 170px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.side .new { color: var(--text); }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+.panel h4 { margin: 0; font-size: 15px; }
+.feat { display: grid; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.feat:last-child { border-bottom: 0; padding-bottom: 0; }
+.sw { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.sw i { width: 30px; height: 16px; border-radius: 9px; background: var(--border); position: relative; display: inline-block; }
+.sw i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); }
+.sw.on i { background: var(--accent); } .sw.on i::after { left: 16px; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; font-weight: 400; color: var(--muted); }
+.badge--ok { border-color: transparent; background: var(--ok-soft); color: var(--ok); }
+.badge--demo { border-color: transparent; background: var(--warn-soft); color: var(--warn); }
+.form { display: grid; gap: 10px; }
+.f { display: grid; gap: 3px; }
+.f label { font-size: 12px; color: var(--muted); font-weight: 600; }
+.in { height: 30px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; background: var(--bg); }
+.in--tok { font-family: var(--font-mono); letter-spacing: 2px; }
+.chk { display: flex; gap: 8px; align-items: center; }
+.chk i { width: 14px; height: 14px; border: 1px solid var(--accent); border-radius: 3px; background: var(--accent); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.note { font-size: 12px; color: var(--muted); }
+.stat { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+.rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.row { display: flex; gap: 10px; padding: 7px 10px; border-bottom: 1px solid var(--border); align-items: center; }
+.row:last-child { border-bottom: 0; }
+.row small { color: var(--muted); }
+.gh { font-family: var(--font-mono); font-size: 11px; color: var(--accent-soft-ink); background: var(--accent-soft); padding: 0 6px; border-radius: 8px; }
+.scrim { position: absolute; inset: 46px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 560px; max-width: 94%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 12px; z-index: 2; }
+.dialog h4 { margin: 0; font-size: 16px; display: flex; }
+.dialog h4 .x { margin-left: auto; color: var(--muted); font-weight: 400; }
+.sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.sum div { background: var(--column); border-radius: 6px; padding: 8px 10px; display: grid; }
+.sum b { font-size: 18px; }
+.steps { display: flex; gap: 6px; font-size: 12px; color: var(--muted); }
+.steps span { padding: 2px 10px; border-radius: 999px; background: var(--pill); }
+.steps .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.warn { background: var(--warn-soft); color: var(--warn); border-radius: 6px; padding: 8px 10px; }
+.err { background: var(--bad-soft); color: var(--bad); border-radius: 6px; padding: 8px 10px; }
+.callout { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; }
+.app--dlg { min-height: 560px; }
+.ghost { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; min-height: 230px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header style="display:grid;gap:10px">
+  <h1>GitHub-Sync: Wo wird er aktiviert und konfiguriert?</h1>
+  <p class="muted">Issue #30. Drei Entwürfe. Alle drei folgen den gleichen Regeln: Die Funktion ist standardmässig aus (Einstellungen → Funktionen), die App läuft ohne Netz weiter, das Token wird nie angezeigt, und in der öffentlichen Vorschau gibt es nur eine Demo-Verbindung ohne echtes Token. Die Texte im Mockup sind deutsch; die App liefert DE, EN, FR und IT.</p>
+</header>
+
+<!-- ================= A ================= -->
+<section class="variant">
+  <div class="head"><h3>A · Alles in Einstellungen → Funktionen</h3><span class="tag">einfachster Weg</span></div>
+  <p>Der Schalter „GitHub-Anbindung“ steht in der Liste der Funktionen. Ist er an, klappt darunter das Formular auf. Importieren und Synchronisieren geschieht ebenfalls dort.</p>
+  <div id="va" class="app">
+    <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div>
+      <div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
+      <div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+    <div class="page">
+      <div class="ph"><b>Einstellungen</b></div>
+      <div class="settings">
+        <div class="side"><span>Felder</span><span>Statuswerte</span><span>Story Map</span><span class="on">Funktionen</span></div>
+        <div class="panel">
+          <h4>Funktionen</h4>
+          <div class="feat"><div class="sw"><i></i>Releases <span class="badge">aus</span></div></div>
+          <div class="feat">
+            <div class="sw on"><i></i>GitHub-Anbindung <span class="badge badge--ok">an</span></div>
+            <p class="note">Importiert Issues eines Repositories als Stories. Nur Lesen, nur von Hand.</p>
+            <div class="form">
+              <div class="f"><label>Repository</label><div class="in">goerks/GetThingsDone</div></div>
+              <div class="f"><label>Zugriffstoken (nur Lesen)</label><div class="in in--tok">••••••••••••••••</div></div>
+              <div class="actions"><span class="btn">Verbindung testen</span><span class="btn btn--p">Importieren</span><span class="btn">Synchronisieren</span><span class="stat">Letzter Sync: heute 09:41</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="proscons">
+    <div class="box"><b>Dafür</b><ul><li>Nutzt das vorhandene Muster der Funktionen (wie Releases)</li><li>Nur ein Ort, kaum neue Oberfläche</li></ul></div>
+    <div class="box"><b>Dagegen</b><ul><li>Das Synchronisieren steckt tief in den Einstellungen</li><li>Die Funktionenseite wird mit jeder Funktion länger</li></ul></div>
+  </div>
+</section>
+
+<!-- ================= B ================= -->
+<section class="variant">
+  <div class="head"><h3>B · Schalter in Funktionen, eigener Abschnitt „GitHub“, Sync im Backlog</h3><span class="tag tag--rec">Empfehlung</span></div>
+  <p>Der Schalter bleibt in „Funktionen“ (wie Releases). Sobald er an ist, erscheint in den Einstellungen der Abschnitt „GitHub“ mit der Verbindung. Der Alltag (Importieren, Synchronisieren, Ergebnis) findet im Backlog statt, dort, wo die Stories liegen.</p>
+
+  <h2>B1 · Einstellungen → GitHub (Verbindung einrichten)</h2>
+  <div id="vb1" class="app">
+    <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div>
+      <div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
+      <div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+    <div class="page">
+      <div class="ph"><b>Einstellungen</b></div>
+      <div class="settings">
+        <div class="side"><span>Felder</span><span>Statuswerte</span><span>Story Map</span><span>Funktionen</span><span class="on">GitHub</span></div>
+        <div class="panel">
+          <h4>GitHub <span class="badge badge--ok">verbunden</span></h4>
+          <div class="form">
+            <div class="f"><label>Repository (owner/name)</label><div class="in">goerks/GetThingsDone</div></div>
+            <div class="f"><label>Zugriffstoken</label><div class="in in--tok">••••••••••••••••</div>
+              <span class="note">Fine-grained Token, nur Lesezugriff auf Issues dieses Repositories. In der Desktop-App im Schlüsselbund von Windows gespeichert, im Browser nur bis zum Schliessen des Tabs.</span></div>
+            <div class="actions"><span class="btn">Verbindung testen</span><span class="btn">Trennen</span><span class="stat">✓ Verbindung ok · 42 offene Issues</span></div>
+          </div>
+          <p class="note">Importieren und Synchronisieren findest du im Backlog.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>B2 · Backlog: Sync-Knopf und Ergebnis</h2>
+  <div id="vb2" class="app app--dlg">
+    <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div>
+      <div class="nav"><span>Board</span><span class="on">Backlog</span><span>Story Map</span><span>Epics</span></div>
+      <div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+    <div class="page">
+      <div class="ph"><b>Backlog</b><span class="stat push">GitHub · letzter Sync heute 09:41</span><span class="btn btn--p">⟳ Synchronisieren</span><span class="btn">Neue Story</span></div>
+      <div class="rows">
+        <div class="row"><b>S-12</b> Login-Seite <span class="gh">#31</span><small>aktualisiert</small></div>
+        <div class="row"><b>S-13</b> Export als CSV <span class="gh">#35</span></div>
+        <div class="row"><b>S-14</b> Dunkles Design <span class="gh">#38</span></div>
+        <div class="row"><b>S-15</b> Eigene Story ohne GitHub</div>
+      </div>
+    </div>
+    <div class="scrim"></div>
+    <div class="dialog">
+      <h4>Synchronisiert mit GitHub <span class="x">✕</span></h4>
+      <div class="sum"><div><b>3</b><span>neu importiert</span></div><div><b>2</b><span>aktualisiert</span></div><div><b>1</b><span>erledigt (auf GitHub geschlossen)</span></div></div>
+      <div class="rows">
+        <div class="row"><span class="gh">#31</span> Titel geändert: „Login“ → „Login-Seite“</div>
+        <div class="row"><span class="gh">#33</span> Kriterien: 2 neu, 1 entfernt</div>
+        <div class="row"><span class="gh">#29</span> Geschlossen → Status „Erledigt“</div>
+      </div>
+      <p class="note">GitHub gewinnt: lokale Änderungen an Titel, Beschreibung, Labels und Kriterien wurden überschrieben. Sprint, Punkte und Reihenfolge bleiben unverändert.</p>
+      <div class="actions"><span class="btn btn--p">Schliessen</span></div>
+    </div>
+  </div>
+  <div class="proscons">
+    <div class="box"><b>Dafür</b><ul><li>Einrichten einmalig in den Einstellungen, Alltag dort, wo die Stories sind</li><li>Das Backlog zeigt, was von GitHub kommt (#-Nummer)</li><li>Der Abschnitt „GitHub“ erscheint nur, wenn die Funktion an ist</li></ul></div>
+    <div class="box"><b>Dagegen</b><ul><li>Zwei Orte (Einstellungen und Backlog)</li><li>Neuer Abschnitt in den Einstellungen und neuer Knopf im Backlog</li></ul></div>
+  </div>
+</section>
+
+<!-- ================= C ================= -->
+<section class="variant">
+  <div class="head"><h3>C · Assistent im Backlog</h3><span class="tag">führt Schritt für Schritt</span></div>
+  <p>In „Funktionen“ gibt es nur den Schalter. Danach zeigt das Backlog „Mit GitHub verbinden“; ein Assistent fragt Repository, Token und Optionen in drei Schritten ab, testet und importiert gleich. Später ist dort derselbe Knopf „Synchronisieren“; „Einstellungen ändern“ öffnet den Assistenten erneut.</p>
+  <div id="vc" class="app app--dlg">
+    <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div>
+      <div class="nav"><span>Board</span><span class="on">Backlog</span><span>Story Map</span><span>Epics</span></div>
+      <div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+    <div class="page">
+      <div class="ph"><b>Backlog</b><span class="btn push">Mit GitHub verbinden</span><span class="btn">Neue Story</span></div>
+      <div class="rows"><div class="row">S-12 Login-Seite</div><div class="row">S-13 Export als CSV</div></div>
+    </div>
+    <div class="scrim"></div>
+    <div class="dialog">
+      <h4>Mit GitHub verbinden <span class="x">✕</span></h4>
+      <div class="steps"><span>1 Repository</span><span class="on">2 Zugriff</span><span>3 Optionen und Import</span></div>
+      <div class="f"><label>Zugriffstoken</label><div class="in in--tok">••••••••••••</div>
+        <span class="note">Nur Lesezugriff auf Issues genügt. Das Token wird nicht angezeigt und nicht in der Vorschau gespeichert.</span></div>
+      <div class="err">Token wurde von GitHub abgelehnt (401). Prüfe Token und Repository. Deine lokalen Daten sind unverändert.</div>
+      <div class="actions"><span class="btn">Zurück</span><span class="btn btn--p">Verbindung testen</span></div>
+    </div>
+  </div>
+  <div class="proscons">
+    <div class="box"><b>Dafür</b><ul><li>Gut für den Erststart, Fehler werden direkt im Schritt erklärt</li><li>Einstellungen bleiben schlank</li></ul></div>
+    <div class="box"><b>Dagegen</b><ul><li>Konfiguration steckt in einem Dialog, nicht auffindbar unter „Einstellungen“</li><li>Mehr Oberfläche zu bauen und zu testen</li></ul></div>
+  </div>
+</section>
+
+<section class="variant">
+  <h3>Zustände, die in jeder Variante vorkommen</h3>
+  <div class="proscons">
+    <div class="box"><b>Funktion aus</b><span>Kein Abschnitt „GitHub“, kein Sync-Knopf, keine #-Nummern sichtbar. Importierte Daten bleiben erhalten.</span></div>
+    <div class="box"><b>Ohne Netz</b><span class="err">Keine Verbindung zu GitHub. Die App arbeitet mit den lokalen Daten weiter.</span></div>
+    <div class="box"><b>Öffentliche Vorschau</b><span><span class="badge badge--demo">Demo</span> Simulierte GitHub-Antworten, kein echtes Token möglich.</span></div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
