@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { selectPackage } from './packages';
+import { applyPreset, PRESETS, takeReopen } from './presets';
 import type { TestCase } from './types';
 
 /*
@@ -134,7 +135,7 @@ function ClipboardIcon() {
 const RING = 2 * Math.PI * 35;
 
 export function AcceptancePanel() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(takeReopen);
   const [notes, setNotes] = useState<Notes>(load);
   const [stepId, setStepId] = useState(() => loadStep(load()));
   // By default only the test cases the product owner has to check; the others are covered by automated tests.
@@ -203,6 +204,12 @@ export function AcceptancePanel() {
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  /** Replaces the data of this browser with test data, after asking; the page reloads. */
+  const loadPreset = (id: string): void => {
+    const title = PRESETS.find((item) => item.id === id)?.title ?? id;
+    if (window.confirm(`Testdaten „${title}“ laden? Deine Daten in diesem Browser werden dabei ersetzt.`)) void applyPreset(id);
   };
 
   const accepted = (): void => {
@@ -283,6 +290,14 @@ export function AcceptancePanel() {
                   </p>
                 )}
               </div>
+              {current.preset && (
+                <div className="acceptance__preset">
+                  <strong>Testdaten:</strong> {PRESETS.find((item) => item.id === current.preset)?.description}
+                  <button type="button" className="btn btn--small" onClick={() => loadPreset(current.preset as string)}>
+                    Diese Testdaten laden
+                  </button>
+                </div>
+              )}
               <button type="button" className="btn btn--primary acceptance__go" onClick={() => go(step)}>
                 Zur Seite und markieren
               </button>
@@ -324,6 +339,23 @@ export function AcceptancePanel() {
               <button type="button" className="btn btn--small" onClick={() => window.confirm('Alle Markierungen und Kommentare löschen?') && setNotes({})}>
                 Zurücksetzen
               </button>
+              <label className="acceptance__presets">
+                Testdaten
+                <select
+                  className="select"
+                  value=""
+                  onChange={(event) => {
+                    if (event.target.value) loadPreset(event.target.value);
+                  }}
+                >
+                  <option value="">wählen …</option>
+                  {PRESETS.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
               {copied ? <span className="acceptance__copied">Kopiert, jetzt im Chat einfügen</span> : <span className="acceptance__hint">Kopiert den Stand als Text für den Chat mit Claude.</span>}
             </div>
 

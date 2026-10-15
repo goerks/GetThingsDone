@@ -3,7 +3,7 @@ import { DEFAULT_SETTINGS } from '../domain/settings';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays } from '../domain/sprints';
 import { DEFAULT_STATUSES } from '../domain/statuses';
-import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Sprint, Story } from '../domain/types';
+import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
 
 /** Demo custom fields, so the preview shows what teams can add. */
 const DEMO_FIELDS: FieldDefinition[] = [
@@ -110,50 +110,8 @@ function demoEvents(today: string): ReleaseEvent[] {
 }
 
 /**
- * Five completed sprints before Sprint 1, so the velocity (#24) has something to show. Their names end in a letter,
- * so the number of the next new sprint still follows "Sprint 1" and "Sprint 2". Planned and done points per sprint.
- */
-const DEMO_HISTORY: Array<{ name: string; planned: number; done: number; added: { stories: number; points: number } }> = [
-  { name: 'Pre-sprint A', planned: 18, done: 14, added: { stories: 0, points: 0 } },
-  { name: 'Pre-sprint B', planned: 22, done: 19, added: { stories: 0, points: 0 } },
-  { name: 'Pre-sprint C', planned: 25, done: 17, added: { stories: 0, points: 0 } },
-  { name: 'Pre-sprint D', planned: 20, done: 22, added: { stories: 2, points: 5 } },
-  { name: 'Pre-sprint E', planned: 24, done: 20, added: { stories: 0, points: 0 } }
-];
-
-function demoHistory(firstStart: string): Sprint[] {
-  return DEMO_HISTORY.map((item, index) => {
-    const startDate = addDays(firstStart, -14 * (DEMO_HISTORY.length - index));
-    const endDate = addDays(startDate, 13);
-    return {
-      id: `sprint-past-${index + 1}`,
-      name: item.name,
-      startDate,
-      endDate,
-      state: 'completed',
-      startItems: [],
-      result: {
-        completedOn: endDate,
-        plannedPoints: item.planned,
-        plannedStories: 4,
-        donePoints: item.done,
-        doneStories: 4,
-        notDonePoints: Math.max(0, item.planned + item.added.points - item.done),
-        notDoneStories: 0,
-        addedStories: item.added.stories,
-        addedPoints: item.added.points,
-        removedStories: 0,
-        removedPoints: 0,
-        changedPoints: 0
-      }
-    };
-  });
-}
-
-/**
  * Demo data shown on the first start so the board is not empty.
  * Sprint 1 runs around `today`, Sprint 2 is planned after it, so the board and the story map always have content.
- * Five completed sprints come before them (#24).
  */
 export function seedSnapshot(today: string): Snapshot {
   const sprint1Start = addDays(today, -7);
@@ -182,7 +140,6 @@ export function seedSnapshot(today: string): Snapshot {
       { id: 'epic-accessibility', name: 'Accessibility', colorKey: 'violet', position: 3, values: {} }
     ],
     sprints: [
-      ...demoHistory(sprint1Start),
       {
         id: 'sprint-1',
         name: 'Sprint 1',

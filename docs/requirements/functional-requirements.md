@@ -423,7 +423,7 @@ As a team, we want to see how many points we planned and completed per sprint, s
 - Without a completed sprint the window explains why there is no chart.
 - Colour never carries meaning alone (numbers, legend, dashed labelled line); the chart has a description and the table a name for screen readers.
 - Button and labels are hidden while the built-in field "points" is hidden (FR-FIELD-10).
-- The demo data has five completed sprints ("Pre-sprint A" to "E") before the running "Sprint 1", so the velocity can be tried in the preview (FR-DATA-02). Their names end in a letter, so the next new sprint is still numbered after "Sprint 2".
+- The demo data has no completed sprint. To try the velocity in the preview, the acceptance panel loads test data (`src/acceptance/presets.ts`: 6, 10, 2, 1 or no completed sprints, or no running sprint) for the test case at hand, or the PO picks it under "Testdaten". It replaces the data in that browser, after a question. The test data is for the acceptance only and not part of the product.
 - Texts in DE, EN, FR and IT; keyboard operable; help topic "Velocity" (at the board).
 
 Source: Issue #24 · Status: Implemented · Verified by: velocity.test AC1.1–AC1.3, AC2.1–AC2.3, Velocity.test AC1.1–AC1.7, AC2.1–AC2.3, AC3.1–AC3.6, AC4.1, AC5.1–AC5.3, AC6.1–AC6.3, AC7.1, e2e `velocity.spec.ts` (all but AC5.4, which is checked by hand: greyscale look)
