@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
+import { categoryOf } from '../domain/statuses';
 import { evaluate, inUse, notDone, notReady, type GroupResult, type ItemState, type ListResult } from '../domain/definitions';
 import type { DefinitionItem, DefinitionKind, Story } from '../domain/types';
 import { useApp } from '../state/AppState';
@@ -76,7 +77,7 @@ export function ItemRow({ story, item, state }: { story: Story; item: Definition
   );
 }
 
-function GroupView({ story, result, collapsible }: { story: Story; result: GroupResult; collapsible: boolean }) {
+function GroupView({ story, result, collapsible, onlyOpen }: { story: Story; result: GroupResult; collapsible: boolean; onlyOpen: boolean }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const id = useId();
@@ -100,78 +101,219 @@ function GroupView({ story, result, collapsible }: { story: Story; result: Group
       </div>
       {open && (
         <ul id={id} className="definition-items">
-          {result.items.map((entry) => (
-            <ItemRow key={entry.item.id} story={story} item={entry.item} state={entry.state} />
-          ))}
+          {result.items
+            .filter((entry) => !onlyOpen || entry.state === 'open')
+            .map((entry) => (
+              <ItemRow key={entry.item.id} story={story} item={entry.item} state={entry.state} />
+            ))}
         </ul>
       )}
     </div>
   );
 }
 
-/** The groups of a list with their items for one story. */
-export function ListView({ story, result, collapsible = true }: { story: Story; result: ListResult; collapsible?: boolean }) {
+/** The groups of a list with their items for one story. With `onlyOpen`, items that are met are left out. */
+export function ListView({ story, result, collapsible = true, onlyOpen = false }: { story: Story; result: ListResult; collapsible?: boolean; onlyOpen?: boolean }) {
+  const { t } = useTranslation();
+  const groups = onlyOpen ? result.groups.filter((group) => group.items.some((entry) => entry.state === 'open')) : result.groups;
+  if (onlyOpen && groups.length === 0) return <p className="muted definition-allmet">{t('definitions.allMet')}</p>;
   return (
     <div className="definition-list">
-      {result.groups.map((group) => (
-        <GroupView key={group.group.id} story={story} result={group} collapsible={collapsible} />
+      {groups.map((group) => (
+        <GroupView key={group.group.id} story={story} result={group} collapsible={collapsible} onlyOpen={onlyOpen} />
       ))}
     </div>
   );
 }
 
-/** The panel in the story dialog (#26): one tab per list that has items, the groups with their checkboxes below. */
+const HIDDEN_KEY = 'getitdone.definitions.hidden';
+const ONLY_OPEN_KEY = 'getitdone.definitions.onlyOpen';
+
+/** A choice of this browser (not of the team) that is kept in the local storage; without storage it lives as long as the page. */
+function useBrowserFlag(key: string): [boolean, (value: boolean) => void] {
+  const [value, setValue] = useState(() => {
+    try {
+      return window.localStorage.getItem(key) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const set = (next: boolean): void => {
+    setValue(next);
+    try {
+      window.localStorage.setItem(key, next ? '1' : '0');
+    } catch {
+      // the choice then only lasts until the page is closed
+    }
+  };
+  return [value, set];
+}
+
+/** The menu "…" of a card: show only the open items, hide the definitions. Escape closes it and returns the focus. */
+function CardMenu({ name, onlyOpen, onOnlyOpen, onHide }: { name: string; onlyOpen: boolean; onOnlyOpen: (value: boolean) => void; onHide: () => void }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const button = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const uid = useId();
+  useEffect(() => {
+    if (!open) return;
+    menu.current?.querySelector<HTMLElement>('[role^="menuitem"]')?.focus();
+    const close = (event: MouseEvent): void => {
+      const target = event.target as Node;
+      if (!menu.current?.contains(target) && !button.current?.contains(target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open]);
+  const close = (): void => {
+    setOpen(false);
+    button.current?.focus();
+  };
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+    const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
+    const index = items.indexOf(document.activeElement as HTMLElement);
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      items[(index + (event.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length]?.focus();
+    }
+  };
+  return (
+    <div className="definition-menu">
+      <button
+        type="button"
+        ref={button}
+        className="icon-btn icon-btn--quiet"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={open ? uid : undefined}
+        aria-label={t('definitions.menu.label', { name })}
+        title={t('definitions.menu.label', { name })}
+        onClick={() => setOpen(!open)}
+      >
+        <span aria-hidden="true">⋯</span>
+      </button>
+      {open && (
+        <div id={uid} ref={menu} role="menu" className="definition-menu__list" onKeyDown={onKeyDown}>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={onlyOpen}
+            className="definition-menu__item"
+            onClick={() => {
+              onOnlyOpen(!onlyOpen);
+              close();
+            }}
+          >
+            <span aria-hidden="true">{onlyOpen ? '✓ ' : ''}</span>
+            {t('definitions.menu.onlyOpen')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="definition-menu__item"
+            onClick={() => {
+              setOpen(false);
+              onHide();
+            }}
+          >
+            {t('definitions.menu.hide')}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The block of the story dialog (#26): a card per list that is switched on, Ready and Done one under the other. A card
+ * shows its counter and a progress bar and opens to its groups with the checkboxes; the one that fits the status of the
+ * story is open. The menu "…" shows only the open items or hides the block (a choice of this browser).
+ */
 export function DefinitionsPanel({ story }: { story: Story }) {
   const { t } = useTranslation();
   const app = useApp();
   const { definitions } = app.settings;
+  const [hidden, setHidden] = useBrowserFlag(HIDDEN_KEY);
+  const [onlyOpen, setOnlyOpen] = useBrowserFlag(ONLY_OPEN_KEY);
+  const category = categoryOf(app.statuses, story.status);
+  const [expanded, setExpanded] = useState<Record<DefinitionKind, boolean>>({ ready: category === 'not_started', done: category !== 'not_started' });
+  const uid = useId();
+  const showButton = useRef<HTMLButtonElement>(null);
+  const focusShow = useRef(false);
+  // After hiding, the focus goes to "Show definitions", so the keyboard does not lose its place.
+  useEffect(() => {
+    if (hidden && focusShow.current) {
+      focusShow.current = false;
+      showButton.current?.focus();
+    }
+  }, [hidden]);
   // Only a list that is switched on shows in the story.
   const kinds = (['ready', 'done'] as const).filter((kind) => inUse(definitions[kind]));
-  const [chosen, setChosen] = useState<DefinitionKind>('ready');
-  const uid = useId();
   if (kinds.length === 0) return null;
-  const kind = kinds.includes(chosen) ? chosen : kinds[0];
-  const onKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
-    if (kinds.length < 2 || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
-    event.preventDefault();
-    event.stopPropagation();
-    const next = kinds[(kinds.indexOf(kind) + 1) % kinds.length];
-    setChosen(next);
-    document.getElementById(`${uid}-tab-${next}`)?.focus();
-  };
+
+  if (hidden) {
+    return (
+      <section className="panel definitions-panel definitions-panel--hidden" aria-label={t('definitions.panelLabel')}>
+        <button type="button" ref={showButton} className="btn" onClick={() => setHidden(false)}>
+          {t('definitions.show')}
+        </button>
+        <span className="muted">{kinds.map((kind) => `${t(`definitions.${kind}`)} ${counterText(t, evaluate(definitions[kind], story))}`).join(' · ')} · {t('definitions.hiddenHint')}</span>
+      </section>
+    );
+  }
 
   return (
-    <section className="panel definitions-panel" aria-label={t('definitions.panelLabel')}>
-      <div role="tablist" aria-label={t('definitions.panelLabel')} className="definitions-tabs" onKeyDown={onKeyDown}>
-        {kinds.map((item) => {
-          const result = evaluate(definitions[item], story);
-          return (
-            <button
-              key={item}
-              type="button"
-              role="tab"
-              id={`${uid}-tab-${item}`}
-              aria-selected={item === kind}
-              aria-controls={`${uid}-panel`}
-              tabIndex={item === kind ? 0 : -1}
-              className={`definitions-tab${item === kind ? ' definitions-tab--on' : ''}`}
-              onClick={() => setChosen(item)}
-            >
-              {t(`definitions.${item}`)} · {counterText(t, result)}
-              {!result.met && (
-                <span className="definitions-tab__warn" title={t('definitions.openItems', { count: result.open })}>
-                  <span aria-hidden="true"> ⚠</span>
-                  <span className="sr-only"> {t('definitions.openItems', { count: result.open })}</span>
+    <section className="definitions-panel definitions-cards" aria-label={t('definitions.panelLabel')}>
+      {kinds.map((kind) => {
+        const result = evaluate(definitions[kind], story);
+        const open = expanded[kind];
+        const percent = result.total === 0 ? 0 : Math.round(((result.checked + result.na) / result.total) * 100);
+        const name = t(`definitions.${kind}`);
+        return (
+          <article key={kind} className="definition-card" data-kind={kind}>
+            <div className="definition-card__head">
+              <button
+                type="button"
+                className="definition-card__toggle"
+                aria-expanded={open}
+                aria-controls={`${uid}-${kind}`}
+                onClick={() => setExpanded({ ...expanded, [kind]: !open })}
+              >
+                <span aria-hidden="true" className="definition-card__caret">
+                  {open ? '▾' : '▸'}
                 </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-      <div role="tabpanel" id={`${uid}-panel`} aria-labelledby={`${uid}-tab-${kind}`}>
-        <ListView story={story} result={evaluate(definitions[kind], story)} />
-        <p className="muted definition-keys">{t('definitions.keys')}</p>
-      </div>
+                <span className="definition-card__name">{name}</span>
+                <span className="muted definition-card__counter">· {counterText(t, result)}</span>
+                {!result.met && (
+                  <span className="chip chip--warn" title={t('definitions.openItems', { count: result.open })}>
+                    <span aria-hidden="true">⚠ </span>
+                    <span className="sr-only">{t('definitions.openItems', { count: result.open })}</span>
+                    <span aria-hidden="true">{result.open}</span>
+                  </span>
+                )}
+              </button>
+              <div className="progress definition-card__meter" aria-hidden="true">
+                <div className="progress__bar" style={{ width: `${percent}%` }} />
+              </div>
+              <CardMenu name={name} onlyOpen={onlyOpen} onOnlyOpen={setOnlyOpen} onHide={() => {
+                  focusShow.current = true;
+                  setHidden(true);
+                }} />
+            </div>
+            {open && (
+              <div id={`${uid}-${kind}`} className="definition-card__body">
+                <ListView story={story} result={result} onlyOpen={onlyOpen} />
+                <p className="muted definition-keys">{t('definitions.keys')}</p>
+              </div>
+            )}
+          </article>
+        );
+      })}
     </section>
   );
 }

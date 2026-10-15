@@ -1089,7 +1089,6 @@
       "inSprint": "Est planifiée dans un sprint"
     },
     "transition": {
-      "met": "{{counter}} remplis",
       "move": "Déplacer",
       "next": "Liste suivante",
       "openStory": "Ouvrir la story",
@@ -1100,15 +1099,14 @@
         "done_one": "{{code}} ne peut pas passer à « {{target}} » : {{count}} point de la Definition of Done est encore ouvert",
         "done_other": "{{code}} ne peut pas passer à « {{target}} » : {{count}} points de la Definition of Done sont encore ouverts"
       },
-      "problem": {
-        "ready": "La Definition of Ready est un quality gate. Traitez les points ouverts ci-dessous pour déplacer la story, ou contournez le gate en connaissance de cause.",
-        "done": "La Definition of Done est un quality gate. Traitez les points ouverts ci-dessous pour déplacer la story, ou contournez le gate en connaissance de cause."
-      },
       "override": "Contourner le gate…",
       "overrideTitle": "Contourner la {{list}} pour {{code}} ?",
       "overrideText": "La story est déplacée avec ces points encore ouverts. C’est une exception délibérée au quality gate, pas la voie normale.",
       "overrideConfirm": "Contourner et déplacer",
-      "overrideBack": "Retour aux points"
+      "overrideBack": "Retour aux points",
+      "gate": "Quality gate",
+      "route": "{{from}} → {{to}} · {{list}}",
+      "progress": "{{met}} points sur {{total}} remplis · {{open}} ouverts"
     },
     "toast": {
       "open": "Ouvrir la story",
@@ -1158,6 +1156,14 @@
       "hasEpic": "La story appartient à une epic.",
       "allCriteriaAccepted": "Chaque critère d’acceptation est coché.",
       "inSprint": "La story est planifiée dans un sprint."
+    },
+    "allMet": "Tous les points sont remplis.",
+    "show": "Afficher les définitions",
+    "hiddenHint": "masquées (dans ce navigateur seulement)",
+    "menu": {
+      "label": "Options de la {{name}}",
+      "onlyOpen": "Afficher seulement les points ouverts",
+      "hide": "Masquer les définitions"
     }
   }
 }

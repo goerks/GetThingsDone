@@ -69,3 +69,9 @@ New groups and items are added directly in the list, groups move as blocks, auto
 ## Look of story block, editor and gate (PO feedback 2026-10-15)
 
 The look of the three places is not liked yet. Mockups in [`definitions-look-variants.html`](definitions-look-variants.html) (`definitions-look-*.png`): story block S1 to S5 (plus S6 hidden), editor E1 to E4, gate dialog G1 to G5 (plus the override step). Not decided yet.
+
+## Decisions on the look (PO, 2026-10-15)
+
+- **Story block: S2**, two collapsible cards (Ready and Done) one under the other, with counter, warning and progress bar; the card that fits the status is open. The menu "…" per card: "Show only open items" and "Hide the definitions" (a choice of this browser; hidden leaves one line "Show definitions"). Built.
+- **Gate dialog: G1**, head with "Quality gate" chip and the route ("To do → In progress · Definition of Ready"), progress bar, "2 of 5 items met · 3 open", then only the open items. Built.
+- **Editor:** none of E1 to E4 chosen. New wish: the lists are **activated first, then the content appears**, Ready and Done **one under the other, no tabs**. New proposals in [`definitions-editor2-variants.html`](definitions-editor2-variants.html) (`definitions-editor2-n1.png` to `-n6.png`): A cards with the switch in front, B flat headings with the switch, C starting help when off (insert the example list or start empty), D collapsible active cards with a summary. Not decided yet; the editor stays as built (tabs) until then.
