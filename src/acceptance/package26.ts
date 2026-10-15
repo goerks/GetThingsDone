@@ -194,15 +194,16 @@ export const PACKAGE_26: {
           target: '[data-story-id="story-6"]',
           given: 'Ready- und Done-Liste mit Gruppen.',
           when: 'Ich öffne „S-6“.',
-          then: 'Unter den Kriterien stehen zwei Karten untereinander: „Definition of Ready“ (offen) und „Definition of Done“ (zu), je mit Zähler, Warnzeichen und Fortschrittsbalken. Die Gruppen haben Namen, Zähler und Balken und lassen sich zu- und aufklappen. Bei einer Story in „In progress“ ist die Done-Karte offen.',
+          then: 'Unter den Kriterien stehen zwei Karten untereinander: „Definition of Ready“ (offen) und „Definition of Done“ (zu), je mit Zähler, Warnzeichen und Fortschrittsbalken. Die Gruppen haben Namen und Zähler und lassen sich zu- und aufklappen. Bei einer Story in „Not started“ ist nur die Ready-Karte offen, solange noch nicht alle Punkte erfüllt sind; bei „In progress“ nur die Done-Karte, solange noch nicht alle Punkte erfüllt sind; sonst bleiben beide zu.',
           preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC3.1 shows a card per list with counter and progress, the card of the status open, and the groups with their own counters',
             'src/Definitions.test.tsx › AC3.1 a story in "In progress" opens the Done card',
+            'src/Definitions.test.tsx › AC3.1 a story in "Done" opens no card, and a card whose items are all met stays closed when the story opens',
             'src/domain/definitions.test.ts › AC3.1 groups carry their own counters'
           ],
           manual: 'Das Aussehen (Abstände, Balken, Farben) prüft nur ein Mensch.',
-          poCheck: 'Sieht das Panel in der Story aufgeräumt aus? Sind Gruppen, Balken und der Knopf „Not relevant“ gut zu erkennen?'
+          poCheck: 'Sieht das Panel in der Story aufgeräumt aus? Sind Gruppen, Haken und der Zustand „ignoriert“ gut zu erkennen?'
         },
         {
           id: 'AC3.2',

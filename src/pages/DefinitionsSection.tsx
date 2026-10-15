@@ -4,7 +4,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { groupName, itemText } from '../components/definitions';
-import { GripIcon, TrashIcon } from '../components/icons';
+import { GripIcon } from '../components/icons';
 import { useDragSensors } from '../dnd/dnd';
 import {
   DEFINITION_KINDS,
@@ -116,15 +116,22 @@ function ItemRow({ item, onChange, onStep }: { item: DefinitionItem; onChange: (
               onStep={(direction) => onStep(item.id, direction)}
             />
           )}
-          <span className={item.rule ? 'definition-item__auto' : 'definition-item__manual'}>{t(item.rule ? 'definitions.automatic' : 'definitions.manual')}</span>
-          <label className="check definition-edit__na">
+          <span className="definition-edit__kind" title={t(item.rule ? 'definitions.autoHint' : 'definitions.manual')}>
+            <span aria-hidden="true">{item.rule ? '⚙' : '✋'}</span>
+            <span className="sr-only">{t(item.rule ? 'definitions.automatic' : 'definitions.manual')}</span>
+          </span>
+          <label className="definition-edit__na" title={t('definitions.settings.mayBeIrrelevant')}>
             <input
               type="checkbox"
+              className="sr-only"
               checked={item.mayBeIrrelevant}
               aria-label={t('definitions.settings.mayBeIrrelevantFor', { text })}
               onChange={(event) => onChange((list) => updateItem(list, item.id, { mayBeIrrelevant: event.target.checked }))}
             />
-            <span>{t('definitions.settings.mayBeIrrelevant')}</span>
+            <span aria-hidden="true" className="definition-edit__nabox">
+              –
+            </span>
+            <span className="sr-only">{t('definitions.settings.mayBeIrrelevant')}</span>
           </label>
           <button
             type="button"
@@ -133,7 +140,7 @@ function ItemRow({ item, onChange, onStep }: { item: DefinitionItem; onChange: (
             title={t('definitions.settings.removeItem', { text })}
             onClick={() => onChange((list) => removeItem(list, item.id))}
           >
-            <TrashIcon />
+            <span aria-hidden="true">✕</span>
           </button>
         </>
       )}
@@ -203,6 +210,7 @@ function LibraryPicker({ groupName: name, used, onPick }: { groupName: string; u
         aria-label={t('definitions.settings.libraryFor', { name })}
         onClick={() => (open ? close() : openPicker())}
       >
+        <span aria-hidden="true">📚 </span>
         {t('definitions.settings.library')} ▾
       </button>
       {open && (
@@ -292,7 +300,7 @@ function GroupBlock({
           title={t('definitions.settings.removeGroup', { name })}
           onClick={() => onChange((list) => removeGroup(list, group.id))}
         >
-          <TrashIcon />
+          <span aria-hidden="true">✕</span>
         </button>
       </div>
       <div id={bodyId} hidden={!open}>
@@ -311,7 +319,7 @@ function GroupBlock({
             value={text}
             onChange={(event) => setText(event.target.value)}
           />
-          <button type="submit" className="btn" aria-label={t('definitions.settings.addItemTo', { name })} disabled={!text.trim()}>
+          <button type="submit" className="sr-only" aria-label={t('definitions.settings.addItemTo', { name })} disabled={!text.trim()}>
             {t('definitions.settings.addItem')}
           </button>
           <LibraryPicker groupName={name} used={used} onPick={(rule) => onChange((list) => addItem(list, group.id, { id: newId(), text: '', rule, mayBeIrrelevant: false }, newId()))} />
@@ -374,20 +382,23 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
   const summary = `${t('definitions.settings.groups', { count: list.groups.length })} · ${t('definitions.settings.items', { count: items.length })}`;
 
   return (
-    <section className={`feature definition-listcard${list.enforce ? '' : ' definition-listcard--off'}`} aria-label={name} data-kind={kind}>
+    <section className={`definition-listcard${list.enforce ? '' : ' definition-listcard--off'}`} aria-label={name} data-kind={kind}>
       <div className="definition-listcard__head">
-        <label className="check feature__toggle">
-          <input
-            type="checkbox"
-            role="switch"
-            checked={list.enforce}
-            aria-label={t(`definitions.settings.enforce.${kind}`)}
-            aria-describedby={`${bodyId}-hint`}
-            onChange={(event) => change((current) => setEnforce(current, event.target.checked))}
-          />
-          <h3 className="feature__name">{name}</h3>
-          <span className={`badge${list.enforce ? '' : ' badge--off'}`}>{t(list.enforce ? 'settings.features.on' : 'settings.features.off')}</span>
-        </label>
+        <input
+          type="checkbox"
+          role="switch"
+          className="definition-switch"
+          checked={list.enforce}
+          aria-label={t(`definitions.settings.enforce.${kind}`)}
+          aria-describedby={`${bodyId}-hint`}
+          onChange={(event) => change((current) => setEnforce(current, event.target.checked))}
+        />
+        <div className="definition-listcard__title">
+          <h3>{name}</h3>
+          <p id={`${bodyId}-hint`} className="muted">
+            {list.enforce ? summary : t(`definitions.settings.enforceHint.${kind}`)}
+          </p>
+        </div>
         {list.enforce && (
           <button
             type="button"
@@ -402,9 +413,6 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
           </button>
         )}
       </div>
-      <p id={`${bodyId}-hint`} className="muted feature__text">
-        {list.enforce && !open ? summary : t(`definitions.settings.enforceHint.${kind}`)}
-      </p>
       {!list.enforce && list.groups.length === 0 && (
         <div role="note" className="definition-cta">
           <p>{t('definitions.settings.emptyOff')}</p>
@@ -435,7 +443,7 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
           </DndContext>
           <form className="definition-newgroup" onSubmit={submitGroup}>
             <input className="input" aria-label={t('definitions.settings.newGroup')} placeholder={t('definitions.settings.newGroupPlaceholder')} value={newGroup} onChange={(event) => setNewGroup(event.target.value)} />
-            <button type="submit" className="btn" disabled={!newGroup.trim()}>
+            <button type="submit" className="sr-only" disabled={!newGroup.trim()}>
               {t('definitions.settings.addGroup')}
             </button>
           </form>
