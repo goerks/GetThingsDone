@@ -84,7 +84,7 @@ async function openVelocity(page: Page): Promise<void> {
   await expect(panel(page)).toBeVisible();
 }
 
-test('AC1.1 shows two bars with numbers per sprint, in order, with a legend', async ({ page }) => {
+test('AC1.1 shows one combined bar with numbers per sprint, in order, with a legend', async ({ page }) => {
   // Given six completed sprints
   await openWith(page, SIX);
   // When I open the Velocity window at the board
@@ -98,16 +98,16 @@ test('AC1.1 shows two bars with numbers per sprint, in order, with a legend', as
   await expect(panel(page).locator('svg.velocity-chart')).toHaveScreenshot('velocity-chart.png', { maxDiffPixelRatio: 0.08 });
 });
 
-test('AC1.2 draws the done bar of Sprint 4 higher than its planned bar', async ({ page }) => {
+test('AC1.2 lets the done part of Sprint 4 reach above its planned frame', async ({ page }) => {
   // Given Sprint 4 planned 20 and completed 22
   await openWith(page, SIX);
   await openVelocity(page);
   // When I look at Sprint 4
   const sprint = panel(page).locator('[data-sprint-id="done-4"]');
-  // Then the done bar is higher than the planned bar
+  // Then the blue done part reaches above the frame of the planned points
   const planned = await sprint.locator('.velocity-chart__planned').boundingBox();
   const done = await sprint.locator('.velocity-chart__done').boundingBox();
-  expect(done!.height).toBeGreaterThan(planned!.height);
+  expect(done!.y).toBeLessThan(planned!.y);
 });
 
 test('AC1.3 shows the last 8 of 10 sprints and the older ones after "Older sprints"', async ({ page }) => {
@@ -177,6 +177,21 @@ test('AC1.6 adds Sprint 7 to the chart after I complete it', async ({ page }) =>
   await openVelocity(page);
   await expect(sprintBars(page)).toHaveCount(7);
   await expect(sprintBars(page).last()).toHaveAttribute('aria-label', 'Sprint 7: 24 / 3');
+});
+
+test('AC1.8 does not make the page scroll when the window opens, also in a low browser window', async ({ page }) => {
+  // Given the board with ten completed sprints in a low browser window
+  await page.setViewportSize({ width: 1400, height: 640 });
+  await openWith(page, Array.from({ length: 10 }, () => [20, 20, 0] as [number, number, number]));
+  const height = (): Promise<number> => page.evaluate(() => document.documentElement.scrollHeight);
+  const before = await height();
+  // When I open the Velocity window
+  await openVelocity(page);
+  // Then the page is not higher than before, and the window stays inside the browser window and scrolls inside itself
+  expect(await height()).toBe(before);
+  const box = (await panel(page).boundingBox())!;
+  expect(box.y + box.height).toBeLessThanOrEqual(640);
+  await expect(panel(page).getByRole('table')).toBeAttached();
 });
 
 test('AC2.1 labels the dashed average line "Ø 21 (last 3)"', async ({ page }) => {

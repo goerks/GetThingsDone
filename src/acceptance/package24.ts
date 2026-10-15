@@ -24,25 +24,25 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         {
           id: 'AC1.1',
           preset: 'velocity6',
-          title: 'Zwei Balken pro Sprint, mit Tabelle',
+          title: 'Ein kombinierter Balken pro Sprint, mit Tabelle',
           link: '#/board',
           target: '.velocity-button',
           given: 'Sechs abgeschlossene Sprints (Sprint 1: 18 geplant, 12 erledigt; … Sprint 6: 26 geplant, 22 erledigt).',
           when: 'Ich öffne das Board und drücke oben bei „Neue Story“ den Knopf „Velocity · Ø 21“.',
-          then: 'Unter dem Knopf öffnet sich das Fenster „Velocity“. Es zeigt für jeden Sprint zwei Balken mit Zahlen („18“ und „12“ bei Sprint 1) in der Reihenfolge Sprint 1 bis 6, darunter die Tabelle. Die Legende nennt „Geplant“ und „Erledigt“.',
-          tests: [`${COMPONENT} › AC1.1 shows two bars with numbers per sprint, in order, with a legend`, `${E2E} › AC1.1 shows two bars with numbers per sprint, in order, with a legend`],
-          poCheck: 'Bitte einmal ansehen: Passt der Platz des Knopfes neben „Neue Story“ und das Fenster darunter? Passen Farben und Aussehen der Balken, sind Zahlen, Legende und Tabelle gut lesbar? (Die Testdaten mit 6 abgeschlossenen Sprints lädst du mit dem Knopf unten.)'
+          then: 'Unter dem Knopf öffnet sich das Fenster „Velocity“. Es zeigt für jeden Sprint einen Balken: der Rahmen ist „Geplant“, der blaue Teil darin „Erledigt“. Die Zahlen stehen dabei („18“ und „12“ bei Sprint 1), die Sprints in der Reihenfolge 1 bis 6, darunter die Tabelle. Die Legende nennt „Geplant“ und „Erledigt“.',
+          tests: [`${COMPONENT} › AC1.1 shows one combined bar with numbers per sprint, in order, with a legend`, `${E2E} › AC1.1 shows one combined bar with numbers per sprint, in order, with a legend`],
+          poCheck: 'Bitte einmal ansehen: Passt der Platz des Knopfes neben „Neue Story“ und das Fenster darunter? Passen Farben und Aussehen des kombinierten Balkens, sind Zahlen, Legende und Tabelle gut lesbar? (Die Testdaten mit 6 abgeschlossenen Sprints lädst du mit dem Knopf unten.)'
         },
         {
           id: 'AC1.2',
           preset: 'velocity6',
-          title: 'Erledigt kann über geplant liegen',
+          title: 'Erledigt kann über den Rahmen ragen',
           link: '#/board',
           target: '.velocity-button',
           given: 'Wie AC1.1.',
           when: 'Ich öffne das Velocity-Fenster und schaue auf Sprint 4.',
-          then: 'Der Balken „Erledigt“ (22) ist höher als der Balken „Geplant“ (20).',
-          tests: [`${COMPONENT} › AC1.2 draws the done bar higher than the planned bar when more was done`, `${E2E} › AC1.2 draws the done bar of Sprint 4 higher than its planned bar`]
+          then: 'Der blaue Teil „Erledigt“ (22) ragt oben über den Rahmen „Geplant“ (20) hinaus.',
+          tests: [`${COMPONENT} › AC1.2 lets the done part reach above the planned frame when more was done`, `${E2E} › AC1.2 lets the done part of Sprint 4 reach above its planned frame`]
         },
         {
           id: 'AC1.3',
@@ -87,6 +87,17 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich schliesse Sprint 7 ab und öffne das Velocity-Fenster.',
           then: 'Im Diagramm kommt „Sprint 7“ dazu, mit den Punkten vom Start und den erledigten.',
           tests: [`${COMPONENT} › AC1.6 adds a newly completed sprint to the chart`, `${E2E} › AC1.6 adds Sprint 7 to the chart after I complete it`]
+        },
+        {
+          id: 'AC1.8',
+          title: 'Kein zusätzlicher Scrollbalken',
+          preset: 'velocity10',
+          link: '#/board',
+          target: '.velocity-button',
+          given: 'Das Board in einem niedrigen Browserfenster, 10 abgeschlossene Sprints.',
+          when: 'Ich öffne das Velocity-Fenster.',
+          then: 'Die Seite bekommt keinen zusätzlichen senkrechten Scrollbalken. Das Fenster bleibt im Browserfenster und scrollt bei Bedarf in sich.',
+          tests: [`${E2E} › AC1.8 does not make the page scroll when the window opens, also in a low browser window`]
         }
       ]
     },
@@ -268,7 +279,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
           then: 'Über jedem Balken steht seine Zahl. Die Legende nennt beide Balken. Die Durchschnittslinie ist gestrichelt und beschriftet.',
           tests: [],
           manual: 'Es geht um das Aussehen in Graustufen; die Zahlen, die Legende und die beschriftete gestrichelte Linie sind in AC1.1 und AC2.1 automatisch geprüft.',
-          poCheck: 'Bitte das Diagramm in Graustufen ansehen (zum Beispiel Bildschirmfoto in Schwarzweiss): Sind beide Balken auch ohne Farbe unterscheidbar? (Nur für das Aussehen; die Zahlen sind automatisch geprüft.)'
+          poCheck: 'Bitte das Diagramm in Graustufen ansehen (zum Beispiel Bildschirmfoto in Schwarzweiss): Sind Rahmen und blauer Teil auch ohne Farbe unterscheidbar? (Nur für das Aussehen; die Zahlen sind automatisch geprüft.)'
         }
       ]
     },
