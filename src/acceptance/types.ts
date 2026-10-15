@@ -10,6 +10,8 @@ export interface TestCase {
   given: string;
   when: string;
   then: string;
+  /** The test data (`presets.ts`) the case needs; the panel offers to load it. */
+  preset?: string;
   /** The automated tests that cover the case, as `file › test title`; a test name starts with the id. */
   tests: string[];
   /** Set when the case is also checked by hand, and why. */

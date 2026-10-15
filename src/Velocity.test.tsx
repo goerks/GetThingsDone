@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
+import { applyPreset, PRESETS } from './acceptance/presets';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
 import { startItemsOf } from './domain/sprintLife';
@@ -77,6 +78,7 @@ async function open(snapshot: Snapshot, hash = '#/board'): Promise<LocalStorageR
   return repository;
 }
 
+const SIX_LABELS = ['Sprint 1: 18 / 12', 'Sprint 2: 22 / 19', 'Sprint 3: 25 / 17', 'Sprint 4: 20 / 22', 'Sprint 5: 24 / 20', 'Sprint 6: 26 / 22'];
 const user = (): ReturnType<typeof userEvent.setup> => userEvent.setup();
 const button = (): HTMLElement => screen.getByRole('button', { name: /^Velocity/ });
 /** Opens the window of the Velocity button on the board. */
@@ -194,28 +196,34 @@ describe('velocity window at the board', () => {
   });
 });
 
-describe('demo data of the preview', () => {
-  it('AC7.1 has five completed sprints and a running sprint that can be completed', async () => {
-    // Given the demo data, unchanged
+describe('test data of the preview', () => {
+  it('AC7.1 loads test data with six completed sprints and a running sprint that can be completed', async () => {
+    // Given the demo data and the preset "6 abgeschlossene Sprints" of the acceptance panel
     const actor = user();
-    await open(seedSnapshot(today));
-    // Then the button shows the average and the window has the five completed sprints, with Sprint 1 still running
-    expect(button()).toHaveTextContent('Velocity · Ø 20');
-    const panel = await openVelocity(actor);
-    expect(bars(panel).map((node) => node.getAttribute('aria-label'))).toEqual([
-      'Pre-sprint A: 18 / 14',
-      'Pre-sprint B: 22 / 19',
-      'Pre-sprint C: 25 / 17',
-      'Pre-sprint D: 20 / 22',
-      'Pre-sprint E: 24 / 20'
-    ]);
-    expect(screen.getByRole('heading', { name: 'Sprint 1', level: 1 })).toBeInTheDocument();
-    // When I complete Sprint 1
+    let reloaded = false;
+    await applyPreset('velocity6', () => {
+      reloaded = true;
+    });
+    expect(reloaded).toBe(true);
+    // When the page has loaded again
+    window.location.hash = '#/board';
+    render(<App repository={new LocalStorageRepository()} />);
+    await screen.findByRole('heading', { name: 'Sprint 7', level: 1 });
+    // Then the button shows the average, the window has the six sprints and Sprint 8 is planned with 30 points
+    expect(button()).toHaveTextContent('Velocity · Ø 21');
+    expect(bars(await openVelocity(actor)).map((node) => node.getAttribute('aria-label'))).toEqual(SIX_LABELS);
     await actor.click(screen.getByRole('button', { name: 'Close' }));
+    // And the running Sprint 7 can be completed and is the seventh sprint
     await actor.click(screen.getByRole('button', { name: 'Complete sprint' }));
     await actor.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Complete sprint' }));
-    // Then it is the sixth bar group
-    expect(bars(await openVelocity(actor))).toHaveLength(6);
+    expect(bars(await openVelocity(actor))).toHaveLength(7);
+  });
+
+  it.each(PRESETS.filter((preset) => preset.id !== 'demo').map((preset) => [preset.id] as const))('AC7.1 builds the preset %s with a sprint count and points as described', (id) => {
+    const snapshot = PRESETS.find((preset) => preset.id === id)!.build(today);
+    const completedCount = snapshot.sprints.filter((sprint) => sprint.state === 'completed').length;
+    expect({ velocity6: 6, velocity10: 10, velocity2: 2, velocity1: 1, velocity0: 0, velocityStart: 6 }[id]).toBe(completedCount);
+    expect(snapshot.sprints.filter((sprint) => sprint.state === 'running')).toHaveLength(id === 'velocityStart' ? 0 : 1);
   });
 });
 

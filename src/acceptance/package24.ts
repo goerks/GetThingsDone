@@ -6,7 +6,7 @@ import type { Criterion } from './types';
  * The velocity is a window under the button "Velocity · Ø n" in the head of the board (PO decision, placement A).
  * The data of the test cases: six completed sprints (planned at the start / done: 18/12, 22/19, 25/17, 20/22, 24/20,
  * 26/22), the running "Sprint 7" with 24 points and the planned "Sprint 8" with 30 points. The demo data of the preview
- * has five completed sprints ("Pre-sprint A" to "E") and the running "Sprint 1", which can be completed (AC7.1).
+ * has no completed sprint, so every test case names the test data (`preset`, see `presets.ts`) the panel loads for it.
  */
 const COMPONENT = 'src/Velocity.test.tsx';
 const E2E = 'e2e/velocity.spec.ts';
@@ -23,6 +23,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
       cases: [
         {
           id: 'AC1.1',
+          preset: 'velocity6',
           title: 'Zwei Balken pro Sprint, mit Tabelle',
           link: '#/board',
           target: '.velocity-button',
@@ -30,10 +31,11 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich öffne das Board und drücke oben bei „Neue Story“ den Knopf „Velocity · Ø 21“.',
           then: 'Unter dem Knopf öffnet sich das Fenster „Velocity“. Es zeigt für jeden Sprint zwei Balken mit Zahlen („18“ und „12“ bei Sprint 1) in der Reihenfolge Sprint 1 bis 6, darunter die Tabelle. Die Legende nennt „Geplant“ und „Erledigt“.',
           tests: [`${COMPONENT} › AC1.1 shows two bars with numbers per sprint, in order, with a legend`, `${E2E} › AC1.1 shows two bars with numbers per sprint, in order, with a legend`],
-          poCheck: 'Bitte einmal ansehen: Passt der Platz des Knopfes neben „Neue Story“ und das Fenster darunter? Passen Farben und Aussehen der Balken, sind Zahlen, Legende und Tabelle gut lesbar? (Die Vorschau hat 5 abgeschlossene Demo-Sprints.)'
+          poCheck: 'Bitte einmal ansehen: Passt der Platz des Knopfes neben „Neue Story“ und das Fenster darunter? Passen Farben und Aussehen der Balken, sind Zahlen, Legende und Tabelle gut lesbar? (Die Testdaten mit 6 abgeschlossenen Sprints lädst du mit dem Knopf unten.)'
         },
         {
           id: 'AC1.2',
+          preset: 'velocity6',
           title: 'Erledigt kann über geplant liegen',
           link: '#/board',
           target: '.velocity-button',
@@ -44,6 +46,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC1.3',
+          preset: 'velocity10',
           title: 'Nur die letzten 8 Sprints',
           link: '#/board',
           target: '.velocity-button',
@@ -54,6 +57,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC1.4',
+          preset: 'velocity6',
           title: 'Öffnen und Schliessen',
           link: '#/board',
           target: '.velocity-button',
@@ -64,6 +68,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC1.5',
+          preset: 'velocity6',
           title: 'Details zu einem Sprint',
           link: '#/board',
           target: '.velocity-button',
@@ -74,6 +79,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC1.6',
+          preset: 'velocity6',
           title: 'Neuer abgeschlossener Sprint erscheint',
           link: '#/board',
           target: '.velocity-button',
@@ -91,6 +97,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
       cases: [
         {
           id: 'AC2.1',
+          preset: 'velocity6',
           title: 'Durchschnitt der letzten 3',
           link: '#/board',
           target: '.velocity-button',
@@ -101,6 +108,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC2.2',
+          preset: 'velocity2',
           title: 'Zwei Sprints',
           link: '#/board',
           target: '.velocity-button',
@@ -111,6 +119,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC2.3',
+          preset: 'velocity1',
           title: 'Ein Sprint',
           link: '#/board',
           target: '.velocity-button',
@@ -128,6 +137,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
       cases: [
         {
           id: 'AC3.1',
+          preset: 'velocity6',
           title: 'Im Backlog',
           link: '#/backlog',
           target: '.backlog__plan',
@@ -138,6 +148,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.2',
+          preset: 'velocity6',
           title: 'Auf der Story Map',
           link: '#/map',
           target: '.map-sprint__plan',
@@ -148,6 +159,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.3',
+          preset: 'velocityStart',
           title: 'Im Start-Dialog',
           link: '#/board',
           given: 'Wie AC3.1, kein Sprint läuft, Sprint 8 ist geplant.',
@@ -157,6 +169,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.4',
+          preset: 'velocity0',
           title: 'Ohne abgeschlossenen Sprint',
           link: '#/backlog',
           target: '.backlog__plan',
@@ -167,6 +180,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.5',
+          preset: 'velocity6',
           title: 'Zahl ändert sich mit der Planung',
           link: '#/backlog',
           target: '.backlog__plan',
@@ -177,6 +191,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.6',
+          preset: 'velocity6',
           title: 'Kein Velocity-Bereich im Backlog',
           link: '#/backlog',
           given: 'Wie AC1.1.',
@@ -193,6 +208,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
       cases: [
         {
           id: 'AC4.1',
+          preset: 'velocity0',
           title: 'Noch kein Sprint abgeschlossen',
           link: '#/board',
           target: '.velocity-button',
@@ -210,6 +226,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
       cases: [
         {
           id: 'AC5.1',
+          preset: 'velocity6',
           title: 'Diagramm und Tabelle zusammen',
           link: '#/board',
           target: '.velocity-button',
@@ -220,6 +237,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC5.2',
+          preset: 'velocity10',
           title: 'Mehr als 8 Sprints in der Tabelle',
           link: '#/board',
           target: '.velocity-button',
@@ -230,6 +248,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC5.3',
+          preset: 'velocity6',
           title: 'Screenreader',
           link: '#/board',
           target: '.velocity-button',
@@ -240,6 +259,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC5.4',
+          preset: 'velocity6',
           title: 'Farbe allein trägt keine Bedeutung',
           link: '#/board',
           target: '.velocity-button',
@@ -259,6 +279,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
       cases: [
         {
           id: 'AC6.1',
+          preset: 'velocity6',
           title: 'Vier Sprachen',
           link: '#/board',
           target: '.velocity-button',
@@ -269,6 +290,7 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC6.2',
+          preset: 'velocity6',
           title: 'Nur mit der Tastatur',
           link: '#/board',
           target: '.velocity-button',
@@ -291,17 +313,17 @@ export const PACKAGE_24: { issue: number; pullRequest: number; title: string; cr
     {
       id: 'AC7',
       story: 'V7',
-      title: 'Demo-Daten der Vorschau',
+      title: 'Testdaten in der Vorschau',
       cases: [
         {
           id: 'AC7.1',
-          title: 'Fünf abgeschlossene Sprints und ein laufender Sprint',
+          title: 'Testdaten laden',
           link: '#/board',
           target: '.velocity-button',
-          given: 'Die Vorschau mit den Demo-Daten, frisch geöffnet.',
-          when: 'Ich öffne das Velocity-Fenster. Danach schliesse ich den laufenden „Sprint 1“ ab und öffne das Fenster wieder.',
-          then: 'Der Knopf zeigt „Velocity · Ø 20“. Das Fenster zeigt fünf abgeschlossene Sprints („Pre-sprint A“ bis „E“). Nach dem Abschliessen von „Sprint 1“ sind es sechs.',
-          tests: [`${COMPONENT} › AC7.1 has five completed sprints and a running sprint that can be completed`, `${E2E} › AC7.1 has five completed sprints in the demo and a running sprint that can be completed`]
+          given: 'Die Vorschau mit den Demo-Daten, in der kein Sprint abgeschlossen ist.',
+          when: 'Ich öffne die Abnahme, gehe zu einem Prüfpunkt der Velocity und drücke „Diese Testdaten laden“. Danach öffne ich das Velocity-Fenster auf dem Board.',
+          then: 'Nach einer Rückfrage lädt die Seite neu, die Abnahme ist wieder offen. Das Fenster zeigt sechs abgeschlossene Sprints, Sprint 7 läuft und lässt sich abschliessen. Über „Testdaten“ unten im Panel kann ich auch andere Testdaten oder wieder die Demo-Daten wählen.',
+          tests: [`${COMPONENT} › AC7.1 loads test data with six completed sprints and a running sprint that can be completed`, `${E2E} › AC7.1 loads the test data from the acceptance panel and keeps it after the reload`]
         }
       ]
     }
