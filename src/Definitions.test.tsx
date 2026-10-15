@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
@@ -165,10 +165,18 @@ describe('Settings › Definitions', () => {
     expect(review).toBeChecked();
   });
 
-  it('AC1.5 the switch turns checking on and off, per list', async () => {
+  it('AC1.5 both lists are off in the demo data and say so', async () => {
+    await open('#/settings/definitions', seedSnapshot(todayIso()).settings.definitions);
+    expect(screen.getByRole('switch', { name: /Activate the Definition of Ready/ })).not.toBeChecked();
+    expect(screen.getByRole('note')).toHaveTextContent('The list is off: it is not shown in stories and nothing is checked or marked.');
+    await userEvent.setup().click(screen.getByRole('tab', { name: /Definition of Done/ }));
+    expect(screen.getByRole('switch', { name: /Activate the Definition of Done/ })).not.toBeChecked();
+  });
+
+  it('AC1.5 a list is switched on and off with its own switch', async () => {
     const user = userEvent.setup();
     const repository = await open('#/settings/definitions');
-    const readySwitch = screen.getByRole('switch', { name: /Check when a story leaves “Not started”/ });
+    const readySwitch = screen.getByRole('switch', { name: /Activate the Definition of Ready/ });
     expect(readySwitch).toBeChecked();
     await user.click(readySwitch);
     await waitFor(async () => expect((await repository.load()).settings.definitions.ready.enforce).toBe(false));
@@ -271,20 +279,29 @@ describe('Story dialog', () => {
     expect(within(panel(dialog)).getByRole('tab', { name: /Definition of Done/ })).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('AC3.3 an empty list has no tab, and two empty lists no panel', async () => {
+  it('AC3.3 a list that is empty or off has no tab, and two lists that are off no panel', async () => {
     const user = userEvent.setup();
+    // Given the Ready list is on and the Done list is empty
     await open('#/board', { ready: demoDefinitions().ready, done: EMPTY_DEFINITIONS.done });
     let dialog = await openStory(user, 'S-6');
     expect(within(panel(dialog)).getAllByRole('tab')).toHaveLength(1);
     expect(within(panel(dialog)).queryByRole('tab', { name: /Definition of Done/ })).not.toBeInTheDocument();
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    // Given both lists are empty
-    document.body.innerHTML = '';
-    await open('#/board', EMPTY_DEFINITIONS);
+    // Given the Done list has items but is switched off
+    cleanup();
+    await open('#/board', { ready: demoDefinitions().ready, done: demoDefinitions(false).done });
+    dialog = await openStory(user, 'S-6');
+    expect(within(panel(dialog)).queryByRole('tab', { name: /Definition of Done/ })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    // Given both lists are switched off (the default)
+    cleanup();
+    await open('#/board', demoDefinitions(false));
     dialog = await openStory(user, 'S-6');
     expect(within(dialog).queryByRole('region', { name: 'Definitions of this story' })).not.toBeInTheDocument();
   });
+
 });
 
 describe('Change of status', () => {

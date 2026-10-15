@@ -25,7 +25,8 @@ export const DEFINITION_RULES: readonly DefinitionRule[] = [
   'inSprint'
 ];
 
-export const EMPTY_LIST: DefinitionList = { enforce: true, groups: [] };
+/** A list is off until the team switches it on (#26): an off list is not shown in stories, checked or marked. */
+export const EMPTY_LIST: DefinitionList = { enforce: false, groups: [] };
 
 export const EMPTY_DEFINITIONS: Definitions = { ready: EMPTY_LIST, done: EMPTY_LIST };
 
@@ -105,7 +106,7 @@ export function itemsOf(list: DefinitionList): DefinitionItem[] {
   return list.groups.flatMap((group) => group.items);
 }
 
-/** A list that is in use: switched on and with at least one item. */
+/** A list that is in use: switched on and with at least one item. Only such a list shows in stories, asks and marks. */
 export function inUse(list: DefinitionList): boolean {
   return list.enforce && itemsOf(list).length > 0;
 }
@@ -351,7 +352,7 @@ function normalizeList(stored: unknown): DefinitionList {
       groups.push({ id: group.id, name: typeof group.name === 'string' ? group.name : '', items });
     }
   }
-  return { enforce: raw.enforce !== false && raw.enforce !== 'false' && raw.enforce !== 0, groups };
+  return { enforce: raw.enforce === true || raw.enforce === 'true' || raw.enforce === 1, groups };
 }
 
 /** The definitions from stored data; missing or unknown parts become empty lists that are switched on. */

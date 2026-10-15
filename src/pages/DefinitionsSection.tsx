@@ -407,6 +407,11 @@ export function DefinitionsSection() {
           <span className={`badge${list.enforce ? '' : ' badge--off'}`}>{t(list.enforce ? 'settings.features.on' : 'settings.features.off')}</span>
         </label>
         <p className="muted">{t(`definitions.settings.enforceHint.${kind}`)}</p>
+        {!list.enforce && (
+          <p role="note" className="definition-off">
+            {t('definitions.settings.off')}
+          </p>
+        )}
         {list.groups.length === 0 && <p className="muted">{t('definitions.settings.empty')}</p>}
         <DndContext sensors={sensors} collisionDetection={collision} onDragEnd={onDragEnd} accessibility={{ announcements, screenReaderInstructions: { draggable: t('detail.dnd.instructions') } }}>
           <SortableContext items={list.groups.map((group) => group.id)} strategy={verticalListSortingStrategy}>

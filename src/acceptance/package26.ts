@@ -25,6 +25,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Einstellungen › Definitionen, Reiter „Definition of Ready“ zeigt die Beispielliste mit 5 Punkten.',
           when: 'Ich schreibe unter den Blöcken „Security“ in die Zeile „New group“ und drücke Enter. Im neuen Block schreibe ich „Threats are reviewed“ in die Zeile „New item“ und drücke Enter.',
           then: 'Block und Punkt stehen in der Liste, auch nach dem Neuladen. Der Reiter zeigt „· 6“.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC1.1 adds a group and a manual item directly in the list with Enter',
             'e2e/definitions.spec.ts › AC1.1 adds a group and an item directly in the list and takes a check from the library, also after a reload',
@@ -41,6 +42,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Reiter „Definition of Done“, Block „Quality“.',
           when: 'Ich öffne „From library“, wähle mit den Pfeiltasten „Must be estimated“ und drücke Enter. Die Bibliothek zeigt auch „Must be attached to an epic“.',
           then: 'Der Punkt steht im Block mit dem Hinweis „automatic“ und ohne Textfeld. In der Bibliothek steht er danach als „already in this list“ und lässt sich nicht nochmals wählen.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC1.2 adds an automatic item from the library with the keyboard; it cannot be renamed or chosen twice',
             'src/Definitions.test.tsx › AC1.2 the library offers "Must be attached to an epic" and adds it with a click',
@@ -55,6 +57,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Blöcke „Functional“, „Technical“ und „Design“ mit ihren Punkten.',
           when: 'Ich ziehe den Block „Technical“ am Griff über „Functional“ (zugeklappt und aufgeklappt), verschiebe einen Punkt per Tastatur (Alt+↑) in den Block darüber, benenne „Technical“ um und lösche einen Punkt.',
           then: 'Der Block ist mitsamt seinen Punkten verschoben; alles ist gespeichert, auch nach dem Neuladen.',
+          preset: 'definitionsOn',
           tests: [
             'e2e/definitions.spec.ts › AC1.3 drags a block above another one, folded or open, with its items, and keeps the order after a reload',
             'src/Definitions.test.tsx › AC1.3 renames a block, moves an item with the keyboard and removes an item',
@@ -70,6 +73,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Punkt „Code is reviewed“ in der Done-Liste ohne Häkchen bei „may be n/a“.',
           when: 'Ich setze das Häkchen.',
           then: 'In einer Story kann „Code is reviewed“ nun auf „nicht relevant“ gesetzt werden, vorher nicht.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC1.4 an item allows "not relevant" in a story only when it is marked so',
             'src/domain/definitions.test.ts › AC1.4 sets "may be irrelevant" per item'
@@ -77,16 +81,18 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC1.5',
-          title: 'Schalter „Beim Statuswechsel einfordern“',
+          title: 'Jede Liste einzeln ein- und ausschalten (Standard: aus)',
           link: '#/settings/definitions',
           target: '.definitions-settings__panel',
-          given: 'Ready-Liste mit Punkten, der Schalter ist aus (Beispieldaten).',
-          when: 'Ich schalte ihn ein, ziehe eine Story von „To do“ nach „In progress“, schalte ihn wieder aus und ziehe erneut.',
-          then: 'Mit Schalter an fragt die App, ohne Schalter wird die Story ohne Rückfrage verschoben.',
+          given: 'Beide Listen sind ausgeschaltet (Standard). „S-6“ steht in „To do“.',
+          when: 'Ich ziehe „S-6“ nach „In progress“. Dann schalte ich in Einstellungen › Definitionen „Activate the Definition of Ready“ ein und ziehe „S-3“ aus „To do“. Ich schalte den Schalter wieder aus und ziehe erneut.',
+          then: 'Ausgeschaltet wird ohne Rückfrage verschoben, Stories zeigen die Liste nicht und nichts ist markiert. Eingeschaltet blockiert die App und fragt. Der Hinweis „The list is off…“ steht bei ausgeschalteten Listen in den Einstellungen.',
+          preset: 'definitionsOff',
           tests: [
-            'src/Definitions.test.tsx › AC1.5 the switch turns checking on and off, per list',
+            'src/Definitions.test.tsx › AC1.5 both lists are off in the demo data and say so',
+            'src/Definitions.test.tsx › AC1.5 a list is switched on and off with its own switch',
             'src/Definitions.test.tsx › AC1.5 a list that is switched off asks nothing',
-            'e2e/definitions.spec.ts › AC1.5 and AC5.5 with the lists switched off, dragging moves at once and nothing is marked'
+            'e2e/definitions.spec.ts › AC1.5 both lists are off at first and nothing is asked; the switch in the settings turns the gate on'
           ]
         }
       ]
@@ -104,6 +110,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Story „S-6“ ist offen, Punkt „Design is available“ (darf nicht relevant sein) ist offen.',
           when: 'Ich hake ihn ab, setze ihn auf „Not relevant“ und mache ihn wieder relevant.',
           then: 'Erst abgehakt, dann ein Strich und durchgestrichener Text, dann wieder offen. Nach dem Neuladen bleibt der letzte Zustand.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC2.1 an item goes from open to checked, to not relevant and back',
             'src/domain/definitions.test.ts › AC2.1 an item is open until it is checked or set to not relevant'
@@ -117,6 +124,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Punkt „Code is reviewed“ erlaubt es nicht.',
           when: 'Ich suche den Knopf „Not relevant“ und drücke die Taste N.',
           then: 'Es gibt den Knopf bei diesem Punkt nicht; die Taste N tut nichts.',
+          preset: 'definitionsOn',
           tests: ['src/Definitions.test.tsx › AC2.2 an item that does not allow "not relevant" has no such button']
         },
         {
@@ -127,6 +135,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Story „S-3“ mit 3 Kriterien, keines akzeptiert; Done-Punkt „All criteria accepted“.',
           when: 'Ich akzeptiere alle drei Kriterien.',
           then: 'Der Punkt springt von offen auf abgehakt. Von Hand lässt er sich nicht abhaken.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC2.3 an automatic item cannot be ticked and follows the story',
             'src/domain/definitions.test.ts › AC2.3 an automatic item shows its own state',
@@ -141,6 +150,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Eine Liste mit 5 Punkten, 4 abgehakt, 1 offen (darf n. r. sein).',
           when: 'Ich setze den offenen Punkt auf „nicht relevant“.',
           then: 'Der Zähler zeigt „4/5 · 1 n/a“ und die Warnung ist weg.',
+          preset: 'definitionsOn',
           tests: ['src/domain/definitions.test.ts › AC2.4 not relevant counts as met']
         }
       ]
@@ -158,6 +168,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Ready- und Done-Liste mit Gruppen.',
           when: 'Ich öffne „S-6“.',
           then: 'Unter den Kriterien steht ein Panel mit den Reitern „Definition of Ready“ und „Definition of Done“, je mit Zähler. Die Gruppen haben Namen, Zähler und Balken und lassen sich zu- und aufklappen.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC3.1 shows a tab per list with counters, and the groups with their own counters',
             'src/domain/definitions.test.ts › AC3.1 groups carry their own counters'
@@ -173,6 +184,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Story „S-6“ offen.',
           when: 'Ich gehe nur mit Tab und Pfeiltasten zum Panel, wechsle den Reiter, hake mit der Leertaste ab und setze mit N „nicht relevant“.',
           then: 'Alles geht ohne Maus; der Fokus ist immer sichtbar.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC3.2 works with the keyboard only: Space ticks, N sets not relevant',
             'src/Definitions.test.tsx › AC3.2 the tabs follow the arrow keys'
@@ -180,13 +192,14 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.3',
-          title: 'Leere Liste',
+          title: 'Ausgeschaltete oder leere Liste',
           link: '#/settings/definitions',
           target: '.definitions-settings',
-          given: 'Done-Liste leer.',
+          given: 'Nur die Definition of Ready ist eingeschaltet, die Done-Liste ist aus.',
           when: 'Ich öffne eine Story.',
-          then: 'Der Reiter „Definition of Done“ fehlt, bei beiden leeren Listen fehlt das ganze Panel.',
-          tests: ['src/Definitions.test.tsx › AC3.3 an empty list has no tab, and two empty lists no panel']
+          then: 'Es gibt nur den Reiter „Definition of Ready“; „Definition of Done“ fehlt. Sind beide Listen aus oder leer, fehlt das ganze Panel.',
+          preset: 'definitionsReadyOnly',
+          tests: ['src/Definitions.test.tsx › AC3.3 a list that is empty or off has no tab, and two lists that are off no panel']
         }
       ]
     },
@@ -203,6 +216,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Die Beispielliste ist eingeschaltet. „S-6“ steht in „To do“ und hat 3 offene Ready-Punkte.',
           when: 'Ich ziehe „S-6“ nach „In progress“.',
           then: 'Das Quality Gate blockiert: Ein Dialog „S-6 cannot move to “In progress”: 3 items of the Definition of Ready are still open“ sagt, was das Problem ist, und zeigt nur die offenen Punkte nach Gruppen. „Move“ ist gesperrt, die Story ist nicht verschoben.',
+          preset: 'definitionsOn',
           tests: [
             'e2e/definitions.spec.ts › AC4.1 dragging a card out of "To do" asks for the Ready list and keeps the card where it is',
             'src/Definitions.test.tsx › AC4.1 leaving "To do" asks for the Ready list and shows only the open items',
@@ -219,6 +233,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Dialog aus AC4.1.',
           when: 'Ich hake „Dependencies are clarified“ ab, setze die beiden Design-Punkte auf „nicht relevant“ und wähle „Move“.',
           then: '„S-6“ steht in „In progress“, die Antworten sind auch im Story-Dialog zu sehen.',
+          preset: 'definitionsOn',
           tests: [
             'e2e/definitions.spec.ts › AC4.2 resolves the open items in the dialog, moves the card and keeps the answers after a reload',
             'src/Definitions.test.tsx › AC4.2 resolves the open items in the dialog and moves; the items stay resolved on the story'
@@ -232,6 +247,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Dialog beim Ziehen von „S-1“ nach „Done“, nichts abgehakt.',
           when: 'Ich wähle „Override the gate…“. Der Dialog nennt die Punkte, die offen bleiben. Erst „Override and move“ verschiebt die Story; „Back to the items“ geht zurück.',
           then: 'Nach „Override and move“ ist „S-1“ in „Done“, die Punkte bleiben offen, und eine Meldung sagt, dass die Definition übergangen wurde (mit „Open story“). Vorher bewegt sich nichts.',
+          preset: 'definitionsOn',
           tests: [
             'e2e/definitions.spec.ts › AC4.3 an override moves a card to "Done" with open items on purpose and tells so in a notice with a way to the story',
             'src/Definitions.test.tsx › AC4.3 an override moves the story only after a second, deliberate step that names what stays open'
@@ -245,6 +261,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Dialog aus AC4.1.',
           when: 'Ich wähle „Cancel“ (oder Escape), ziehe erneut und wähle „Open story“.',
           then: 'Nach „Cancel“ bleibt „S-6“ in „To do“. „Open story“ zeigt den Story-Dialog mit dem Panel.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC4.4 "Cancel" keeps the story, "Open story" leads to its dialog',
             'src/Definitions.test.tsx › AC4.4 Escape cancels the question'
@@ -258,6 +275,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Done-Liste mit offenen Punkten. „S-1“ steht in „In progress“.',
           when: 'Ich ziehe „S-1“ nach „Done“.',
           then: 'Der Dialog fordert die Done-Liste ein, nicht die Ready-Liste.',
+          preset: 'definitionsOn',
           tests: ['src/Definitions.test.tsx › AC4.5 entering "Done" asks for the Done list, not the Ready list']
         },
         {
@@ -268,6 +286,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Beide Listen mit offenen Punkten, „S-6“ in „To do“.',
           when: 'Ich ziehe „S-6“ nach „Done“.',
           then: 'Erst fordert der Dialog die Ready-Liste ein, danach („Next list“) die Done-Liste.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC4.6 from "To do" straight to "Done" asks for both lists, one after the other',
             'src/domain/definitions.test.ts › AC4.6 from "not started" straight to "done" crosses both lists, in order'
@@ -281,6 +300,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Beide Listen mit offenen Punkten; „In progress“ und „Review“ liegen beide in der Kategorie „In progress“.',
           when: 'Ich ziehe „S-1“ von „In progress“ nach „Review“ und eine Story von „Done“ zurück nach „In progress“.',
           then: 'Beide Male ohne Dialog.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC4.7 inside a category and backwards nothing is asked',
             'src/domain/definitions.test.ts › AC4.7 inside a category and backwards nothing is crossed'
@@ -294,6 +314,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Alle Ready-Punkte der Story sind abgehakt oder nicht relevant.',
           when: 'Ich ziehe die Story nach „In progress“.',
           then: 'Kein Dialog, sie wird direkt verschoben.',
+          preset: 'definitionsOn',
           tests: [
             'src/Definitions.test.tsx › AC4.8 a story that meets the list moves without a question',
             'src/domain/definitions.test.ts › AC4.8 asks nothing when the list is met'
@@ -307,6 +328,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Offene Ready-Punkte.',
           when: 'Ich ändere den Status nur mit der Tastatur über das Kontextmenü (Shift+F10) und im Story-Dialog über das Statusfeld.',
           then: 'Auch dort erscheint der Dialog; Escape bricht ab.',
+          preset: 'definitionsOn',
           tests: [
             'e2e/definitions.spec.ts › AC4.9 asks the same when the status is changed with the keyboard through the menu of the card',
             'src/Definitions.test.tsx › AC4.9 asks the same through the status field of the story dialog, and Escape leaves the story where it is'
@@ -327,6 +349,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Ready-Liste mit 5 Punkten; „S-6“ erfüllt 2, „S-7“ 1.',
           when: 'Ich öffne das Backlog.',
           then: '„S-6“ trägt „Not ready 2/5“ (mit Symbol und Text), „S-7“ „Not ready 1/5“. Erledigte Stories tragen nie diese Markierung.',
+          preset: 'definitionsMarks',
           tests: [
             'e2e/definitions.spec.ts › AC5.1 the backlog marks the stories that are not ready with icon and text',
             'src/Definitions.test.tsx › AC5.1 the backlog marks stories that are not ready, with their counter',
@@ -343,6 +366,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: '„S-6“ ist „Not ready“.',
           when: 'Ich hake im Story-Dialog die letzten offenen Punkte ab oder setze sie auf „nicht relevant“.',
           then: 'Die Markierung im Backlog ist weg.',
+          preset: 'definitionsMarks',
           tests: [
             'src/Definitions.test.tsx › AC5.2 the mark goes when the story meets the list',
             'src/domain/definitions.test.ts › AC5.2 a story that meets the list is not marked'
@@ -356,6 +380,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: '„S-1“ wurde mit „Override and move“ nach „Done“ gezogen; Done-Liste hat 3 Punkte, keiner erfüllt.',
           when: 'Ich öffne das Board.',
           then: 'Die Karte „S-1“ trägt „Not done 0/3“; Karten in anderen Spalten tragen nichts.',
+          preset: 'definitionsOn',
           tests: [
             'e2e/definitions.spec.ts › AC5.3 the board marks a card in "Done" that does not meet its Done list, also after a reload',
             'src/Definitions.test.tsx › AC5.3 the board marks a done story that does not meet its Done list',
@@ -372,6 +397,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: '„S-5“ ist schon erledigt, als ich einen neuen Done-Punkt anlege.',
           when: 'Ich öffne das Board.',
           then: '„S-5“ trägt keine Markierung. Eine Story, die ich danach nach „Done“ ziehe, wird mit der neuen Liste geprüft.',
+          preset: 'definitionsMarks',
           tests: [
             'src/Definitions.test.tsx › AC5.4 a story that was done before the list changed is never marked',
             'src/Definitions.test.tsx › AC5.4 a story that becomes done afterwards is held to the list as it is then',
@@ -387,6 +413,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Beide Listen leer (wie bisher).',
           when: 'Ich öffne Backlog und Board und ziehe Stories.',
           then: 'Keine Markierung, kein Dialog, nichts ist anders als heute.',
+          preset: 'definitionsEmpty',
           tests: [
             'src/Definitions.test.tsx › AC5.5 empty lists mark nothing and ask nothing',
             'src/domain/definitions.test.ts › AC5.5 empty lists mark nothing'
@@ -407,6 +434,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Ready-Liste und Story mit Panel.',
           when: 'Ich wechsle die Sprache auf Deutsch, Englisch, Französisch, Italienisch.',
           then: 'Alle neuen Texte (Einstellungen, Panel, Dialog, Chips, Meldungen) sind in jeder Sprache übersetzt, kein Text fehlt.',
+          preset: 'definitionsOn',
           tests: ['src/Definitions.test.tsx › AC6.1 shows the texts in %s']
         },
         {
@@ -417,6 +445,7 @@ export const PACKAGE_26: { issue: number; pullRequest: number; title: string; cr
           given: 'Hilfe geöffnet.',
           when: 'Ich suche „Definition of Done“.',
           then: 'Ein Hilfe-Thema erklärt Ready und Done und verlinkt zu Einstellungen › Definitionen (in allen vier Sprachen).',
+          preset: 'definitionsOn',
           tests: ['src/Help.test.tsx › AC6.2 explains the definitions of Ready and Done and links to where to set them up']
         }
       ]

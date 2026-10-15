@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { evaluate, itemsOf, notDone, notReady, type GroupResult, type ItemState, type ListResult } from '../domain/definitions';
+import { evaluate, inUse, notDone, notReady, type GroupResult, type ItemState, type ListResult } from '../domain/definitions';
 import type { DefinitionItem, DefinitionKind, Story } from '../domain/types';
 import { useApp } from '../state/AppState';
 
@@ -125,7 +125,8 @@ export function DefinitionsPanel({ story }: { story: Story }) {
   const { t } = useTranslation();
   const app = useApp();
   const { definitions } = app.settings;
-  const kinds = (['ready', 'done'] as const).filter((kind) => itemsOf(definitions[kind]).length > 0);
+  // Only a list that is switched on shows in the story.
+  const kinds = (['ready', 'done'] as const).filter((kind) => inUse(definitions[kind]));
   const [chosen, setChosen] = useState<DefinitionKind>('ready');
   const uid = useId();
   if (kinds.length === 0) return null;

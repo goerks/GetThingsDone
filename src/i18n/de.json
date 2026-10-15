@@ -1116,12 +1116,12 @@
     },
     "settings": {
       "enforce": {
-        "ready": "Prüfen, wenn eine Story „Nicht begonnen“ verlässt",
-        "done": "Prüfen, wenn eine Story nach „Erledigt“ wechselt"
+        "ready": "Definition of Ready aktivieren",
+        "done": "Definition of Done aktivieren"
       },
       "enforceHint": {
-        "ready": "Die Definition of Ready wird gefragt, wenn eine Story von einem Status „Nicht begonnen“ in einen Status „In Arbeit“ oder „Erledigt“ wechselt.",
-        "done": "Die Definition of Done wird gefragt, wenn eine Story in einen Status „Erledigt“ wechselt."
+        "ready": "Standardmässig aus. Solange sie aus ist, zeigen Stories die Liste nicht und nichts wird gefragt oder markiert. An: Sie wird gefragt, wenn eine Story von einem Status „Nicht begonnen“ in einen Status „In Arbeit“ oder „Erledigt“ wechselt.",
+        "done": "Standardmässig aus. Solange sie aus ist, zeigen Stories die Liste nicht und nichts wird gefragt oder markiert. An: Sie wird gefragt, wenn eine Story in einen Status „Erledigt“ wechselt."
       },
       "empty": "Diese Liste hat noch keine Punkte. Solange nichts drinsteht, wird nichts geprüft oder markiert.",
       "moveGroup": "Gruppe {{name}} verschieben",
@@ -1148,7 +1148,8 @@
       "unfoldGroup": "Gruppe {{name}} aufklappen",
       "newGroup": "Neue Gruppe",
       "newGroupPlaceholder": "Neue Gruppe – Enter legt an",
-      "addGroup": "Gruppe anlegen"
+      "addGroup": "Gruppe anlegen",
+      "off": "Die Liste ist aus: Stories zeigen sie nicht, und nichts wird geprüft oder markiert."
     },
     "ruleHelp": {
       "hasDescription": "Die Beschreibung der Story ist nicht leer.",
