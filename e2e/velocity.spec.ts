@@ -270,19 +270,28 @@ test('AC6.2 works with the keyboard only', async ({ page }) => {
   await expect(button(page)).toBeFocused();
 });
 
-test('AC7.1 has five completed sprints in the demo and a running sprint that can be completed', async ({ page }) => {
-  // Given the demo data of the preview, unchanged
+test('AC7.1 loads the test data from the acceptance panel and keeps it after the reload', async ({ page }) => {
+  // Given the demo data of the preview, in which no sprint is completed
   await openWith(page, undefined);
-  // Then the button shows the average and the window has the five completed sprints
-  await expect(button(page)).toHaveText('Velocity · Ø 20');
-  await openVelocity(page);
-  await expect(sprintBars(page)).toHaveCount(5);
-  await expect(sprintBars(page).last()).toHaveAttribute('aria-label', 'Pre-sprint E: 24 / 20');
-  // When I complete the running Sprint 1
-  await button(page).click();
-  await page.getByRole('button', { name: 'Complete sprint' }).first().click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Complete sprint' }).click();
-  // Then it is the sixth sprint in the window
+  await expect(button(page)).toHaveText('Velocity');
+  // When I open the acceptance panel and load the test data of the first step (after the question)
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.goto('/?acceptance=1#/board');
+  await page.locator('.acceptance__toggle').click();
+  const acceptance = page.getByRole('complementary', { name: 'Abnahme' });
+  await expect(acceptance.getByText('Sprint 1 bis 6 abgeschlossen')).toBeVisible();
+  await acceptance.getByRole('button', { name: 'Diese Testdaten laden' }).click();
+  // Then the page has loaded again with the panel open, and the window shows the six completed sprints
+  await expect(page.getByRole('heading', { name: 'Sprint 7', level: 1 })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Abnahme' })).toBeVisible();
+  await expect(button(page)).toHaveText('Velocity · Ø 21');
   await openVelocity(page);
   await expect(sprintBars(page)).toHaveCount(6);
+  // And the data is still there after another reload, and the running Sprint 7 can be completed
+  await page.reload();
+  await expect(button(page)).toHaveText('Velocity · Ø 21');
+  await page.getByRole('button', { name: 'Complete sprint' }).first().click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Complete sprint' }).click();
+  await openVelocity(page);
+  await expect(sprintBars(page)).toHaveCount(7);
 });
