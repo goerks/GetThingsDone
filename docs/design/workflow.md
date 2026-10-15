@@ -2,7 +2,7 @@
 
 Issue: [#49 Custom workflow: define allowed transitions between statuses](https://github.com/goerks/GetThingsDone/issues/49)
 
-The mockups are in [`workflow-variants.html`](workflow-variants.html) (open the file in a browser; the mockup text is in German because it is reviewed in German). Screenshots: `workflow-*.png`. Status: proposal, waiting for the PO's decision.
+The mockups are in [`workflow-variants.html`](workflow-variants.html) (open the file in a browser; the mockup text is in German because it is reviewed in German). Screenshots: `workflow-*.png`. Status: variant 2 and board option a chosen by the PO on 2026-10-15 (recommendation 2.a); acceptance criteria still to be approved.
 
 ## Decided by the PO (2026-10-15)
 
@@ -33,4 +33,4 @@ The story dialog and the backlog only offer allowed target statuses.
 
 ## Recommendation
 
-**2.a**: list with chips, lock while dragging. The message of b additionally covers touch, where there is no hover.
+**2.a** (chosen by the PO): list with chips, lock while dragging. The message of b additionally covers touch, where there is no hover.
