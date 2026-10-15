@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a mockup of the workflow settings. Tokens mirror the app's "Focus" design (docs/design/tokens.css). */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --c-blue: #2457d6; --c-amber: #b45309; --c-teal: #0f766e; --c-violet: #7c3aed;
+  --c-rose: #be123c; --c-green: #15803d; --c-cyan: #0e7490; --c-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; align-content: start; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+
+/* ---------- Mockup frame ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 860px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 42px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 14px; color: var(--muted); }
+.gear { margin-left: auto; width: 28px; height: 28px; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent); border-radius: 6px; display: grid; place-items: center; font-size: 14px; }
+.page { padding: 16px 18px 20px; display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side span { padding: 6px 10px; border-radius: 6px; color: var(--muted); }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.content { display: grid; gap: 10px; min-width: 0; }
+.ph { display: flex; align-items: center; gap: 12px; }
+.ph b { font-size: 16px; }
+.ph .btn { margin-left: auto; }
+.hint { font-size: 12px; color: var(--muted); }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--danger { background: var(--bad); color: var(--surface); border-color: var(--bad); font-weight: 500; }
+.btn--ghost { border-style: dashed; color: var(--muted); }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; white-space: nowrap; color: var(--muted); }
+
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex: none; }
+.blue { background: var(--c-blue); } .amber { background: var(--c-amber); } .teal { background: var(--c-teal); }
+.violet { background: var(--c-violet); } .green { background: var(--c-green); } .slate { background: var(--c-slate); } .cyan { background: var(--c-cyan); }
+.grip { color: var(--muted); letter-spacing: -2px; }
+.x { color: var(--muted); }
+.lock { color: var(--muted); font-size: 11px; }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.input { height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; background: var(--surface); min-width: 0; }
+.input--focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.select { height: 28px; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; display: inline-flex; align-items: center; gap: 6px; background: var(--surface); white-space: nowrap; }
+.select::after { content: "▾"; color: var(--muted); font-size: 11px; }
+
+
+:root { --cat-new: var(--c-slate); --cat-wip: var(--c-blue); --cat-done: var(--c-green); }
+.new1 { background: var(--cat-new); } .new2 { background: color-mix(in oklab, var(--cat-new) 65%, var(--surface)); }
+.wip1 { background: var(--cat-wip); } .wip2 { background: color-mix(in oklab, var(--cat-wip) 72%, var(--surface)); }
+.done1 { background: var(--cat-done); }
+.bad { color: var(--bad); } .ok { color: var(--ok); }
+
+/* Ratings */
+.rate { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.rate .box ul { padding-left: 18px; display: grid; gap: 4px; }
+.rate .pos b { color: var(--ok); } .rate .neg b { color: var(--bad); }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.opt { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.opt__head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.id { font-family: var(--font-mono); font-size: 12px; background: var(--pill); padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+.reco { background: var(--ok-soft); border: 1px solid var(--ok); border-radius: var(--r); padding: 18px 20px; display: grid; gap: 10px; }
+.reco h3 { color: var(--ok); }
+
+/* Switch */
+.sw { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--text); }
+.sw i { width: 28px; height: 16px; border-radius: 8px; background: var(--border); position: relative; flex: none; }
+.sw i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); }
+.sw.on i { background: var(--accent); } .sw.on i::after { left: 14px; }
+.sw.off { color: var(--muted); }
+
+/* Variant 1: matrix */
+.mx { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.mx th, .mx td { padding: 5px 6px; text-align: center; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+.mx th:last-child, .mx td:last-child { border-right: 0; }
+.mx tr:last-child td, .mx tr:last-child th { border-bottom: 0; }
+.mx thead th { background: var(--pill); font-weight: 600; vertical-align: bottom; }
+.mx thead .grp { text-transform: uppercase; letter-spacing: .06em; font-size: 10px; color: var(--muted); }
+.mx tbody th { text-align: left; font-weight: 500; white-space: nowrap; background: var(--surface); }
+.mx .cat { box-shadow: inset 3px 0 0 var(--bar, transparent); }
+.mx .sep { border-right: 2px solid var(--muted); }
+.mx .corner { text-align: left; color: var(--muted); font-weight: 400; font-size: 11px; }
+.cell { width: 22px; height: 22px; border-radius: 5px; display: inline-grid; place-items: center; border: 1px solid var(--border); font-size: 12px; color: var(--muted); background: var(--surface); }
+.cell.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-soft-ink); font-weight: 700; }
+.cell.self { border: 0; background: transparent; }
+.cell.nope { border-style: dashed; background: var(--pill); opacity: .6; }
+.cell.exc { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--c-amber); }
+.dotl { display: inline-flex; gap: 6px; align-items: center; }
+
+/* Variant 2: per status chips */
+.vg { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.vg__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 6px 10px; background: var(--pill); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.vg__head .sw { margin-left: auto; }
+.vs { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 10px; padding: 8px 10px; border-top: 1px solid var(--border); align-items: start; }
+.vs__name { display: flex; align-items: center; gap: 8px; font-weight: 600; min-height: 26px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chips small { color: var(--muted); font-size: 11px; margin-right: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 13px; border: 1px dashed var(--border); color: var(--muted); background: transparent; white-space: nowrap; }
+.chip.on { border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+.chip.on::before { content: "\2713"; font-weight: 700; }
+.chip.end.on { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.chip.end.on::before { content: "\2713"; }
+.vs--ends { background: var(--column); }
+.phone { width: 330px; max-width: 100%; border: 1px solid var(--border); border-radius: 18px; background: var(--bg); padding: 12px; display: grid; gap: 8px; box-shadow: 0 6px 24px var(--shadow); font-size: 13px; }
+.phone .vs { grid-template-columns: 1fr; gap: 6px; }
+
+/* Variant 3: diagram */
+.flow { width: 100%; height: auto; min-width: 780px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: block; }
+.flow text { font: 12px var(--font-sans); fill: var(--text); }
+.flow .lane-t { font: 600 10px var(--font-sans); fill: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.flow .band { stroke: none; }
+.flow .node rect { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
+.flow .terminal circle { fill: var(--text); stroke: none; } .flow .terminal.end circle.o { fill: none; stroke: var(--text); stroke-width: 2; }
+.flow .e { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+.flow .e.del { stroke: var(--bad); }
+.flow .e.back { stroke-dasharray: 5 3; }
+.flow .ghost { fill: none; stroke: var(--border); stroke-width: 1.4; stroke-dasharray: 2 4; }
+.flow .arrow { fill: var(--accent); } .flow .arrow.del { fill: var(--bad); }
+.flow .tag { font: 10px var(--font-sans); fill: var(--muted); }
+
+/* Board feedback options */
+.mb { display: flex; gap: 6px; padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; position: relative; align-items: stretch; overflow: hidden; }
+.mc { flex: 1 1 0; min-width: 0; background: var(--column); border: 1px solid var(--border); border-radius: 5px; padding: 5px; display: grid; gap: 5px; align-content: start; min-height: 120px; font-size: 11px; }
+.mc h4 { margin: 0; font-size: 10px; font-weight: 600; display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.mc.ok { outline: 2px solid var(--accent); outline-offset: -2px; background: var(--accent-soft); }
+.mc.no { opacity: .55; background: repeating-linear-gradient(135deg, var(--column) 0 6px, var(--pill) 6px 12px); }
+.mc.thin { flex: 0 0 26px; padding: 5px 2px; justify-items: center; }
+.mc.thin h4 { writing-mode: vertical-rl; }
+.mcard { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-size: 11px; }
+.mcard.drag { border-color: var(--accent); box-shadow: 0 4px 10px var(--shadow); transform: rotate(-2deg); }
+.mcard.ghosted { opacity: .4; border-style: dashed; }
+.why { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); background: var(--text); color: var(--bg); border-radius: 6px; padding: 4px 8px; font-size: 11px; white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis; }
+.toast { position: absolute; left: 8px; right: 8px; bottom: 8px; background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad); border-radius: 6px; padding: 5px 8px; font-size: 11px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="intro">
+    <div class="meta"><span>Issue #49</span><span>Einstellungen · Workflow</span><span>3 Varianten · Optionen A–C</span></div>
+    <h1>Workflow der Stories festlegen</h1>
+    <p class="muted">Wo legst du fest, welche Übergänge zwischen Status erlaubt sind, und was siehst du auf dem Board, wenn ein Übergang gesperrt ist? Drei Wege für die Einstellungen (1–3), dazu drei Arten, das gesperrte Ziehen auf dem Board zu zeigen (A–C). Kombinierbar: <b>2.a</b> heisst Variante 2 mit Board-Option a. Alle Mockups zeigen dieselben Beispieldaten, nur Demo.</p>
+  </header>
+
+  <section class="variant" aria-labelledby="rules">
+    <h2 id="rules">Entschieden (PO, 15.10.)</h2>
+    <div class="rules">
+      <div class="box"><b>Gilt für</b><span>Stories (später Custom Types). Epics haben keinen Workflow.</span></div>
+      <div class="box"><b>Start und Ende</b><span>Beides ist Teil des Workflows. Ein gesperrter Übergang zum <i>Ende</i> verhindert das Löschen aus diesem Status.</span></div>
+      <div class="box"><b>Standard</b><span>Alles erlaubt, auch rückwärts. Du sperrst, was nicht sein darf.</span></div>
+      <div class="box"><b>Kategorie-Schalter</b><span>Pro Kategorie «Freie Übergänge innerhalb». Einzelne Übergänge lassen sich danach trotzdem sperren.</span></div>
+      <div class="box"><b>Mehrfach verschieben</b><span>Alles oder nichts, mit Meldung.</span></div>
+      <div class="box"><b>Kein Weg zum Ende</b><span>Nur eine Warnung, Speichern bleibt möglich.</span></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="v1">
+    <div class="variant__head"><h3 id="v1"><span class="id">1</span> Matrix: Von × Nach</h3></div>
+    <p>Eine Tabelle. Zeilen sind das «Von», Spalten das «Nach». Ein Klick auf ein Feld erlaubt oder sperrt den Übergang. Start ist die erste Zeile, Ende die letzte Spalte. Der Kategorie-Schalter steht im Kopf der Gruppe und füllt die Blöcke auf der Diagonale.</p>
+    <div class="scroll"><div class="app" role="img" aria-label="Matrix mit den Status als Zeilen und Spalten, erlaubte Übergänge markiert">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Releases</span></span><span class="gear">⚙</span></div>
+      <div class="page"><div class="side"><span>Felder</span><span>Status-Werte</span><span class="on">Workflow</span></div>
+      <div class="content"><div class="ph"><b>Workflow der Stories</b><span class="hint">Klick auf ein Feld erlaubt oder sperrt den Übergang</span></div>
+        <div id="matrix"></div>
+        <div class="warn" id="m-warn" hidden>⚠ Von keinem Status führt ein Übergang zum Ende. Stories können dann nicht gelöscht werden.</div>
+        <div class="hint">Gestrichelte Felder gibt es nicht (Start führt nur in «Nicht begonnen»). Orange Rand: Ausnahme von der Kategorie-Regel.</div>
+      </div></div></div></div>
+    <div class="rate">
+      <div class="box pos"><b>Plus</b><ul><li>Alles auf einen Blick, auch Lücken sind sofort sichtbar.</li><li>Kategorie-Schalter entspricht den Blöcken auf der Diagonale.</li><li>Start und Ende passen als Zeile und Spalte ohne Sonderfall.</li></ul></div>
+      <div class="box neg"><b>Minus</b><ul><li>Auf dem Smartphone muss die Tabelle seitlich scrollen.</li><li>Ab etwa 8 Status unübersichtlich und schwer zu treffen.</li><li>Abstrakt: Man liest «von nach» statt «was darf als Nächstes».</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="v2">
+    <div class="variant__head"><h3 id="v2"><span class="id">2</span> Liste: «Von hier aus nach …»</h3></div>
+    <p>Pro Status eine Zeile mit den möglichen Zielen als Schaltflächen. Eingeschaltet heisst erlaubt. Der Kategorie-Schalter steht im Kopf der Gruppe. Start und Ende stehen als eigene Zeilen oben und unten.</p>
+    <div class="scroll"><div class="app" role="img" aria-label="Liste: pro Status die erlaubten Ziele als Schaltflächen">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Releases</span></span><span class="gear">⚙</span></div>
+      <div class="page"><div class="side"><span>Felder</span><span>Status-Werte</span><span class="on">Workflow</span></div>
+      <div class="content"><div class="ph"><b>Workflow der Stories</b><span class="hint">Eingeschaltet = erlaubt</span></div>
+        <div id="list"></div>
+        <div class="hint">Sperre «Ende» bei einem Status, damit Stories dort nicht gelöscht werden können.</div>
+      </div></div></div></div>
+    <p class="muted">Auf dem Smartphone (gleiche Daten, die Zeilen stapeln sich):</p>
+    <div class="phone" id="phone" role="img" aria-label="Dieselbe Liste auf einem schmalen Bildschirm"></div>
+    <div class="rate">
+      <div class="box pos"><b>Plus</b><ul><li>Liest sich wie der Gedanke «was darf als Nächstes?».</li><li>Funktioniert auch auf dem Smartphone und mit der Tastatur (Tab, Leertaste).</li><li>Skaliert gut: bei vielen Status wächst die Liste nach unten, nicht zur Seite.</li><li>Der Kategorie-Schalter sitzt dort, wo die Kategorie steht.</li></ul></div>
+      <div class="box neg"><b>Minus</b><ul><li>Lücken sieht man nicht auf einen Blick (zum Beispiel Status ohne Weg zurück).</li><li>Jeder Übergang kommt aus Sicht des Ziels nicht vor: «Wer darf nach Erledigt?» muss man suchen.</li><li>Bei vielen Status viele Schaltflächen pro Zeile.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="v3">
+    <div class="variant__head"><h3 id="v3"><span class="id">3</span> Diagramm: Start → … → Ende</h3></div>
+    <p>Der Workflow als Bild, wie in deiner Skizze: Start (Punkt), die Status in ihren Kategorien, Ende (Ring). Pfeile sind erlaubte Übergänge, gestrichelte Pfeile gehen rückwärts, rote führen zum Ende. Ein Übergang entsteht oder verschwindet per Klick auf Quelle, dann Ziel.</p>
+    <div class="scroll"><div class="app" role="img" aria-label="Diagramm mit Start, Status und Ende, Pfeile für erlaubte Übergänge">
+      <div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><span class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Releases</span></span><span class="gear">⚙</span></div>
+      <div class="page"><div class="side"><span>Felder</span><span>Status-Werte</span><span class="on">Workflow</span></div>
+      <div class="content"><div class="ph"><b>Workflow der Stories</b><span class="sw on"><i></i>Frei in «Nicht begonnen»</span><span class="sw on"><i></i>Frei in «In Arbeit»</span><span class="sw off"><i></i>Frei in «Erledigt»</span></div>
+        <div class="scroll"><svg class="flow" id="flow" viewBox="0 0 900 292" role="img" aria-label="Start, Zu erledigen, Bereit, In Arbeit, Review, Erledigt, Ende mit Pfeilen"></svg></div>
+        <div class="hint">Ausgewählt: Review → Erledigt, erlaubt. Taste Entf sperrt den Übergang.</div>
+      </div></div></div></div>
+    <div class="rate">
+      <div class="box pos"><b>Plus</b><ul><li>Entspricht deiner Skizze und ist sofort verständlich.</li><li>Fehlende Wege (kein Rückweg, kein Ende) fallen sofort auf.</li></ul></div>
+      <div class="box neg"><b>Minus</b><ul><li>Pfeile treffen und löschen ist fummelig, besonders mit Tastatur und Screenreader.</li><li>Auf dem Smartphone zu klein; es braucht trotzdem eine Liste als Alternative.</li><li>Ab etwa 6 Status überlagern sich die Pfeile; Layout und Test sind der grösste Aufwand.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="variant" aria-labelledby="opts">
+    <h2 id="opts">Board: wie zeigt sich ein gesperrter Übergang?</h2>
+    <p>Gilt für jede Variante. Beispiel: «S-7» liegt in «In Arbeit» und wird gezogen. Erlaubt sind «Bereit» und «Review». «Zu erledigen» und «Erledigt» sind gesperrt. Im Story-Dialog und im Backlog zeigt die Statusauswahl nur erlaubte Ziele; auf dem Board ist das die Frage.</p>
+    <div class="opts">
+      <div class="opt"><div class="opt__head"><span class="id">a</span><b>Sperren während des Ziehens</b></div><div class="mb" id="b-a"></div>
+        <div class="rate"><div class="box pos"><b>Plus</b><ul><li>Du siehst vor dem Loslassen, wohin es geht.</li><li>Grund erscheint beim Darüberfahren.</li></ul></div><div class="box neg"><b>Minus</b><ul><li>Auf Touch kein «Darüberfahren»: der Grund fehlt dort.</li></ul></div></div></div>
+      <div class="opt"><div class="opt__head"><span class="id">b</span><b>Loslassen und Meldung</b></div><div class="mb" id="b-b"></div>
+        <div class="rate"><div class="box pos"><b>Plus</b><ul><li>Board bleibt ruhig, wenig zu bauen.</li><li>Meldung nennt den Grund, auch bei Mehrfachauswahl.</li></ul></div><div class="box neg"><b>Minus</b><ul><li>Du erfährst es erst nach dem Loslassen.</li></ul></div></div></div>
+      <div class="opt"><div class="opt__head"><span class="id">c</span><b>Gesperrte Spalten einklappen</b></div><div class="mb" id="b-c"></div>
+        <div class="rate"><div class="box pos"><b>Plus</b><ul><li>Klar: nur die erlaubten Spalten bleiben breit.</li></ul></div><div class="box neg"><b>Minus</b><ul><li>Board springt beim Ziehen, das irritiert.</li><li>Grund steht nirgends.</li></ul></div></div></div>
+    </div>
+  </section>
+
+  <section class="reco" aria-labelledby="rec">
+    <h3 id="rec">Empfehlung: 2.a</h3>
+    <p><b>Variante 2 (Liste «Von hier aus nach …») mit Board-Option a (Sperren während des Ziehens).</b></p>
+    <p>Die Liste funktioniert auf dem Smartphone und mit der Tastatur, wächst mit der Zahl der Status nach unten und lässt den Kategorie-Schalter dort sitzen, wo die Kategorie steht. Sie ist der einzige Weg, der ohne Sonderlösung zugänglich ist. Beim Board zeigt a den Grund sofort und vermeidet frustrierendes Loslassen. Auf Touch zeigt die Meldung aus b den Grund nach dem Loslassen, als Ergänzung zu a.</p>
+    <p class="muted">Du gibst auf: den schnellen Überblick über Lücken der Matrix. Die Warnung «kein Weg zum Ende» fängt den wichtigsten Fall ab. Das Diagramm (3) könnte später als reine Ansicht dazukommen, ohne dass man darin bearbeitet.</p>
+  </section>
+</main>
+<script>
+(function () {
+  var S = [
+    { id: 'zu', n: 'Zu erledigen', cat: 0, dot: 'new1' },
+    { id: 'be', n: 'Bereit', cat: 0, dot: 'new2' },
+    { id: 'ia', n: 'In Arbeit', cat: 1, dot: 'wip1' },
+    { id: 're', n: 'Review', cat: 1, dot: 'wip2' },
+    { id: 'er', n: 'Erledigt', cat: 2, dot: 'done1' }
+  ];
+  var CATS = ['Nicht begonnen', 'In Arbeit', 'Erledigt'];
+  var FREE = [true, true, false];
+  var ALLOW = {
+    start: { zu: 1, be: 1 },
+    zu: { be: 1, ia: 1, end: 1 },
+    be: { zu: 1, ia: 1, end: 1 },
+    ia: { be: 1, re: 1 },
+    re: { ia: 1, er: 1 },
+    er: { ia: 1 }
+  };
+  var ids = S.map(function (s) { return s.id; });
+  var by = {}; S.forEach(function (s) { by[s.id] = s; });
+  function allowed(f, t) { return !!(ALLOW[f] && ALLOW[f][t]); }
+  function exception(f, t) {
+    if (f === 'start' || t === 'end') return false;
+    if (by[f].cat !== by[t].cat || !FREE[by[f].cat]) return false;
+    return !allowed(f, t);
+  }
+  function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function sw(on, text) { return '<span class="sw ' + (on ? 'on' : 'off') + '"><i></i>' + text + '</span>'; }
+
+  // Variant 1: matrix
+  (function () {
+    var t = h('table', 'mx'); var i, j;
+    var thead = '<thead><tr><th class="corner" rowspan="2">Von ↓ &nbsp; Nach →</th>';
+    var catCols = [2, 2, 1];
+    for (i = 0; i < 3; i++) thead += '<th class="grp sep" colspan="' + catCols[i] + '">' + CATS[i] + '</th>';
+    thead += '<th class="grp" rowspan="2">Ende</th></tr><tr>';
+    S.forEach(function (s, k) {
+      var last = k === 1 || k === 3 || k === 4;
+      thead += '<th class="' + (last ? 'sep' : '') + '"><span class="dotl"><span class="dot ' + s.dot + '"></span>' + s.n + '</span></th>';
+    });
+    thead += '</tr></thead>';
+    var body = '<tbody>';
+    function row(label, from, startRow) {
+      var r = '<tr><th>' + label + '</th>';
+      S.forEach(function (s, k) {
+        var last = k === 1 || k === 3 || k === 4;
+        var cls = last ? 'sep' : '';
+        var c;
+        if (from === s.id) c = '<span class="cell self">–</span>';
+        else if (startRow && by[s.id].cat !== 0) c = '<span class="cell nope">·</span>';
+        else if (allowed(from, s.id)) c = '<span class="cell on">✓</span>';
+        else c = '<span class="cell' + (exception(from, s.id) ? ' exc' : '') + '"></span>';
+        r += '<td class="' + cls + '">' + c + '</td>';
+      });
+      if (startRow) r += '<td><span class="cell nope">·</span></td>';
+      else r += '<td>' + (allowed(from, 'end') ? '<span class="cell on">✓</span>' : '<span class="cell"></span>') + '</td>';
+      return r + '</tr>';
+    }
+    body += row('<span class="dotl"><span class="dot" style="background:var(--text)"></span>Start (neu)</span>', 'start', true);
+    S.forEach(function (s) { body += row('<span class="dotl"><span class="dot ' + s.dot + '"></span>' + s.n + '</span>', s.id, false); });
+    body += '</tbody>';
+    t.innerHTML = thead + body;
+    var box = document.getElementById('matrix');
+    var sws = h('div', 'chips', '<small>Freie Übergänge innerhalb:</small>' + sw(FREE[0], 'Nicht begonnen') + sw(FREE[1], 'In Arbeit') + sw(FREE[2], 'Erledigt'));
+    sws.style.marginBottom = '6px';
+    box.appendChild(sws); box.appendChild(h('div', 'scroll')).appendChild(t);
+    var any = ids.some(function (id) { return allowed(id, 'end'); });
+    document.getElementById('m-warn').hidden = any;
+  })();
+
+  // Variant 2: list
+  function buildList(root) {
+    function chips(from) {
+      var c = h('div', 'chips', '<small>→ nach</small>');
+      S.forEach(function (s) {
+        if (s.id === from) return;
+        if (from === 'start' && s.cat !== 0) return;
+        c.appendChild(h('span', 'chip' + (allowed(from, s.id) ? ' on' : ''), s.n));
+      });
+      if (from !== 'start') c.appendChild(h('span', 'chip end' + (allowed(from, 'end') ? ' on' : ''), 'Ende (löschen)'));
+      return c;
+    }
+    var start = h('div', 'vg');
+    start.appendChild(h('div', 'vg__head', 'Start · neue Story'));
+    var sr = h('div', 'vs vs--ends'); sr.appendChild(h('div', 'vs__name', '<span class="dot" style="background:var(--text)"></span>Neue Story')); sr.appendChild(chips('start'));
+    start.appendChild(sr); root.appendChild(start);
+    for (var c = 0; c < 3; c++) {
+      var g = h('div', 'vg');
+      g.appendChild(h('div', 'vg__head', '<span class="dot ' + ['new1', 'wip1', 'done1'][c] + '"></span>' + CATS[c] + sw(FREE[c], 'Freie Übergänge innerhalb')));
+      S.filter(function (s) { return s.cat === c; }).forEach(function (s) {
+        var r = h('div', 'vs'); r.appendChild(h('div', 'vs__name', '<span class="dot ' + s.dot + '"></span>' + s.n)); r.appendChild(chips(s.id)); g.appendChild(r);
+      });
+      root.appendChild(g);
+    }
+    root.style.display = 'grid'; root.style.gap = '8px';
+  }
+  buildList(document.getElementById('list'));
+  buildList(document.getElementById('phone'));
+
+  // Variant 3: diagram
+  (function () {
+    var svg = document.getElementById('flow'); var NS = 'http://www.w3.org/2000/svg';
+    var X = { start: 40, zu: 150, be: 290, ia: 440, re: 590, er: 735, end: 860 }; var Y = 130;
+    function el(n, a, txt) { var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e; }
+    // category bands
+    var bands = [[100, 340, 'NICHT BEGONNEN'], [380, 650, 'IN ARBEIT'], [680, 800, 'ERLEDIGT']];
+    var fills = ['var(--pill)', 'var(--accent-soft)', 'var(--ok-soft)'];
+    bands.forEach(function (b, i) { el('rect', { x: b[0], y: 16, width: b[1] - b[0], height: 238, rx: 8, fill: fills[i], class: 'band', opacity: .55 }); el('text', { x: b[0] + 10, y: 34, class: 'lane-t' }, b[2]); });
+    var defs = el('defs', {});
+    ['', 'del'].forEach(function (k) { var m = document.createElementNS(NS, 'marker'); m.setAttribute('id', 'ar' + k); m.setAttribute('viewBox', '0 0 10 10'); m.setAttribute('refX', '9'); m.setAttribute('refY', '5'); m.setAttribute('markerWidth', '7'); m.setAttribute('markerHeight', '7'); m.setAttribute('orient', 'auto-start-reverse'); var p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'M0 0 L10 5 L0 10 z'); p.setAttribute('class', 'arrow ' + k); m.appendChild(p); defs.appendChild(m); });
+    var W = 96, HH = 34;
+    function right(id) { return X[id] + (id === 'start' || id === 'end' ? 8 : W / 2); }
+    function left(id) { return X[id] - (id === 'start' || id === 'end' ? 8 : W / 2); }
+    function straight(a, b) { el('path', { d: 'M' + right(a) + ' ' + Y + ' L' + (left(b) - 2) + ' ' + Y, class: 'e', 'marker-end': 'url(#ar)' }); }
+    // forward chain
+    straight('start', 'zu'); straight('zu', 'be'); straight('be', 'ia'); straight('ia', 're'); straight('re', 'er');
+    // backward arcs (below)
+    function arcBelow(a, b, depth, cls) { var x1 = X[a], x2 = X[b], y = Y + HH / 2; el('path', { d: 'M' + x1 + ' ' + y + ' C' + x1 + ' ' + (y + depth) + ' ' + x2 + ' ' + (y + depth) + ' ' + x2 + ' ' + (y + 3), class: 'e back ' + (cls || ''), 'marker-end': 'url(#ar' + (cls || '') + ')' }); }
+    arcBelow('be', 'zu', 55); arcBelow('re', 'ia', 55); arcBelow('er', 'ia', 95);
+    // forward skip: zu -> ia
+    el('path', { d: 'M' + X.zu + ' ' + (Y - HH / 2) + ' C' + X.zu + ' ' + (Y - 70) + ' ' + X.ia + ' ' + (Y - 70) + ' ' + X.ia + ' ' + (Y - HH / 2 - 3), class: 'e', 'marker-end': 'url(#ar)' });
+    // ghost: zu -> er (forbidden)
+    el('path', { d: 'M' + X.zu + ' ' + (Y - HH / 2) + ' C' + X.zu + ' ' + (Y - 105) + ' ' + X.er + ' ' + (Y - 105) + ' ' + X.er + ' ' + (Y - HH / 2 - 3), class: 'ghost' });
+    el('text', { x: 440, y: 40 + 36, class: 'tag', 'text-anchor': 'middle' }, '');
+    // to end (red): zu, be
+    function toEnd(a, depth) { var y = Y + HH / 2; el('path', { d: 'M' + X[a] + ' ' + y + ' C' + X[a] + ' ' + (y + depth) + ' ' + X.end + ' ' + (y + depth) + ' ' + X.end + ' ' + (Y + 9), class: 'e del', 'marker-end': 'url(#ardel)' }); }
+    toEnd('zu', 120); toEnd('be', 105);
+    // nodes
+    S.forEach(function (s) {
+      var g = el('g', { class: 'node' }); var r = document.createElementNS(NS, 'rect'); r.setAttribute('x', X[s.id] - W / 2); r.setAttribute('y', Y - HH / 2); r.setAttribute('width', W); r.setAttribute('height', HH); r.setAttribute('rx', 7); g.appendChild(r);
+      var tx = document.createElementNS(NS, 'text'); tx.setAttribute('x', X[s.id]); tx.setAttribute('y', Y + 4); tx.setAttribute('text-anchor', 'middle'); tx.textContent = s.n; g.appendChild(tx);
+    });
+    el('circle', { cx: X.start, cy: Y, r: 8, fill: 'var(--text)' });
+    el('text', { x: X.start, y: Y + 28, 'text-anchor': 'middle', class: 'tag' }, 'Start');
+    el('circle', { cx: X.end, cy: Y, r: 9, fill: 'none', stroke: 'var(--text)', 'stroke-width': 2 });
+    el('circle', { cx: X.end, cy: Y, r: 4, fill: 'var(--text)' });
+    el('text', { x: X.end, y: Y - 18, 'text-anchor': 'middle', class: 'tag' }, 'Ende');
+    el('text', { x: 110, y: 282, class: 'tag' }, 'durchgezogen blau: vorwärts · gestrichelt: rückwärts · gepunktet grau: gesperrt');
+        el('text', { x: 890, y: 282, 'text-anchor': 'end', class: 'tag', fill: 'var(--bad)' }, 'rot: Ende (löschen)');
+  })();
+
+  // Board options
+  function board(id, mode) {
+    var box = document.getElementById(id);
+    var cols = [['Zu erledigen', 'no'], ['Bereit', 'ok'], ['In Arbeit', 'src'], ['Review', 'ok'], ['Erledigt', 'no']];
+    cols.forEach(function (c) {
+      var d = h('div', 'mc');
+      var lock = c[1] === 'no' ? '🔒' : '';
+      if (mode === 'a') { if (c[1] === 'no') d.className += ' no'; if (c[1] === 'ok') d.className += ' ok'; d.innerHTML = '<h4>' + c[0] + ' ' + lock + '</h4>'; }
+      if (mode === 'b') { d.innerHTML = '<h4>' + c[0] + '</h4>'; }
+      if (mode === 'c') { if (c[1] === 'no') { d.className += ' thin'; d.innerHTML = '<h4>' + c[0] + ' 🔒</h4>'; } else { d.innerHTML = '<h4>' + c[0] + '</h4>'; if (c[1] === 'ok') d.className += ' ok'; } }
+      if (c[1] === 'src') d.appendChild(h('div', 'mcard' + (mode === 'b' ? '' : ' ghosted'), 'S-7 Login'));
+      if (c[1] === 'ok' && c[0] === 'Review' && mode !== 'b') d.appendChild(h('div', 'mcard drag', 'S-7 Login'));
+      if (mode === 'b' && c[1] === 'no' && c[0] === 'Erledigt') d.appendChild(h('div', 'mcard drag', 'S-7 Login'));
+      box.appendChild(d);
+    });
+    if (mode === 'a') box.appendChild(h('div', 'why', 'In Arbeit → Erledigt ist nicht erlaubt'));
+    if (mode === 'b') box.appendChild(h('div', 'toast', '«S-7» bleibt in «In Arbeit»: Übergang nach «Erledigt» ist nicht erlaubt.'));
+    box.style.minHeight = '170px';
+  }
+  board('b-a', 'a'); board('b-b', 'b'); board('b-c', 'c');
+})();
+</script>
+</body>
+</html>
