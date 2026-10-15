@@ -3,7 +3,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 /*
  * End-to-end tests of the Definition of Ready and Done (#26) in a real browser, following the test cases the PO approved
  * in the issue. Every test starts from the demo data of a fresh browser on Tuesday 13 October 2026. The demo lists are
- * switched on, so a change of status asks for them; `switchOff` turns checking off, as the team does in Settings › Definitions.
+ * switched off, as every list is until the team switches it on; `switchOn` turns them on, as the team does in Settings › Definitions.
  * Ready: Functional (has a description, has acceptance criteria), Technical (Dependencies are clarified), Design (Design is
  * available, Texts are agreed). Done: Quality (all criteria accepted, Code is reviewed), Documentation (Documentation is updated).
  * S-6 ("Operate the board with the keyboard only") is in "To do" and meets 2 of the 5 Ready items.
@@ -23,14 +23,14 @@ async function open(page: Page, hash: string): Promise<void> {
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 }
 
-/** Switches checking off for both lists, as the switches in the settings do, and reloads. */
-async function switchOff(page: Page, hash = '#/board'): Promise<void> {
+/** Switches checking on for both lists, as the switches in the settings do, and reloads. */
+async function switchOn(page: Page, hash = '#/board'): Promise<void> {
   await open(page, hash);
   await page.evaluate(() => {
     const key = 'getitdone.snapshot.v1';
     const snapshot = JSON.parse(window.localStorage.getItem(key) ?? '{}');
-    snapshot.settings.definitions.ready.enforce = false;
-    snapshot.settings.definitions.done.enforce = false;
+    snapshot.settings.definitions.ready.enforce = true;
+    snapshot.settings.definitions.done.enforce = true;
     window.localStorage.setItem(key, JSON.stringify(snapshot));
   });
   await page.reload();
@@ -96,7 +96,7 @@ test('AC1.1 adds a group and an item directly in the list and takes a check from
 
 test('AC4.1 dragging a card out of "To do" asks for the Ready list and keeps the card where it is', async ({ page }) => {
   // Given the lists are switched on and S-6 is in "To do"
-  await open(page, '#/board');
+  await switchOn(page);
   // When I drag S-6 to "In progress"
   await drag(page, story(page, 'S-6'), column(page, 'In progress').locator('.column__list'));
   // Then a dialog names the 3 open items and S-6 is still in "To do"
@@ -108,7 +108,7 @@ test('AC4.1 dragging a card out of "To do" asks for the Ready list and keeps the
 });
 
 test('AC4.2 resolves the open items in the dialog, moves the card and keeps the answers after a reload', async ({ page }) => {
-  await open(page, '#/board');
+  await switchOn(page);
   await drag(page, story(page, 'S-6'), column(page, 'In progress').locator('.column__list'));
   const question = ask(page);
   // When I check one item, set the two others to not relevant and press "Move"
@@ -126,7 +126,7 @@ test('AC4.2 resolves the open items in the dialog, moves the card and keeps the 
 });
 
 test('AC4.9 asks the same when the status is changed with the keyboard through the menu of the card', async ({ page }) => {
-  await open(page, '#/board');
+  await switchOn(page);
   // When I focus S-6 and open its menu with Shift+F10, and choose Status > In progress with the keyboard
   await story(page, 'S-6').focus();
   await page.keyboard.press('Shift+F10');
@@ -146,7 +146,7 @@ test('AC4.9 asks the same when the status is changed with the keyboard through t
 test('AC4.3 an override moves a card to "Done" with open items on purpose and tells so in a notice with a way to the story', async ({ page }) => {
   // Given S-1 in "In progress" (2 of its 4 criteria are accepted)
   // When I drag S-1 to "Done" and override the gate on purpose
-  await open(page, '#/board');
+  await switchOn(page);
   await drag(page, story(page, 'S-1'), column(page, 'Done').locator('.column__list'));
   await expect(ask(page)).toHaveAccessibleName('S-1 cannot move to “Done”: 3 items of the Definition of Done are still open');
   await overrideGate(page);
@@ -159,7 +159,7 @@ test('AC4.3 an override moves a card to "Done" with open items on purpose and te
 
 test('AC5.3 the board marks a card in "Done" that does not meet its Done list, also after a reload', async ({ page }) => {
   // Given S-1 was moved to "Done" with an override
-  await open(page, '#/board');
+  await switchOn(page);
   await drag(page, story(page, 'S-1'), column(page, 'Done').locator('.column__list'));
   await overrideGate(page);
   // Then its card carries the mark, also after a reload, and the done S-5 and the cards of other columns do not
@@ -171,19 +171,27 @@ test('AC5.3 the board marks a card in "Done" that does not meet its Done list, a
 });
 
 test('AC5.1 the backlog marks the stories that are not ready with icon and text', async ({ page }) => {
-  await open(page, '#/backlog');
+  await switchOn(page, '#/backlog');
   await expect(story(page, 'S-6').getByText('Not ready 2/5')).toBeVisible();
   await expect(story(page, 'S-7').getByText('Not ready 1/5')).toBeVisible();
   await expect(story(page, 'S-5').getByText(/Not ready/)).toHaveCount(0);
 });
 
-test('AC1.5 and AC5.5 with the lists switched off, dragging moves at once and nothing is marked', async ({ page }) => {
-  // Given the lists are switched off
-  await switchOff(page);
-  // When I drag S-6 to "Done"
-  await drag(page, story(page, 'S-6'), column(page, 'Done').locator('.column__list'));
+test('AC1.5 both lists are off at first and nothing is asked; the switch in the settings turns the gate on', async ({ page }) => {
+  // Given the demo data, in which both lists are off
+  await open(page, '#/board');
+  // When I drag S-6 to "In progress"
+  await drag(page, story(page, 'S-6'), column(page, 'In progress').locator('.column__list'));
   // Then it moves without a question and carries no mark
-  await expect(column(page, 'Done').getByRole('group', { name: /^S-6: / })).toBeVisible();
-  await expect(dialog(page, /to “/)).toHaveCount(0);
-  await expect(story(page, 'S-6').getByText(/Not (done|ready)/)).toHaveCount(0);
+  await expect(column(page, 'In progress').getByRole('group', { name: /^S-6: / })).toBeVisible();
+  await expect(ask(page)).toHaveCount(0);
+  // When I switch the Definition of Ready on in the settings and drag S-3 out of "To do"
+  await open(page, '#/settings/definitions');
+  await expect(page.getByRole('switch', { name: 'Activate the Definition of Ready' })).not.toBeChecked();
+  await page.getByRole('switch', { name: 'Activate the Definition of Ready' }).check();
+  await open(page, '#/board');
+  await drag(page, story(page, 'S-3'), column(page, 'In progress').locator('.column__list'));
+  // Then the gate asks and S-3 stays in "To do"
+  await expect(ask(page)).toBeVisible();
+  await expect(column(page, 'To do').getByRole('group', { name: /^S-3: / })).toBeVisible();
 });

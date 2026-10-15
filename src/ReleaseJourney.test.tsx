@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
-import { withoutDefinitions } from './test/noDefinitions';
 import { initI18n } from './i18n';
 import { dayOf } from './domain/history';
 import type { Story } from './domain/types';
@@ -82,7 +81,7 @@ const setPoints = (points: string) => async (dialog: HTMLElement) => ui.selectOp
 describe('a release from planning to the last day', () => {
   it('plans, grows, shrinks and burns down, and the reports tell the same story', async () => {
     const repository = new LocalStorageRepository();
-    const seed = withoutDefinitions(seedSnapshot('2026-10-05'));
+    const seed = seedSnapshot('2026-10-05');
     await repository.replaceAll({
       ...seed,
       releases: [],
@@ -213,7 +212,7 @@ describe('a release from planning to the last day', () => {
 
 describe('a release survives a restart', () => {
   it('shows the release, its stories and its history again after the app is opened anew', async () => {
-    const seed = withoutDefinitions(seedSnapshot('2026-10-05'));
+    const seed = seedSnapshot('2026-10-05');
     const first = new LocalStorageRepository();
     await first.replaceAll({ ...seed, releases: [], events: [], stories: [story(1, 'Alpha', 5), story(2, 'Bravo', 3)] });
     window.location.hash = '#/releases';

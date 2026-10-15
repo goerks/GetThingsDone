@@ -298,9 +298,14 @@ describe('editing the lists', () => {
 });
 
 describe('stored data', () => {
-  it('AC5.5 missing or broken data gives empty lists that are on', () => {
+  it('AC5.5 missing or broken data gives empty lists that are off', () => {
     expect(normalizeDefinitions(undefined)).toEqual(EMPTY_DEFINITIONS);
     expect(normalizeDefinitions({ ready: 'x', done: { groups: 3 } })).toEqual(EMPTY_DEFINITIONS);
+    expect(EMPTY_DEFINITIONS.ready.enforce).toBe(false);
+  });
+
+  it('AC1.5 a list is on only when it says so', () => {
+    expect(normalizeDefinitions({ ready: { enforce: true, groups: [] }, done: { groups: [] } })).toEqual({ ready: { enforce: true, groups: [] }, done: { enforce: false, groups: [] } });
   });
 
   it('keeps valid groups and drops broken items', () => {

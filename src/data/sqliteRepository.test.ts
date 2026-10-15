@@ -82,7 +82,7 @@ describe('definitions (#26)', () => {
     migrate(db, MIGRATIONS.slice(11));
     const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
     expect(loaded.stories[0]).toMatchObject({ checks: {}, doneItems: null });
-    expect(loaded.settings.definitions).toEqual({ ready: { enforce: true, groups: [] }, done: { enforce: true, groups: [] } });
+    expect(loaded.settings.definitions).toEqual({ ready: { enforce: false, groups: [] }, done: { enforce: false, groups: [] } });
   });
 });
 

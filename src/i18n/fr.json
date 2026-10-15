@@ -1116,12 +1116,12 @@
     },
     "settings": {
       "enforce": {
-        "ready": "Vérifier quand une story quitte « Non commencé »",
-        "done": "Vérifier quand une story passe à « Terminé »"
+        "ready": "Activer la Definition of Ready",
+        "done": "Activer la Definition of Done"
       },
       "enforceHint": {
-        "ready": "La Definition of Ready est demandée quand une story passe d’un statut « non commencé » à un statut « en cours » ou « terminé ».",
-        "done": "La Definition of Done est demandée quand une story passe à un statut « terminé »."
+        "ready": "Désactivée par défaut. Tant qu’elle est désactivée, les stories ne montrent pas la liste et rien n’est demandé ni marqué. Activée : elle est demandée quand une story passe d’un statut « non commencé » à un statut « en cours » ou « terminé ».",
+        "done": "Désactivée par défaut. Tant qu’elle est désactivée, les stories ne montrent pas la liste et rien n’est demandé ni marqué. Activée : elle est demandée quand une story passe à un statut « terminé »."
       },
       "empty": "Cette liste n’a pas encore de points. Tant qu’elle est vide, rien n’est vérifié ni marqué.",
       "moveGroup": "Déplacer le groupe {{name}}",
@@ -1148,7 +1148,8 @@
       "unfoldGroup": "Déplier le groupe {{name}}",
       "newGroup": "Nouveau groupe",
       "newGroupPlaceholder": "Nouveau groupe – Entrée crée",
-      "addGroup": "Ajouter le groupe"
+      "addGroup": "Ajouter le groupe",
+      "off": "La liste est désactivée : les stories ne la montrent pas et rien n’est vérifié ni marqué."
     },
     "ruleHelp": {
       "hasDescription": "La description de la story n’est pas vide.",

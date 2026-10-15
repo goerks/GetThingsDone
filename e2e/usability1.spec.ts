@@ -1,7 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { PACKAGE_1 } from '../src/acceptance/package1';
 import { seedSnapshot } from '../src/data/seed';
-import { switchDefinitionsOff } from './definitionsOff';
 
 /*
  * End-to-end tests of usability package 1 (#32), one or more per test case of the PO (see src/acceptance/package1.ts).
@@ -15,7 +14,6 @@ import { switchDefinitionsOff } from './definitionsOff';
 
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-10-13T10:00:00+02:00'));
-  await switchDefinitionsOff(page);
 });
 
 const SHOT = { maxDiffPixelRatio: 0.08, animations: 'disabled', caret: 'hide' } as const;
@@ -526,12 +524,9 @@ test('AC5.6 opens the full dialog with the title when a required field has no de
   // Given a required field without a default value for stories
   const snapshot = seedSnapshot('2026-10-13');
   const data = { ...snapshot, assignments: snapshot.assignments.map((item) => (item.fieldId === 'field-demo-value' && item.itemType === 'story' ? { ...item, required: true } : item)) };
-  // The demo data of the previous page load is not wanted here
-  await page.evaluate(() => window.localStorage.clear());
   await page.addInitScript((stored) => {
     if (!window.localStorage.getItem('getitdone.snapshot.v1')) window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify(stored));
   }, data);
-  await page.reload();
   await open(page, '#/board');
 
   // When I add a story with "+ Story" in "To do" and a title
@@ -784,14 +779,12 @@ test('AC10.2 offers "+ Story" in an empty sprint of the backlog', async ({ page 
 
 test('AC10.3 shows the text and the "New epic" button on an epics page without epics', async ({ page }) => {
   // Given there is no epic (one story without an epic)
-  await page.evaluate(() => window.localStorage.clear());
   await page.addInitScript(() => {
     if (window.localStorage.getItem('getitdone.snapshot.v1')) return;
     const story = { id: 'story-x', code: 'S-1', title: 'Alone', description: '', epicId: null, points: 3, status: 'todo', sprintId: null, releaseId: null, rank: 0, criteria: [], values: {} };
     window.localStorage.setItem('getitdone.snapshot.v1', JSON.stringify({ epics: [], stories: [story], sprints: [] }));
   });
   // When I open the epics page
-  await page.reload();
   await open(page, '#/epics');
   // Then it shows "No epics yet." and the button "New epic" with Ctrl+N
   await expect(page.getByText('No epics yet.')).toBeVisible();
