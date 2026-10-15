@@ -9,6 +9,7 @@ import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
 import { fieldLabel } from './fieldLabel';
 import { EpicTag } from './EpicTag';
+import { GithubBadge } from './GithubBadge';
 import { useBuiltin } from './useBuiltin';
 import { useMatchClass } from './search/HighlightBar';
 import { useStoryMenu } from '../state/StoryMenu';
@@ -83,6 +84,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
     <>
       <span className="card__code">{story.code}</span>
       <TitleButton story={story} className="card__title" />
+      <GithubBadge story={story} />
       <CardFieldValues story={story} />
       <CardRelease story={story} />
       {builtin.shown('story', 'criteria') && (

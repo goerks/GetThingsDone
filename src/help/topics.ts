@@ -22,7 +22,8 @@ export const LINK_TARGETS = {
   settingsFields: hrefs.settings,
   settingsStatuses: hrefs.settingsStatuses,
   settingsMap: hrefs.settingsMap,
-  settingsFeatures: hrefs.settingsFeatures
+  settingsFeatures: hrefs.settingsFeatures,
+  settingsGithub: hrefs.settingsGithub
 } as const;
 export type LinkId = keyof typeof LINK_TARGETS;
 
@@ -31,7 +32,7 @@ export interface HelpLinkDef {
   id: LinkId;
   requires?: FeatureKey;
   /** A short line under the name of the button: help.linkHints.<hint>. */
-  hint?: 'featureFirst' | 'releaseRows';
+  hint?: 'featureFirst' | 'releaseRows' | 'githubConnect';
 }
 
 export interface TopicDef {
@@ -65,6 +66,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'map.basics', pages: ['map'], links: [{ id: 'map' }, { id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }] },
   { id: 'epics.basics', pages: ['epics'], links: [{ id: 'epics' }] },
   { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }, { id: 'map', requires: 'releases' }] },
+  { id: 'github.basics', pages: ['backlog', 'settings'], show: { selector: '.github-sync, .github-settings', missing: 'plain' }, links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsGithub', requires: 'github', hint: 'githubConnect' }, { id: 'backlog', requires: 'github' }] },
   { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsFeatures' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
