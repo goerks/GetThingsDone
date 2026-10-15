@@ -64,6 +64,10 @@ The PO can use short commands in the chat. They are shortcuts: plain sentences (
 | `/abgenommen #<n>` | 8–9 | Records the acceptance, merges the pull request, deletes the branch; the issue closes |
 | `/stand #<n>` | – | State, what is open, next step |
 
+## Questions are interactive
+
+Every question the AI asks the PO goes through the question tool with short, selectable options, never as a plain text list (#50). This lets the PO answer by tapping, also from a phone. Free text is only for "Other". The AI records the answers in the issue.
+
 ## Steps
 
 | # | Who | What | Where |
