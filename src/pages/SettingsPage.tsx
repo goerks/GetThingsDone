@@ -3,6 +3,7 @@ import { hrefs, type SettingsSection } from '../router';
 import { FieldsSection } from './FieldsSection';
 import { MapSection } from './MapSection';
 import { DefinitionsSection } from './DefinitionsSection';
+import { WorkflowsSection } from './WorkflowsSection';
 import { FeaturesSection } from './FeaturesSection';
 import { DataSection } from './DataSection';
 import { StatusValuesSection } from './StatusValuesSection';
@@ -30,6 +31,9 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           <a href={hrefs.settingsDefinitions} className="settings__link" aria-current={section === 'definitions' ? 'page' : undefined}>
             {t('definitions.title')}
           </a>
+          <a href={hrefs.settingsWorkflows} className="settings__link" aria-current={section === 'workflows' ? 'page' : undefined}>
+            {t('workflow.title')}
+          </a>
           <a href={hrefs.settingsFeatures} className="settings__link" aria-current={section === 'features' ? 'page' : undefined}>
             {t('settings.features.title')}
           </a>
@@ -44,6 +48,8 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <MapSection />
           ) : section === 'definitions' ? (
             <DefinitionsSection />
+          ) : section === 'workflows' ? (
+            <WorkflowsSection />
           ) : section === 'features' ? (
             <FeaturesSection />
           ) : section === 'data' ? (

@@ -956,7 +956,7 @@
       "settings.basics": {
         "title": "Settings",
         "keywords": "fields status values features story map rows gear switch on activate definitions checklist",
-        "body": "Open the settings with the gear button. They have six sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Features switch parts of the app on or off, for example Releases. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
+        "body": "Open the settings with the gear button. They have seven sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Workflows set which moves between statuses are allowed. Features switch parts of the app on or off, for example Releases. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -978,6 +978,11 @@
         "keywords": "definition ready done dor dod checklist criteria group not relevant gate quality check",
         "body": "Definition of Ready and Definition of Done are two checklists for all stories: what a story needs to start, and what it needs to be done.\n1. Open Settings → Definitions. Add groups and items: by hand (free text) or automatic (the app checks it itself, for example “Has acceptance criteria”). Tick “may be n/a” for items a story can skip, for example “Design is available”.\n2. Switch on the list with its switch (“Activate the Definition of Ready”); only then its content appears. “Insert example list” gives a start. A list that is empty or switched off checks and marks nothing.\n3. In a story, the panel “Definition of Ready” / “Definition of Done” shows the items by group. Click an item: not set, done, ignored (ignored only where allowed; key N).\nWhen a story leaves “Not started”, the app asks for the Ready list; when it moves to “Done”, for the Done list. The gate blocks the move until the open items are ticked in the dialog or set to “not relevant”; the only other way is a deliberate override (“Override the gate…”, then “Override and move”). The backlog marks stories that are not ready; the board marks done stories whose Done list is not met."
       },
+      "workflow.basics": {
+        "title": "Workflows: allowed status changes",
+        "keywords": "workflow transition allowed forbidden status move start end delete lock category free",
+        "body": "A workflow says which statuses a story may move to next, where new stories start and from which statuses they can be deleted. It applies to stories; epics have none.\n1. Open Settings → Workflows and switch on “Activate the workflow”. It is off by default, and while it is off every move is allowed. What you set stays saved.\n2. The list “from here to …” has a row for each status. A button that is on means allowed. “End (delete)” decides whether stories can be deleted from that status. In the row “New story” you choose where new stories start; at least one start stays on.\n3. Each category has a switch “Free transitions within the category”. Turned on, every move inside the category is allowed; you can still forbid single ones (“with exceptions”).\nOn the board, a dragged story locks the columns it may not go to; hold the pointer over one to read why. Dropping there changes nothing and says why. The story dialog and the menus only offer allowed statuses. Stories already in a status stay there when the workflow changes."
+      },
       "data.backup": {
         "title": "Back up and export data",
         "keywords": "backup export import save restore file json data computer copy",
@@ -995,7 +1000,8 @@
       "settingsMap": "Open Settings → Story map",
       "settingsFeatures": "Open Settings → Features",
       "settingsDefinitions": "Open Settings → Definitions",
-      "settingsData": "Open Settings → Data"
+      "settingsData": "Open Settings → Data",
+      "settingsWorkflows": "Open Settings → Workflows"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
@@ -1234,6 +1240,42 @@
       "open": "not set",
       "checked": "done",
       "na": "ignored (not relevant)"
+    }
+  },
+  "workflow": {
+    "title": "Workflows",
+    "intro": "Define which statuses a story may move to next, where new stories start, and from which statuses they can be deleted.",
+    "refused": "{{code}} stays in “{{from}}”: moving to “{{to}}” is not allowed.",
+    "deleteRefused": "{{code}} cannot be deleted from “{{status}}”: the workflow does not allow it.",
+    "locked": "{{from}} → {{to}} is not allowed",
+    "to": "→ to",
+    "end": "End (delete)",
+    "hint": "A button that is on means allowed. Turn “End (delete)” off for a status so stories cannot be deleted there.",
+    "targetsOf": "Where a story may move from {{name}}",
+    "settings": {
+      "activate": "Activate the workflow",
+      "hintOff": "Off by default. While it is off, every move between statuses is allowed and nothing in the app mentions the workflow. What you set stays saved.",
+      "hintOn": "On: stories only move along the transitions below. Changes are saved at once."
+    },
+    "start": {
+      "title": "Start · new story",
+      "row": "New story",
+      "group": "Where a new story may start",
+      "last": "A new story needs a place to start: the last start status stays on."
+    },
+    "chip": {
+      "transition": "From {{from}} to {{to}}",
+      "start": "A new story starts in {{status}}",
+      "end": "From {{from}} to the end (delete)",
+      "lastStart": "New stories must start somewhere: the last start status stays on"
+    },
+    "free": {
+      "label": "Free transitions within “{{name}}”",
+      "exceptions": "with exceptions",
+      "single": "only one status"
+    },
+    "warning": {
+      "noEnd": "No status leads to the end, so no story can be deleted. You can still save this."
     }
   }
 }

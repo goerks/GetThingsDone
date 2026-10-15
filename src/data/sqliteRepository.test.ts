@@ -9,6 +9,7 @@ import { addDays, todayIso } from '../domain/sprints';
 import { seedSnapshot } from './seed';
 import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 import { EMPTY_DEFINITIONS } from '../domain/definitions';
+import { DEFAULT_WORKFLOW } from '../domain/workflow';
 
 
 const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql'];
@@ -148,13 +149,13 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true }, definitions: seedSnapshot(todayIso()).settings.definitions });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true }, definitions: seedSnapshot(todayIso()).settings.definitions, workflow: DEFAULT_WORKFLOW });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true }, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW });
   });
 
   it('falls back to the default for a value it does not know', async () => {

@@ -268,6 +268,26 @@ export interface DefinitionList {
 
 export type Definitions = Record<DefinitionKind, DefinitionList>;
 
+/** The end of a story's life ("delete") as a target of a transition in the workflow (#49). It is no status value. */
+export const WORKFLOW_END = '~end';
+
+/** The workflow of the stories (#49). It lists what is not allowed, so a new status value starts with every transition allowed. */
+export interface StoryWorkflow {
+  /** Status values in "not started" where a new story may start; null means the first one. */
+  start: string[] | null;
+  /** Forbidden targets by status id: status ids and `WORKFLOW_END`. */
+  blocked: Record<string, string[]>;
+  /** The switch "free transitions within the category". With exceptions it stays on. */
+  free: Record<StatusCategory, boolean>;
+}
+
+/** The workflow of the team. Off by default: while it is off every transition is allowed and its data is kept. */
+export interface Workflow {
+  enabled: boolean;
+  /** One workflow per item type; only stories have one for now (epics have none). */
+  story: StoryWorkflow;
+}
+
 /** Settings of the workspace, shared by the whole team. */
 export interface Settings {
   mapRows: MapRows;
@@ -275,6 +295,8 @@ export interface Settings {
   features: Features;
   /** The Definition of Ready and the Definition of Done (#26). */
   definitions: Definitions;
+  /** The allowed transitions between status values (#49). */
+  workflow: Workflow;
 }
 
 export interface Snapshot {
