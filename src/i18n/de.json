@@ -443,6 +443,11 @@
         "name": "Releases",
         "description": "Mit Releases planen: die Seite «Releases», das Feld «Release» bei Stories, Release-Zeilen in der Story Map sowie Scope- und Burndown-Berichte. Ausschalten, wenn das Team nur mit Sprints arbeitet.",
         "offNote": "Ausgeschaltet. Releases, ihre Stories und ihr Verlauf bleiben erhalten und sind beim Einschalten wieder da."
+      },
+      "github": {
+        "name": "GitHub-Anbindung",
+        "description": "Die offenen Issues eines GitHub-Repositories als Stories importieren und von Hand aktuell halten: der Abschnitt „GitHub“ in den Einstellungen, der Knopf „Synchronisieren“ im Backlog und die Issue-Nummer an importierten Stories. Braucht eine Netzverbindung und ein Zugriffstoken, das nur lesen darf; die App läuft auch ohne Netz weiter.",
+        "offNote": "Ausgeschaltet. Importierte Stories, ihre Issue-Nummern und die Verbindung bleiben erhalten und sind wieder da, wenn du sie einschaltest."
       }
     }
   },
@@ -899,7 +904,7 @@
       "settings.basics": {
         "title": "Einstellungen",
         "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben vier Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben vier Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases oder die GitHub-Anbindung; sie fügt den Abschnitt „GitHub“ hinzu.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -915,6 +920,11 @@
         "title": "Erste Schritte",
         "keywords": "einführung tutorial rundgang tour einstieg anleitung starten",
         "body": "Eine kurze, freiwillige Einführung in vier Schritten: das Board kennenlernen, eine Story verschieben, eine Story anlegen und das Backlog ordnen. Schritte werden von selbst abgehakt, wenn du sie machst."
+      },
+      "github.basics": {
+        "title": "GitHub-Issues",
+        "keywords": "github issues import sync synchronisieren abgleich repository token verbinden funktion aktivieren einschalten stories labels kriterien",
+        "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren. Das geht nur, wenn die Funktion „GitHub-Anbindung“ eingeschaltet ist. Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Funktionen ein. Danach erscheint in den Einstellungen der Abschnitt „GitHub“.\n2. Öffne Einstellungen → GitHub, trage das Repository (owner/name) und ein Zugriffstoken ein, das nur lesen darf, und drücke „Verbindung testen“.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; importierte Stories übernehmen Titel, Beschreibung, Labels, offen oder geschlossen und die Aufgabenliste unter der Überschrift „Acceptance criteria“ von GitHub. GitHub gewinnt; Sprint, Punkte und Reihenfolge bleiben deine.\nImportierte Stories zeigen ihre Issue-Nummer als Link zu GitHub. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
       }
     },
     "links": {
@@ -926,13 +936,15 @@
       "settingsFields": "Einstellungen → Felder öffnen",
       "settingsStatuses": "Einstellungen → Status-Werte öffnen",
       "settingsMap": "Einstellungen → Story Map öffnen",
-      "settingsFeatures": "Einstellungen → Funktionen öffnen"
+      "settingsFeatures": "Einstellungen → Funktionen öffnen",
+      "settingsGithub": "Einstellungen → GitHub öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",
     "linkHints": {
       "featureFirst": "Zuerst die Funktion einschalten",
-      "releaseRows": "Zeilen «Releases» wählen"
+      "releaseRows": "Zeilen «Releases» wählen",
+      "githubConnect": "Repository und Token eintragen"
     }
   },
   "dialog": {
@@ -1051,5 +1063,82 @@
     "button": "Velocity",
     "buttonAverage": "Velocity · Ø {{points}}",
     "close": "Schliessen"
+  },
+  "github": {
+    "issueLink": "Issue #{{number}} auf GitHub öffnen",
+    "settings": {
+      "title": "GitHub",
+      "connected": "Verbunden",
+      "hint": "Verbinde das eine Repository, dessen offene Issues als Stories importiert werden. GitHub liefert nur; es wird nichts zurückgeschrieben.",
+      "repo": "Repository (owner/name)",
+      "token": "Zugriffstoken",
+      "tokenSaved": "Token gespeichert – neues eingeben, um es zu ersetzen",
+      "tokenNote": "Ein Fine-grained Token mit Lesezugriff auf die Issues dieses Repositories genügt. Es liegt im Anmeldeinformationsspeicher deines Betriebssystems und wird nie wieder angezeigt.",
+      "tokenNoteDemo": "Diese Vorschau hat keine echte Verbindung: Jeder Text gilt als Token, ausser „{{wrong}}“, das GitHub ablehnen würde. Es wird nichts versendet.",
+      "tokenMissingNote": "Gib das Token erneut ein: Im Browser bleibt es nur, bis die Seite neu geladen wird.",
+      "test": "Verbindung testen",
+      "testing": "Teste …",
+      "disconnect": "Trennen",
+      "ok": "Verbindung ok · {{count}} offene Issues",
+      "where": "Importieren und Synchronisieren findest du im Backlog, mit dem Knopf „Synchronisieren“.",
+      "problem": {
+        "repoMissing": "Das Repository fehlt.",
+        "repoFormat": "Bitte im Format owner/name angeben.",
+        "tokenMissing": "Das Zugriffstoken fehlt."
+      }
+    },
+    "demo": {
+      "badge": "Demo",
+      "title": "Demo: simuliertes GitHub",
+      "text": "Die Vorschau hat ein eigenes kleines GitHub: das Repository {{repo}} mit ein paar Issues, gespeichert in diesem Browser. Ändere sie hier und drücke dann im Backlog „Synchronisieren“. (Das Token „{{wrong}}“ wird abgelehnt.)",
+      "rename": "#31 umbenennen, neues Label",
+      "criteria": "Kriterien von #31 ändern",
+      "close": "#35 schliessen",
+      "reopen": "#35 wieder öffnen",
+      "add": "Issue #44 hinzufügen",
+      "reset": "Issues zurücksetzen",
+      "done": "Die Issues auf GitHub wurden geändert."
+    },
+    "sync": {
+      "button": "Synchronisieren",
+      "running": "Synchronisiere …",
+      "last": "GitHub · letzter Sync {{when}}",
+      "never": "GitHub · noch nicht synchronisiert",
+      "done": "Mit GitHub synchronisiert",
+      "failed": "Synchronisieren fehlgeschlagen",
+      "nothing": "Alles ist auf dem neuesten Stand. Auf GitHub hat sich nichts geändert.",
+      "created": "neu importiert",
+      "updated": "aktualisiert",
+      "closed": "erledigt (auf GitHub geschlossen)",
+      "wins": "GitHub gewinnt: Deine Änderungen an Titel, Beschreibung, Labels und Kriterien dieser Stories wurden überschrieben. Sprint, Punkte und Reihenfolge bleiben unverändert.",
+      "close": "Schliessen",
+      "toSettings": "Einstellungen → GitHub öffnen"
+    },
+    "change": {
+      "created": "Neue Story",
+      "title": "Titel geändert: „{{from}}“ → „{{to}}“",
+      "description": "Beschreibung geändert",
+      "labels": "Labels: {{parts}}",
+      "labelsAdded": "neu {{labels}}",
+      "labelsRemoved": "entfernt {{labels}}",
+      "criteria": "Kriterien: {{parts}}",
+      "criteriaAdded_one": "{{count}} neu",
+      "criteriaAdded_other": "{{count}} neu",
+      "criteriaRemoved_one": "{{count}} entfernt",
+      "criteriaRemoved_other": "{{count}} entfernt",
+      "criteriaTicked_one": "{{count}} Haken geändert",
+      "criteriaTicked_other": "{{count}} Haken geändert",
+      "criteriaOrder": "Reihenfolge geändert",
+      "closed": "Auf GitHub geschlossen → Status „{{status}}“",
+      "reopened": "Auf GitHub wieder geöffnet → Status „{{status}}“"
+    },
+    "errors": {
+      "config": "Die Verbindung ist nicht eingerichtet: Trage Repository und Token in den Einstellungen ein. Deine lokalen Daten sind unverändert.",
+      "network": "Keine Verbindung zu GitHub. Die App arbeitet mit den lokalen Daten weiter.",
+      "auth": "Token wurde von GitHub abgelehnt. Prüfe das Token und seine Rechte. Deine lokalen Daten sind unverändert.",
+      "notFound": "Repository nicht gefunden, oder das Token hat keinen Zugriff darauf. Deine lokalen Daten sind unverändert.",
+      "rateLimit": "GitHub erlaubt vorerst keine weiteren Anfragen. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
+      "other": "GitHub war nicht richtig erreichbar. Versuche es später noch einmal. Deine lokalen Daten sind unverändert."
+    }
   }
 }

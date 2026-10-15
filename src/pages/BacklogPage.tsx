@@ -14,6 +14,8 @@ import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
+import { GithubBadge } from '../components/GithubBadge';
+import { GithubSync } from '../components/GithubSync';
 import { NewButton } from '../components/NewButton';
 import { SprintPlan } from '../components/SprintPlan';
 import { StoryQuickAdd } from '../components/QuickAdd';
@@ -58,6 +60,7 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
       </span>
       <span className="card__code backlog__code">{story.code}</span>
       <TitleButton story={story} className="backlog__title" />
+      <GithubBadge story={story} />
       <EpicTag epic={epic} inCard />
       {builtin.shown('story', 'points') && (
         <span className="pill" title={builtin.pointsTitle(story.points)}>
@@ -262,6 +265,7 @@ export function BacklogPage() {
       <div className="page-head">
         <h1>{t('backlog.title')}</h1>
         <span className="muted">{t('backlog.hint')}</span>
+        <GithubSync />
         <NewButton label={t('newStory.open')} onClick={() => setCreating(true)} />
       </div>
 

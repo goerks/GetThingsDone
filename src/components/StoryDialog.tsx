@@ -1,4 +1,5 @@
 import { featureOn } from '../domain/settings';
+import { GithubBadge } from './GithubBadge';
 import { useId, useState, type FormEvent } from 'react';
 import { DndContext, closestCenter, type Announcements, type DragEndEvent, type UniqueIdentifier } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -152,6 +153,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
           <div>
             <div className="detail__meta">
               <span className="card__code">{story.code}</span>
+              <GithubBadge story={story} />
               <EpicTag epic={epic} />
             </div>
             <h2 className="detail__heading">

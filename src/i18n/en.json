@@ -443,6 +443,11 @@
         "name": "Releases",
         "description": "Plan with releases: the Releases page, the release field of stories, release rows on the story map and the scope and burndown reports. Switch it off if the team works with sprints only.",
         "offNote": "Switched off. Releases, their stories and their history are kept and come back when you switch it on."
+      },
+      "github": {
+        "name": "GitHub connection",
+        "description": "Import the open issues of one GitHub repository as stories and keep them up to date by hand: the section “GitHub” in the settings, the button “Synchronise” in the backlog and the issue number on imported stories. Needs a network connection and an access token that may only read; the app keeps working offline.",
+        "offNote": "Switched off. Imported stories, their issue numbers and the connection are kept and come back when you switch it on."
       }
     }
   },
@@ -899,7 +904,7 @@
       "settings.basics": {
         "title": "Settings",
         "keywords": "fields status values features story map rows gear switch on activate",
-        "body": "Open the settings with the gear button. They have four sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Features switch parts of the app on or off, for example Releases.\nThe gear takes you back to the page you came from."
+        "body": "Open the settings with the gear button. They have four sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Features switch parts of the app on or off, for example Releases or the GitHub connection; the latter adds the section “GitHub”.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -915,6 +920,11 @@
         "title": "First steps",
         "keywords": "introduction tutorial tour onboarding walkthrough guide start",
         "body": "A short, optional introduction in four steps: get to know the board, move a story, create a story and order the backlog. Steps are ticked off by themselves when you do them."
+      },
+      "github.basics": {
+        "title": "GitHub issues",
+        "keywords": "github issues import sync synchronise repository token connect feature activate switch on enable stories labels criteria",
+        "body": "Import the open issues of one GitHub repository as stories. This only works when the feature “GitHub connection” is switched on. Do it in this order:\n1. Switch the feature on under Settings → Features. The section “GitHub” then appears in the settings.\n2. Open Settings → GitHub, enter the repository (owner/name) and an access token that may only read, and press “Test connection”.\n3. Open the backlog and press “Synchronise”. New issues become stories; imported stories take title, description, labels, open or closed and the task list under the heading “Acceptance criteria” from GitHub. GitHub wins; sprint, points and order stay yours.\nImported stories show their issue number as a link to GitHub. Without a network connection or with a wrong token the app says so and keeps your local data.\nIf you switch the feature off again, everything is hidden but kept."
       }
     },
     "links": {
@@ -926,13 +936,15 @@
       "settingsFields": "Open Settings → Fields",
       "settingsStatuses": "Open Settings → Status values",
       "settingsMap": "Open Settings → Story map",
-      "settingsFeatures": "Open Settings → Features"
+      "settingsFeatures": "Open Settings → Features",
+      "settingsGithub": "Open Settings → GitHub"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
     "linkHints": {
       "featureFirst": "Switch the feature on first",
-      "releaseRows": "Choose “Releases” as the rows"
+      "releaseRows": "Choose “Releases” as the rows",
+      "githubConnect": "Enter repository and token"
     }
   },
   "dialog": {
@@ -1051,5 +1063,82 @@
     "button": "Velocity",
     "buttonAverage": "Velocity · Ø {{points}}",
     "close": "Close"
+  },
+  "github": {
+    "issueLink": "Open issue #{{number}} on GitHub",
+    "settings": {
+      "title": "GitHub",
+      "connected": "Connected",
+      "hint": "Connect the one repository whose open issues are imported as stories. GitHub only gives; nothing is written back.",
+      "repo": "Repository (owner/name)",
+      "token": "Access token",
+      "tokenSaved": "Token saved – enter a new one to replace it",
+      "tokenNote": "A fine-grained token with read access to the issues of this repository is enough. It is kept in the credential store of your operating system and never shown again.",
+      "tokenNoteDemo": "This preview has no real connection: any text works as a token, except “{{wrong}}”, which GitHub would refuse. Nothing is sent anywhere.",
+      "tokenMissingNote": "Enter the token again: in the browser it is only kept until the page is reloaded.",
+      "test": "Test connection",
+      "testing": "Testing…",
+      "disconnect": "Disconnect",
+      "ok": "Connection ok · {{count}} open issues",
+      "where": "Import and sync are in the backlog, with the button “Synchronise”.",
+      "problem": {
+        "repoMissing": "The repository is missing.",
+        "repoFormat": "Use the form owner/name.",
+        "tokenMissing": "The access token is missing."
+      }
+    },
+    "demo": {
+      "badge": "Demo",
+      "title": "Demo: simulated GitHub",
+      "text": "The preview has its own small GitHub: the repository {{repo}} with a few issues, kept in this browser. Change them here, then press “Synchronise” in the backlog. (Token “{{wrong}}” is refused.)",
+      "rename": "Rename #31, new label",
+      "criteria": "Change the criteria of #31",
+      "close": "Close #35",
+      "reopen": "Reopen #35",
+      "add": "Add issue #44",
+      "reset": "Reset the issues",
+      "done": "The issues on GitHub were changed."
+    },
+    "sync": {
+      "button": "Synchronise",
+      "running": "Synchronising…",
+      "last": "GitHub · last sync {{when}}",
+      "never": "GitHub · not synchronised yet",
+      "done": "Synchronised with GitHub",
+      "failed": "Synchronising failed",
+      "nothing": "Everything is up to date. Nothing changed on GitHub.",
+      "created": "newly imported",
+      "updated": "updated",
+      "closed": "done (closed on GitHub)",
+      "wins": "GitHub wins: your changes to title, description, labels and criteria of these stories were overwritten. Sprint, points and order stay as they are.",
+      "close": "Close",
+      "toSettings": "Open Settings → GitHub"
+    },
+    "change": {
+      "created": "New story",
+      "title": "Title changed: “{{from}}” → “{{to}}”",
+      "description": "Description changed",
+      "labels": "Labels: {{parts}}",
+      "labelsAdded": "new {{labels}}",
+      "labelsRemoved": "removed {{labels}}",
+      "criteria": "Criteria: {{parts}}",
+      "criteriaAdded_one": "{{count}} new",
+      "criteriaAdded_other": "{{count}} new",
+      "criteriaRemoved_one": "{{count}} removed",
+      "criteriaRemoved_other": "{{count}} removed",
+      "criteriaTicked_one": "{{count}} tick changed",
+      "criteriaTicked_other": "{{count}} ticks changed",
+      "criteriaOrder": "order changed",
+      "closed": "Closed on GitHub → status “{{status}}”",
+      "reopened": "Reopened on GitHub → status “{{status}}”"
+    },
+    "errors": {
+      "config": "The connection is not set up: enter repository and token in the settings. Your local data is unchanged.",
+      "network": "No connection to GitHub. The app keeps working with your local data.",
+      "auth": "GitHub refused the access token. Check the token and its rights. Your local data is unchanged.",
+      "notFound": "Repository not found, or the token has no access to it. Your local data is unchanged.",
+      "rateLimit": "GitHub allows no more requests for now. Try again later. Your local data is unchanged.",
+      "other": "GitHub could not be reached properly. Try again later. Your local data is unchanged."
+    }
   }
 }
