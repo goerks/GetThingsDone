@@ -43,5 +43,6 @@ Keep it short; the PO should read it in a minute.
 ```
 
 - "Stand" says where the issue is in the working mode (`docs/working-mode.md`): new, refined, test cases proposed or approved, in build, pull request open.
+- After the table, ask the 2–3 questions with the question tool (short, selectable options, so the PO can answer by tapping, also on a phone), not as a plain list. Suggestions without a decision stay in the text.
 - The 2–3 questions or suggestions look ahead: a decision the PO has to make, a gap compared with `docs/vision.md`, or a feature idea. Feature ideas stay suggestions in the conversation; do not create issues for them unasked.
 - If there are fewer than 5 open issues, list those and say so.
