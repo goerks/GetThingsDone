@@ -1,5 +1,5 @@
 import { LocalStorageRepository } from '../data/localStorageRepository';
-import { seedSnapshot } from '../data/seed';
+import { DEMO_DEFINITIONS, seedSnapshot } from '../data/seed';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays, todayIso } from '../domain/sprints';
 import type { Snapshot, Sprint } from '../domain/types';
@@ -70,6 +70,26 @@ function withHistory(today: string, history: SprintFigures[], running = true): S
   return { ...seed, stories, sprints: [...history.map((figures, index) => completedSprint(index, history.length, firstStart, figures)), ...open] };
 }
 
+/**
+ * The demo data with the Definition of Ready and Done switched on or off (#26). With `marks`, the stories are in the situations
+ * the test cases of the marks need: S-3 meets the Ready list, S-6 lacks one item, S-7 lacks most (no criteria, no points); S-2
+ * is done and was held to a Done list it does not meet (the mark "Not done"); S-5 was done before the lists existed (no mark).
+ */
+function withDefinitions(today: string, ready: boolean, done: boolean, marks = false): Snapshot {
+  const seed = seedSnapshot(today);
+  const definitions = { ready: { ...DEMO_DEFINITIONS.ready, enforce: ready }, done: { ...DEMO_DEFINITIONS.done, enforce: done } };
+  let stories = seed.stories;
+  if (marks) {
+    stories = stories.map((story) => {
+      if (story.id === 'story-3') return { ...story, checks: { 'def-ready-dependencies': 'checked', 'def-ready-design': 'na', 'def-ready-texts': 'checked' } };
+      if (story.id === 'story-6') return { ...story, checks: { 'def-ready-dependencies': 'checked', 'def-ready-design': 'na' } };
+      if (story.id === 'story-2') return { ...story, status: 'done', doneItems: ['def-done-accepted', 'def-done-review', 'def-done-docs'], checks: { 'def-done-review': 'checked' } };
+      return story;
+    });
+  }
+  return { ...seed, stories, settings: { ...seed.settings, definitions } };
+}
+
 export interface Preset {
   id: string;
   /** Short name for the choice, in German like the test cases. */
@@ -85,6 +105,45 @@ export const PRESETS: readonly Preset[] = [
     title: 'Demo-Daten',
     description: 'Die Demo-Daten wie beim ersten Öffnen: Sprint 1 läuft, Sprint 2 ist geplant, kein Sprint ist abgeschlossen.',
     build: (today) => seedSnapshot(today)
+  },
+  {
+    id: 'definitionsOff',
+    title: 'Definitionen: beide aus (Standard)',
+    description: 'Die Demo-Daten mit den Beispiellisten Definition of Ready und Done, beide ausgeschaltet: Stories zeigen sie nicht, nichts wird gefragt oder markiert.',
+    build: (today) => withDefinitions(today, false, false)
+  },
+  {
+    id: 'definitionsOn',
+    title: 'Definitionen: beide ein',
+    description: 'Die Demo-Daten mit Definition of Ready und Done eingeschaltet. „S-6“ und „S-3“ stehen in „To do“ (S-6 erfüllt 2 von 5 Ready-Punkten), „S-1“ in „In progress“ (Done-Liste 0 von 3).',
+    build: (today) => withDefinitions(today, true, true)
+  },
+  {
+    id: 'definitionsReadyOnly',
+    title: 'Definitionen: nur Ready ein',
+    description: 'Wie „beide ein“, aber nur die Definition of Ready ist eingeschaltet. Nach „Done“ wird nichts gefragt, Stories zeigen nur den Reiter „Definition of Ready“.',
+    build: (today) => withDefinitions(today, true, false)
+  },
+  {
+    id: 'definitionsDoneOnly',
+    title: 'Definitionen: nur Done ein',
+    description: 'Wie „beide ein“, aber nur die Definition of Done ist eingeschaltet. Aus „To do“ nach „In progress“ wird nichts gefragt.',
+    build: (today) => withDefinitions(today, false, true)
+  },
+  {
+    id: 'definitionsMarks',
+    title: 'Definitionen: Markierungen',
+    description: 'Beide ein. „S-3“ ist bereit, „S-6“ fehlt ein Punkt, „S-7“ fehlen die meisten. „S-2“ steht in „Done“ und erfüllt die Done-Liste von damals nicht („Not done 1/3“), „S-5“ war schon vorher erledigt (keine Markierung).',
+    build: (today) => withDefinitions(today, true, true, true)
+  },
+  {
+    id: 'definitionsEmpty',
+    title: 'Definitionen: leere Listen',
+    description: 'Wie die Demo-Daten, aber beide Listen sind leer und eingeschaltet: nichts wird angezeigt, gefragt oder markiert.',
+    build: (today) => {
+      const seed = seedSnapshot(today);
+      return { ...seed, settings: { ...seed.settings, definitions: { ready: { enforce: true, groups: [] }, done: { enforce: true, groups: [] } } } };
+    }
   },
   {
     id: 'velocity6',

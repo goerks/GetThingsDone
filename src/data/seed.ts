@@ -110,12 +110,13 @@ function demoEvents(today: string): ReleaseEvent[] {
 }
 
 /**
- * Demo lists for the Definition of Ready and Done (#26). They are switched off ("check on status change"), so the board
- * behaves as before until the team switches them on; the story dialog already shows them.
+ * Demo lists for the Definition of Ready and Done (#26). Both are switched off, as every list is until the team switches it on
+ * (Settings › Definitions): then they show in stories, ask at the status changes and mark. The acceptance panel has test data that
+ * switches them on (`presets.ts`).
  */
-const DEMO_DEFINITIONS: Definitions = {
+export const DEMO_DEFINITIONS: Definitions = {
   ready: {
-    enforce: true,
+    enforce: false,
     groups: [
       {
         id: 'group-ready-functional',
@@ -141,7 +142,7 @@ const DEMO_DEFINITIONS: Definitions = {
     ]
   },
   done: {
-    enforce: true,
+    enforce: false,
     groups: [
       {
         id: 'group-done-quality',

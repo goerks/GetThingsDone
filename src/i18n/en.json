@@ -1116,12 +1116,12 @@
     },
     "settings": {
       "enforce": {
-        "ready": "Check when a story leaves “Not started”",
-        "done": "Check when a story moves to “Done”"
+        "ready": "Activate the Definition of Ready",
+        "done": "Activate the Definition of Done"
       },
       "enforceHint": {
-        "ready": "The Definition of Ready is asked when a story moves from a “not started” to an “in progress” or “done” status.",
-        "done": "The Definition of Done is asked when a story moves into a “done” status."
+        "ready": "Off by default. While it is off, the list is not shown in stories and nothing is asked or marked. On: it is asked when a story moves from a “not started” to an “in progress” or “done” status.",
+        "done": "Off by default. While it is off, the list is not shown in stories and nothing is asked or marked. On: it is asked when a story moves into a “done” status."
       },
       "empty": "This list has no items yet. Nothing is checked or marked until you add one.",
       "moveGroup": "Move group {{name}}",
@@ -1148,7 +1148,8 @@
       "unfoldGroup": "Unfold group {{name}}",
       "newGroup": "New group",
       "newGroupPlaceholder": "New group – Enter adds",
-      "addGroup": "Add group"
+      "addGroup": "Add group",
+      "off": "The list is off: it is not shown in stories and nothing is checked or marked."
     },
     "ruleHelp": {
       "hasDescription": "The description of the story is not empty.",

@@ -59,3 +59,13 @@ The gate must not be tolerant: a status change that crosses a list the story doe
 ## Editor of the lists (PO feedback 2026-10-15)
 
 New groups and items are added directly in the list, groups move as blocks, automatic items come from a library that holds, among others, "Must be attached to an epic" and "Must be estimated". Three variants in [`definitions-editor-variants.html`](definitions-editor-variants.html) (`definitions-editor-a.png` to `-c.png`): A blocks with an add row and a library picker, B list and library side by side, C keyboard first with "/" for the library. **A chosen by the PO (2026-10-15)** and built in the same pull request: blocks with a handle (drag the whole group, open or folded), fold button, name, counter and remove; an add row in every block ("New item – Enter adds", "From library"); "New group – Enter adds" under the blocks; the library picker lists the automatic checks with a description, "already in this list" marks the ones taken.
+
+## Switching lists on and off, hiding, test data (PO feedback 2026-10-15)
+
+- Each list (Ready, Done) has an **activation switch** in Settings › Definitions, **off by default** (also in the demo data). An off list is not shown in stories, asks nothing at status changes and marks nothing; the settings say so in a note. The data field is still called `enforce`.
+- In the story dialog the PO wants to **hide** the Definition block and to **switch** between Ready and Done (tabs or a segment, depending on the look variant).
+- The acceptance panel offers **test data** (`src/acceptance/presets.ts`): both off, both on, only Ready on, only Done on, marks (S-3 ready, S-6 one item missing, S-7 most missing, S-2 done and not met, S-5 done before the lists existed), empty lists.
+
+## Look of story block, editor and gate (PO feedback 2026-10-15)
+
+The look of the three places is not liked yet. Mockups in [`definitions-look-variants.html`](definitions-look-variants.html) (`definitions-look-*.png`): story block S1 to S5 (plus S6 hidden), editor E1 to E4, gate dialog G1 to G5 (plus the override step). Not decided yet.

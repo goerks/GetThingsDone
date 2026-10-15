@@ -1116,12 +1116,12 @@
     },
     "settings": {
       "enforce": {
-        "ready": "Verifica quando una storia lascia «Da iniziare»",
-        "done": "Verifica quando una storia passa a «Completato»"
+        "ready": "Attiva la Definition of Ready",
+        "done": "Attiva la Definition of Done"
       },
       "enforceHint": {
-        "ready": "La Definition of Ready viene richiesta quando una storia passa da uno stato «da iniziare» a uno stato «in corso» o «completato».",
-        "done": "La Definition of Done viene richiesta quando una storia passa a uno stato «completato»."
+        "ready": "Disattivata di default. Finché è disattivata, le storie non mostrano la lista e nulla viene chiesto o contrassegnato. Attivata: viene richiesta quando una storia passa da uno stato «da iniziare» a uno stato «in corso» o «completato».",
+        "done": "Disattivata di default. Finché è disattivata, le storie non mostrano la lista e nulla viene chiesto o contrassegnato. Attivata: viene richiesta quando una storia passa a uno stato «completato»."
       },
       "empty": "Questa lista non ha ancora punti. Finché è vuota, nulla viene verificato o contrassegnato.",
       "moveGroup": "Sposta il gruppo {{name}}",
@@ -1148,7 +1148,8 @@
       "unfoldGroup": "Espandi il gruppo {{name}}",
       "newGroup": "Nuovo gruppo",
       "newGroupPlaceholder": "Nuovo gruppo – Invio crea",
-      "addGroup": "Aggiungi gruppo"
+      "addGroup": "Aggiungi gruppo",
+      "off": "La lista è disattivata: le storie non la mostrano e nulla viene verificato o contrassegnato."
     },
     "ruleHelp": {
       "hasDescription": "La descrizione della storia non è vuota.",

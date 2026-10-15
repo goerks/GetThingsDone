@@ -220,7 +220,7 @@ describe('test data of the preview', () => {
     expect(bars(await openVelocity(actor))).toHaveLength(7);
   });
 
-  it.each(PRESETS.filter((preset) => preset.id !== 'demo').map((preset) => [preset.id] as const))('AC7.1 builds the preset %s with a sprint count and points as described', (id) => {
+  it.each(PRESETS.filter((preset) => preset.id.startsWith('velocity')).map((preset) => [preset.id] as const))('AC7.1 builds the preset %s with a sprint count and points as described', (id) => {
     const snapshot = PRESETS.find((preset) => preset.id === id)!.build(today);
     const completedCount = snapshot.sprints.filter((sprint) => sprint.state === 'completed').length;
     expect({ velocity6: 6, velocity10: 10, velocity2: 2, velocity1: 1, velocity0: 0, velocityStart: 6 }[id]).toBe(completedCount);
