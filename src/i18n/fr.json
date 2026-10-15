@@ -956,7 +956,7 @@
       "settings.basics": {
         "title": "Paramètres",
         "keywords": "champs valeurs de statut fonctions story map lignes roue activer définitions liste",
-        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont six sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
+        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont sept sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les workflows fixent les passages autorisés entre statuts. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
       },
       "search.basics": {
         "title": "Recherche",
@@ -978,6 +978,11 @@
         "keywords": "definition ready done dor dod liste de contrôle critères groupe non pertinent passage qualité vérifier",
         "body": "Definition of Ready et Definition of Done sont deux listes de contrôle pour toutes les stories : ce qu’une story doit avoir pour démarrer et pour être terminée.\n1. Ouvrez Paramètres → Définitions. Ajoutez des groupes et des points : à la main (texte libre) ou automatiques (l’application vérifie elle-même, par exemple « A des critères d’acceptation »). Cochez « peut être n. p. » pour les points qu’une story peut ignorer, par exemple « Design is available ».\n2. Activez la liste avec son interrupteur ; son contenu n’apparaît qu’ensuite. « Insérer la liste d’exemple » aide à démarrer. Une liste vide ou désactivée ne vérifie ni ne marque rien.\n3. Dans une story, le panneau « Definition of Ready » / « Definition of Done » montre les points par groupe. Cliquez sur un point : non défini, fait, ignoré (ignoré seulement là où c’est permis ; touche N).\nQuand une story quitte « Non commencé », l’application demande la liste Ready ; quand elle passe à « Terminé », la liste Done. Le gate bloque le déplacement tant que les points ouverts ne sont pas cochés ou marqués « non pertinents » ; la seule autre voie est un contournement délibéré (« Contourner le gate… », puis « Contourner et déplacer »). Le backlog marque les stories pas prêtes ; le tableau marque les stories terminées dont la liste Done n’est pas remplie."
       },
+      "workflow.basics": {
+        "title": "Workflows : changements de statut autorisés",
+        "keywords": "workflow transition autorisé interdit statut passage début fin supprimer verrou catégorie libre",
+        "body": "Un workflow dit vers quels statuts une story peut passer ensuite, où les nouvelles stories commencent et depuis quels statuts elles peuvent être supprimées. Il s’applique aux stories ; les epics n’en ont pas.\n1. Ouvrez Paramètres → Workflows et activez « Activer le workflow ». Il est désactivé par défaut, et tant qu’il l’est, tout passage est autorisé. Ce que vous réglez reste enregistré.\n2. La liste « depuis ici vers … » a une ligne par statut. Un bouton activé signifie autorisé. « Fin (supprimer) » décide si les stories peuvent être supprimées depuis ce statut. Dans la ligne « Nouvelle story », vous choisissez où les nouvelles stories commencent ; au moins un départ reste activé.\n3. Chaque catégorie a un interrupteur « Transitions libres dans la catégorie ». Activé, tout passage dans la catégorie est autorisé ; vous pouvez quand même en interdire certains (« avec exceptions »).\nSur le tableau, une story déplacée verrouille les colonnes où elle ne peut pas aller ; passez le pointeur dessus pour lire pourquoi. La déposer là ne change rien et en donne la raison. La fenêtre de la story et les menus n’offrent que les statuts autorisés. Les stories déjà dans un statut y restent quand le workflow change."
+      },
       "data.backup": {
         "title": "Sauvegarder et emporter les données",
         "keywords": "backup sauvegarde export import sauvegarder restaurer fichier json données emporter ordinateur copie",
@@ -995,7 +1000,8 @@
       "settingsMap": "Ouvrir Paramètres → Story map",
       "settingsFeatures": "Ouvrir Paramètres → Fonctions",
       "settingsDefinitions": "Ouvrir Paramètres → Définitions",
-      "settingsData": "Ouvrir Paramètres → Données"
+      "settingsData": "Ouvrir Paramètres → Données",
+      "settingsWorkflows": "Ouvrir Paramètres → Workflows"
     },
     "linksTitle": "Où le trouver",
     "linkLocked": "Activez d’abord la fonction « {{feature}} »",
@@ -1234,6 +1240,42 @@
       "open": "non défini",
       "checked": "fait",
       "na": "ignoré (non pertinent)"
+    }
+  },
+  "workflow": {
+    "title": "Workflows",
+    "intro": "Définissez vers quels statuts une story peut passer ensuite, où les nouvelles stories commencent et depuis quels statuts elles peuvent être supprimées.",
+    "refused": "{{code}} reste dans « {{from}} » : le passage vers « {{to}} » n’est pas autorisé.",
+    "deleteRefused": "{{code}} ne peut pas être supprimée depuis « {{status}} » : le workflow ne l’autorise pas.",
+    "locked": "{{from}} → {{to}} n’est pas autorisé",
+    "to": "→ vers",
+    "end": "Fin (supprimer)",
+    "hint": "Un bouton activé signifie autorisé. Désactivez « Fin (supprimer) » pour un statut afin d’y empêcher la suppression des stories.",
+    "targetsOf": "Où une story peut aller depuis {{name}}",
+    "settings": {
+      "activate": "Activer le workflow",
+      "hintOff": "Désactivé par défaut. Tant qu’il est désactivé, tous les passages entre statuts sont autorisés et rien dans l’application ne mentionne le workflow. Vos réglages restent enregistrés.",
+      "hintOn": "Activé : les stories ne passent que par les transitions ci-dessous. Les modifications sont enregistrées aussitôt."
+    },
+    "start": {
+      "title": "Début · nouvelle story",
+      "row": "Nouvelle story",
+      "group": "Où une nouvelle story peut commencer",
+      "last": "Une nouvelle story a besoin d’un point de départ : le dernier statut de départ reste activé."
+    },
+    "chip": {
+      "transition": "De {{from}} vers {{to}}",
+      "start": "Une nouvelle story commence dans {{status}}",
+      "end": "De {{from}} vers la fin (supprimer)",
+      "lastStart": "Les nouvelles stories doivent commencer quelque part : le dernier statut de départ reste activé"
+    },
+    "free": {
+      "label": "Transitions libres dans « {{name}} »",
+      "exceptions": "avec exceptions",
+      "single": "un seul statut"
+    },
+    "warning": {
+      "noEnd": "Aucun statut ne mène à la fin, aucune story ne peut donc être supprimée. Vous pouvez quand même enregistrer."
     }
   }
 }

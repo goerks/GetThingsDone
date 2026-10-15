@@ -3,7 +3,9 @@ import { seedSnapshot } from '../data/seed';
 import { DEMO_DEFINITIONS } from '../domain/definitions';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays, todayIso } from '../domain/sprints';
-import type { Snapshot, Sprint } from '../domain/types';
+import { DEFAULT_STATUSES } from '../domain/statuses';
+import { WORKFLOW_END, type Snapshot, type Sprint, type Workflow } from '../domain/types';
+import { DEFAULT_WORKFLOW, setEnabled, setFree, setTransition } from '../domain/workflow';
 
 /*
  * Test data for the acceptance in the preview: situations a test case needs that the demo data does not have, such as
@@ -91,6 +93,19 @@ function withDefinitions(today: string, ready: boolean, done: boolean, marks = f
   return { ...seed, stories, settings: { ...seed.settings, definitions } };
 }
 
+/** The demo data with a workflow (#49); with `ready`, "Not started" has a second status, "Ready", for the start rules. */
+function withWorkflow(today: string, workflow: Workflow, ready = false): Snapshot {
+  const seed = seedSnapshot(today);
+  const statuses = ready ? [DEFAULT_STATUSES[0], { id: 'ready', label: 'Ready', category: 'not_started' as const }, ...DEFAULT_STATUSES.slice(1)].map((status) => ({ ...status })) : seed.statuses;
+  return { ...seed, statuses, settings: { ...seed.settings, workflow } };
+}
+
+/** The workflow switched on with some transitions forbidden: To do → Done, In progress → Done, Review → To do and the end from Done. */
+function restrictedWorkflow(enabled: boolean): Workflow {
+  const forbidden: Array<[string, string]> = [['todo', 'done'], ['in_progress', 'done'], ['review', 'todo'], ['done', WORKFLOW_END]];
+  return forbidden.reduce((workflow, [from, to]) => setTransition(workflow, from, to, false), setEnabled(DEFAULT_WORKFLOW, enabled));
+}
+
 export interface Preset {
   id: string;
   /** Short name for the choice, in German like the test cases. */
@@ -144,6 +159,41 @@ export const PRESETS: readonly Preset[] = [
     build: (today) => {
       const seed = seedSnapshot(today);
       return { ...seed, settings: { ...seed.settings, definitions: { ready: { enforce: true, groups: [] }, done: { enforce: true, groups: [] } } } };
+    }
+  },
+  {
+    id: 'workflowOn',
+    title: 'Workflows: ein, nichts gesperrt',
+    description: 'Die Demo-Daten mit eingeschaltetem Workflow, aber noch ohne Sperre: Alle Übergänge sind erlaubt.',
+    build: (today) => withWorkflow(today, setEnabled(DEFAULT_WORKFLOW, true))
+  },
+  {
+    id: 'workflowRestricted',
+    title: 'Workflows: ein, mit Sperren',
+    description: 'Eingeschaltet. Gesperrt sind „To do → Done“, „In progress → Done“, „Review → To do“ und das Löschen aus „Done“. „S-3“ und „S-6“ stehen in „To do“, „S-1“ in „In progress“, „S-2“ in „Review“, „S-5“ in „Done“.',
+    build: (today) => withWorkflow(today, restrictedWorkflow(true))
+  },
+  {
+    id: 'workflowSaved',
+    title: 'Workflows: aus, aber mit gespeicherten Sperren',
+    description: 'Dieselben Sperren wie bei „ein, mit Sperren“, aber der Workflow ist ausgeschaltet: Sie gelten nicht.',
+    build: (today) => withWorkflow(today, restrictedWorkflow(false))
+  },
+  {
+    id: 'workflowStarts',
+    title: 'Workflows: ein, zwei Start-Status',
+    description: 'Eingeschaltet. „Nicht begonnen“ hat zwei Status: „To do“ und „Ready“. Nur „To do“ ist als Start eingestellt.',
+    build: (today) => withWorkflow(today, setEnabled(DEFAULT_WORKFLOW, true), true)
+  },
+  {
+    id: 'workflowFreeOff',
+    title: 'Workflows: Kategorie-Schalter aus, mit Sperren',
+    description: 'Eingeschaltet. Der Schalter „Free transitions within In progress“ ist aus, „In progress → Review“ und „Review → In progress“ sind gesperrt, ebenso „To do → Done“.',
+    build: (today) => {
+      const seed = seedSnapshot(today);
+      let workflow = setFree(setEnabled(DEFAULT_WORKFLOW, true), seed.statuses, 'in_progress', false);
+      for (const [from, to] of [['in_progress', 'review'], ['review', 'in_progress'], ['todo', 'done']]) workflow = setTransition(workflow, from, to, false);
+      return withWorkflow(today, workflow);
     }
   },
   {

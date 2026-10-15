@@ -12,6 +12,7 @@
 1. The user drags the whole card with the mouse (after 4 px), by touch (150 ms hold) or with the keyboard (focus the card, space, arrow keys, space). Enter and double click open the story instead. dnd-kit announces each step in the current language.
 2. While dragging, `BoardPage` keeps the item under the pointer and whether the pointer is in its upper or lower half (`placementOf`). It runs `dropStory` on a copy of the list and derives the target column and the card the story would land in front of (`dropTargetIn`). The column is highlighted and a line marks the position. Cards do not move during the drag, so the layout does not jump.
 3. On drop, `BoardPage` calls `drop(activeId, overId, placement)` on the state. The same `dropStory` computes the new list: status of the target column, position before or after the target card or at the end of the column, ranks reindexed without gaps. The board order is the backlog order filtered by column.
+3a. With the workflow on (#49), `drop` first asks `canMove` for the move from the story's status to the target status. A forbidden move changes nothing and shows the notice "stays in …"; only an allowed move continues to the Definition gates (#26). While dragging, `BoardPage` locks the columns the story may not go to (`BoardColumn` with `locked`) and the quick add of a column that is not a start disappears.
 4. The state updates the UI at once, then `changedPositions` finds the stories whose status, rank or sprint membership changed, and only those are saved.
 
 ## Moving a story in the backlog

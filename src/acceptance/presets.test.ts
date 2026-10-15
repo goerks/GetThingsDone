@@ -48,3 +48,27 @@ describe('test data for the acceptance of the definitions (#26)', () => {
     expect(notDone(definitions, story('S-5'), true)).toBeNull();
   });
 });
+
+describe('test data for the acceptance of the workflow (#49)', () => {
+  const workflow = (id: string) => build(id).settings.workflow;
+
+  it('the demo data have the workflow off, as every start does', () => {
+    expect(workflow('demo').enabled).toBe(false);
+    expect(workflow('definitionsOn').enabled).toBe(false);
+  });
+
+  it('"on" switches it on with nothing forbidden, "with rules" and "saved" have the same rules, only the switch differs', () => {
+    expect(workflow('workflowOn')).toMatchObject({ enabled: true, story: { blocked: {}, start: null } });
+    expect(workflow('workflowRestricted').enabled).toBe(true);
+    expect(workflow('workflowSaved').enabled).toBe(false);
+    expect(workflow('workflowSaved').story).toEqual(workflow('workflowRestricted').story);
+    expect(workflow('workflowRestricted').story.blocked).toEqual({ todo: ['done'], in_progress: ['done'], review: ['todo'], done: ['~end'] });
+  });
+
+  it('"two starts" has a second status in "Not started" and "free off" has the switch off with the two rules', () => {
+    expect(build('workflowStarts').statuses.map((status) => status.id)).toEqual(['todo', 'ready', 'in_progress', 'review', 'done']);
+    const free = workflow('workflowFreeOff').story;
+    expect(free.free.in_progress).toBe(false);
+    expect(free.blocked).toEqual({ in_progress: ['review'], review: ['in_progress'], todo: ['done'] });
+  });
+});
