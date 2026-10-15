@@ -1,9 +1,10 @@
+import { DEMO_DEFINITIONS } from '../domain/definitions';
 import { assignTo, missingBuiltins } from '../domain/fields';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays } from '../domain/sprints';
 import { DEFAULT_STATUSES } from '../domain/statuses';
-import type { Definitions, FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
+import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
 
 /** Demo custom fields, so the preview shows what teams can add. */
 const DEMO_FIELDS: FieldDefinition[] = [
@@ -108,58 +109,6 @@ function demoEvents(today: string): ReleaseEvent[] {
     { id: 'event-demo-11', at: at(1), releaseId: 'release-map', storyId: 'story-7', code: 'S-7', kind: 'baseline', points: 8, done: false }
   ];
 }
-
-/**
- * Demo lists for the Definition of Ready and Done (#26). Both are switched off, as every list is until the team switches it on
- * (Settings › Definitions): then they show in stories, ask at the status changes and mark. The acceptance panel has test data that
- * switches them on (`presets.ts`).
- */
-export const DEMO_DEFINITIONS: Definitions = {
-  ready: {
-    enforce: false,
-    groups: [
-      {
-        id: 'group-ready-functional',
-        name: 'Functional',
-        items: [
-          { id: 'def-ready-description', text: '', rule: 'hasDescription', mayBeIrrelevant: false },
-          { id: 'def-ready-criteria', text: '', rule: 'hasCriteria', mayBeIrrelevant: false }
-        ]
-      },
-      {
-        id: 'group-ready-technical',
-        name: 'Technical',
-        items: [{ id: 'def-ready-dependencies', text: 'Dependencies are clarified', rule: null, mayBeIrrelevant: true }]
-      },
-      {
-        id: 'group-ready-design',
-        name: 'Design',
-        items: [
-          { id: 'def-ready-design', text: 'Design is available', rule: null, mayBeIrrelevant: true },
-          { id: 'def-ready-texts', text: 'Texts are agreed', rule: null, mayBeIrrelevant: true }
-        ]
-      }
-    ]
-  },
-  done: {
-    enforce: false,
-    groups: [
-      {
-        id: 'group-done-quality',
-        name: 'Quality',
-        items: [
-          { id: 'def-done-accepted', text: '', rule: 'allCriteriaAccepted', mayBeIrrelevant: false },
-          { id: 'def-done-review', text: 'Code is reviewed', rule: null, mayBeIrrelevant: false }
-        ]
-      },
-      {
-        id: 'group-done-docs',
-        name: 'Documentation',
-        items: [{ id: 'def-done-docs', text: 'Documentation is updated', rule: null, mayBeIrrelevant: true }]
-      }
-    ]
-  }
-};
 
 /**
  * Demo data shown on the first start so the board is not empty.

@@ -31,7 +31,7 @@ Two checklists for the whole team: **Ready** (good enough to start?) and **Done*
 
 | Place | Change |
 |---|---|
-| Settings | New section "Definitions", one tab per list, switch, groups with items (drag, Alt+↑/↓) |
+| Settings | New section "Definitions", two stacked cards, switch first, groups with items (drag, Alt+↑/↓) |
 | Story dialog | Panels "Definition of Ready" / "Definition of Done" with groups, per-group counters and a three-way switch per item (radio group, arrow keys) |
 | Board | Moving a card across a gate opens the transition dialog (A, B or C); done cards with an unmet Done list get "Not done 1/3" |
 | Backlog | Stories that are not ready get "Not ready 3/5" (A and C) |
@@ -74,4 +74,4 @@ The look of the three places is not liked yet. Mockups in [`definitions-look-var
 
 - **Story block: S2**, two collapsible cards (Ready and Done) one under the other, with counter, warning and progress bar; the card that fits the status is open. The menu "…" per card: "Show only open items" and "Hide the definitions" (a choice of this browser; hidden leaves one line "Show definitions"). Built.
 - **Gate dialog: G1**, head with "Quality gate" chip and the route ("To do → In progress · Definition of Ready"), progress bar, "2 of 5 items met · 3 open", then only the open items. Built.
-- **Editor:** none of E1 to E4 chosen. New wish: the lists are **activated first, then the content appears**, Ready and Done **one under the other, no tabs**. New proposals in [`definitions-editor2-variants.html`](definitions-editor2-variants.html) (`definitions-editor2-n1.png` to `-n6.png`): A cards with the switch in front, B flat headings with the switch, C starting help when off (insert the example list or start empty), D collapsible active cards with a summary. Not decided yet; the editor stays as built (tabs) until then.
+- **Editor:** none of E1 to E4 chosen. New wish: the lists are **activated first, then the content appears**, Ready and Done **one under the other, no tabs**. New proposals in [`definitions-editor2-variants.html`](definitions-editor2-variants.html) (`definitions-editor2-n1.png` to `-n6.png`): A cards with the switch in front, B flat headings with the switch, C starting help when off (insert the example list or start empty), D collapsible active cards with a summary. **Decided (PO, 2026-10-15): C plus the folding of D**, built: no tabs, switch first, content only when active, starting help when off and empty, active card folds to a summary. Item control: one control cycles not set → done → ignored (ignored only where "may be n/a").

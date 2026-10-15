@@ -919,7 +919,7 @@
       "definitions.basics": {
         "title": "Definition of Ready et Done",
         "keywords": "definition ready done dor dod liste de contrôle critères groupe non pertinent passage qualité vérifier",
-        "body": "Definition of Ready et Definition of Done sont deux listes de contrôle pour toutes les stories : ce qu’une story doit avoir pour démarrer et pour être terminée.\n1. Ouvrez Paramètres → Définitions. Ajoutez des groupes et des points : à la main (texte libre) ou automatiques (l’application vérifie elle-même, par exemple « A des critères d’acceptation »). Cochez « peut être n. p. » pour les points qu’une story peut ignorer, par exemple « Design is available ».\n2. Activez « Vérifier quand … » pour chaque liste. Une liste vide ou désactivée ne vérifie ni ne marque rien.\n3. Dans une story, le panneau « Definition of Ready » / « Definition of Done » montre les points par groupe. Cochez-les ou marquez-les « non pertinents » là où c’est permis (touche N).\nQuand une story quitte « Non commencé », l’application demande la liste Ready ; quand elle passe à « Terminé », la liste Done. Le gate bloque le déplacement tant que les points ouverts ne sont pas cochés ou marqués « non pertinents » ; la seule autre voie est un contournement délibéré (« Contourner le gate… », puis « Contourner et déplacer »). Le backlog marque les stories pas prêtes ; le tableau marque les stories terminées dont la liste Done n’est pas remplie."
+        "body": "Definition of Ready et Definition of Done sont deux listes de contrôle pour toutes les stories : ce qu’une story doit avoir pour démarrer et pour être terminée.\n1. Ouvrez Paramètres → Définitions. Ajoutez des groupes et des points : à la main (texte libre) ou automatiques (l’application vérifie elle-même, par exemple « A des critères d’acceptation »). Cochez « peut être n. p. » pour les points qu’une story peut ignorer, par exemple « Design is available ».\n2. Activez la liste avec son interrupteur ; son contenu n’apparaît qu’ensuite. « Insérer la liste d’exemple » aide à démarrer. Une liste vide ou désactivée ne vérifie ni ne marque rien.\n3. Dans une story, le panneau « Definition of Ready » / « Definition of Done » montre les points par groupe. Cliquez sur un point : non défini, fait, ignoré (ignoré seulement là où c’est permis ; touche N).\nQuand une story quitte « Non commencé », l’application demande la liste Ready ; quand elle passe à « Terminé », la liste Done. Le gate bloque le déplacement tant que les points ouverts ne sont pas cochés ou marqués « non pertinents » ; la seule autre voie est un contournement délibéré (« Contourner le gate… », puis « Contourner et déplacer »). Le backlog marque les stories pas prêtes ; le tableau marque les stories terminées dont la liste Done n’est pas remplie."
       }
     },
     "links": {
@@ -1066,16 +1066,11 @@
     "automatic": "automatique",
     "manual": "manuel",
     "autoHint": "Vérifié par l’application elle-même",
-    "notRelevant": "Non pertinent",
-    "relevantAgain": "De nouveau pertinent",
-    "notRelevantFor": "Marquer « {{text}} » comme non pertinent",
-    "relevantAgainFor": "Rendre « {{text}} » de nouveau pertinent",
-    "stateNa": "(non pertinent)",
     "naCount": "{{count}} n. p.",
     "openItems_one": "{{count}} point ouvert",
     "openItems_other": "{{count}} points ouverts",
     "panelLabel": "Définitions de cette story",
-    "keys": "La barre d’espace coche un point. N le marque comme « non pertinent » là où c’est permis.",
+    "keys": "Un clic ou la barre d’espace passe à l’état suivant : non défini, fait, ignoré (« non pertinent », là où c’est permis). N met directement « non pertinent ».",
     "chip": {
       "notReady": "Pas prête {{counter}}",
       "notDone": "Pas terminée {{counter}}"
@@ -1147,7 +1142,14 @@
       "newGroup": "Nouveau groupe",
       "newGroupPlaceholder": "Nouveau groupe – Entrée crée",
       "addGroup": "Ajouter le groupe",
-      "off": "La liste est désactivée : les stories ne la montrent pas et rien n’est vérifié ni marqué."
+      "off": "La liste est désactivée : les stories ne la montrent pas et rien n’est vérifié ni marqué.",
+      "groups_one": "{{count}} groupe",
+      "groups_other": "{{count}} groupes",
+      "foldList": "Replier la {{name}}",
+      "unfoldList": "Déplier la {{name}}",
+      "emptyOff": "Cette liste est vide et désactivée. Activez-la, puis ajoutez groupes et points.",
+      "insertExample": "Insérer la liste d’exemple",
+      "startEmpty": "Commencer vide"
     },
     "ruleHelp": {
       "hasDescription": "La description de la story n’est pas vide.",
@@ -1164,6 +1166,11 @@
       "label": "Options de la {{name}}",
       "onlyOpen": "Afficher seulement les points ouverts",
       "hide": "Masquer les définitions"
+    },
+    "state": {
+      "open": "non défini",
+      "checked": "fait",
+      "na": "ignoré (non pertinent)"
     }
   }
 }

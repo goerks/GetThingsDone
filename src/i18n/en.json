@@ -919,7 +919,7 @@
       "definitions.basics": {
         "title": "Definition of Ready and Done",
         "keywords": "definition ready done dor dod checklist criteria group not relevant gate quality check",
-        "body": "Definition of Ready and Definition of Done are two checklists for all stories: what a story needs to start, and what it needs to be done.\n1. Open Settings → Definitions. Add groups and items: by hand (free text) or automatic (the app checks it itself, for example “Has acceptance criteria”). Tick “may be n/a” for items a story can skip, for example “Design is available”.\n2. Switch on “Check when …” for each list. A list that is empty or switched off checks and marks nothing.\n3. In a story, the panel “Definition of Ready” / “Definition of Done” shows the items by group. Tick them, or set them to “not relevant” where that is allowed (key N).\nWhen a story leaves “Not started”, the app asks for the Ready list; when it moves to “Done”, for the Done list. The gate blocks the move until the open items are ticked in the dialog or set to “not relevant”; the only other way is a deliberate override (“Override the gate…”, then “Override and move”). The backlog marks stories that are not ready; the board marks done stories whose Done list is not met."
+        "body": "Definition of Ready and Definition of Done are two checklists for all stories: what a story needs to start, and what it needs to be done.\n1. Open Settings → Definitions. Add groups and items: by hand (free text) or automatic (the app checks it itself, for example “Has acceptance criteria”). Tick “may be n/a” for items a story can skip, for example “Design is available”.\n2. Switch on the list with its switch (“Activate the Definition of Ready”); only then its content appears. “Insert example list” gives a start. A list that is empty or switched off checks and marks nothing.\n3. In a story, the panel “Definition of Ready” / “Definition of Done” shows the items by group. Click an item: not set, done, ignored (ignored only where allowed; key N).\nWhen a story leaves “Not started”, the app asks for the Ready list; when it moves to “Done”, for the Done list. The gate blocks the move until the open items are ticked in the dialog or set to “not relevant”; the only other way is a deliberate override (“Override the gate…”, then “Override and move”). The backlog marks stories that are not ready; the board marks done stories whose Done list is not met."
       }
     },
     "links": {
@@ -1066,16 +1066,11 @@
     "automatic": "automatic",
     "manual": "manual",
     "autoHint": "Checked by the app itself",
-    "notRelevant": "Not relevant",
-    "relevantAgain": "Relevant again",
-    "notRelevantFor": "Set “{{text}}” to not relevant",
-    "relevantAgainFor": "Make “{{text}}” relevant again",
-    "stateNa": "(not relevant)",
     "naCount": "{{count}} n/a",
     "openItems_one": "{{count}} item open",
     "openItems_other": "{{count}} items open",
     "panelLabel": "Definitions of this story",
-    "keys": "Space ticks an item. N sets it to “not relevant” where that is allowed.",
+    "keys": "Click or Space goes through not set, done and ignored (“not relevant”, where allowed). N sets “not relevant” at once.",
     "chip": {
       "notReady": "Not ready {{counter}}",
       "notDone": "Not done {{counter}}"
@@ -1147,7 +1142,14 @@
       "newGroup": "New group",
       "newGroupPlaceholder": "New group – Enter adds",
       "addGroup": "Add group",
-      "off": "The list is off: it is not shown in stories and nothing is checked or marked."
+      "off": "The list is off: it is not shown in stories and nothing is checked or marked.",
+      "groups_one": "{{count}} group",
+      "groups_other": "{{count}} groups",
+      "foldList": "Fold the {{name}}",
+      "unfoldList": "Unfold the {{name}}",
+      "emptyOff": "This list is empty and off. Switch it on, then add groups and items.",
+      "insertExample": "Insert example list",
+      "startEmpty": "Start empty"
     },
     "ruleHelp": {
       "hasDescription": "The description of the story is not empty.",
@@ -1164,6 +1166,11 @@
       "label": "Options of the {{name}}",
       "onlyOpen": "Show only open items",
       "hide": "Hide the definitions"
+    },
+    "state": {
+      "open": "not set",
+      "checked": "done",
+      "na": "ignored (not relevant)"
     }
   }
 }

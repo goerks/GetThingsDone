@@ -1,5 +1,6 @@
 import { LocalStorageRepository } from '../data/localStorageRepository';
-import { DEMO_DEFINITIONS, seedSnapshot } from '../data/seed';
+import { seedSnapshot } from '../data/seed';
+import { DEMO_DEFINITIONS } from '../domain/definitions';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays, todayIso } from '../domain/sprints';
 import type { Snapshot, Sprint } from '../domain/types';
