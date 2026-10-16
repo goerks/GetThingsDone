@@ -113,3 +113,8 @@ export function matchesMemberFilter(story: Pick<Story, 'assigneeId'>, filter: Me
   if (filter.kind === 'none') return !story.assigneeId;
   return story.assigneeId === filter.memberId;
 }
+
+/** The filter that applies: a filter on a member who was removed in the meantime shows everything again. */
+export function effectiveFilter(filter: MemberFilter, members: readonly Member[]): MemberFilter {
+  return filter.kind === 'member' && !members.some((member) => member.id === filter.memberId) ? ALL_MEMBERS : filter;
+}
