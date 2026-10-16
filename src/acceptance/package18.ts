@@ -8,7 +8,7 @@ import type { Criterion } from './types';
  */
 export const PACKAGE_18: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
   issue: 18,
-  pullRequest: 0,
+  pullRequest: 59,
   title: 'Team und Zuweisung von Stories',
   criteria: [
     {
