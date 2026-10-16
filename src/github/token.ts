@@ -1,6 +1,6 @@
 import type { TokenStore } from './source';
 
-/** The token for this page only: it is kept in memory, so it is gone when the page is reloaded or closed (#30, ADR 0004). */
+/** The token for this page only: it is kept in memory, so it is gone when the page is reloaded or closed (#30, ADR 0005). */
 export function createMemoryTokenStore(): TokenStore {
   let token: string | null = null;
   return {

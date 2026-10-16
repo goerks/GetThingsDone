@@ -33,7 +33,7 @@ export const CONNECTOR_KINDS = [
 export type ConnectorKind = (typeof CONNECTOR_KINDS)[number]['kind'];
 
 /**
- * One connector per service (#30, ADR 0004). The sync engine knows nothing of a service: it asks a connector for the open
+ * One connector per service (#30, ADR 0005). The sync engine knows nothing of a service: it asks a connector for the open
  * items, for one item, and tells it what to change. The desktop app and the browser talk to api.github.com; the public
  * preview uses a simulated repository, so it never needs a real token.
  */

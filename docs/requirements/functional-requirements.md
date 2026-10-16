@@ -683,31 +683,33 @@ Stories, epics, sprints and releases keep a history of versions (#23, ADR 0004).
 Verified by: unit `src/domain/changeLog.test.ts` and `src/domain/textDiff.test.ts` (AC1.3, AC2.1–AC2.6, AC3.1–AC3.4, AC5.2–AC5.3, AC6.1, AC8.1–AC8.4, AC8.6), repositories `src/data/sqliteRepository.test.ts` and `src/data/localStorageRepository.test.ts` (AC5.1), component `src/ChangeHistory.test.tsx` (AC1.1, AC1.3–AC1.4, AC2.3, AC2.7, AC4.2, AC7.3, AC8.2–AC8.5, AC9.1–AC9.3), e2e `e2e/changeHistory.spec.ts` (AC3.1, AC3.3, AC4.1, AC5.1, AC7.1, AC8.1–AC8.2); AC1.2, AC6.2, AC7.2 and AC8.7 are checked by hand
 ## GitHub issues (GH)
 
-Issue #30, ADR 0004. Tests: `src/domain/github.test.ts` (unit), `src/github/restSource.test.ts` (the calls to GitHub), `src/Github.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration), `e2e/github.spec.ts` (end-to-end, simulated GitHub).
+Issue #30, ADR 0005. Tests: `src/domain/github.test.ts` and `src/domain/githubRoundtrip.test.ts` (unit), `src/github/restSource.test.ts`, `src/github/connector.test.ts` and `src/github/runSync.test.ts` (the connectors and the sync), `src/Github.test.tsx` and `src/GithubRoundtrip.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration), `e2e/github.spec.ts` (end-to-end, simulated GitHub).
 
 ### FR-GH-01 Switch on and connect one repository
 As a team that uses GitHub, we want to connect a GitHub repository in the settings, so that we can plan with its issues.
-- The feature "GitHub connection" is off by default (Settings → Features). While it is off, there is no section "GitHub", no "Synchronise" button and no issue numbers; switching it off keeps the imported stories and the connection.
-- Settings → GitHub (only while the feature is on) takes the repository as `owner/name` and an access token that may only read, and "Test connection" says "Connection ok · n open issues" or what is wrong (repository missing, wrong form, not found, token refused, no network). "Disconnect" removes repository and token.
+- The feature "GitHub connection" is off by default (Settings → Features). While it is off, there is no section "Connections", no "Synchronise" button and no issue numbers; switching it off keeps the imported stories and the connection.
+- Settings → Connections (only while the feature is on) lists the services (GitHub; GitLab, Jira and Trello as planned), takes the repository as `owner/name` and an access token, and "Test connection" says "Connection ok · n open issues" or what is wrong (repository missing, wrong form, not found, token refused, no network). "Remove connection" asks first, then forgets repository and token; the stories stay, without link and marker.
+- "Also write to GitHub" is off by default; the token then needs "Issues: read and write". "When both sides changed the same field": GitHub wins (default), local wins, or I decide.
 - The token is never shown again after it was saved; desktop app: kept in the credential store of the operating system; browser: only in the memory of the page, asked for again after a reload. The public preview is labelled "Demo", uses a simulated GitHub and needs no real token.
 - Fully keyboard operable, all texts in DE, EN, FR and IT.
 
-Source: #30 · Status: Implemented · Verified by: #30 AC1.1–AC1.7, AC6.1, AC6.2 (`src/Github.test.tsx`, `e2e/github.spec.ts`, `src/domain/github.test.ts`); keychain: manual check on the Windows app
+Source: #30 · Status: Implemented · Verified by: #30 AC1.1–AC1.8, AC6.1, AC6.2, AC11.1, AC11.2 (`src/Github.test.tsx`, `src/GithubRoundtrip.test.tsx`, `e2e/github.spec.ts`, `src/domain/github.test.ts`); keychain: manual check on the Windows app
 
 ### FR-GH-02 Import open issues as stories
 As a team member, I want to import the open issues as stories, so that I do not copy them by hand.
 - "Synchronise" in the head of the backlog creates a story for every open issue that has none: title, description, labels (field "Labels") and the address of the issue; the story starts in the first status, in no sprint, with 0 points.
-- An issue that was imported is never imported twice; pull requests and closed issues without a story are not imported.
+- An issue that was imported is never imported twice; pull requests and closed issues without a story are not imported. A story that was deleted here is not imported again.
 
 Source: #30 · Status: Implemented · Verified by: #30 AC2.1–AC2.3
 
-### FR-GH-03 Sync imported stories
-As a team member, I want to bring the imported stories up to date, and see what changed.
-- Title, description, labels, open or closed and the task list under the heading "Acceptance criteria" ("Akzeptanzkriterien", "Abnahmekriterien") with its ticks come from GitHub; GitHub wins over local changes. Tasks under any other heading stay in the description.
-- A closed issue puts its story into the first "done" status; an issue that is open again puts a done story, whose issue was closed at the last sync, back to the first status. Sprint, points, rank, epic and the column of an open story stay as they are.
-- After each sync a dialog counts the stories newly imported, updated and done, lists the changes per issue, says that GitHub wins, and closes with the button or Esc (focus returns to the button). The head of the backlog shows the time of the last sync.
+### FR-GH-03 Sync imported stories in both directions
+As a team member, I want to bring the imported stories and their issues up to date, and see what changed.
+- Title, description, labels, closed or open (done or not done) and the task list under the heading "Acceptance criteria" ("Akzeptanzkriterien", "Abnahmekriterien") with its ticks are compared field by field with what the issue looked like at the last sync. A field that changed only on GitHub is taken; a field that changed only here is published (when writing is on). Tasks under any other heading stay in the description.
+- A field that changed on both sides follows the conflict rule of the connection (GitHub wins by default; local wins; I decide, with a dialog that shows both versions and changes nothing until I choose). The result always names what was overwritten.
+- A closed issue puts its story into the first "done" status; an issue that is open again puts a done story back to the first status. Sprint, points, rank, epic and the column of an open story stay as they are and never go to GitHub.
+- After each sync a dialog counts the stories newly imported, updated and done and the changes published, lists the changes per issue, says what was overwritten and what stayed pending, and closes with the button or Esc (focus returns to the button). The head of the backlog shows the time of the last sync.
 
-Source: #30 · Status: Implemented · Verified by: #30 AC3.1–AC3.8
+Source: #30 · Status: Implemented · Verified by: #30 AC3.1–AC3.8, AC8.1–AC8.4
 
 ### FR-GH-04 Issue number and link
 Imported stories show their issue number (`#31`) as a link that opens the issue on GitHub in a new tab: on cards, in the backlog and in the story. Stories of the team have none; the numbers are hidden while the feature is off.
@@ -715,9 +717,22 @@ Imported stories show their issue number (`#31`) as a link that opens the issue 
 Source: #30 · Status: Implemented · Verified by: #30 AC4.1, AC4.2
 
 ### FR-GH-05 Clear messages, local data stays
-Without network, with a refused token, an unknown repository, a missing connection or when GitHub limits the requests, the sync shows a clear message in a dialog and changes nothing; the app keeps working with the local data.
+Without network, with a refused token, an unknown repository, a missing connection or when GitHub limits the requests, the sync shows a clear message in a dialog and changes nothing; the app keeps working with the local data. A token that may not write is told so ("Issues: read and write"); the local changes stay.
 
-Source: #30 · Status: Implemented · Verified by: #30 AC5.1, AC5.2
+Source: #30 · Status: Implemented · Verified by: #30 AC5.1, AC5.2, AC7.6
+
+### FR-GH-06 Publish local changes to GitHub
+As a team member, I want my changes to an imported story to reach its issue, so that both sides say the same.
+- With "Also write to GitHub" on, "Synchronise" publishes title, description, labels (only labels the repository has; unknown ones are reported and stay on the story), criteria with their ticks and done/not done as closed/open. Nothing is published without pressing "Synchronise". With writing off, local changes stay marked and the result says so.
+- Stories with changes that are not on GitHub yet are marked ("not on GitHub") and counted ("n changes not on GitHub yet") in the backlog before the sync.
+- A story that exists only here becomes a new issue with "Create on GitHub" in its menu (only while writing is on); it is linked from then on. No story is published without that action.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC7.1–AC7.6, AC9.1, AC9.2, AC10.1–AC10.3
+
+### FR-GH-07 One mechanism, a connector per service
+The sync is one general mechanism: the engine asks a connector for the open items, one item, and tells it what to change. GitHub is the first connector; the settings list GitLab, Jira and Trello as planned. A connector has to pass the shared connector tests (reading, writing, errors); a connection can be removed without touching the stories.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC11.1–AC11.3 (`src/github/connector.test.ts`)
 
 ## Later
 

@@ -6,7 +6,7 @@ import { createRestSource } from './restSource';
 import type { TrackerConnector } from './source';
 
 /*
- * One test series that every connector has to pass (#30, ADR 0004): reading, writing, errors. The sync engine knows no
+ * One test series that every connector has to pass (#30, ADR 0005): reading, writing, errors. The sync engine knows no
  * service, so a new service is "only" a connector that passes this series. Three connectors run it: the REST connector
  * of GitHub against a small imitation of the API, the simulated GitHub of the preview, and the fake of the other tests.
  */

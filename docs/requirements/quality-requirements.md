@@ -9,7 +9,7 @@ How the architecture meets these requirements: [arc42 chapter 10](../arc42/10-qu
 | QR-03 | Accessibility | Interactive targets are at least 44 by 44 px, with a visible focus ring | Design tokens, review | Implemented |
 | QR-04 | Accessibility | Text contrast at least 4.5:1 in both themes; colour never carries meaning alone | Token check | Implemented (epic colours at least 4.3:1 against cards and columns, shown with the name) |
 | QR-05 | Multilingual | All UI text in DE, EN, FR and IT, no hard-coded user-facing strings | Every key exists in all four files | Implemented |
-| QR-06 | Local first | Works fully offline; no telemetry. The only network call is the optional GitHub connection (FR-GH-01), which is off by default, runs by hand and never blocks the app | Fonts bundled; the connection is behind `GithubSource` (ADR 0004) | Implemented |
+| QR-06 | Local first | Works fully offline; no telemetry. The only network call is the optional GitHub connection (FR-GH-01), which is off by default, runs by hand, writes only when switched on and never blocks the app | Fonts bundled; the connection is behind `TrackerConnector` (ADR 0005) | Implemented |
 | QR-07 | Reliability | No change is lost or reordered when saving | Writes run in order; errors are shown | Partial (no transactions, no retry: TD-5, TD-6) |
 | QR-08 | Performance | The app starts and reacts without noticeable delay for a team backlog of a few hundred stories | Start under 2 s, interactions under 100 ms on a typical laptop | Not measured |
 | QR-09 | Portability | Windows first; Linux and macOS from the same codebase | Tauri build on each platform | Partial (Windows build in CI) |
