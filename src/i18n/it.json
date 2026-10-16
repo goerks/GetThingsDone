@@ -1317,6 +1317,9 @@
       "sprint": "Sprint",
       "state": "Stato",
       "stories": "Stories"
-    }
+    },
+    "field": "Campo",
+    "expand": "Mostra le versioni precedenti",
+    "collapse": "Nascondi le versioni precedenti"
   }
 }

@@ -32,3 +32,8 @@ A **version** is one save of an item (V1, V2, …); several field changes in one
 - **Full list (H, `-h.png`, `-i.png`):** one checkbox per version; with two ticked the bar "Compare" appears. The sprint list also names the stories that joined or left.
 - **Compare layer:** opens above the dialog with "Back to the story" and Esc.
 - **States without a mockup:** no history yet, the same version left and right ("No differences"), narrow window (the two columns stack with a heading each).
+
+## PO feedback on the preview (2026-10-16)
+
+- The picker in the comparison lists only the version and its date and time, nothing else.
+- The panel "History" in the dialogs is collapsed by default and shows only the current version; "Show older versions" opens the last three.

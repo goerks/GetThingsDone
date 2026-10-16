@@ -1317,6 +1317,9 @@
       "sprint": "Sprint",
       "state": "État",
       "stories": "Stories"
-    }
+    },
+    "field": "Champ",
+    "expand": "Afficher les versions précédentes",
+    "collapse": "Masquer les versions précédentes"
   }
 }
