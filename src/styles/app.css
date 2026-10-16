@@ -6416,3 +6416,128 @@ a.btn {
     grid-template-columns: 1fr;
   }
 }
+
+/* Team members and assignment (#18) */
+.assignee {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  user-select: none;
+}
+
+.assignee--none {
+  background: transparent;
+  border: 1px dashed var(--muted);
+  color: var(--muted);
+}
+
+/* On a board card the badge sits at the top right, on the line of the key, so the card keeps its height. */
+.assignee--corner {
+  position: absolute;
+  top: 9px;
+  right: 12px;
+}
+
+.member-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.member-filter__chip {
+  min-height: var(--target-min);
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.member-filter__chip:hover {
+  background: var(--pill);
+}
+
+.member-filter__chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 640px;
+}
+
+.team__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.team__name {
+  flex: 1;
+  min-width: 8ch;
+  font-weight: 500;
+}
+
+.team__buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.team__confirm {
+  flex-basis: 100%;
+}
+
+.team__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 12px;
+  flex: 1;
+}
+
+.team__form .field {
+  min-width: 12ch;
+  flex: 1;
+}
+
+.team__initials {
+  flex: 0 0 9ch;
+}
+
+.team__problem {
+  flex-basis: 100%;
+  margin: 0;
+}

@@ -14,6 +14,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
+import { AssigneeBadge } from '../components/AssigneeBadge';
 import { NewEpicDialog } from '../components/EpicDialogs';
 import { NewStoryDialog } from '../components/NewStoryDialog';
 import { NewButton } from '../components/NewButton';
@@ -72,6 +73,7 @@ function CardContent({ story }: { story: Story }) {
     <>
       <span className="map-card__top">
         <span className="card__code">{story.code}</span>
+        <AssigneeBadge story={story} />
         {builtin.shown('story', 'points') && (
           <span className="pill" title={builtin.pointsTitle(story.points)}>
             {story.points}

@@ -11,6 +11,7 @@ import type {
   BuiltinKey,
   Criterion,
   Epic,
+  Member,
   FieldAssignment,
   FieldDataType,
   FieldDefinition,
@@ -95,6 +96,12 @@ interface EventRow {
   done: number;
 }
 
+interface MemberRow {
+  id: string;
+  name: string;
+  initials: string;
+}
+
 interface StoryRow {
   id: string;
   code: string;
@@ -105,6 +112,7 @@ interface StoryRow {
   status: string;
   sprint_id: string | null;
   release_id: string | null;
+  assignee_id: string | null;
   rank: number;
   checks: string | null;
   done_items: string | null;
@@ -198,11 +206,12 @@ export class SqliteRepository implements Repository {
     const releaseRows = await this.db.select<ReleaseRow[]>(
       'SELECT id, title, description, start_date, end_date FROM releases ORDER BY rowid'
     );
+    const memberRows = await this.db.select<MemberRow[]>('SELECT id, name, initials FROM members ORDER BY position, rowid');
     const changeLogRows = await this.db.select<ChangeLogRow[]>(
       'SELECT id, at, item_type, item_id, version, origin, keys, state FROM change_log ORDER BY at, rowid'
     );
     const storyRows = await this.db.select<StoryRow[]>(
-      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, rank, checks, done_items FROM stories ORDER BY rank'
+      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items FROM stories ORDER BY rank'
     );
     const criterionRows = await this.db.select<CriterionRow[]>(
       'SELECT id, story_id, text, done FROM criteria ORDER BY story_id, position'
@@ -286,6 +295,7 @@ export class SqliteRepository implements Repository {
       status: row.status as Status,
       sprintId: row.sprint_id,
       releaseId: row.release_id,
+      ...(row.assignee_id ? { assigneeId: row.assignee_id } : {}),
       rank: row.rank,
       criteria: criteriaByStory.get(row.id) ?? [],
       values: valuesByItem.get(row.id) ?? {},
@@ -326,7 +336,8 @@ export class SqliteRepository implements Repository {
       keys: parseJson<string[]>(row.keys) ?? [],
       state: parseJson<ItemState>(row.state) ?? {}
     }));
-    return { epics, sprints: settled.sprints, releases, events, changeLog, stories: settled.stories, statuses, fields, assignments, settings };
+    const members: Member[] = memberRows.map((row) => ({ id: row.id, name: row.name, initials: row.initials }));
+    return { epics, sprints: settled.sprints, releases, members, events, changeLog, stories: settled.stories, statuses, fields, assignments, settings };
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
@@ -378,6 +389,7 @@ export class SqliteRepository implements Repository {
     await this.db.execute('DELETE FROM releases');
     await this.db.execute('DELETE FROM sprints');
     await this.db.execute('DELETE FROM epics');
+    await this.db.execute('DELETE FROM members');
     for (const field of snapshot.fields) {
       await this.saveField(field);
     }
@@ -386,6 +398,9 @@ export class SqliteRepository implements Repository {
     }
     for (const epic of snapshot.epics) {
       await this.addEpic(epic);
+    }
+    for (const member of snapshot.members) {
+      await this.addMember(member);
     }
     for (const sprint of snapshot.sprints) {
       await this.addSprint(sprint);
@@ -417,8 +432,8 @@ export class SqliteRepository implements Repository {
 
   async addStory(story: Story): Promise<void> {
     await this.db.execute(
-      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, rank, checks, done_items) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
-      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, JSON.stringify(story.checks), json(story.doneItems)]
+      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)',
+      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.assigneeId ?? null, story.rank, JSON.stringify(story.checks), json(story.doneItems)]
     );
     for (const [position, criterion] of story.criteria.entries()) {
       await this.addCriterion(story.id, criterion, position);
@@ -430,8 +445,8 @@ export class SqliteRepository implements Repository {
 
   async updateStory(story: Story): Promise<void> {
     await this.db.execute(
-      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, rank = $8 WHERE id = $9',
-      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, story.id]
+      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, assignee_id = $8, rank = $9 WHERE id = $10',
+      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.assigneeId ?? null, story.rank, story.id]
     );
   }
 
@@ -577,6 +592,20 @@ export class SqliteRepository implements Repository {
       release.endDate,
       release.id
     ]);
+  }
+
+  async addMember(member: Member): Promise<void> {
+    const next = await this.db.select<{ position: number | null }[]>('SELECT MAX(position) AS position FROM members');
+    await this.db.execute('INSERT INTO members (id, name, initials, position) VALUES ($1, $2, $3, $4)', [member.id, member.name, member.initials, (next[0]?.position ?? -1) + 1]);
+  }
+
+  async updateMember(member: Member): Promise<void> {
+    await this.db.execute('UPDATE members SET name = $1, initials = $2 WHERE id = $3', [member.name, member.initials, member.id]);
+  }
+
+  async deleteMember(memberId: string): Promise<void> {
+    await this.db.execute('UPDATE stories SET assignee_id = NULL WHERE assignee_id = $1', [memberId]);
+    await this.db.execute('DELETE FROM members WHERE id = $1', [memberId]);
   }
 
   async deleteRelease(releaseId: string): Promise<void> {
