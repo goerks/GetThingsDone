@@ -73,7 +73,6 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsFeatures' }, { id: 'settingsData' }] },
   { id: 'data.backup', pages: ['settings'], show: { selector: '.data-settings', missing: 'plain' }, links: [{ id: 'settingsData' }] },
   { id: 'github.basics', pages: ['backlog', 'settings'], show: { selector: '.github-sync, .github-settings', missing: 'plain' }, links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsGithub', requires: 'github', hint: 'githubConnect' }, { id: 'backlog', requires: 'github' }] },
-  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsFeatures' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
 ];

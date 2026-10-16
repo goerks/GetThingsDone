@@ -662,7 +662,6 @@ describe('sprint states (#17)', () => {
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
     migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql']);
-    migrate(db, ['011_sprint_states.sql', '012_github.sql']);
     return db;
   }
 
