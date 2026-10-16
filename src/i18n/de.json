@@ -989,6 +989,11 @@
         "title": "Verlauf und Stände vergleichen",
         "keywords": "verlauf änderungen stände version vergleichen unterschied protokoll geändert vorher nachher sprint epic release story",
         "body": "Jede Story, jedes Epic, jeder Sprint und jedes Release führt einen Verlauf. Öffne das Element und schau unter den anderen Feldern auf „Verlauf“ (beim Release: Reiter „Verlauf“). Jedes Speichern ist ein Stand (V1, V2, …) mit Datum, Uhrzeit und dem, was sich geändert hat. Verschieben auf dem Board und im Backlog zählt als Änderung von Status oder Sprint; reines Umsortieren nicht.\nZwei Stände vergleichst du mit „Stände vergleichen“, mit „Mit Aktuell vergleichen“ an einem Eintrag oder indem du unter „Alle Änderungen anzeigen“ zwei Stände ankreuzt. Links steht der ältere, rechts der neuere Stand; „⇄“ tauscht sie. Geänderte Felder sind mit Zeichen und Wort markiert, unveränderte eingeklappt, die Beschreibung steht Zeile für Zeile.\nDer Vergleich liest nur: er stellt nichts wieder her. Der Verlauf beginnt mit der ersten Änderung; was es vorher schon gab, zeigt „Noch keine Änderungen“."
+      },
+      "team.assign": {
+        "title": "Team und Zuweisung",
+        "keywords": "team person mitglied zuweisen zugewiesen kürzel initialen filter jemand arbeiten wer",
+        "body": "Öffne Einstellungen → Team und lege die Personen an, denen du Stories zuweisen willst. Name und Kürzel genügen, es gibt keine Konten. Das Kürzel entsteht aus dem Namen und lässt sich ändern.\nEine Story weist du im Dialog der Story im Feld „Zugewiesen an“ zu, oder gleich beim Anlegen einer neuen Story. Auf Karten, im Backlog und auf der Story Map zeigt ein runder Kreis das Kürzel. Ein gestrichelter Kreis heisst: nicht zugewiesen.\nÜber dem Board filterst du nach einer Person oder nach nicht zugewiesenen Stories. Die Suche findet Stories auch über den Namen oder das Kürzel.\nWenn du ein Mitglied entfernst, bleiben seine Stories erhalten und sind danach nicht mehr zugewiesen."
       }
     },
     "links": {
@@ -1002,7 +1007,8 @@
       "settingsMap": "Einstellungen → Story Map öffnen",
       "settingsFeatures": "Einstellungen → Funktionen öffnen",
       "settingsDefinitions": "Einstellungen → Definitionen öffnen",
-      "settingsData": "Einstellungen → Daten öffnen"
+      "settingsData": "Einstellungen → Daten öffnen",
+      "settingsTeam": "Einstellungen → Team öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",

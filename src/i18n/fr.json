@@ -989,6 +989,11 @@
         "title": "Historique et comparaison de versions",
         "keywords": "historique modifications versions comparer différence journal avant après sprint epic release story",
         "body": "Chaque story, epic, sprint et release a un historique. Ouvrez l’élément et regardez « Historique » sous les autres panneaux (pour une release : l’onglet « Historique »). Chaque enregistrement est une version (V1, V2, …) avec la date, l’heure et ce qui a changé. Les déplacements sur le tableau et dans le backlog comptent comme changement de statut ou de sprint ; le simple tri non.\nPour comparer deux versions, cliquez sur « Comparer des versions », sur « Comparer à l’actuelle » dans une entrée, ou cochez deux versions sous « Afficher toutes les modifications ». À gauche la plus ancienne, à droite la plus récente ; « ⇄ » les échange. Les champs modifiés portent un signe et un mot, les champs inchangés sont repliés, la description s’affiche ligne par ligne.\nLa comparaison est en lecture seule : elle ne restaure rien. L’historique commence à la première modification ; ce qui existait avant affiche « Aucune modification pour l’instant »."
+      },
+      "team.assign": {
+        "title": "Équipe et assignation",
+        "keywords": "équipe personne membre assigner assignée initiales filtre quelqu’un travaille qui",
+        "body": "Ouvre Paramètres → Équipe et ajoute les personnes auxquelles tu veux assigner des stories. Un nom et des initiales suffisent, il n’y a pas de comptes. Les initiales viennent du nom et peuvent être modifiées.\nTu assignes une story dans sa fenêtre, dans le champ « Assignée à », ou directement en créant une nouvelle story. Une pastille ronde montre les initiales sur les cartes, dans le backlog et sur la story map. Une pastille en pointillés signifie que la story n’est pas assignée.\nAu-dessus du tableau, tu filtres par personne ou par stories que personne ne traite. La recherche trouve aussi les stories par nom ou par initiales.\nSi tu retires un membre, ses stories restent et ne sont plus assignées."
       }
     },
     "links": {
@@ -1002,7 +1007,8 @@
       "settingsMap": "Ouvrir Paramètres → Story map",
       "settingsFeatures": "Ouvrir Paramètres → Fonctions",
       "settingsDefinitions": "Ouvrir Paramètres → Définitions",
-      "settingsData": "Ouvrir Paramètres → Données"
+      "settingsData": "Ouvrir Paramètres → Données",
+      "settingsTeam": "Ouvrir Paramètres → Équipe"
     },
     "linksTitle": "Où le trouver",
     "linkLocked": "Activez d’abord la fonction « {{feature}} »",

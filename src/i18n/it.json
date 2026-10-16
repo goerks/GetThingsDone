@@ -989,6 +989,11 @@
         "title": "Cronologia e confronto di versioni",
         "keywords": "cronologia modifiche versioni confronta differenza registro prima dopo sprint epic release story",
         "body": "Ogni story, epic, sprint e release ha una cronologia. Apri l’elemento e guarda «Cronologia» sotto gli altri pannelli (per una release: la scheda «Cronologia»). Ogni salvataggio è una versione (V1, V2, …) con data, ora e ciò che è cambiato. Gli spostamenti sulla board e nel backlog contano come cambio di stato o di sprint; il solo riordino no.\nPer confrontare due versioni, fai clic su «Confronta versioni», su «Confronta con l’attuale» in una voce, oppure seleziona due versioni sotto «Mostra tutte le modifiche». A sinistra la più vecchia, a destra la più recente; «⇄» le scambia. I campi modificati hanno un segno e una parola, quelli invariati sono compressi, la descrizione è mostrata riga per riga.\nIl confronto è di sola lettura: non ripristina nulla. La cronologia inizia con la prima modifica; ciò che esisteva prima mostra «Ancora nessuna modifica»."
+      },
+      "team.assign": {
+        "title": "Team e assegnazione",
+        "keywords": "team persona membro assegnare assegnata iniziali filtro qualcuno lavora chi",
+        "body": "Apri Impostazioni → Team e aggiungi le persone a cui vuoi assegnare le storie. Bastano un nome e le iniziali, non ci sono account. Le iniziali derivano dal nome e si possono modificare.\nAssegni una storia nella sua finestra, nel campo «Assegnata a», oppure subito quando crei una nuova storia. Un cerchio mostra le iniziali sulle carte, nel backlog e sulla story map. Un cerchio tratteggiato significa che la storia non è assegnata.\nSopra la bacheca filtri per una persona o per le storie su cui nessuno lavora. La ricerca trova le storie anche per nome o iniziali.\nSe rimuovi un membro, le sue storie restano e non sono più assegnate."
       }
     },
     "links": {
@@ -1002,7 +1007,8 @@
       "settingsMap": "Apri Impostazioni → Story map",
       "settingsFeatures": "Apri Impostazioni → Funzioni",
       "settingsDefinitions": "Apri Impostazioni → Definizioni",
-      "settingsData": "Apri Impostazioni → Dati"
+      "settingsData": "Apri Impostazioni → Dati",
+      "settingsTeam": "Apri Impostazioni → Team"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",
