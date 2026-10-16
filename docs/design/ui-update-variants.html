@@ -1,0 +1,162 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Design-Varianten UI-Update</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant shows a board column (normal and compact) as mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --pill: #eef0f4; --column: #e6e9ee; --shadow: rgba(20,24,31,.10);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --c-blue: #2457d6; --c-amber: #b45309; --c-teal: #0f766e; --c-violet: #7c3aed; --c-rose: #be123c; --c-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace; --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #1a2029; --border: #2f3846; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --pill: #262e3a; --column: #12171d; --shadow: rgba(0,0,0,.45);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff; --c-rose: #fb7185; --c-slate: #a3b1c6; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #1a2029; --border: #2f3846; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --pill: #262e3a; --column: #12171d; --shadow: rgba(0,0,0,.45);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff; --c-rose: #fb7185; --c-slate: #a3b1c6; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 72px; }
+.wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 44px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 26px; font-weight: 600; }
+h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 19px; font-weight: 600; }
+p { margin: 0; max-width: 68ch; } ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.muted { color: var(--muted); }
+.note { background: var(--pill); border-radius: var(--r); padding: 10px 14px; font-size: 13px; }
+.variant { display: grid; gap: 14px; }
+.vhead { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.pc { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.pc > div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; font-size: 14px; min-width: 0; }
+.pc b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.pro b { color: var(--ok); } .con b { color: var(--bad); }
+.pc ul { list-style: none; padding: 0; } .pro li::before { content: "＋ "; color: var(--ok); font-weight: 600; } .con li::before { content: "－ "; color: var(--bad); font-weight: 600; }
+.rec { background: var(--ok-soft); border: 1px solid var(--ok); border-radius: var(--r); padding: 16px 18px; display: grid; gap: 6px; }
+/* mockups */
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
+.col { background: var(--column); border-radius: 10px; padding: 10px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.col--compact { gap: 4px; }
+.colh { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; color: var(--muted); padding: 2px 4px 4px; }
+.c { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: grid; gap: 6px; box-shadow: 0 1px 2px var(--shadow), 0 2px 6px var(--shadow); font-size: 13px; min-width: 0; position: relative; overflow: hidden; }
+.c .code { font: 500 11px var(--font-mono); color: var(--muted); }
+.c .ttl { font-weight: 500; line-height: 1.35; min-width: 0; }
+.row { display: flex; align-items: center; gap: 8px; min-width: 0; } .row.foot { justify-content: space-between; } .sp { flex: 1; }
+.d { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.dots { display: inline-flex; gap: 4px; align-items: center; }
+.pts { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--pill); font-size: 12px; font-weight: 600; flex: none; font-variant-numeric: tabular-nums; }
+.epic { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.ac { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.chip { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.chips { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; min-width: 0; overflow: hidden; }
+.c--compact { grid-auto-flow: column; grid-template-columns: none; display: flex; align-items: center; gap: 8px; padding: 6px 10px; }
+.c--compact .ttl { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* variant 1 */
+.c1 { border-left: 4px solid var(--st); }
+/* variant 2 */
+.prio { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #fff; flex: none; }
+.prio--rose { background: var(--c-rose); } .prio--amber { background: var(--c-amber); } .prio--slate { background: var(--c-slate); }
+:root[data-theme="dark"] .prio { color: #0f1318; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .prio { color: #0f1318; } }
+.c2 .hair { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--pill); } .c2 .hair b { display: block; height: 100%; background: var(--accent); }
+.c2:has(.hair) { padding-bottom: 12px; }
+/* variant 3 */
+.c3 .top { align-items: flex-start; justify-content: space-between; } .c3 .meta { font-size: 12px; color: var(--muted); gap: 10px; }
+.flag { font-size: 13px; line-height: 1; }
+.c3 .meta .epic { margin-left: auto; }
+/* backlog */
+.bls { display: grid; gap: 16px; }
+.bl { margin: 0; background: var(--column); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
+.bl figcaption { font-size: 12px; color: var(--muted); padding-top: 4px; }
+.sh { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; padding: 2px 0 6px; } .sh .pts { margin-left: 2px; }
+.state { font-size: 10px; letter-spacing: .08em; font-weight: 600; background: var(--pill); color: var(--accent); padding: 2px 7px; border-radius: 4px; }
+.erow { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.num { font: 500 11px var(--font-mono); color: var(--muted); width: 28px; flex: none; text-align: right; }
+.num--hover { opacity: 0; } .sh + .erow--hover .num--hover { opacity: 1; }
+.ent { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; box-shadow: 0 1px 2px var(--shadow); font-size: 13px; }
+.ent .ttl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.pts-edit { width: 34px; height: 24px; text-align: center; border-radius: 999px; border: 2px solid var(--accent); background: var(--surface); color: var(--text); font: 600 12px var(--font-sans); }
+.tgs { display: grid; gap: 14px; }
+.tg { margin: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; }
+.tg figcaption { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; } .nav .h { font-size: 17px; }
+.btn { font-size: 12px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+.btn--primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 12px; } .seg > * { padding: 5px 10px; } .seg b { background: var(--accent); color: var(--accent-ink); font-weight: 500; } .seg span { background: var(--surface); }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .colh2 { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); letter-spacing: .08em; background: var(--column); border-radius: 6px; padding: 5px 8px; } .colbtn { border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; background: var(--surface); }
+@media (max-width: 520px) { .ent .chips, .ent .epic { display: none; } }
+</style>
+</head><body><div class="wrap">
+<header style="display:grid;gap:10px">
+<h1>UI-Update: Board-Kacheln, Backlog, Kompaktansicht</h1>
+<p class="muted">Issue #55 · Vorschlag mit Demo-Daten, noch nichts gebaut. Du wählst eine Variante fürs Board, eine Option für die Nummer im Backlog und eine fürs Umschalten der Kompaktansicht.</p>
+<p class="note"><b>Gilt für alle Varianten:</b> Die Kacheln heben sich klar ab (Rand, Schatten, hellere Fläche auf getönter Spalte). Die Story-Punkte sind überall rund, auch im Sprint-Titel, und im Backlog direkt anklickbar. Die Shortcut-Anzeige (z. B. «Ctrl+N») verschwindet überall, die Tastenkürzel selbst bleiben.</p>
+</header>
+
+<section class="variant"><div class="vhead"><h2>Variante 1</h2><h3>Ruhig: Farbstreifen und Punkte</h3><span class="tag">Am kompaktesten</span></div>
+<p>Die Priorität wird zum farbigen Streifen am linken Rand, die Labels zu Farbpunkten. Der Fortschritt schrumpft zu «✓ 2/4» in der Fusszeile. Links die normale Spalte, rechts die kompakte.</p>
+<div class="board" id="b1"><div class="col"><div class="colh"><b>OFFEN</b><span>3</span></div><div class="c c1" style="--st:var(--c-rose)" title="Must">
+<div class="row"><span class="code">S-1</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i></span><span class="pts">3</span></div>
+<div class="ttl">Create a story with title and description</div>
+<div class="row foot"><span class="epic"><i class="d" style="background:var(--c-blue)" title=""></i>Boards</span><span class="ac">✓ 2/4</span></div></div><div class="c c1" style="--st:var(--c-amber)" title="Should">
+<div class="row"><span class="code">S-3</span><span class="dots"></span><span class="pts">5</span></div>
+<div class="ttl">Reorder the backlog by priority</div>
+<div class="row foot"><span class="epic"><i class="d" style="background:var(--c-amber)" title=""></i>Backlog</span><span class="ac">✓ 0/3</span></div></div><div class="c c1" style="--st:var(--c-slate)" title="Could">
+<div class="row"><span class="code">S-6</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i><i class="d" style="background:var(--c-violet)" title="Accessibility"></i></span><span class="pts">5</span></div>
+<div class="ttl">Operate the board with the keyboard only</div>
+<div class="row foot"><span class="epic"><i class="d" style="background:var(--c-violet)" title=""></i>Accessibility</span><span class="ac">✓ 0/4</span></div></div></div>
+<div class="col col--compact"><div class="colh"><b>OFFEN · kompakt</b><span>3</span></div><div class="c c1 c--compact" style="--st:var(--c-rose)" title="Must"><span class="code">S-1</span><span class="ttl">Create a story with title and description</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i></span><span class="pts">3</span></div><div class="c c1 c--compact" style="--st:var(--c-amber)" title="Should"><span class="code">S-3</span><span class="ttl">Reorder the backlog by priority</span><span class="dots"></span><span class="pts">5</span></div><div class="c c1 c--compact" style="--st:var(--c-slate)" title="Could"><span class="code">S-6</span><span class="ttl">Operate the board with the keyboard only</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i><i class="d" style="background:var(--c-violet)" title="Accessibility"></i></span><span class="pts">5</span></div></div></div>
+<div class="pc"><div class="pro"><b>Vorteile</b><ul><li>Spart am meisten Höhe</li><li>Sehr ruhiges Bild, viele Kacheln sichtbar</li><li>Kompakt: eine Zeile pro Story</li></ul></div><div class="con"><b>Nachteile</b><ul><li>Priorität und Labels nur über Farbe (Text erst bei Hover und für Screenreader)</li><li>Farbpunkte müssen gelernt werden</li></ul></div></div></section>
+
+<section class="variant"><div class="vhead"><h2>Variante 2</h2><h3>Kürzel: Buchstabe, Mini-Chips, Haarlinie</h3><span class="tag tag--rec">Empfehlung</span></div>
+<p>Die Priorität ist ein kleiner Buchstabe (M, S, C), die Labels sind kurze Chips in einer einzigen Zeile, der Fortschritt eine dünne Linie am unteren Kartenrand ohne eigene Zeile.</p>
+<div class="board" id="b2"><div class="col"><div class="colh"><b>OFFEN</b><span>3</span></div><div class="c c2">
+<div class="row"><span class="code">S-1</span><span class="prio prio--rose" title="Must">M</span><span class="sp"></span><span class="pts">3</span></div>
+<div class="ttl">Create a story with title and description</div>
+<div class="chips"><span class="chip">UI</span><span class="epic"><i class="d" style="background:var(--c-blue)" title=""></i>Boards</span></div>
+<div class="hair" title="Akzeptanzkriterien 2/4"><b style="width:50%"></b></div></div><div class="c c2">
+<div class="row"><span class="code">S-3</span><span class="prio prio--amber" title="Should">S</span><span class="sp"></span><span class="pts">5</span></div>
+<div class="ttl">Reorder the backlog by priority</div>
+<div class="chips"><span class="epic"><i class="d" style="background:var(--c-amber)" title=""></i>Backlog</span></div>
+<div class="hair" title="Akzeptanzkriterien 0/3"><b style="width:0%"></b></div></div><div class="c c2">
+<div class="row"><span class="code">S-6</span><span class="prio prio--slate" title="Could">C</span><span class="sp"></span><span class="pts">5</span></div>
+<div class="ttl">Operate the board with the keyboard only</div>
+<div class="chips"><span class="chip">UI</span><span class="chip">Accessibility</span><span class="epic"><i class="d" style="background:var(--c-violet)" title=""></i>Accessibility</span></div>
+<div class="hair" title="Akzeptanzkriterien 0/4"><b style="width:0%"></b></div></div></div>
+<div class="col col--compact"><div class="colh"><b>OFFEN · kompakt</b><span>3</span></div><div class="c c2 c--compact"><span class="prio prio--rose" title="Must">M</span><span class="ttl">Create a story with title and description</span><span class="chips"><span class="chip">UI</span></span><span class="pts">3</span></div><div class="c c2 c--compact"><span class="prio prio--amber" title="Should">S</span><span class="ttl">Reorder the backlog by priority</span><span class="chips"></span><span class="pts">5</span></div><div class="c c2 c--compact"><span class="prio prio--slate" title="Could">C</span><span class="ttl">Operate the board with the keyboard only</span><span class="chips"><span class="chip">UI</span><span class="chip">Accessibility</span></span><span class="pts">5</span></div></div></div>
+<div class="pc"><div class="pro"><b>Vorteile</b><ul><li>Texte bleiben lesbar, nichts hängt nur an der Farbe</li><li>Fortschritt braucht keinen Platz mehr</li><li>Labels in einer Zeile, nie mehrzeilig</li></ul></div><div class="con"><b>Nachteile</b><ul><li>Etwas höher als Variante 1 und 3</li><li>Buchstaben M/S/C/W muss man kennen (Tooltip hilft)</li></ul></div></div></section>
+
+<section class="variant"><div class="vhead"><h2>Variante 3</h2><h3>Meta-Zeile: alles in einer Zeile unter dem Titel</h3><span class="tag">Am aufgeräumtesten</span></div>
+<p>Der Titel steht oben, die Punkte rechts daneben. Darunter eine einzige graue Zeile: Nummer, Prioritätsflagge, Label-Punkte, ☑ 2/4 und Epic.</p>
+<div class="board" id="b3"><div class="col"><div class="colh"><b>OFFEN</b><span>3</span></div><div class="c c3">
+<div class="row top"><span class="ttl">Create a story with title and description</span><span class="pts">3</span></div>
+<div class="row meta"><span class="code">S-1</span><span class="flag" style="color:var(--c-rose)" title="Must">⚑</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i></span><span class="ac">☑ 2/4</span><span class="epic">Boards</span></div></div><div class="c c3">
+<div class="row top"><span class="ttl">Reorder the backlog by priority</span><span class="pts">5</span></div>
+<div class="row meta"><span class="code">S-3</span><span class="flag" style="color:var(--c-amber)" title="Should">⚑</span><span class="dots"></span><span class="ac">☑ 0/3</span><span class="epic">Backlog</span></div></div><div class="c c3">
+<div class="row top"><span class="ttl">Operate the board with the keyboard only</span><span class="pts">5</span></div>
+<div class="row meta"><span class="code">S-6</span><span class="flag" style="color:var(--c-slate)" title="Could">⚑</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i><i class="d" style="background:var(--c-violet)" title="Accessibility"></i></span><span class="ac">☑ 0/4</span><span class="epic">Accessibility</span></div></div></div>
+<div class="col col--compact"><div class="colh"><b>OFFEN · kompakt</b><span>3</span></div><div class="c c3 c--compact"><span class="ttl">Create a story with title and description</span><span class="flag" style="color:var(--c-rose)" title="Must">⚑</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i></span><span class="pts">3</span></div><div class="c c3 c--compact"><span class="ttl">Reorder the backlog by priority</span><span class="flag" style="color:var(--c-amber)" title="Should">⚑</span><span class="dots"></span><span class="pts">5</span></div><div class="c c3 c--compact"><span class="ttl">Operate the board with the keyboard only</span><span class="flag" style="color:var(--c-slate)" title="Could">⚑</span><span class="dots"><i class="d" style="background:var(--c-blue)" title="UI"></i><i class="d" style="background:var(--c-violet)" title="Accessibility"></i></span><span class="pts">5</span></div></div></div>
+<div class="pc"><div class="pro"><b>Vorteile</b><ul><li>Titel bekommt die volle Breite und das Auge</li><li>Immer genau zwei Zeilen, ruhige Raster</li><li>Fortschritt als Zahl, ohne Balken</li></ul></div><div class="con"><b>Nachteile</b><ul><li>Dichte Meta-Zeile, die Details sind klein</li><li>Priorität nur als farbige Flagge</li></ul></div></div></section>
+
+<section class="variant"><div class="vhead"><h2>Backlog</h2><h3>Nummer: drei Optionen (A–C)</h3></div>
+<p>Die Punkte im Sprint-Titel sind rund wie auf den Einträgen. In Option A ist die Punkte-Zahl des ersten Eintrags gerade in Bearbeitung (Enter speichert, Esc bricht ab).</p>
+<div class="bls"><figure class="bl" id="bl-out"><div class="sh"><b>Sprint 1</b><span class="state">LÄUFT</span><span class="muted">9. Okt. – 22. Okt. · 6 Stories</span><span class="pts" title="Punkte im Sprint">23</span></div><div class="erow"><span class="num">S-1</span><div class="ent"><span class="ttl">Create a story with title and description</span><span class="chips"><span class="chip">UI</span></span><span class="epic"><i class="d" style="background:var(--c-blue)" title=""></i>Boards</span><input class="pts-edit" value="3" aria-label="Story-Punkte" size="2"></div></div><div class="erow"><span class="num">S-3</span><div class="ent"><span class="ttl">Reorder the backlog by priority</span><span class="chips"></span><span class="epic"><i class="d" style="background:var(--c-amber)" title=""></i>Backlog</span><span class="pts" title="Klicken zum Ändern">5</span></div></div><div class="erow"><span class="num">S-6</span><div class="ent"><span class="ttl">Operate the board with the keyboard only</span><span class="chips"><span class="chip">UI</span><span class="chip">Accessibility</span></span><span class="epic"><i class="d" style="background:var(--c-violet)" title=""></i>Accessibility</span><span class="pts" title="Klicken zum Ändern">5</span></div></div><figcaption>A · Nummer ausserhalb, links neben der Kachel (Punkte der ersten Zeile sind direkt editierbar)</figcaption></figure><figure class="bl" id="bl-none"><div class="sh"><b>Sprint 1</b><span class="state">LÄUFT</span><span class="muted">9. Okt. – 22. Okt. · 6 Stories</span><span class="pts" title="Punkte im Sprint">23</span></div><div class="erow"><div class="ent"><span class="ttl">Create a story with title and description</span><span class="chips"><span class="chip">UI</span></span><span class="epic"><i class="d" style="background:var(--c-blue)" title=""></i>Boards</span><span class="pts" title="Klicken zum Ändern">3</span></div></div><div class="erow"><div class="ent"><span class="ttl">Reorder the backlog by priority</span><span class="chips"></span><span class="epic"><i class="d" style="background:var(--c-amber)" title=""></i>Backlog</span><span class="pts" title="Klicken zum Ändern">5</span></div></div><div class="erow"><div class="ent"><span class="ttl">Operate the board with the keyboard only</span><span class="chips"><span class="chip">UI</span><span class="chip">Accessibility</span></span><span class="epic"><i class="d" style="background:var(--c-violet)" title=""></i>Accessibility</span><span class="pts" title="Klicken zum Ändern">5</span></div></div><figcaption>B · Nummer weglassen (nur in der Detailansicht)</figcaption></figure><figure class="bl" id="bl-hover"><div class="sh"><b>Sprint 1</b><span class="state">LÄUFT</span><span class="muted">9. Okt. – 22. Okt. · 6 Stories</span><span class="pts" title="Punkte im Sprint">23</span></div><div class="erow erow--hover"><span class="num num--hover">S-1</span><div class="ent"><span class="ttl">Create a story with title and description</span><span class="chips"><span class="chip">UI</span></span><span class="epic"><i class="d" style="background:var(--c-blue)" title=""></i>Boards</span><span class="pts" title="Klicken zum Ändern">3</span></div></div><div class="erow erow--hover"><span class="num num--hover">S-3</span><div class="ent"><span class="ttl">Reorder the backlog by priority</span><span class="chips"></span><span class="epic"><i class="d" style="background:var(--c-amber)" title=""></i>Backlog</span><span class="pts" title="Klicken zum Ändern">5</span></div></div><div class="erow erow--hover"><span class="num num--hover">S-6</span><div class="ent"><span class="ttl">Operate the board with the keyboard only</span><span class="chips"><span class="chip">UI</span><span class="chip">Accessibility</span></span><span class="epic"><i class="d" style="background:var(--c-violet)" title=""></i>Accessibility</span><span class="pts" title="Klicken zum Ändern">5</span></div></div><figcaption>C · Nummer erscheint nur beim Darüberfahren</figcaption></figure></div>
+<div class="pc"><div class="pro"><b>A · ausserhalb</b><ul><li>Nummer bleibt sichtbar, stört die Kachel nicht</li></ul></div><div class="pro"><b>B · weglassen</b><ul><li>Ruhigstes Bild, mehr Platz für den Titel</li></ul></div><div class="pro"><b>C · beim Darüberfahren</b><ul><li>Sichtbar, wenn man sie braucht</li></ul></div></div>
+<div class="pc"><div class="con"><b>A</b><ul><li>Etwas Breite geht verloren</li></ul></div><div class="con"><b>B</b><ul><li>Nummer nur in der Detailansicht, schlechter zum Absprechen</li></ul></div><div class="con"><b>C</b><ul><li>Auf dem Handy gibt es kein Darüberfahren</li></ul></div></div></section>
+
+<section class="variant"><div class="vhead"><h2>Kompaktansicht</h2><h3>Umschalten: zwei Optionen (A–B)</h3></div>
+<div class="tgs"><figure class="tg" id="tg-a"><div class="nav"><b class="h">Sprint 1</b><span class="state">LÄUFT</span><span class="muted">9. Okt. – 22. Okt. · 6 Stories · 23 Punkte</span><span class="sp"></span><span class="seg"><b>Normal</b><span>Kompakt</span></span><span class="btn">Velocity</span><span class="btn">Sprint abschliessen</span><span class="btn btn--primary">Neue Story</span></div><figcaption>Umschalter im Kopf</figcaption></figure><figure class="tg" id="tg-b"><div class="nav"><b class="h">Sprint 1</b><span class="state">LÄUFT</span><span class="muted">9. Okt. – 22. Okt. · 6 Stories · 23 Punkte</span><span class="sp"></span><span class="btn">Velocity</span><span class="btn">Sprint abschliessen</span><span class="btn btn--primary">Neue Story</span></div><div class="cols"><span class="colh2"><b>OFFEN</b><span class="colbtn" title="Spalte verdichten">⇕</span></span><span class="colh2"><b>IN ARBEIT</b><span class="colbtn" title="Spalte verdichten">⇕</span></span><span class="colh2"><b>ERLEDIGT</b><span class="colbtn" title="Spalte verdichten">⇕</span></span></div><figcaption>Verdichten pro Spalte</figcaption></figure></div>
+<div class="pc"><div class="pro"><b>A · Umschalter im Kopf</b><ul><li>Eine Wahl für das ganze Board, wird gemerkt</li><li>Auf einen Blick sichtbar</li></ul></div><div class="pro"><b>B · pro Spalte</b><ul><li>Z. B. nur «Erledigt» verdichten</li></ul></div></div>
+<div class="pc"><div class="con"><b>A</b><ul><li>Alles oder nichts</li></ul></div><div class="con"><b>B</b><ul><li>Mehr Knöpfe, mehr Zustände merken</li></ul></div></div></section>
+
+<section class="rec"><h2 style="color:var(--ok)">Empfehlung</h2><h3>Variante 2 · Backlog A · Kompakt A</h3>
+<p>Variante 2 spart den Platz des Fortschrittsbalkens und der Label-Zeilen, ohne dass Priorität oder Labels nur noch über Farbe erkennbar sind. Die Nummer links ausserhalb der Kachel bleibt sichtbar und stört nicht, der Umschalter im Kopf ist am einfachsten zu verstehen. Du gibst dafür etwas Kachelhöhe gegenüber Variante 1 her.</p></section>
+</div>
+</body></html>
