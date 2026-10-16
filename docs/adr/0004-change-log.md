@@ -1,6 +1,6 @@
 # ADR 0004: Change log of the items (versions)
 
-Status: Proposed (PO go in #23, 2026-10-16; reviewed in the pull request)
+Status: Accepted (PO approval with the acceptance of pull request #56, 2026-10-16)
 Date: 2026-10-16
 Issue: [#23](https://github.com/goerks/getthingsdone/issues/23)
 
