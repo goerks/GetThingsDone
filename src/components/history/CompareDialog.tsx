@@ -41,11 +41,7 @@ export function CompareDialog({ itemType, versions, label, fromId, toId, onClose
   const shown = onlyChanges ? changed : rows;
   const rowId = (key: string): string => `${uid}-row-${key.replace(/[^a-z0-9]/gi, '-')}`;
   const nameOf = (version: ChangeVersion): string => text.versionName(version, latest.version);
-  const optionText = (version: ChangeVersion): string => {
-    const index = versions.indexOf(version);
-    const first = text.summary(itemType, version, index > 0 ? versions[index - 1] : null)[0];
-    return `${nameOf(version)} · ${text.time(version.at)}${first ? ` · ${first}` : ''}`;
-  };
+  const optionText = (version: ChangeVersion): string => `${nameOf(version)} · ${text.time(version.at)}`;
   const jump = (key: string): void => {
     setOnlyChanges(true);
     const element = document.getElementById(rowId(key));

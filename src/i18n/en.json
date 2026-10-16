@@ -1312,6 +1312,9 @@
       "sprint": "Sprint",
       "state": "State",
       "stories": "Stories"
-    }
+    },
+    "field": "Field",
+    "expand": "Show older versions",
+    "collapse": "Hide older versions"
   }
 }

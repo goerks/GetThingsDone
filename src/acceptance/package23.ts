@@ -22,8 +22,8 @@ export const PACKAGE_23: { issue: number; pullRequest: number; title: string; cr
           "link": "#/board",
           "target": ".card[data-story-id]",
           "given": "Die Demo-Story „S-3“ („Reorder the backlog by priority“) hat einen Verlauf mit sechs Ständen.",
-          "when": "Ich öffne „S-3“ (Doppelklick) und schaue auf das Feld „Verlauf“.",
-          "then": "Die drei neuesten Änderungen stehen oben, jede mit Nummer (V6, V5, V4), Datum und Uhrzeit, zum Beispiel „Punkte: 3 → 5“. Neben V6 steht „Aktuell“.",
+          "when": "Ich öffne „S-3“ (Doppelklick) und schaue auf das Feld „Verlauf“. Dann klicke ich auf „Frühere Stände anzeigen“.",
+          "then": "Zuerst ist nur der aktuelle Stand (V6) sichtbar, das Feld ist zugeklappt. Nach dem Klick stehen die drei neuesten Änderungen oben, jede mit Nummer (V6, V5, V4), Datum und Uhrzeit, zum Beispiel „Punkte: 3 → 5“. Neben V6 steht „Aktuell“.",
           "tests": [
             "src/ChangeHistory.test.tsx › AC1.1 shows the newest versions of a story with date and what changed"
           ]
@@ -467,7 +467,7 @@ export const PACKAGE_23: { issue: number; pullRequest: number; title: string; cr
           "title": "Mit Aktuell vergleichen",
           "link": "#/board",
           "target": ".card[data-story-id]",
-          "given": "Das Feld „Verlauf“ von „S-3“ zeigt die letzten drei Einträge.",
+          "given": "Das Feld „Verlauf“ von „S-3“ ist aufgeklappt („Frühere Stände anzeigen“) und zeigt die letzten drei Einträge.",
           "when": "Ich klicke bei „V4“ auf „Mit Aktuell vergleichen“.",
           "then": "Der Vergleich öffnet mit V4 links und Aktuell rechts; „← Zurück“ bringt mich in die Story zurück.",
           "tests": [
@@ -479,7 +479,7 @@ export const PACKAGE_23: { issue: number; pullRequest: number; title: string; cr
           "title": "Zwei Stände ankreuzen",
           "link": "#/board",
           "target": ".card[data-story-id]",
-          "given": "Ich habe „Alle 5 Änderungen anzeigen“ geöffnet.",
+          "given": "Ich habe „Frühere Stände anzeigen“ und dann „Alle 5 Änderungen anzeigen“ geöffnet.",
           "when": "Ich kreuze V2, V5 und dann V6 an.",
           "then": "Nach V2 und V5 erscheint „V2 und V5 gewählt“ und „Vergleichen“ ist aktiv; beim dritten Haken wird der älteste (V2) abgewählt.",
           "tests": [
@@ -493,9 +493,9 @@ export const PACKAGE_23: { issue: number; pullRequest: number; title: string; cr
           "target": ".card[data-story-id]",
           "given": "Das Feld „Verlauf“ von „S-3“ ist sichtbar.",
           "when": "Ich klicke auf „Stände vergleichen“ und öffne das Auswahlfeld „Von“.",
-          "then": "Eine Liste aller Stände mit Datum und Kurzfassung erscheint; „Aktuell“ steht oben.",
+          "then": "Eine Liste aller Stände mit Nummer und Datum/Uhrzeit erscheint, sonst nichts; „Aktuell“ steht oben.",
           "tests": [
-            "src/ChangeHistory.test.tsx › AC9.3 offers all versions in the picker, newest first, with a short summary"
+            "src/ChangeHistory.test.tsx › AC9.3 offers all versions in the picker, newest first, with number and time only"
           ]
         }
       ]

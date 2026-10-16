@@ -80,6 +80,7 @@ test('AC8.1 compares V4 with the current version side by side', async ({ page })
   await open(page, '#/board');
   const opened = await openStory(page, 'S-3');
   // When I compare V4 with the current version
+  await opened.getByRole('button', { name: 'Show older versions' }).click();
   await opened.getByRole('button', { name: 'Compare V4 with the current version' }).click();
   const compare = dialog(page, /Compare versions of S-3/);
   // Then the changed fields show their old value on the left and the new one on the right, and the unchanged ones are folded

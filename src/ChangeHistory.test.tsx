@@ -37,10 +37,16 @@ async function openStory(code: string, change: (snapshot: Snapshot) => Snapshot 
 describe('history of an item', () => {
   it('AC1.1 shows the newest versions of a story with date and what changed', async () => {
     // Given the story S-3 with its demo history
+    const user = userEvent.setup();
     // When I open it
     const dialog = await openStory('S-3');
-    // Then the panel "History" lists the newest versions first, each with its number, time and changes
+    // Then the panel "History" is collapsed and shows only the current version
     const panel = within(dialog).getByRole('heading', { name: 'History' }).closest('section') as HTMLElement;
+    expect(within(panel).getAllByRole('listitem').filter((item) => item.classList.contains('history-entry'))).toHaveLength(1);
+    expect(within(panel).getByRole('button', { name: 'Show older versions' })).toHaveAttribute('aria-expanded', 'false');
+    // When I show the older versions
+    await user.click(within(panel).getByRole('button', { name: 'Show older versions' }));
+    // Then the three newest versions are listed, newest first, each with its number, time and changes
     const entries = within(panel).getAllByRole('listitem').filter((item) => item.classList.contains('history-entry'));
     expect(entries).toHaveLength(3);
     expect(entries[0]).toHaveTextContent('V6');
@@ -90,6 +96,7 @@ describe('comparing two versions', () => {
     const user = userEvent.setup();
     const dialog = await openStory('S-3');
     // When I click "Compare with current" at V4
+    await user.click(within(dialog).getByRole('button', { name: 'Show older versions' }));
     await user.click(within(dialog).getByRole('button', { name: 'Compare V4 with the current version' }));
     // Then V4 stands on the left and the current version on the right, with the changed fields marked
     const compare = await screen.findByRole('dialog', { name: /Compare versions of S-3/ });
@@ -105,6 +112,7 @@ describe('comparing two versions', () => {
     // Given the comparison of V4 with the current version
     const user = userEvent.setup();
     const dialog = await openStory('S-3');
+    await user.click(within(dialog).getByRole('button', { name: 'Show older versions' }));
     await user.click(within(dialog).getByRole('button', { name: 'Compare V4 with the current version' }));
     const compare = await screen.findByRole('dialog', { name: /Compare versions of S-3/ });
     // When I swap the sides
@@ -158,6 +166,7 @@ describe('comparing two versions', () => {
     // Given the full list of S-3
     const user = userEvent.setup();
     const dialog = await openStory('S-3');
+    await user.click(within(dialog).getByRole('button', { name: 'Show older versions' }));
     await user.click(within(dialog).getByRole('button', { name: /Show all 5 changes/ }));
     const list = await screen.findByRole('dialog', { name: /History of S-3/ });
     expect(within(list).getByRole('button', { name: 'Compare' })).toBeDisabled();
@@ -173,17 +182,18 @@ describe('comparing two versions', () => {
     expect(within(compare).getByLabelText('From')).toHaveDisplayValue(/^V5/);
   });
 
-  it('AC9.3 offers all versions in the picker, newest first, with a short summary', async () => {
+  it('AC9.3 offers all versions in the picker, newest first, with number and time only', async () => {
     // Given the comparison dialog
     const user = userEvent.setup();
     const dialog = await openStory('S-3');
     await user.click(within(dialog).getByRole('button', { name: 'Compare versions' }));
     const compare = await screen.findByRole('dialog', { name: /Compare versions of S-3/ });
-    // Then the picker lists every version with its time and what it did
+    // Then the picker lists every version with its number and time only
     const options = within(within(compare).getByLabelText('From')).getAllByRole('option');
     expect(options).toHaveLength(6);
     expect(options[0]).toHaveTextContent(/^Current \(V6\)/);
-    expect(options[5]).toHaveTextContent('Story created');
+    expect(options[5]).toHaveTextContent(/^V1 · /);
+    expect(options[5]).not.toHaveTextContent('Story created');
   });
 });
 
@@ -218,6 +228,7 @@ describe('names, languages and reading only', () => {
     // Given the comparison of V4 with the current version
     const user = userEvent.setup();
     const dialog = await openStory('S-3');
+    await user.click(within(dialog).getByRole('button', { name: 'Show older versions' }));
     await user.click(within(dialog).getByRole('button', { name: 'Compare V4 with the current version' }));
     const compare = await screen.findByRole('dialog', { name: /Compare versions of S-3/ });
     // Then there is no button to restore a version, and nothing is editable

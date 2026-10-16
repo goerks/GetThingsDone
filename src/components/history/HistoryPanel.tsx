@@ -22,6 +22,8 @@ export function HistoryPanel({ itemType, itemId, label }: Props) {
   const uid = useId();
   const versions = versionsOf(app.changeLog, itemType, itemId);
   const [all, setAll] = useState(false);
+  // Collapsed, the panel shows only the current version; opened, it shows the last three.
+  const [open, setOpen] = useState(false);
   const [compare, setCompare] = useState<{ from?: string; to?: string } | null>(null);
   const latest = versions[versions.length - 1];
   const changes = versions.filter((version) => version.origin === 'changed').length;
@@ -36,16 +38,25 @@ export function HistoryPanel({ itemType, itemId, label }: Props) {
           {t('history.compareButton')}
         </button>
       </div>
-      <HistoryList
-        itemType={itemType}
-        versions={versions}
-        limit={3}
-        onCompareWithCurrent={(version) => latest && setCompare({ from: version.id, to: latest.id })}
-      />
-      {versions.length > recent.length && (
-        <button type="button" className="link-btn history-panel__all" onClick={() => setAll(true)}>
-          {t('history.showAll', { count: changes })}
-        </button>
+      <div id={`${uid}-list`}>
+        <HistoryList
+          itemType={itemType}
+          versions={versions}
+          limit={open ? 3 : 1}
+          onCompareWithCurrent={(version) => latest && setCompare({ from: version.id, to: latest.id })}
+        />
+      </div>
+      {versions.length > 1 && (
+        <div className="history-panel__more">
+          <button type="button" className="link-btn" aria-expanded={open} aria-controls={`${uid}-list`} onClick={() => setOpen((current) => !current)}>
+            {t(open ? 'history.collapse' : 'history.expand')}
+          </button>
+          {open && versions.length > recent.length && (
+            <button type="button" className="link-btn history-panel__all" onClick={() => setAll(true)}>
+              {t('history.showAll', { count: changes })}
+            </button>
+          )}
+        </div>
       )}
       {all && (
         <Dialog title={t('history.allTitle', { name: label })} wide onClose={() => setAll(false)}>

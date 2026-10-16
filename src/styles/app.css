@@ -6149,8 +6149,10 @@ a.btn {
   margin-left: auto;
 }
 
-.history-panel__all {
-  justify-self: start;
+.history-panel__more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
 }
 
 .compare {
