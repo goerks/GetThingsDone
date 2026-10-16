@@ -443,6 +443,11 @@
         "name": "Releases",
         "description": "Plan with releases: the Releases page, the release field of stories, release rows on the story map and the scope and burndown reports. Switch it off if the team works with sprints only.",
         "offNote": "Switched off. Releases, their stories and their history are kept and come back when you switch it on."
+      },
+      "team": {
+        "name": "Team",
+        "description": "Assign stories to people: the section \"Team\" in the settings, the field \"Assigned to\", the initials on cards, the filter bar on the board and the search by person. Keep it off if you work alone.",
+        "offNote": "Switched off. Members and assignments are kept and come back when you switch it on."
       }
     },
     "data": {
@@ -993,7 +998,7 @@
       "team.assign": {
         "title": "Team and assignment",
         "keywords": "team person member assign assigned initials filter someone works who",
-        "body": "Open Settings → Team and add the people you want to assign stories to. A name and initials are enough, there are no accounts. The initials come from the name and can be changed.\nYou assign a story in its dialog, in the field \"Assigned to\", or right when you create a new story. A round badge shows the initials on cards, in the backlog and on the story map. A dashed badge means the story is not assigned.\nAbove the board you filter by one person or by stories nobody works on. The search also finds stories by name or initials.\nWhen you remove a member, their stories stay and are not assigned any more."
+        "body": "First switch on \"Team\" in Settings → Features. Then open Settings → Team and add the people you want to assign stories to. A name and initials are enough, there are no accounts. The initials come from the name and can be changed.\nYou assign a story in its dialog, in the field \"Assigned to\", or right when you create a new story. A round badge shows the initials on cards, in the backlog and on the story map. A dashed badge means the story is not assigned.\nAbove the board you filter by one person or by stories nobody works on. The search also finds stories by name or initials.\nWhen you remove a member, their stories stay and are not assigned any more. If you switch \"Team\" off again, members and assignments are kept."
       }
     },
     "links": {

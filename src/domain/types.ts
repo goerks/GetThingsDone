@@ -240,7 +240,7 @@ export interface Story {
 
 /** What the rows of the story map are. */
 /** Features a team can switch on and off (#10). */
-export type FeatureKey = 'releases';
+export type FeatureKey = 'releases' | 'team';
 export type Features = Record<FeatureKey, boolean>;
 
 export type MapRows = 'sprints' | 'releases';

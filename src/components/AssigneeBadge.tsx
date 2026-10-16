@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { assigneeOf } from '../domain/members';
 import type { Story } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { useFeature } from './useFeature';
 
 interface Props {
   story: Pick<Story, 'assigneeId'>;
@@ -17,8 +18,9 @@ interface Props {
 export function AssigneeBadge({ story, corner = false }: Props) {
   const { t } = useTranslation();
   const app = useApp();
+  const on = useFeature('team');
   const member = assigneeOf(app.members, story);
-  if (!member && app.members.length === 0) return null;
+  if (!on || (!member && app.members.length === 0)) return null;
   const text = member ? t('team.assignedTo', { name: member.name }) : t('team.unassigned');
   return (
     <span className={`assignee${member ? '' : ' assignee--none'}${corner ? ' assignee--corner' : ''}`} role="img" aria-label={text} title={member ? member.name : text}>

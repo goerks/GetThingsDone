@@ -19,6 +19,7 @@ import {
   storiesOfMember
 } from './members';
 import { migrateSnapshot } from './migrate';
+import { DEFAULT_SETTINGS, normalizeSettings } from './settings';
 import { EMPTY_QUERY, search } from './search';
 import type { Member, Snapshot } from './types';
 
@@ -260,5 +261,62 @@ describe('demo data, export and history (#18)', () => {
     // Then the story is not assigned
     expect(migrated.stories.find((story) => story.code === 'S-3')?.assigneeId).toBeNull();
     expect(migrated.stories.find((story) => story.code === 'S-2')?.assigneeId).toBe('member-michael');
+  });
+});
+
+describe('the team as a feature (#18)', () => {
+  it('AC8.4 has the team off by default and on in the demo data', () => {
+    // Given a project without the setting, a new one and the demo data
+    // Then the team is off, except in the demo data
+    expect(DEFAULT_SETTINGS.features.team).toBe(false);
+    expect(normalizeSettings(undefined).features.team).toBe(false);
+    expect(normalizeSettings({ features: { releases: true } }).features.team).toBe(false);
+    expect(normalizeSettings({ features: { team: true } }).features.team).toBe(true);
+    expect(normalizeSettings({ features: { team: '1' } }).features.team).toBe(true);
+    expect(normalizeSettings({ features: { team: 'unknown' } }).features.team).toBe(false);
+    expect(seedSnapshot(TODAY).settings.features.team).toBe(true);
+  });
+
+  it('AC8.4 imports a file from before the team with the team switched off', () => {
+    // Given a backup file from before the team
+    const { members: _members, ...old } = seedSnapshot(TODAY);
+    const text = JSON.stringify({ format: BACKUP_FORMAT, version: 1, exportedAt: '2026-10-01T08:00:00.000Z', data: { ...old, settings: { mapRows: 'sprints', features: { releases: true } } } });
+    // When I import it
+    const parsed = parseBackup(text, TODAY);
+    // Then the team is off
+    expect(parsed.ok && parsed.snapshot.settings.features.team).toBe(false);
+  });
+
+  it('AC8.3 exports the team even while it is switched off', () => {
+    // Given the demo data with the team switched off
+    const seed = seedSnapshot(TODAY);
+    const off = { ...seed, settings: { ...seed.settings, features: { ...seed.settings.features, team: false } } };
+    // When I export and import the file
+    const parsed = parseBackup(serializeBackup(off, '2026-10-12T08:00:00.000Z'), TODAY);
+    // Then the members and the assignments are in the file, and the team is still off
+    expect(parsed.ok && parsed.snapshot.members).toEqual(seed.members);
+    expect(parsed.ok && parsed.snapshot.stories.find((story) => story.code === 'S-3')?.assigneeId).toBe('member-anna');
+    expect(parsed.ok && parsed.snapshot.settings.features.team).toBe(false);
+  });
+
+  it('AC8.2 finds nobody by name while the team is off, because the search has no member list', () => {
+    // Given the demo data and a search snapshot without members, as the search gets it while the team is off
+    const seed = seedSnapshot(TODAY);
+    const { members: _members, ...withoutTeam } = seed;
+    // When I search for "Anna"
+    const results = search(withoutTeam, { ...EMPTY_QUERY, text: 'anna' });
+    // Then no story is found
+    expect(results).toEqual([]);
+  });
+
+  it('AC8.6 describes the switch in German, English, French and Italian', () => {
+    // Given the four language files
+    // Then the switch has a name, a description and a note for the off state in each
+    for (const file of [en, de, fr, it_]) {
+      expect(file.settings.features.team.name).not.toBe('');
+      expect(file.settings.features.team.description).not.toBe('');
+      expect(file.settings.features.team.offNote).not.toBe('');
+    }
+    expect(de.settings.features.team.offNote).not.toBe(en.settings.features.team.offNote);
   });
 });

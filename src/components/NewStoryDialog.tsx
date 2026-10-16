@@ -48,6 +48,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const [assigneeId, setAssigneeId] = useState<string | null>(null);
   // The release shows when the team put it into the create dialog, or when the caller prefilled one.
   const releaseShown = featureOn(app.settings, 'releases') && (releaseLayout(app.assignments).inCreate || initialReleaseId !== undefined);
+  const teamOn = featureOn(app.settings, 'team');
   const custom = useCreateFields('story');
 
   useEffect(() => {
@@ -65,7 +66,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
     }
     const values = custom.collect();
     if (!values) return;
-    const input: NewStoryInput = { title, description, epicId, points, sprintId, releaseId, assigneeId, values, status };
+    const input: NewStoryInput = { title, description, epicId, points, sprintId, releaseId, ...(teamOn ? { assigneeId } : {}), values, status };
     app.createStory(input);
     if (!another) {
       onClose();
@@ -159,10 +160,12 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
             <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
             <SprintSelect id={`${uid}-sprint`} value={sprintId} onChange={setSprintId} />
           </div>
-          <div className="field">
-            <label htmlFor={`${uid}-assignee`}>{t('team.field')}</label>
-            <MemberSelect id={`${uid}-assignee`} value={assigneeId} onChange={setAssigneeId} />
-          </div>
+          {teamOn && (
+            <div className="field">
+              <label htmlFor={`${uid}-assignee`}>{t('team.field')}</label>
+              <MemberSelect id={`${uid}-assignee`} value={assigneeId} onChange={setAssigneeId} />
+            </div>
+          )}
         </div>
         {releaseShown && (
           <div className="field">
