@@ -38,7 +38,7 @@ export function ruleMet(rule: DefinitionRule, story: Story): boolean {
     case 'hasCriteria':
       return story.criteria.length > 0;
     case 'hasPoints':
-      return story.points > 0;
+      return story.points !== null;
     case 'hasEpic':
       return story.epicId !== null;
     case 'allCriteriaAccepted':

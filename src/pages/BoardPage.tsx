@@ -1,4 +1,5 @@
 import { useMemo, useState, type CSSProperties } from 'react';
+import { unestimatedCount } from '../domain/estimation';
 import {
   DndContext,
   DragOverlay,
@@ -170,7 +171,7 @@ export function BoardPage() {
           {t(ended ? 'sprint.ended' : `sprint.${sprint.state}`)}
         </span>
         <span className="muted">
-          {formatSprintDates(sprint, i18n.language)} · {builtin.summary(inSprint.length, points)}
+          {formatSprintDates(sprint, i18n.language)} · {builtin.summary(inSprint.length, points, unestimatedCount(inSprint))}
           {atStart !== null && atStart !== points && ` (${t('lifecycle.atStart', { points: atStart })})`}
         </span>
         <span className="page-head__actions">

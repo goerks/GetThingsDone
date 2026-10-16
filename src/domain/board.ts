@@ -382,8 +382,9 @@ export function criteriaProgress(story: Pick<Story, 'criteria'>): Progress {
   return { done, total, percent: total === 0 ? 0 : Math.round((done / total) * 100) };
 }
 
+/** The points of the stories; a story that is not estimated counts as 0 (see `unestimatedCount`). */
 export function totalPoints(stories: readonly Story[]): number {
-  return stories.reduce((sum, story) => sum + story.points, 0);
+  return stories.reduce((sum, story) => sum + (story.points ?? 0), 0);
 }
 
 export function nextCode(stories: readonly Story[]): string {
@@ -398,7 +399,8 @@ export interface NewStoryInput {
   title: string;
   description: string;
   epicId: string | null;
-  points: number;
+  /** The number card of the new story; null (or missing) for a story that is not estimated (#54). */
+  points?: number | null;
   /** The sprint to plan the story in, or null for "not planned". */
   sprintId: string | null;
   /** The release of the story, or null / missing for none. */
@@ -409,9 +411,13 @@ export interface NewStoryInput {
   status?: Status;
 }
 
-export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId' | 'releaseId'>>;
+export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'special' | 'reference' | 'status' | 'sprintId' | 'releaseId'>>;
 
-/** Changes the editable fields of a story. Text is trimmed and an empty title is ignored. */
+/**
+ * Changes the editable fields of a story. Text is trimmed and an empty title is ignored. A number card and a special
+ * card exclude each other; a story that gets another estimate is no reference any more; marking a story as the
+ * reference of its value takes the mark from the story that had it (#54).
+ */
 export function updateStory(stories: Story[], id: string, patch: StoryPatch): Story[] {
   const clean: StoryPatch = { ...patch };
   if (clean.title !== undefined) {
@@ -419,7 +425,17 @@ export function updateStory(stories: Story[], id: string, patch: StoryPatch): St
     if (!clean.title) delete clean.title;
   }
   if (clean.description !== undefined) clean.description = clean.description.trim();
-  return stories.map((story) => (story.id === id ? { ...story, ...clean } : story));
+  if (clean.points !== undefined && clean.points !== null) clean.special = null;
+  if (clean.special !== undefined && clean.special !== null) clean.points = null;
+  const old = stories.find((story) => story.id === id);
+  if (!old) return stories;
+  const next: Story = { ...old, ...clean };
+  if (next.points !== old.points || next.special !== old.special) next.reference = false;
+  if (next.points === null) next.reference = false;
+  return stories.map((story) => {
+    if (story.id === id) return next;
+    return next.reference && story.reference && story.points === next.points ? { ...story, reference: false } : story;
+  });
 }
 
 export function deleteStory(stories: Story[], id: string): Story[] {
@@ -434,7 +450,9 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string, 
     title: input.title.trim(),
     description: input.description.trim(),
     epicId: input.epicId,
-    points: input.points,
+    points: input.points ?? null,
+    special: null,
+    reference: false,
     status: input.status ?? status,
     sprintId: input.sprintId,
     releaseId: input.releaseId ?? null,

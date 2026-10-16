@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { unestimatedCount } from '../domain/estimation';
 import { useTranslation } from 'react-i18next';
 import { NewReleaseDialog } from '../components/ReleaseForm';
 import { NewButton } from '../components/NewButton';
@@ -29,7 +30,7 @@ export function ReleasesPage() {
     <>
       <div className="page-head">
         <h1>{t('releases.title')}</h1>
-        <span className="muted">{app.releases.length > 0 ? `${t('releases.count', { count: app.releases.length })} · ${builtin.summary(planned.length, planned.reduce((sum, story) => sum + story.points, 0))}` : t('releases.hint')}</span>
+        <span className="muted">{app.releases.length > 0 ? `${t('releases.count', { count: app.releases.length })} · ${builtin.summary(planned.length, planned.reduce((sum, story) => sum + (story.points ?? 0), 0), unestimatedCount(planned))}` : t('releases.hint')}</span>
         <NewButton label={t('releases.newCard')} onClick={open} />
       </div>
       {creating && <NewReleaseDialog onClose={() => setCreating(false)} />}

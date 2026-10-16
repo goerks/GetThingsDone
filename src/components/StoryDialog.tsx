@@ -12,13 +12,14 @@ import { EpicTag } from './EpicTag';
 import { FieldControl } from './FieldControl';
 import { ReleaseSelect } from './ReleaseSelect';
 import { formatDay } from './releaseFormat';
+import { StoryEstimate } from './StoryEstimate';
 import { SprintSelect } from './SprintSelect';
 import { GripIcon, TrashIcon } from './icons';
 import { useDragSensors } from '../dnd/dnd';
 import { criteriaProgress } from '../domain/board';
 import { customFieldsFor, isRequired } from '../domain/fields';
 import { sprintEndsAfterRelease } from '../domain/releases';
-import { POINT_VALUES, type Criterion } from '../domain/types';
+import type { Criterion } from '../domain/types';
 import { statusLabel } from './statusLabel';
 import { STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import { useApp } from '../state/AppState';
@@ -259,23 +260,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               <label htmlFor={`${uid}-epic`}>{builtin.label('epic', t('detail.epic'))}</label>
               <EpicSelect id={`${uid}-epic`} value={story.epicId} onChange={(epicId) => app.updateStory(story.id, { epicId })} />
             </div>
-            {builtin.shown('story', 'points') && (
-              <div className="field">
-                <label htmlFor={`${uid}-points`}>{builtin.label('points', t('detail.points'))}</label>
-                <select
-                  id={`${uid}-points`}
-                  className="select"
-                  value={story.points}
-                  onChange={(event) => app.updateStory(story.id, { points: Number(event.target.value) })}
-                >
-                  {POINT_VALUES.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {builtin.shown('story', 'points') && <StoryEstimate story={story} />}
             <div className="field">
               <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
               <SprintSelect id={`${uid}-sprint`} value={story.sprintId} onChange={(sprintId) => app.updateStory(story.id, { sprintId })} />

@@ -1,4 +1,5 @@
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { EstimatePill } from './EstimatePill';
 import { useTranslation } from 'react-i18next';
 import { validateRelease, releaseStats, storiesAfterReleaseEnd, storiesInRelease, type ReleaseProblem } from '../domain/releases';
 import type { Release } from '../domain/types';
@@ -171,7 +172,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
             )}
             <div className="release-summary">
               <p>
-                <strong>{builtin.summary(stats.stories, stats.points)}</strong>
+                <strong>{builtin.summary(stats.stories, stats.points, stats.unestimated)}</strong>
               </p>
               {stats.stories > 0 && (
                 <>
@@ -270,7 +271,11 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                         </td>
                         <td>{epicName(story.epicId)}</td>
                         <td>{sprintName(story.sprintId)}</td>
-                        {pointsShown && <td>{story.points}</td>}
+                        {pointsShown && (
+                          <td>
+                            <EstimatePill story={story} />
+                          </td>
+                        )}
                         <td>{statusLabel(t, app.statuses, story.status)}</td>
                         <td>
                           <button

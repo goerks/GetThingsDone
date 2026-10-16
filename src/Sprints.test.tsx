@@ -211,11 +211,11 @@ describe('starting a sprint', () => {
     const user = userEvent.setup();
     await open(
       demo((snapshot) =>
-        setStories(noneRuns(withStoriesInSprint2(snapshot)), (story) => (story.id === 'story-2' ? { ...story, points: 0 } : story))
+        setStories(noneRuns(withStoriesInSprint2(snapshot)), (story) => (story.id === 'story-2' ? { ...story, points: null } : story))
       )
     );
     await user.click(await screen.findByRole('button', { name: 'Start sprint' }));
-    expect(within(await dialog('Start sprint')).getByText('1 story without points (S-2) counts as 0 points.')).toBeInTheDocument();
+    expect(within(await dialog('Start sprint')).getByText('1 story without estimate (S-2) counts as no points.')).toBeInTheDocument();
   });
 
   it('AC3.2 asks for the start date when starting later and moves the sprint to today by default', async () => {
@@ -307,8 +307,8 @@ describe('completing a sprint', () => {
   });
 
   it('AC6.3 names a not done story without points', async () => {
-    const { completing } = await openCompletion(demo((snapshot) => setStories(snapshot, (story) => (story.id === 'story-3' ? { ...story, points: 0 } : story))));
-    expect(within(completing).getByText('1 story without points (S-3) counts as 0 points.')).toBeInTheDocument();
+    const { completing } = await openCompletion(demo((snapshot) => setStories(snapshot, (story) => (story.id === 'story-3' ? { ...story, points: null } : story))));
+    expect(within(completing).getByText('1 story without estimate (S-3) counts as no points.')).toBeInTheDocument();
   });
 
   it('AC6.4 says more was done than planned', async () => {

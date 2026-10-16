@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type MouseEvent, type ReactNode } from 'react';
+import { estimatePatch } from '../domain/estimation';
 import { useTranslation } from 'react-i18next';
 import { ContextMenu, type MenuItem } from '../components/ContextMenu';
 import { statusLabel } from '../components/statusLabel';
@@ -6,7 +7,7 @@ import { useBuiltin } from '../components/useBuiltin';
 import { sortEpics } from '../domain/epics';
 import { sortSprints } from '../domain/sprints';
 import { STATUS_CATEGORIES, statusColor, statusesIn } from '../domain/statuses';
-import { POINT_VALUES } from '../domain/types';
+import { POINT_VALUES, SPECIAL_CARDS } from '../domain/types';
 import { useApp } from './AppState';
 import { useDetails } from './Details';
 
@@ -124,12 +125,21 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
       list.push({
         id: 'points',
         label: builtin.label('points', t('menu.points')),
-        submenu: POINT_VALUES.map((value) => ({
-          id: `points-${value}`,
-          label: String(value),
-          checked: story.points === value,
-          onSelect: choose({ points: value })
-        }))
+        submenu: [
+          { id: 'points-none', label: t('estimate.none'), checked: story.points === null && story.special === null, onSelect: choose(estimatePatch(null)) },
+          ...POINT_VALUES.map((value) => ({
+            id: `points-${value}`,
+            label: String(value),
+            checked: story.points === value,
+            onSelect: choose(estimatePatch({ points: value }))
+          })),
+          ...SPECIAL_CARDS.map((card) => ({
+            id: `points-${card}`,
+            label: t(`estimate.special.${card}`),
+            checked: story.special === card,
+            onSelect: choose(estimatePatch({ special: card }))
+          }))
+        ]
       });
     }
     return list;

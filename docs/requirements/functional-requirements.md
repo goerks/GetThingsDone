@@ -675,6 +675,28 @@ Settings › Data (`#/settings/data`) has two cards. "Export all data" saves sto
 
 Verified by: unit `src/domain/backup.test.ts` (AC1.2–AC1.4, AC3.2, AC4.1–AC4.4), component `src/DataSettings.test.tsx` (AC1.1–AC1.2, AC2.1–AC2.5, AC3.1, AC4.1–AC4.4, AC5.3, AC6.1–AC6.3), e2e `e2e/backup.spec.ts` (AC1.1–AC1.2, AC2.1, AC2.3, AC3.1–AC3.2, AC4.1, AC5.3, AC6.2); AC1.3, AC5.1 and AC5.2 are checked by hand
 
+## Estimation (EST)
+
+### FR-EST-01 A new story is not estimated
+Every way to create a story (the dialog "New story", the quick add on board, backlog and story map) creates a story without an estimate. The backlog, the board and the story map show it as a dashed pill with a dash (tooltip and screen reader text "Not estimated"); the field "Points" of the create dialog starts with "Not estimated". Stories that were stored before the cards with the old default of 3 points are migrated to "not estimated" (a deliberate 3 cannot be told from the default); stories stored with the cards keep their value (the marker is `special` on the story; SQLite: migration 013).
+
+Source: #54 · Status: Implemented · Verified by: #54 AC1.1 to AC1.3, AC4.1
+
+### FR-EST-02 Estimate with cards
+The story dialog estimates with a row of cards: the Fibonacci cards 1, 2, 3, 5, 8, 13, 21 and the special cards "?" and the coffee cup. Choosing the chosen card again takes the estimate back. The special cards are no estimate: the story counts as "not estimated". The arrow keys move between the cards, Enter chooses (radio group). The menu of a story offers the same values and "Not estimated". Epics are estimated with a T-shirt size (XS, S, M, L, XL) in the epic dialog.
+
+Source: #54 · Status: Implemented · Verified by: #54 AC2.1 to AC2.5
+
+### FR-EST-03 Reference stories
+A story with a number card can be marked as the reference of that value (at most one story per value). The cards with a reference have a yellow line and show the key of the story; the list "Reference stories" in the story dialog opens them. Marking a second story replaces the first, with a notice. A story that gets another estimate (or none) is no reference any more.
+
+Source: #54 · Status: Implemented · Verified by: #54 AC3.1 to AC3.5
+
+### FR-EST-04 Sums with stories that are not estimated
+Sums of the backlog, board, story map and releases count a story without estimate as no points and name them: "6 stories · 18 points · 1 without estimate". The start and complete dialogs of a sprint name the stories without estimate. Release history records an unestimated story with 0 points.
+
+Source: #54 · Status: Implemented · Verified by: #54 AC5.1 to AC5.3 (AC5.3 also by hand)
+
 ## Later
 
 | ID | Requirement | Status |

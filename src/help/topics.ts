@@ -60,6 +60,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'story.create', pages: ['board', 'backlog'], show: { selector: '.page-head__action', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'settingsFields' }] },
   { id: 'story.menu', pages: ['board', 'backlog', 'map'], show: { selector: '.card[data-story-id], .backlog__row, .map-card', missing: 'story' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'map' }] },
   { id: 'story.quickAdd', pages: ['board', 'backlog', 'map'], show: { selector: '.quick-add, .map-cell__add', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'map' }] },
+  { id: 'story.estimate', pages: ['board', 'backlog', 'map'], show: { selector: '.pill', missing: 'story' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'epics' }] },
   { id: 'backlog.order', pages: ['backlog'], show: { selector: '.backlog__row', missing: 'story' }, links: [{ id: 'backlog' }] },
   { id: 'backlog.sprints', pages: ['backlog'], show: { selector: '.backlog__heading', missing: 'plain' }, links: [{ id: 'backlog' }] },
   { id: 'board.velocity', pages: ['board'], show: { selector: '.velocity-button', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }] },

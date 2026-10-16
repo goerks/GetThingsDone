@@ -11,7 +11,7 @@ import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 import { EMPTY_DEFINITIONS } from '../domain/definitions';
 
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_estimation.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -622,7 +622,7 @@ describe('sprint states (#17)', () => {
         ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
-    migrate(db, ['011_sprint_states.sql', '012_definitions.sql']);
+    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_estimation.sql']);
     return db;
   }
 

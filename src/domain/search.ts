@@ -221,7 +221,7 @@ function passes(item: Item, filter: Filter, snapshot: SearchSnapshot): boolean {
     case 'sprint':
       return (story.sprintId ?? NOT_PLANNED) === filter.value;
     case 'points':
-      return String(story.points) === filter.value;
+      return story.points !== null && String(story.points) === filter.value;
     case 'criteria':
       return criteriaState(story) === filter.value;
     default:
@@ -369,7 +369,7 @@ export function fieldValues(snapshot: SearchSnapshot, field: FilterField): strin
     case 'type':
       return [...RESULT_KINDS];
     case 'points':
-      return [...new Set(snapshot.stories.map((story) => story.points))].sort((a, b) => a - b).map(String);
+      return [...new Set(snapshot.stories.flatMap((story) => (story.points === null ? [] : [story.points])))].sort((a, b) => a - b).map(String);
     case 'criteria':
       return [...CRITERIA_STATES];
     default:

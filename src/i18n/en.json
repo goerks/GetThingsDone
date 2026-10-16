@@ -147,7 +147,8 @@
     "noEpic": "No epic",
     "problem": {
       "name": "Please enter a name."
-    }
+    },
+    "size": "Size"
   },
   "sprint": {
     "label": "Sprint",
@@ -189,8 +190,8 @@
       "plannedPoints": "Planned points",
       "points": "points",
       "note": "These {{points}} points count as planned. What joins or leaves later is shown when the sprint is completed.",
-      "withoutPoints_one": "{{count}} story without points ({{codes}}) counts as 0 points.",
-      "withoutPoints_other": "{{count}} stories without points ({{codes}}) count as 0 points.",
+      "withoutPoints_one": "{{count}} story without estimate ({{codes}}) counts as no points.",
+      "withoutPoints_other": "{{count}} stories without estimate ({{codes}}) count as no points.",
       "datesLegend": "Start date",
       "datesNote": "Planned for {{planned}}, today is {{today}}.",
       "today": "Start today: {{dates}}",
@@ -507,7 +508,9 @@
     "stories_one": "{{count}} story",
     "stories_other": "{{count}} stories",
     "points_one": "{{count}} point",
-    "points_other": "{{count}} points"
+    "points_other": "{{count}} points",
+    "unestimated_one": "{{count}} without estimate",
+    "unestimated_other": "{{count}} without estimate"
   },
   "search": {
     "label": "Search",
@@ -918,6 +921,11 @@
         "keywords": "quick add plus story column sprint cell title enter",
         "body": "Click “+ Story” at the end of a column on the Board or of a section in the Backlog, or the “+” in a cell of the Story Map. Type a title and press Enter: the story is added in that place and the field stays open for the next one. Escape closes the field.\nOnly the title is asked; points, epic and the rest you can add later in the story."
       },
+      "story.estimate": {
+        "title": "Estimate with cards",
+        "keywords": "estimate estimation cards fibonacci points reference stories unestimated epic size shirt",
+        "body": "Open a story and choose a card in the field “Points”: 1, 2, 3, 5, 8, 13 or 21. Click the chosen card again to take the estimate back. The cards “?” (unsure) and the coffee cup (break) are no estimate: the story counts as “not estimated”. The arrow keys move between the cards, Enter chooses.\nA new story is never estimated. It shows a dashed pill with a dash, and the sum of a sprint or the backlog names how many stories are missing, for example “6 stories · 18 points · 1 without estimate”. Stories without an estimate count as no points.\nMark an estimated story as the reference of its value (“This story is the reference for 3”). Each value has at most one reference story; marking another one replaces it. The cards with a reference have a yellow line and show the story key, and the list “Reference stories” opens the story, so you can compare a new story with it. Giving a reference story another estimate removes the mark.\nEpics are estimated with a T-shirt size (XS, S, M, L, XL) in the epic dialog."
+      },
       "backlog.order": {
         "title": "Order the backlog",
         "keywords": "priority rank drag reorder sort",
@@ -1067,7 +1075,9 @@
       "noRelease": "{{code}} now has no release",
       "points_one": "{{code}} now has {{count}} point",
       "points_other": "{{code}} now has {{count}} points",
-      "reordered": "{{code}} moved"
+      "reordered": "{{code}} moved",
+      "special": "{{code}} estimated with {{card}}",
+      "unestimated": "{{code}} is not estimated"
     }
   },
   "velocity": {
@@ -1235,5 +1245,19 @@
       "checked": "done",
       "na": "ignored (not relevant)"
     }
+  },
+  "estimate": {
+    "none": "Not estimated",
+    "special": {
+      "unsure": "Unsure (?)",
+      "break": "Break (coffee)"
+    },
+    "cardWithReference": "{{card}}, reference story {{code}}",
+    "referenceFor": "This story is the reference for {{value}}",
+    "references": "Reference stories",
+    "noReferences": "No reference stories yet. Mark an estimated story as the reference of its card.",
+    "thisStory": "{{code}} {{title}} (this story)",
+    "openReference": "{{code}} {{title}}",
+    "replaced": "{{code}} is now the reference for {{value}}; it replaces {{old}}."
   }
 }

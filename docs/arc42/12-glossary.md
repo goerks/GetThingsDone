@@ -28,6 +28,8 @@
 | History (of a release) | The append-only entries about the stories of a release: joined, left, points changed, done, reopened. The scope report and the burndown are computed from it. |
 | Release | A group of stories with a title, a description and optional start and end day (#10). Its size is the points of its stories; planned, running or done is derived. A story has at most one release. |
 | Running sprint | The sprint whose dates include today (otherwise the next upcoming, otherwise the last). The board shows it. |
+| Estimate (card) | A story is estimated by choosing a card (#54): a number of the Fibonacci deck, or "?" and the coffee cup, which are no estimate. A story without a number is "not estimated" and counts as no points. Epics use T-shirt sizes. |
+| Reference story | The story marked as the reference of a card value; the cards with a reference show it, so new stories can be compared (#54). |
 | Story | A unit of work with title, description, points, status and acceptance criteria. Key `S-<n>`. |
 | Story map | Grid of epics (columns) and running or future sprints (rows) with the stories in the cells. |
 | Not planned | Stories without a sprint. Last section of the backlog and last row of the story map. |

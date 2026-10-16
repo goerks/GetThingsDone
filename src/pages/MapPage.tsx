@@ -1,4 +1,6 @@
 import { useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { unestimatedCount } from '../domain/estimation';
+import { EstimatePill } from '../components/EstimatePill';
 import {
   DndContext,
   DragOverlay,
@@ -73,9 +75,7 @@ function CardContent({ story }: { story: Story }) {
       <span className="map-card__top">
         <span className="card__code">{story.code}</span>
         {builtin.shown('story', 'points') && (
-          <span className="pill" title={builtin.pointsTitle(story.points)}>
-            {story.points}
-          </span>
+          <EstimatePill story={story} />
         )}
       </span>
       <TitleButton story={story} className="map-card__title" />
@@ -200,7 +200,7 @@ function SprintLabelContent({ sprint, stories, labelId }: Omit<SprintLabelProps,
         {sprint.name}
       </span>
       <span className="map-sprint__dates">{formatSprintDates(sprint, i18n.language)}</span>
-      <span className="map-sprint__sum">{builtin.summary(stories.length, totalPoints(stories))}</span>
+      <span className="map-sprint__sum">{builtin.summary(stories.length, totalPoints(stories), unestimatedCount(stories))}</span>
       <SprintPlan points={totalPoints(stories)} className="map-sprint__plan" />
     </>
   );
@@ -286,7 +286,7 @@ function ReleaseLabel({ release, stories, labelId, isTarget, today }: ReleaseLab
         {release.title}
       </span>
       <span className="map-sprint__dates">{period}</span>
-      <span className="map-sprint__sum">{builtin.summary(stories.length, totalPoints(stories))}</span>
+      <span className="map-sprint__sum">{builtin.summary(stories.length, totalPoints(stories), unestimatedCount(stories))}</span>
       {late > 0 && <span className="hint map-release__hint">{t('map.afterEnd', { count: late })}</span>}
     </button>
   );
@@ -515,7 +515,7 @@ export function MapPage() {
             {t('sprint.notPlanned')}
           </span>
           <span className="map-sprint__sum">
-            {builtin.summary(inSprint.length, totalPoints(inSprint))}
+            {builtin.summary(inSprint.length, totalPoints(inSprint), unestimatedCount(inSprint))}
           </span>
         </div>
       )}
@@ -553,7 +553,7 @@ export function MapPage() {
             <span id={labelId} className="map-sprint__name">
               {t('map.noRelease')}
             </span>
-            <span className="map-sprint__sum">{builtin.summary(inRelease.length, totalPoints(inRelease))}</span>
+            <span className="map-sprint__sum">{builtin.summary(inRelease.length, totalPoints(inRelease), unestimatedCount(inRelease))}</span>
           </div>
         )}
         {columns.map((epic) => (
@@ -654,7 +654,7 @@ export function MapPage() {
                       {epic.name}
                     </span>
                     <span className="map-epic__sum">
-                      {builtin.summary(inEpic.length, totalPoints(inEpic))}
+                      {builtin.summary(inEpic.length, totalPoints(inEpic), unestimatedCount(inEpic))}
                     </span>
                   </button>
                 );
@@ -667,7 +667,8 @@ export function MapPage() {
                   <span className="map-epic__sum">
                     {builtin.summary(
                       shownStories.filter((story) => story.epicId === null).length,
-                      totalPoints(shownStories.filter((story) => story.epicId === null))
+                      totalPoints(shownStories.filter((story) => story.epicId === null)),
+                      unestimatedCount(shownStories.filter((story) => story.epicId === null))
                     )}
                   </span>
                 </div>

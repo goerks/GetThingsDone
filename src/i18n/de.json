@@ -147,7 +147,8 @@
     "noEpic": "Kein Epic",
     "problem": {
       "name": "Bitte einen Namen eingeben."
-    }
+    },
+    "size": "Grösse"
   },
   "sprint": {
     "label": "Sprint",
@@ -189,8 +190,8 @@
       "plannedPoints": "Geplante Punkte",
       "points": "Punkte",
       "note": "Diese {{points}} Punkte gelten als geplant. Was später dazukommt oder entfernt wird, zeigt der Abschluss separat.",
-      "withoutPoints_one": "{{count}} Story ohne Punkte ({{codes}}) zählt 0 Punkte.",
-      "withoutPoints_other": "{{count}} Stories ohne Punkte ({{codes}}) zählen 0 Punkte.",
+      "withoutPoints_one": "{{count}} Story ohne Schätzung ({{codes}}) zählt keine Punkte.",
+      "withoutPoints_other": "{{count}} Stories ohne Schätzung ({{codes}}) zählen keine Punkte.",
       "datesLegend": "Startdatum",
       "datesNote": "Geplant war der {{planned}}, heute ist der {{today}}.",
       "today": "Ab heute starten: {{dates}}",
@@ -507,7 +508,9 @@
     "stories_one": "{{count}} Story",
     "stories_other": "{{count}} Stories",
     "points_one": "{{count}} Punkt",
-    "points_other": "{{count}} Punkte"
+    "points_other": "{{count}} Punkte",
+    "unestimated_one": "{{count}} ohne Schätzung",
+    "unestimated_other": "{{count}} ohne Schätzung"
   },
   "search": {
     "label": "Suche",
@@ -918,6 +921,11 @@
         "keywords": "schnell anlegen plus story spalte sprint zelle titel enter",
         "body": "Klicke auf „+ Story“ am Ende einer Spalte im Board oder eines Abschnitts im Backlog, oder auf das „+“ in einer Zelle der Story Map. Tippe einen Titel und drücke Enter: Die Story entsteht an dieser Stelle, und das Feld bleibt für die nächste offen. Mit Esc schliesst du das Feld.\nGefragt wird nur der Titel; Punkte, Epic und den Rest ergänzt du später in der Story."
       },
+      "story.estimate": {
+        "title": "Mit Karten schätzen",
+        "keywords": "schätzen schätzung karten fibonacci punkte referenzstories referenzstory ungeschätzt epic grösse t-shirt",
+        "body": "Öffne eine Story und wähle im Feld „Punkte“ eine Karte: 1, 2, 3, 5, 8, 13 oder 21. Ein Klick auf die gewählte Karte nimmt die Schätzung zurück. Die Karten „?“ (unsicher) und die Kaffeetasse (Pause) sind keine Schätzung: die Story zählt dann als „nicht geschätzt“. Mit den Pfeiltasten wechselst du zwischen den Karten, Enter wählt.\nEine neue Story ist nie geschätzt. Sie zeigt einen gestrichelten Pill mit einem Strich, und die Summe eines Sprints oder des Backlogs nennt, wie viele Stories fehlen, zum Beispiel „6 Stories · 18 Punkte · 1 ohne Schätzung“. Stories ohne Schätzung zählen keine Punkte.\nMarkiere eine geschätzte Story als Referenz für ihren Wert („Diese Story ist die Referenz für 3“). Pro Wert gibt es höchstens eine Referenzstory; eine weitere ersetzt die bisherige. Karten mit Referenz haben einen gelben Strich und zeigen den Code der Story, und die Liste „Referenzstories“ öffnet die Story, damit du eine neue Story damit vergleichen kannst. Schätzt du eine Referenzstory neu, fällt die Markierung weg.\nEpics schätzt du im Epic-Fenster mit einer T-Shirt-Grösse (XS, S, M, L, XL)."
+      },
       "backlog.order": {
         "title": "Das Backlog ordnen",
         "keywords": "priorität reihenfolge ziehen sortieren",
@@ -1067,7 +1075,9 @@
       "noRelease": "{{code}} hat jetzt kein Release",
       "points_one": "{{code}} hat jetzt {{count}} Punkt",
       "points_other": "{{code}} hat jetzt {{count}} Punkte",
-      "reordered": "{{code}} verschoben"
+      "reordered": "{{code}} verschoben",
+      "special": "{{code}} mit {{card}} geschätzt",
+      "unestimated": "{{code}} ist nicht geschätzt"
     }
   },
   "velocity": {
@@ -1235,5 +1245,19 @@
       "checked": "erledigt",
       "na": "ignoriert (nicht relevant)"
     }
+  },
+  "estimate": {
+    "none": "Nicht geschätzt",
+    "special": {
+      "unsure": "Unsicher (?)",
+      "break": "Pause (Kaffee)"
+    },
+    "cardWithReference": "{{card}}, Referenzstory {{code}}",
+    "referenceFor": "Diese Story ist die Referenz für {{value}}",
+    "references": "Referenzstories",
+    "noReferences": "Noch keine Referenzstories. Markiere eine geschätzte Story als Referenz für ihre Karte.",
+    "thisStory": "{{code}} {{title}} (diese Story)",
+    "openReference": "{{code}} {{title}}",
+    "replaced": "{{code}} ist jetzt die Referenz für {{value}} und ersetzt {{old}}."
   }
 }
