@@ -40,11 +40,13 @@
     "toMap": "Auf der Story Map einen anlegen",
     "columns": "Spalten des Boards",
     "bandCount_one": "{{count}} Story in dieser Kategorie",
-    "bandCount_other": "{{count}} Stories in dieser Kategorie"
+    "bandCount_other": "{{count}} Stories in dieser Kategorie",
+    "compact": "Kompakt"
   },
   "card": {
     "criteria": "{{done}} von {{total}} Kriterien abgenommen",
-    "points": "{{count}} Punkte"
+    "points": "{{count}} Punkte",
+    "more": "{{count}} weitere: {{names}}"
   },
   "newStory": {
     "open": "Neue Story",
@@ -77,7 +79,9 @@
       "instructions": "Leertaste drücken, um eine Story aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen. Mit Enter die Story öffnen.",
       "over": "{{title}} würde Rang {{rank}} in {{section}}.",
       "dropped": "{{title}} ist jetzt Rang {{rank}}."
-    }
+    },
+    "pointsInvalid": "Nur Zahlen, 0–100",
+    "pointsInput": "{{label}} von {{code}}"
   },
   "detail": {
     "description": "Beschreibung",
@@ -573,12 +577,6 @@
     "withoutFilter": "Ohne {{filter}} suchen",
     "reset": "Alles zurücksetzen und neu beginnen",
     "emptyHint": "Tippen, um Stories, Epics und Sprints zu suchen, oder einen Filter wählen.",
-    "keys": {
-      "move": "wählen",
-      "open": "öffnen",
-      "close": "schliessen",
-      "fields": "Felder"
-    },
     "clearHistory": "Verlauf löschen",
     "highlightSummary_one": "{{matches}} von {{count}} Story hier passt",
     "highlightSummary_other": "{{matches}} von {{count}} Stories hier passen",
@@ -610,7 +608,6 @@
     "new": "Neues Release",
     "add": "Release anlegen",
     "newCard": "+ Release",
-    "shortcut": "Strg+N",
     "create": "Release anlegen",
     "name": "Titel",
     "description": "Beschreibung",
@@ -900,6 +897,11 @@
         "keywords": "status spalte ziehen drag drop tastatur pfeiltasten ändern",
         "body": "Ziehe eine Karte in eine andere Spalte, um ihren Status zu ändern. Mit der Tastatur wählst du die Karte, hebst sie mit der Leertaste auf, bewegst sie mit den Pfeiltasten und legst sie mit der Leertaste wieder ab. Esc bricht ab.\nDie Änderung wird sofort gespeichert."
       },
+      "board.card": {
+        "title": "Kachel lesen",
+        "keywords": "kachel karte priorität buchstabe epic label aufgaben kriterien kompakt zeile punkte",
+        "body": "Eine Kachel zeigt oben den Schlüssel, die Priorität als Buchstaben (M, S, C, W: mit der Maus darüber erscheint das ganze Wort) und die Punkte, darunter den Titel.\nIn der Zeile darunter steht zuerst das Epic, dann stehen die Labels als kleine Chips; was nicht passt, wird zu „+2“ (mit der Maus darüber siehst du den Rest). Ganz rechts zählt „☑ 2/4“ die abgenommenen Akzeptanzkriterien; es wird grün, wenn alle abgenommen sind.\nDer Knopf „Kompakt“ im Seitenkopf zeigt pro Story eine Zeile. Deine Wahl wird gemerkt."
+      },
       "board.columns": {
         "title": "Spalten und Status-Werte",
         "keywords": "status werte workflow kategorie",
@@ -913,7 +915,7 @@
       "story.create": {
         "title": "Eine Story anlegen",
         "keywords": "neue story hinzufügen strg+n weitere",
-        "body": "Drücke Strg+N (Cmd+N auf dem Mac) oder klicke auf „Neue Story“ im Board oder im Backlog. Gib der Story einen Titel und speichere sie mit dem Knopf oder mit Strg+Enter. Fehlt der Titel, steht unter dem Feld eine Meldung.\n„Hinzufügen und weitere“ (Strg+Umschalt+Enter) behält Epic, Sprint und Punkte für die nächste Story.\nEine neue Story beginnt in der ersten Spalte."
+        "body": "Klicke auf „Neue Story“ im Board oder im Backlog. Gib der Story einen Titel und speichere sie. Fehlt der Titel, steht unter dem Feld eine Meldung.\n„Hinzufügen und weitere“ behält Epic, Sprint und Punkte für die nächste Story.\nEine neue Story beginnt in der ersten Spalte."
       },
       "story.menu": {
         "title": "Story über das Menü ändern",
@@ -929,6 +931,11 @@
         "title": "Das Backlog ordnen",
         "keywords": "priorität reihenfolge ziehen sortieren",
         "body": "Das Backlog ist nach Priorität geordnet: Die oberste Story ist die wichtigste. Ziehe eine Zeile an eine andere Stelle, oder verschiebe sie mit der Tastatur: Leertaste zum Aufheben, Pfeiltasten zum Bewegen, Leertaste zum Ablegen.\nEine Story, die du in einen anderen Sprint-Abschnitt ablegst, wird in diesem Sprint geplant."
+      },
+      "backlog.points": {
+        "title": "Story-Punkte im Backlog ändern",
+        "keywords": "punkte schätzung ändern zahl sprint summe",
+        "body": "Klicke auf die runden Punkte einer Story (oder wähle sie mit Tab und drücke Enter), tippe eine ganze Zahl von 0 bis 100 und speichere mit Enter oder mit einem Klick daneben. Escape bricht ab. Ein leeres Feld entfernt die Punkte.\nIst die Eingabe ungültig, wird das Feld rot und sagt, was erlaubt ist; gespeichert wird nichts.\nDie Summe des Sprints über den Stories passt sich sofort an."
       },
       "backlog.sprints": {
         "title": "Backlog und Sprintlinie",
@@ -968,7 +975,7 @@
       "search.basics": {
         "title": "Suche",
         "keywords": "finden filter strg+f feld status epic sprint",
-        "body": "Drücke Strg+F (Cmd+F auf dem Mac), um Stories, Epics und Sprints zu suchen. Mehrere Wörter müssen alle vorkommen; Text in Anführungszeichen wird als Wortfolge gesucht.\nEngere Suchen gelingen mit Filtern wie status:done: Tippe @, um alle Felder zu sehen."
+        "body": "Nutze das Suchfeld oben, um Stories, Epics und Sprints zu suchen. Mehrere Wörter müssen alle vorkommen; Text in Anführungszeichen wird als Wortfolge gesucht.\nEngere Suchen gelingen mit Filtern wie status:done: Tippe @, um alle Felder zu sehen."
       },
       "shortcuts": {
         "title": "Tastenkürzel",
@@ -1023,7 +1030,6 @@
     }
   },
   "dialog": {
-    "saveHint": "{{mod}}+Enter speichert · Esc bricht ab",
     "discardTitle": "Eingaben verwerfen?",
     "keepEditing": "Weiter bearbeiten",
     "discard": "Verwerfen"

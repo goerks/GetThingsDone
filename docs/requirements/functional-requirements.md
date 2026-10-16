@@ -10,7 +10,7 @@ As a team member, I want to see the stories of the current sprint in columns by 
 - Each column is a clearly separated lane with its own background, border and header line, as tall as the board.
 - Only stories in the sprint are shown, ordered by backlog priority.
 - An empty column shows a drop hint.
-- A card shows key, title (link to the detail), criteria progress, epic and points. Hidden built-in fields (FR-FIELD-10) are left out.
+- A card shows key, priority letter, points, title, epic, labels and the criteria count (FR-UI-01). Hidden built-in fields (FR-FIELD-10) are left out.
 
 Source: Vision, PO feedback · Status: Implemented · Verified by: App "shows the demo stories in their columns", "does not show stories that are not in the sprint", "shows each column as its own lane"
 
@@ -688,6 +688,30 @@ Verified by: unit `src/domain/changeLog.test.ts` and `src/domain/textDiff.test.t
 Settings › Team (`#/settings/team`, #18) holds the team as a plain list: name and initials, no accounts, no colour. Members are added, changed and removed there; the initials are derived from the name (first letter of the first and last word, at most 3 characters) and can be changed; they follow a renamed member while they were not changed by hand. Initials are unique and at most 3 characters, names are unique, and an empty name or initials are refused with a hint. Removing a member without stories is immediate; with stories it asks first and leaves the stories unassigned. A story is assigned to one member or nobody in the story dialog and in "New story" (field "Assigned to"). A round badge with the initials shows on board cards (top right), backlog rows and story map cards; an unassigned story shows a dashed empty badge, a team without members shows no badge; the full name is the tooltip and the text for assistive technology. Above the board a filter bar shows all, one member or "Unassigned"; a filter on a removed member shows everything again. The search finds stories by the name or initials of the assignee and has the filter field "Assigned". The team and the assignments are part of export and import (older files import with an empty team), the change history records an assignment as a change of the field "Assigned to", and the demo data hold a team of three. The team is a feature with a switch in Settings › Features, like releases: off for a new project, on in the demo data. While it is off nothing of it shows (no section "Team", no field "Assigned to", no badge, no filter bar, no assignee in the search; the address of Settings › Team leads to the features); members and assignments are kept, stay in export and import and come back when it is switched on, and the history keeps showing assignments. Texts in DE, EN, FR and IT, keyboard operable, help topic "Team and assignment" (it starts with switching the team on).
 
 Source: #18 · Status: Implemented · Verified by: unit `src/domain/members.test.ts` (AC1.1–AC1.4, AC1.6, AC4.1–AC4.4, AC5.1, AC5.3, AC6.1–AC6.3, AC7.1–AC7.3), repositories `src/data/sqliteRepository.test.ts` (AC1.1, AC5.1, AC7.1, AC7.3), component `src/Team.test.tsx` (AC1.1–AC1.6, AC2.1–AC2.5, AC3.1–AC3.5, AC4.1–AC4.5, AC5.1–AC5.2, AC7.2), e2e `e2e/team.spec.ts` (AC2.1, AC2.5, AC4.1); AC3.4 is checked by hand; AC8 (the switch): `src/Team.test.tsx` (AC8.1–AC8.3, AC8.5–AC8.7) and `src/domain/members.test.ts` (AC8.2–AC8.4, AC8.6)
+
+## Major UI update (UI)
+
+### FR-UI-01 Recognisable, compact board cards
+As a team member, I want cards that read as cards and take little room.
+- A card is a light surface with a border and a soft shadow on a tinted column, with clear spacing; hover, keyboard focus and dragging each look different.
+- The card shows the key, the value of single-select card fields (such as the priority) as a letter in a coloured square (M, S, C, W; the full word is the tooltip and the screen reader text), the points, and the title.
+- One line below holds the epic first, then the labels (multi-select and other card field values) as mini chips; at most two chips are shown, the rest becomes "+n" with a tooltip.
+- "☑ done/total" ends that line, green when all criteria are accepted; no progress bar. Screen readers read "2 of 4 criteria accepted".
+- The "Compact" toggle button in the page head (same behaviour as on the story map, choice remembered in `getitdone.boardCompact`) shows one line per story: letter, title, epic dot, "☑ done/total", points.
+
+Source: #55 · Status: Implemented · Verified by: #55 AC1.1–AC4.5 (`src/UiUpdate.test.tsx`, `e2e/uiUpdate.spec.ts`); look in light and dark: manual (AC1.1, AC1.2)
+
+### FR-UI-02 Backlog: round points, number outside, inline points
+- The points in a sprint header look like the points of a story (round).
+- The item number (key) stands outside the row, on its left; the rank is part of the row's accessible name.
+- A click or Enter on the points of a story turns them into an input: Enter or leaving the field saves, Escape cancels. Valid are whole numbers from 0 to 100; an empty field removes the points (0). Anything else is not saved and shows "Only numbers, 0–100". The sprint total follows at once.
+
+Source: #55 · Status: Implemented · Verified by: #55 AC5.1, AC6.1, AC7.1–AC7.7 (`src/domain/board.test.ts` `parsePoints`, `src/UiUpdate.test.tsx`, `e2e/uiUpdate.spec.ts`)
+
+### FR-UI-03 No shortcut hints on screen
+The shortcuts keep working and are announced with `aria-keyshortcuts`, but they are not written on buttons, in the search box and its list, in dialogs or in help texts. Only the shortcut overview (the keyboard button and its help topic) names them. The first steps are not part of this change.
+
+Source: #55 · Status: Implemented · Verified by: #55 AC8.1–AC8.5 (`src/UiUpdate.test.tsx`, `src/help/noShortcutHints.test.ts`, `e2e/uiUpdate.spec.ts`)
 
 ## Later
 

@@ -60,6 +60,12 @@ Status value decisions (#5, recorded here and in the issue): status values are t
 - **Quick add** (`QuickAdd.tsx`) creates a story with the defaults of its place; with a required custom field without default it hands over to `NewStoryDialog`.
 - **Acceptance panel** (`src/acceptance/`): the test cases of a pull request are data (`package<n>.ts`); `Panel.tsx` shows them step by step in previews only (`preview.ts`), keeps marks, comments and the step in `localStorage`, and copies the result as text for the chat with the AI. It is German only because it shows the German test cases for the PO.
 
+## Cards and inline points (#55)
+
+`StoryCard.tsx` builds a card from `useCardFields`: single-select card fields become letters (first letter of the option, full text as title and `sr-only`), all other card field values become chips, of which `MAX_CHIPS` (2) are shown and the rest is "+n". The same component renders the compact line (`compact` prop, set by the "Compact" toggle of `BoardPage`, stored in `localStorage` under `getitdone.boardCompact`). The story map keeps `CardFieldValues`.
+
+`PointsEdit.tsx` edits the points of a backlog row in place. It stops pointer and key events from reaching the sortable row (no drag, no open). `parsePoints` in `domain/board.ts` decides what is valid (0 to 100, empty is 0). Shortcut hints are no longer rendered anywhere; shortcuts are announced with `aria-keyshortcuts` only.
+
 ## Theming
 
 Colours, spacing and radii are CSS custom properties in `docs/design/tokens.css`. Epic colours are `--epic-<key>`; each reaches at least 3:1 against cards and columns in both themes and is always shown with the epic name. The theme is set with `data-theme="light|dark"` on the root element, stored locally and initialised from the system preference.

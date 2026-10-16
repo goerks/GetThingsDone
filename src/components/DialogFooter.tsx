@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { modKey } from './platform';
 
 interface Props {
   /** Label of the primary button, which submits the form. */
@@ -10,7 +9,7 @@ interface Props {
   children?: ReactNode;
 }
 
-/** The footer of every create dialog: "Cancel" and the primary button at the right, the shortcut hint under them (#32, U3). */
+/** The footer of every create dialog: "Cancel" and the primary button at the right, (#32, U3). */
 export function DialogFooter({ submit, onCancel, children }: Props) {
   const { t } = useTranslation();
   return (
@@ -24,7 +23,6 @@ export function DialogFooter({ submit, onCancel, children }: Props) {
           {submit}
         </button>
       </div>
-      <p className="create-footer__hint">{t('dialog.saveHint', { mod: modKey() })}</p>
     </div>
   );
 }

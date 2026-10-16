@@ -40,11 +40,13 @@
     "toMap": "Create one on the story map",
     "columns": "Board columns",
     "bandCount_one": "{{count}} story in this category",
-    "bandCount_other": "{{count}} stories in this category"
+    "bandCount_other": "{{count}} stories in this category",
+    "compact": "Compact"
   },
   "card": {
     "criteria": "{{done}} of {{total}} criteria accepted",
-    "points": "{{count}} points"
+    "points": "{{count}} points",
+    "more": "{{count}} more: {{names}}"
   },
   "newStory": {
     "open": "New story",
@@ -77,7 +79,9 @@
       "instructions": "Press space to pick up a story. Use the arrow keys to move it, space to drop it and escape to cancel. Press enter to open the story.",
       "over": "{{title}} would become rank {{rank}} in {{section}}.",
       "dropped": "{{title}} is now rank {{rank}}."
-    }
+    },
+    "pointsInvalid": "Only numbers, 0–100",
+    "pointsInput": "{{label}} of {{code}}"
   },
   "detail": {
     "description": "Description",
@@ -573,12 +577,6 @@
     "withoutFilter": "Search without {{filter}}",
     "reset": "Clear everything and start over",
     "emptyHint": "Type to search stories, epics and sprints, or pick a filter.",
-    "keys": {
-      "move": "move",
-      "open": "open",
-      "close": "close",
-      "fields": "fields"
-    },
     "clearHistory": "Clear history",
     "highlightSummary_one": "{{matches}} of {{count}} story here matches",
     "highlightSummary_other": "{{matches}} of {{count}} stories here match",
@@ -610,7 +608,6 @@
     "new": "New release",
     "add": "Add release",
     "newCard": "+ Release",
-    "shortcut": "Ctrl+N",
     "create": "Create a release",
     "name": "Title",
     "description": "Description",
@@ -900,6 +897,11 @@
         "keywords": "status column drag drop keyboard arrow change",
         "body": "Drag a card into another column to change its status. With the keyboard, choose the card, press Space to pick it up, move it with the arrow keys and press Space again to drop it. Escape cancels.\nThe change is saved at once."
       },
+      "board.card": {
+        "title": "Read a card",
+        "keywords": "card priority letter epic label tasks criteria compact one line points",
+        "body": "A card shows the key, the priority as a letter (M, S, C, W: point at it for the full word) and the points at the top, then the title.\nThe line below holds the epic first, then the labels as small chips; what does not fit becomes “+2” (point at it to see the rest). At its right end “☑ 2/4” counts the accepted acceptance criteria; it turns green when all are accepted.\nThe “Compact” button in the page head shows one line per story. Your choice is remembered."
+      },
       "board.columns": {
         "title": "Columns and status values",
         "keywords": "status values workflow category",
@@ -912,8 +914,8 @@
       },
       "story.create": {
         "title": "Create a story",
-        "keywords": "new story add ctrl+n another",
-        "body": "Press Ctrl+N (Cmd+N on a Mac) or use the “New story” button on the Board or the Backlog. Give the story a title and save it with the button or with Ctrl+Enter. If the title is missing, a message under the field says so.\n“Add and add another” (Ctrl+Shift+Enter) keeps epic, sprint and points for the next story.\nA new story starts in the first column."
+        "keywords": "new story add another",
+        "body": "Use the “New story” button on the Board or the Backlog. Give the story a title and save it. If the title is missing, a message under the field says so.\n“Add and add another” keeps epic, sprint and points for the next story.\nA new story starts in the first column."
       },
       "story.menu": {
         "title": "Change a story from its menu",
@@ -929,6 +931,11 @@
         "title": "Order the backlog",
         "keywords": "priority rank drag reorder sort",
         "body": "The backlog is ordered by priority: the story at the top is the most important. Drag a row to another place, or move it with the keyboard: Space to pick up, arrow keys to move, Space to drop.\nA story you drop into another sprint section is planned in that sprint."
+      },
+      "backlog.points": {
+        "title": "Change story points in the backlog",
+        "keywords": "points estimate edit number sprint total",
+        "body": "Click the round points of a story (or choose them with Tab and press Enter), type a whole number from 0 to 100 and press Enter or click away to save. Escape cancels. An empty field removes the points.\nIf the input is not valid, the field turns red and says what is allowed; nothing is saved.\nThe sprint total above the stories updates at once."
       },
       "backlog.sprints": {
         "title": "Backlog and the sprint line",
@@ -968,7 +975,7 @@
       "search.basics": {
         "title": "Search",
         "keywords": "find filter ctrl+f field status epic sprint",
-        "body": "Press Ctrl+F (Cmd+F on a Mac) to search stories, epics and sprints. Several words must all occur; text in double quotes is searched as a phrase.\nNarrow the search with filters such as status:done: type @ to see all fields."
+        "body": "Use the search field at the top to search stories, epics and sprints. Several words must all occur; text in double quotes is searched as a phrase.\nNarrow the search with filters such as status:done: type @ to see all fields."
       },
       "shortcuts": {
         "title": "Keyboard shortcuts",
@@ -1023,7 +1030,6 @@
     }
   },
   "dialog": {
-    "saveHint": "{{mod}}+Enter saves · Esc cancels",
     "discardTitle": "Discard input?",
     "keepEditing": "Keep editing",
     "discard": "Discard"

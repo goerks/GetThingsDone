@@ -40,11 +40,13 @@
     "toMap": "En créer un sur la story map",
     "columns": "Colonnes du tableau",
     "bandCount_one": "{{count}} story dans cette catégorie",
-    "bandCount_other": "{{count}} stories dans cette catégorie"
+    "bandCount_other": "{{count}} stories dans cette catégorie",
+    "compact": "Compact"
   },
   "card": {
     "criteria": "{{done}} critères acceptés sur {{total}}",
-    "points": "{{count}} points"
+    "points": "{{count}} points",
+    "more": "{{count}} de plus : {{names}}"
   },
   "newStory": {
     "open": "Nouvelle story",
@@ -77,7 +79,9 @@
       "instructions": "Appuyez sur espace pour saisir une story. Déplacez-la avec les flèches, déposez-la avec espace, annulez avec échap. Appuyez sur entrée pour ouvrir la story.",
       "over": "{{title}} deviendrait rang {{rank}} dans {{section}}.",
       "dropped": "{{title}} est maintenant au rang {{rank}}."
-    }
+    },
+    "pointsInvalid": "Uniquement des nombres, 0–100",
+    "pointsInput": "{{label}} de {{code}}"
   },
   "detail": {
     "description": "Description",
@@ -573,12 +577,6 @@
     "withoutFilter": "Rechercher sans {{filter}}",
     "reset": "Tout effacer et recommencer",
     "emptyHint": "Saisissez du texte pour chercher des stories, epics et sprints, ou choisissez un filtre.",
-    "keys": {
-      "move": "choisir",
-      "open": "ouvrir",
-      "close": "fermer",
-      "fields": "champs"
-    },
     "clearHistory": "Effacer l’historique",
     "highlightSummary_one": "{{matches}} story sur {{count}} correspond ici",
     "highlightSummary_other": "{{matches}} stories sur {{count}} correspondent ici",
@@ -610,7 +608,6 @@
     "new": "Nouvelle release",
     "add": "Ajouter la release",
     "newCard": "+ Release",
-    "shortcut": "Ctrl+N",
     "create": "Créer une release",
     "name": "Titre",
     "description": "Description",
@@ -900,6 +897,11 @@
         "keywords": "statut colonne glisser deposer clavier fleches changer",
         "body": "Faites glisser une carte dans une autre colonne pour changer son statut. Au clavier, choisissez la carte, appuyez sur Espace pour la saisir, déplacez-la avec les flèches et appuyez de nouveau sur Espace pour la déposer. Échap annule.\nLe changement est enregistré immédiatement."
       },
+      "board.card": {
+        "title": "Lire une carte",
+        "keywords": "carte priorité lettre epic label tâches critères compact ligne points",
+        "body": "Une carte montre en haut la clé, la priorité sous forme de lettre (M, S, C, W : survolez-la pour voir le mot entier) et les points, puis le titre.\nLa ligne du dessous contient d’abord l’epic, puis les labels sous forme de petites pastilles ; ce qui ne tient pas devient « +2 » (survolez-le pour voir le reste). À droite, « ☑ 2/4 » compte les critères d’acceptation validés ; il devient vert quand tous le sont.\nLe bouton « Compact » de l’en-tête affiche une ligne par story. Votre choix est mémorisé."
+      },
       "board.columns": {
         "title": "Colonnes et valeurs de statut",
         "keywords": "statuts valeurs workflow categorie",
@@ -913,7 +915,7 @@
       "story.create": {
         "title": "Créer une story",
         "keywords": "nouvelle story ajouter ctrl+n une autre",
-        "body": "Appuyez sur Ctrl+N (Cmd+N sur Mac) ou utilisez le bouton « Nouvelle story » du tableau ou du backlog. Donnez un titre à la story et enregistrez-la avec le bouton ou avec Ctrl+Entrée. Si le titre manque, un message sous le champ le dit.\n« Ajouter et en ajouter une autre » (Ctrl+Maj+Entrée) garde l’epic, le sprint et les points pour la story suivante.\nUne nouvelle story commence dans la première colonne."
+        "body": "Utilisez le bouton « Nouvelle story » du tableau ou du backlog. Donnez un titre à la story et enregistrez-la. Si le titre manque, un message sous le champ le dit.\n« Ajouter et en ajouter une autre » garde l’epic, le sprint et les points pour la story suivante.\nUne nouvelle story commence dans la première colonne."
       },
       "story.menu": {
         "title": "Modifier une story depuis son menu",
@@ -929,6 +931,11 @@
         "title": "Ordonner le backlog",
         "keywords": "priorite ordre glisser trier",
         "body": "Le backlog est classé par priorité : la story du haut est la plus importante. Faites glisser une ligne à un autre endroit, ou déplacez-la au clavier : Espace pour saisir, flèches pour déplacer, Espace pour déposer.\nUne story déposée dans une autre section de sprint est planifiée dans ce sprint."
+      },
+      "backlog.points": {
+        "title": "Modifier les points d’une story dans le backlog",
+        "keywords": "points estimation modifier nombre sprint total",
+        "body": "Cliquez sur les points arrondis d’une story (ou choisissez-les avec Tab et appuyez sur Entrée), saisissez un nombre entier de 0 à 100 et enregistrez avec Entrée ou en cliquant ailleurs. Échap annule. Un champ vide supprime les points.\nSi la saisie n’est pas valide, le champ devient rouge et indique ce qui est permis ; rien n’est enregistré.\nLe total du sprint au-dessus des stories se met à jour aussitôt."
       },
       "backlog.sprints": {
         "title": "Backlog et ligne de sprint",
@@ -968,7 +975,7 @@
       "search.basics": {
         "title": "Recherche",
         "keywords": "trouver filtre ctrl+f champ statut epic sprint",
-        "body": "Appuyez sur Ctrl+F (Cmd+F sur Mac) pour chercher des stories, des epics et des sprints. Tous les mots doivent apparaître ; un texte entre guillemets est cherché comme expression.\nAffinez avec des filtres comme status:done : tapez @ pour voir tous les champs."
+        "body": "Utilisez le champ de recherche en haut pour chercher des stories, des epics et des sprints. Tous les mots doivent apparaître ; un texte entre guillemets est cherché comme expression.\nAffinez avec des filtres comme status:done : tapez @ pour voir tous les champs."
       },
       "shortcuts": {
         "title": "Raccourcis clavier",
@@ -1023,7 +1030,6 @@
     }
   },
   "dialog": {
-    "saveHint": "{{mod}}+Entrée enregistre · Échap annule",
     "discardTitle": "Abandonner la saisie ?",
     "keepEditing": "Continuer la saisie",
     "discard": "Abandonner"
