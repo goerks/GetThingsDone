@@ -980,8 +980,8 @@
       },
       "workflow.basics": {
         "title": "Workflows: erlaubte Statuswechsel",
-        "keywords": "workflow übergang übergänge erlaubt gesperrt status wechsel start ende löschen sperre kategorie frei",
-        "body": "Ein Workflow legt fest, in welche Status eine Story als Nächstes wechseln darf, wo neue Stories starten und aus welchen Status sie gelöscht werden können. Er gilt für Stories; Epics haben keinen.\n1. Öffne Einstellungen → Workflows und schalte „Workflow aktivieren“ ein. Standardmässig ist er aus, und solange er aus ist, ist jeder Wechsel erlaubt. Was du einstellst, bleibt gespeichert.\n2. Die Liste „von hier aus nach …“ hat eine Zeile pro Status. Eine eingeschaltete Schaltfläche bedeutet erlaubt. „Ende (löschen)“ bestimmt, ob Stories aus diesem Status gelöscht werden können. In der Zeile „Neue Story“ wählst du, wo neue Stories starten; mindestens ein Start bleibt an.\n3. Jede Kategorie hat einen Schalter „Freie Übergänge innerhalb der Kategorie“. Eingeschaltet ist jeder Wechsel innerhalb der Kategorie erlaubt; einzelne kannst du trotzdem sperren („mit Ausnahmen“).\nAuf dem Board sperrt eine gezogene Story die Spalten, in die sie nicht darf; fahre mit dem Zeiger darüber, um den Grund zu lesen. Loslassen dort ändert nichts und nennt den Grund. Das Story-Fenster und die Menüs bieten nur erlaubte Status an. Stories, die schon in einem Status stehen, bleiben dort, wenn der Workflow sich ändert."
+        "keywords": "workflow übergang übergänge erlaubt gesperrt status wechsel start ende löschen sperre kategorie frei version versionen verlauf zurück wiederherstellen",
+        "body": "Ein Workflow legt fest, in welche Status eine Story als Nächstes wechseln darf, wo neue Stories starten und aus welchen Status sie gelöscht werden können. Er gilt für Stories; Epics haben keinen.\n1. Öffne Einstellungen → Workflows und schalte „Workflow aktivieren“ ein. Standardmässig ist er aus, und solange er aus ist, ist jeder Wechsel erlaubt. Was du einstellst, bleibt gespeichert.\n2. Die Liste „von hier aus nach …“ hat eine Zeile pro Status. Eine eingeschaltete Schaltfläche bedeutet erlaubt. „Ende (löschen)“ bestimmt, ob Stories aus diesem Status gelöscht werden können. In der Zeile „Neue Story“ wählst du, wo neue Stories starten; mindestens ein Start bleibt an.\n3. Jede Kategorie hat einen Schalter „Freie Übergänge innerhalb der Kategorie“. Eingeschaltet ist jeder Wechsel innerhalb der Kategorie erlaubt; einzelne kannst du trotzdem sperren („mit Ausnahmen“).\nAuf dem Board sperrt eine gezogene Story die Spalten, in die sie nicht darf; fahre mit dem Zeiger darüber, um den Grund zu lesen. Loslassen dort ändert nichts und nennt den Grund. Das Story-Fenster und die Menüs bieten nur erlaubte Status an. Stories, die schon in einem Status stehen, bleiben dort, wenn der Workflow sich ändert.\nJede Änderung des Workflows wird auf derselben Seite unter „Versionen“ als Version gespeichert (Datum und Uhrzeit, optional ein Name). Nach einer Bestätigung kannst du zu jeder früheren Version zurückkehren; sie wird zur aktuellen, und nichts wird gelöscht."
       },
       "data.backup": {
         "title": "Daten sichern und mitnehmen",
@@ -1276,6 +1276,20 @@
     },
     "warning": {
       "noEnd": "Von keinem Status führt ein Übergang zum Ende, deshalb kann keine Story gelöscht werden. Du kannst trotzdem speichern."
+    },
+    "versions": {
+      "title": "Versionen",
+      "hint": "Jede Änderung des Workflows wird als Version gespeichert. Du kannst zu jeder früheren Version zurückkehren; nichts wird gelöscht.",
+      "empty": "Noch keine Änderungen. Die erste Änderung legt eine Version an.",
+      "current": "Aktuell",
+      "name": "Name der Version vom {{at}}",
+      "namePlaceholder": "Name (optional)",
+      "restore": "Zu dieser Version zurückkehren",
+      "restoreLabel": "Zur Version vom {{at}} zurückkehren",
+      "confirm": "Zur Version vom {{at}} zurückkehren? Sie wird zur aktuellen Version; alle Versionen bleiben erhalten.",
+      "confirmYes": "Zurückkehren",
+      "cancel": "Abbrechen",
+      "restored": "Der Workflow ist wieder bei der Version vom {{at}}."
     }
   }
 }

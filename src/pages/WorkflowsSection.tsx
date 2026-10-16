@@ -5,6 +5,7 @@ import { CATEGORY_COLORS, STATUS_CATEGORIES, statusColor, statusesIn } from '../
 import type { StatusCategory } from '../domain/types';
 import { WORKFLOW_END, canBeFree, canDelete, canMove, canSwitchOffStart, hasExceptions, leadsToEnd, setEnabled, setFree, setStart, setTransition, startStatuses } from '../domain/workflow';
 import { useApp } from '../state/AppState';
+import { WorkflowVersions } from './WorkflowVersions';
 
 /** A target of a transition as a toggle button: on means allowed. */
 function Chip({ on, label, name, end, disabled, title, onToggle }: { on: boolean; label: string; name: string; end?: boolean; disabled?: boolean; title?: string; onToggle: () => void }) {
@@ -175,6 +176,7 @@ export function WorkflowsSection() {
               </section>
             );
           })}
+          <WorkflowVersions />
         </div>
       )}
     </div>

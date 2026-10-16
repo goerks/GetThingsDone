@@ -980,8 +980,8 @@
       },
       "workflow.basics": {
         "title": "Workflow: cambi di stato consentiti",
-        "keywords": "workflow transizione consentito vietato stato passaggio inizio fine elimina blocco categoria libero",
-        "body": "Un workflow indica verso quali stati una story può passare dopo, dove iniziano le nuove story e da quali stati possono essere eliminate. Vale per le story; gli epic non ne hanno.\n1. Apri Impostazioni → Workflow e attiva «Attiva il workflow». È disattivato per impostazione predefinita e, finché lo è, ogni passaggio è consentito. Ciò che imposti resta salvato.\n2. L’elenco «da qui verso …» ha una riga per stato. Un pulsante attivo significa consentito. «Fine (elimina)» decide se le story possono essere eliminate da quello stato. Nella riga «Nuova story» scegli dove iniziano le nuove story; almeno un inizio resta attivo.\n3. Ogni categoria ha un interruttore «Transizioni libere nella categoria». Se attivo, ogni passaggio nella categoria è consentito; puoi comunque vietarne alcuni («con eccezioni»).\nSulla bacheca, una story trascinata blocca le colonne in cui non può andare; passa il puntatore per leggere il motivo. Rilasciarla lì non cambia nulla e ne dice il motivo. La finestra della story e i menu offrono solo gli stati consentiti. Le story già in uno stato vi restano quando il workflow cambia."
+        "keywords": "workflow transizione consentito vietato stato passaggio inizio fine elimina blocco categoria libero versione versioni cronologia ripristinare tornare",
+        "body": "Un workflow indica verso quali stati una story può passare dopo, dove iniziano le nuove story e da quali stati possono essere eliminate. Vale per le story; gli epic non ne hanno.\n1. Apri Impostazioni → Workflow e attiva «Attiva il workflow». È disattivato per impostazione predefinita e, finché lo è, ogni passaggio è consentito. Ciò che imposti resta salvato.\n2. L’elenco «da qui verso …» ha una riga per stato. Un pulsante attivo significa consentito. «Fine (elimina)» decide se le story possono essere eliminate da quello stato. Nella riga «Nuova story» scegli dove iniziano le nuove story; almeno un inizio resta attivo.\n3. Ogni categoria ha un interruttore «Transizioni libere nella categoria». Se attivo, ogni passaggio nella categoria è consentito; puoi comunque vietarne alcuni («con eccezioni»).\nSulla bacheca, una story trascinata blocca le colonne in cui non può andare; passa il puntatore per leggere il motivo. Rilasciarla lì non cambia nulla e ne dice il motivo. La finestra della story e i menu offrono solo gli stati consentiti. Le story già in uno stato vi restano quando il workflow cambia.\nOgni modifica del workflow viene salvata come versione (data e ora, facoltativamente un nome) sotto «Versioni» nella stessa pagina. Dopo una conferma puoi tornare a qualsiasi versione precedente; diventa quella attuale e non viene eliminato nulla."
       },
       "data.backup": {
         "title": "Salvare e portare con sé i dati",
@@ -1276,6 +1276,20 @@
     },
     "warning": {
       "noEnd": "Nessuno stato porta alla fine, quindi nessuna story può essere eliminata. Puoi comunque salvare."
+    },
+    "versions": {
+      "title": "Versioni",
+      "hint": "Ogni modifica del workflow viene salvata come versione. Puoi tornare a qualsiasi versione precedente; non viene eliminato nulla.",
+      "empty": "Nessuna modifica finora. La prima modifica crea una versione.",
+      "current": "Attuale",
+      "name": "Nome della versione del {{at}}",
+      "namePlaceholder": "Nome (facoltativo)",
+      "restore": "Torna a questa versione",
+      "restoreLabel": "Torna alla versione del {{at}}",
+      "confirm": "Tornare alla versione del {{at}}? Diventa la versione attuale; tutte le versioni vengono mantenute.",
+      "confirmYes": "Torna indietro",
+      "cancel": "Annulla",
+      "restored": "Il workflow è tornato alla versione del {{at}}."
     }
   }
 }

@@ -1,6 +1,6 @@
 import { STATUS_CATEGORIES, categoryOf, startStatus, statusesIn } from './statuses';
 import { WORKFLOW_END } from './types';
-import type { StatusCategory, StatusValue, StoryWorkflow, Workflow } from './types';
+import type { StatusCategory, StatusValue, StoryWorkflow, Workflow, WorkflowVersion } from './types';
 
 export { WORKFLOW_END };
 
@@ -12,16 +12,14 @@ export const DEFAULT_STORY_WORKFLOW: StoryWorkflow = {
 };
 
 /** Off by default (#49): while it is off nothing is restricted. */
-export const DEFAULT_WORKFLOW: Workflow = { enabled: false, story: DEFAULT_STORY_WORKFLOW };
+export const DEFAULT_WORKFLOW: Workflow = { enabled: false, versions: [], story: DEFAULT_STORY_WORKFLOW };
 
 const isOn = (value: unknown): boolean => value === true || value === 'true' || value === 1 || value === '1';
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const texts = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
 
-/** The workflow from stored data; missing or unknown parts get their defaults. */
-export function normalizeWorkflow(stored: unknown): Workflow {
-  const raw = isRecord(stored) ? stored : {};
-  const story = isRecord(raw.story) ? raw.story : {};
+function normalizeStory(stored: unknown): StoryWorkflow {
+  const story = isRecord(stored) ? stored : {};
   const blocked: Record<string, string[]> = {};
   if (isRecord(story.blocked)) {
     for (const [from, targets] of Object.entries(story.blocked)) {
@@ -32,7 +30,25 @@ export function normalizeWorkflow(stored: unknown): Workflow {
   const free = { ...DEFAULT_STORY_WORKFLOW.free };
   if (isRecord(story.free)) for (const category of STATUS_CATEGORIES) if (story.free[category] === false || story.free[category] === 'false') free[category] = false;
   const start = Array.isArray(story.start) ? [...new Set(texts(story.start))] : null;
-  return { enabled: isOn(raw.enabled), story: { start: start && start.length > 0 ? start : null, blocked, free } };
+  return { start: start && start.length > 0 ? start : null, blocked, free };
+}
+
+function normalizeVersions(stored: unknown): WorkflowVersion[] {
+  if (!Array.isArray(stored)) return [];
+  const versions: WorkflowVersion[] = [];
+  for (const item of stored) {
+    if (!isRecord(item) || typeof item.id !== 'string' || typeof item.at !== 'string') continue;
+    const version: WorkflowVersion = { id: item.id, at: item.at, story: normalizeStory(item.story) };
+    if (typeof item.name === 'string' && item.name.trim() !== '') version.name = item.name.trim();
+    versions.push(version);
+  }
+  return versions;
+}
+
+/** The workflow from stored data; missing or unknown parts get their defaults. */
+export function normalizeWorkflow(stored: unknown): Workflow {
+  const raw = isRecord(stored) ? stored : {};
+  return { enabled: isOn(raw.enabled), versions: normalizeVersions(raw.versions), story: normalizeStory(raw.story) };
 }
 
 /**
@@ -162,4 +178,45 @@ export function pruneWorkflow(workflow: Workflow, statuses: readonly StatusValue
     }
   }
   return changed ? withStory(workflow, { ...workflow.story, blocked, start }) : workflow;
+}
+
+// ----- versions (AC12) -----
+
+const sameStory = (a: StoryWorkflow, b: StoryWorkflow): boolean => JSON.stringify(a) === JSON.stringify(b);
+
+/** The versions of the workflow, newest first. */
+export function versionsNewestFirst(workflow: Workflow): WorkflowVersion[] {
+  return [...workflow.versions].reverse();
+}
+
+/** The id of the current version: the last one, as long as it equals the current state. */
+export function currentVersionId(workflow: Workflow): string | null {
+  const last = workflow.versions[workflow.versions.length - 1];
+  return last && sameStory(last.story, workflow.story) ? last.id : null;
+}
+
+/**
+ * Records a change: when the story workflow differs from `previous`, a version of the new state is added. The first
+ * change also keeps the state before it as the first version, so the user can go back to it. Switching the workflow on
+ * or off is no change of the workflow and creates no version.
+ */
+export function recordVersion(previous: Workflow, next: Workflow, at: string, newId: () => string): Workflow {
+  if (sameStory(previous.story, next.story)) return next;
+  const versions = previous.versions.length > 0 ? [...previous.versions] : [{ id: newId(), at, story: previous.story }];
+  versions.push({ id: newId(), at, story: next.story });
+  return { ...next, versions };
+}
+
+/** Gives a version a name; an empty name removes it. Creates no version. */
+export function nameVersion(workflow: Workflow, id: string, name: string): Workflow {
+  const trimmed = name.trim();
+  const rename = (version: WorkflowVersion): WorkflowVersion => ({ id: version.id, at: version.at, ...(trimmed === '' ? {} : { name: trimmed }), story: version.story });
+  return { ...workflow, versions: workflow.versions.map((version) => (version.id === id ? rename(version) : version)) };
+}
+
+/** Goes back to a version: its state becomes the current one as a new version. Nothing is deleted. */
+export function restoreVersion(workflow: Workflow, id: string, at: string, newId: () => string): Workflow {
+  const version = workflow.versions.find((item) => item.id === id);
+  if (!version) return workflow;
+  return recordVersion(workflow, { ...workflow, story: version.story }, at, newId);
 }

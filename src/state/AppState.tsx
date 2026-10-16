@@ -65,7 +65,7 @@ import {
   type ReleaseInput
 } from '../domain/releases';
 import { gatesToAsk, pruneChecks, setCheck as setCheckIn, withDoneSnapshots } from '../domain/definitions';
-import { canDelete, canMove, canStartIn, newStoryStatus, pruneWorkflow } from '../domain/workflow';
+import { canDelete, canMove, canStartIn, nameVersion, newStoryStatus, pruneWorkflow, recordVersion, restoreVersion } from '../domain/workflow';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import {
   DEFAULT_STATUSES,
@@ -174,6 +174,10 @@ interface AppApi {
   setDefinitions(definitions: Definitions): void;
   /** Sets the workflow of the team (#49): the switch, the start, the allowed transitions and the end. */
   setWorkflow(workflow: Workflow): void;
+  /** Gives a version of the workflow a name (#49, AC12.2). */
+  nameWorkflowVersion(id: string, name: string): void;
+  /** Goes back to an earlier version of the workflow: it becomes the current one as a new version, nothing is deleted (#49, AC12.3). */
+  restoreWorkflowVersion(id: string): void;
   /** Sets an item of a story to "checked" or "not relevant", or makes it open again (null). */
   setCheck(storyId: string, itemId: string, state: DefinitionCheck | null): void;
   /**
@@ -561,7 +565,8 @@ export function AppProvider({ repository, children }: Props) {
         if (!result) return false;
         update(result.stories, result.statuses);
         // The transitions of the removed value go with it (#49).
-        const workflow = pruneWorkflow(settingsRef.current.workflow, result.statuses);
+        const pruned = pruneWorkflow(settingsRef.current.workflow, result.statuses);
+        const workflow = recordVersion(settingsRef.current.workflow, pruned, new Date().toISOString(), newId);
         if (workflow !== settingsRef.current.workflow) {
           const settings = { ...settingsRef.current, workflow };
           updateSettings(settings);
@@ -702,7 +707,21 @@ export function AppProvider({ repository, children }: Props) {
       },
       setWorkflow(workflow) {
         if (settingsRef.current.workflow === workflow) return;
+        // Every change of the transitions adds a version (#49, AC12).
+        const settings = { ...settingsRef.current, workflow: recordVersion(settingsRef.current.workflow, workflow, new Date().toISOString(), newId) };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
+      },
+      nameWorkflowVersion(id, name) {
+        const workflow = nameVersion(settingsRef.current.workflow, id, name);
         const settings = { ...settingsRef.current, workflow };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
+      },
+      restoreWorkflowVersion(id) {
+        // The old state may name status values that are gone since: drop those, as when a status is removed.
+        const restored = pruneWorkflow(restoreVersion(settingsRef.current.workflow, id, new Date().toISOString(), newId), statusesRef.current);
+        const settings = { ...settingsRef.current, workflow: restored };
         updateSettings(settings);
         persist((repo) => repo.saveSettings(settings));
       },

@@ -5,7 +5,7 @@ import { startItemsOf } from '../domain/sprintLife';
 import { addDays, todayIso } from '../domain/sprints';
 import { DEFAULT_STATUSES } from '../domain/statuses';
 import { WORKFLOW_END, type Snapshot, type Sprint, type Workflow } from '../domain/types';
-import { DEFAULT_WORKFLOW, setEnabled, setFree, setTransition } from '../domain/workflow';
+import { DEFAULT_WORKFLOW, nameVersion, recordVersion, setEnabled, setFree, setTransition } from '../domain/workflow';
 
 /*
  * Test data for the acceptance in the preview: situations a test case needs that the demo data does not have, such as
@@ -178,6 +178,20 @@ export const PRESETS: readonly Preset[] = [
     title: 'Workflows: aus, aber mit gespeicherten Sperren',
     description: 'Dieselben Sperren wie bei „ein, mit Sperren“, aber der Workflow ist ausgeschaltet: Sie gelten nicht.',
     build: (today) => withWorkflow(today, restrictedWorkflow(false))
+  },
+  {
+    id: 'workflowVersions',
+    title: 'Workflows: Versionen, aktueller Stand kaputt',
+    description: 'Eingeschaltet. Es gibt drei Versionen: „Funktionierend“ (nur „To do → Done“ gesperrt), „Kaputt“ (zusätzlich ist alles aus „To do“ gesperrt) und den Stand davor ohne Sperren. Der aktuelle Stand ist der kaputte.',
+    build: (today) => {
+      let n = 0;
+      const newId = (): string => `version-${++n}`;
+      const base = setEnabled(DEFAULT_WORKFLOW, true);
+      const working = recordVersion(base, setTransition(base, 'todo', 'done', false), `${today}T09:00:00.000Z`, newId);
+      const named = nameVersion(working, working.versions[1].id, 'Funktionierend');
+      const broken = [['todo', 'in_progress'], ['todo', 'review']].reduce((workflow, [from, to]) => setTransition(workflow, from, to, false), named);
+      return withWorkflow(today, recordVersion(named, broken, `${today}T10:00:00.000Z`, newId));
+    }
   },
   {
     id: 'workflowStarts',

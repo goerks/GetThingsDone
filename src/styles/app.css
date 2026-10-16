@@ -6212,3 +6212,39 @@ a.btn {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Versions of the workflow (#49, AC12) */
+.workflow-versions {
+  margin-top: 1.5rem;
+}
+.workflow-version-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.workflow-version {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.workflow-version--current {
+  border-color: var(--accent, var(--border));
+}
+.workflow-version__name {
+  flex: 1 1 10rem;
+  min-width: 8rem;
+}
+.workflow-version__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  flex-basis: 100%;
+}

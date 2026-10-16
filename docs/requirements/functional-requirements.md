@@ -72,9 +72,10 @@ As a team, we want to define which statuses a story may move to next, where new 
 - Where a story's status is chosen (story dialog, card menu) only the current status and the allowed targets are offered. While a story is dragged on the board, columns it may not go to are locked, greyed with a lock, and name the reason on hover. A drop or keyboard move to a forbidden status changes nothing and shows a notice with the reason, which screen readers read out. The quick add of a column only exists where a story may start.
 - A story in a status without a transition to the end cannot be deleted: the story dialog refuses at once, with the reason. When no status leads to the end, the settings show a warning; saving stays possible.
 - Changing the workflow never changes existing stories. The workflow is stored per item type (stories only; epics have none) in the settings and travels with the export and import.
+- Every change of the transitions (including a removed status) saves a version of the workflow with date and time. Settings › Workflows lists the versions, newest first, and the user can name a version and go back to any earlier one after a confirmation: that state becomes the current one as a new version, nothing is deleted. All versions are kept, travel with the export and import, and switching the workflow on or off creates none.
 - Moving several stories at once, all or nothing, is built with the multi-select of #40.
 
-Source: #49, PO decisions of 2026-10-15 (`docs/design/workflow.md`); test cases AC1.1 to AC11.5 approved in issue #49 · Status: Implemented · Verified by: unit `src/domain/workflow.test.ts` (all cases), component `src/Workflows.test.tsx`, e2e `e2e/workflows.spec.ts` (AC1.1, AC2.3, AC3.1 to AC3.4, AC11.2); layout and look of the lock: manual check in Chromium
+Source: #49, PO decisions of 2026-10-15 (`docs/design/workflow.md`); test cases AC1.1 to AC12.6 approved in issue #49 (AC12 versions: PO, 2026-10-16) · Status: Implemented · Verified by: unit `src/domain/workflow.test.ts` (all cases), component `src/Workflows.test.tsx`, e2e `e2e/workflows.spec.ts` (AC1.1, AC2.3, AC3.1 to AC3.4, AC11.2); AC12.6 (keyboard and French texts): manual; layout and look of the lock: manual check in Chromium
 
 ## Backlog (BACKLOG)
 
