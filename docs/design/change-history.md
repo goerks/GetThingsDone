@@ -2,7 +2,7 @@
 
 Issue: [#23 Change history of stories and epics](https://github.com/goerks/getthingsdone/issues/23)
 
-Mockups (open in a browser; the mockup text is in German because it is reviewed in German): [`change-history-compare-variants.html`](change-history-compare-variants.html). Screenshots: `change-history-compare-a.png` to `-d.png`. Status: draft, variants proposed to the PO on 2026-10-16.
+Mockups (open in a browser; the mockup text is in German because it is reviewed in German): [`change-history-compare-variants.html`](change-history-compare-variants.html). Screenshots: `change-history-compare-a.png` to `-i.png`. Status: draft. PO on 2026-10-16: B and D are out; take the best of A and C (variant E).
 
 ## Idea
 
@@ -24,3 +24,11 @@ A **version** is one save of an item (V1, V2, …); several field changes in one
 - Added: green with **+**, removed: red and struck through with **−**, changed: amber edge with **~**. Never colour alone.
 - Entry point: button "Compare versions" in the "History" tab. Keyboard: arrows in the list, `A` and `B` set the two versions, Esc goes back; a swap button reverses the direction.
 - Open point: comparing descriptions needs the full old and new text in the history. This contradicts the earlier answer "long texts only say changed" (question 2 in #23) and needs a PO decision.
+
+## Chosen direction: E = A + C (PO, 2026-10-16)
+
+- **Compare view (E, `-e.png`):** the "From" / "To" pickers and the field table of A (older left, newer right, unchanged fields folded), plus the summary chips and the line by line text comparison of C for long texts. The pickers open a list of the versions with a short summary (`-f.png`).
+- **Entry points:** story, epic and sprint dialogs have no tabs, so each gets a panel "History" under the other panels: the last three entries, the link "Show all changes" and the button "Compare versions"; every entry offers "Compare with current" (`-g.png`). The release dialog already has tabs and gets a fifth tab "History".
+- **Full list (H, `-h.png`, `-i.png`):** one checkbox per version; with two ticked the bar "Compare" appears. The sprint list also names the stories that joined or left.
+- **Compare layer:** opens above the dialog with "Back to the story" and Esc.
+- **States without a mockup:** no history yet, the same version left and right ("No differences"), narrow window (the two columns stack with a heading each).
