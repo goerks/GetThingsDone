@@ -660,7 +660,7 @@ describe('sprint states (#17)', () => {
         ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
-    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql']);
+    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql']);
     return db;
   }
 
@@ -727,5 +727,58 @@ describe('sprint states (#17)', () => {
     };
     await repository.updateSprint(completed);
     expect((await repository.load()).sprints.find((sprint) => sprint.id === completed.id)).toEqual(completed);
+  });
+});
+
+describe('team members (#18)', () => {
+  it('AC7.1 stores the team and the assignments with the data and gives them back', async () => {
+    // Given the demo data with its team
+    const { repository } = await freshRepository();
+    const seeded = seedSnapshot('2026-10-11');
+    // When it is loaded
+    const loaded = await repository.load();
+    // Then the members are there in their order, and the stories keep their assignee
+    expect(loaded.members).toEqual(seeded.members);
+    expect(loaded.stories.find((story) => story.code === 'S-3')?.assigneeId).toBe('member-anna');
+    expect(loaded.stories.find((story) => story.code === 'S-4')?.assigneeId ?? null).toBeNull();
+  });
+
+  it('AC1.1 adds, changes and assigns, and the data stay', async () => {
+    // Given the demo data
+    const { repository } = await freshRepository();
+    // When I add a member, rename another and assign a story
+    await repository.addMember({ id: 'member-sara', name: 'Sara Meier', initials: 'SM' });
+    await repository.updateMember({ id: 'member-luca', name: 'Luca Rossi-Frei', initials: 'LRF' });
+    const story = (await repository.load()).stories.find((item) => item.code === 'S-4')!;
+    await repository.updateStory({ ...story, assigneeId: 'member-sara' });
+    // Then the next load shows all three changes
+    const loaded = await repository.load();
+    expect(loaded.members.map((member) => member.initials)).toEqual(['MB', 'AK', 'LRF', 'SM']);
+    expect(loaded.stories.find((item) => item.code === 'S-4')?.assigneeId).toBe('member-sara');
+  });
+
+  it('AC5.1 leaves the stories without assignee when a member is deleted', async () => {
+    // Given Anna has S-1 and S-3
+    const { db, repository } = await freshRepository();
+    // When her member is deleted
+    await repository.deleteMember('member-anna');
+    // Then the stories exist and are not assigned
+    const loaded = await repository.load();
+    expect(loaded.members.map((member) => member.id)).toEqual(['member-marco', 'member-luca']);
+    expect(loaded.stories.find((story) => story.code === 'S-3')?.assigneeId ?? null).toBeNull();
+    expect(db.prepare("SELECT COUNT(*) AS n FROM stories WHERE assignee_id IS NOT NULL").get()).toEqual({ n: 2 });
+  });
+
+  it('AC7.3 opens a database from before the team without a member and without assignment', async () => {
+    // Given a database of the version before the team, with a story
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 13));
+    db.exec(`INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, rank) VALUES ('a', 'S-1', 'Old story', '', NULL, 3, 'todo', NULL, 0)`);
+    // When the update runs and the app loads the data
+    migrate(db, MIGRATIONS.slice(13));
+    const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
+    // Then there is no member and no story is assigned
+    expect(loaded.members).toEqual([]);
+    expect(loaded.stories.every((story) => !story.assigneeId)).toBe(true);
   });
 });
