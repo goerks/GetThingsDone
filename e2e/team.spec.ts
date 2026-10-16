@@ -44,3 +44,16 @@ test('AC4.1 the filter bar shows only the stories of one person on the board', a
   await expect(story(page, 'S-2')).toHaveCount(0);
   await expect(story(page, 'S-4')).toHaveCount(0);
 });
+
+test('AC2.5 the arrow keys choose a person in the field "Assigned to"', async ({ page }) => {
+  // Given the dialog of S-4, which nobody works on
+  await open(page, '#/board');
+  await story(page, 'S-4').dblclick();
+  const dialog = page.getByRole('dialog', { name: /S-4:/ });
+  const field = dialog.getByLabel('Assigned to');
+  // When I focus the field and press the down arrow once
+  await field.focus();
+  await page.keyboard.press('ArrowDown');
+  // Then the first person is chosen
+  await expect(field).toHaveValue('member-marco');
+});

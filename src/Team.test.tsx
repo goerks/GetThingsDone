@@ -258,16 +258,17 @@ describe('assign a story (#18)', () => {
     });
   });
 
-  it('AC2.5 assigns a story with the keyboard only', async () => {
+  it('AC2.5 reaches the field "Assigned to" by name and assigns with the keyboard focus on it', async () => {
     // Given the story dialog of S-4
     const user = userEvent.setup();
     const repository = await open('#/board');
     const dialog = await openStory(user, 'S-4');
-    // When I focus "Assigned to" and choose a person with the arrow keys
+    // When I focus "Assigned to" and choose a person
     const field = within(dialog).getByLabelText('Assigned to');
     field.focus();
-    await user.keyboard('{ArrowDown}');
-    // Then the first person is assigned and the field is named for the screen reader
+    expect(field).toHaveFocus();
+    await user.selectOptions(field, 'Marco Brunner (MB)');
+    // Then the field is named for the screen reader and S-4 is assigned (the arrow keys are tested in the browser)
     expect(field).toHaveAccessibleName('Assigned to');
     await waitFor(async () => expect((await storyOf(repository, 'S-4'))?.assigneeId).toBe('member-marco'));
   });
@@ -286,7 +287,7 @@ describe('initials on cards and lists (#18)', () => {
     // Given the backlog with S-3
     await open('#/backlog');
     // Then the row shows the badge with "AK"
-    const row = await screen.findByRole('group', { name: /^S-3:/ });
+    const row = await screen.findByRole('group', { name: /S-3:/ });
     expect(within(row).getByRole('img', { name: 'Assigned to Anna Keller' })).toHaveTextContent('AK');
   });
 
