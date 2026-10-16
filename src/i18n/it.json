@@ -40,11 +40,13 @@
     "toMap": "Creane uno sulla story map",
     "columns": "Colonne della board",
     "bandCount_one": "{{count}} story in questa categoria",
-    "bandCount_other": "{{count}} story in questa categoria"
+    "bandCount_other": "{{count}} story in questa categoria",
+    "compact": "Compatto"
   },
   "card": {
     "criteria": "{{done}} criteri accettati su {{total}}",
-    "points": "{{count}} punti"
+    "points": "{{count}} punti",
+    "more": "altri {{count}}: {{names}}"
   },
   "newStory": {
     "open": "Nuova storia",
@@ -77,7 +79,9 @@
       "instructions": "Premi spazio per prendere una story. Spostala con le frecce, rilasciala con spazio, annulla con esc. Premi invio per aprire la story.",
       "over": "{{title}} diventerebbe posizione {{rank}} in {{section}}.",
       "dropped": "{{title}} è ora in posizione {{rank}}."
-    }
+    },
+    "pointsInvalid": "Solo numeri, 0–100",
+    "pointsInput": "{{label}} di {{code}}"
   },
   "detail": {
     "description": "Descrizione",
@@ -573,12 +577,6 @@
     "withoutFilter": "Cerca senza {{filter}}",
     "reset": "Cancella tutto e ricomincia",
     "emptyHint": "Scrivi per cercare story, epic e sprint, oppure scegli un filtro.",
-    "keys": {
-      "move": "scegli",
-      "open": "apri",
-      "close": "chiudi",
-      "fields": "campi"
-    },
     "clearHistory": "Cancella cronologia",
     "highlightSummary_one": "{{matches}} story su {{count}} corrisponde qui",
     "highlightSummary_other": "{{matches}} story su {{count}} corrispondono qui",
@@ -610,7 +608,6 @@
     "new": "Nuova release",
     "add": "Aggiungi release",
     "newCard": "+ Release",
-    "shortcut": "Ctrl+N",
     "create": "Crea una release",
     "name": "Titolo",
     "description": "Descrizione",
@@ -900,6 +897,11 @@
         "keywords": "stato colonna trascinare tastiera frecce cambiare",
         "body": "Trascina una scheda in un’altra colonna per cambiarne lo stato. Con la tastiera scegli la scheda, premi Spazio per sollevarla, spostala con le frecce e premi di nuovo Spazio per rilasciarla. Esc annulla.\nLa modifica viene salvata subito."
       },
+      "board.card": {
+        "title": "Leggere una scheda",
+        "keywords": "scheda carta priorità lettera epic label attività criteri compatto riga punti",
+        "body": "Una scheda mostra in alto la chiave, la priorità come lettera (M, S, C, W: passa sopra per vedere la parola intera) e i punti, poi il titolo.\nLa riga sotto contiene prima l’epic, poi le label come piccoli chip; ciò che non entra diventa «+2» (passa sopra per vedere il resto). A destra «☑ 2/4» conta i criteri di accettazione approvati; diventa verde quando lo sono tutti.\nIl pulsante «Compatto» nell’intestazione mostra una riga per story. La scelta viene ricordata."
+      },
       "board.columns": {
         "title": "Colonne e valori di stato",
         "keywords": "stati valori workflow categoria",
@@ -913,7 +915,7 @@
       "story.create": {
         "title": "Creare una story",
         "keywords": "nuova story aggiungere ctrl+n un'altra",
-        "body": "Premi Ctrl+N (Cmd+N su Mac) oppure usa il pulsante «Nuova story» nella board o nel backlog. Dai un titolo alla story e salvala con il pulsante o con Ctrl+Invio. Se manca il titolo, un messaggio sotto il campo lo dice.\n«Aggiungi e aggiungine un’altra» (Ctrl+Maiusc+Invio) mantiene epic, sprint e punti per la story successiva.\nUna nuova story inizia nella prima colonna."
+        "body": "Usa il pulsante «Nuova story» nella board o nel backlog. Dai un titolo alla story e salvala. Se manca il titolo, un messaggio sotto il campo lo dice.\n«Aggiungi e aggiungine un’altra» mantiene epic, sprint e punti per la story successiva.\nUna nuova story inizia nella prima colonna."
       },
       "story.menu": {
         "title": "Modificare una story dal suo menu",
@@ -929,6 +931,11 @@
         "title": "Ordinare il backlog",
         "keywords": "priorita ordine trascinare ordinare",
         "body": "Il backlog è ordinato per priorità: la story in alto è la più importante. Trascina una riga in un altro punto, oppure spostala con la tastiera: Spazio per sollevare, frecce per spostare, Spazio per rilasciare.\nUna story rilasciata in un’altra sezione di sprint viene pianificata in quello sprint."
+      },
+      "backlog.points": {
+        "title": "Modificare i punti di una story nel backlog",
+        "keywords": "punti stima modificare numero sprint totale",
+        "body": "Fai clic sui punti rotondi di una story (oppure sceglili con Tab e premi Invio), digita un numero intero da 0 a 100 e salva con Invio o facendo clic altrove. Esc annulla. Un campo vuoto rimuove i punti.\nSe l’input non è valido, il campo diventa rosso e dice cosa è permesso; non viene salvato nulla.\nIl totale dello sprint sopra le story si aggiorna subito."
       },
       "backlog.sprints": {
         "title": "Backlog e linea dello sprint",
@@ -968,7 +975,7 @@
       "search.basics": {
         "title": "Ricerca",
         "keywords": "trovare filtro ctrl+f campo stato epic sprint",
-        "body": "Premi Ctrl+F (Cmd+F su Mac) per cercare story, epic e sprint. Tutte le parole devono comparire; il testo tra virgolette viene cercato come frase.\nRestringi la ricerca con filtri come status:done: digita @ per vedere tutti i campi."
+        "body": "Usa il campo di ricerca in alto per cercare story, epic e sprint. Tutte le parole devono comparire; il testo tra virgolette viene cercato come frase.\nRestringi la ricerca con filtri come status:done: digita @ per vedere tutti i campi."
       },
       "shortcuts": {
         "title": "Scorciatoie da tastiera",
@@ -1023,7 +1030,6 @@
     }
   },
   "dialog": {
-    "saveHint": "{{mod}}+Invio salva · Esc annulla",
     "discardTitle": "Scartare l’inserimento?",
     "keepEditing": "Continua a modificare",
     "discard": "Scarta"

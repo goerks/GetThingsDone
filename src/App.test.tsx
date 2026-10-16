@@ -114,7 +114,8 @@ describe('backlog', () => {
     expect(within(sprint).getByText('running')).toBeInTheDocument();
     expect(within(screen.getByRole('region', { name: 'Sprint 2' })).getByText('Drag stories here to plan them into Sprint 2.')).toBeInTheDocument();
     expect(within(sprint).getAllByRole('group')).toHaveLength(6);
-    expect(within(sprint).getByText('6 stories · 23 points')).toBeInTheDocument();
+    expect(within(sprint).getByText('6 stories', { exact: false })).toBeInTheDocument();
+    expect(within(sprint).getByTestId('sprint-points')).toHaveTextContent('23');
     expect(within(rest).getByRole('group', { name: 'Rank 7, S-7: Plan releases on a story map' })).toBeInTheDocument();
   });
 
@@ -823,8 +824,8 @@ describe('fields', () => {
   it('shows the values of the fields chosen for the card', async () => {
     await renderApp();
     const card = screen.getByRole('group', { name: 'S-1: Create a story with title and description' });
-    expect(within(card).getByText('Must')).toBeInTheDocument();
-    expect(within(card).getByText('Priority:')).toHaveClass('sr-only');
+    expect(within(card).getByText('M')).toBeInTheDocument();
+    expect(within(card).getByText('Priority: Must')).toHaveClass('sr-only');
   });
 
   it('sets a default value in the field dialog', async () => {
@@ -925,7 +926,7 @@ describe('fields', () => {
 
     window.location.hash = '#/board';
     const card = await screen.findByRole('group', { name: /S-1:/ });
-    expect(within(card).queryByRole('img', { name: /criteria accepted/ })).not.toBeInTheDocument();
+    expect(within(card).queryByText(/criteria accepted/)).not.toBeInTheDocument();
     expect(card.querySelector('.epic')).not.toBeNull();
     expect(card.querySelector('.epic .epic__dot')).toBeNull();
     await openStory(/S-1:/);

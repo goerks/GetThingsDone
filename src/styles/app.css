@@ -1397,49 +1397,14 @@ button.map-sprint:hover .map-sprint__name {
   color: var(--accent);
 }
 
-.map-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 1px 2px var(--shadow);
-  cursor: grab;
-  user-select: none;
-  touch-action: manipulation;
-}
 
-.map-card--dragging {
-  opacity: 0.35;
-}
 
 .map-card--overlay {
   width: var(--map-col, 220px);
-  cursor: grabbing;
-  opacity: 0.9;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.map-card__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.map-card__title {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.3;
-  text-decoration: none;
-}
 
-.map-card__title:hover {
-  text-decoration: underline;
-}
 
 /* Status as a dot plus its name, so colour is never the only signal. */
 .status-dot {
@@ -1661,29 +1626,9 @@ button.map-epic:hover .map-epic__name {
   gap: 4px;
 }
 
-.map--compact .map-card {
-  flex-direction: row;
-  align-items: baseline;
-  gap: 8px;
-  padding: 4px 8px;
-}
 
-.map--compact .map-card__top {
-  flex: none;
-}
 
-.map--compact .map-card .pill,
-.map--compact .map-card .status-dot {
-  display: none;
-}
 
-.map--compact .map-card__title {
-  min-width: 0;
-  overflow: hidden;
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .map--compact .map-cell__add {
   min-height: 24px;
@@ -4034,15 +3979,6 @@ a.linkbtn:hover {
   gap: 10px;
 }
 
-.new-button__keys {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 0 6px;
-  border: 1px solid color-mix(in oklab, var(--accent-ink) 45%, transparent);
-  border-radius: 4px;
-  color: var(--accent-ink);
-  background: transparent;
-}
 
 /* Footer of the create dialogs: "Cancel" and the primary button at the right, the shortcut hint under them. */
 .create-footer {
@@ -4064,11 +4000,6 @@ a.linkbtn:hover {
   white-space: nowrap;
 }
 
-.create-footer__hint {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-}
 
 .create-added {
   margin: 0;
@@ -4339,8 +4270,7 @@ a.linkbtn:hover {
   white-space: nowrap;
 }
 
-.shortcut__keys kbd,
-.new-button kbd {
+.shortcut__keys kbd {
   font-family: var(--font-mono);
   font-size: 12px;
 }
@@ -6441,13 +6371,6 @@ a.btn {
   color: var(--muted);
 }
 
-/* On a board card the badge sits at the top right, on the line of the key, so the card keeps its height. */
-.assignee--corner {
-  position: absolute;
-  top: 9px;
-  right: 12px;
-}
-
 .member-filter {
   display: flex;
   flex-wrap: wrap;
@@ -6540,4 +6463,220 @@ a.btn {
 .team__problem {
   flex-basis: 100%;
   margin: 0;
+
+/* ---------- Major UI update (#55) ---------- */
+
+/* Cards: a light card with border and shadow on a tinted column, clear spacing, states for hover, focus and drag. */
+.board .column {
+  background: color-mix(in oklab, var(--column) 88%, var(--text) 4%);
+}
+
+.card {
+  gap: 6px;
+  padding: 10px 12px;
+  border-color: color-mix(in oklab, var(--border) 85%, var(--text) 15%);
+  box-shadow: 0 1px 3px var(--shadow);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.card:hover {
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
+  box-shadow: 0 3px 8px var(--shadow);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card--overlay {
+  transform: rotate(2deg);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.column__list {
+  gap: 12px;
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card__spacer {
+  flex: 1;
+}
+
+.card__letters {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.card__letter {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* The priority is optional and secondary: a small coloured dot and a muted letter, no box. */
+.card__letter::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--letter-color);
+}
+
+/* Epic, labels and the task indicator share one line; what does not fit is cut off, never wrapped. */
+.card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.card__meta .epic {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+
+.card__meta .card-field {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--pill);
+  font-size: 11px;
+}
+
+.card__tasks {
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.card__tasks--done {
+  color: var(--epic-green);
+  font-weight: 600;
+}
+
+/* Compact: one line per story: priority, title, epic dot, tasks, points. */
+.card--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+}
+
+.card--compact .card__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board--compact .column__list {
+  gap: 6px;
+}
+
+.card__epic-dot {
+  flex: none;
+}
+
+/* Points are round everywhere. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--text);
+  font-family: inherit;
+  line-height: 1;
+}
+
+.pill--edit {
+  cursor: text;
+}
+
+.pill--edit:hover {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.pill--edit:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.points-edit {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.points-edit__input {
+  width: 56px;
+  min-height: 28px;
+  padding: 2px 6px;
+  text-align: center;
+}
+
+.points-edit__hint {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 2px;
+  z-index: 2;
+  white-space: nowrap;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+/* Backlog: the number stands outside the white row, on its left. */
+.backlog__row {
+  margin-left: 52px;
+}
+
+.backlog__row--overlay {
+  margin-left: 0;
+}
+
+.backlog__row > .backlog__code {
+  position: absolute;
+  left: -52px;
+  width: 44px;
+  text-align: right;
+}
+
+.backlog__row--overlay > .backlog__code {
+  position: static;
+  width: 44px;
+  text-align: left;
+}
+
+.backlog__row .backlog__title {
+  min-width: 0;
 }

@@ -17,11 +17,13 @@ interface Props {
   epics: Map<string, Epic>;
   /** The running sprint: stories added with "+ Story" belong to it. */
   sprintId: string | null;
+  /** One line per story (#55). */
+  compact?: boolean;
   /** Set while a dragged story would land in this column: in front of `beforeId`, or at the end when null. */
   drop?: { beforeId: string | null };
 }
 
-export function BoardColumn({ status, stories, epics, sprintId, drop }: Props) {
+export function BoardColumn({ status, stories, epics, sprintId, compact = false, drop }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   const { setNodeRef } = useDroppable({ id: columnId(status) });
@@ -45,7 +47,7 @@ export function BoardColumn({ status, stories, epics, sprintId, drop }: Props) {
         <ul ref={setNodeRef} className="column__list">
           {stories.map((story) => (
             <li key={story.id}>
-              <SortableStoryCard story={story} epic={epics.get(story.epicId ?? '')} dropBefore={drop?.beforeId === story.id} />
+              <SortableStoryCard story={story} epic={epics.get(story.epicId ?? '')} dropBefore={drop?.beforeId === story.id} compact={compact} />
             </li>
           ))}
           {drop && drop.beforeId === null && stories.length > 0 && <li className="drop-line" aria-hidden="true" />}

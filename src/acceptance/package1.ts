@@ -70,8 +70,8 @@ export const PACKAGE_1: { issue: number; pullRequest: number; title: string; cri
           target: '.new-button',
           given: 'Ich bin auf dem Board.',
           when: 'Ich klicke auf „Neue Story“.',
-          then: 'Unten im Dialog stehen „Abbrechen“ und rechts daneben der Hauptknopf „Story hinzufügen“, dazu der Hinweis „Ctrl+Enter speichert · Esc bricht ab“.',
-          tests: ['e2e/usability1.spec.ts › AC2.1 shows "Cancel" and the primary button at the foot of a create dialog, with the shortcut hint'],
+          then: 'Unten im Dialog stehen „Abbrechen“ und rechts daneben der Hauptknopf „Story hinzufügen“, ohne Hinweis auf ein Tastenkürzel (seit #55).',
+          tests: ['e2e/usability1.spec.ts › AC2.1 shows "Cancel" and the primary button at the foot of a create dialog, without a shortcut hint (#55)'],
           poCheck: 'Bitte kurz erneut prüfen, weil du hier ein Problem gemeldet hast: „Neue Story“ öffnen, den Titel leer lassen, „Story hinzufügen“ klicken. Die Meldung muss jetzt auf Deutsch unter dem Feld stehen, ohne Browser-Blase.'
         },
         {
