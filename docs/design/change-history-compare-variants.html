@@ -159,6 +159,39 @@ ul { margin: 0; padding-left: 20px; }
 .mini > div { padding: 6px 10px; border-top: 1px solid var(--border); min-width: 0; }
 .mini > div:nth-child(-n+3) { border-top: 0; background: var(--pill); font-weight: 600; }
 .mini .f { color: var(--muted); }
+
+/* Variant E: A + C */
+.e-head { display: grid; grid-template-columns: 150px 1fr 1fr; background: var(--pill); font-weight: 600; }
+.e-head > div { padding: 8px 12px; }
+.e-full { border-top: 1px solid var(--border); }
+.e-full__h { padding: 7px 12px; display: flex; gap: 8px; align-items: baseline; font-weight: 600; background: color-mix(in srgb, var(--c-amber) 10%, var(--surface)); }
+.e-full__h .mono { margin-left: auto; color: var(--muted); font-weight: 400; }
+.pop { position: relative; }
+.pop__menu { position: absolute; left: 0; top: 34px; width: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px var(--shadow); padding: 4px; z-index: 5; display: grid; gap: 2px; }
+.pop__menu div { display: grid; grid-template-columns: 90px 1fr; gap: 8px; padding: 6px 10px; border-radius: 6px; align-items: baseline; }
+.pop__menu .on { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.pop__menu b { font-family: var(--font-mono); font-size: 12px; }
+.pop__menu small { color: var(--muted); display: block; font-weight: 400; }
+
+/* Entry points */
+.two-col { display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; align-items: start; }
+.panel { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; background: var(--surface); }
+.panel h4 { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.panel h4 .sp { margin-left: auto; }
+.entry { display: grid; grid-template-columns: 78px 1fr auto; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 6px; }
+.entry + .entry { border-top: 1px solid var(--border); }
+.entry b.v { font-family: var(--font-mono); font-size: 12px; }
+.entry .d { color: var(--muted); font-size: 11px; display: block; font-weight: 400; font-family: var(--font-sans); }
+.entry ul { list-style: none; padding: 0; display: grid; gap: 2px; }
+.entry--sel { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.lnk { color: var(--accent); font-size: 12px; white-space: nowrap; text-decoration: underline; }
+.cb { width: 14px; height: 14px; border: 1.5px solid var(--muted); border-radius: 3px; display: inline-block; vertical-align: -2px; margin-right: 6px; }
+.cb--on { background: var(--accent); border-color: var(--accent); position: relative; }
+.cb--on::after { content: "✓"; color: var(--accent-ink); font-size: 10px; position: absolute; left: 1px; top: -2px; }
+.actionbar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-soft-ink); }
+.actionbar .btn { margin-left: auto; }
+.fakefield { height: 24px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); padding: 2px 8px; color: var(--muted); }
+.fakefield--tall { height: 54px; }
 </style></head><body><div class="wrap">
 
 <header style="display:grid;gap:12px">
@@ -320,6 +353,97 @@ ul { margin: 0; padding-left: 20px; }
 </div>
 </div></div></div></div>
 <div class="proscons"><div class="box"><b>Vorteile</b><span>Man sieht den ganzen Verlauf und den gewählten Abschnitt auf einmal; „Was ist seit V6 passiert?“ ist die Hauptfrage. Auswahl ist ein einziges Bedienelement.</span></div><div class="box"><b>Nachteile</b><span>Ziehen am Strahl ist ungewohnt und braucht eine gute Tastatur-Variante. Bei sehr vielen Ständen (100+) muss der Strahl zoomen oder scrollen.</span></div></div>
+</section>
+
+
+<!-- ======================= E ======================= -->
+<section class="variant" id="ve">
+<div class="variant__head"><h3>E · Kombination aus A und C</h3><span class="tag tag--rec" style="background:var(--ok-soft);color:var(--ok);font-weight:600">Vorschlag</span></div>
+<p><b>Von A:</b> die beiden Auswahlfelder „Von“ / „Nach“ und die Feldtabelle mit links älter, rechts neuer; unveränderte Felder eingeklappt. <b>Von C:</b> die Zusammenfassungs-Chips oben (springen zum Feld) und der zeilenweise Textvergleich für lange Texte. Kurze Felder bleiben eine Zeile; die Beschreibung klappt in der Tabelle über die volle Breite auf. Die Auswahlfelder öffnen eine Liste der Stände mit Kurzfassung (zweites Bild), so ist auch die Orientierung „was passierte dazwischen“ da.</p>
+<div class="scroll"><div class="stage" id="se"><div class="dlg">
+<div class="dlg__head"><span class="code">S-3</span><b>Login-Seite mit Passwort-Reset</b><span class="x">✕</span></div>
+<div class="tabs"><span class="lnk" style="padding:8px 12px">← Zurück zur Story</span><span class="on" style="margin-left:8px">Stände vergleichen</span></div>
+<div class="body">
+<div class="toolbar"><span class="muted">Von</span><span class="sel"><b>V6</b> · 12.10. 10:30</span><span class="btn" title="Tauschen">⇄</span><span class="muted">Nach</span><span class="sel"><b>Aktuell (V9)</b> · 16.10. 09:12</span><span class="sw sp"><i></i> Nur Änderungen</span></div>
+<div class="sumbar"><span class="muted">6 von 11 Feldern geändert:</span><span class="chip chip--on">Titel</span><span class="chip">Status</span><span class="chip">Punkte</span><span class="chip">Sprint</span><span class="chip">Priorität</span><span class="chip">Beschreibung +2 −1</span><span class="chip">Kriterien +1 −1 ✓1</span></div>
+<div class="tbl">
+<div class="e-head"><div>Feld</div><div class="vlabel"><b>V6</b><small>12.10. 10:30</small></div><div class="vlabel"><b>Aktuell (V9)</b><small>16.10. 09:12</small></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Titel</div><div><span class="del">Login-Seite</span></div><div><span class="ins">Login-Seite mit Passwort-Reset</span></div></div><div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Status</div><div><span class="dot blue"></span> In Arbeit</div><div><span class="dot violet"></span> <span class="ins">Review</span></div></div><div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Punkte</div><div><span class="del">3</span></div><div><span class="ins">5</span></div></div><div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Sprint</div><div><span class="del">Sprint 4</span></div><div><span class="ins">Sprint 5</span></div></div><div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Priorität</div><div><span class="del">Mittel</span></div><div><span class="ins">Hoch</span></div></div>
+<div class="e-full"><div class="e-full__h"><span class="sign sign--chg">~</span>Beschreibung <span class="mono">+2 Zeilen · 1 geändert</span></div>
+<div class="lines">
+<div class="ln"><i>1</i><b class="sign"> </b><span class="t">Als Nutzer will ich mich anmelden,</span></div><div class="ln"><i>1</i><b class="sign"> </b><span class="t">Als Nutzer will ich mich anmelden,</span></div>
+<div class="ln ln--del"><i>2</i><b class="sign sign--del">−</b><span class="t">damit ich meine Aufgaben sehe. Anmeldung <mark>mit E-Mail</mark>.</span></div><div class="ln ln--ins"><i>2</i><b class="sign sign--ins">+</b><span class="t">damit ich meine Aufgaben sehe. Anmeldung <mark>mit E-Mail und Passwort</mark>.</span></div>
+<div class="ln ln--empty"><i></i><b class="sign"> </b><span class="t"></span></div><div class="ln ln--ins"><i>3</i><b class="sign sign--ins">+</b><span class="t"><mark>Ein vergessenes Passwort kann ich per E-Mail zurücksetzen.</mark></span></div>
+<div class="ln"><i>3</i><b class="sign"> </b><span class="t">Nicht Teil: Registrierung.</span></div><div class="ln"><i>4</i><b class="sign"> </b><span class="t">Nicht Teil: Registrierung.</span></div>
+</div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Kriterien</div>
+<div class="crit"><div><span class="box-c box-c--on"></span>Fehlermeldung bei falschem Passwort</div><div><span class="box-c"></span>Login-Seite ist responsiv</div><div><span class="sign sign--del">−</span><span class="del"><span class="box-c box-c--on"></span> Passwort-Stärke-Anzeige</span></div></div>
+<div class="crit"><div><span class="box-c box-c--on"></span>Fehlermeldung bei falschem Passwort</div><div><span class="box-c box-c--on"></span><span class="ins">Login-Seite ist responsiv</span> <span class="chip">neu abgehakt</span></div><div><span class="sign sign--ins">+</span><span class="ins"><span class="box-c"></span> Passwort-Reset per E-Mail</span></div></div></div>
+<div class="tbl__fold">▸ 5 unveränderte Felder anzeigen (Epic, Release, Farbe, Schätzung, Team)</div>
+</div>
+</div></div></div></div>
+
+<p>Die Auswahl: ein Klick auf „Von“ oder „Nach“ öffnet die Liste der Stände mit Kurzfassung; Pfeiltasten und Enter wählen, „Aktuell“ steht immer oben.</p>
+<div class="scroll"><div class="stage" id="sf" style="padding-bottom:70px"><div class="dlg" style="overflow:visible">
+<div class="dlg__head"><span class="code">S-3</span><b>Login-Seite mit Passwort-Reset</b><span class="x">✕</span></div>
+<div class="tabs"><span class="lnk" style="padding:8px 12px">← Zurück zur Story</span><span class="on" style="margin-left:8px">Stände vergleichen</span></div>
+<div class="body" style="min-height:400px;align-content:start">
+<div class="toolbar"><span class="muted">Von</span>
+<span class="pop"><span class="sel" style="border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)"><b>V6</b> · 12.10. 10:30</span>
+<span class="pop__menu" role="listbox" aria-label="Stand wählen">
+<div><b>Aktuell (V9)</b><span>16.10. 09:12<small>Kriterium „responsiv“ abgehakt</small></span></div>
+<div><b>V8</b><span>15.10. 17:40<small>Status, Priorität, Sprint geändert</small></span></div>
+<div><b>V7</b><span>13.10. 14:05<small>Titel, Punkte, Beschreibung, Kriterien</small></span></div>
+<div class="on"><b>V6</b><span>12.10. 10:30<small>Status: Todo → In Arbeit</small></span></div>
+<div><b>V5</b><span>10.10. 08:50<small>Epic gesetzt</small></span></div>
+<div class="muted"><b>…</b><span>V4 bis V1 (scrollen)</span></div>
+</span></span>
+<span class="btn">⇄</span><span class="muted">Nach</span><span class="sel"><b>Aktuell (V9)</b> · 16.10. 09:12</span></div>
+</div></div></div></div>
+<div class="proscons"><div class="box"><b>Vorteile</b><span>Kurze Felder bleiben so kompakt wie in A, lange Texte so lesbar wie in C. Eine einzige Ansicht für alle Elementtypen: ein eigener Typ liefert nur andere Zeilen.</span></div><div class="box"><b>Nachteile</b><span>Etwas mehr Bauaufwand als reines A (Textvergleich pro Zeile). Der Weg zwischen den Ständen steht nur in der Auswahlliste, nicht dauerhaft sichtbar.</span></div></div>
+</section>
+
+
+<!-- ======================= G: entry in the story dialog ======================= -->
+<section class="variant" id="vg">
+<div class="variant__head"><h3>G · Einstieg: Panel „Verlauf“ in jeder Detailansicht</h3><span class="tag tag--rec" style="background:var(--ok-soft);color:var(--ok);font-weight:600">Wo man den Verlauf aufruft</span></div>
+<p>Story-, Epic- und Sprint-Dialog haben keine Reiter, sondern Panels. Deshalb bekommt jeder ein Panel <b>„Verlauf“</b> unter den Kriterien: die letzten drei Änderungen, ein Link „Alle Änderungen“ und der Knopf <b>„Stände vergleichen“</b>. Am Eintrag steht „Mit Aktuell vergleichen“ (ein Klick: dieser Stand links, Aktuell rechts). Der Release-Dialog hat schon Reiter und bekommt einen fünften Reiter „Verlauf“ mit derselben Liste. Der Vergleich (Variante E) öffnet als eigene Ebene über dem Dialog, mit „← Zurück zur Story“ und Esc.</p>
+<div class="scroll"><div class="stage" id="sg"><div class="dlg">
+<div class="dlg__head"><span class="code">S-3</span><b>Login-Seite mit Passwort-Reset</b><span class="x">✕</span></div>
+<div class="body"><div class="two-col">
+<div style="display:grid;gap:10px">
+<div class="panel"><h4>Beschreibung</h4><div class="fakefield fakefield--tall">Als Nutzer will ich mich mit E-Mail und Passwort anmelden …</div></div>
+<div class="panel"><h4>Akzeptanzkriterien <span class="chip">2 von 3</span></h4><div class="crit"><div><span class="box-c box-c--on"></span>Fehlermeldung bei falschem Passwort</div><div><span class="box-c box-c--on"></span>Login-Seite ist responsiv</div><div><span class="box-c"></span>Passwort-Reset per E-Mail</div></div></div>
+<div class="panel" style="border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)"><h4>Verlauf <span class="chip">9 Stände</span><span class="sp btn btn--soft">⇄ Stände vergleichen</span></h4>
+<div class="entry"><b class="v">V9<span class="d">16.10. 09:12</span></b><ul><li>Kriterium „responsiv“ abgehakt</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div><div class="entry"><b class="v">V8<span class="d">15.10. 17:40</span></b><ul><li>Status: In Arbeit → Review</li><li>Priorität: Mittel → Hoch</li><li>Sprint: Sprint 4 → Sprint 5</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div><div class="entry"><b class="v">V7<span class="d">13.10. 14:05</span></b><ul><li>Titel, Punkte, Beschreibung geändert</li><li>Kriterium hinzugefügt, eines entfernt</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div>
+<span class="lnk" style="justify-self:start">Alle 9 Änderungen anzeigen</span></div>
+</div>
+<div style="display:grid;gap:10px">
+<div class="panel"><h4>Details</h4><div class="fld"><small>Status</small><span><span class="dot violet"></span> Review</span></div><div class="fld"><small>Epic</small><span>Benutzerkonto</span></div><div class="fld"><small>Punkte · Sprint</small><span>5 · Sprint 5</span></div></div>
+</div></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>Vorteile</b><span>Der Verlauf liegt dort, wo man ohnehin liest; kein neues Konzept (Reiter) in Dialogen, die bisher keine haben. Gleiche Bausteine für Story, Epic, Sprint und eigene Typen.</span></div><div class="box"><b>Nachteile</b><span>Das Panel macht den Dialog länger; es lässt sich einklappen und ist standardmäßig auf drei Einträge begrenzt.</span></div></div>
+</section>
+
+<!-- ======================= H: full history list with selection ======================= -->
+<section class="variant" id="vh">
+<div class="variant__head"><h3>H · Alle Änderungen: Liste mit Auswahl zum Vergleichen</h3><span class="tag">Zweiter Weg in den Vergleich</span></div>
+<p>„Alle Änderungen anzeigen“ öffnet die volle Liste (Ebene über dem Dialog, beim Release als Reiter). Jeder Stand hat ein Auswahlkästchen; sobald zwei gewählt sind, erscheint die Leiste „Vergleichen“. So kommt man ohne Auswahlfelder in den Vergleich. Ältere Stände laden beim Scrollen nach.</p>
+<div class="scroll"><div class="stage" id="sh"><div class="dlg">
+<div class="dlg__head"><span class="code">S-3</span><b>Verlauf</b><span class="muted">9 Stände</span><span class="x">✕</span></div>
+<div class="body">
+<div class="actionbar"><span><b>V6</b> und <b>Aktuell (V9)</b> gewählt</span><span class="btn btn--p">Vergleichen</span></div>
+<div class="panel" style="padding:4px 6px">
+<div class="entry"><b class="v"><span class="cb cb--on"></span>V9<span class="d">Aktuell · 16.10. 09:12</span></b><ul><li>Kriterium „Login-Seite ist responsiv“ abgehakt</li></ul><span class="chip">Aktuell</span></div><div class="entry"><b class="v"><span class="cb"></span>V8<span class="d">15.10. 17:40</span></b><ul><li>Status: In Arbeit → Review</li><li>Priorität: Mittel → Hoch</li><li>Sprint: Sprint 4 → Sprint 5</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div><div class="entry"><b class="v"><span class="cb"></span>V7<span class="d">13.10. 14:05</span></b><ul><li>Titel: Login-Seite → Login-Seite mit Passwort-Reset</li><li>Punkte: 3 → 5</li><li>Beschreibung geändert</li><li>Kriterium hinzugefügt: „Passwort-Reset per E-Mail“</li><li>Kriterium entfernt: „Passwort-Stärke-Anzeige“</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div><div class="entry entry--sel"><b class="v"><span class="cb cb--on"></span>V6<span class="d">12.10. 10:30</span></b><ul><li>Status: Todo → In Arbeit</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div><div class="entry"><b class="v"><span class="cb"></span>V5<span class="d">10.10. 08:50</span></b><ul><li>Epic: – → Benutzerkonto</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div><div class="entry"><b class="v"><span class="cb"></span>V1<span class="d">08.10. 16:20</span></b><ul><li>Story erstellt: „Login-Seite“, 3 Punkte, Status Todo</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div>
+</div></div></div></div></div>
+<p>Beim <b>Sprint</b> steht in der Liste auch, welche Stories hinzukamen oder gingen (entschieden in #23):</p>
+<div class="scroll"><div class="stage" id="si"><div class="dlg">
+<div class="dlg__head"><b>Sprint 5</b><span class="chip">Verlauf</span><span class="x">✕</span></div>
+<div class="body"><div class="panel" style="padding:4px 6px">
+<div class="entry"><b class="v">V6<span class="d">16.10. 08:00</span></b><ul><li>Sprint gestartet (4 Stories, 17 Punkte)</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div>
+<div class="entry"><b class="v">V5<span class="d">15.10. 17:40</span></b><ul><li><span class="sign sign--ins">+</span>Story hinzugefügt: S-3 „Login-Seite mit Passwort-Reset“ (5 Punkte)</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div>
+<div class="entry"><b class="v">V4<span class="d">14.10. 11:12</span></b><ul><li><span class="sign sign--del">−</span>Story entfernt: S-9 „Profilbild“ (3 Punkte)</li><li>Enddatum: 23.10. → 24.10.</li></ul><span class="lnk">Mit Aktuell vergleichen</span></div>
+</div></div></div></div></div>
+<div class="proscons"><div class="box"><b>Der Vergleich beim Sprint</b><span>Gleiche Ansicht wie E; die Zeile „Stories“ zeigt hinzugekommene und entfernte Stories mit + und −, statt Kriterien.</span></div><div class="box"><b>Weitere Zustände</b><span>Noch ohne Mockup (einfach): kein Verlauf („Noch keine Änderungen seit …“), derselbe Stand links und rechts („Keine Unterschiede“), schmales Fenster (die beiden Spalten werden untereinander mit Überschrift „V6“ / „Aktuell“).</span></div></div>
 </section>
 
 <section class="variant"><h2>Offene Punkte für alle Varianten</h2>
