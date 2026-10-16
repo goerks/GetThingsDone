@@ -349,35 +349,53 @@ describe('The workflow in stories, the menu and deleting (#49)', () => {
     expect(screen.getByRole('button', { name: '+ Story in Ready' })).toBeInTheDocument();
   });
 
-  it('AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation', async () => {
+  const versionItems = (): HTMLElement[] => within(screen.getByRole('region', { name: 'Versions' })).queryAllByRole('listitem');
+
+  it('AC12.1 lists a version with every change, newest first', async () => {
     const user = userEvent.setup();
     // Given the workflow is on and has no version yet
-    const repository = await open('#/settings/workflows', setEnabled(DEFAULT_WORKFLOW, true));
-    const versions = (): HTMLElement[] => within(screen.getByRole('region', { name: 'Versions' })).queryAllByRole('listitem');
-    expect(versions()).toHaveLength(0);
+    await open('#/settings/workflows', setEnabled(DEFAULT_WORKFLOW, true));
+    expect(versionItems()).toHaveLength(0);
     // When I forbid "To do" → "Done"
     await user.click(chip('To do', 'Done'));
-    // Then there are two versions: the state before and the new one, marked as current
-    expect(versions()).toHaveLength(2);
-    expect(within(versions()[0]).getByText('Current')).toBeInTheDocument();
-    // When I name the older one and break the workflow by forbidding "To do" → "In progress"
-    await user.type(within(versions()[1]).getByRole('textbox'), 'Before the rebuild{Enter}');
-    await user.click(chip('To do', 'In progress'));
-    expect(versions()).toHaveLength(3);
-    // And go back to the named version, first cancelling the confirmation
-    await user.click(within(versions()[2]).getByRole('button', { name: /^Go back to the version from/ }));
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(chip('To do', 'Done')).toHaveAttribute('aria-pressed', 'false');
-    await user.click(within(versions()[2]).getByRole('button', { name: /^Go back to the version from/ }));
-    await user.click(screen.getByRole('button', { name: 'Go back' }));
-    // Then the transitions are those of that version, a new version was added, and nothing was removed
-    expect(chip('To do', 'Done')).toHaveAttribute('aria-pressed', 'true');
-    expect(chip('To do', 'In progress')).toHaveAttribute('aria-pressed', 'true');
-    expect(versions()).toHaveLength(4);
-    expect(within(versions()[0]).getByText('Current')).toBeInTheDocument();
-    // And the name and the versions are still there after a reload
+    // Then there are two versions, the state before and the new one, and the newest is marked as current
+    expect(versionItems()).toHaveLength(2);
+    expect(within(versionItems()[0]).getByText('Current')).toBeInTheDocument();
+    expect(within(versionItems()[1]).queryByText('Current')).not.toBeInTheDocument();
+  });
+
+  it('AC12.2 names a version and keeps the name after a reload', async () => {
+    const user = userEvent.setup();
+    // Given the workflow is on and has two versions
+    const repository = await open('#/settings/workflows', setEnabled(DEFAULT_WORKFLOW, true));
+    await user.click(chip('To do', 'Done'));
+    // When I name the newest version
+    await user.type(within(versionItems()[0]).getByRole('textbox'), 'Before the rebuild{Enter}');
+    // Then the name is shown, also after a reload
+    await waitFor(async () => expect((await repository.load()).settings.workflow.versions[1].name).toBe('Before the rebuild'));
     await reload(repository, '#/settings/workflows');
-    expect(versions()).toHaveLength(4);
-    expect(within(versions()[3]).getByRole('textbox')).toHaveValue('Before the rebuild');
+    expect(within(versionItems()[0]).getByRole('textbox')).toHaveValue('Before the rebuild');
+  });
+
+  it('AC12.3 goes back to a working version after a confirmation', async () => {
+    const user = userEvent.setup();
+    // Given a working state (To do → Done forbidden) and a broken one (To do → In progress forbidden as well)
+    const repository = await open('#/settings/workflows', setEnabled(DEFAULT_WORKFLOW, true));
+    await user.click(chip('To do', 'Done'));
+    await user.click(chip('To do', 'In progress'));
+    expect(versionItems()).toHaveLength(3);
+    // When I go back to the version with only "To do → Done" forbidden, first cancelling the confirmation
+    const goBack = (): HTMLElement => within(versionItems()[1]).getByRole('button', { name: /^Go back to the version from/ });
+    await user.click(goBack());
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(chip('To do', 'In progress')).toHaveAttribute('aria-pressed', 'false');
+    await user.click(goBack());
+    await user.click(screen.getByRole('button', { name: 'Go back' }));
+    // Then its transitions are the current ones, a new version was added, and nothing was removed
+    expect(chip('To do', 'In progress')).toHaveAttribute('aria-pressed', 'true');
+    expect(chip('To do', 'Done')).toHaveAttribute('aria-pressed', 'false');
+    expect(versionItems()).toHaveLength(4);
+    expect(within(versionItems()[0]).getByText('Current')).toBeInTheDocument();
+    await waitFor(async () => expect((await repository.load()).settings.workflow.versions).toHaveLength(4));
   });
 });

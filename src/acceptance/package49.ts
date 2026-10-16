@@ -518,7 +518,7 @@ export const PACKAGE_49: {
           preset: 'workflowOn',
           tests: [
             'src/domain/workflow.test.ts › AC12.1 adds a version with every change, and none for switching on or off',
-            'src/Workflows.test.tsx › AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation'
+            'src/Workflows.test.tsx › AC12.1 lists a version with every change, newest first'
           ]
         },
         {
@@ -532,7 +532,7 @@ export const PACKAGE_49: {
           preset: 'workflowVersions',
           tests: [
             'src/domain/workflow.test.ts › AC12.2 names a version, trims the name and removes it when empty',
-            'src/Workflows.test.tsx › AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation'
+            'src/Workflows.test.tsx › AC12.2 names a version and keeps the name after a reload'
           ]
         },
         {
@@ -545,8 +545,8 @@ export const PACKAGE_49: {
           then: 'Die Übergänge sind wieder wie im funktionierenden Stand. Oben steht ein neuer Eintrag „Current“; der kaputte Stand ist weiterhin in der Liste.',
           preset: 'workflowVersions',
           tests: [
-            'src/domain/workflow.test.ts › AC12.3 and AC12.4 go back to an old version as a new current one, and back again, without losing any',
-            'src/Workflows.test.tsx › AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation'
+            'src/domain/workflow.test.ts › AC12.3 goes back to an old version as a new current one without losing any',
+            'src/Workflows.test.tsx › AC12.3 goes back to a working version after a confirmation'
           ]
         },
         {
@@ -558,7 +558,7 @@ export const PACKAGE_49: {
           when: 'Ich kehre zum kaputten Stand zurück.',
           then: 'Auch das funktioniert, und alle bisherigen Einträge sind noch da.',
           preset: 'workflowVersions',
-          tests: ['src/domain/workflow.test.ts › AC12.3 and AC12.4 go back to an old version as a new current one, and back again, without losing any']
+          tests: ['src/domain/workflow.test.ts › AC12.4 goes back and forth between versions without losing any']
         },
         {
           id: 'AC12.5',

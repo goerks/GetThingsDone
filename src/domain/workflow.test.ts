@@ -270,7 +270,7 @@ describe('workflow (#49)', () => {
     expect(nameVersion(named, top, ' ').versions[1].name).toBeUndefined();
   });
 
-  it('AC12.3 and AC12.4 go back to an old version as a new current one, and back again, without losing any', () => {
+  it('AC12.3 goes back to an old version as a new current one without losing any', () => {
     // Given a working workflow, then a broken one (everything from "To do" forbidden)
     const newId = ids();
     const good = recordVersion(on, setTransition(on, 'todo', 'done', false), '2026-10-16T10:00:00Z', newId);
@@ -283,11 +283,20 @@ describe('workflow (#49)', () => {
     expect(restored.story.blocked).toEqual({ todo: ['done'] });
     expect(restored.versions).toHaveLength(broken.versions.length + 1);
     expect(restored.versions.some((version) => version.id === brokenId)).toBe(true);
-    // And I can go back to the broken one
+  });
+
+  it('AC12.4 goes back and forth between versions without losing any', () => {
+    // Given a working and a broken version and a return to the working one
+    const newId = ids();
+    const good = recordVersion(on, setTransition(on, 'todo', 'done', false), '2026-10-16T10:00:00Z', newId);
+    const broken = recordVersion(good, setTransition(good, 'todo', 'in_progress', false), '2026-10-16T11:00:00Z', newId);
+    const brokenId = broken.versions[broken.versions.length - 1].id;
+    const restored = restoreVersion(broken, good.versions[1].id, '2026-10-16T12:00:00Z', newId);
+    // When I go back to the broken one
     const again = restoreVersion(restored, brokenId, '2026-10-16T13:00:00Z', newId);
+    // Then it works, every earlier version is still there, and an unknown version changes nothing
     expect(again.story.blocked).toEqual(broken.story.blocked);
     expect(again.versions).toHaveLength(restored.versions.length + 1);
-    // And an unknown version changes nothing
     expect(restoreVersion(again, 'nope', '2026-10-16T14:00:00Z', newId)).toBe(again);
   });
 
