@@ -6,14 +6,15 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
 import { BurndownReport } from './BurndownReport';
+import { HistoryView } from './history/HistoryView';
 import { ScopeReport } from './ScopeReport';
 import { StoryPicker } from './StoryPicker';
 import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
 import { statusLabel } from './statusLabel';
 
-type Tab = 'details' | 'stories' | 'scope' | 'burndown';
-const TABS: readonly Tab[] = ['details', 'stories', 'scope', 'burndown'];
+type Tab = 'details' | 'stories' | 'scope' | 'burndown' | 'history';
+const TABS: readonly Tab[] = ['details', 'stories', 'scope', 'burndown', 'history'];
 
 interface Props {
   id: string;
@@ -224,6 +225,11 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
           </div>
         )}
 
+        {tab === 'history' && (
+          <div role="tabpanel" id={`${uid}-panel-history`} aria-labelledby={`${uid}-tab-history`}>
+            <HistoryView itemType="release" itemId={release.id} label={release.title} />
+          </div>
+        )}
         {tab === 'scope' && (
           <div role="tabpanel" id={`${uid}-panel-scope`} aria-labelledby={`${uid}-tab-scope`}>
             <ScopeReport release={release} />

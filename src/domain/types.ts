@@ -1,3 +1,5 @@
+import type { ChangeVersion } from './changeLog';
+
 /** The id of a status value. The team configures the status values (#5); the defaults are todo, in_progress, review, done. */
 export type Status = string;
 
@@ -283,6 +285,8 @@ export interface Snapshot {
   releases: Release[];
   /** History of the releases, oldest first. */
   events: ReleaseEvent[];
+  /** Versions of stories, epics, sprints and releases (#23), oldest first. */
+  changeLog: ChangeVersion[];
   stories: Story[];
   /** Status values in board order (#5). */
   statuses: StatusValue[];

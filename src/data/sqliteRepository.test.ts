@@ -11,7 +11,7 @@ import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 import { EMPTY_DEFINITIONS } from '../domain/definitions';
 
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -56,6 +56,44 @@ async function freshRepository(): Promise<{ db: DatabaseSync; repository: Sqlite
   await repository.replaceAll(seedSnapshot('2026-10-11'));
   return { db, repository };
 }
+
+describe('change log (#23)', () => {
+  it('AC5.1 stores the versions with the data and gives them back in order', async () => {
+    // Given the demo data with its demo history
+    const { repository } = await freshRepository();
+    const seeded = seedSnapshot('2026-10-11');
+    expect(seeded.changeLog.length).toBeGreaterThan(0);
+    // When it is loaded
+    const loaded = await repository.load();
+    // Then the versions are there as they were stored
+    expect(loaded.changeLog).toEqual(seeded.changeLog);
+  });
+
+  it('AC3.4 inserts, replaces and deletes versions', async () => {
+    // Given a stored history
+    const { repository } = await freshRepository();
+    const [first, second] = (await repository.load()).changeLog.filter((version) => version.itemId === 'story-3');
+    // When a version is replaced, one is removed and a new one is added
+    const added = { ...second, id: 'v-new', version: 99 };
+    await repository.applyChangeLog({ upsert: [{ ...first, at: '2026-10-11T08:00:00.000Z' }, added], remove: [second.id] });
+    // Then the stored versions follow
+    const after = (await repository.load()).changeLog.filter((version) => version.itemId === 'story-3');
+    expect(after.some((version) => version.id === second.id)).toBe(false);
+    expect(after.find((version) => version.id === first.id)?.at).toBe('2026-10-11T08:00:00.000Z');
+    expect(after.some((version) => version.id === 'v-new')).toBe(true);
+  });
+
+  it('AC5.2 a database of an earlier version gets an empty change log', async () => {
+    // Given a database before the change log existed
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 12));
+    // When the new migration runs
+    migrate(db, MIGRATIONS.slice(12));
+    // Then it loads with no versions
+    const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
+    expect(loaded.changeLog).toEqual([]);
+  });
+});
 
 describe('definitions (#26)', () => {
   it('AC1.1 stores the lists with the settings and the states of a story with the story', async () => {

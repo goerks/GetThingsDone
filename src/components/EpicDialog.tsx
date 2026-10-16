@@ -6,6 +6,7 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
 import { FieldControl } from './FieldControl';
+import { HistoryPanel } from './history/HistoryPanel';
 import { ColorPicker } from './EpicDialogs';
 import { useBuiltin } from './useBuiltin';
 
@@ -73,6 +74,7 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
           />
         ))}
         <p className="muted">{t('epics.storyCount', { count })}</p>
+        <HistoryPanel itemType="epic" itemId={epic.id} label={epic.name} />
         <div className="form__actions dialog__footer">
           <button type="button" className="btn btn--danger-quiet" disabled={count > 0} onClick={remove} aria-describedby={count > 0 ? `${uid}-in-use` : undefined}>
             {t('epics.deleteButton')}

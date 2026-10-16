@@ -636,7 +636,8 @@
       "details": "Détails",
       "stories": "Stories ({{count}})",
       "scope": "Périmètre",
-      "burndown": "Burndown"
+      "burndown": "Burndown",
+      "history": "Historique"
     },
     "edit": "Modifier la release",
     "close": "Fermer",
@@ -982,6 +983,11 @@
         "title": "Sauvegarder et emporter les données",
         "keywords": "backup sauvegarde export import sauvegarder restaurer fichier json données emporter ordinateur copie",
         "body": "Ouvrez Paramètres → Données. « Exporter toutes les données » enregistre tout dans un fichier, par exemple getitdone-2026-10-15.json. Gardez-le comme sauvegarde ou emportez-le sur un autre ordinateur.\n« Choisir un fichier … » charge un tel fichier. Avant tout changement, l'application montre le contenu du fichier à côté de vos données actuelles et demande confirmation. Un import remplace toutes vos données actuelles ; exportez-les d'abord si vous voulez les conserver.\nLe fichier fonctionne dans l'application Windows et dans le navigateur. Un fichier non valide ou issu d'une version plus récente est refusé, et vos données restent telles quelles."
+      },
+      "history.compare": {
+        "title": "Historique et comparaison de versions",
+        "keywords": "historique modifications versions comparer différence journal avant après sprint epic release story",
+        "body": "Chaque story, epic, sprint et release a un historique. Ouvrez l’élément et regardez « Historique » sous les autres panneaux (pour une release : l’onglet « Historique »). Chaque enregistrement est une version (V1, V2, …) avec la date, l’heure et ce qui a changé. Les déplacements sur le tableau et dans le backlog comptent comme changement de statut ou de sprint ; le simple tri non.\nPour comparer deux versions, cliquez sur « Comparer des versions », sur « Comparer à l’actuelle » dans une entrée, ou cochez deux versions sous « Afficher toutes les modifications ». À gauche la plus ancienne, à droite la plus récente ; « ⇄ » les échange. Les champs modifiés portent un signe et un mot, les champs inchangés sont repliés, la description s’affiche ligne par ligne.\nLa comparaison est en lecture seule : elle ne restaure rien. L’historique commence à la première modification ; ce qui existait avant affiche « Aucune modification pour l’instant »."
       }
     },
     "links": {
@@ -1234,6 +1240,83 @@
       "open": "non défini",
       "checked": "fait",
       "na": "ignoré (non pertinent)"
+    }
+  },
+  "history": {
+    "title": "Historique",
+    "count_one": "{{count}} version",
+    "count_many": "{{count}} versions",
+    "count_other": "{{count}} versions",
+    "empty": "Aucune modification pour l’instant.",
+    "listLabel": "Versions, les plus récentes d’abord",
+    "choose": "Choisir {{version}}",
+    "version": "V{{number}}",
+    "versionCurrent": "Actuelle (V{{number}})",
+    "current": "Actuelle",
+    "compareWithCurrent": "Comparer à l’actuelle",
+    "compareWithCurrentOf": "Comparer {{version}} à la version actuelle",
+    "compareButton": "Comparer des versions",
+    "showAll_one": "Afficher la {{count}} modification",
+    "showAll_many": "Afficher les {{count}} modifications",
+    "showAll_other": "Afficher les {{count}} modifications",
+    "allTitle": "Historique de {{name}}",
+    "chosenTwo": "{{first}} et {{second}} choisies",
+    "chooseTwo": "Cochez deux versions pour les comparer.",
+    "compare": "Comparer",
+    "compareTitle": "Comparer des versions",
+    "compareHeading": "Comparer les versions de {{name}}",
+    "back": "← Retour",
+    "from": "De",
+    "to": "À",
+    "swap": "Inverser les côtés",
+    "onlyChanges": "Seulement les changements",
+    "noDifferences": "Aucune différence",
+    "changedFields": "{{changed}} champs sur {{total}} modifiés :",
+    "hidden_one": "{{count}} champ inchangé masqué : {{names}}",
+    "hidden_many": "{{count}} champs inchangés masqués : {{names}}",
+    "hidden_other": "{{count}} champs inchangés masqués : {{names}}",
+    "rowChanged": "Modifié :",
+    "removed": "Supprimé :",
+    "added": "Ajouté :",
+    "checked": "coché",
+    "unchecked": "non coché",
+    "ticked": "coché",
+    "unticked": "rouvert",
+    "textDiff_one": "Texte, {{count}} ligne modifiée",
+    "textDiff_many": "Texte, {{count}} lignes modifiées",
+    "textDiff_other": "Texte, {{count}} lignes modifiées",
+    "none": "–",
+    "yes": "oui",
+    "no": "non",
+    "fieldRemoved": "Champ supprimé",
+    "storyWithPoints_one": "{{code}} ({{count}} point)",
+    "storyWithPoints_many": "{{code}} ({{count}} points)",
+    "storyWithPoints_other": "{{code}} ({{count}} points)",
+    "baseline": "L’historique commence ici.",
+    "created": {
+      "story": "Story créée",
+      "epic": "Epic créé",
+      "sprint": "Sprint créé",
+      "release": "Release créée",
+      "item": "Créé"
+    },
+    "line": {
+      "changed": "{{field}} modifié",
+      "value": "{{field}} : {{from}} → {{to}}",
+      "criterionAdded": "Critère ajouté : « {{name}} »",
+      "criterionRemoved": "Critère supprimé : « {{name}} »",
+      "criterionTicked": "Critère coché : « {{name}} »",
+      "criterionUnticked": "Critère rouvert : « {{name}} »",
+      "criterionEdited": "Critère modifié : « {{from}} » → « {{to}} »",
+      "storyAdded": "Story ajoutée : {{name}}",
+      "storyRemoved": "Story retirée : {{name}}",
+      "entryAdded": "{{field}} : « {{name}} » ajouté",
+      "entryRemoved": "{{field}} : « {{name}} » supprimé"
+    },
+    "fieldName": {
+      "sprint": "Sprint",
+      "state": "État",
+      "stories": "Stories"
     }
   }
 }

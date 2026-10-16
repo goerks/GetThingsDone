@@ -48,6 +48,7 @@ import {
   type LayoutPatch
 } from '../domain/fields';
 import type { Activity } from '../domain/helpTour';
+import { applyWrites, baselineWrites, orphanRemovals, recordWorld, statesOf, type ChangeVersion, type World } from '../domain/changeLog';
 import { baselineEvents, releaseEventsFor } from '../domain/history';
 import { newId } from '../domain/ids';
 import {
@@ -113,6 +114,8 @@ interface AppApi {
   releases: Release[];
   /** History of the releases, oldest first (#10). */
   events: ReleaseEvent[];
+  /** Versions of stories, epics, sprints and releases, oldest first (#23). */
+  changeLog: ChangeVersion[];
   stories: Story[];
   /** Status values in board order (#5). */
   statuses: StatusValue[];
@@ -237,6 +240,7 @@ export function AppProvider({ repository, children }: Props) {
     sprints: [],
     releases: [],
     events: [],
+    changeLog: [],
     stories: [],
     statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
     fields: [],
@@ -252,6 +256,9 @@ export function AppProvider({ repository, children }: Props) {
   const epicsRef = useRef<Epic[]>([]);
   const sprintsRef = useRef<Sprint[]>([]);
   const releasesRef = useRef<Release[]>([]);
+  const changeLogRef = useRef<ChangeVersion[]>([]);
+  /** While set, changes are not recorded one by one: the caller recorded them together. */
+  const quiet = useRef(false);
   const settingsRef = useRef<Settings>(DEFAULT_SETTINGS);
   const activityListeners = useRef(new Set<(activity: Activity) => void>());
   const statusesRef = useRef<StatusValue[]>(DEFAULT_STATUSES.map((status) => ({ ...status })));
@@ -311,6 +318,24 @@ export function AppProvider({ repository, children }: Props) {
   );
 
   /**
+   * Records what a change of the stories, epics, sprints or releases does to the change log (#23): a new version for each
+   * item whose tracked fields changed. Call it before the refs are replaced; `next` holds the collections that change.
+   */
+  const track = useCallback(
+    (next: Partial<World>) => {
+      if (quiet.current) return;
+      const before: World = { stories: storiesRef.current, epics: epicsRef.current, sprints: sprintsRef.current, releases: releasesRef.current };
+      const writes = recordWorld(changeLogRef.current, before, { ...before, ...next }, new Date().toISOString(), newId);
+      if (writes.upsert.length === 0 && writes.remove.length === 0) return;
+      const changeLog = applyWrites(changeLogRef.current, writes);
+      changeLogRef.current = changeLog;
+      setSnapshot((current) => ({ ...current, changeLog }));
+      persist((repo) => repo.applyChangeLog(writes));
+    },
+    [persist]
+  );
+
+  /**
    * Sets the stories, and the status values when they change too. What this changes for the stories in releases
    * (also through a status value that moves into or out of "done") is appended to the history of the releases.
    */
@@ -319,6 +344,7 @@ export function AppProvider({ repository, children }: Props) {
       const before = storiesRef.current;
       // A story that becomes done remembers the Done list it is held to (#26).
       const stories = withDoneSnapshots(before, changed, isDoneIn(statusesRef.current), isDoneIn(statuses), settingsRef.current.definitions);
+      track({ stories });
       const events = releaseEventsFor(before, stories, new Date().toISOString(), newId, isDoneIn(statuses), isDoneIn(statusesRef.current));
       const previous = new Map(before.map((story) => [story.id, story]));
       const checked = stories.filter((story) => {
@@ -335,23 +361,35 @@ export function AppProvider({ repository, children }: Props) {
       setSnapshot((current) => ({ ...current, stories, statuses, events: events.length > 0 ? [...current.events, ...events] : current.events }));
       if (events.length > 0) persist((repo) => repo.addReleaseEvents(events));
     },
-    [persist]
+    [persist, track]
   );
 
-  const updateEpics = useCallback((epics: Epic[]) => {
-    epicsRef.current = epics;
-    setSnapshot((current) => ({ ...current, epics }));
-  }, []);
+  const updateEpics = useCallback(
+    (epics: Epic[]) => {
+      track({ epics });
+      epicsRef.current = epics;
+      setSnapshot((current) => ({ ...current, epics }));
+    },
+    [track]
+  );
 
-  const updateSprints = useCallback((sprints: Sprint[]) => {
-    sprintsRef.current = sprints;
-    setSnapshot((current) => ({ ...current, sprints }));
-  }, []);
+  const updateSprints = useCallback(
+    (sprints: Sprint[]) => {
+      track({ sprints });
+      sprintsRef.current = sprints;
+      setSnapshot((current) => ({ ...current, sprints }));
+    },
+    [track]
+  );
 
-  const updateReleases = useCallback((releases: Release[]) => {
-    releasesRef.current = releases;
-    setSnapshot((current) => ({ ...current, releases }));
-  }, []);
+  const updateReleases = useCallback(
+    (releases: Release[]) => {
+      track({ releases });
+      releasesRef.current = releases;
+      setSnapshot((current) => ({ ...current, releases }));
+    },
+    [track]
+  );
 
   const updateSettings = useCallback((settings: Settings) => {
     settingsRef.current = settings;
@@ -370,6 +408,7 @@ export function AppProvider({ repository, children }: Props) {
     fieldsRef.current = { fields: loaded.fields, assignments: loaded.assignments };
     sprintsRef.current = loaded.sprints;
     releasesRef.current = loaded.releases;
+    changeLogRef.current = loaded.changeLog;
     settingsRef.current = loaded.settings;
     statusesRef.current = loaded.statuses;
     setSnapshot(loaded);
@@ -398,6 +437,13 @@ export function AppProvider({ repository, children }: Props) {
         if (baseline.length > 0) {
           await repo.addReleaseEvents(baseline);
           loaded = { ...loaded, events: [...loaded.events, ...baseline] };
+        }
+        // An item that is older than the change log gets its first version now, so it can be compared later.
+        const states = statesOf(loaded);
+        const writes = { ...baselineWrites(loaded.changeLog, states, new Date().toISOString(), newId), remove: orphanRemovals(loaded.changeLog, states) };
+        if (writes.upsert.length > 0 || writes.remove.length > 0) {
+          await repo.applyChangeLog(writes);
+          loaded = { ...loaded, changeLog: applyWrites(loaded.changeLog, writes) };
         }
         if (cancelled) return;
         adopt(loaded);
@@ -439,6 +485,7 @@ export function AppProvider({ repository, children }: Props) {
       sprints: snapshot.sprints,
       releases: snapshot.releases,
       events: snapshot.events,
+      changeLog: snapshot.changeLog,
       stories: snapshot.stories,
       statuses: snapshot.statuses,
       isDone: isDoneIn(snapshot.statuses),
@@ -511,8 +558,13 @@ export function AppProvider({ repository, children }: Props) {
         if (!repo) throw new Error('The storage is not ready');
         // Let the changes that are still being written finish first, so they cannot land on top of the imported data.
         await queueRef.current;
-        await repo.replaceAll(next);
-        adopt(next);
+        // Versions of items that are not in the file are dropped, items without versions get their first one.
+        const states = statesOf(next);
+        const known = new Set(orphanRemovals(next.changeLog, states));
+        const kept = next.changeLog.filter((version) => !known.has(version.id));
+        const prepared = { ...next, changeLog: applyWrites(kept, baselineWrites(kept, states, new Date().toISOString(), newId)) };
+        await repo.replaceAll(prepared);
+        adopt(prepared);
       },
       addStatus(category, label) {
         const id = newId();
@@ -585,8 +637,15 @@ export function AppProvider({ repository, children }: Props) {
           nameFor: (number) => t('sprint.defaultName', { number })
         });
         if (!completion) return null;
-        updateSprints(completion.sprints);
-        update(completion.stories);
+        // The sprint and its stories change together: one version each.
+        track({ sprints: completion.sprints, stories: completion.stories });
+        quiet.current = true;
+        try {
+          updateSprints(completion.sprints);
+          update(completion.stories);
+        } finally {
+          quiet.current = false;
+        }
         const moved = changedPositions(storiesBefore, completion.stories);
         persist(async (repo) => {
           if (completion.created && completion.targetSprint) await repo.addSprint(completion.targetSprint);
@@ -620,6 +679,7 @@ export function AppProvider({ repository, children }: Props) {
       },
       deleteRelease(id) {
         const result = deleteReleaseIn(releasesRef.current, storiesRef.current, id);
+        track({ releases: result.releases, stories: result.stories });
         // The history goes with the release, so the stories losing it are not recorded as removed.
         releasesRef.current = result.releases;
         storiesRef.current = result.stories;

@@ -636,7 +636,8 @@
       "details": "Details",
       "stories": "Stories ({{count}})",
       "scope": "Scope",
-      "burndown": "Burndown"
+      "burndown": "Burndown",
+      "history": "History"
     },
     "edit": "Edit release",
     "close": "Close",
@@ -982,6 +983,11 @@
         "title": "Back up and export data",
         "keywords": "backup export import save restore file json data computer copy",
         "body": "Open Settings → Data. \"Export all data\" saves everything in one file, for example getitdone-2026-10-15.json. Keep it as a backup or take it to another computer.\n\"Choose file …\" loads such a file. Before anything changes, the app shows what is in the file next to your current data and asks. An import replaces all your current data, so export first if you want to keep it.\nThe file works in the Windows app and in the browser. A file that is not valid or comes from a newer version is refused, and your data stay as they are."
+      },
+      "history.compare": {
+        "title": "History and comparing versions",
+        "keywords": "history changes versions compare diff version log changed before after audit sprint epic release story",
+        "body": "Every story, epic, sprint and release keeps a history. Open the item and look at \"History\" below the other panels (for a release: the tab \"History\"). Each save is one version (V1, V2, …) with date, time and what changed. Moves on the board and in the backlog count as changes of status or sprint; reordering does not.\nTo compare two versions, click \"Compare versions\", or \"Compare with current\" on an entry, or tick two versions under \"Show all changes\". Left is the older, right the newer version; \"⇄\" swaps them. Changed fields are marked with a sign and a word, unchanged fields are folded, and the description is shown line by line.\nThe comparison only reads: it restores nothing. The history starts with the first change; items that existed before show \"No changes yet\"."
       }
     },
     "links": {
@@ -1234,6 +1240,78 @@
       "open": "not set",
       "checked": "done",
       "na": "ignored (not relevant)"
+    }
+  },
+  "history": {
+    "title": "History",
+    "count_one": "{{count}} version",
+    "count_other": "{{count}} versions",
+    "empty": "No changes yet.",
+    "listLabel": "Versions, newest first",
+    "choose": "Choose {{version}}",
+    "version": "V{{number}}",
+    "versionCurrent": "Current (V{{number}})",
+    "current": "Current",
+    "compareWithCurrent": "Compare with current",
+    "compareWithCurrentOf": "Compare {{version}} with the current version",
+    "compareButton": "Compare versions",
+    "showAll_one": "Show all {{count}} change",
+    "showAll_other": "Show all {{count}} changes",
+    "allTitle": "History of {{name}}",
+    "chosenTwo": "{{first}} and {{second}} chosen",
+    "chooseTwo": "Tick two versions to compare them.",
+    "compare": "Compare",
+    "compareTitle": "Compare versions",
+    "compareHeading": "Compare versions of {{name}}",
+    "back": "← Back",
+    "from": "From",
+    "to": "To",
+    "swap": "Swap the sides",
+    "onlyChanges": "Only changes",
+    "noDifferences": "No differences",
+    "changedFields": "{{changed}} of {{total}} fields changed:",
+    "hidden_one": "{{count}} unchanged field hidden: {{names}}",
+    "hidden_other": "{{count}} unchanged fields hidden: {{names}}",
+    "rowChanged": "Changed:",
+    "removed": "Removed:",
+    "added": "Added:",
+    "checked": "ticked",
+    "unchecked": "not ticked",
+    "ticked": "ticked",
+    "unticked": "reopened",
+    "textDiff_one": "Text, {{count}} changed line",
+    "textDiff_other": "Text, {{count}} changed lines",
+    "none": "–",
+    "yes": "yes",
+    "no": "no",
+    "fieldRemoved": "Removed field",
+    "storyWithPoints_one": "{{code}} ({{count}} point)",
+    "storyWithPoints_other": "{{code}} ({{count}} points)",
+    "baseline": "The history starts here.",
+    "created": {
+      "story": "Story created",
+      "epic": "Epic created",
+      "sprint": "Sprint created",
+      "release": "Release created",
+      "item": "Created"
+    },
+    "line": {
+      "changed": "{{field}} changed",
+      "value": "{{field}}: {{from}} → {{to}}",
+      "criterionAdded": "Criterion added: “{{name}}”",
+      "criterionRemoved": "Criterion removed: “{{name}}”",
+      "criterionTicked": "Criterion ticked: “{{name}}”",
+      "criterionUnticked": "Criterion reopened: “{{name}}”",
+      "criterionEdited": "Criterion changed: “{{from}}” → “{{to}}”",
+      "storyAdded": "Story added: {{name}}",
+      "storyRemoved": "Story removed: {{name}}",
+      "entryAdded": "{{field}}: “{{name}}” added",
+      "entryRemoved": "{{field}}: “{{name}}” removed"
+    },
+    "fieldName": {
+      "sprint": "Sprint",
+      "state": "State",
+      "stories": "Stories"
     }
   }
 }
