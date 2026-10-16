@@ -6248,3 +6248,24 @@ a.btn {
   gap: 0.5rem;
   flex-basis: 100%;
 }
+
+.acceptance__intro {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.acceptance__intro summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.acceptance__intro p {
+  margin: 6px 0;
+}
+
+.acceptance__intro ol {
+  margin: 0;
+  padding-left: 18px;
+}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { selectPackage } from './packages';
 import { applyPreset, PRESETS, takeReopen } from './presets';
-import type { TestCase } from './types';
+import type { Intro, TestCase } from './types';
 
 /*
  * The acceptance aid of the pull request preview (#32), variant B "step through": a round button with a progress ring
@@ -21,6 +21,8 @@ type Notes = Record<string, Note>;
 const PACKAGE = selectPackage(typeof window === 'undefined' ? '' : window.location.search);
 const STORAGE_KEY = `getitdone.acceptance.${PACKAGE.issue}.package${PACKAGE.issue === 32 ? 1 : PACKAGE.issue}`;
 const STEP_KEY = `${STORAGE_KEY}.step`;
+/** The introduction of the package, where it has one. */
+const INTRO: Intro | undefined = (PACKAGE as { intro?: Intro }).intro;
 const CASES: TestCase[] = PACKAGE.criteria.flatMap((criterion) => criterion.cases);
 /** The test cases only the product owner can check; the others are covered by automated tests. */
 const PO_CASES: TestCase[] = CASES.filter((testCase) => testCase.poCheck);
@@ -232,6 +234,17 @@ export function AcceptancePanel() {
             </button>
           </header>
           <div className="acceptance__body">
+            {INTRO && (
+              <details className="acceptance__intro" open>
+                <summary>Worum geht es und was wird von dir erwartet?</summary>
+                <p>{INTRO.about}</p>
+                <ol>
+                  {INTRO.todo.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              </details>
+            )}
             <div className="acceptance__strip" role="group" aria-label="Alle Prüfpunkte">
               {cases.map((testCase, index) => (
                 <button
