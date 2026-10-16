@@ -1,4 +1,5 @@
 import { featureOn } from '../domain/settings';
+import { EstimatePill } from './EstimatePill';
 import type { KeyboardEvent } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
@@ -104,9 +105,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
       <div className="card__bottom">
         <EpicTag epic={epic} inCard />
         {builtin.shown('story', 'points') && (
-          <span className="pill" title={builtin.pointsTitle(story.points)}>
-            {story.points}
-          </span>
+          <EstimatePill story={story} />
         )}
       </div>
     </>

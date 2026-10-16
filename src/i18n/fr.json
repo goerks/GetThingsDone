@@ -147,7 +147,8 @@
     "noEpic": "Aucun epic",
     "problem": {
       "name": "Veuillez saisir un nom."
-    }
+    },
+    "size": "Taille"
   },
   "sprint": {
     "label": "Sprint",
@@ -189,8 +190,8 @@
       "plannedPoints": "Points planifiés",
       "points": "points",
       "note": "Ces {{points}} points comptent comme planifiés. Ce qui s’ajoute ou part ensuite apparaît à la clôture.",
-      "withoutPoints_one": "{{count}} story sans point ({{codes}}) compte pour 0 point.",
-      "withoutPoints_other": "{{count}} stories sans point ({{codes}}) comptent pour 0 point.",
+      "withoutPoints_one": "{{count}} story sans estimation ({{codes}}) ne compte aucun point.",
+      "withoutPoints_other": "{{count}} stories sans estimation ({{codes}}) ne comptent aucun point.",
       "datesLegend": "Date de début",
       "datesNote": "Prévu le {{planned}}, nous sommes le {{today}}.",
       "today": "Démarrer aujourd’hui : {{dates}}",
@@ -507,7 +508,9 @@
     "stories_one": "{{count}} story",
     "stories_other": "{{count}} stories",
     "points_one": "{{count}} point",
-    "points_other": "{{count}} points"
+    "points_other": "{{count}} points",
+    "unestimated_one": "{{count}} sans estimation",
+    "unestimated_other": "{{count}} sans estimation"
   },
   "search": {
     "label": "Recherche",
@@ -918,6 +921,11 @@
         "keywords": "ajout rapide plus story colonne sprint cellule titre entree",
         "body": "Cliquez sur « + Story » à la fin d’une colonne du tableau ou d’une section du backlog, ou sur le « + » d’une cellule de la story map. Saisissez un titre et appuyez sur Entrée : la story est ajoutée à cet endroit et le champ reste ouvert pour la suivante. Échap ferme le champ.\nSeul le titre est demandé ; points, epic et le reste s’ajoutent plus tard dans la story."
       },
+      "story.estimate": {
+        "title": "Estimer avec des cartes",
+        "keywords": "estimer estimation cartes fibonacci points stories référence non estimée epic taille t-shirt",
+        "body": "Ouvrez une story et choisissez une carte dans le champ « Points » : 1, 2, 3, 5, 8, 13 ou 21. Un clic sur la carte choisie annule l’estimation. Les cartes « ? » (incertain) et la tasse de café (pause) ne sont pas une estimation : la story compte alors comme « non estimée ». Les flèches du clavier passent d’une carte à l’autre, Entrée choisit.\nUne nouvelle story n’est jamais estimée. Elle affiche une pastille en pointillés avec un tiret, et le total d’un sprint ou du backlog indique combien de stories manquent, par exemple « 6 stories · 18 points · 1 sans estimation ». Les stories sans estimation ne comptent aucun point.\nMarquez une story estimée comme référence de sa valeur (« Cette story est la référence pour 3 »). Chaque valeur a au plus une story de référence ; en marquer une autre remplace la première. Les cartes avec une référence ont un trait jaune et montrent la clé de la story, et la liste « Stories de référence » ouvre la story pour comparer une nouvelle story. Si vous estimez autrement une story de référence, la marque disparaît.\nLes epics s’estiment avec une taille de T-shirt (XS, S, M, L, XL) dans la fenêtre de l’epic."
+      },
       "backlog.order": {
         "title": "Ordonner le backlog",
         "keywords": "priorite ordre glisser trier",
@@ -1067,7 +1075,9 @@
       "noRelease": "{{code}} n’a plus de release",
       "points_one": "{{code}} a maintenant {{count}} point",
       "points_other": "{{code}} a maintenant {{count}} points",
-      "reordered": "{{code}} déplacée"
+      "reordered": "{{code}} déplacée",
+      "special": "{{code}} estimée avec {{card}}",
+      "unestimated": "{{code}} n’est pas estimée"
     }
   },
   "velocity": {
@@ -1235,5 +1245,19 @@
       "checked": "fait",
       "na": "ignoré (non pertinent)"
     }
+  },
+  "estimate": {
+    "none": "Non estimée",
+    "special": {
+      "unsure": "Incertain (?)",
+      "break": "Pause (café)"
+    },
+    "cardWithReference": "{{card}}, story de référence {{code}}",
+    "referenceFor": "Cette story est la référence pour {{value}}",
+    "references": "Stories de référence",
+    "noReferences": "Aucune story de référence pour l’instant. Marquez une story estimée comme référence de sa carte.",
+    "thisStory": "{{code}} {{title}} (cette story)",
+    "openReference": "{{code}} {{title}}",
+    "replaced": "{{code}} est maintenant la référence pour {{value}} et remplace {{old}}."
   }
 }

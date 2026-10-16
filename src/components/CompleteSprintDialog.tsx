@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from 'react';
+import { EstimatePill } from './EstimatePill';
 import { useTranslation } from 'react-i18next';
 import { completeNeedsDate, completeSprint, contentsOf, summarizeSprint, type Completion, type UnfinishedTarget } from '../domain/sprintLife';
 import { plannedSprints, todayIso } from '../domain/sprints';
@@ -26,7 +27,6 @@ const signed = (value: number): string => (value > 0 ? `+${value}` : value < 0 ?
 export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
   const { t, i18n } = useTranslation();
   const app = useApp();
-  const builtin = useBuiltin();
   const uid = useId();
   const today = todayIso();
   const summary = summarizeSprint(sprint, app.stories, app.isDone);
@@ -72,9 +72,7 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
           <span className="mono">{story.code}</span>
           <span>{story.title}</span>
           <span className="muted">{statusLabel(t, app.statuses, story.status)}</span>
-          <span className="pill" title={builtin.pointsTitle(story.points)}>
-            {story.points}
-          </span>
+          <EstimatePill story={story} />
         </li>
       ))}
     </ul>

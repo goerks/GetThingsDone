@@ -749,3 +749,15 @@ describe('help for the usability features (#32)', () => {
     expect(text).toContain('Ctrl+Shift+Enter');
   });
 });
+
+describe('help for estimating with cards (#54)', () => {
+  it.each([['#/board'], ['#/backlog'], ['#/map']])('help topic "Estimate with cards" is listed on %s', async (hash) => {
+    // Given I am on a page where stories are estimated
+    const user = userEvent.setup();
+    await renderApp(hash);
+    // When I open the help
+    await openHelp(user);
+    // Then the topic is listed
+    expect(listed()).toContain('Estimate with cards');
+  });
+});

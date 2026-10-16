@@ -38,7 +38,7 @@ export function ResultRow({ result, snapshot, onPage = false }: { result: Search
                 {epic.name}
               </span>
             )}
-            <span>{t('search.pointsValue', { count: story.points })}</span>
+            {story.points !== null && <span>{t('search.pointsValue', { count: story.points })}</span>}
             {progress.total > 0 && (
               <span className="result__progress">
                 <span className="progress" aria-hidden="true">

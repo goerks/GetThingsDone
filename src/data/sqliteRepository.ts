@@ -6,6 +6,7 @@ import { isDoneIn, normalizeStatuses } from '../domain/statuses';
 import { changedPositions } from '../domain/board';
 import { settleSprints, type StoredSprint } from '../domain/sprintLife';
 import { todayIso } from '../domain/sprints';
+import { EPIC_SIZES, SPECIAL_CARDS } from '../domain/types';
 import type {
   BuiltinKey,
   Criterion,
@@ -40,6 +41,7 @@ interface EpicRow {
   name: string;
   color_key: string;
   position: number;
+  size: string | null;
 }
 
 interface SprintRow {
@@ -52,6 +54,16 @@ interface SprintRow {
   start_items: string | null;
   result: string | null;
 }
+
+/** The card a stored estimate stands for: a number card, a special card or none (#54). */
+function cardOf(estimate: string | null): Pick<Story, 'points' | 'special'> {
+  const special = SPECIAL_CARDS.find((card) => card === estimate);
+  if (special) return { points: null, special };
+  const points = estimate === null ? Number.NaN : Number(estimate);
+  return { points: Number.isFinite(points) ? points : null, special: null };
+}
+
+const estimateOfStory = (story: Story): string | null => (story.points !== null ? String(story.points) : story.special);
 
 const json = (value: unknown): string | null => (value === null ? null : JSON.stringify(value));
 
@@ -90,6 +102,8 @@ interface StoryRow {
   description: string;
   epic_id: string | null;
   points: number;
+  estimate: string | null;
+  reference: number;
   status: string;
   sprint_id: string | null;
   release_id: string | null;
@@ -179,7 +193,7 @@ export class SqliteRepository implements Repository {
   }
 
   async load(): Promise<Snapshot> {
-    const epicRows = await this.db.select<EpicRow[]>('SELECT id, name, color_key, position FROM epics ORDER BY position, name');
+    const epicRows = await this.db.select<EpicRow[]>('SELECT id, name, color_key, position, size FROM epics ORDER BY position, name');
     const sprintRows = await this.db.select<SprintRow[]>(
       'SELECT id, name, start_date, end_date, state, start_items, result FROM sprints ORDER BY start_date, name'
     );
@@ -187,7 +201,7 @@ export class SqliteRepository implements Repository {
       'SELECT id, title, description, start_date, end_date FROM releases ORDER BY rowid'
     );
     const storyRows = await this.db.select<StoryRow[]>(
-      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, rank, checks, done_items FROM stories ORDER BY rank'
+      'SELECT id, code, title, description, epic_id, points, estimate, reference, status, sprint_id, release_id, rank, checks, done_items FROM stories ORDER BY rank'
     );
     const criterionRows = await this.db.select<CriterionRow[]>(
       'SELECT id, story_id, text, done FROM criteria ORDER BY story_id, position'
@@ -230,6 +244,7 @@ export class SqliteRepository implements Repository {
       name: row.name,
       colorKey: normalizeColorKey(row.color_key),
       position: row.position,
+      size: EPIC_SIZES.find((size) => size === row.size) ?? null,
       values: valuesByItem.get(row.id) ?? {}
     }));
     const storedSprints: StoredSprint[] = sprintRows.map((row) => ({
@@ -267,7 +282,8 @@ export class SqliteRepository implements Repository {
       title: row.title,
       description: row.description,
       epicId: row.epic_id,
-      points: row.points,
+      ...cardOf(row.estimate),
+      reference: row.reference === 1,
       status: row.status as Status,
       sprintId: row.sprint_id,
       releaseId: row.release_id,
@@ -390,8 +406,8 @@ export class SqliteRepository implements Repository {
 
   async addStory(story: Story): Promise<void> {
     await this.db.execute(
-      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, rank, checks, done_items) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
-      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, JSON.stringify(story.checks), json(story.doneItems)]
+      'INSERT INTO stories (id, code, title, description, epic_id, points, estimate, reference, status, sprint_id, release_id, rank, checks, done_items) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)',
+      [story.id, story.code, story.title, story.description, story.epicId, story.points ?? 0, estimateOfStory(story), story.reference ? 1 : 0, story.status, story.sprintId, story.releaseId, story.rank, JSON.stringify(story.checks), json(story.doneItems)]
     );
     for (const [position, criterion] of story.criteria.entries()) {
       await this.addCriterion(story.id, criterion, position);
@@ -403,8 +419,8 @@ export class SqliteRepository implements Repository {
 
   async updateStory(story: Story): Promise<void> {
     await this.db.execute(
-      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, rank = $8 WHERE id = $9',
-      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.rank, story.id]
+      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, estimate = $5, reference = $6, status = $7, sprint_id = $8, release_id = $9, rank = $10 WHERE id = $11',
+      [story.title, story.description, story.epicId, story.points ?? 0, estimateOfStory(story), story.reference ? 1 : 0, story.status, story.sprintId, story.releaseId, story.rank, story.id]
     );
   }
 
@@ -448,11 +464,12 @@ export class SqliteRepository implements Repository {
   }
 
   async addEpic(epic: Epic): Promise<void> {
-    await this.db.execute('INSERT INTO epics (id, name, color_key, position) VALUES ($1, $2, $3, $4)', [
+    await this.db.execute('INSERT INTO epics (id, name, color_key, position, size) VALUES ($1, $2, $3, $4, $5)', [
       epic.id,
       epic.name,
       epic.colorKey,
-      epic.position
+      epic.position,
+      epic.size
     ]);
     for (const [fieldId, value] of Object.entries(epic.values)) {
       await this.setFieldValue(epic.id, fieldId, value);
@@ -460,10 +477,11 @@ export class SqliteRepository implements Repository {
   }
 
   async updateEpic(epic: Epic): Promise<void> {
-    await this.db.execute('UPDATE epics SET name = $1, color_key = $2, position = $3 WHERE id = $4', [
+    await this.db.execute('UPDATE epics SET name = $1, color_key = $2, position = $3, size = $4 WHERE id = $5', [
       epic.name,
       epic.colorKey,
       epic.position,
+      epic.size,
       epic.id
     ]);
   }

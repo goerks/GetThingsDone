@@ -41,7 +41,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const titleRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
   const [epicId, setEpicId] = useState<string | null>(initialEpicId ?? null);
-  const [points, setPoints] = useState(3);
+  const [points, setPoints] = useState<number | null>(null);
   const [sprintId, setSprintId] = useState(initialSprintId);
   const [releaseId, setReleaseId] = useState<string | null>(initialReleaseId ?? null);
   // The release shows when the team put it into the create dialog, or when the caller prefilled one.
@@ -140,9 +140,10 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
               <select
                 id={`${uid}-points`}
                 className="select"
-                value={points}
-                onChange={(event) => setPoints(Number(event.target.value))}
+                value={points ?? ''}
+                onChange={(event) => setPoints(event.target.value === '' ? null : Number(event.target.value))}
               >
+                <option value="">{t('estimate.none')}</option>
                 {POINT_VALUES.map((value) => (
                   <option key={value} value={value}>
                     {value}

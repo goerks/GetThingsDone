@@ -141,7 +141,7 @@ describe('recording the history', () => {
     const repository = await renderApp();
     await user.dblClick(await screen.findByRole('group', { name: /S-3:/ }));
     const dialog = await screen.findByRole('dialog', { name: /S-3:/ });
-    await user.selectOptions(within(dialog).getByLabelText('Points'), '8');
+    await user.click(within(dialog).getByRole('radio', { name: '8' }));
     await user.selectOptions(within(dialog).getByLabelText('Status'), 'Done');
     await user.selectOptions(within(dialog).getByLabelText('Release'), 'Release 1.1 – Story map');
     await waitFor(async () => {
@@ -176,7 +176,7 @@ describe('recording the history', () => {
     window.location.hash = '#/board';
     render(<App repository={repository} />);
     await user.dblClick(await screen.findByRole('group', { name: /S-3:/ }));
-    await user.selectOptions(within(await screen.findByRole('dialog', { name: /S-3:/ })).getByLabelText('Points'), '8');
+    await user.click(within(await screen.findByRole('dialog', { name: /S-3:/ })).getByRole('radio', { name: '8' }));
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect((await repository.load()).events).toEqual([]);
   });

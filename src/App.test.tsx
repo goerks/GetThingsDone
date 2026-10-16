@@ -235,7 +235,7 @@ describe('story detail', () => {
     await user.dblClick(screen.getByRole('group', { name: /S-3:/ }));
     await user.selectOptions(await screen.findByLabelText('Status'), 'review');
     await user.selectOptions(screen.getByLabelText('Epic'), 'epic-storage');
-    await user.selectOptions(screen.getByLabelText('Points'), '8');
+    await user.click(screen.getByRole('radio', { name: '8' }));
     await user.selectOptions(screen.getByLabelText('Sprint'), 'Not planned');
 
     const saved = (await repository.load()).stories.find((s) => s.id === 'story-3');

@@ -1,4 +1,6 @@
 import { useMemo, useState, type KeyboardEvent } from 'react';
+import { unestimatedCount } from '../domain/estimation';
+import { EstimatePill } from '../components/EstimatePill';
 import {
   DndContext,
   DragOverlay,
@@ -62,9 +64,7 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
       <DefinitionChip story={story} kind="ready" />
       <EpicTag epic={epic} inCard />
       {builtin.shown('story', 'points') && (
-        <span className="pill" title={builtin.pointsTitle(story.points)}>
-          {story.points}
-        </span>
+        <EstimatePill story={story} />
       )}
     </>
   );
@@ -141,7 +141,7 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
         {sprint?.state === 'running' && <span className="badge-running">{t('sprint.running')}</span>}
         {sprint?.state === 'planned' && <span className="badge-planned">{t('sprint.planned')}</span>}
         {sprint && <span className="muted backlog__dates">{formatSprintDates(sprint, i18n.language)}</span>}
-        <span className="muted">{builtin.summary(rows.length, totalPoints(rows))}</span>
+        <span className="muted">{builtin.summary(rows.length, totalPoints(rows), unestimatedCount(rows))}</span>
         {sprint && <SprintPlan points={totalPoints(rows)} className="muted backlog__plan" />}
       </h2>
       <SortableContext items={rows.map((story) => story.id)} strategy={keepInPlace}>

@@ -167,6 +167,11 @@ interface AppApi {
   /** Creates a story and tells the user; the story is highlighted afterwards. */
   createStory(input: NewStoryInput): string;
   updateStory(id: string, patch: StoryPatch): void;
+  /**
+   * Marks a story as the reference of the card value of its estimate, or takes the mark back (#54). The story that
+   * was the reference of that value loses the mark, and a notice says so.
+   */
+  setReference(id: string, on: boolean): void;
   /** Changes a story from a menu: like `updateStory`, plus a notice and the highlight (#32). */
   changeStory(id: string, patch: StoryPatch): void;
   /** Sets the Definition of Ready and Done lists of the team (#26); checks of removed items are dropped. */
@@ -284,8 +289,14 @@ export function AppProvider({ repository, children }: Props) {
       } else if (was.releaseId !== now.releaseId) {
         const release = releasesRef.current.find((item) => item.id === now.releaseId);
         toast.notify(release ? t('toast.moved.release', { code, target: release.title }) : t('toast.moved.noRelease', { code }));
-      } else if (was.points !== now.points) {
-        toast.notify(t('toast.moved.points', { code, count: now.points }));
+      } else if (was.points !== now.points || was.special !== now.special) {
+        toast.notify(
+          now.points !== null
+            ? t('toast.moved.points', { code, count: now.points })
+            : now.special
+              ? t('toast.moved.special', { code, card: t(`estimate.special.${now.special}`) })
+              : t('toast.moved.unestimated', { code })
+        );
       } else {
         toast.notify(t('toast.moved.reordered', { code }));
       }
@@ -334,6 +345,20 @@ export function AppProvider({ repository, children }: Props) {
       statusesRef.current = statuses;
       setSnapshot((current) => ({ ...current, stories, statuses, events: events.length > 0 ? [...current.events, ...events] : current.events }));
       if (events.length > 0) persist((repo) => repo.addReleaseEvents(events));
+    },
+    [persist]
+  );
+
+  /** Stores every story that is not the same object in `after` as in `before`: a change can reach other stories (#54). */
+  const persistChanged = useCallback(
+    (before: Story[], after: Story[]) => {
+      const previous = new Map(before.map((story) => [story.id, story]));
+      const changed = after.filter((story) => previous.get(story.id) !== undefined && previous.get(story.id) !== story);
+      if (changed.length > 0) {
+        persist(async (repo) => {
+          for (const story of changed) await repo.updateStory(story);
+        });
+      }
     },
     [persist]
   );
@@ -646,8 +671,19 @@ export function AppProvider({ repository, children }: Props) {
         const story = after.find((item) => item.id === id);
         if (!story) return;
         if (patch.status !== undefined && gate(id, patch.status, () => api.updateStory(id, patch))) return;
+        const before = storiesRef.current;
         update(after);
-        persist((repo) => repo.updateStory(story));
+        persistChanged(before, after);
+      },
+      setReference(id, on) {
+        const before = storiesRef.current;
+        const after = updateStoryIn(before, id, { reference: on });
+        const story = after.find((item) => item.id === id);
+        if (!story || before.find((item) => item.id === id)?.reference === story.reference) return;
+        const replaced = before.find((item) => item.id !== id && item.reference && item.points === story.points);
+        update(after);
+        persistChanged(before, after);
+        if (on && replaced) toast.notify(t('estimate.replaced', { old: replaced.code, code: story.code, value: story.points }));
       },
       changeStory(id, patch) {
         const before = storiesRef.current;
@@ -657,7 +693,7 @@ export function AppProvider({ repository, children }: Props) {
         if (!story || !was || (Object.keys(patch) as Array<keyof StoryPatch>).every((key) => was[key] === story[key])) return;
         if (patch.status !== undefined && gate(id, patch.status, () => api.changeStory(id, patch))) return;
         update(after);
-        persist((repo) => repo.updateStory(story));
+        persistChanged(before, after);
         announceMove(before, after, id, true);
       },
       setDefinitions(definitions) {
@@ -844,7 +880,7 @@ export function AppProvider({ repository, children }: Props) {
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       }
     }),
-    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t]
+    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, persistChanged, adopt, notify, announceMove, flash, toast, t]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;
