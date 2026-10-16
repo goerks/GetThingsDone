@@ -21,7 +21,7 @@ import { MemberFilterBar } from '../components/MemberFilterBar';
 import { OverlayCard } from '../components/StoryCard';
 import { dropTargetIn, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import { dropStory, parseColumnId, sprintStories, storiesInColumn, totalPoints, type Placement } from '../domain/board';
-import { ALL_MEMBERS, matchesMemberFilter, type MemberFilter } from '../domain/members';
+import { ALL_MEMBERS, effectiveFilter, matchesMemberFilter, type MemberFilter } from '../domain/members';
 import { summarizeSprint, type Completion } from '../domain/sprintLife';
 import { boardSprint, isEnded, todayIso } from '../domain/sprints';
 import { formatDayLong, formatSprintDates } from '../components/sprintFormat';
@@ -165,7 +165,7 @@ export function BoardPage() {
   const atStart = sprint.state === 'running' && sprint.startItems ? summarizeSprint(sprint, app.stories, app.isDone).plannedPoints : null;
   const points = totalPoints(inSprint);
   // A filter on a member who was removed in the meantime shows everything again.
-  const filter = memberFilter.kind === 'member' && !app.members.some((member) => member.id === memberFilter.memberId) ? ALL_MEMBERS : memberFilter;
+  const filter = effectiveFilter(memberFilter, app.members);
   const shown = (status: string) => storiesInColumn(app.stories, sprintId, status).filter((story) => matchesMemberFilter(story, filter));
   const shownCount = app.statuses.reduce((sum, status) => sum + shown(status.id).length, 0);
 
