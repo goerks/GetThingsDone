@@ -5,7 +5,7 @@ import { normalizeSettings } from './settings';
 import { isDoneIn, normalizeStatuses } from './statuses';
 import { settleSprints, type StoredSprint } from './sprintLife';
 import { addDays, SPRINT_LENGTH_DAYS } from './sprints';
-import type { Epic, FieldAssignment, FieldDefinition, Release, ReleaseEvent, Settings, Snapshot, StatusValue, Story } from './types';
+import type { Epic, FieldAssignment, FieldDefinition, Member, Release, ReleaseEvent, Settings, Snapshot, StatusValue, Story } from './types';
 
 /**
  * Snapshot as stored by an older release. Release 0.1: one fixed sprint, stories with `inSprint`, epics without
@@ -15,11 +15,13 @@ import type { Epic, FieldAssignment, FieldDefinition, Release, ReleaseEvent, Set
  * Before starting and completing sprints (#17): sprints without a state.
  * Before the definitions (#26): no definitions in the settings, and stories without checks.
  * Before the change log (#23): no versions.
+ * Before the team (#18): no members, and stories without an assignee.
  */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
   sprints?: StoredSprint[];
   releases?: Release[];
+  members?: Member[];
   events?: ReleaseEvent[];
   changeLog?: ChangeVersion[];
   stories?: Array<
@@ -61,8 +63,12 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
       { id: MIGRATED_SPRINT_ID, name: 'Sprint 1', startDate: today, endDate: addDays(today, SPRINT_LENGTH_DAYS - 1) }
     ];
   }
+  const members: Member[] = stored.members ?? [];
+  const memberIds = new Set(members.map((member) => member.id));
   const stories: Story[] = rawStories.map(({ inSprint, sprintId, ...story }) => ({
     ...story,
+    // A story assigned to a member that does not exist (any more) is not assigned.
+    ...(story.assigneeId && !memberIds.has(story.assigneeId) ? { assigneeId: null } : {}),
     epicId: story.epicId || null,
     sprintId: sprintId !== undefined ? sprintId : inSprint && needsSprint ? MIGRATED_SPRINT_ID : null,
     releaseId: story.releaseId ?? null,
@@ -80,6 +86,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     epics,
     sprints: settled.sprints,
     releases: stored.releases ?? [],
+    members,
     events: stored.events ?? [],
     changeLog: stored.changeLog ?? [],
     settings: normalizeSettings(stored.settings),

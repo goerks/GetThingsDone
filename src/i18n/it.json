@@ -522,7 +522,8 @@
       "sprint": "Sprint",
       "type": "Tipo",
       "points": "Punti",
-      "criteria": "Criteri"
+      "criteria": "Criteri",
+      "assignee": "Assegnata"
     },
     "kind": {
       "story": "Story",
@@ -1316,10 +1317,47 @@
     "fieldName": {
       "sprint": "Sprint",
       "state": "Stato",
-      "stories": "Stories"
+      "stories": "Stories",
+      "assignee": "Assegnata a"
     },
     "field": "Campo",
     "expand": "Mostra le versioni precedenti",
     "collapse": "Nascondi le versioni precedenti"
+  },
+  "team": {
+    "title": "Team",
+    "intro": "Le persone a cui puoi assegnare le storie. Un semplice elenco, non ci sono account utente. Le modifiche valgono subito.",
+    "empty": "Ancora nessuno nel team. Aggiungi dei membri, poi potrai assegnare le storie e filtrare per persona.",
+    "listLabel": "Membri del team",
+    "add": "Aggiungi membro",
+    "name": "Nome",
+    "initials": "Iniziali",
+    "initialsOf": "Iniziali {{initials}}",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "changeShort": "Modifica",
+    "change": "Modifica {{name}}",
+    "removeShort": "Rimuovi",
+    "remove": "Rimuovi {{name}}",
+    "removeConfirm_one": "{{name}} ha {{count}} storia. Non sarà più assegnata.",
+    "removeConfirm_other": "{{name}} ha {{count}} storie. Non saranno più assegnate.",
+    "removeYes": "Rimuovi",
+    "problem": {
+      "nameEmpty": "Inserisci un nome.",
+      "nameTaken": "Questo nome esiste già nel team.",
+      "initialsEmpty": "Inserisci le iniziali.",
+      "initialsTooLong": "Le iniziali possono avere al massimo {{count}} caratteri.",
+      "initialsTaken": "Queste iniziali sono già in uso."
+    },
+    "field": "Assegnata a",
+    "nobody": "Nessuno",
+    "assignedTo": "Assegnata a {{name}}",
+    "unassigned": "Non assegnata",
+    "filter": {
+      "label": "Persona",
+      "all": "Tutte",
+      "none": "Non assegnate",
+      "empty": "Nessuna storia per questa persona."
+    }
   }
 }

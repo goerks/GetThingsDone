@@ -1,5 +1,5 @@
 import type { LogWrites } from '../domain/changeLog';
-import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, ReleaseEvent, Settings, Snapshot, Sprint, StatusValue, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Member, Release, ReleaseEvent, Settings, Snapshot, Sprint, StatusValue, Story } from '../domain/types';
 
 export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId' | 'releaseId'>;
 
@@ -30,6 +30,11 @@ export interface Repository {
   updateEpic(epic: Epic): Promise<void>;
   /** Deletes an epic. Callers make sure no story uses it. */
   deleteEpic(epicId: string): Promise<void>;
+  /** Adds a team member at the end of the list (#18). */
+  addMember(member: Member): Promise<void>;
+  updateMember(member: Member): Promise<void>;
+  /** Deletes a team member. The stories assigned to them stay and are not assigned any more. */
+  deleteMember(memberId: string): Promise<void>;
   addSprint(sprint: Sprint): Promise<void>;
   updateSprint(sprint: Sprint): Promise<void>;
   addRelease(release: Release): Promise<void>;

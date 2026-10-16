@@ -2,7 +2,7 @@ import { applyWrites, type LogWrites } from '../domain/changeLog';
 import { dropRemovedOptions, setItemValue, withoutField } from '../domain/fields';
 import { migrateSnapshot } from '../domain/migrate';
 import { todayIso } from '../domain/sprints';
-import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, ReleaseEvent, Settings, Snapshot, Sprint, StatusValue, Story } from '../domain/types';
+import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Member, Release, ReleaseEvent, Settings, Snapshot, Sprint, StatusValue, Story } from '../domain/types';
 import type { Repository, StoryPosition } from './repository';
 
 const KEY = 'getitdone.snapshot.v1';
@@ -19,7 +19,7 @@ export class LocalStorageRepository implements Repository {
         const stored = JSON.parse(raw) as Parameters<typeof migrateSnapshot>[0];
         const snapshot = migrateSnapshot(stored, todayIso());
         // Store a migrated snapshot right away, so a migrated sprint keeps the dates it got today.
-        if (stored.sprints === undefined || stored.fields === undefined || stored.releases === undefined || stored.settings === undefined || stored.events === undefined || stored.statuses === undefined || stored.sprints.some((sprint) => sprint.state === undefined)) this.write(snapshot);
+        if (stored.sprints === undefined || stored.fields === undefined || stored.releases === undefined || stored.members === undefined || stored.settings === undefined || stored.events === undefined || stored.statuses === undefined || stored.sprints.some((sprint) => sprint.state === undefined)) this.write(snapshot);
         return snapshot;
       }
     } catch {
@@ -125,6 +125,22 @@ export class LocalStorageRepository implements Repository {
 
   async deleteEpic(epicId: string): Promise<void> {
     this.changeEpics((epics) => epics.filter((epic) => epic.id !== epicId));
+  }
+
+  async addMember(member: Member): Promise<void> {
+    this.changeReleases((snapshot) => ({ ...snapshot, members: [...snapshot.members, member] }));
+  }
+
+  async updateMember(member: Member): Promise<void> {
+    this.changeReleases((snapshot) => ({ ...snapshot, members: snapshot.members.map((item) => (item.id === member.id ? member : item)) }));
+  }
+
+  async deleteMember(memberId: string): Promise<void> {
+    this.changeReleases((snapshot) => ({
+      ...snapshot,
+      members: snapshot.members.filter((member) => member.id !== memberId),
+      stories: snapshot.stories.map((story) => (story.assigneeId === memberId ? { ...story, assigneeId: null } : story))
+    }));
   }
 
   private changeSprints(change: (sprints: Sprint[]) => Sprint[]): void {

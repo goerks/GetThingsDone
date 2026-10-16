@@ -403,13 +403,15 @@ export interface NewStoryInput {
   sprintId: string | null;
   /** The release of the story, or null / missing for none. */
   releaseId?: string | null;
+  /** The team member the story is assigned to (#18), or null / missing for nobody. */
+  assigneeId?: string | null;
   /** Values of custom fields, from the create dialog. */
   values?: Record<string, FieldValue>;
   /** The status to start in, from a quick add in a board column; without it the start status is used. */
   status?: Status;
 }
 
-export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId' | 'releaseId'>>;
+export type StoryPatch = Partial<Pick<Story, 'title' | 'description' | 'epicId' | 'points' | 'status' | 'sprintId' | 'releaseId' | 'assigneeId'>>;
 
 /** Changes the editable fields of a story. Text is trimmed and an empty title is ignored. */
 export function updateStory(stories: Story[], id: string, patch: StoryPatch): Story[] {
@@ -438,6 +440,7 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string, 
     status: input.status ?? status,
     sprintId: input.sprintId,
     releaseId: input.releaseId ?? null,
+    ...(input.assigneeId ? { assigneeId: input.assigneeId } : {}),
     rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
     criteria: [],
     values: input.values ?? {},

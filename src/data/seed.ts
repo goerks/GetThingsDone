@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS } from '../domain/settings';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays } from '../domain/sprints';
 import { DEFAULT_STATUSES } from '../domain/statuses';
-import type { FieldDefinition, FieldValue, ReleaseEvent, Snapshot, Story } from '../domain/types';
+import type { FieldDefinition, FieldValue, Member, ReleaseEvent, Snapshot, Story } from '../domain/types';
 
 /** Demo custom fields, so the preview shows what teams can add. */
 const DEMO_FIELDS: FieldDefinition[] = [
@@ -66,6 +66,21 @@ const DEMO_VALUES: Record<string, Record<string, FieldValue>> = {
   'story-3': { 'field-demo-priority': 'opt-should', 'field-demo-value': 5 },
   'story-4': { 'field-demo-priority': 'opt-must', 'field-demo-labels': ['opt-data'] },
   'story-6': { 'field-demo-priority': 'opt-could', 'field-demo-value': 2, 'field-demo-labels': ['opt-ui', 'opt-a11y'] }
+};
+
+/** The demo team (#18). Luca has no stories yet, so the preview also shows a member without work. */
+const DEMO_MEMBERS: Member[] = [
+  { id: 'member-marco', name: 'Marco Brunner', initials: 'MB' },
+  { id: 'member-anna', name: 'Anna Keller', initials: 'AK' },
+  { id: 'member-luca', name: 'Luca Rossi', initials: 'LR' }
+];
+
+/** The assignee of each demo story; the stories not listed are not assigned. */
+const DEMO_ASSIGNEE_OF: Record<string, string> = {
+  'story-1': 'member-anna',
+  'story-2': 'member-marco',
+  'story-3': 'member-anna',
+  'story-5': 'member-marco'
 };
 
 /** The release of each demo story; the stories not listed belong to no release. */
@@ -169,8 +184,9 @@ export function seedSnapshot(today: string): Snapshot {
     if (item.fieldId === 'field-demo-labels') return { ...item, onCard: true };
     return item;
   });
-  const stories: Story[] = demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {}, checks: {}, doneItems: null }));
+  const stories: Story[] = demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, assigneeId: DEMO_ASSIGNEE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {}, checks: {}, doneItems: null }));
   const snapshot: Snapshot = {
+    members: DEMO_MEMBERS.map((member) => ({ ...member })),
     settings: { ...DEFAULT_SETTINGS, definitions: DEMO_DEFINITIONS },
     statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
     fields: [...builtins.fields, ...DEMO_FIELDS],

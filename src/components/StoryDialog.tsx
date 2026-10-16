@@ -11,6 +11,7 @@ import { HistoryPanel } from './history/HistoryPanel';
 import { EpicSelect } from './EpicSelect';
 import { EpicTag } from './EpicTag';
 import { FieldControl } from './FieldControl';
+import { MemberSelect } from './MemberSelect';
 import { ReleaseSelect } from './ReleaseSelect';
 import { formatDay } from './releaseFormat';
 import { SprintSelect } from './SprintSelect';
@@ -261,6 +262,10 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
             <div className="field">
               <label htmlFor={`${uid}-epic`}>{builtin.label('epic', t('detail.epic'))}</label>
               <EpicSelect id={`${uid}-epic`} value={story.epicId} onChange={(epicId) => app.updateStory(story.id, { epicId })} />
+            </div>
+            <div className="field">
+              <label htmlFor={`${uid}-assignee`}>{t('team.field')}</label>
+              <MemberSelect id={`${uid}-assignee`} value={story.assigneeId} onChange={(assigneeId) => app.updateStory(story.id, { assigneeId })} />
             </div>
             {builtin.shown('story', 'points') && (
               <div className="field">

@@ -28,6 +28,7 @@ export function DataSection() {
     epics: app.epics,
     sprints: app.sprints,
     releases: app.releases,
+    members: app.members,
     events: app.events,
     changeLog: app.changeLog,
     stories: app.stories,

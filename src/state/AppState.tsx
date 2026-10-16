@@ -49,6 +49,7 @@ import {
 } from '../domain/fields';
 import type { Activity } from '../domain/helpTour';
 import { applyWrites, baselineWrites, orphanRemovals, recordWorld, statesOf, type ChangeVersion, type World } from '../domain/changeLog';
+import { addMember as addMemberIn, changeMember as changeMemberIn, removeMember as removeMemberIn, storiesOfMember, type MemberResult } from '../domain/members';
 import { baselineEvents, releaseEventsFor } from '../domain/history';
 import { newId } from '../domain/ids';
 import {
@@ -90,6 +91,7 @@ import type {
   ItemType,
   FeatureKey,
   MapRows,
+  Member,
   Release,
   ReleaseEvent,
   Settings,
@@ -110,6 +112,8 @@ export interface Transition {
 
 interface AppApi {
   epics: Epic[];
+  /** The team members (#18), in the order of the list. */
+  members: Member[];
   sprints: Sprint[];
   releases: Release[];
   /** History of the releases, oldest first (#10). */
@@ -192,6 +196,12 @@ interface AppApi {
   editCriterion(storyId: string, criterionId: string, text: string): void;
   deleteCriterion(storyId: string, criterionId: string): void;
   moveCriterion(storyId: string, activeId: string, overId: string): void;
+  /** Adds a team member. Without initials they are derived from the name. Gives the member, or the problem. */
+  createMember(name: string, initials?: string): MemberResult;
+  /** Changes name and/or initials of a member. Gives the member, or the problem; then nothing is changed. */
+  updateMember(id: string, patch: { name?: string; initials?: string }): MemberResult;
+  /** Removes a member; the stories assigned to them are not assigned any more. Returns how many stories that was. */
+  removeMember(id: string): number;
   /** Returns the id of the new epic, or null when the name is empty. */
   createEpic(input: NewEpicInput): string | null;
   updateEpic(id: string, patch: EpicPatch): void;
@@ -239,6 +249,7 @@ export function AppProvider({ repository, children }: Props) {
     epics: [],
     sprints: [],
     releases: [],
+    members: [],
     events: [],
     changeLog: [],
     stories: [],
@@ -256,6 +267,7 @@ export function AppProvider({ repository, children }: Props) {
   const epicsRef = useRef<Epic[]>([]);
   const sprintsRef = useRef<Sprint[]>([]);
   const releasesRef = useRef<Release[]>([]);
+  const membersRef = useRef<Member[]>([]);
   const changeLogRef = useRef<ChangeVersion[]>([]);
   /** While set, changes are not recorded one by one: the caller recorded them together. */
   const quiet = useRef(false);
@@ -324,7 +336,7 @@ export function AppProvider({ repository, children }: Props) {
   const track = useCallback(
     (next: Partial<World>) => {
       if (quiet.current) return;
-      const before: World = { stories: storiesRef.current, epics: epicsRef.current, sprints: sprintsRef.current, releases: releasesRef.current };
+      const before: World = { stories: storiesRef.current, epics: epicsRef.current, sprints: sprintsRef.current, releases: releasesRef.current, members: membersRef.current };
       const writes = recordWorld(changeLogRef.current, before, { ...before, ...next }, new Date().toISOString(), newId);
       if (writes.upsert.length === 0 && writes.remove.length === 0) return;
       const changeLog = applyWrites(changeLogRef.current, writes);
@@ -408,6 +420,7 @@ export function AppProvider({ repository, children }: Props) {
     fieldsRef.current = { fields: loaded.fields, assignments: loaded.assignments };
     sprintsRef.current = loaded.sprints;
     releasesRef.current = loaded.releases;
+    membersRef.current = loaded.members;
     changeLogRef.current = loaded.changeLog;
     settingsRef.current = loaded.settings;
     statusesRef.current = loaded.statuses;
@@ -484,6 +497,7 @@ export function AppProvider({ repository, children }: Props) {
       epics: snapshot.epics,
       sprints: snapshot.sprints,
       releases: snapshot.releases,
+      members: snapshot.members,
       events: snapshot.events,
       changeLog: snapshot.changeLog,
       stories: snapshot.stories,
@@ -785,6 +799,32 @@ export function AppProvider({ repository, children }: Props) {
         update(after);
         const order = story.criteria.map((criterion) => criterion.id);
         persist((repo) => repo.saveCriteriaOrder(storyId, order));
+      },
+      createMember(name, initials) {
+        const result = addMemberIn(membersRef.current, newId(), name, initials);
+        if (!result.ok) return result;
+        membersRef.current = result.members;
+        setSnapshot((current) => ({ ...current, members: result.members }));
+        persist((repo) => repo.addMember(result.member));
+        return result;
+      },
+      updateMember(id, patch) {
+        const result = changeMemberIn(membersRef.current, id, patch);
+        if (!result.ok) return result;
+        membersRef.current = result.members;
+        setSnapshot((current) => ({ ...current, members: result.members }));
+        persist((repo) => repo.updateMember(result.member));
+        return result;
+      },
+      removeMember(id) {
+        const count = storiesOfMember(storiesRef.current, id).length;
+        const result = removeMemberIn(membersRef.current, storiesRef.current, id);
+        // The stories are saved first, so the history shows them as not assigned, then the member goes.
+        if (count > 0) update(result.stories);
+        membersRef.current = result.members;
+        setSnapshot((current) => ({ ...current, members: result.members }));
+        persist((repo) => repo.deleteMember(id));
+        return count;
       },
       createEpic(input) {
         const id = newId();

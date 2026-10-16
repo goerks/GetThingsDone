@@ -1,4 +1,4 @@
-import type { Epic, FieldValue, Release, Sprint, Story } from './types';
+import type { Epic, FieldValue, Member, Release, Sprint, Story } from './types';
 
 /*
  * Change log of the items (#23, ADR 0004). Every save of an item that changes a tracked field is one version of
@@ -54,7 +54,7 @@ export const isCustomKey = (key: string): boolean => key.startsWith(CUSTOM_PREFI
 export const fieldIdOf = (key: string): string => key.slice(CUSTOM_PREFIX.length);
 
 /** The order in which fields are listed; custom fields follow, in the order of the field library. */
-export const KEY_ORDER: readonly string[] = ['title', 'status', 'points', 'epic', 'sprint', 'release', 'description', 'criteria', 'color', 'start', 'end', 'state', 'stories'];
+export const KEY_ORDER: readonly string[] = ['title', 'status', 'points', 'epic', 'sprint', 'release', 'assignee', 'description', 'criteria', 'color', 'start', 'end', 'state', 'stories'];
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 export const isRef = (value: StateValue | undefined): value is RefValue => isObject(value) && typeof value.id === 'string' && typeof value.label === 'string';
@@ -148,6 +148,8 @@ export function compareStates(before: ItemState, after: ItemState): CompareRow[]
 
 /** Everything the states are made from. */
 export interface World {
+  /** Needed to name the assignee of a story; without it the label is the id. */
+  members?: readonly Member[];
   stories: readonly Story[];
   epics: readonly Epic[];
   sprints: readonly Sprint[];
@@ -176,6 +178,7 @@ export function statesOf(world: World): Map<string, TrackedItem> {
   const epicNames = new Map(world.epics.map((epic) => [epic.id, epic.name]));
   const sprintNames = new Map(world.sprints.map((sprint) => [sprint.id, sprint.name]));
   const releaseNames = new Map(world.releases.map((release) => [release.id, release.title]));
+  const memberNames = new Map((world.members ?? []).map((member) => [member.id, member.name]));
   const states = new Map<string, TrackedItem>();
   const put = (itemType: string, itemId: string, state: ItemState): void => {
     states.set(itemKey(itemType, itemId), { itemType, itemId, state });
@@ -190,6 +193,8 @@ export function statesOf(world: World): Map<string, TrackedItem> {
       epic: reference(story.epicId, epicNames),
       sprint: reference(story.sprintId, sprintNames),
       release: reference(story.releaseId, releaseNames),
+      // Only an assigned story has the key, so the states of stories without assignee stay as they were before the team.
+      ...(story.assigneeId ? { assignee: reference(story.assigneeId, memberNames) } : {}),
       criteria: story.criteria.map((criterion) => ({ id: criterion.id, text: criterion.text, done: criterion.done })),
       ...customStates(story.values)
     });

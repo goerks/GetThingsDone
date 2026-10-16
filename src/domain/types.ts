@@ -109,6 +109,13 @@ export interface ReleaseEvent {
   done: boolean;
 }
 
+/** A person of the team (#18). Members are a plain list, not user accounts. The initials are at most three characters. */
+export interface Member {
+  id: string;
+  name: string;
+  initials: string;
+}
+
 export interface Criterion {
   id: string;
   text: string;
@@ -215,6 +222,8 @@ export interface Story {
   sprintId: string | null;
   /** The release the story belongs to (at most one), or null. */
   releaseId: string | null;
+  /** The team member the story is assigned to (#18), or null / missing for nobody. */
+  assigneeId?: string | null;
   /** Global priority, 0 is the most important. Board order is this order filtered by column. */
   rank: number;
   criteria: Criterion[];
@@ -283,6 +292,8 @@ export interface Snapshot {
   epics: Epic[];
   sprints: Sprint[];
   releases: Release[];
+  /** The team members (#18), in the order of the list. */
+  members: Member[];
   /** History of the releases, oldest first. */
   events: ReleaseEvent[];
   /** Versions of stories, epics, sprints and releases (#23), oldest first. */
@@ -296,4 +307,4 @@ export interface Snapshot {
 }
 
 /** What the search reads: the items and the fields, not the releases' history or the settings. */
-export type SearchSnapshot = Pick<Snapshot, 'epics' | 'sprints' | 'stories' | 'statuses' | 'fields' | 'assignments'>;
+export type SearchSnapshot = Pick<Snapshot, 'epics' | 'sprints' | 'stories' | 'statuses' | 'fields' | 'assignments'> & Partial<Pick<Snapshot, 'members'>>;

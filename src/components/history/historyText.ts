@@ -53,10 +53,10 @@ export function useHistoryText(): HistoryText {
     };
     const yesNo = (flag: boolean): string => t(flag ? 'history.yes' : 'history.no');
     const value = (_itemType: string, key: string, raw: StateValue | undefined): string => {
-      if (raw === null || raw === undefined || raw === '' || (Array.isArray(raw) && raw.length === 0)) return t('history.none');
+      if (raw === null || raw === undefined || raw === '' || (Array.isArray(raw) && raw.length === 0)) return key === 'assignee' ? t('team.nobody') : t('history.none');
       if (isRef(raw)) {
         const live =
-          key === 'epic' ? app.epics.find((item) => item.id === raw.id)?.name : key === 'sprint' ? app.sprints.find((item) => item.id === raw.id)?.name : key === 'release' ? app.releases.find((item) => item.id === raw.id)?.title : undefined;
+          key === 'epic' ? app.epics.find((item) => item.id === raw.id)?.name : key === 'sprint' ? app.sprints.find((item) => item.id === raw.id)?.name : key === 'release' ? app.releases.find((item) => item.id === raw.id)?.title : key === 'assignee' ? app.members.find((item) => item.id === raw.id)?.name : undefined;
         return live ?? raw.label;
       }
       if (key === 'status' && typeof raw === 'string') return statusLabel(t, app.statuses, raw);
@@ -107,5 +107,5 @@ export function useHistoryText(): HistoryText {
         return diffStates(previous.state, version.state).flatMap((change) => lines(itemType, change));
       }
     };
-  }, [app.fields, app.epics, app.sprints, app.releases, app.statuses, language, t]);
+  }, [app.fields, app.epics, app.sprints, app.releases, app.members, app.statuses, language, t]);
 }

@@ -84,6 +84,12 @@ pub fn run() {
             sql: include_str!("../migrations/013_change_log.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 14,
+            description: "members",
+            sql: include_str!("../migrations/014_members.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

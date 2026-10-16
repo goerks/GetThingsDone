@@ -4,6 +4,7 @@ import i18n from '../i18n';
 import {
   BUILTIN_FILTER_FIELDS,
   NOT_PLANNED,
+  NO_ASSIGNEE,
   NO_EPIC,
   TEXT_FILTER_FIELDS,
   customFieldId,
@@ -57,6 +58,8 @@ export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
           return item === NO_EPIC ? t('epics.noEpic') : (snapshot.epics.find((epic) => epic.id === item)?.name ?? item);
         case 'sprint':
           return item === NOT_PLANNED ? t('sprint.notPlanned') : (snapshot.sprints.find((sprint) => sprint.id === item)?.name ?? item);
+        case 'assignee':
+          return item === NO_ASSIGNEE ? t('team.unassigned') : (snapshot.members?.find((member) => member.id === item)?.name ?? item);
         case 'type':
           return t(`search.kind.${item}`);
         case 'criteria':
@@ -65,7 +68,7 @@ export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
           return item;
       }
     },
-    [t, snapshot.epics, snapshot.sprints, snapshot.statuses, snapshot.fields]
+    [t, snapshot.epics, snapshot.sprints, snapshot.statuses, snapshot.fields, snapshot.members]
   );
 
   const badge = useCallback((filter: Filter) => t('search.badge', { field: field(filter.field), value: value(filter.field, filter.value) }), [
@@ -95,6 +98,8 @@ export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
           return item === NO_EPIC ? [en('epics.noEpic')] : [];
         case 'sprint':
           return item === NOT_PLANNED ? [en('sprint.notPlanned')] : [];
+        case 'assignee':
+          return item === NO_ASSIGNEE ? [en('team.unassigned')] : [snapshot.members?.find((member) => member.id === item)?.initials ?? ''].filter(Boolean);
         default:
           return [];
       }
