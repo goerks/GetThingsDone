@@ -76,9 +76,9 @@ test('AC2.1 estimates a story with the card 3 and keeps it after a reload', asyn
   // Then the card 3 is chosen, the backlog shows 3, and it stays after a reload
   await expect(box.getByRole('radio', { name: /^3,/ })).toHaveAttribute('aria-checked', 'true');
   await box.getByRole('button', { name: 'Close' }).click();
-  await expect(story(page, 'S-3').getByText('3', { exact: true })).toBeVisible();
+  await expect(story(page, 'S-3').getByTitle('3 points')).toBeVisible();
   await page.reload();
-  await expect(story(page, 'S-3').getByText('3', { exact: true })).toBeVisible();
+  await expect(story(page, 'S-3').getByTitle('3 points')).toBeVisible();
 });
 
 test('AC2.4 chooses a card with the keyboard only', async ({ page }) => {

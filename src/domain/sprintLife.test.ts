@@ -32,7 +32,7 @@ describe('starting a sprint', () => {
       startItems: [
         { storyId: 'a', code: 'a', points: 5 },
         { storyId: 'b', code: 'b', points: 3 },
-        { storyId: 'c', code: 'c', points: 0 }
+        { storyId: 'c', code: 'c', points: null }
       ]
     });
   });
