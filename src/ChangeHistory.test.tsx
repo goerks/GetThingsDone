@@ -10,7 +10,7 @@ import { todayIso } from './domain/sprints';
 import de from './i18n/de.json';
 import en from './i18n/en.json';
 import fr from './i18n/fr.json';
-import it from './i18n/it.json';
+import italian from './i18n/it.json';
 import type { Snapshot } from './domain/types';
 
 /*
@@ -206,7 +206,7 @@ describe('names, languages and reading only', () => {
     // Given the texts of the history in English
     const keys = Object.keys(en.history);
     // Then the other languages have the same groups of texts, and the tab of the release
-    for (const file of [de, fr, it]) {
+    for (const file of [de, fr, italian]) {
       expect(Object.keys(file.history).map((key) => key.replace(/_(one|many|other)$/, '')).sort()).toEqual(
         [...new Set(keys.map((key) => key.replace(/_(one|many|other)$/, '')))].sort()
       );
