@@ -9,7 +9,7 @@ import type { Criterion } from './types';
  */
 export const PACKAGE_54: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
   issue: 54,
-  pullRequest: 0,
+  pullRequest: 57,
   title: 'Schätzung mit Karten',
   criteria: [
     {
