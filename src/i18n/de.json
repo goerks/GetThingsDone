@@ -522,7 +522,8 @@
       "sprint": "Sprint",
       "type": "Typ",
       "points": "Punkte",
-      "criteria": "Kriterien"
+      "criteria": "Kriterien",
+      "assignee": "Zugewiesen"
     },
     "kind": {
       "story": "Story",
@@ -1311,10 +1312,47 @@
     "fieldName": {
       "sprint": "Sprint",
       "state": "Zustand",
-      "stories": "Stories"
+      "stories": "Stories",
+      "assignee": "Zugewiesen an"
     },
     "field": "Feld",
     "expand": "Frühere Stände anzeigen",
     "collapse": "Frühere Stände ausblenden"
+  },
+  "team": {
+    "title": "Team",
+    "intro": "Die Personen, denen du Stories zuweisen kannst. Eine einfache Liste, es gibt keine Benutzerkonten. Änderungen gelten sofort.",
+    "empty": "Noch niemand im Team. Lege Mitglieder an, dann kannst du Stories zuweisen und nach Personen filtern.",
+    "listLabel": "Teammitglieder",
+    "add": "Mitglied hinzufügen",
+    "name": "Name",
+    "initials": "Kürzel",
+    "initialsOf": "Kürzel {{initials}}",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "changeShort": "Ändern",
+    "change": "{{name}} ändern",
+    "removeShort": "Entfernen",
+    "remove": "{{name}} entfernen",
+    "removeConfirm_one": "{{name}} hat {{count}} Story. Sie wird nicht mehr zugewiesen.",
+    "removeConfirm_other": "{{name}} hat {{count}} Stories. Sie werden nicht mehr zugewiesen.",
+    "removeYes": "Entfernen",
+    "problem": {
+      "nameEmpty": "Bitte einen Namen eingeben.",
+      "nameTaken": "Diesen Namen gibt es schon im Team.",
+      "initialsEmpty": "Bitte ein Kürzel eingeben.",
+      "initialsTooLong": "Das Kürzel darf höchstens {{count}} Zeichen haben.",
+      "initialsTaken": "Dieses Kürzel ist schon vergeben."
+    },
+    "field": "Zugewiesen an",
+    "nobody": "Niemand",
+    "assignedTo": "Zugewiesen an {{name}}",
+    "unassigned": "Nicht zugewiesen",
+    "filter": {
+      "label": "Person",
+      "all": "Alle",
+      "none": "Nicht zugewiesen",
+      "empty": "Keine Stories für diese Person."
+    }
   }
 }

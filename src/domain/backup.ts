@@ -70,6 +70,7 @@ function dataFits(data: Record<string, unknown>): boolean {
     storiesFit &&
     optionalList('sprints', ['id', 'name', 'startDate', 'endDate']) &&
     optionalList('releases', ['id', 'title']) &&
+    optionalList('members', ['id', 'name', 'initials']) &&
     optionalList('events', ['id']) &&
     optionalList('changeLog', ['id', 'itemType', 'itemId', 'at']) &&
     optionalList('statuses', ['id']) &&

@@ -9,6 +9,7 @@ import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
 import { DialogFooter } from './DialogFooter';
 import { EpicSelect } from './EpicSelect';
+import { MemberSelect } from './MemberSelect';
 import { ReleaseSelect } from './ReleaseSelect';
 import { SprintSelect } from './SprintSelect';
 import { useBuiltin } from './useBuiltin';
@@ -44,6 +45,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
   const [points, setPoints] = useState(3);
   const [sprintId, setSprintId] = useState(initialSprintId);
   const [releaseId, setReleaseId] = useState<string | null>(initialReleaseId ?? null);
+  const [assigneeId, setAssigneeId] = useState<string | null>(null);
   // The release shows when the team put it into the create dialog, or when the caller prefilled one.
   const releaseShown = featureOn(app.settings, 'releases') && (releaseLayout(app.assignments).inCreate || initialReleaseId !== undefined);
   const custom = useCreateFields('story');
@@ -63,7 +65,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
     }
     const values = custom.collect();
     if (!values) return;
-    const input: NewStoryInput = { title, description, epicId, points, sprintId, releaseId, values, status };
+    const input: NewStoryInput = { title, description, epicId, points, sprintId, releaseId, assigneeId, values, status };
     app.createStory(input);
     if (!another) {
       onClose();
@@ -152,9 +154,15 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
             </div>
           )}
         </div>
-        <div className="field">
-          <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
-          <SprintSelect id={`${uid}-sprint`} value={sprintId} onChange={setSprintId} />
+        <div className="form__row">
+          <div className="field">
+            <label htmlFor={`${uid}-sprint`}>{t('sprint.label')}</label>
+            <SprintSelect id={`${uid}-sprint`} value={sprintId} onChange={setSprintId} />
+          </div>
+          <div className="field">
+            <label htmlFor={`${uid}-assignee`}>{t('team.field')}</label>
+            <MemberSelect id={`${uid}-assignee`} value={assigneeId} onChange={setAssigneeId} />
+          </div>
         </div>
         {releaseShown && (
           <div className="field">

@@ -12,6 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
+import { AssigneeBadge } from '../components/AssigneeBadge';
 import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
 import { NewButton } from '../components/NewButton';
@@ -61,6 +62,7 @@ function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
       <TitleButton story={story} className="backlog__title" />
       <DefinitionChip story={story} kind="ready" />
       <EpicTag epic={epic} inCard />
+      <AssigneeBadge story={story} />
       {builtin.shown('story', 'points') && (
         <span className="pill" title={builtin.pointsTitle(story.points)}>
           {story.points}

@@ -1,14 +1,14 @@
 import { criteriaProgress, sortByRank } from './board';
 import { formatValue } from './fields';
 import { boardSprint, mapSprints, sortSprints } from './sprints';
-import type { Epic, FieldDefinition, FieldValue, SearchSnapshot, Sprint, Story } from './types';
+import type { Epic, FieldDefinition, FieldValue, Member, SearchSnapshot, Sprint, Story } from './types';
 
 /** What a result is. The order is the order of the groups in the result list. */
 export const RESULT_KINDS = ['story', 'epic', 'sprint'] as const;
 export type ResultKind = (typeof RESULT_KINDS)[number];
 
 /** Built-in fields a filter can restrict. Custom fields use the key `field:<id>`. */
-export const BUILTIN_FILTER_FIELDS = ['description', 'status', 'epic', 'sprint', 'points', 'type', 'criteria'] as const;
+export const BUILTIN_FILTER_FIELDS = ['description', 'status', 'epic', 'sprint', 'assignee', 'points', 'type', 'criteria'] as const;
 
 /** Built-in fields whose value is any typed text the field must contain. Key and title are left to the free text (PO decision in #7). */
 export const TEXT_FILTER_FIELDS: readonly BuiltinFilterField[] = ['description'];
@@ -27,6 +27,9 @@ export const NOT_PLANNED = 'none';
 
 /** Filter value of the epic field for stories without an epic. */
 export const NO_EPIC = 'none';
+
+/** Filter value of the assignee field for stories that are not assigned (#18). */
+export const NO_ASSIGNEE = 'none';
 
 export const CRITERIA_STATES = ['all', 'open', 'none'] as const;
 export type CriteriaState = (typeof CRITERIA_STATES)[number];
@@ -220,6 +223,8 @@ function passes(item: Item, filter: Filter, snapshot: SearchSnapshot): boolean {
       return (story.epicId ?? NO_EPIC) === filter.value;
     case 'sprint':
       return (story.sprintId ?? NOT_PLANNED) === filter.value;
+    case 'assignee':
+      return (story.assigneeId ?? NO_ASSIGNEE) === filter.value;
     case 'points':
       return String(story.points) === filter.value;
     case 'criteria':
@@ -251,11 +256,13 @@ function customTexts(values: Story['values'], fields: readonly FieldDefinition[]
     .filter((item) => item.text.trim() !== '');
 }
 
-function matchStory(story: Story, terms: readonly string[], text: string, fields: readonly FieldDefinition[]): Ranked | null {
+function matchStory(story: Story, terms: readonly string[], text: string, fields: readonly FieldDefinition[], assignee: Member | undefined): Ranked | null {
   const titleTexts = [story.code, story.title];
+  // The name and the initials of the assignee are found by the free text, like the custom field values.
+  const people = assignee ? [assignee.name, assignee.initials] : [];
   const criteriaTexts = story.criteria.map((criterion) => criterion.text);
   const custom = terms.length > 0 ? customTexts(story.values ?? {}, fields) : [];
-  if (terms.length > 0 && !allTermsIn([...titleTexts, story.description, ...criteriaTexts, ...custom.map((item) => item.text)], terms))
+  if (terms.length > 0 && !allTermsIn([...titleTexts, story.description, ...criteriaTexts, ...custom.map((item) => item.text), ...people], terms))
     return null;
 
   const codeRanges = findRanges(story.code, terms);
@@ -300,7 +307,7 @@ export function search(snapshot: SearchSnapshot, query: SearchQuery): SearchResu
 
   for (const story of sortByRank(snapshot.stories)) {
     if (!ok({ kind: 'story', story })) continue;
-    const match = matchStory(story, terms, query.text, fields);
+    const match = matchStory(story, terms, query.text, fields, story.assigneeId ? (snapshot.members ?? []).find((member) => member.id === story.assigneeId) : undefined);
     if (match) ranked.push(match);
   }
   [...snapshot.epics]
@@ -366,6 +373,8 @@ export function fieldValues(snapshot: SearchSnapshot, field: FilterField): strin
     }
     case 'sprint':
       return [...sortSprints(snapshot.sprints).map((sprint) => sprint.id), NOT_PLANNED];
+    case 'assignee':
+      return [...(snapshot.members ?? []).map((member) => member.id), NO_ASSIGNEE];
     case 'type':
       return [...RESULT_KINDS];
     case 'points':
