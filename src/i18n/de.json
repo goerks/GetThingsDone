@@ -443,6 +443,11 @@
         "name": "Releases",
         "description": "Mit Releases planen: die Seite «Releases», das Feld «Release» bei Stories, Release-Zeilen in der Story Map sowie Scope- und Burndown-Berichte. Ausschalten, wenn das Team nur mit Sprints arbeitet.",
         "offNote": "Ausgeschaltet. Releases, ihre Stories und ihr Verlauf bleiben erhalten und sind beim Einschalten wieder da."
+      },
+      "team": {
+        "name": "Team",
+        "description": "Weise Stories Personen zu: der Bereich „Team“ in den Einstellungen, das Feld „Zugewiesen an“, die Kürzel auf den Karten, die Filterleiste auf dem Board und die Suche nach Personen. Schalte es aus, wenn du allein arbeitest.",
+        "offNote": "Ausgeschaltet. Mitglieder und Zuweisungen bleiben erhalten und kommen zurück, wenn du es einschaltest."
       }
     },
     "data": {
@@ -993,7 +998,7 @@
       "team.assign": {
         "title": "Team und Zuweisung",
         "keywords": "team person mitglied zuweisen zugewiesen kürzel initialen filter jemand arbeiten wer",
-        "body": "Öffne Einstellungen → Team und lege die Personen an, denen du Stories zuweisen willst. Name und Kürzel genügen, es gibt keine Konten. Das Kürzel entsteht aus dem Namen und lässt sich ändern.\nEine Story weist du im Dialog der Story im Feld „Zugewiesen an“ zu, oder gleich beim Anlegen einer neuen Story. Auf Karten, im Backlog und auf der Story Map zeigt ein runder Kreis das Kürzel. Ein gestrichelter Kreis heisst: nicht zugewiesen.\nÜber dem Board filterst du nach einer Person oder nach nicht zugewiesenen Stories. Die Suche findet Stories auch über den Namen oder das Kürzel.\nWenn du ein Mitglied entfernst, bleiben seine Stories erhalten und sind danach nicht mehr zugewiesen."
+        "body": "Schalte zuerst unter Einstellungen → Funktionen den Schalter „Team“ ein. Öffne dann Einstellungen → Team und lege die Personen an, denen du Stories zuweisen willst. Name und Kürzel genügen, es gibt keine Konten. Das Kürzel entsteht aus dem Namen und lässt sich ändern.\nEine Story weist du im Dialog der Story im Feld „Zugewiesen an“ zu, oder gleich beim Anlegen einer neuen Story. Auf Karten, im Backlog und auf der Story Map zeigt ein runder Kreis das Kürzel. Ein gestrichelter Kreis heisst: nicht zugewiesen.\nÜber dem Board filterst du nach einer Person oder nach nicht zugewiesenen Stories. Die Suche findet Stories auch über den Namen oder das Kürzel.\nWenn du ein Mitglied entfernst, bleiben seine Stories erhalten und sind danach nicht mehr zugewiesen. Schaltest du „Team“ wieder aus, bleiben Mitglieder und Zuweisungen erhalten."
       }
     },
     "links": {

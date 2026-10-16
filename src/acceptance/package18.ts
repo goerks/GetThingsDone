@@ -402,8 +402,7 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
           "when": "Ich wechsle die Sprache.",
           "then": "„Team“, „Zugewiesen an“ und „Nicht zugewiesen“ stehen in der gewählten Sprache.",
           "tests": [
-            "src/domain/members.test.ts › AC6.3 has the texts in German, English, French and Italian",
-            "src/Team.test.tsx › AC6.3 has a help topic that links to the settings of the team"
+            "src/domain/members.test.ts › AC6.3 has the texts in German, English, French and Italian"
           ]
         }
       ]
@@ -449,6 +448,102 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
             "src/domain/members.test.ts › AC7.3 imports a backup from before the team without error and leaves every story unassigned",
             "src/domain/members.test.ts › AC7.3 drops an assignment to a member who is not in the file",
             "src/data/sqliteRepository.test.ts › AC7.3 opens a database from before the team without a member and without assignment"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AC8",
+      "story": "S8",
+      "title": "Team als Funktion ein- und ausschalten",
+      "cases": [
+        {
+          "id": "AC8.1",
+          "title": "Team einschalten",
+          "link": "#/settings/features",
+          "target": ".feature",
+          "given": "Ein neues Projekt ohne Demodaten. „Team“ steht auf „Aus“.",
+          "when": "Ich schalte „Team“ ein.",
+          "then": "Der Schalter steht auf „An“. In den Einstellungen erscheint der Bereich „Team“, im Story-Dialog das Feld „Zugewiesen an“. Nach dem Neuladen ist es noch an.",
+          "tests": [
+            "src/Team.test.tsx › AC8.1 switches the team on in Settings › Features and keeps the choice"
+          ]
+        },
+        {
+          "id": "AC8.2",
+          "title": "Ausgeschaltet ist nichts vom Team zu sehen",
+          "link": "#/board",
+          "target": ".card[data-story-id]",
+          "given": "Demodaten mit Team. Ich schalte „Team“ aus.",
+          "when": "Ich schaue Board, Dialoge, Einstellungen und Suche an.",
+          "then": "Keine Kreise, keine Filterleiste, kein Feld „Zugewiesen an“, kein Bereich „Team“. Die Suche findet „S-3“ nicht über „Anna“. Die Adresse der Team-Einstellungen führt zu den Funktionen.",
+          "tests": [
+            "src/Team.test.tsx › AC8.2 shows nothing of the team on the board and in the dialogs while it is off",
+            "src/Team.test.tsx › AC8.2 leaves out the field \"Assigned to\" in \"New story\" while the team is off",
+            "src/Team.test.tsx › AC8.2 leads the address of the team settings back to the features while the team is off",
+            "src/domain/members.test.ts › AC8.2 finds nobody by name while the team is off, because the search has no member list"
+          ]
+        },
+        {
+          "id": "AC8.3",
+          "title": "Daten bleiben erhalten",
+          "link": "#/settings/features",
+          "target": ".feature",
+          "given": "„S-3“ ist Anna zugewiesen. „Team“ ist ausgeschaltet.",
+          "when": "Ich schalte „Team“ wieder ein.",
+          "then": "Anna ist in der Liste, „S-3“ zeigt wieder „AK“. Ein Export im ausgeschalteten Zustand enthält das Team trotzdem.",
+          "tests": [
+            "src/Team.test.tsx › AC8.3 brings the members and assignments back when the team is switched on again",
+            "src/domain/members.test.ts › AC8.3 exports the team even while it is switched off"
+          ]
+        },
+        {
+          "id": "AC8.4",
+          "title": "Standard",
+          "link": "#/settings/features",
+          "target": ".feature",
+          "given": "Web-Vorschau frisch geladen, ein neues Projekt, eine Datei von vor dem Team.",
+          "when": "Ich schaue auf den Schalter „Team“.",
+          "then": "In der Web-Vorschau mit Demodaten ist „Team“ an. Bei einem neuen Projekt, älteren Daten und einem Import einer alten Datei ist es aus.",
+          "tests": [
+            "src/domain/members.test.ts › AC8.4 has the team off by default and on in the demo data",
+            "src/domain/members.test.ts › AC8.4 imports a file from before the team with the team switched off"
+          ]
+        },
+        {
+          "id": "AC8.5",
+          "title": "Verlauf bei ausgeschaltetem Team",
+          "link": "#/board",
+          "target": ".card[data-story-id]",
+          "given": "„S-4“ wurde Luca zugewiesen, danach ist „Team“ aus.",
+          "when": "Ich öffne den Verlauf von „S-4“.",
+          "then": "Der Verlauf zeigt weiter „Zugewiesen an: Niemand → Luca Rossi“.",
+          "tests": [
+            "src/Team.test.tsx › AC8.5 keeps showing an assignment in the history while the team is off"
+          ]
+        },
+        {
+          "id": "AC8.6",
+          "title": "Schalter, Tastatur, Sprachen",
+          "link": "#/settings/features",
+          "target": ".feature",
+          "given": "Einstellungen › Funktionen.",
+          "when": "Ich erreiche „Team“ mit Tab und schalte mit der Leertaste. Dann wechsle ich die Sprache.",
+          "then": "Der Schalter wird mit Name und Zustand vorgelesen. Name und Beschreibung stehen in DE, EN, FR und IT. Ist er aus, erklärt ein Hinweis, dass Mitglieder und Zuweisungen erhalten bleiben.",
+          "tests": [
+            "src/Team.test.tsx › AC8.6 operates the switch with the space key and names it with its state",
+            "src/domain/members.test.ts › AC8.6 describes the switch in German, English, French and Italian"
+          ]
+        },
+        {
+          "id": "AC8.7",
+          "title": "Hilfe",
+          "link": "#/board",
+          "given": "Die Hilfe ist offen, Thema „Team und Zuweisung“.",
+          "when": "Ich lese den Text und schaue auf die Links.",
+          "then": "Der Text beginnt mit dem Hinweis, „Team“ zuerst unter Einstellungen › Funktionen einzuschalten. Der Link „Einstellungen › Team“ ist gesperrt, solange die Funktion aus ist.",
+          "tests": [
+            "src/Team.test.tsx › AC8.7 starts with the switch and locks the link to the settings while the team is off"
           ]
         }
       ]

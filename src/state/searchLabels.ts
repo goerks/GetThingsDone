@@ -104,7 +104,8 @@ export function useSearchLabels(snapshot: SearchSnapshot): SearchLabels {
           return [];
       }
     };
-    const builtins = BUILTIN_FILTER_FIELDS.map<FieldEntry>((name) => ({
+    // Without the team there is no assignee to filter by: the snapshot then has no member list.
+    const builtins = BUILTIN_FILTER_FIELDS.filter((name) => name !== 'assignee' || snapshot.members !== undefined).map<FieldEntry>((name) => ({
       key: name,
       label: field(name),
       aliases: [en(`search.field.${name}`), name],

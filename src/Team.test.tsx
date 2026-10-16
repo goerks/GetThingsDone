@@ -7,6 +7,7 @@ import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
 import { EMPTY_DEFINITIONS } from './domain/definitions';
 import { todayIso } from './domain/sprints';
+import { statesOf, type ChangeVersion } from './domain/changeLog';
 import type { Snapshot } from './domain/types';
 import { initI18n } from './i18n';
 
@@ -407,16 +408,121 @@ describe('history of the assignment (#18)', () => {
   });
 });
 
+const teamOff = (snapshot: Snapshot): Snapshot => ({ ...snapshot, settings: { ...snapshot.settings, features: { ...snapshot.settings.features, team: false } } });
+
+describe('the team as a feature (#18)', () => {
+  it('AC8.1 switches the team on in Settings › Features and keeps the choice', async () => {
+    // Given a project with the team switched off
+    const user = userEvent.setup();
+    const repository = await open('#/settings/features', teamOff);
+    const nav = await screen.findByRole('navigation', { name: 'Settings sections' });
+    expect(within(nav).queryByRole('link', { name: 'Team' })).toBeNull();
+    // When I switch "Team" on
+    await user.click(screen.getByRole('switch', { name: /^Team/ }));
+    // Then the section "Team" appears in the settings and the choice is stored
+    expect(await within(nav).findByRole('link', { name: 'Team' })).toBeInTheDocument();
+    await waitFor(async () => expect((await repository.load()).settings.features.team).toBe(true));
+  });
+
+  it('AC8.2 shows nothing of the team on the board and in the dialogs while it is off', async () => {
+    // Given the demo data with the team switched off
+    const user = userEvent.setup();
+    await open('#/board', teamOff);
+    const card = await screen.findByRole('group', { name: /^S-3:/ });
+    // Then the cards show no badge and the board has no filter bar
+    expect(within(card).queryByRole('img', { name: /Assigned|Unassigned/ })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Person' })).toBeNull();
+    // And the story dialog has no field "Assigned to"
+    const dialog = await openStory(user, 'S-3');
+    expect(within(dialog).queryByLabelText('Assigned to')).toBeNull();
+    expect(within(dialog).getByLabelText('Status')).toBeInTheDocument();
+  });
+
+  it('AC8.2 leaves out the field "Assigned to" in "New story" while the team is off', async () => {
+    // Given the demo data with the team switched off
+    const user = userEvent.setup();
+    await open('#/board', teamOff);
+    // When I open "New story"
+    await user.click(await screen.findByRole('button', { name: /^New story/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'New story' });
+    // Then there is no field "Assigned to"
+    expect(within(dialog).getByLabelText('Sprint')).toBeInTheDocument();
+    expect(within(dialog).queryByLabelText('Assigned to')).toBeNull();
+  });
+
+  it('AC8.2 leads the address of the team settings back to the features while the team is off', async () => {
+    // Given the team is off
+    await open('#/settings/team', teamOff);
+    // Then the address leads to Settings › Features
+    await waitFor(() => expect(window.location.hash).toBe('#/settings/features'));
+  });
+
+  it('AC8.3 brings the members and assignments back when the team is switched on again', async () => {
+    // Given the team is on, with Anna and her stories
+    const user = userEvent.setup();
+    const repository = await open('#/settings/features');
+    const toggle = await screen.findByRole('switch', { name: /^Team/ });
+    // When I switch it off and on again
+    await user.click(toggle);
+    await waitFor(async () => expect((await repository.load()).settings.features.team).toBe(false));
+    expect(screen.getByText('Switched off. Members and assignments are kept and come back when you switch it on.')).toBeInTheDocument();
+    await user.click(toggle);
+    await waitFor(async () => expect((await repository.load()).settings.features.team).toBe(true));
+    // Then the three members and the assignment of S-3 are still there
+    const snapshot = await repository.load();
+    expect(snapshot.members.map((member) => member.initials)).toEqual(['MB', 'AK', 'LR']);
+    expect(snapshot.stories.find((story) => story.code === 'S-3')?.assigneeId).toBe('member-anna');
+  });
+
+  it('AC8.5 keeps showing an assignment in the history while the team is off', async () => {
+    // Given S-4 was assigned to Luca (two versions in its history) and the team is off
+    const user = userEvent.setup();
+    const at = (hour: number): string => `2026-10-12T0${hour}:00:00.000Z`;
+    const base = { itemType: 'story', itemId: 'story-4' } as const;
+    const title = 'Keep all data in a local database';
+    await open('#/board', (snapshot) => {
+      const state = statesOf(snapshot).get('story:story-4')!.state;
+      const { assignee: _none, ...without } = state;
+      const log: ChangeVersion[] = [
+        { ...base, id: 'v-1', at: at(1), version: 1, origin: 'created', keys: [], state: { ...without, title } },
+        { ...base, id: 'v-2', at: at(2), version: 2, origin: 'changed', keys: ['assignee'], state: { ...without, title, assignee: { id: 'member-luca', label: 'Luca Rossi' } } }
+      ];
+      return teamOff({ ...snapshot, stories: snapshot.stories.map((story) => (story.id === 'story-4' ? { ...story, assigneeId: 'member-luca' } : story)), changeLog: [...snapshot.changeLog, ...log] });
+    });
+    // When I open the history of S-4
+    const dialog = await openStory(user, 'S-4');
+    const panel = within(dialog).getByRole('heading', { name: 'History' }).closest('section') as HTMLElement;
+    // Then it says who it was assigned to
+    await waitFor(() => expect(panel).toHaveTextContent('Assigned to: Nobody → Luca Rossi'));
+  });
+
+  it('AC8.6 operates the switch with the space key and names it with its state', async () => {
+    // Given Settings › Features with the team on
+    const user = userEvent.setup();
+    await open('#/settings/features');
+    const toggle = await screen.findByRole('switch', { name: /^Team/ });
+    expect(toggle).toBeChecked();
+    // When I focus the switch and press the space key
+    toggle.focus();
+    await user.keyboard(' ');
+    // Then it is off
+    expect(toggle).not.toBeChecked();
+    expect(toggle).toHaveAccessibleName(/Off$/);
+  });
+});
+
 describe('help for the team (#18)', () => {
-  it('AC6.3 has a help topic that links to the settings of the team', async () => {
+  it('AC8.7 starts with the switch and locks the link to the settings while the team is off', async () => {
     // Given the help topics
     const { TOPICS, LINK_TARGETS } = await import('./help/topics');
     const { default: en } = await import('./i18n/en.json');
-    // Then the topic "Team and assignment" exists and leads to Settings › Team
+    // Then the topic "Team and assignment" exists, sends the user to the features first and locks the team settings behind the feature
     const topic = TOPICS.find((item) => item.id === 'team.assign');
-    expect(topic?.links?.[0]).toEqual({ id: 'settingsTeam' });
+    expect(topic?.links?.[0]).toEqual({ id: 'settingsFeatures', hint: 'featureFirst' });
+    expect(topic?.links?.[1]).toEqual({ id: 'settingsTeam', requires: 'team' });
     expect(LINK_TARGETS.settingsTeam).toBe('#/settings/team');
     expect(en.help.topics['team.assign'].title).toBe('Team and assignment');
+    expect(en.help.topics['team.assign'].body.startsWith('First switch on "Team"')).toBe(true);
     expect(en.help.links.settingsTeam).toBe('Open Settings → Team');
   });
 });

@@ -186,13 +186,13 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true }, definitions: seedSnapshot(todayIso()).settings.definitions });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, team: true }, definitions: seedSnapshot(todayIso()).settings.definitions });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, team: false }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, team: false }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, team: false }, definitions: EMPTY_DEFINITIONS });
   });
 
   it('falls back to the default for a value it does not know', async () => {

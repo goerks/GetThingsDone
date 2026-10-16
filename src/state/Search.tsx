@@ -159,8 +159,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const app = useApp();
   const details = useDetails();
   const snapshot = useMemo<SearchSnapshot>(
-    () => ({ epics: app.epics, sprints: app.sprints, stories: app.stories, statuses: app.statuses, fields: app.fields, assignments: app.assignments, members: app.members }),
-    [app.epics, app.sprints, app.stories, app.statuses, app.fields, app.assignments, app.members]
+    () => ({ epics: app.epics, sprints: app.sprints, stories: app.stories, statuses: app.statuses, fields: app.fields, assignments: app.assignments, ...(app.settings.features.team ? { members: app.members } : {}) }),
+    [app.epics, app.sprints, app.stories, app.statuses, app.fields, app.assignments, app.members, app.settings.features.team]
   );
   const labels = useSearchLabels(snapshot);
   const [query, setQuery] = useState<SearchQuery>(EMPTY_QUERY);

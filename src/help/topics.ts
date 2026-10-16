@@ -71,7 +71,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'definitions.basics', pages: ['board', 'backlog', 'settings'], show: { selector: '.definition-chip, .definitions-settings, .card[data-story-id]', missing: 'plain' }, links: [{ id: 'settingsDefinitions' }, { id: 'backlog' }, { id: 'board' }] },
   { id: 'history.compare', pages: ['board', 'backlog', 'epics', 'releases'], show: { selector: '.card__title, .backlog__title', missing: 'story' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'epics' }, { id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }] },
   { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsFeatures' }, { id: 'settingsData' }] },
-  { id: 'team.assign', pages: ['board', 'backlog', 'map', 'settings'], show: { selector: '.member-filter, .team, .assignee', missing: 'plain' }, links: [{ id: 'settingsTeam' }, { id: 'board' }, { id: 'backlog' }] },
+  { id: 'team.assign', pages: ['board', 'backlog', 'map', 'settings'], show: { selector: '.member-filter, .team, .assignee', missing: 'plain' }, links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsTeam', requires: 'team' }, { id: 'board' }, { id: 'backlog' }] },
   { id: 'data.backup', pages: ['settings'], show: { selector: '.data-settings', missing: 'plain' }, links: [{ id: 'settingsData' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
