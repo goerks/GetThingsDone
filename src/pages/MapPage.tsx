@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { createContext, useContext, useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -45,14 +45,13 @@ import { isUpcoming, mapSprints, moveSprint, todayIso } from '../domain/sprints'
 import type { Epic, Release, Sprint, Story } from '../domain/types';
 import { hrefs } from '../router';
 import { GearIcon } from '../components/icons';
-import { CardFieldValues, TitleButton } from '../components/StoryCard';
+import { StoryCardContent } from '../components/StoryCard';
 import { useDetails } from '../state/Details';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
 import { usePageMatches, useSearchPage } from '../state/Search';
 import { useNewShortcut } from '../components/useNewShortcut';
-import { StatusDot } from '../components/StatusDot';
 
 const NOT_PLANNED = '-';
 /** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
@@ -67,25 +66,8 @@ interface Hover {
 
 /* ---------- Card ---------- */
 
-function CardContent({ story }: { story: Story }) {
-  const builtin = useBuiltin();
-  return (
-    <>
-      <span className="map-card__top">
-        <span className="card__code">{story.code}</span>
-        <AssigneeBadge story={story} />
-        {builtin.shown('story', 'points') && (
-          <span className="pill" title={builtin.pointsTitle(story.points)}>
-            {story.points}
-          </span>
-        )}
-      </span>
-      <TitleButton story={story} className="map-card__title" />
-      <CardFieldValues story={story} />
-      <StatusDot status={story.status} />
-    </>
-  );
-}
+/** Whether the map shows one line per story; the cards read it, so it does not travel through every cell. */
+const CompactContext = createContext(false);
 
 function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
   const { t } = useTranslation();
@@ -106,8 +88,9 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
     listeners?.onKeyDown?.(event);
   };
 
+  const compact = useContext(CompactContext);
   const match = useMatchClass(story.id, 'map-card');
-  const classes = ['map-card', isDragging && 'map-card--dragging', dropBefore && 'drop-before', app.flashed === story.id && 'flash', menu.openId === story.id && 'ctx-target', match].filter(Boolean).join(' ');
+  const classes = ['card', 'map-card', compact && 'card--compact', isDragging && 'map-card--dragging', dropBefore && 'drop-before', app.flashed === story.id && 'flash', menu.openId === story.id && 'ctx-target', match].filter(Boolean).join(' ');
 
   return (
     <li>
@@ -122,7 +105,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
         onClick={() => details.openStory(story.id)}
         onContextMenu={(event) => menu.openFor(story.id, event)}
       >
-        <CardContent story={story} />
+        <StoryCardContent story={story} epic={app.epics.find((item) => item.id === story.epicId)} compact={compact} />
       </article>
     </li>
   );
@@ -636,6 +619,7 @@ export function MapPage() {
           onDragCancel={onDragCancel}
           accessibility={{ announcements, screenReaderInstructions: { draggable: t(releaseMode ? 'map.dnd.instructionsReleases' : 'map.dnd.instructions') } }}
         >
+          <CompactContext.Provider value={compact}>
           <div className={`map${compact ? ' map--compact' : ''}`} style={gridStyle}>
             <div className="map__row map__row--head">
               <div className="map__corner" aria-hidden="true">
@@ -709,6 +693,7 @@ export function MapPage() {
               </>
             )}
           </div>
+          </CompactContext.Provider>
           <DragOverlay>
             {activeSprint ? (
               <div className="map-sprint map-sprint--overlay" aria-hidden="true">
@@ -719,8 +704,8 @@ export function MapPage() {
                 />
               </div>
             ) : activeStory ? (
-              <article className="map-card map-card--overlay" aria-hidden="true">
-                <CardContent story={activeStory} />
+              <article className={`card map-card map-card--overlay${compact ? ' card--compact' : ''}`} aria-hidden="true">
+                <StoryCardContent story={activeStory} epic={app.epics.find((item) => item.id === activeStory.epicId)} compact={compact} />
               </article>
             ) : null}
           </DragOverlay>

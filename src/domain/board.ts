@@ -449,3 +449,17 @@ export function createStory(stories: Story[], input: NewStoryInput, id: string, 
   };
   return { stories: [...stories, story], story };
 }
+
+export const MAX_POINTS = 100;
+
+/**
+ * Story points typed into the backlog (#55): a whole number from 0 to 100. An empty text removes the points
+ * (0). Anything else, such as "abc", "-3", "3,5" or "101", is invalid (null).
+ */
+export function parsePoints(text: string): number | null {
+  const trimmed = text.trim();
+  if (trimmed === '') return 0;
+  if (!/^\d{1,3}$/.test(trimmed)) return null;
+  const value = Number(trimmed);
+  return value <= MAX_POINTS ? value : null;
+}

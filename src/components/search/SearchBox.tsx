@@ -63,8 +63,6 @@ function cut(text: string, start: number, end: number): { text: string; caret: n
   return { text: joined, caret: before.length + (before && after ? 1 : 0) };
 }
 
-const isMac = (): boolean => typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
-
 /**
  * The search in the header: free text and filter chips in one field, results in a dropdown.
  * Focus stays in the field; arrow keys move through the results, Enter opens one.
@@ -443,7 +441,6 @@ export function SearchBox() {
             <span className="result__main">
               <span className="result__title">{entry.label}</span>
             </span>
-            <kbd aria-hidden="true">Tab</kbd>
           </li>
         );
       case 'result': {
@@ -541,8 +538,9 @@ export function SearchBox() {
     : results.length === 0
       ? t('search.noResultsStatus')
       : t('search.resultCount', { count: results.length });
-  const shortcut = isMac() ? '⌘F' : 'Ctrl+F';
   const hasContent = query.text.length > 0 || query.filters.length > 0;
+  const canClear = !searching && history.searches.length + recent.length > 0;
+  const canHighlight = Boolean(searching && page && pageMatches > 0);
 
   return (
     <div
@@ -620,7 +618,7 @@ export function SearchBox() {
           onSelect={(event) => setCaret(event.currentTarget.selectionStart ?? 0)}
           onKeyDown={onInputKeyDown}
         />
-        {hasContent ? (
+        {hasContent && (
           <button
             type="button"
             className="search__clear"
@@ -634,12 +632,6 @@ export function SearchBox() {
           >
             ✕
           </button>
-        ) : (
-          !open && (
-            <kbd className="search__shortcut" aria-hidden="true">
-              {shortcut}
-            </kbd>
-          )
         )}
       </div>
 
@@ -677,31 +669,20 @@ export function SearchBox() {
             )}
           </ul>
 
-          <div className="search__footer">
-            <span aria-hidden="true">
-              <kbd>↑</kbd>
-              <kbd>↓</kbd> {t('search.keys.move')}
-            </span>
-            <span aria-hidden="true">
-              <kbd>Enter</kbd> {t('search.keys.open')}
-            </span>
-            <span aria-hidden="true">
-              <kbd>@</kbd> {t('search.keys.fields')}
-            </span>
-            <span aria-hidden="true">
-              <kbd>Esc</kbd> {t('search.keys.close')}
-            </span>
-            {!searching && history.searches.length + recent.length > 0 && (
-              <button type="button" className="link-button" onClick={() => search.clearHistory()}>
-                {t('search.clearHistory')}
-              </button>
-            )}
-            {searching && page && pageMatches > 0 && (
-              <button type="button" className="link-button search__highlight" onClick={search.showOnPage}>
-                {t('search.showOnPage', { page: page.label })} <kbd aria-hidden="true">{isMac() ? '⌘' : 'Ctrl'}+Enter</kbd>
-              </button>
-            )}
-          </div>
+          {(canClear || canHighlight) && (
+            <div className="search__footer">
+              {canClear && (
+                <button type="button" className="link-button" onClick={() => search.clearHistory()}>
+                  {t('search.clearHistory')}
+                </button>
+              )}
+              {canHighlight && (
+                <button type="button" className="link-button search__highlight" onClick={search.showOnPage}>
+                  {t('search.showOnPage', { page: page?.label ?? '' })}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
       <div role="status" className="sr-only">

@@ -30,6 +30,7 @@ import { useDetails } from '../state/Details';
 import { useStoryMenu } from '../state/StoryMenu';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
+import { PointsEdit } from '../components/PointsEdit';
 import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
 import { useSearchPage } from '../state/Search';
 
@@ -51,23 +52,24 @@ interface RowProps {
   dropLabel?: string;
 }
 
-function RowContent({ story, rank, epic }: Omit<RowProps, 'dropLabel'>) {
+/** The row of a story. The number stands outside the white row, on its left (#55); the rank is in the accessible name. */
+function RowContent({ story, epic, editable = true }: Omit<RowProps, 'dropLabel' | 'rank'> & { editable?: boolean }) {
   const builtin = useBuiltin();
   return (
     <>
-      <span className="backlog__rank" aria-hidden="true">
-        {rank}
-      </span>
       <span className="card__code backlog__code">{story.code}</span>
       <TitleButton story={story} className="backlog__title" />
       <DefinitionChip story={story} kind="ready" />
       <EpicTag epic={epic} inCard />
       <AssigneeBadge story={story} />
-      {builtin.shown('story', 'points') && (
-        <span className="pill" title={builtin.pointsTitle(story.points)}>
-          {story.points}
-        </span>
-      )}
+      {builtin.shown('story', 'points') &&
+        (editable ? (
+          <PointsEdit story={story} />
+        ) : (
+          <span className="pill" title={builtin.pointsTitle(story.points)}>
+            {story.points}
+          </span>
+        ))}
     </>
   );
 }
@@ -109,7 +111,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
       onClick={() => details.openStory(story.id)}
       onContextMenu={(event) => menu.openFor(story.id, event)}
     >
-      <RowContent story={story} rank={rank} epic={epic} />
+      <RowContent story={story} epic={epic} />
     </li>
   );
 }
@@ -143,7 +145,19 @@ function Section({ sprint, rows, firstRank, epics, target }: SectionProps) {
         {sprint?.state === 'running' && <span className="badge-running">{t('sprint.running')}</span>}
         {sprint?.state === 'planned' && <span className="badge-planned">{t('sprint.planned')}</span>}
         {sprint && <span className="muted backlog__dates">{formatSprintDates(sprint, i18n.language)}</span>}
-        <span className="muted">{builtin.summary(rows.length, totalPoints(rows))}</span>
+        <span className="muted">
+          {builtin.shown('story', 'points') ? (
+            <>
+              {t('summary.stories', { count: rows.length })} <span aria-hidden="true">·</span>{' '}
+              <span className="pill pill--sum" title={builtin.pointsTitle(totalPoints(rows))} data-testid="sprint-points">
+                <span aria-hidden="true">{totalPoints(rows)}</span>
+                <span className="sr-only">{builtin.pointsTitle(totalPoints(rows))}</span>
+              </span>
+            </>
+          ) : (
+            t('summary.stories', { count: rows.length })
+          )}
+        </span>
         {sprint && <SprintPlan points={totalPoints(rows)} className="muted backlog__plan" />}
       </h2>
       <SortableContext items={rows.map((story) => story.id)} strategy={keepInPlace}>
@@ -298,7 +312,7 @@ export function BacklogPage() {
         <DragOverlay>
           {activeStory ? (
             <div className="backlog__row backlog__row--overlay" aria-hidden="true">
-              <RowContent story={activeStory} rank={activeIndex + 1} epic={epics.get(activeStory.epicId ?? '')} />
+              <RowContent story={activeStory} epic={epics.get(activeStory.epicId ?? '')} editable={false} />
             </div>
           ) : null}
         </DragOverlay>

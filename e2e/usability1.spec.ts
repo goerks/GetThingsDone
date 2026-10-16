@@ -113,19 +113,19 @@ test('AC1.4 still opens with Enter and with a double click, exactly one dialog e
 
 /* ---------- AC2 All create dialogs work the same ---------- */
 
-test('AC2.1 shows "Cancel" and the primary button at the foot of a create dialog, with the shortcut hint', async ({ page }) => {
+test('AC2.1 shows "Cancel" and the primary button at the foot of a create dialog, without a shortcut hint (#55)', async ({ page }) => {
   // Given I am on the board
   await open(page, '#/board');
 
   // When I click "New story"
   await page.getByRole('button', { name: 'New story' }).click();
 
-  // Then the foot has "Cancel", and to its right the primary "Add story", and the hint for Ctrl+Enter
+  // Then the foot has "Cancel", and to its right the primary "Add story", and no hint for Ctrl+Enter
   const box = dialog(page, 'New story');
   const cancel = await box.getByRole('button', { name: 'Cancel' }).boundingBox();
   const primary = await box.getByRole('button', { name: 'Add story', exact: true }).boundingBox();
   expect(cancel && primary && cancel.x < primary.x).toBe(true);
-  await expect(box.getByText('Ctrl+Enter saves · Esc cancels')).toBeVisible();
+  await expect(box.getByText('Ctrl+Enter saves · Esc cancels')).toHaveCount(0);
   await expect(box).toHaveScreenshot('create-dialog.png', SHOT);
 });
 
@@ -265,11 +265,11 @@ test('AC3.1 puts the primary "New" button with its shortcut at the right of the 
   for (const [hash, button, dialogName] of pages) {
     // Given I open the page
     await open(page, hash);
-    // Then the button with Ctrl+N is at the right end of the page head, and a click opens the matching dialog
+    // Then the button is at the right end of the page head without a shortcut written on it, and a click opens the matching dialog
     const head = page.getByRole('heading', { level: 1 }).locator('..');
     const action = head.getByRole('button', { name: button, exact: true });
     await expect(action).toBeVisible();
-    await expect(action).toContainText('Ctrl+N');
+    await expect(action).not.toContainText('Ctrl+N');
     const headBox = await head.boundingBox();
     const box = await action.boundingBox();
     if (!headBox || !box) throw new Error('page head is not visible');
@@ -786,9 +786,9 @@ test('AC10.3 shows the text and the "New epic" button on an epics page without e
   });
   // When I open the epics page
   await open(page, '#/epics');
-  // Then it shows "No epics yet." and the button "New epic" with Ctrl+N
+  // Then it shows "No epics yet." and the button "New epic" without a shortcut on it
   await expect(page.getByText('No epics yet.')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'New epic' })).toContainText('Ctrl+N');
+  await expect(page.getByRole('button', { name: 'New epic' })).not.toContainText('Ctrl+N');
 });
 
 /* ---------- AC11 Acceptance aid in the preview: step by step ---------- */
