@@ -1,0 +1,331 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Änderungsverlauf: Stände vergleichen, Design-Varianten</title><style>
+/* Layout: one reading column; each variant is a mockup of the settings page. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --c-blue: #2457d6; --c-amber: #b45309; --c-teal: #0f766e; --c-violet: #7c3aed;
+  --c-rose: #be123c; --c-green: #15803d; --c-cyan: #0e7490; --c-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --c-blue: #7aa2ff; --c-amber: #f0a050; --c-teal: #3fd0b8; --c-violet: #b69cff;
+  --c-rose: #fb7185; --c-green: #6ee7a0; --c-cyan: #5fd4ef; --c-slate: #a3b1c6;
+  color-scheme: dark; }
+
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 40px 16px 80px; display: grid; gap: 56px; }
+h1,h2,h3,h4 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 72ch; }
+ul { margin: 0; padding-left: 20px; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+.variant { display: grid; gap: 14px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; font-size: 14px; display: grid; gap: 4px; align-content: start; }
+.box b { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.scroll { overflow-x: auto; }
+
+/* ---------- Mockup: detail dialog ---------- */
+.stage { background: var(--scrim); padding: 24px; border-radius: var(--r); min-width: 1040px; }
+.dlg { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 40px var(--shadow); font-size: 13px; overflow: hidden; }
+.dlg__head { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.dlg__head b { font-size: 16px; }
+.dlg__head .x { margin-left: auto; width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); display: grid; place-items: center; }
+.code { font-family: var(--font-mono); font-size: 12px; background: var(--pill); border-radius: 6px; padding: 1px 7px; }
+.tabs { display: flex; gap: 4px; padding: 0 18px; border-bottom: 1px solid var(--border); }
+.tabs span { padding: 8px 12px; color: var(--muted); border-bottom: 2px solid transparent; }
+.tabs .on { color: var(--text); font-weight: 600; border-color: var(--accent); }
+.body { padding: 14px 18px 18px; display: grid; gap: 12px; }
+.btn { height: 28px; padding: 0 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font: inherit; color: var(--text); }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn--soft { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: var(--accent); }
+.sel { height: 28px; padding: 0 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.sel::after { content: "▾"; color: var(--muted); font-size: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; border-radius: 999px; padding: 1px 8px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.chip--a { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.chip--b { background: var(--c-violet); color: var(--surface); font-weight: 600; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.blue { background: var(--c-blue); } .amber { background: var(--c-amber); } .green { background: var(--c-green); } .slate { background: var(--c-slate); } .violet { background: var(--c-violet); }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.toolbar .sp { margin-left: auto; }
+.sw { display: inline-flex; align-items: center; gap: 6px; }
+.sw i { width: 28px; height: 16px; border-radius: 999px; background: var(--accent); position: relative; display: inline-block; }
+.sw i::after { content: ""; position: absolute; right: 2px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-ink); }
+
+/* diff colours: never colour alone, always a sign (+ / −) and a word for screen readers */
+.del { background: var(--bad-soft); color: var(--bad); text-decoration: line-through; text-decoration-thickness: 1px; border-radius: 3px; padding: 0 2px; }
+.ins { background: var(--ok-soft); color: var(--ok); border-radius: 3px; padding: 0 2px; font-weight: 500; }
+.sign { font-family: var(--font-mono); font-weight: 700; display: inline-block; width: 14px; text-align: center; }
+.sign--del { color: var(--bad); } .sign--ins { color: var(--ok); } .sign--chg { color: var(--c-amber); }
+.pane-del { background: var(--bad-soft); } .pane-ins { background: var(--ok-soft); }
+.vlabel { display: grid; gap: 1px; }
+.vlabel b { font-size: 13px; }
+.vlabel small { color: var(--muted); font-size: 11px; }
+
+/* Variant A: table */
+.tbl { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.tbl__row { display: grid; grid-template-columns: 150px 1fr 1fr; border-top: 1px solid var(--border); }
+.tbl__row:first-child { border-top: 0; }
+.tbl__row > * { padding: 8px 12px; min-width: 0; }
+.tbl__head { background: var(--pill); font-weight: 600; }
+.tbl__f { color: var(--muted); display: flex; gap: 6px; align-items: baseline; }
+.tbl__row--chg .tbl__f { color: var(--text); font-weight: 600; }
+.tbl__row--same { color: var(--muted); }
+.tbl__fold { background: var(--column); color: var(--muted); text-align: center; padding: 8px; border-top: 1px solid var(--border); }
+.crit { display: grid; gap: 4px; }
+.crit div { display: flex; gap: 6px; align-items: baseline; }
+.box-c { width: 12px; height: 12px; border: 1.5px solid var(--muted); border-radius: 3px; display: inline-block; flex: none; position: relative; top: 2px; }
+.box-c--on { background: var(--accent); border-color: var(--accent); }
+
+/* Variant B: master-detail */
+.md { display: grid; grid-template-columns: 300px 1fr; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.rail { background: var(--column); border-right: 1px solid var(--border); padding: 10px; display: grid; gap: 6px; align-content: start; }
+.ver { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; display: grid; gap: 3px; }
+.ver--a { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.ver--b { border-color: var(--c-violet); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-violet) 22%, var(--surface)); }
+.ver__top { display: flex; align-items: center; gap: 6px; }
+.ver__top b { font-family: var(--font-mono); font-size: 12px; }
+.ver__top .chips { margin-left: auto; display: flex; gap: 4px; }
+.pick { border: 1px solid var(--border); border-radius: 999px; font-size: 10px; padding: 0 6px; color: var(--muted); background: var(--surface); font-weight: 600; }
+.ver small { color: var(--muted); }
+.detail { padding: 12px 14px; display: grid; gap: 10px; align-content: start; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.card__h { padding: 7px 12px; background: var(--pill); font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.card__b { padding: 10px 12px; display: grid; gap: 8px; }
+.fld { display: grid; gap: 2px; padding: 4px 6px; border-radius: 6px; border-left: 3px solid transparent; }
+.fld small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.fld--chg { background: color-mix(in srgb, var(--c-amber) 12%, var(--surface)); border-left-color: var(--c-amber); }
+.fld--ins { background: var(--ok-soft); border-left-color: var(--ok); }
+.fld--del { background: var(--bad-soft); border-left-color: var(--bad); }
+
+/* Variant C: review style */
+.sumbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sumbar .chip { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 3px 10px; font-size: 12px; }
+.sumbar .chip--on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-soft-ink); font-weight: 600; }
+.rev { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.rev__h { padding: 7px 12px; background: var(--pill); font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.rev__h .mono { margin-left: auto; color: var(--muted); font-weight: 400; }
+.short { display: grid; grid-template-columns: 1fr 1fr; }
+.short > div { padding: 7px 12px; display: flex; align-items: baseline; gap: 6px; }
+.lines { display: grid; grid-template-columns: 1fr 1fr; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; }
+.ln { display: grid; grid-template-columns: 30px 14px 1fr; padding-right: 8px; min-width: 0; }
+.ln i { font-style: normal; color: var(--muted); text-align: right; padding-right: 8px; user-select: none; }
+.ln--del { background: var(--bad-soft); } .ln--ins { background: var(--ok-soft); } .ln--empty { background: repeating-linear-gradient(135deg, var(--column), var(--column) 6px, var(--pill) 6px, var(--pill) 12px); }
+.ln span.t { white-space: pre-wrap; overflow-wrap: anywhere; }
+.ln mark { background: color-mix(in srgb, var(--bad) 28%, transparent); color: inherit; border-radius: 2px; }
+.ln--ins mark { background: color-mix(in srgb, var(--ok) 30%, transparent); }
+
+/* Variant D: scrubber */
+.scrub { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px 10px; display: grid; gap: 10px; background: var(--surface); }
+.track { position: relative; height: 62px; }
+.track__line { position: absolute; left: 14px; right: 14px; top: 18px; height: 4px; background: var(--border); border-radius: 2px; }
+.track__range { position: absolute; top: 18px; height: 4px; background: var(--accent); border-radius: 2px; }
+.tick { position: absolute; top: 12px; display: grid; justify-items: center; gap: 4px; transform: translateX(-50%); }
+.tick i { width: 16px; height: 16px; border-radius: 50%; background: var(--surface); border: 2px solid var(--muted); display: block; }
+.tick small { white-space: nowrap; font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.tick--in i { border-color: var(--accent); background: var(--accent-soft); }
+.tick--a i { width: 22px; height: 22px; margin-top: -3px; background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.tick--b i { width: 22px; height: 22px; margin-top: -3px; background: var(--c-violet); border-color: var(--c-violet); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-violet) 25%, var(--surface)); }
+.tick--a small, .tick--b small { font-weight: 700; color: var(--text); }
+.between { display: grid; gap: 4px; }
+.between div { display: flex; gap: 8px; align-items: baseline; padding: 4px 8px; border-radius: 6px; background: var(--column); }
+.between b { font-family: var(--font-mono); font-size: 12px; min-width: 28px; }
+.mini { display: grid; grid-template-columns: 130px 1fr 1fr; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.mini > div { padding: 6px 10px; border-top: 1px solid var(--border); min-width: 0; }
+.mini > div:nth-child(-n+3) { border-top: 0; background: var(--pill); font-weight: 600; }
+.mini .f { color: var(--muted); }
+</style></head><body><div class="wrap">
+
+<header style="display:grid;gap:12px">
+<h1>Änderungsverlauf: zwei Stände vergleichen</h1>
+<p class="muted">Issue #23. Vier Entwürfe, wie man im Verlauf einer Story (gilt gleich für Epics, Sprints, Releases und eigene Typen) zwei Stände wählt und die Unterschiede links/rechts sieht. Beispiel in allen Varianten: Story „S-3 Login-Seite“, <b>V6</b> gegen <b>Aktuell (V9)</b>.</p>
+<div class="meta"><span>Mockup, Text auf Deutsch</span><span>kein App-Code</span><span>Light-Theme gezeigt, Dark kommt aus den Tokens</span></div>
+<div class="proscons">
+<div class="box"><b>Gemeinsame Regeln</b>
+<span>Ein <b>Stand (Version)</b> entsteht bei jedem Speichern eines Elements (V1, V2 …). Mehrere Feldänderungen in einem Speichern sind ein Stand. „Aktuell“ ist immer der letzte Stand.</span>
+<span>Hinzugefügt: grün mit <b>+</b>, entfernt: rot und durchgestrichen mit <b>−</b>, geändert: gelber Rand mit <b>~</b>. Nie nur Farbe: Zeichen und Text kommen immer dazu.</span></div>
+<div class="box"><b>Gemeinsame Bedienung</b>
+<span>Einstieg im Reiter „Verlauf“ der Detailansicht: Schaltfläche „Stände vergleichen“. Tastatur: Pfeile in der Liste, <span class="mono">A</span> / <span class="mono">B</span> setzen die beiden Stände, Esc geht zurück.</span>
+<span>Links ist immer der ältere Stand, rechts der neuere; ein Tausch-Knopf (⇄) dreht die Richtung. Gleiche Felder lassen sich einklappen.</span></div>
+</div>
+</header>
+
+<!-- ======================= A ======================= -->
+<section class="variant" id="va">
+<div class="variant__head"><h3>A · Tabelle: Feld für Feld</h3><span class="tag">Kompakt, am nächsten an einem Formular</span></div>
+<p>Zwei Auswahlfelder oben („Von“, „Nach“), darunter eine Tabelle: pro Feld eine Zeile, links der ältere, rechts der neuere Stand. Geänderte Zeilen sind hervorgehoben, unveränderte Felder klappen zu einer Zeile zusammen. Beschreibung und Kriterien zeigen die Unterschiede direkt im Text.</p>
+<div class="scroll"><div class="stage" id="sa"><div class="dlg">
+<div class="dlg__head"><span class="code">S-3</span><b>Login-Seite mit Passwort-Reset</b><span class="x">✕</span></div>
+<div class="tabs"><span>Details</span><span class="on">Verlauf</span></div>
+<div class="body">
+<div class="toolbar">
+<span class="muted">Von</span><span class="sel"><b>V6</b> · 12.10. 10:30</span>
+<span class="btn" title="Tauschen">⇄</span>
+<span class="muted">Nach</span><span class="sel"><b>Aktuell (V9)</b> · 16.10. 09:12</span>
+<span class="sw sp"><i></i> Nur Änderungen</span>
+<span class="chip">6 von 11 Feldern geändert</span>
+</div>
+<div class="tbl" role="table">
+<div class="tbl__row tbl__head"><div>Feld</div><div class="vlabel"><b>V6</b><small>12.10. 10:30</small></div><div class="vlabel"><b>Aktuell (V9)</b><small>16.10. 09:12</small></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Titel</div><div><span class="del">Login-Seite</span></div><div><span class="ins">Login-Seite mit Passwort-Reset</span></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Status</div><div><span class="dot blue"></span> In Arbeit</div><div><span class="dot violet"></span> <span class="ins">Review</span></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Punkte</div><div><span class="del">3</span></div><div><span class="ins">5</span></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Sprint</div><div><span class="del">Sprint 4</span></div><div><span class="ins">Sprint 5</span></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Priorität</div><div><span class="del">Mittel</span></div><div><span class="ins">Hoch</span></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Beschreibung</div>
+<div>Als Nutzer will ich mich <span class="del">mit E-Mail</span> anmelden, damit ich meine Aufgaben sehe.</div>
+<div>Als Nutzer will ich mich <span class="ins">mit E-Mail und Passwort</span> anmelden, damit ich meine Aufgaben sehe. <span class="ins">Ein vergessenes Passwort kann ich per E-Mail zurücksetzen.</span></div></div>
+<div class="tbl__row tbl__row--chg"><div class="tbl__f"><span class="sign sign--chg">~</span>Kriterien</div>
+<div class="crit"><div><span class="box-c box-c--on"></span>Fehlermeldung bei falschem Passwort</div><div><span class="box-c"></span>Login-Seite ist responsiv</div><div><span class="sign sign--del">−</span><span class="del"><span class="box-c box-c--on"></span> Passwort-Stärke-Anzeige</span></div></div>
+<div class="crit"><div><span class="box-c box-c--on"></span>Fehlermeldung bei falschem Passwort</div><div><span class="box-c box-c--on"></span><span class="ins">Login-Seite ist responsiv</span> <span class="chip">neu abgehakt</span></div><div><span class="sign sign--ins">+</span><span class="ins"><span class="box-c"></span> Passwort-Reset per E-Mail</span></div></div></div>
+<div class="tbl__fold">▸ 5 unveränderte Felder anzeigen (Epic, Release, Farbe, Schätzung, Team)</div>
+</div>
+</div></div></div></div>
+<div class="proscons"><div class="box"><b>Vorteile</b><span>Sofort lesbar wie ein Formular. Jedes Feld hat genau eine Zeile. Gut für wenige bis mittlere Änderungen.</span></div><div class="box"><b>Nachteile</b><span>Lange Beschreibungen werden in der Zelle eng. Man sieht nicht, <i>wann</i> zwischen den Ständen was passierte.</span></div></div>
+</section>
+
+<!-- ======================= B ======================= -->
+<section class="variant" id="vb">
+<div class="variant__head"><h3>B · Stände-Liste links, zwei Ansichten rechts</h3><span class="tag">Wählen und vergleichen an einem Ort</span></div>
+<p>Links die Liste aller Stände mit Datum und Kurzfassung. Zwei Marken <b>A</b> und <b>B</b> setzt man per Klick (oder Taste) auf einen Stand. Rechts erscheinen zwei Karten, die so aussehen wie die Detailansicht selbst, nur lesend; Unterschiede sind farbig markiert.</p>
+<div class="scroll"><div class="stage" id="sb"><div class="dlg">
+<div class="dlg__head"><span class="code">S-3</span><b>Login-Seite mit Passwort-Reset</b><span class="x">✕</span></div>
+<div class="tabs"><span>Details</span><span class="on">Verlauf</span></div>
+<div class="body"><div class="md">
+<div class="rail" role="listbox" aria-label="Stände">
+<div class="ver ver--b"><div class="ver__top"><b>V9 · Aktuell</b><span class="chips"><span class="pick">A</span><span class="chip chip--b">B</span></span></div><small>16.10. 09:12</small><span>Kriterium „responsiv“ abgehakt</span></div>
+<div class="ver"><div class="ver__top"><b>V8</b><span class="chips"><span class="pick">A</span><span class="pick">B</span></span></div><small>15.10. 17:40</small><span>Status, Priorität, Sprint geändert</span></div>
+<div class="ver"><div class="ver__top"><b>V7</b><span class="chips"><span class="pick">A</span><span class="pick">B</span></span></div><small>13.10. 14:05</small><span>Titel, Punkte, Beschreibung, Kriterien</span></div>
+<div class="ver ver--a"><div class="ver__top"><b>V6</b><span class="chips"><span class="chip chip--a">A</span><span class="pick">B</span></span></div><small>12.10. 10:30</small><span>Status: Todo → In Arbeit</span></div>
+<div class="ver"><div class="ver__top"><b>V5</b><span class="chips"><span class="pick">A</span><span class="pick">B</span></span></div><small>10.10. 08:50</small><span>Epic gesetzt</span></div>
+<div class="muted" style="text-align:center">▾ V4 bis V1 anzeigen</div>
+</div>
+<div class="detail">
+<div class="toolbar"><span class="chip chip--a">A · V6</span><span class="btn">⇄</span><span class="chip chip--b">B · Aktuell (V9)</span><span class="sw sp"><i></i> Nur Änderungen</span></div>
+<div class="two">
+<div class="card"><div class="card__h"><span class="chip chip--a">A</span>V6 · 12.10. 10:30</div><div class="card__b">
+<div class="fld fld--chg"><small>Titel</small><span><span class="del">Login-Seite</span></span></div>
+<div class="fld fld--chg"><small>Status</small><span><span class="dot blue"></span> In Arbeit</span></div>
+<div class="fld fld--chg"><small>Punkte · Sprint</small><span><span class="del">3</span> · <span class="del">Sprint 4</span></span></div>
+<div class="fld fld--chg"><small>Beschreibung</small><span>Als Nutzer will ich mich <span class="del">mit E-Mail</span> anmelden …</span></div>
+<div class="fld fld--del"><small>Kriterien (2)</small><span class="crit"><div><span class="box-c box-c--on"></span>Fehlermeldung …</div><div><span class="box-c"></span>responsiv</div><div><span class="sign sign--del">−</span><span class="del">Passwort-Stärke-Anzeige</span></div></span></div>
+</div></div>
+<div class="card"><div class="card__h"><span class="chip chip--b">B</span>Aktuell (V9) · 16.10. 09:12</div><div class="card__b">
+<div class="fld fld--chg"><small>Titel</small><span class="ins">Login-Seite mit Passwort-Reset</span></div>
+<div class="fld fld--chg"><small>Status</small><span><span class="dot violet"></span> <span class="ins">Review</span></span></div>
+<div class="fld fld--chg"><small>Punkte · Sprint</small><span><span class="ins">5</span> · <span class="ins">Sprint 5</span></span></div>
+<div class="fld fld--chg"><small>Beschreibung</small><span>Als Nutzer will ich mich <span class="ins">mit E-Mail und Passwort</span> anmelden … <span class="ins">Zurücksetzen per E-Mail.</span></span></div>
+<div class="fld fld--ins"><small>Kriterien (3)</small><span class="crit"><div><span class="box-c box-c--on"></span>Fehlermeldung …</div><div><span class="box-c box-c--on"></span>responsiv</div><div><span class="sign sign--ins">+</span><span class="ins">Passwort-Reset per E-Mail</span></div></span></div>
+</div></div>
+</div>
+</div>
+</div></div></div></div></div>
+<div class="proscons"><div class="box"><b>Vorteile</b><span>Auswahl und Ergebnis auf einem Bild. Die Liste zeigt den Weg zwischen den Ständen. Die beiden Karten sehen aus wie die Story selbst.</span></div><div class="box"><b>Nachteile</b><span>Braucht die ganze Breite des Dialogs (1040 px). Auf schmalen Fenstern stehen die Karten untereinander statt links/rechts.</span></div></div>
+</section>
+
+<!-- ======================= C ======================= -->
+<section class="variant" id="vc">
+<div class="variant__head"><h3>C · Prüf-Ansicht wie bei Code-Reviews</h3><span class="tag">Beste Lesbarkeit für lange Texte</span></div>
+<p>Oben eine Zusammenfassung als Chips („6 Felder geändert“), jeder Chip springt zum Feld. Kurze Felder stehen in einer zweispaltigen Zeile. Lange Texte (Beschreibung) bekommen eine <b>zeilenweise Gegenüberstellung</b> mit Zeilennummern, wie in einem Pull Request; geänderte Wörter sind zusätzlich markiert.</p>
+<div class="scroll"><div class="stage" id="sc"><div class="dlg">
+<div class="dlg__head"><span class="code">S-3</span><b>Login-Seite mit Passwort-Reset</b><span class="x">✕</span></div>
+<div class="tabs"><span>Details</span><span class="on">Verlauf</span></div>
+<div class="body">
+<div class="toolbar"><span class="muted">Von</span><span class="sel"><b>V6</b> · 12.10. 10:30</span><span class="btn">⇄</span><span class="muted">Nach</span><span class="sel"><b>Aktuell (V9)</b> · 16.10. 09:12</span><span class="sw sp"><i></i> Unveränderte ausblenden</span></div>
+<div class="sumbar"><span class="muted">6 Felder geändert:</span><span class="chip chip--on">Titel</span><span class="chip">Status</span><span class="chip">Punkte</span><span class="chip">Sprint</span><span class="chip">Priorität</span><span class="chip">Beschreibung +2 −1</span><span class="chip">Kriterien +1 −1 ✓1</span></div>
+<div class="rev"><div class="rev__h">Kurze Felder</div>
+<div class="short" style="border-top:1px solid var(--border)"><div class="pane-del"><span class="sign sign--del">−</span><span class="muted" style="width:70px">Titel</span><span class="del">Login-Seite</span></div><div class="pane-ins"><span class="sign sign--ins">+</span><span class="muted" style="width:70px">Titel</span><span class="ins">Login-Seite mit Passwort-Reset</span></div></div>
+<div class="short" style="border-top:1px solid var(--border)"><div class="pane-del"><span class="sign sign--del">−</span><span class="muted" style="width:70px">Status</span><span><span class="dot blue"></span> In Arbeit</span></div><div class="pane-ins"><span class="sign sign--ins">+</span><span class="muted" style="width:70px">Status</span><span><span class="dot violet"></span> Review</span></div></div>
+<div class="short" style="border-top:1px solid var(--border)"><div class="pane-del"><span class="sign sign--del">−</span><span class="muted" style="width:70px">Punkte</span>3</div><div class="pane-ins"><span class="sign sign--ins">+</span><span class="muted" style="width:70px">Punkte</span>5</div></div>
+<div class="short" style="border-top:1px solid var(--border)"><div class="pane-del"><span class="sign sign--del">−</span><span class="muted" style="width:70px">Sprint</span>Sprint 4</div><div class="pane-ins"><span class="sign sign--ins">+</span><span class="muted" style="width:70px">Sprint</span>Sprint 5</div></div>
+</div>
+<div class="rev"><div class="rev__h">Beschreibung <span class="mono">2 Zeilen hinzugefügt · 1 geändert</span></div>
+<div class="lines" style="border-top:1px solid var(--border)">
+<div class="ln"><i>1</i><b class="sign"> </b><span class="t">Als Nutzer will ich mich anmelden,</span></div><div class="ln"><i>1</i><b class="sign"> </b><span class="t">Als Nutzer will ich mich anmelden,</span></div>
+<div class="ln ln--del"><i>2</i><b class="sign sign--del">−</b><span class="t">damit ich meine Aufgaben sehe. Anmeldung <mark>mit E-Mail</mark>.</span></div><div class="ln ln--ins"><i>2</i><b class="sign sign--ins">+</b><span class="t">damit ich meine Aufgaben sehe. Anmeldung <mark>mit E-Mail und Passwort</mark>.</span></div>
+<div class="ln ln--empty"><i></i><b class="sign"> </b><span class="t"></span></div><div class="ln ln--ins"><i>3</i><b class="sign sign--ins">+</b><span class="t"><mark>Ein vergessenes Passwort kann ich per E-Mail zurücksetzen.</mark></span></div>
+<div class="ln"><i>3</i><b class="sign"> </b><span class="t">Nicht Teil: Registrierung.</span></div><div class="ln"><i>4</i><b class="sign"> </b><span class="t">Nicht Teil: Registrierung.</span></div>
+</div></div>
+<div class="rev"><div class="rev__h">Kriterien <span class="mono">+1 hinzugefügt · −1 entfernt · 1 neu abgehakt</span></div>
+<div class="short" style="border-top:1px solid var(--border)"><div><span class="sign"> </span><span class="box-c box-c--on"></span>&nbsp;Fehlermeldung bei falschem Passwort</div><div><span class="sign"> </span><span class="box-c box-c--on"></span>&nbsp;Fehlermeldung bei falschem Passwort</div></div>
+<div class="short"><div><span class="sign"> </span><span class="box-c"></span>&nbsp;Login-Seite ist responsiv</div><div class="pane-ins"><span class="sign sign--ins">~</span><span class="box-c box-c--on"></span>&nbsp;Login-Seite ist responsiv <span class="chip">abgehakt</span></div></div>
+<div class="short"><div class="pane-del"><span class="sign sign--del">−</span><span class="del">Passwort-Stärke-Anzeige</span></div><div class="pane-ins"><span class="sign sign--ins">+</span><span class="ins">Passwort-Reset per E-Mail</span></div></div>
+</div>
+</div></div></div></div>
+<div class="proscons"><div class="box"><b>Vorteile</b><span>Lange Texte sind gut lesbar. Die Zusammenfassung oben gibt in einer Sekunde den Überblick. Vertraut für Leute, die Pull Requests kennen.</span></div><div class="box"><b>Nachteile</b><span>Am meisten Platz und am „technischsten“. Für ein Team ohne Code-Hintergrund vielleicht zu viel.</span></div></div>
+</section>
+
+<!-- ======================= D ======================= -->
+<section class="variant" id="vd">
+<div class="variant__head"><h3>D · Zeitstrahl mit zwei Griffen</h3><span class="tag">Zeigt den Weg zwischen den Ständen</span></div>
+<p>Ein Zeitstrahl mit allen Ständen. Zwei Griffe (<b>A</b>, <b>B</b>) lassen sich ziehen oder mit den Pfeiltasten verschieben; der Bereich dazwischen ist markiert. Darunter steht, <b>was in den Speichervorgängen dazwischen passiert ist</b>, und dann die Gegenüberstellung als kompakte Tabelle. Neu gegenüber den anderen Varianten: man sieht auch die Zwischenschritte.</p>
+<div class="scroll"><div class="stage" id="sd"><div class="dlg">
+<div class="dlg__head"><span class="code">S-3</span><b>Login-Seite mit Passwort-Reset</b><span class="x">✕</span></div>
+<div class="tabs"><span>Details</span><span class="on">Verlauf</span></div>
+<div class="body">
+<div class="scrub">
+<div class="toolbar"><b>Stände von S-3</b><span class="muted">Griffe ziehen oder mit ← → verschieben</span><span class="btn sp">⇄ Tauschen</span></div>
+<div class="track">
+<div class="track__line"></div><div class="track__range" style="left:calc(14px + (100% - 28px) * .625);width:calc((100% - 28px) * .375)"></div>
+<div class="tick" style="left:calc(14px + (100% - 28px) * 0)"><i></i><small>V1</small></div>
+<div class="tick" style="left:calc(14px + (100% - 28px) * .125)"><i></i><small>V2</small></div>
+<div class="tick" style="left:calc(14px + (100% - 28px) * .25)"><i></i><small>V3</small></div>
+<div class="tick" style="left:calc(14px + (100% - 28px) * .375)"><i></i><small>V4</small></div>
+<div class="tick" style="left:calc(14px + (100% - 28px) * .5)"><i></i><small>V5</small></div>
+<div class="tick tick--a" style="left:calc(14px + (100% - 28px) * .625)"><i></i><small>A · V6</small></div>
+<div class="tick tick--in" style="left:calc(14px + (100% - 28px) * .75)"><i></i><small>V7</small></div>
+<div class="tick tick--in" style="left:calc(14px + (100% - 28px) * .875)"><i></i><small>V8</small></div>
+<div class="tick tick--b" style="left:calc(14px + (100% - 28px) * 1)"><i></i><small>B · V9</small></div>
+</div>
+<div class="between">
+<span class="muted">Dazwischen: 3 Stände</span>
+<div><b>V7</b><span class="muted">13.10. 14:05</span><span>Titel, Punkte, Beschreibung geändert · 1 Kriterium neu, 1 entfernt</span></div>
+<div><b>V8</b><span class="muted">15.10. 17:40</span><span>Priorität Mittel → Hoch · Sprint 4 → Sprint 5 · Status In Arbeit → Review</span></div>
+<div><b>V9</b><span class="muted">16.10. 09:12</span><span>Kriterium „Login-Seite ist responsiv“ abgehakt</span></div>
+</div>
+</div>
+<div class="mini">
+<div>Feld</div><div class="vlabel"><b>A · V6</b></div><div class="vlabel"><b>B · Aktuell (V9)</b></div>
+<div class="f">Titel</div><div><span class="del">Login-Seite</span></div><div><span class="ins">Login-Seite mit Passwort-Reset</span></div>
+<div class="f">Status</div><div><span class="dot blue"></span> In Arbeit</div><div><span class="dot violet"></span> <span class="ins">Review</span></div>
+<div class="f">Punkte · Sprint</div><div><span class="del">3</span> · <span class="del">Sprint 4</span></div><div><span class="ins">5</span> · <span class="ins">Sprint 5</span></div>
+<div class="f">Priorität</div><div><span class="del">Mittel</span></div><div><span class="ins">Hoch</span></div>
+<div class="f">Beschreibung</div><div>… <span class="del">mit E-Mail</span> anmelden …</div><div>… <span class="ins">mit E-Mail und Passwort</span> anmelden … <span class="ins">+1 Satz</span> <span class="chip">Ganzen Text zeigen</span></div>
+<div class="f">Kriterien</div><div>2 Kriterien, 1 erfüllt</div><div>3 Kriterien, 2 erfüllt <span class="chip">+1 −1 ✓1</span></div>
+</div>
+</div></div></div></div>
+<div class="proscons"><div class="box"><b>Vorteile</b><span>Man sieht den ganzen Verlauf und den gewählten Abschnitt auf einmal; „Was ist seit V6 passiert?“ ist die Hauptfrage. Auswahl ist ein einziges Bedienelement.</span></div><div class="box"><b>Nachteile</b><span>Ziehen am Strahl ist ungewohnt und braucht eine gute Tastatur-Variante. Bei sehr vielen Ständen (100+) muss der Strahl zoomen oder scrollen.</span></div></div>
+</section>
+
+<section class="variant"><h2>Offene Punkte für alle Varianten</h2>
+<div class="proscons">
+<div class="box"><b>Texte voll speichern?</b><span>Für den Vergleich der Beschreibung braucht der Verlauf den vollen alten und neuen Text. Das widerspricht der bisherigen Antwort „bei Langtexten nur geändert“ (Frage 2 in #23).</span></div>
+<div class="box"><b>Was ist ein Stand?</b><span>Hier: ein Speichervorgang. Alternative: ein Stand pro einzelner Feldänderung, das gäbe viel mehr Stände.</span></div>
+<div class="box"><b>Zurückholen</b><span>Ausdrücklich nicht Teil (steht unter „Out of scope“). Der Vergleich ist nur lesend.</span></div>
+</div></section>
+</div></body></html>
