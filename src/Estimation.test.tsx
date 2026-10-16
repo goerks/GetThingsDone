@@ -103,7 +103,7 @@ describe('estimating with cards (AC2)', () => {
     expect(within(dialog).getByRole('radio', { name: /^3,/ })).toHaveAttribute('aria-checked', 'true');
     expect(await saved(repository, 'story-3')).toMatchObject({ points: 3, special: null });
     await user.click(within(dialog).getByRole('button', { name: 'Close' }));
-    expect(within(row('S-3')).getByText('3')).toBeInTheDocument();
+    expect(within(row('S-3')).getByTitle('3 points')).toBeInTheDocument();
   });
 
   it('AC2.2 takes the estimate back when the chosen card is chosen again', async () => {
@@ -127,11 +127,12 @@ describe('estimating with cards (AC2)', () => {
     const repository = await open('#/epics');
     await user.click(screen.getByRole('button', { name: /^Boards/ }));
     const dialog = screen.getByRole('dialog', { name: 'Boards' });
-    expect(within(dialog).getAllByRole('radio').map((card) => card.textContent)).toEqual(['XS', 'S', 'M', 'L', 'XL']);
+    const sizes = within(dialog).getByRole('radiogroup', { name: 'Size' });
+    expect(within(sizes).getAllByRole('radio').map((card) => card.textContent)).toEqual(['XS', 'S', 'M', 'L', 'XL']);
     // When I choose the card L
-    await user.click(within(dialog).getByRole('radio', { name: 'L' }));
+    await user.click(within(sizes).getByRole('radio', { name: 'L' }));
     // Then L is chosen and stays after a reload
-    expect(within(dialog).getByRole('radio', { name: 'L' })).toHaveAttribute('aria-checked', 'true');
+    expect(within(sizes).getByRole('radio', { name: 'L' })).toHaveAttribute('aria-checked', 'true');
     expect((await repository.load()).epics.find((epic) => epic.id === 'epic-boards')?.size).toBe('L');
   });
 
@@ -259,7 +260,7 @@ describe('stories that were estimated before the cards (AC4)', () => {
     await screen.findByRole('heading', { level: 1 });
     // Then the story with 3 points is not estimated and the others keep their points
     expect(notEstimated(row('S-1'))).toBeInTheDocument();
-    expect(within(row('S-2')).getByText('8')).toBeInTheDocument();
+    expect(within(row('S-2')).getByTitle('8 points')).toBeInTheDocument();
     expect(await saved(repository, 'story-1')).toMatchObject({ points: null });
     // And a story estimated with 3 afterwards keeps it
     const user = userEvent.setup();
