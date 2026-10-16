@@ -22,7 +22,7 @@ const PACKAGE = selectPackage(typeof window === 'undefined' ? '' : window.locati
 const STORAGE_KEY = `getitdone.acceptance.${PACKAGE.issue}.package${PACKAGE.issue === 32 ? 1 : PACKAGE.issue}`;
 const STEP_KEY = `${STORAGE_KEY}.step`;
 /** The introduction of the package, where it has one. */
-const INTRO: Intro | undefined = (PACKAGE as { intro?: Intro }).intro;
+const INTRO: Intro | undefined = PACKAGE.intro;
 const CASES: TestCase[] = PACKAGE.criteria.flatMap((criterion) => criterion.cases);
 /** The test cases only the product owner can check; the others are covered by automated tests. */
 const PO_CASES: TestCase[] = CASES.filter((testCase) => testCase.poCheck);

@@ -11,7 +11,7 @@ export const PACKAGE_49: {
   issue: number;
   pullRequest: number;
   title: string;
-  intro: Intro;
+  intro?: Intro;
   criteria: Criterion[];
 } = {
   issue: 49,
