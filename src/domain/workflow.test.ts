@@ -14,7 +14,12 @@ import {
   hasExceptions,
   leadsToEnd,
   newStoryStatus,
+  currentVersionId,
+  nameVersion,
   normalizeWorkflow,
+  recordVersion,
+  restoreVersion,
+  versionsNewestFirst,
   pruneWorkflow,
   setEnabled,
   setFree,
@@ -224,9 +229,76 @@ describe('workflow (#49)', () => {
     // Given stored data with junk
     const workflow = normalizeWorkflow({ enabled: true, story: { blocked: { todo: ['done', 5, 'todo'], x: [] }, start: [], free: { done: false } }, epic: { blocked: { a: ['b'] } } });
     // Then only the story part is kept, cleaned
-    expect(Object.keys(workflow)).toEqual(['enabled', 'story']);
+    expect(Object.keys(workflow)).toEqual(['enabled', 'versions', 'story']);
     expect(workflow.story.blocked).toEqual({ todo: ['done'] });
     expect(workflow.story.start).toBeNull();
     expect(workflow.story.free).toEqual({ not_started: true, in_progress: true, done: false });
+  });
+
+  /** Ids v1, v2, … and a fixed time per call, so the versions are easy to tell apart. */
+  const ids = (): (() => string) => {
+    let n = 0;
+    return () => `v${++n}`;
+  };
+
+  it('AC12.1 adds a version with every change, and none for switching on or off', () => {
+    // Given the workflow is on and has no version yet
+    const newId = ids();
+    // When a transition is forbidden
+    const changed = recordVersion(on, setTransition(on, 'todo', 'done', false), '2026-10-16T10:00:00Z', newId);
+    // Then the state before and the new state are versions, the newest one is current
+    expect(changed.versions.map((version) => version.at)).toEqual(['2026-10-16T10:00:00Z', '2026-10-16T10:00:00Z']);
+    expect(changed.versions[0].story.blocked).toEqual({});
+    expect(versionsNewestFirst(changed)[0].story.blocked).toEqual({ todo: ['done'] });
+    expect(currentVersionId(changed)).toBe(changed.versions[1].id);
+    // And switching the workflow off creates no version
+    expect(recordVersion(changed, setEnabled(changed, false), '2026-10-16T11:00:00Z', newId).versions).toHaveLength(2);
+    // And the next change adds exactly one
+    expect(recordVersion(changed, setTransition(changed, 'done', 'todo', false), '2026-10-16T12:00:00Z', newId).versions).toHaveLength(3);
+  });
+
+  it('AC12.2 names a version, trims the name and removes it when empty', () => {
+    // Given two versions
+    const base = recordVersion(on, setTransition(on, 'todo', 'done', false), '2026-10-16T10:00:00Z', ids());
+    const top = base.versions[1].id;
+    // When the newest one is named
+    const named = nameVersion(base, top, '  Vor dem Umbau ');
+    // Then it has the trimmed name and no version was added
+    expect(named.versions[1].name).toBe('Vor dem Umbau');
+    expect(named.versions).toHaveLength(2);
+    // And an empty name removes it
+    expect(nameVersion(named, top, ' ').versions[1].name).toBeUndefined();
+  });
+
+  it('AC12.3 and AC12.4 go back to an old version as a new current one, and back again, without losing any', () => {
+    // Given a working workflow, then a broken one (everything from "To do" forbidden)
+    const newId = ids();
+    const good = recordVersion(on, setTransition(on, 'todo', 'done', false), '2026-10-16T10:00:00Z', newId);
+    const broken = recordVersion(good, setTransition(setTransition(good, 'todo', 'in_progress', false), 'todo', 'review', false), '2026-10-16T11:00:00Z', newId);
+    const goodId = good.versions[1].id;
+    const brokenId = broken.versions[broken.versions.length - 1].id;
+    // When I go back to the working version
+    const restored = restoreVersion(broken, goodId, '2026-10-16T12:00:00Z', newId);
+    // Then the transitions are those of the working version, it is a new version, and the broken one is still there
+    expect(restored.story.blocked).toEqual({ todo: ['done'] });
+    expect(restored.versions).toHaveLength(broken.versions.length + 1);
+    expect(restored.versions.some((version) => version.id === brokenId)).toBe(true);
+    // And I can go back to the broken one
+    const again = restoreVersion(restored, brokenId, '2026-10-16T13:00:00Z', newId);
+    expect(again.story.blocked).toEqual(broken.story.blocked);
+    expect(again.versions).toHaveLength(restored.versions.length + 1);
+    // And an unknown version changes nothing
+    expect(restoreVersion(again, 'nope', '2026-10-16T14:00:00Z', newId)).toBe(again);
+  });
+
+  it('AC12.5 keeps the versions with their names in a backup', () => {
+    // Given a workflow with a named version
+    const base = recordVersion(on, setTransition(on, 'todo', 'done', false), '2026-10-16T10:00:00Z', ids());
+    const workflow = nameVersion(base, base.versions[1].id, 'Vor dem Umbau');
+    // When it is exported and read again
+    const snapshot = seedSnapshot('2026-10-16');
+    const parsed = parseBackup(serializeBackup({ ...snapshot, settings: { ...snapshot.settings, workflow } }, '2026-10-16T10:00:00Z'), '2026-10-16');
+    // Then every version is there with its name
+    expect(parsed.ok && parsed.snapshot.settings.workflow.versions).toEqual(workflow.versions);
   });
 });

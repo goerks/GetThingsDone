@@ -281,9 +281,21 @@ export interface StoryWorkflow {
   free: Record<StatusCategory, boolean>;
 }
 
+/** A saved state of the workflow of the stories (#49, AC12). Versions are never deleted; going back adds a new one. */
+export interface WorkflowVersion {
+  id: string;
+  /** When the state was saved, ISO 8601. */
+  at: string;
+  /** A name the user gave, optional. */
+  name?: string;
+  story: StoryWorkflow;
+}
+
 /** The workflow of the team. Off by default: while it is off every transition is allowed and its data is kept. */
 export interface Workflow {
   enabled: boolean;
+  /** Every change of the workflow adds a version, oldest first. The last one is the current state. */
+  versions: WorkflowVersion[];
   /** One workflow per item type; only stories have one for now (epics have none). */
   story: StoryWorkflow;
 }

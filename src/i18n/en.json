@@ -980,8 +980,8 @@
       },
       "workflow.basics": {
         "title": "Workflows: allowed status changes",
-        "keywords": "workflow transition allowed forbidden status move start end delete lock category free",
-        "body": "A workflow says which statuses a story may move to next, where new stories start and from which statuses they can be deleted. It applies to stories; epics have none.\n1. Open Settings → Workflows and switch on “Activate the workflow”. It is off by default, and while it is off every move is allowed. What you set stays saved.\n2. The list “from here to …” has a row for each status. A button that is on means allowed. “End (delete)” decides whether stories can be deleted from that status. In the row “New story” you choose where new stories start; at least one start stays on.\n3. Each category has a switch “Free transitions within the category”. Turned on, every move inside the category is allowed; you can still forbid single ones (“with exceptions”).\nOn the board, a dragged story locks the columns it may not go to; hold the pointer over one to read why. Dropping there changes nothing and says why. The story dialog and the menus only offer allowed statuses. Stories already in a status stay there when the workflow changes."
+        "keywords": "workflow transition allowed forbidden status move start end delete lock category free version versions history restore back",
+        "body": "A workflow says which statuses a story may move to next, where new stories start and from which statuses they can be deleted. It applies to stories; epics have none.\n1. Open Settings → Workflows and switch on “Activate the workflow”. It is off by default, and while it is off every move is allowed. What you set stays saved.\n2. The list “from here to …” has a row for each status. A button that is on means allowed. “End (delete)” decides whether stories can be deleted from that status. In the row “New story” you choose where new stories start; at least one start stays on.\n3. Each category has a switch “Free transitions within the category”. Turned on, every move inside the category is allowed; you can still forbid single ones (“with exceptions”).\nOn the board, a dragged story locks the columns it may not go to; hold the pointer over one to read why. Dropping there changes nothing and says why. The story dialog and the menus only offer allowed statuses. Stories already in a status stay there when the workflow changes.\nEvery change of the workflow is saved as a version (date and time, optionally a name) under “Versions” on the same page. You can go back to any earlier version after a confirmation; it becomes the current one and nothing is deleted."
       },
       "data.backup": {
         "title": "Back up and export data",
@@ -1276,6 +1276,20 @@
     },
     "warning": {
       "noEnd": "No status leads to the end, so no story can be deleted. You can still save this."
+    },
+    "versions": {
+      "title": "Versions",
+      "hint": "Every change of the workflow is saved as a version. You can go back to any earlier version; nothing is deleted.",
+      "empty": "No changes yet. The first change creates a version.",
+      "current": "Current",
+      "name": "Name of the version from {{at}}",
+      "namePlaceholder": "Name (optional)",
+      "restore": "Go back to this version",
+      "restoreLabel": "Go back to the version from {{at}}",
+      "confirm": "Go back to the version from {{at}}? It becomes the current version; all versions are kept.",
+      "confirmYes": "Go back",
+      "cancel": "Cancel",
+      "restored": "The workflow is back at the version from {{at}}."
     }
   }
 }

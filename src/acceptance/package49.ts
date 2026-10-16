@@ -501,6 +501,90 @@ export const PACKAGE_49: {
           ]
         }
       ]
+    },
+    {
+      id: 'AC12',
+      story: 'S1',
+      title: 'Workflow-Versionen und Zurückkehren',
+      cases: [
+        {
+          id: 'AC12.1',
+          title: 'Jede Änderung erzeugt eine Version',
+          link: '#/settings/workflows',
+          target: '[data-part="versions"]',
+          given: 'Einstellungen › Workflows, der Workflow ist eingeschaltet, die Versionsliste ist noch leer.',
+          when: 'Ich sperre den Übergang von „To do“ nach „Done“.',
+          then: 'In der Versionsliste steht ein neuer Eintrag ganz oben mit heutigem Datum und Uhrzeit, markiert als „Current“. Darunter steht der Stand davor.',
+          preset: 'workflowOn',
+          tests: [
+            'src/domain/workflow.test.ts › AC12.1 adds a version with every change, and none for switching on or off',
+            'src/Workflows.test.tsx › AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation'
+          ]
+        },
+        {
+          id: 'AC12.2',
+          title: 'Version benennen',
+          link: '#/settings/workflows',
+          target: '[data-part="versions"]',
+          given: 'Die Versionsliste hat mindestens zwei Einträge.',
+          when: 'Ich gebe dem obersten Eintrag den Namen „Vor dem Umbau“ und drücke Enter.',
+          then: 'Der Eintrag zeigt Datum, Uhrzeit und „Vor dem Umbau“, auch nach dem Neuladen.',
+          preset: 'workflowVersions',
+          tests: [
+            'src/domain/workflow.test.ts › AC12.2 names a version, trims the name and removes it when empty',
+            'src/Workflows.test.tsx › AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation'
+          ]
+        },
+        {
+          id: 'AC12.3',
+          title: 'Zu einem alten Stand zurückkehren',
+          link: '#/settings/workflows',
+          target: '[data-part="versions"]',
+          given: 'Der Workflow ist „kaputt“: aus „To do“ ist alles gesperrt. Es gibt eine Version „Funktionierend“.',
+          when: 'Ich klicke bei „Funktionierend“ auf „Go back to this version“ und bestätige mit „Go back“.',
+          then: 'Die Übergänge sind wieder wie im funktionierenden Stand. Oben steht ein neuer Eintrag „Current“; der kaputte Stand ist weiterhin in der Liste.',
+          preset: 'workflowVersions',
+          tests: [
+            'src/domain/workflow.test.ts › AC12.3 and AC12.4 go back to an old version as a new current one, and back again, without losing any',
+            'src/Workflows.test.tsx › AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation'
+          ]
+        },
+        {
+          id: 'AC12.4',
+          title: 'Nichts geht verloren',
+          link: '#/settings/workflows',
+          target: '[data-part="versions"]',
+          given: 'Ich bin wie in AC12.3 zum funktionierenden Stand zurückgekehrt.',
+          when: 'Ich kehre zum kaputten Stand zurück.',
+          then: 'Auch das funktioniert, und alle bisherigen Einträge sind noch da.',
+          preset: 'workflowVersions',
+          tests: ['src/domain/workflow.test.ts › AC12.3 and AC12.4 go back to an old version as a new current one, and back again, without losing any']
+        },
+        {
+          id: 'AC12.5',
+          title: 'Export und Import',
+          link: '#/settings/data',
+          target: '.settings-content',
+          given: 'Mehrere Versionen, eine davon mit Namen.',
+          when: 'Ich exportiere alle Daten, lösche sie und importiere die Datei wieder.',
+          then: 'Alle Versionen mit Namen sind wieder da.',
+          preset: 'workflowVersions',
+          tests: ['src/domain/workflow.test.ts › AC12.5 keeps the versions with their names in a backup']
+        },
+        {
+          id: 'AC12.6',
+          title: 'Tastatur und Sprache',
+          link: '#/settings/workflows',
+          target: '[data-part="versions"]',
+          given: 'Die Sprache ist Französisch.',
+          when: 'Ich bediene die Versionsliste nur mit der Tastatur: benennen, zurückkehren.',
+          then: 'Alles ist erreichbar, und alle Texte sind französisch.',
+          preset: 'workflowVersions',
+          tests: [],
+          manual: 'Ob die Bedienung nur mit der Tastatur und die französischen Texte stimmig sind, prüft man am besten von Hand.',
+          poCheck: 'Lässt sich alles mit der Tastatur erreichen, und sind alle Texte französisch?'
+        }
+      ]
     }
   ]
 };

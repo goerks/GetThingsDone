@@ -348,4 +348,36 @@ describe('The workflow in stories, the menu and deleting (#49)', () => {
     expect(screen.getByRole('button', { name: '+ Story in To do' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '+ Story in Ready' })).toBeInTheDocument();
   });
+
+  it('AC12.1 AC12.2 AC12.3 lists versions, names one and goes back to a working one after a confirmation', async () => {
+    const user = userEvent.setup();
+    // Given the workflow is on and has no version yet
+    const repository = await open('#/settings/workflows', setEnabled(DEFAULT_WORKFLOW, true));
+    const versions = (): HTMLElement[] => within(screen.getByRole('region', { name: 'Versions' })).queryAllByRole('listitem');
+    expect(versions()).toHaveLength(0);
+    // When I forbid "To do" → "Done"
+    await user.click(chip('To do', 'Done'));
+    // Then there are two versions: the state before and the new one, marked as current
+    expect(versions()).toHaveLength(2);
+    expect(within(versions()[0]).getByText('Current')).toBeInTheDocument();
+    // When I name the older one and break the workflow by forbidding "To do" → "In progress"
+    await user.type(within(versions()[1]).getByRole('textbox'), 'Before the rebuild{Enter}');
+    await user.click(chip('To do', 'In progress'));
+    expect(versions()).toHaveLength(3);
+    // And go back to the named version, first cancelling the confirmation
+    await user.click(within(versions()[2]).getByRole('button', { name: /^Go back to the version from/ }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(chip('To do', 'Done')).toHaveAttribute('aria-pressed', 'false');
+    await user.click(within(versions()[2]).getByRole('button', { name: /^Go back to the version from/ }));
+    await user.click(screen.getByRole('button', { name: 'Go back' }));
+    // Then the transitions are those of that version, a new version was added, and nothing was removed
+    expect(chip('To do', 'Done')).toHaveAttribute('aria-pressed', 'true');
+    expect(chip('To do', 'In progress')).toHaveAttribute('aria-pressed', 'true');
+    expect(versions()).toHaveLength(4);
+    expect(within(versions()[0]).getByText('Current')).toBeInTheDocument();
+    // And the name and the versions are still there after a reload
+    await reload(repository, '#/settings/workflows');
+    expect(versions()).toHaveLength(4);
+    expect(within(versions()[3]).getByRole('textbox')).toHaveValue('Before the rebuild');
+  });
 });

@@ -65,6 +65,14 @@ describe('test data for the acceptance of the workflow (#49)', () => {
     expect(workflow('workflowRestricted').story.blocked).toEqual({ todo: ['done'], in_progress: ['done'], review: ['todo'], done: ['~end'] });
   });
 
+  it('"versions" has three versions with the working one named, and the current state is the broken one', () => {
+    const versions = workflow('workflowVersions').versions;
+    expect(versions).toHaveLength(3);
+    expect(versions[1].name).toBe('Funktionierend');
+    expect(versions[2].story).toEqual(workflow('workflowVersions').story);
+    expect(workflow('workflowVersions').story.blocked.todo).toEqual(['done', 'in_progress', 'review']);
+  });
+
   it('"two starts" has a second status in "Not started" and "free off" has the switch off with the two rules', () => {
     expect(build('workflowStarts').statuses.map((status) => status.id)).toEqual(['todo', 'ready', 'in_progress', 'review', 'done']);
     const free = workflow('workflowFreeOff').story;
