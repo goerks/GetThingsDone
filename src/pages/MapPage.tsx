@@ -14,7 +14,6 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
-import { AssigneeBadge } from '../components/AssigneeBadge';
 import { NewEpicDialog } from '../components/EpicDialogs';
 import { NewStoryDialog } from '../components/NewStoryDialog';
 import { NewButton } from '../components/NewButton';
