@@ -125,8 +125,7 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
           "then": "„S-4“ ist Luca zugewiesen, auch nach dem Neuladen.",
           "tests": [
             "src/Team.test.tsx › AC2.1 assigns a story in the story dialog",
-            "e2e/team.spec.ts › AC2.1 a story assigned in its dialog keeps its person after a reload",
-            "src/data/sqliteRepository.test.ts › AC7.1 stores the team and the assignments with the data and gives them back"
+            "e2e/team.spec.ts › AC2.1 a story assigned in its dialog keeps its person after a reload"
           ]
         },
         {
@@ -174,7 +173,8 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
           "when": "Ich wähle mit Tab und den Pfeiltasten eine Person.",
           "then": "Die Zuweisung gilt. Der Screenreader liest „Zugewiesen an“.",
           "tests": [
-            "src/Team.test.tsx › AC2.5 assigns a story with the keyboard only"
+            "src/Team.test.tsx › AC2.5 reaches the field \"Assigned to\" by name and assigns with the keyboard focus on it",
+            "e2e/team.spec.ts › AC2.5 the arrow keys choose a person in the field \"Assigned to\""
           ]
         }
       ]
