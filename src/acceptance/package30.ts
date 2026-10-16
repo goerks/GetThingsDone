@@ -23,7 +23,7 @@ const BACKLOG = '#/backlog';
 
 export const PACKAGE_30: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
   issue: 30,
-  pullRequest: 48,
+  pullRequest: 62,
   title: 'GitHub-Issues importieren und in beide Richtungen abgleichen',
   criteria: [
     {
