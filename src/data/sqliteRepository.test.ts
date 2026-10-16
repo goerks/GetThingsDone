@@ -187,13 +187,13 @@ describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: seedSnapshot(todayIso()).settings.definitions });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: seedSnapshot(todayIso()).settings.definitions });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
   });
 
   it('falls back to the default for a value it does not know', async () => {
@@ -755,7 +755,7 @@ describe('GitHub link of a story (#30)', () => {
     const after = (await repository.load()).settings;
     expect(after.features.github).toBe(true);
     expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z' });
-    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null });
   });
 

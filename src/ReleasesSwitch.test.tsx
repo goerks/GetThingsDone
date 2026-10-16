@@ -17,7 +17,7 @@ const mainNav = (): HTMLElement => screen.getByRole('navigation', { name: 'Main'
 
 async function renderApp(hash: string, releasesEnabled: boolean, mapRows: 'sprints' | 'releases' = 'sprints'): Promise<LocalStorageRepository> {
   const repository = new LocalStorageRepository();
-  await repository.replaceAll({ ...seedSnapshot(todayIso()), settings: { mapRows, features: { releases: releasesEnabled, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS } });
+  await repository.replaceAll({ ...seedSnapshot(todayIso()), settings: { mapRows, features: { releases: releasesEnabled, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS } });
   window.location.hash = hash;
   render(<App repository={repository} />);
   await screen.findByRole('heading', { level: 1 });

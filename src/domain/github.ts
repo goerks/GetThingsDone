@@ -1,12 +1,14 @@
 import { nextCode } from './board';
 import { assignTo } from './fields';
 import { startStatus, statusesIn } from './statuses';
-import { EPIC_COLOR_KEYS, type Criterion, type FieldAssignment, type FieldDefinition, type FieldOption, type StatusValue, type Story } from './types';
+import { EPIC_COLOR_KEYS, type ConflictRule, type Criterion, type ExternalFields, type FieldAssignment, type FieldDefinition, type FieldOption, type StatusValue, type Story } from './types';
 
 /*
- * Import and sync from GitHub Issues (#30): the rules, without any network. The access to GitHub is in `src/github/`.
- * GitHub wins: title, description, labels, the open or closed state and the task list under the heading "Acceptance
- * criteria" come from the issue. Sprint, points, rank and the epic stay with the story.
+ * Import and sync with GitHub Issues (#30): the rules, without any network. The access to GitHub is in `src/github/`.
+ * A story and its issue are compared field by field against what the issue looked like at the last sync (the base):
+ * a field that changed on one side only goes to the other side; a field that changed on both sides follows the conflict
+ * rule (GitHub wins by default). Fields: title, description, labels, the task list under the heading "Acceptance
+ * criteria", and done or not done (closed or open). Sprint, points, rank and the epic stay with the story.
  */
 
 /** An issue as the sync needs it. Pull requests never get here. */
@@ -137,6 +139,96 @@ const optionIdsOf = (field: FieldDefinition, labels: readonly string[]): string[
 
 const asIds = (value: unknown): string[] => (Array.isArray(value) ? (value as string[]) : []);
 
+/* ---------- The fields that are compared ---------- */
+
+export type FieldName = 'title' | 'description' | 'labels' | 'criteria' | 'done';
+
+export const FIELD_NAMES: readonly FieldName[] = ['title', 'description', 'labels', 'criteria', 'done'];
+
+const norm = (text: string): string => text.replace(/\r\n?/g, '\n').trim();
+const sameLabels = (a: readonly string[], b: readonly string[]): boolean =>
+  a.length === b.length && a.every((name) => b.some((other) => other.toLowerCase() === name.toLowerCase()));
+
+/** Whether one field is the same in both. */
+export function sameField(name: FieldName, a: ExternalFields, b: ExternalFields): boolean {
+  switch (name) {
+    case 'title':
+      return a.title.trim() === b.title.trim();
+    case 'description':
+      return norm(a.description) === norm(b.description);
+    case 'labels':
+      return sameLabels(a.labels, b.labels);
+    case 'criteria':
+      return a.criteria.length === b.criteria.length && a.criteria.every((item, index) => item.text === b.criteria[index].text && item.done === b.criteria[index].done);
+    case 'done':
+      return a.done === b.done;
+  }
+}
+
+/** The compared fields of an issue. */
+export function remoteFields(item: GithubIssue): ExternalFields {
+  const { description, criteria } = splitBody(item.body);
+  return { title: item.title.trim(), description, labels: [...item.labels], criteria, done: item.state === 'closed' };
+}
+
+/** The compared fields of a story. `field` is the labels field, if there is one. */
+export function localFields(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[]): ExternalFields {
+  const ids = field ? asIds(story.values[field.id]) : [];
+  return {
+    title: story.title.trim(),
+    description: story.description.trim(),
+    labels: ids.flatMap((id) => field?.options.find((option) => option.id === id)?.label ?? []),
+    criteria: story.criteria.map((item) => ({ text: item.text, done: item.done })),
+    done: statuses.some((status) => status.id === story.status && status.category === 'done')
+  };
+}
+
+/** The fields of a linked story that changed here since the last sync, and so are not on GitHub yet. */
+export function pendingFields(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[]): FieldName[] {
+  const base = story.github?.base;
+  if (!base) return [];
+  const local = localFields(story, field, statuses);
+  return FIELD_NAMES.filter((name) => !sameField(name, local, base));
+}
+
+/* ---------- The text of an issue from description and criteria ---------- */
+
+const CRITERIA_TITLE = 'Acceptance criteria';
+const taskLines = (criteria: ReadonlyArray<{ text: string; done: boolean }>): string[] => criteria.map((item) => `- [${item.done ? 'x' : ' '}] ${item.text}`);
+
+/** The text of an issue made from a description and criteria: the description, then the task list under its heading. */
+export function composeBody(description: string, criteria: ReadonlyArray<{ text: string; done: boolean }>): string {
+  const parts: string[] = [];
+  if (description.trim() !== '') parts.push(description.trim());
+  if (criteria.length > 0) parts.push(`## ${CRITERIA_TITLE}\n${taskLines(criteria).join('\n')}`);
+  return parts.join('\n\n');
+}
+
+/** The text with other criteria: the tasks under the heading are replaced and everything else stays; without a heading the section is added. */
+export function withCriteria(body: string, criteria: ReadonlyArray<{ text: string; done: boolean }>): string {
+  const text = body.replace(/\r\n?/g, '\n');
+  const lines = text.split('\n');
+  const start = lines.findIndex((line) => {
+    const heading = HEADING.exec(line);
+    return heading !== null && CRITERIA_HEADING.test(heading[1]);
+  });
+  if (start < 0) return composeBody(text, criteria);
+  let end = lines.length;
+  for (let index = start + 1; index < lines.length; index += 1) {
+    if (HEADING.test(lines[index])) {
+      end = index;
+      break;
+    }
+  }
+  const section = lines.slice(start + 1, end);
+  const firstTask = section.findIndex((line) => TASK.test(line));
+  const others = section.filter((line) => !TASK.test(line));
+  const insertAt = firstTask < 0 ? others.length : firstTask;
+  const merged = [...others.slice(0, insertAt), ...taskLines(criteria), ...others.slice(insertAt)];
+  const kept = merged.some((line) => line.trim() !== '') ? [lines[start], ...merged] : [];
+  return [...lines.slice(0, start), ...kept, ...lines.slice(end)].join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 /* ---------- Import and sync ---------- */
 
 /** What changed on one story. The sync shows these to the user. */
@@ -158,12 +250,54 @@ export interface SyncEntry {
   changes: GithubChange[];
 }
 
-/** What a sync did, for the dialog after it: new stories, stories that were closed on GitHub, and other changes. */
+/** A change that went from the story to the issue. */
+export interface PublishEntry {
+  storyId: string;
+  code: string;
+  number: number;
+  title: string;
+  fields: FieldName[];
+  /** Labels GitHub does not know; they are not created, and the story keeps them. */
+  skippedLabels: string[];
+}
+
+/** A change that was lost in a conflict: `side` says whose change it was. `value` is the lost title, when the field is the title. */
+export interface OverwrittenEntry {
+  storyId: string;
+  code: string;
+  number: number;
+  field: FieldName;
+  side: 'local' | 'github';
+  value?: string;
+}
+
+/** The same field changed on both sides and the user has to decide. */
+export interface ConflictEntry {
+  storyId: string;
+  code: string;
+  number: number;
+  field: FieldName;
+  local: ExternalFields;
+  remote: ExternalFields;
+}
+
+/** What a sync did, for the dialog after it. */
 export interface SyncSummary {
   created: SyncEntry[];
   closed: SyncEntry[];
   updated: SyncEntry[];
+  published: PublishEntry[];
+  overwritten: OverwrittenEntry[];
+  /** Open conflicts: the rule is "I decide" and no decision was given yet. Nothing was changed for these fields. */
+  conflicts: ConflictEntry[];
+  /** Local changes that were not published because writing is off. */
+  pending: number;
 }
+
+export type Decision = 'local' | 'remote';
+
+/** The key of a conflict in the decisions. */
+export const decisionKey = (storyId: string, field: FieldName): string => `${storyId}:${field}`;
 
 export interface SyncInput {
   stories: readonly Story[];
@@ -174,6 +308,30 @@ export interface SyncInput {
   /** The issues to bring in: the open issues of the repository, and the issues the stories already point to. */
   issues: readonly GithubIssue[];
   newId: () => string;
+  /** Whether the sync may change issues on GitHub. */
+  write?: boolean;
+  /** The rule for fields that changed on both sides. */
+  conflict?: ConflictRule;
+  /** The answers of the user for conflicts, by `decisionKey`. */
+  decisions?: Readonly<Record<string, Decision>>;
+  /** Addresses of issues whose story was deleted: they are not imported again. */
+  ignored?: readonly string[];
+}
+
+/** What to change on one issue. */
+export interface ItemPatch {
+  title?: string;
+  body?: string;
+  state?: 'open' | 'closed';
+  labels?: string[];
+}
+
+/** A change of one story to publish. */
+export interface Push {
+  storyId: string;
+  number: number;
+  fields: FieldName[];
+  patch: ItemPatch;
 }
 
 export interface SyncPlan {
@@ -181,18 +339,21 @@ export interface SyncPlan {
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
   summary: SyncSummary;
+  pushes: Push[];
 }
 
-const sameSet = (a: readonly string[], b: readonly string[]): boolean => a.length === b.length && a.every((item) => b.includes(item));
-
 /**
- * Brings the issues into the stories. An open issue without a story becomes a story at the end of the backlog; a
- * story that points to an issue takes title, description, labels, criteria and ticks from it. A closed issue puts the
- * story into the first "done" status, an issue that was closed at the last sync and is open now puts a done story back
- * to the start status. Everything else of a story stays as it is.
+ * Compares stories and issues. An open issue without a story becomes a story at the end of the backlog. For a story that
+ * points to an issue every field is compared with the base: what only the issue changed is taken, what only the story
+ * changed is published (when writing is on, else it stays and is counted as pending), what both changed follows the
+ * conflict rule. A closed issue puts the story into the first "done" status, an issue that is open again puts a done
+ * story back to the start status. Everything else of a story stays as it is.
  */
 export function planSync(input: SyncInput): SyncPlan {
   const { repo, statuses, newId } = input;
+  const write = input.write ?? false;
+  const rule: ConflictRule = input.conflict ?? 'remote';
+  const ignored = input.ignored ?? [];
   const issues = input.issues.filter((issue) => inRepo(issue.url, repo));
   const labelNames = [...new Set(issues.flatMap((issue) => issue.labels))];
   const hadField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
@@ -203,34 +364,33 @@ export function planSync(input: SyncInput): SyncPlan {
 
   const doneStatus = statusesIn(statuses, 'done')[0]?.id;
   const start = startStatus(statuses);
-  const isDoneStatus = (status: string): boolean => statuses.some((item) => item.id === status && item.category === 'done');
-  const summary: SyncSummary = { created: [], closed: [], updated: [] };
+  const summary: SyncSummary = { created: [], closed: [], updated: [], published: [], overwritten: [], conflicts: [], pending: 0 };
+  const pushes: Push[] = [];
   const stories = [...input.stories];
 
   for (const issue of issues) {
-    const { description, criteria: parsed } = splitBody(issue.body);
-    const title = issue.title.trim();
-    const optionIds = optionIdsOf(field, issue.labels);
+    const remote = remoteFields(issue);
     const index = stories.findIndex((story) => story.github?.url === issue.url);
 
     if (index < 0) {
-      if (issue.state !== 'open') continue;
+      if (issue.state !== 'open' || ignored.includes(issue.url)) continue;
+      const optionIds = optionIdsOf(field, issue.labels);
       const story: Story = {
         id: newId(),
         code: nextCode(stories),
-        title,
-        description,
+        title: remote.title,
+        description: remote.description,
         epicId: null,
         points: 0,
         status: start,
         sprintId: null,
         releaseId: null,
         rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
-        criteria: parsed.map((item) => ({ id: newId(), text: item.text, done: item.done })),
+        criteria: remote.criteria.map((item) => ({ id: newId(), text: item.text, done: item.done })),
         values: optionIds.length > 0 ? { [field.id]: optionIds } : {},
         checks: {},
         doneItems: null,
-        github: { url: issue.url, state: 'open' }
+        github: { url: issue.url, state: 'open', base: remote }
       };
       stories.push(story);
       summary.created.push({ storyId: story.id, code: story.code, number: issue.number, title: story.title, changes: [{ kind: 'created' }] });
@@ -238,60 +398,108 @@ export function planSync(input: SyncInput): SyncPlan {
     }
 
     const story = stories[index];
+    const local = localFields(story, field, statuses);
+    // A story from a version without a base takes the issue as it is: the base is the story, so every difference is the issue's.
+    const base = story.github?.base ?? local;
+    const nextBase: ExternalFields = { ...base };
     const changes: GithubChange[] = [];
+    const pushFields: FieldName[] = [];
     let next: Story = story;
-
-    if (title !== story.title) {
-      changes.push({ kind: 'title', from: story.title, to: title });
-      next = { ...next, title };
-    }
-    if (description !== story.description.trim()) {
-      changes.push({ kind: 'description' });
-      next = { ...next, description };
-    }
-
-    const oldIds = asIds(story.values[field.id]);
-    if (!sameSet(oldIds, optionIds)) {
-      const name = (id: string): string => field.options.find((option) => option.id === id)?.label ?? id;
-      changes.push({
-        kind: 'labels',
-        added: optionIds.filter((id) => !oldIds.includes(id)).map(name),
-        removed: oldIds.filter((id) => !optionIds.includes(id)).map(name)
-      });
-      const values = { ...next.values };
-      if (optionIds.length > 0) values[field.id] = optionIds;
-      else delete values[field.id];
-      next = { ...next, values };
-    }
-
-    const free = [...story.criteria];
-    let ticked = 0;
-    const criteria: Criterion[] = parsed.map((item) => {
-      const at = free.findIndex((old) => old.text === item.text);
-      if (at < 0) return { id: newId(), text: item.text, done: item.done };
-      const [old] = free.splice(at, 1);
-      if (old.done !== item.done) ticked += 1;
-      return { ...old, done: item.done };
-    });
-    const added = criteria.filter((item) => !story.criteria.some((old) => old.id === item.id)).length;
-    const removed = free.length;
-    const reordered = criteria.some((item, position) => story.criteria[position]?.id !== item.id);
-    if (added > 0 || removed > 0 || ticked > 0 || reordered) {
-      changes.push({ kind: 'criteria', added, removed, changed: ticked });
-      next = { ...next, criteria };
-    }
-
     let closed = false;
-    if (issue.state === 'closed' && !isDoneStatus(story.status) && doneStatus) {
-      changes.push({ kind: 'closed' });
-      next = { ...next, status: doneStatus };
-      closed = true;
-    } else if (issue.state === 'open' && story.github?.state === 'closed' && isDoneStatus(story.status)) {
-      changes.push({ kind: 'reopened' });
-      next = { ...next, status: start };
-    }
-    if (next.github?.state !== issue.state) next = { ...next, github: { url: issue.url, state: issue.state } };
 
+    const pull = (name: FieldName): void => {
+      nextBase[name] = remote[name] as never;
+      switch (name) {
+        case 'title':
+          changes.push({ kind: 'title', from: next.title, to: remote.title });
+          next = { ...next, title: remote.title };
+          return;
+        case 'description':
+          changes.push({ kind: 'description' });
+          next = { ...next, description: remote.description };
+          return;
+        case 'labels': {
+          const optionIds = optionIdsOf(field, remote.labels);
+          const oldIds = asIds(next.values[field.id]);
+          const nameOf = (id: string): string => field.options.find((option) => option.id === id)?.label ?? id;
+          changes.push({ kind: 'labels', added: optionIds.filter((id) => !oldIds.includes(id)).map(nameOf), removed: oldIds.filter((id) => !optionIds.includes(id)).map(nameOf) });
+          const values = { ...next.values };
+          if (optionIds.length > 0) values[field.id] = optionIds;
+          else delete values[field.id];
+          next = { ...next, values };
+          return;
+        }
+        case 'criteria': {
+          const free = [...next.criteria];
+          let ticked = 0;
+          const criteria: Criterion[] = remote.criteria.map((item) => {
+            const at = free.findIndex((old) => old.text === item.text);
+            if (at < 0) return { id: newId(), text: item.text, done: item.done };
+            const [old] = free.splice(at, 1);
+            if (old.done !== item.done) ticked += 1;
+            return { ...old, done: item.done };
+          });
+          const before = next.criteria;
+          const added = criteria.filter((item) => !before.some((old) => old.id === item.id)).length;
+          changes.push({ kind: 'criteria', added, removed: free.length, changed: ticked });
+          next = { ...next, criteria };
+          return;
+        }
+        case 'done':
+          if (remote.done && doneStatus) {
+            changes.push({ kind: 'closed' });
+            next = { ...next, status: doneStatus };
+            closed = true;
+          } else if (!remote.done) {
+            changes.push({ kind: 'reopened' });
+            next = { ...next, status: start };
+          }
+          return;
+      }
+    };
+
+    for (const name of FIELD_NAMES) {
+      const localChanged = !sameField(name, local, base);
+      const remoteChanged = !sameField(name, remote, base);
+      if (!localChanged && !remoteChanged) continue;
+      if (!localChanged) {
+        pull(name);
+      } else if (!remoteChanged) {
+        if (write) pushFields.push(name);
+        else summary.pending += 1;
+      } else if (sameField(name, local, remote)) {
+        nextBase[name] = remote[name] as never;
+      } else {
+        const chosen: Decision | null = input.decisions?.[decisionKey(story.id, name)] ?? (rule === 'ask' ? null : rule);
+        const entry = { storyId: story.id, code: story.code, number: issue.number, field: name };
+        if (chosen === null) {
+          summary.conflicts.push({ ...entry, local, remote });
+        } else if (chosen === 'remote') {
+          pull(name);
+          summary.overwritten.push({ ...entry, side: 'local', ...(name === 'title' ? { value: local.title } : {}) });
+        } else if (write) {
+          pushFields.push(name);
+          summary.overwritten.push({ ...entry, side: 'github', ...(name === 'title' ? { value: remote.title } : {}) });
+        } else {
+          summary.pending += 1;
+        }
+      }
+    }
+
+    if (pushFields.length > 0) {
+      const after = localFields(next, field, statuses);
+      const patch: ItemPatch = {};
+      if (pushFields.includes('title')) patch.title = after.title;
+      if (pushFields.includes('labels')) patch.labels = after.labels;
+      if (pushFields.includes('done')) patch.state = after.done ? 'closed' : 'open';
+      if (pushFields.includes('description')) patch.body = composeBody(after.description, after.criteria);
+      else if (pushFields.includes('criteria')) patch.body = withCriteria(issue.body, after.criteria);
+      pushes.push({ storyId: story.id, number: issue.number, fields: pushFields, patch });
+    }
+
+    if (JSON.stringify(nextBase) !== JSON.stringify(story.github?.base) || story.github?.state !== issue.state) {
+      next = { ...next, github: { url: issue.url, state: issue.state, base: nextBase } };
+    }
     if (next !== story) stories[index] = next;
     if (changes.length > 0) {
       const entry: SyncEntry = { storyId: story.id, code: story.code, number: issue.number, title: next.title, changes };
@@ -299,19 +507,49 @@ export function planSync(input: SyncInput): SyncPlan {
     }
   }
 
-  return { stories, fields, assignments, summary };
+  return { stories, fields, assignments, summary, pushes };
 }
 
-/** The numbers of the issues the stories point to that are not in the list, so the sync can ask GitHub for them (they may be closed now). */
-export function linkedNumbersMissingIn(stories: readonly Story[], repo: RepoRef, issues: readonly GithubIssue[]): number[] {
+/**
+ * The numbers of the issues the stories point to that are not in the list, so the sync can ask GitHub for them (they
+ * may be closed now). A story whose issue is closed is only asked for when it has local changes to publish.
+ */
+export function linkedNumbersMissingIn(stories: readonly Story[], repo: RepoRef, issues: readonly GithubIssue[], isPending: (story: Story) => boolean = () => false): number[] {
   const known = new Set(issues.map((issue) => issue.url));
   return stories.flatMap((story) => {
     const url = story.github?.url;
-    if (!url || !inRepo(url, repo) || known.has(url) || story.github?.state === 'closed') return [];
+    if (!url || !inRepo(url, repo) || known.has(url) || (story.github?.state === 'closed' && !isPending(story))) return [];
     const number = issueNumberOf(url);
     return number === null ? [] : [number];
   });
 }
 
+/** What a new issue is made of: the title, the text with the criteria, and the labels. */
+export function newIssueOf(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[]): { title: string; body: string; labels: string[] } {
+  const fields = localFields(story, field, statuses);
+  return { title: fields.title, body: composeBody(fields.description, fields.criteria), labels: fields.labels };
+}
+
+/** The link of a story to the issue it was just published as. */
+export const linkTo = (item: GithubIssue): NonNullable<Story['github']> => ({ url: item.url, state: item.state, base: remoteFields(item) });
+
+/** A story takes the compared fields of an issue as its new base, for the given fields only. */
+export function withBase(story: Story, item: GithubIssue, names: readonly FieldName[]): Story {
+  if (!story.github) return story;
+  const fresh = remoteFields(item);
+  const base: ExternalFields = { ...(story.github.base ?? localFieldsFallback(story)) };
+  for (const name of names) base[name] = fresh[name] as never;
+  return { ...story, github: { ...story.github, state: item.state, base } };
+}
+
+const localFieldsFallback = (story: Story): ExternalFields => ({
+  title: story.title,
+  description: story.description,
+  labels: [],
+  criteria: story.criteria.map((item) => ({ text: item.text, done: item.done })),
+  done: false
+});
+
 /** Whether nothing changed. */
-export const isEmptySummary = (summary: SyncSummary): boolean => summary.created.length + summary.closed.length + summary.updated.length === 0;
+export const isEmptySummary = (summary: SyncSummary): boolean =>
+  summary.created.length + summary.closed.length + summary.updated.length + summary.published.length + summary.overwritten.length + summary.conflicts.length === 0;

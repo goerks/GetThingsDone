@@ -446,7 +446,7 @@
       },
       "github": {
         "name": "GitHub-Anbindung",
-        "description": "Die offenen Issues eines GitHub-Repositories als Stories importieren und von Hand aktuell halten: der Abschnitt „GitHub“ in den Einstellungen, der Knopf „Synchronisieren“ im Backlog und die Issue-Nummer an importierten Stories. Braucht eine Netzverbindung und ein Zugriffstoken, das nur lesen darf; die App läuft auch ohne Netz weiter.",
+        "description": "Die offenen Issues eines GitHub-Repositories als Stories importieren und von Hand in beide Richtungen abgleichen: der Abschnitt „Verbindungen“ in den Einstellungen, der Knopf „Synchronisieren“ im Backlog und die Issue-Nummer an importierten Stories. Braucht eine Netzverbindung und ein Zugriffstoken; die App läuft auch ohne Netz weiter.",
         "offNote": "Ausgeschaltet. Importierte Stories, ihre Issue-Nummern und die Verbindung bleiben erhalten und sind wieder da, wenn du sie einschaltest."
       }
     },
@@ -996,8 +996,8 @@
       },
       "github.basics": {
         "title": "GitHub-Issues",
-        "keywords": "github issues import sync synchronisieren abgleich repository token verbinden funktion aktivieren einschalten stories labels kriterien",
-        "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren. Das geht nur, wenn die Funktion „GitHub-Anbindung“ eingeschaltet ist. Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Funktionen ein. Danach erscheint in den Einstellungen der Abschnitt „GitHub“.\n2. Öffne Einstellungen → GitHub, trage das Repository (owner/name) und ein Zugriffstoken ein, das nur lesen darf, und drücke „Verbindung testen“.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; importierte Stories übernehmen Titel, Beschreibung, Labels, offen oder geschlossen und die Aufgabenliste unter der Überschrift „Acceptance criteria“ von GitHub. GitHub gewinnt; Sprint, Punkte und Reihenfolge bleiben deine.\nImportierte Stories zeigen ihre Issue-Nummer als Link zu GitHub. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
+        "keywords": "github issues import sync synchronisieren abgleich repository token verbinden funktion aktivieren einschalten stories labels kriterien schreiben veröffentlichen konflikt verbindungen roundtrip",
+        "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren und Änderungen in beide Richtungen abgleichen. Das geht nur, wenn die Funktion „GitHub-Anbindung“ eingeschaltet ist. Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Funktionen ein. Danach erscheint in den Einstellungen der Abschnitt „Verbindungen“.\n2. Öffne Einstellungen → Verbindungen, trage das Repository (owner/name) und ein Zugriffstoken ein und drücke „Verbindung testen“. Soll die App auch nach GitHub schreiben, schalte „Auch nach GitHub schreiben“ ein (das Token braucht dann „Issues: Lesen und Schreiben“) und wähle, wer bei einem Konflikt gewinnt: GitHub (Standard), lokal, oder du entscheidest.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; was sich nur auf einer Seite geändert hat, geht auf die andere. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen. Ohne diesen Knopf geht nichts nach GitHub. Stories mit Änderungen, die noch nicht auf GitHub sind, sind markiert.\nEine eigene Story legst du über ihr Menü mit „Auf GitHub anlegen“ als Issue an. Sprint, Punkte und Reihenfolge bleiben immer lokal. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
       }
     },
     "links": {
@@ -1012,7 +1012,7 @@
       "settingsFeatures": "Einstellungen → Funktionen öffnen",
       "settingsDefinitions": "Einstellungen → Definitionen öffnen",
       "settingsData": "Einstellungen → Daten öffnen",
-      "settingsGithub": "Einstellungen → GitHub öffnen"
+      "settingsGithub": "Einstellungen → Verbindungen öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",
@@ -1332,30 +1332,40 @@
   "github": {
     "issueLink": "Issue #{{number}} auf GitHub öffnen",
     "settings": {
-      "title": "GitHub",
+      "title": "Verbindungen",
       "connected": "Verbunden",
-      "hint": "Verbinde das eine Repository, dessen offene Issues als Stories importiert werden. GitHub liefert nur; es wird nichts zurückgeschrieben.",
+      "hint": "Verbinde ein GitHub-Repository: Seine offenen Issues werden als Stories importiert, und Änderungen lassen sich in beide Richtungen abgleichen. Es passiert nur etwas, wenn du im Backlog „Synchronisieren“ drückst.",
       "repo": "Repository (owner/name)",
       "token": "Zugriffstoken",
       "tokenSaved": "Token gespeichert – neues eingeben, um es zu ersetzen",
-      "tokenNote": "Ein Fine-grained Token mit Lesezugriff auf die Issues dieses Repositories genügt. Es liegt im Anmeldeinformationsspeicher deines Betriebssystems und wird nie wieder angezeigt.",
-      "tokenNoteDemo": "Diese Vorschau hat keine echte Verbindung: Jeder Text gilt als Token, ausser „{{wrong}}“, das GitHub ablehnen würde. Es wird nichts versendet.",
+      "tokenNote": "Zum Lesen genügt ein Fine-grained Token mit Lesezugriff auf die Issues dieses Repositories. Zum Zurückschreiben braucht es zusätzlich das Recht „Issues: Lesen und Schreiben“. Das Token liegt im Anmeldeinformationsspeicher deines Betriebssystems und wird nie wieder angezeigt.",
+      "tokenNoteDemo": "Diese Vorschau hat keine echte Verbindung: Jeder Text gilt als Token, ausser „{{wrong}}“, das GitHub ablehnen würde, und „{{readonly}}“, das nur lesen darf. Es wird nichts versendet.",
       "tokenMissingNote": "Gib das Token erneut ein: Im Browser bleibt es nur, bis die Seite neu geladen wird.",
       "test": "Verbindung testen",
       "testing": "Teste …",
-      "disconnect": "Trennen",
+      "disconnect": "Verbindung entfernen",
       "ok": "Verbindung ok · {{count}} offene Issues",
-      "where": "Importieren und Synchronisieren findest du im Backlog, mit dem Knopf „Synchronisieren“.",
+      "where": "Importieren und Abgleichen findest du im Backlog, mit dem Knopf „Synchronisieren“.",
       "problem": {
         "repoMissing": "Das Repository fehlt.",
         "repoFormat": "Bitte im Format owner/name angeben.",
         "tokenMissing": "Das Zugriffstoken fehlt."
+      },
+      "write": {
+        "label": "Auch nach GitHub schreiben",
+        "help": "Aus: Die App liest nur. An: „Synchronisieren“ veröffentlicht auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen auf GitHub, und du kannst eigene Stories als neue Issues anlegen. Das Token braucht dafür das Recht „Issues: Lesen und Schreiben“."
+      },
+      "conflict": {
+        "legend": "Wenn beide Seiten dasselbe Feld geändert haben",
+        "remote": "GitHub gewinnt (Standard)",
+        "local": "Lokal gewinnt",
+        "ask": "Ich entscheide (ein Dialog zeigt beide Fassungen)"
       }
     },
     "demo": {
       "badge": "Demo",
       "title": "Demo: simuliertes GitHub",
-      "text": "Die Vorschau hat ein eigenes kleines GitHub: das Repository {{repo}} mit ein paar Issues, gespeichert in diesem Browser. Ändere sie hier und drücke dann im Backlog „Synchronisieren“. (Das Token „{{wrong}}“ wird abgelehnt.)",
+      "text": "Die Vorschau hat ein eigenes kleines GitHub: das Repository {{repo}} mit ein paar Issues, gespeichert in diesem Browser. Ändere sie hier und drücke dann im Backlog „Synchronisieren“. Mit eingeschaltetem Schreiben landen deine Änderungen auch dort. (Das Token „{{wrong}}“ wird abgelehnt, „{{readonly}}“ darf nicht schreiben.)",
       "rename": "#31 umbenennen, neues Label",
       "criteria": "Kriterien von #31 ändern",
       "close": "#35 schliessen",
@@ -1375,9 +1385,21 @@
       "created": "neu importiert",
       "updated": "aktualisiert",
       "closed": "erledigt (auf GitHub geschlossen)",
-      "wins": "GitHub gewinnt: Deine Änderungen an Titel, Beschreibung, Labels und Kriterien dieser Stories wurden überschrieben. Sprint, Punkte und Reihenfolge bleiben unverändert.",
+      "wins": "Änderungen von GitHub wurden übernommen. Sprint, Punkte und Reihenfolge bleiben unverändert.",
       "close": "Schliessen",
-      "toSettings": "Einstellungen → GitHub öffnen"
+      "toSettings": "Einstellungen → GitHub öffnen",
+      "pendingCount_one": "{{count}} Änderung noch nicht auf GitHub",
+      "pendingCount_other": "{{count}} Änderungen noch nicht auf GitHub",
+      "publishedCount_one": "{{count}} Änderung nach GitHub veröffentlicht",
+      "publishedCount_other": "{{count}} Änderungen nach GitHub veröffentlicht",
+      "publishedTitle": "Nach GitHub veröffentlicht",
+      "overwrittenTitle": "Überschrieben",
+      "pendingNote_one": "Schreiben ist aus: {{count}} Änderung wurde nicht nach GitHub veröffentlicht und bleibt markiert.",
+      "pendingNote_other": "Schreiben ist aus: {{count}} Änderungen wurden nicht nach GitHub veröffentlicht und bleiben markiert.",
+      "conflictsOpen_one": "Bei {{count}} Feld entscheidest du noch; bis dahin bleibt es, wie es ist.",
+      "conflictsOpen_other": "Bei {{count}} Feldern entscheidest du noch; bis dahin bleibt es, wie es ist.",
+      "skippedLabels": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
+      "decide": "Konflikte entscheiden"
     },
     "change": {
       "created": "Neue Story",
@@ -1403,7 +1425,66 @@
       "auth": "Token wurde von GitHub abgelehnt. Prüfe das Token und seine Rechte. Deine lokalen Daten sind unverändert.",
       "notFound": "Repository nicht gefunden, oder das Token hat keinen Zugriff darauf. Deine lokalen Daten sind unverändert.",
       "rateLimit": "GitHub erlaubt vorerst keine weiteren Anfragen. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
-      "other": "GitHub war nicht richtig erreichbar. Versuche es später noch einmal. Deine lokalen Daten sind unverändert."
+      "other": "GitHub war nicht richtig erreichbar. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
+      "forbidden": "GitHub hat das Schreiben abgelehnt. Das Token braucht das Recht „Issues: Lesen und Schreiben“. Deine lokalen Änderungen bleiben erhalten."
+    },
+    "connections": {
+      "title": "Dienste",
+      "intro": "Der Abgleich ist ein allgemeiner Mechanismus; jeder Dienst bekommt einen eigenen Anschluss. GitHub ist der erste.",
+      "available": "verfügbar",
+      "connected": "verbunden",
+      "planned": "geplant",
+      "names": {
+        "github": "GitHub",
+        "gitlab": "GitLab",
+        "jira": "Jira",
+        "trello": "Trello"
+      }
+    },
+    "disconnect": {
+      "title": "Verbindung entfernen?",
+      "text": "Repository und Token werden vergessen. Die importierten Stories bleiben, verlieren aber ihre Verknüpfung mit GitHub: Nummer, Link und Markierungen sind weg. Auf GitHub ändert sich nichts.",
+      "confirm": "Verbindung entfernen",
+      "cancel": "Abbrechen"
+    },
+    "field": {
+      "title": "Titel",
+      "description": "Beschreibung",
+      "labels": "Labels",
+      "criteria": "Kriterien",
+      "done": "Erledigt/Offen"
+    },
+    "value": {
+      "done": "Erledigt",
+      "open": "Offen",
+      "empty": "(leer)"
+    },
+    "overwritten": {
+      "local": "Lokale Änderung überschrieben: {{field}}",
+      "localValue": "Lokale Änderung überschrieben: {{field}} „{{value}}“",
+      "github": "GitHub-Änderung überschrieben: {{field}}",
+      "githubValue": "GitHub-Änderung überschrieben: {{field}} „{{value}}“"
+    },
+    "conflict": {
+      "title": "Beide Seiten haben dasselbe geändert",
+      "intro": "Wähle für jedes Feld, welche Fassung gilt. Bis du „Übernehmen“ drückst, ändert sich weder hier noch auf GitHub etwas.",
+      "local": "Lokal",
+      "remote": "GitHub",
+      "keepLocal": "Lokale Fassung behalten",
+      "takeRemote": "GitHub-Fassung nehmen",
+      "apply": "Übernehmen",
+      "cancel": "Abbrechen",
+      "group": "{{field}} von {{code}}"
+    },
+    "pending": {
+      "badge": "nicht auf GitHub",
+      "title": "Lokale Änderungen, die noch nicht auf GitHub sind: {{fields}}"
+    },
+    "create": {
+      "menu": "Auf GitHub anlegen",
+      "done": "{{code}} wurde auf GitHub angelegt.",
+      "skipped": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
+      "failed": "{{code}} konnte nicht auf GitHub angelegt werden: {{reason}}"
     }
   }
 }

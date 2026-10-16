@@ -3,4 +3,6 @@
 -- last sync are rows of the settings table (github_repo, github_last_sync); the access token is never stored here.
 ALTER TABLE stories ADD COLUMN github_url TEXT;
 ALTER TABLE stories ADD COLUMN github_state TEXT;
+-- github_base: what the issue looked like at the last sync (JSON), the common starting point of the three-way comparison.
+ALTER TABLE stories ADD COLUMN github_base TEXT;
 CREATE INDEX idx_stories_github_url ON stories (github_url);

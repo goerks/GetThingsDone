@@ -5,7 +5,8 @@ import type { GithubSource, TokenStore } from './source';
 import { createKeychainTokenStore, createMemoryTokenStore } from './token';
 
 export { GithubError } from './source';
-export type { GithubErrorKind, GithubSource, TokenStore } from './source';
+export { CONNECTOR_KINDS } from './source';
+export type { ConnectorKind, GithubErrorKind, GithubSource, TokenStore, TrackerConnector } from './source';
 
 /** The desktop app reads from GitHub. The browser build only has the demo data for now, so it gets the simulation (#30, ADR 0004). */
 export function createGithubSource(): GithubSource {

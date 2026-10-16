@@ -66,10 +66,11 @@ import {
   type ReleaseInput
 } from '../domain/releases';
 import { gatesToAsk, pruneChecks, setCheck as setCheckIn, withDoneSnapshots } from '../domain/definitions';
-import { linkedNumbersMissingIn, parseRepo, planSync, type SyncSummary } from '../domain/github';
+import { parseRepo, type Decision, type SyncSummary } from '../domain/github';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import { createGithubSource, createTokenStore, GithubError, type GithubSource, type TokenStore } from '../github';
 import { persistSync } from '../github/persist';
+import { createOnGithub as createOnGithubWith, runSync } from '../github/runSync';
 import {
   DEFAULT_STATUSES,
   addStatus as addStatusIn,
@@ -223,8 +224,18 @@ interface AppApi {
   setGithubRepo(text: string): boolean;
   /** Asks GitHub whether repository and token work. Resolves with the number of open issues; rejects with a `GithubError`. */
   testGithub(repoText: string, token: string): Promise<number>;
-  /** Imports the open issues and brings the imported stories up to date (#30). Resolves with what changed; rejects with a `GithubError`. */
-  syncGithub(): Promise<SyncSummary>;
+  /**
+   * Compares the stories with their issues, takes what changed on GitHub, publishes what changed here when writing is on,
+   * and imports new open issues (#30). `decisions` answer the conflicts of an earlier run that asked. Resolves with what
+   * changed; rejects with a `GithubError` (what was done before the failure stays).
+   */
+  syncGithub(decisions?: Record<string, Decision>): Promise<SyncSummary>;
+  /** Changes the options of the connection: whether the app may write to GitHub, and who wins in a conflict. */
+  setGithubOptions(patch: Partial<Pick<Settings['github'], 'write' | 'conflict'>>): void;
+  /** Publishes a story that exists only here as a new issue and links it. Resolves with the labels GitHub does not know; rejects with a `GithubError`. */
+  createOnGithub(storyId: string): Promise<string[]>;
+  /** Removes the connection: repository and ignored issues are forgotten and the stories lose their link. The stories stay as they are. */
+  disconnectGithub(): void;
 }
 
 const AppContext = createContext<AppApi | null>(null);
@@ -762,8 +773,15 @@ export function AppProvider({ repository, github, children }: Props) {
       flashed,
       flashScroll,
       deleteStory(id) {
+        const url = storiesRef.current.find((story) => story.id === id)?.github?.url;
         update(deleteStoryIn(storiesRef.current, id));
         persist((repo) => repo.deleteStory(id));
+        if (url) {
+          // The issue stays on GitHub; the story is not brought back by the next sync.
+          const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, ignored: [...settingsRef.current.github.ignored, url] } };
+          updateSettings(settings);
+          persist((repo) => repo.saveSettings(settings));
+        }
       },
       toggleCriterion(storyId, criterionId) {
         const before = storiesRef.current;
@@ -926,7 +944,7 @@ export function AppProvider({ repository, github, children }: Props) {
         const repo = parsed ? `${parsed.owner}/${parsed.name}` : '';
         if (settingsRef.current.github.repo === repo) return true;
         // Another repository starts without a last sync; the stories already imported stay as they are.
-        const settings = { ...settingsRef.current, github: { repo, lastSyncAt: null } };
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo, lastSyncAt: null } };
         updateSettings(settings);
         persist((repoStore) => repoStore.saveSettings(settings));
         return true;
@@ -936,34 +954,74 @@ export function AppProvider({ repository, github, children }: Props) {
         if (!repo) throw new GithubError('notFound');
         return (await githubRef.current.source.openIssues(repo, token)).length;
       },
-      async syncGithub() {
-        const source = githubRef.current.source;
-        const repo = parseRepo(settingsRef.current.github.repo);
+      async syncGithub(decisions) {
+        const connection = settingsRef.current.github;
+        const repo = parseRepo(connection.repo);
         const token = await githubRef.current.tokens.get();
         if (!repo || !token) throw new GithubError('config');
-        const open = await source.openIssues(repo, token);
-        // A story whose issue is no longer in the list of open issues may have been closed: ask GitHub for those.
-        const linked = await Promise.all(linkedNumbersMissingIn(storiesRef.current, repo, open).map((number) => source.issue(repo, token, number)));
-        const issues = [...open, ...linked.flatMap((issue) => (issue ? [issue] : []))];
         const before = { stories: storiesRef.current, fields: fieldsRef.current.fields };
-        const plan = planSync({
+        const { plan, summary, error: failure } = await runSync({
+          connector: githubRef.current.source,
+          token,
+          repo,
           stories: before.stories,
           fields: before.fields,
           assignments: fieldsRef.current.assignments,
           statuses: statusesRef.current,
-          repo,
-          issues,
-          newId
+          newId,
+          write: connection.write,
+          conflict: connection.conflict,
+          decisions,
+          ignored: connection.ignored
         });
         update(plan.stories);
         updateFields(plan.fields, plan.assignments);
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, lastSyncAt: new Date().toISOString() } };
+        // A sync that stopped on an error is not a finished sync: the time of the last one stays.
+        const settings = failure ? settingsRef.current : { ...settingsRef.current, github: { ...connection, lastSyncAt: new Date().toISOString() } };
         updateSettings(settings);
         persist(async (repoStore) => {
           await persistSync(repoStore, before, plan);
           await repoStore.saveSettings(settings);
         });
-        return plan.summary;
+        if (failure) throw failure;
+        return summary;
+      },
+      setGithubOptions(patch) {
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, ...patch } };
+        updateSettings(settings);
+        persist((repoStore) => repoStore.saveSettings(settings));
+      },
+      async createOnGithub(storyId) {
+        const story = storiesRef.current.find((item) => item.id === storyId);
+        const repo = parseRepo(settingsRef.current.github.repo);
+        const token = await githubRef.current.tokens.get();
+        if (!story || story.github || !repo || !token) throw new GithubError('config');
+        const { story: linked, skippedLabels } = await createOnGithubWith({
+          connector: githubRef.current.source,
+          token,
+          repo,
+          story,
+          fields: fieldsRef.current.fields,
+          statuses: statusesRef.current
+        });
+        update(storiesRef.current.map((item) => (item.id === storyId ? linked : item)));
+        persist((repoStore) => repoStore.updateStory(linked));
+        return skippedLabels;
+      },
+      disconnectGithub() {
+        const linkedStories = storiesRef.current.filter((story) => story.github);
+        const unlinked = storiesRef.current.map((story) => {
+          if (!story.github) return story;
+          const { github: _github, ...rest } = story;
+          return rest;
+        });
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo: '', lastSyncAt: null, ignored: [] } };
+        update(unlinked);
+        updateSettings(settings);
+        persist(async (repoStore) => {
+          for (const story of unlinked.filter((item) => linkedStories.some((was) => was.id === item.id))) await repoStore.updateStory(story);
+          await repoStore.saveSettings(settings);
+        });
       }
     }),
     [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t]

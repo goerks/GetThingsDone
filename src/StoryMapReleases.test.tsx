@@ -16,7 +16,7 @@ beforeAll(() => {
 async function renderMap(rows: 'sprints' | 'releases', tweak?: (seed: ReturnType<typeof seedSnapshot>) => ReturnType<typeof seedSnapshot>) {
   const repository = new LocalStorageRepository();
   const seed = seedSnapshot(todayIso());
-  await repository.replaceAll({ ...(tweak ? tweak(seed) : seed), settings: { mapRows: rows, features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS } });
+  await repository.replaceAll({ ...(tweak ? tweak(seed) : seed), settings: { mapRows: rows, features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS } });
   window.location.hash = '#/map';
   render(<App repository={repository} />);
   await screen.findByRole('heading', { name: 'Story Map', level: 1 });
@@ -66,7 +66,7 @@ describe('settings › story map', () => {
   it('says that the map is empty of releases while there is none', async () => {
     const repository = new LocalStorageRepository();
     const seed = seedSnapshot(todayIso());
-    await repository.replaceAll({ ...seed, releases: [], stories: seed.stories.map((story) => ({ ...story, releaseId: null })), settings: { mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS } });
+    await repository.replaceAll({ ...seed, releases: [], stories: seed.stories.map((story) => ({ ...story, releaseId: null })), settings: { mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS } });
     window.location.hash = '#/settings/map';
     render(<App repository={repository} />);
     expect(await screen.findByRole('note')).toHaveTextContent('There is no release yet');

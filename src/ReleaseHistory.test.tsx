@@ -185,7 +185,7 @@ describe('recording the history', () => {
     const user = userEvent.setup();
     const repository = new LocalStorageRepository();
     const seed = seedSnapshot(todayIso());
-    await repository.replaceAll({ ...seed, settings: { mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS } });
+    await repository.replaceAll({ ...seed, settings: { mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS } });
     window.location.hash = '#/map';
     render(<App repository={repository} />);
     await screen.findByRole('heading', { name: 'Story Map', level: 1 });

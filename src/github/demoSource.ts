@@ -1,5 +1,5 @@
-import { issueUrl, parseRepo, repoText, type GithubIssue, type RepoRef } from '../domain/github';
-import { GithubError, type GithubSource } from './source';
+import { issueUrl, parseRepo, repoText, type GithubIssue, type ItemPatch, type RepoRef } from '../domain/github';
+import { GithubError, type TrackerConnector, type WriteResult } from './source';
 
 /*
  * The simulated GitHub of the public preview (#30): one repository with a few issues, kept in this browser. The preview
@@ -11,6 +11,12 @@ export const DEMO_REPO: RepoRef = { owner: 'goerks', name: 'GetThingsDone' };
 
 /** The token the simulation refuses, to try the message for a wrong token. Any other text is accepted. */
 export const DEMO_WRONG_TOKEN = 'falsch';
+
+/** The token that may read but not write, to try the message for a token without the right to write. */
+export const DEMO_READONLY_TOKEN = 'nurlesen';
+
+/** The labels the simulated repository has; any other label is not created. */
+export const DEMO_LABELS: readonly string[] = ['feature', 'bug', 'good first issue', 'docs'];
 
 const KEY = 'getitdone.demoGithub';
 
@@ -68,10 +74,19 @@ function check(repo: RepoRef, token: string): void {
   if (repoText(repo).toLowerCase() !== repoText(DEMO_REPO).toLowerCase() || parseRepo(repoText(repo)) === null) throw new GithubError('notFound');
 }
 
-/** A GitHub that lives in this browser. */
-export function createDemoSource(): GithubSource {
-  const strip = ({ pullRequest: _pullRequest, ...issue }: DemoIssue): GithubIssue => issue;
+/** A GitHub that lives in this browser. Changes are kept in the same place as the issues, so a sync can be tried out in both directions. */
+export function createDemoSource(): TrackerConnector {
+  const strip = ({ pullRequest: _pullRequest, ...issue }: DemoIssue): GithubIssue => ({ ...issue, labels: [...issue.labels] });
+  const checkWrite = (token: string): void => {
+    if (token === DEMO_READONLY_TOKEN) throw new GithubError('forbidden');
+  };
+  const known = (name: string): string | undefined => DEMO_LABELS.find((label) => label.toLowerCase() === name.toLowerCase());
+  const onlyKnown = (wanted: readonly string[]): { labels: string[]; skipped: string[] } => ({
+    labels: wanted.flatMap((name) => known(name) ?? []),
+    skipped: wanted.filter((name) => known(name) === undefined)
+  });
   return {
+    kind: 'github',
     async openIssues(repo, token) {
       check(repo, token);
       return demoIssues()
@@ -82,6 +97,34 @@ export function createDemoSource(): GithubSource {
       check(repo, token);
       const found = demoIssues().find((issue) => issue.number === number);
       return found && !found.pullRequest ? strip(found) : null;
+    },
+    async updateIssue(repo, token, number, patch: ItemPatch): Promise<WriteResult> {
+      check(repo, token);
+      checkWrite(token);
+      const issues = demoIssues();
+      const index = issues.findIndex((issue) => issue.number === number && !issue.pullRequest);
+      if (index < 0) throw new GithubError('notFound');
+      const only = patch.labels === undefined ? null : onlyKnown(patch.labels);
+      const updated: DemoIssue = {
+        ...issues[index],
+        ...(patch.title !== undefined ? { title: patch.title } : {}),
+        ...(patch.body !== undefined ? { body: patch.body } : {}),
+        ...(patch.state !== undefined ? { state: patch.state } : {}),
+        ...(only ? { labels: only.labels } : {})
+      };
+      issues[index] = updated;
+      saveDemoIssues(issues);
+      return { item: strip(updated), skippedLabels: only?.skipped ?? [] };
+    },
+    async createIssue(repo, token, item): Promise<WriteResult> {
+      check(repo, token);
+      checkWrite(token);
+      const issues = demoIssues();
+      const number = issues.reduce((max, issue) => Math.max(max, issue.number), 0) + 1;
+      const only = onlyKnown(item.labels);
+      const created: DemoIssue = { number, title: item.title, body: item.body, state: 'open', labels: only.labels, url: url(number) };
+      saveDemoIssues([...issues, created]);
+      return { item: strip(created), skippedLabels: only.skipped };
     }
   };
 }

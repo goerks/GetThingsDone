@@ -446,7 +446,7 @@
       },
       "github": {
         "name": "GitHub connection",
-        "description": "Import the open issues of one GitHub repository as stories and keep them up to date by hand: the section “GitHub” in the settings, the button “Synchronise” in the backlog and the issue number on imported stories. Needs a network connection and an access token that may only read; the app keeps working offline.",
+        "description": "Import the open issues of a GitHub repository as stories and sync them by hand in both directions: the section “Connections” in the settings, the “Sync” button in the backlog and the issue number on imported stories. Needs a network connection and an access token; the app keeps working offline.",
         "offNote": "Switched off. Imported stories, their issue numbers and the connection are kept and come back when you switch it on."
       }
     },
@@ -996,8 +996,8 @@
       },
       "github.basics": {
         "title": "GitHub issues",
-        "keywords": "github issues import sync synchronise repository token connect feature activate switch on enable stories labels criteria",
-        "body": "Import the open issues of one GitHub repository as stories. This only works when the feature “GitHub connection” is switched on. Do it in this order:\n1. Switch the feature on under Settings → Features. The section “GitHub” then appears in the settings.\n2. Open Settings → GitHub, enter the repository (owner/name) and an access token that may only read, and press “Test connection”.\n3. Open the backlog and press “Synchronise”. New issues become stories; imported stories take title, description, labels, open or closed and the task list under the heading “Acceptance criteria” from GitHub. GitHub wins; sprint, points and order stay yours.\nImported stories show their issue number as a link to GitHub. Without a network connection or with a wrong token the app says so and keeps your local data.\nIf you switch the feature off again, everything is hidden but kept."
+        "keywords": "github issues import sync synchronise repository token connect feature activate switch on enable stories labels criteria write publish conflict connections roundtrip",
+        "body": "Import the open issues of a GitHub repository as stories and sync changes in both directions. This only works while the feature “GitHub connection” is on. Go in this order:\n1. Switch the feature on under Settings → Features. The section “Connections” then appears in the settings.\n2. Open Settings → Connections, enter the repository (owner/name) and an access token and press “Test connection”. If the app should also write to GitHub, switch on “Also write to GitHub” (the token then needs “Issues: read and write”) and choose who wins in a conflict: GitHub (default), local, or you decide.\n3. Open the backlog and press “Sync”. New issues become stories; what changed on one side only goes to the other. With writing on, “Sync” also publishes your changes to title, description, labels, criteria and done/open. Nothing goes to GitHub without this button. Stories with changes that are not on GitHub yet are marked.\nYou create an issue from a story of your own with “Create on GitHub” in its menu. Sprint, points and order always stay local. Without a network connection or with a wrong token the app says so and leaves your local data alone.\nIf you switch the feature off again, everything is hidden but kept."
       }
     },
     "links": {
@@ -1012,7 +1012,7 @@
       "settingsFeatures": "Open Settings → Features",
       "settingsDefinitions": "Open Settings → Definitions",
       "settingsData": "Open Settings → Data",
-      "settingsGithub": "Open Settings → GitHub"
+      "settingsGithub": "Open Settings → Connections"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
@@ -1332,30 +1332,40 @@
   "github": {
     "issueLink": "Open issue #{{number}} on GitHub",
     "settings": {
-      "title": "GitHub",
+      "title": "Connections",
       "connected": "Connected",
-      "hint": "Connect the one repository whose open issues are imported as stories. GitHub only gives; nothing is written back.",
+      "hint": "Connect a GitHub repository: its open issues are imported as stories, and changes can be synced in both directions. Nothing happens until you press “Sync” in the backlog.",
       "repo": "Repository (owner/name)",
       "token": "Access token",
       "tokenSaved": "Token saved – enter a new one to replace it",
-      "tokenNote": "A fine-grained token with read access to the issues of this repository is enough. It is kept in the credential store of your operating system and never shown again.",
-      "tokenNoteDemo": "This preview has no real connection: any text works as a token, except “{{wrong}}”, which GitHub would refuse. Nothing is sent anywhere.",
+      "tokenNote": "To read, a fine-grained token with read access to the issues of this repository is enough. To write back it also needs the permission “Issues: read and write”. The token is kept in the credential store of your operating system and is never shown again.",
+      "tokenNoteDemo": "This preview has no real connection: any text counts as a token, except “{{wrong}}”, which GitHub would refuse, and “{{readonly}}”, which may only read. Nothing is sent.",
       "tokenMissingNote": "Enter the token again: in the browser it is only kept until the page is reloaded.",
       "test": "Test connection",
       "testing": "Testing…",
-      "disconnect": "Disconnect",
+      "disconnect": "Remove connection",
       "ok": "Connection ok · {{count}} open issues",
-      "where": "Import and sync are in the backlog, with the button “Synchronise”.",
+      "where": "You find import and sync in the backlog, with the “Sync” button.",
       "problem": {
         "repoMissing": "The repository is missing.",
         "repoFormat": "Use the form owner/name.",
         "tokenMissing": "The access token is missing."
+      },
+      "write": {
+        "label": "Also write to GitHub",
+        "help": "Off: the app only reads. On: “Sync” also publishes your changes to title, description, labels, criteria and done/open on GitHub, and you can create your own stories as new issues. The token needs the permission “Issues: read and write” for this."
+      },
+      "conflict": {
+        "legend": "When both sides changed the same field",
+        "remote": "GitHub wins (default)",
+        "local": "Local wins",
+        "ask": "I decide (a dialog shows both versions)"
       }
     },
     "demo": {
       "badge": "Demo",
       "title": "Demo: simulated GitHub",
-      "text": "The preview has its own small GitHub: the repository {{repo}} with a few issues, kept in this browser. Change them here, then press “Synchronise” in the backlog. (Token “{{wrong}}” is refused.)",
+      "text": "The preview has a small GitHub of its own: the repository {{repo}} with a few issues, kept in this browser. Change them here, then press “Sync” in the backlog. With writing on, your changes land there too. (The token “{{wrong}}” is refused, “{{readonly}}” may not write.)",
       "rename": "Rename #31, new label",
       "criteria": "Change the criteria of #31",
       "close": "Close #35",
@@ -1375,9 +1385,21 @@
       "created": "newly imported",
       "updated": "updated",
       "closed": "done (closed on GitHub)",
-      "wins": "GitHub wins: your changes to title, description, labels and criteria of these stories were overwritten. Sprint, points and order stay as they are.",
+      "wins": "Changes from GitHub were taken. Sprint, points and order stay unchanged.",
       "close": "Close",
-      "toSettings": "Open Settings → GitHub"
+      "toSettings": "Open Settings → GitHub",
+      "pendingCount_one": "{{count}} change not on GitHub yet",
+      "pendingCount_other": "{{count}} changes not on GitHub yet",
+      "publishedCount_one": "{{count}} change published to GitHub",
+      "publishedCount_other": "{{count}} changes published to GitHub",
+      "publishedTitle": "Published to GitHub",
+      "overwrittenTitle": "Overwritten",
+      "pendingNote_one": "Writing is off: {{count}} change was not published to GitHub and stays marked.",
+      "pendingNote_other": "Writing is off: {{count}} changes were not published to GitHub and stay marked.",
+      "conflictsOpen_one": "You still decide {{count}} field; until then it stays as it is.",
+      "conflictsOpen_other": "You still decide {{count}} fields; until then they stay as they are.",
+      "skippedLabels": "GitHub does not know these labels, they were not created: {{labels}}",
+      "decide": "Decide conflicts"
     },
     "change": {
       "created": "New story",
@@ -1403,7 +1425,66 @@
       "auth": "GitHub refused the access token. Check the token and its rights. Your local data is unchanged.",
       "notFound": "Repository not found, or the token has no access to it. Your local data is unchanged.",
       "rateLimit": "GitHub allows no more requests for now. Try again later. Your local data is unchanged.",
-      "other": "GitHub could not be reached properly. Try again later. Your local data is unchanged."
+      "other": "GitHub could not be reached properly. Try again later. Your local data is unchanged.",
+      "forbidden": "GitHub refused to write. The token needs the permission “Issues: read and write”. Your local changes are kept."
+    },
+    "connections": {
+      "title": "Services",
+      "intro": "The sync is one general mechanism; every service gets its own connector. GitHub is the first.",
+      "available": "available",
+      "connected": "connected",
+      "planned": "planned",
+      "names": {
+        "github": "GitHub",
+        "gitlab": "GitLab",
+        "jira": "Jira",
+        "trello": "Trello"
+      }
+    },
+    "disconnect": {
+      "title": "Remove the connection?",
+      "text": "Repository and token are forgotten. The imported stories stay but lose their link to GitHub: number, link and markers are gone. Nothing changes on GitHub.",
+      "confirm": "Remove connection",
+      "cancel": "Cancel"
+    },
+    "field": {
+      "title": "Title",
+      "description": "Description",
+      "labels": "Labels",
+      "criteria": "Criteria",
+      "done": "Done/open"
+    },
+    "value": {
+      "done": "Done",
+      "open": "Open",
+      "empty": "(empty)"
+    },
+    "overwritten": {
+      "local": "Local change overwritten: {{field}}",
+      "localValue": "Local change overwritten: {{field}} “{{value}}”",
+      "github": "GitHub change overwritten: {{field}}",
+      "githubValue": "GitHub change overwritten: {{field}} “{{value}}”"
+    },
+    "conflict": {
+      "title": "Both sides changed the same thing",
+      "intro": "Choose for each field which version counts. Until you press “Apply”, nothing changes here or on GitHub.",
+      "local": "Local",
+      "remote": "GitHub",
+      "keepLocal": "Keep the local version",
+      "takeRemote": "Take the GitHub version",
+      "apply": "Apply",
+      "cancel": "Cancel",
+      "group": "{{field}} of {{code}}"
+    },
+    "pending": {
+      "badge": "not on GitHub",
+      "title": "Local changes that are not on GitHub yet: {{fields}}"
+    },
+    "create": {
+      "menu": "Create on GitHub",
+      "done": "{{code}} was created on GitHub.",
+      "skipped": "GitHub does not know these labels, they were not created: {{labels}}",
+      "failed": "{{code}} could not be created on GitHub: {{reason}}"
     }
   }
 }

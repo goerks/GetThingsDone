@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { isEmptySummary, type GithubChange, type SyncEntry, type SyncSummary } from '../domain/github';
+import { LABELS_FIELD_ID, decisionKey, isEmptySummary, pendingFields, type ConflictEntry, type Decision, type FieldName, type GithubChange, type SyncEntry, type SyncSummary } from '../domain/github';
+import type { ExternalFields } from '../domain/types';
 import { githubErrorKey } from '../pages/GithubSection';
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
@@ -11,6 +12,24 @@ import { statusLabel } from './statusLabel';
 import { useFeature } from './useFeature';
 
 type Outcome = { kind: 'done'; summary: SyncSummary } | { kind: 'error'; error: GithubErrorKind };
+
+const fieldList = (t: TFunction, names: readonly FieldName[]): string => names.map((name) => t(`github.field.${name}`)).join(', ');
+
+/** One side of a conflict as text. */
+function valueText(t: TFunction, fields: ExternalFields, name: FieldName): string {
+  switch (name) {
+    case 'title':
+      return fields.title;
+    case 'description':
+      return fields.description === '' ? t('github.value.empty') : fields.description;
+    case 'labels':
+      return fields.labels.length === 0 ? t('github.value.empty') : fields.labels.join(', ');
+    case 'criteria':
+      return fields.criteria.length === 0 ? t('github.value.empty') : fields.criteria.map((item) => `${item.done ? '☑' : '☐'} ${item.text}`).join('\n');
+    case 'done':
+      return fields.done ? t('github.value.done') : t('github.value.open');
+  }
+}
 
 function changeText(t: TFunction, change: GithubChange, status: string): string {
   switch (change.kind) {
@@ -65,7 +84,55 @@ function Entries({ entries }: { entries: SyncEntry[] }) {
   );
 }
 
-function Result({ outcome, onClose }: { outcome: Outcome; onClose: () => void }) {
+function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[]; onApply: (decisions: Record<string, Decision>) => void; onCancel: () => void }) {
+  const { t } = useTranslation();
+  const app = useApp();
+  const id = useId();
+  // GitHub is the recommended answer, as it is the default rule.
+  const [chosen, setChosen] = useState<Record<string, Decision>>(() => Object.fromEntries(conflicts.map((item) => [decisionKey(item.storyId, item.field), 'remote' as Decision])));
+  return (
+    <Dialog title={t('github.conflict.title')} onClose={onCancel} wide>
+      <p>{t('github.conflict.intro')}</p>
+      {conflicts.map((item, index) => {
+        const key = decisionKey(item.storyId, item.field);
+        const title = app.stories.find((story) => story.id === item.storyId)?.title ?? '';
+        return (
+          <fieldset key={key} className="github-conflict">
+            <legend>
+              {t('github.conflict.group', { field: t(`github.field.${item.field}`), code: item.code })} · {title}
+            </legend>
+            <div className="github-conflict__versions">
+              <div className="github-conflict__version">
+                <h4>{t('github.conflict.local')}</h4>
+                {valueText(t, item.local, item.field)}
+              </div>
+              <div className="github-conflict__version">
+                <h4>{t('github.conflict.remote')}</h4>
+                {valueText(t, item.remote, item.field)}
+              </div>
+            </div>
+            <label>
+              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'local'} onChange={() => setChosen({ ...chosen, [key]: 'local' })} /> {t('github.conflict.keepLocal')}
+            </label>
+            <label>
+              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'remote'} onChange={() => setChosen({ ...chosen, [key]: 'remote' })} /> {t('github.conflict.takeRemote')}
+            </label>
+          </fieldset>
+        );
+      })}
+      <div className="form__actions">
+        <button type="button" className="btn" onClick={onCancel}>
+          {t('github.conflict.cancel')}
+        </button>
+        <button type="button" className="btn btn--primary" onClick={() => onApply(chosen)}>
+          {t('github.conflict.apply')}
+        </button>
+      </div>
+    </Dialog>
+  );
+}
+
+function Result({ outcome, onClose, onDecide }: { outcome: Outcome; onClose: () => void; onDecide: () => void }) {
   const { t } = useTranslation();
   if (outcome.kind === 'error') {
     return (
@@ -89,7 +156,9 @@ function Result({ outcome, onClose }: { outcome: Outcome; onClose: () => void })
     );
   }
   const { summary } = outcome;
-  const empty = isEmptySummary(summary);
+  const empty = isEmptySummary(summary) && summary.pending === 0;
+  const publishedCount = summary.published.reduce((sum, entry) => sum + entry.fields.length, 0);
+  const skipped = [...new Set(summary.published.flatMap((entry) => entry.skippedLabels))];
   return (
     <Dialog title={t('github.sync.done')} onClose={onClose}>
       <ul className="github-result__counts">
@@ -102,6 +171,7 @@ function Result({ outcome, onClose }: { outcome: Outcome; onClose: () => void })
         <li>
           <strong>{summary.closed.length}</strong> {t('github.sync.closed')}
         </li>
+        {publishedCount > 0 && <li>{t('github.sync.publishedCount', { count: publishedCount })}</li>}
       </ul>
       {empty ? (
         <p>{t('github.sync.nothing')}</p>
@@ -110,6 +180,43 @@ function Result({ outcome, onClose }: { outcome: Outcome; onClose: () => void })
           <Entries entries={[...summary.created, ...summary.updated, ...summary.closed]} />
           {summary.updated.length + summary.closed.length > 0 && <p className="muted">{t('github.sync.wins')}</p>}
         </>
+      )}
+      {summary.published.length > 0 && (
+        <section className="github-result__section">
+          <h3>{t('github.sync.publishedTitle')}</h3>
+          <ul className="github-result__list">
+            {summary.published.map((entry) => (
+              <li key={entry.storyId}>
+                <span className="github-badge github-badge--plain">#{entry.number}</span>
+                <span className="card__code">{entry.code}</span> {entry.title}: {fieldList(t, entry.fields)}
+              </li>
+            ))}
+          </ul>
+          {skipped.length > 0 && <p className="muted">{t('github.sync.skippedLabels', { labels: skipped.join(', ') })}</p>}
+        </section>
+      )}
+      {summary.overwritten.length > 0 && (
+        <section className="github-result__section">
+          <h3>{t('github.sync.overwrittenTitle')}</h3>
+          <ul className="github-result__list">
+            {summary.overwritten.map((entry) => (
+              <li key={`${entry.storyId}:${entry.field}`}>
+                <span className="github-badge github-badge--plain">#{entry.number}</span>
+                <span className="card__code">{entry.code}</span>{' '}
+                {t(`github.overwritten.${entry.side}${entry.value !== undefined ? 'Value' : ''}`, { field: t(`github.field.${entry.field}`), value: entry.value })}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {summary.pending > 0 && <p className="github-result__section">{t('github.sync.pendingNote', { count: summary.pending })}</p>}
+      {summary.conflicts.length > 0 && (
+        <p className="github-result__section">
+          {t('github.sync.conflictsOpen', { count: summary.conflicts.length })}{' '}
+          <button type="button" className="btn btn--small" onClick={onDecide}>
+            {t('github.sync.decide')}
+          </button>
+        </p>
       )}
       <div className="form__actions">
         <button type="button" className="btn btn--primary" onClick={onClose}>
@@ -126,6 +233,7 @@ export function GithubSync() {
   const app = useApp();
   const on = useFeature('github');
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [deciding, setDeciding] = useState(false);
   const [busy, setBusy] = useState(false);
   const running = useRef(false);
   if (!on) return null;
@@ -133,12 +241,20 @@ export function GithubSync() {
   const last = app.settings.github.lastSyncAt;
   const lastText = last ? new Date(last).toLocaleString(i18n.resolvedLanguage, { dateStyle: 'short', timeStyle: 'short' }) : null;
 
-  const sync = async (): Promise<void> => {
+  const pendingCount = app.stories.reduce(
+    (sum, story) => sum + pendingFields(story, app.fields.find((field) => field.id === LABELS_FIELD_ID), app.statuses).length,
+    0
+  );
+
+  const sync = async (decisions?: Record<string, Decision>): Promise<void> => {
     if (running.current) return;
     running.current = true;
     setBusy(true);
     try {
-      setOutcome({ kind: 'done', summary: await app.syncGithub() });
+      const summary = await app.syncGithub(decisions);
+      setOutcome({ kind: 'done', summary });
+      // The rule "I decide" asks right away; the result dialog stays behind it for the rest.
+      setDeciding(summary.conflicts.length > 0);
     } catch (cause) {
       setOutcome({ kind: 'error', error: githubErrorKey(cause) });
     } finally {
@@ -152,10 +268,26 @@ export function GithubSync() {
       <span className="github-sync__last muted" role="status">
         {busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never')}
       </span>
+      {pendingCount > 0 && (
+        <span className="github-sync__pending" role="status">
+          {t('github.sync.pendingCount', { count: pendingCount })}
+        </span>
+      )}
       <button type="button" className="btn" aria-disabled={busy || undefined} onClick={() => void sync()}>
         {t('github.sync.button')}
       </button>
-      {outcome && <Result outcome={outcome} onClose={() => setOutcome(null)} />}
+      {outcome && outcome.kind === 'done' && deciding && (
+        <Conflicts
+          conflicts={outcome.summary.conflicts}
+          onCancel={() => setDeciding(false)}
+          onApply={(decisions) => {
+            setDeciding(false);
+            setOutcome(null);
+            void sync(decisions);
+          }}
+        />
+      )}
+      {outcome && !(outcome.kind === 'done' && deciding) && <Result outcome={outcome} onClose={() => setOutcome(null)} onDecide={() => setDeciding(true)} />}
     </span>
   );
 }

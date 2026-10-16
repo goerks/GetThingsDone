@@ -1,7 +1,9 @@
 import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemoIssues, saveDemoIssues } from '../github/demoSource';
-import { GithubError, isGithubDemo } from '../github';
+import { DEMO_READONLY_TOKEN, DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemoIssues, saveDemoIssues } from '../github/demoSource';
+import { CONNECTOR_KINDS, GithubError, isGithubDemo } from '../github';
+import { Dialog } from '../components/Dialog';
+import type { ConflictRule } from '../domain/types';
 import { parseRepo, repoText, type RepoRef } from '../domain/github';
 import { useApp } from '../state/AppState';
 
@@ -23,6 +25,7 @@ export function GithubSection() {
   const [hasToken, setHasToken] = useState<boolean | null>(null);
   const [problem, setProblem] = useState<'repoMissing' | 'repoFormat' | 'tokenMissing' | null>(null);
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
+  const [removing, setRemoving] = useState(false);
   const demo = isGithubDemo();
 
   useEffect(() => {
@@ -67,8 +70,9 @@ export function GithubSection() {
   };
 
   const disconnect = async (): Promise<void> => {
+    setRemoving(false);
     await app.githubTokens.clear();
-    app.setGithubRepo('');
+    app.disconnectGithub();
     setRepoText('');
     setToken('');
     setHasToken(false);
@@ -89,6 +93,19 @@ export function GithubSection() {
         </span>
       </div>
       <p className="muted">{t('github.settings.hint')}</p>
+      <h3>{t('github.connections.title')}</h3>
+      <p className="muted">{t('github.connections.intro')}</p>
+      <ul className="github-services">
+        {CONNECTOR_KINDS.map((service) => (
+          <li key={service.kind} className={service.status === 'planned' ? 'github-services__off' : undefined}>
+            <strong>{t(`github.connections.names.${service.kind}`)}</strong>
+            <span className={service.status === 'available' && connected && hasToken ? 'badge badge--ok' : 'badge'}>
+              {service.status === 'planned' ? t('github.connections.planned') : connected && hasToken ? t('github.connections.connected') : t('github.connections.available')}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <h3>{t('github.connections.names.github')}</h3>
       <form className="form" onSubmit={(event) => void test(event)} noValidate>
         <div className="field">
           <label htmlFor={`${id}-repo`}>{t('github.settings.repo')}</label>
@@ -128,7 +145,7 @@ export function GithubSection() {
             </p>
           )}
           <p id={`${id}-token-note`} className="muted">
-            {t(demo ? 'github.settings.tokenNoteDemo' : 'github.settings.tokenNote', { wrong: DEMO_WRONG_TOKEN })}
+            {t(demo ? 'github.settings.tokenNoteDemo' : 'github.settings.tokenNote', { wrong: DEMO_WRONG_TOKEN, readonly: DEMO_READONLY_TOKEN })}
           </p>
           {connected && hasToken === false && !tokenProblem && <p className="muted">{t('github.settings.tokenMissingNote')}</p>}
         </div>
@@ -137,7 +154,7 @@ export function GithubSection() {
             {t('github.settings.test')}
           </button>
           {(connected || hasToken) && (
-            <button type="button" className="btn" onClick={() => void disconnect()}>
+            <button type="button" className="btn" onClick={() => setRemoving(true)}>
               {t('github.settings.disconnect')}
             </button>
           )}
@@ -152,7 +169,35 @@ export function GithubSection() {
           {t(`github.errors.${status.error}`)}
         </p>
       )}
+      <fieldset className="github-options">
+        <legend>{t('github.settings.write.label')}</legend>
+        <label>
+          <input type="checkbox" checked={app.settings.github.write} onChange={(event) => app.setGithubOptions({ write: event.target.checked })} /> {t('github.settings.write.label')}
+        </label>
+        <p className="muted">{t('github.settings.write.help')}</p>
+      </fieldset>
+      <fieldset className="github-options">
+        <legend>{t('github.settings.conflict.legend')}</legend>
+        {(['remote', 'local', 'ask'] as const).map((rule: ConflictRule) => (
+          <label key={rule}>
+            <input type="radio" name={`${id}-conflict`} checked={app.settings.github.conflict === rule} onChange={() => app.setGithubOptions({ conflict: rule })} /> {t(`github.settings.conflict.${rule}`)}
+          </label>
+        ))}
+      </fieldset>
       <p className="muted">{t('github.settings.where')}</p>
+      {removing && (
+        <Dialog title={t('github.disconnect.title')} onClose={() => setRemoving(false)}>
+          <p>{t('github.disconnect.text')}</p>
+          <div className="form__actions">
+            <button type="button" className="btn" onClick={() => setRemoving(false)}>
+              {t('github.disconnect.cancel')}
+            </button>
+            <button type="button" className="btn btn--primary" onClick={() => void disconnect()}>
+              {t('github.disconnect.confirm')}
+            </button>
+          </div>
+        </Dialog>
+      )}
       {demo && <DemoTools />}
     </div>
   );
@@ -196,7 +241,7 @@ function DemoTools() {
   return (
     <section className="github-demo" aria-label={t('github.demo.title')}>
       <h3>{t('github.demo.title')}</h3>
-      <p className="muted">{t('github.demo.text', { repo: `${DEMO_REPO.owner}/${DEMO_REPO.name}`, wrong: DEMO_WRONG_TOKEN })}</p>
+      <p className="muted">{t('github.demo.text', { repo: `${DEMO_REPO.owner}/${DEMO_REPO.name}`, wrong: DEMO_WRONG_TOKEN, readonly: DEMO_READONLY_TOKEN })}</p>
       <div className="github-demo__buttons">
         {actions.map(([key, run]) => (
           <button key={key} type="button" className="btn btn--small" onClick={run}>

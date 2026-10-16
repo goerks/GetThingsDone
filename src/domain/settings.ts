@@ -1,5 +1,5 @@
 import { EMPTY_DEFINITIONS, normalizeDefinitions } from './definitions';
-import type { FeatureKey, Features, GithubSettings, MapRows, Settings } from './types';
+import type { ConflictRule, FeatureKey, Features, GithubSettings, MapRows, Settings } from './types';
 
 export const MAP_ROWS: readonly MapRows[] = ['sprints', 'releases'];
 
@@ -11,7 +11,7 @@ const OFF_BY_DEFAULT: readonly FeatureKey[] = ['github'];
 
 export const DEFAULT_FEATURES: Features = { releases: true, github: false };
 
-export const DEFAULT_GITHUB: GithubSettings = { repo: '', lastSyncAt: null };
+export const DEFAULT_GITHUB: GithubSettings = { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] };
 
 export const DEFAULT_SETTINGS: Settings = { mapRows: 'sprints', features: DEFAULT_FEATURES, github: DEFAULT_GITHUB, definitions: EMPTY_DEFINITIONS };
 
@@ -21,7 +21,7 @@ const isOn = (value: unknown): boolean => value === true || value === 'true' || 
 interface StoredSettings {
   mapRows?: unknown;
   features?: Partial<Record<FeatureKey, unknown>> | null;
-  github?: { repo?: unknown; lastSyncAt?: unknown } | null;
+  github?: { repo?: unknown; lastSyncAt?: unknown; write?: unknown; conflict?: unknown; ignored?: unknown } | null;
   definitions?: unknown;
 }
 
@@ -35,8 +35,11 @@ export function normalizeSettings(stored: StoredSettings | null | undefined): Se
     else if (isOff(value)) features[key] = false;
   }
   const repo = typeof stored?.github?.repo === 'string' ? stored.github.repo.trim() : '';
+  const write = isOn(stored?.github?.write);
+  const conflict: ConflictRule = stored?.github?.conflict === 'local' || stored?.github?.conflict === 'ask' ? stored.github.conflict : 'remote';
+  const ignored = Array.isArray(stored?.github?.ignored) ? (stored.github.ignored as unknown[]).filter((item): item is string => typeof item === 'string') : [];
   const lastSyncAt = typeof stored?.github?.lastSyncAt === 'string' && stored.github.lastSyncAt ? stored.github.lastSyncAt : null;
-  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, github: { repo, lastSyncAt }, definitions: normalizeDefinitions(stored?.definitions) };
+  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, github: { repo, lastSyncAt, write, conflict, ignored }, definitions: normalizeDefinitions(stored?.definitions) };
 }
 
 /** Whether a feature is switched on. */

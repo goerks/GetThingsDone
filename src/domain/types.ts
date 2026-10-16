@@ -235,7 +235,23 @@ export interface Story {
 export interface GithubLink {
   url: string;
   state: 'open' | 'closed';
+  /** What the issue looked like at the last sync: the common starting point of both sides, so a sync knows who changed what (#30). */
+  base?: ExternalFields;
 }
+
+/** The fields of a story that a sync compares with its issue (#30). */
+export interface ExternalFields {
+  title: string;
+  description: string;
+  /** Names of the labels. */
+  labels: string[];
+  criteria: Array<{ text: string; done: boolean }>;
+  /** Done on this side, closed on GitHub. */
+  done: boolean;
+}
+
+/** What happens when the same field changed on both sides: GitHub wins, the local change wins, or the user decides each time. */
+export type ConflictRule = 'remote' | 'local' | 'ask';
 
 /** What the rows of the story map are. */
 /** Features a team can switch on and off (#10). */
@@ -284,6 +300,12 @@ export interface GithubSettings {
   repo: string;
   /** When the last import or sync ran, as an ISO timestamp (UTC), or null. */
   lastSyncAt: string | null;
+  /** Whether a sync may also change issues on GitHub. Off by default: the app only reads. */
+  write: boolean;
+  /** Who wins when both sides changed the same field. */
+  conflict: ConflictRule;
+  /** Addresses of issues whose story was deleted here: they are not imported again. */
+  ignored: string[];
 }
 
 /** Settings of the workspace, shared by the whole team. */
