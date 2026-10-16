@@ -34,6 +34,16 @@ import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar } from '../components/search/HighlightBar';
 import { useSearchPage } from '../state/Search';
 
+const COMPACT_KEY = 'getitdone.boardCompact';
+
+function readCompact(): boolean {
+  try {
+    return window.localStorage.getItem(COMPACT_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
 interface Hover {
   overId: string;
   placement: Placement | undefined;
@@ -53,6 +63,7 @@ export function BoardPage() {
   const [startingId, setStartingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [memberFilter, setMemberFilter] = useState<MemberFilter>(ALL_MEMBERS);
+  const [compact, setCompact] = useState(readCompact);
   useNewShortcut(() => setCreating(true), !creating);
 
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
@@ -83,6 +94,17 @@ export function BoardPage() {
         ? t('board.dnd.dropped', { title: titleOf(active.id), target: columnNameOf(over.id) })
         : t('board.dnd.cancelled', { title: titleOf(active.id) }),
     onDragCancel: ({ active }) => t('board.dnd.cancelled', { title: titleOf(active.id) })
+  };
+
+  const toggleCompact = (): void => {
+    setCompact((value) => {
+      try {
+        window.localStorage.setItem(COMPACT_KEY, String(!value));
+      } catch {
+        // the choice just will not be remembered
+      }
+      return !value;
+    });
   };
 
   const onDragStart = (event: DragStartEvent): void => setActiveId(String(event.active.id));
@@ -182,6 +204,9 @@ export function BoardPage() {
         </span>
         <span className="page-head__actions">
           <VelocityButton />
+          <button type="button" className={`btn${compact ? ' btn--pressed' : ''}`} aria-pressed={compact} onClick={toggleCompact}>
+            {t('board.compact')}
+          </button>
           {sprint.state === 'running' && !ended && (
             <button type="button" className="btn" onClick={() => setCompleting(true)}>
               {t('lifecycle.completeButton')}
@@ -245,7 +270,7 @@ export function BoardPage() {
         accessibility={{ announcements, screenReaderInstructions: { draggable: t('board.dnd.instructions') } }}
       >
         {/* One band per category above its columns; with many columns the board scrolls sideways. */}
-        <div className="board" role="group" aria-label={t('board.columns')}>
+        <div className={`board${compact ? ' board--compact' : ''}`} role="group" aria-label={t('board.columns')}>
           {STATUS_CATEGORIES.map((category) => {
             const columns = statusesIn(app.statuses, category);
             if (columns.length === 0) return null;
@@ -273,6 +298,7 @@ export function BoardPage() {
                       sprintId={sprintId}
                       stories={shown(status.id)}
                       epics={epics}
+                      compact={compact}
                       drop={target?.group === status.id ? { beforeId: target.beforeId } : undefined}
                     />
                   ))}
@@ -282,7 +308,7 @@ export function BoardPage() {
           })}
         </div>
         <DragOverlay>
-          {activeStory ? <OverlayCard story={activeStory} epic={epics.get(activeStory.epicId ?? '')} /> : null}
+          {activeStory ? <OverlayCard story={activeStory} epic={epics.get(activeStory.epicId ?? '')} compact={compact} /> : null}
         </DragOverlay>
       </DndContext>
     </>

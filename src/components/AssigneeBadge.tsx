@@ -6,8 +6,6 @@ import { useFeature } from './useFeature';
 
 interface Props {
   story: Pick<Story, 'assigneeId'>;
-  /** Places the badge at the top right of a board card. */
-  corner?: boolean;
 }
 
 /**
@@ -15,7 +13,7 @@ interface Props {
  * text for assistive technology. A story without assignee shows a dashed, empty badge. A team without members shows
  * nothing, as there is nobody to assign.
  */
-export function AssigneeBadge({ story, corner = false }: Props) {
+export function AssigneeBadge({ story }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   const on = useFeature('team');
@@ -23,7 +21,7 @@ export function AssigneeBadge({ story, corner = false }: Props) {
   if (!on || (!member && app.members.length === 0)) return null;
   const text = member ? t('team.assignedTo', { name: member.name }) : t('team.unassigned');
   return (
-    <span className={`assignee${member ? '' : ' assignee--none'}${corner ? ' assignee--corner' : ''}`} role="img" aria-label={text} title={member ? member.name : text}>
+    <span className={`assignee${member ? '' : ' assignee--none'}`} role="img" aria-label={text} title={member ? member.name : text}>
       <span aria-hidden="true">{member ? member.initials : '–'}</span>
     </span>
   );

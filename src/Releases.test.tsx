@@ -101,10 +101,10 @@ describe('releases page', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('names the shortcut on the last card', async () => {
+  it('announces the shortcut on the last card without writing it on it (#55)', async () => {
     await openReleases();
     expect(screen.getByRole('button', { name: /\+ Release/ })).toHaveAttribute('aria-keyshortcuts', 'Control+N Meta+N');
-    expect(screen.getByText('Ctrl+N')).toBeInTheDocument();
+    expect(screen.queryByText('Ctrl+N')).not.toBeInTheDocument();
   });
 });
 

@@ -14,6 +14,7 @@ import {
   moveCriterion,
   nextCode,
   parseColumnId,
+  parsePoints,
   parseSectionId,
   sectionId,
   sortByRank,
@@ -483,5 +484,32 @@ describe('editing stories', () => {
 
   it('deletes a story', () => {
     expect(deleteStory(stories, 'story-1').map((s) => s.id)).not.toContain('story-1');
+  });
+});
+
+describe('parsePoints', () => {
+  it('AC7.4 accepts whole numbers from 0 to 100', () => {
+    // Given typed text
+    // When it is read as story points
+    // Then 0 to 100 are numbers, also with spaces around them
+    expect(parsePoints('8')).toBe(8);
+    expect(parsePoints(' 13 ')).toBe(13);
+    expect(parsePoints('0')).toBe(0);
+    expect(parsePoints('100')).toBe(100);
+  });
+
+  it('AC7.4 refuses everything else', () => {
+    // Given typed text that is no whole number from 0 to 100
+    // When it is read as story points
+    // Then it is invalid
+    for (const text of ['abc', '-3', '3,5', '3.5', '101', '1000', '1e2', '5 points']) expect(parsePoints(text), text).toBeNull();
+  });
+
+  it('AC7.7 reads an empty text as no points', () => {
+    // Given an empty or blank field
+    // When it is read as story points
+    // Then the story has no points (0)
+    expect(parsePoints('')).toBe(0);
+    expect(parsePoints('   ')).toBe(0);
   });
 });
