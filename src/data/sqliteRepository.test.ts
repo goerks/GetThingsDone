@@ -11,8 +11,7 @@ import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 import { EMPTY_DEFINITIONS } from '../domain/definitions';
 
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql'];
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_github.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_github.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -187,20 +186,14 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true }, definitions: seedSnapshot(todayIso()).settings.definitions });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null } });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null } });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null } });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null } });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: seedSnapshot(todayIso()).settings.definitions });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null } });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null } });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, github: false }, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
   });
 
   it('falls back to the default for a value it does not know', async () => {
@@ -763,7 +756,7 @@ describe('GitHub link of a story (#30)', () => {
     const after = (await repository.load()).settings;
     expect(after.features.github).toBe(true);
     expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z' });
-    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null } });
+    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null });
   });
 

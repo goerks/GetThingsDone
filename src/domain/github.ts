@@ -228,6 +228,8 @@ export function planSync(input: SyncInput): SyncPlan {
         rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
         criteria: parsed.map((item) => ({ id: newId(), text: item.text, done: item.done })),
         values: optionIds.length > 0 ? { [field.id]: optionIds } : {},
+        checks: {},
+        doneItems: null,
         github: { url: issue.url, state: 'open' }
       };
       stories.push(story);

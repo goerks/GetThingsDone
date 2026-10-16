@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 
 /** Sections of the settings page. */
-export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'features' | 'data';
-export type SettingsSection = 'fields' | 'statuses' | 'map' | 'features' | 'github';
+export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'features' | 'github' | 'data';
 
 export type Route =
   | { name: 'board' }

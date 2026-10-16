@@ -38,31 +38,26 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           <a href={hrefs.settingsFeatures} className="settings__link" aria-current={section === 'features' ? 'page' : undefined}>
             {t('settings.features.title')}
           </a>
-          <a href={hrefs.settingsData} className="settings__link" aria-current={section === 'data' ? 'page' : undefined}>
-            {t('settings.data.title')}
-          </a>
-          <a href={hrefs.settingsFeatures} className="settings__link" aria-current={shown === 'features' ? 'page' : undefined}>
-            {t('settings.features.title')}
-          </a>
           {githubOn && (
             <a href={hrefs.settingsGithub} className="settings__link" aria-current={shown === 'github' ? 'page' : undefined}>
               {t('github.settings.title')}
             </a>
           )}
+          <a href={hrefs.settingsData} className="settings__link" aria-current={section === 'data' ? 'page' : undefined}>
+            {t('settings.data.title')}
+          </a>
         </nav>
         <section className="settings__content">
           {shown === 'statuses' ? (
             <StatusValuesSection />
           ) : shown === 'map' ? (
             <MapSection />
-          ) : section === 'definitions' ? (
+          ) : shown === 'definitions' ? (
             <DefinitionsSection />
-          ) : section === 'features' ? (
-            <FeaturesSection />
-          ) : section === 'data' ? (
-            <DataSection />
           ) : shown === 'features' ? (
             <FeaturesSection />
+          ) : shown === 'data' ? (
+            <DataSection />
           ) : shown === 'github' ? (
             <GithubSection />
           ) : (
