@@ -4,6 +4,7 @@ import { missingBuiltins } from '../domain/fields';
 import { FEATURE_KEYS, normalizeSettings } from '../domain/settings';
 import { isDoneIn, normalizeStatuses } from '../domain/statuses';
 import { changedPositions } from '../domain/board';
+import type { ChangeVersion, ItemState, LogWrites, VersionOrigin } from '../domain/changeLog';
 import { settleSprints, type StoredSprint } from '../domain/sprintLife';
 import { todayIso } from '../domain/sprints';
 import type {
@@ -51,6 +52,17 @@ interface SprintRow {
   state: string | null;
   start_items: string | null;
   result: string | null;
+}
+
+interface ChangeLogRow {
+  id: string;
+  at: string;
+  item_type: string;
+  item_id: string;
+  version: number;
+  origin: string;
+  keys: string;
+  state: string;
 }
 
 const json = (value: unknown): string | null => (value === null ? null : JSON.stringify(value));
@@ -186,6 +198,9 @@ export class SqliteRepository implements Repository {
     const releaseRows = await this.db.select<ReleaseRow[]>(
       'SELECT id, title, description, start_date, end_date FROM releases ORDER BY rowid'
     );
+    const changeLogRows = await this.db.select<ChangeLogRow[]>(
+      'SELECT id, at, item_type, item_id, version, origin, keys, state FROM change_log ORDER BY at, rowid'
+    );
     const storyRows = await this.db.select<StoryRow[]>(
       'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, rank, checks, done_items FROM stories ORDER BY rank'
     );
@@ -301,7 +316,17 @@ export class SqliteRepository implements Repository {
       const moved = changedPositions(stories, settled.stories);
       if (moved.length > 0) await this.savePositions(moved);
     }
-    return { epics, sprints: settled.sprints, releases, events, stories: settled.stories, statuses, fields, assignments, settings };
+    const changeLog: ChangeVersion[] = changeLogRows.map((row) => ({
+      id: row.id,
+      at: row.at,
+      itemType: row.item_type,
+      itemId: row.item_id,
+      version: row.version,
+      origin: row.origin as VersionOrigin,
+      keys: parseJson<string[]>(row.keys) ?? [],
+      state: parseJson<ItemState>(row.state) ?? {}
+    }));
+    return { epics, sprints: settled.sprints, releases, events, changeLog, stories: settled.stories, statuses, fields, assignments, settings };
   }
 
   private async loadFields(): Promise<{ fields: FieldDefinition[]; assignments: FieldAssignment[] }> {
@@ -349,6 +374,7 @@ export class SqliteRepository implements Repository {
     await this.db.execute('DELETE FROM criteria');
     await this.db.execute('DELETE FROM stories');
     await this.db.execute('DELETE FROM release_events');
+    await this.db.execute('DELETE FROM change_log');
     await this.db.execute('DELETE FROM releases');
     await this.db.execute('DELETE FROM sprints');
     await this.db.execute('DELETE FROM epics');
@@ -373,6 +399,7 @@ export class SqliteRepository implements Repository {
     for (const story of snapshot.stories) {
       await this.addStory(story);
     }
+    await this.applyChangeLog({ upsert: snapshot.changeLog, remove: [] });
   }
 
   async savePositions(positions: readonly StoryPosition[]): Promise<void> {
@@ -498,6 +525,17 @@ export class SqliteRepository implements Repository {
       await this.db.execute(
         'INSERT INTO release_events (id, at, release_id, story_id, code, kind, points, done) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
         [event.id, event.at, event.releaseId, event.storyId, event.code, event.kind, event.points, event.done ? 1 : 0]
+      );
+    }
+  }
+
+  async applyChangeLog(writes: LogWrites): Promise<void> {
+    for (const id of writes.remove) await this.db.execute('DELETE FROM change_log WHERE id = $1', [id]);
+    for (const version of writes.upsert) {
+      await this.db.execute(
+        `INSERT OR REPLACE INTO change_log (id, at, item_type, item_id, version, origin, keys, state)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [version.id, version.at, version.itemType, version.itemId, version.version, version.origin, JSON.stringify(version.keys), JSON.stringify(version.state)]
       );
     }
   }

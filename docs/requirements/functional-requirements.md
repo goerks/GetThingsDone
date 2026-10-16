@@ -675,6 +675,13 @@ Settings › Data (`#/settings/data`) has two cards. "Export all data" saves sto
 
 Verified by: unit `src/domain/backup.test.ts` (AC1.2–AC1.4, AC3.2, AC4.1–AC4.4), component `src/DataSettings.test.tsx` (AC1.1–AC1.2, AC2.1–AC2.5, AC3.1, AC4.1–AC4.4, AC5.3, AC6.1–AC6.3), e2e `e2e/backup.spec.ts` (AC1.1–AC1.2, AC2.1, AC2.3, AC3.1–AC3.2, AC4.1, AC5.3, AC6.2); AC1.3, AC5.1 and AC5.2 are checked by hand
 
+## Change history (HIST)
+
+### FR-HIST-01 History of items and comparing two versions
+Stories, epics, sprints and releases keep a history of versions (#23, ADR 0004). One save is one version (V1, V2, …) with date and time; the story, epic and sprint dialogs have a panel "History" (the last three versions, "Show all changes", "Compare versions", "Compare with current" per entry), the release dialog has a tab "History". Recorded: creation, title or name, description (the list says "changed", the comparison shows the full text), status, points, epic, sprint, release, custom field values, acceptance criteria (added, ticked, removed), colour, dates, sprint state, and the stories that join or leave a sprint. Moves on the board and in the backlog are changes of status or sprint; pure reordering is not recorded; edits of the same field within 60 seconds are one version. Names follow the chosen language. Two versions (including "Current") are compared side by side, older left and newer right: field by field with changed fields marked by sign and word, unchanged fields folded ("Only changes"), the description line by line with line numbers; the sides can be swapped; the view only reads. The comparison starts from an entry, from the button "Compare versions" or by ticking two versions in the full list. The history is saved, part of export and import (older files import with an empty history), and works for every item type without new history code. Items older than the history show "No changes yet". Texts in DE, EN, FR and IT, keyboard operable, help topic "History and comparing versions".
+
+Verified by: unit `src/domain/changeLog.test.ts` and `src/domain/textDiff.test.ts` (AC1.3, AC2.1–AC2.6, AC3.1–AC3.4, AC5.2–AC5.3, AC6.1, AC8.1–AC8.4, AC8.6), repositories `src/data/sqliteRepository.test.ts` and `src/data/localStorageRepository.test.ts` (AC5.1), component `src/ChangeHistory.test.tsx` (AC1.1, AC1.3–AC1.4, AC2.3, AC2.7, AC4.2, AC7.3, AC8.2–AC8.5, AC9.1–AC9.3), e2e `e2e/changeHistory.spec.ts` (AC3.1, AC3.3, AC4.1, AC5.1, AC7.1, AC8.1–AC8.2); AC1.2, AC6.2, AC7.2 and AC8.7 are checked by hand
+
 ## Later
 
 | ID | Requirement | Status |

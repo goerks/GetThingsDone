@@ -5,6 +5,7 @@ import type { Sprint } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { DialogFooter } from './DialogFooter';
+import { HistoryPanel } from './history/HistoryPanel';
 
 interface Props {
   /** The sprint to edit; without it the dialog creates a new, prefilled sprint. */
@@ -62,6 +63,7 @@ export function SprintDialog({ sprint, onClose }: Props) {
             {t(`sprint.problem.${problem}`)}
           </p>
         )}
+        {sprint && <HistoryPanel itemType="sprint" itemId={sprint.id} label={sprint.name} />}
         <DialogFooter submit={sprint ? t('sprint.save') : t('sprint.add')} onCancel={onClose} />
       </form>
     </Dialog>

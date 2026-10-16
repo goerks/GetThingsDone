@@ -71,6 +71,7 @@ function dataFits(data: Record<string, unknown>): boolean {
     optionalList('sprints', ['id', 'name', 'startDate', 'endDate']) &&
     optionalList('releases', ['id', 'title']) &&
     optionalList('events', ['id']) &&
+    optionalList('changeLog', ['id', 'itemType', 'itemId', 'at']) &&
     optionalList('statuses', ['id']) &&
     optionalList('fields', ['id']) &&
     optionalList('assignments', []) &&

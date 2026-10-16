@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { DefinitionsPanel } from './definitions';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
+import { HistoryPanel } from './history/HistoryPanel';
 import { EpicSelect } from './EpicSelect';
 import { EpicTag } from './EpicTag';
 import { FieldControl } from './FieldControl';
@@ -231,6 +232,8 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
           )}
 
           <DefinitionsPanel story={story} />
+
+          <HistoryPanel itemType="story" itemId={story.id} label={`${story.code}: ${story.title}`} />
         </div>
 
         <aside className="panel detail__side">
