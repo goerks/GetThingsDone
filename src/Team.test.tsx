@@ -403,3 +403,17 @@ describe('history of the assignment (#18)', () => {
     await waitFor(() => expect(panel).toHaveTextContent('Assigned to: Nobody → Luca Rossi'));
   });
 });
+
+describe('help for the team (#18)', () => {
+  it('AC6.3 has a help topic that links to the settings of the team', async () => {
+    // Given the help topics
+    const { TOPICS, LINK_TARGETS } = await import('./help/topics');
+    const { default: en } = await import('./i18n/en.json');
+    // Then the topic "Team and assignment" exists and leads to Settings › Team
+    const topic = TOPICS.find((item) => item.id === 'team.assign');
+    expect(topic?.links?.[0]).toEqual({ id: 'settingsTeam' });
+    expect(LINK_TARGETS.settingsTeam).toBe('#/settings/team');
+    expect(en.help.topics['team.assign'].title).toBe('Team and assignment');
+    expect(en.help.links.settingsTeam).toBe('Open Settings → Team');
+  });
+});
