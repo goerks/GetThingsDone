@@ -110,9 +110,9 @@ describe('size and progress', () => {
   ];
 
   it('counts stories and points of a release, and what is done', () => {
-    expect(releaseStats(stories, 'r1', isDone)).toEqual({ stories: 3, points: 10, doneStories: 2, donePoints: 7 });
-    expect(releaseStats(stories, 'r2', isDone)).toEqual({ stories: 1, points: 8, doneStories: 0, donePoints: 0 });
-    expect(releaseStats(stories, 'none', isDone)).toEqual({ stories: 0, points: 0, doneStories: 0, donePoints: 0 });
+    expect(releaseStats(stories, 'r1', isDone)).toEqual({ stories: 3, points: 10, doneStories: 2, donePoints: 7, unestimated: 0 });
+    expect(releaseStats(stories, 'r2', isDone)).toEqual({ stories: 1, points: 8, doneStories: 0, donePoints: 0, unestimated: 0 });
+    expect(releaseStats(stories, 'none', isDone)).toEqual({ stories: 0, points: 0, doneStories: 0, donePoints: 0, unestimated: 0 });
   });
 
   it('lists the stories of a release by rank', () => {

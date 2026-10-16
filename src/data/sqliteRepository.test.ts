@@ -101,7 +101,8 @@ describe('migration 004', () => {
     migrate(db, MIGRATIONS.slice(2));
 
     expect(db.prepare('SELECT id, epic_id, points, sprint_id, rank FROM stories ORDER BY rank').all()).toEqual([
-      { id: 's1', epic_id: 'e1', points: 3, sprint_id: 'sprint-1', rank: 0 },
+      // The old default of 3 points became "not estimated" with the cards (#54, migration 013).
+      { id: 's1', epic_id: 'e1', points: 0, sprint_id: 'sprint-1', rank: 0 },
       { id: 's2', epic_id: 'e1', points: 5, sprint_id: null, rank: 1 }
     ]);
     expect(db.prepare("SELECT name FROM pragma_table_info('stories') WHERE name = 'in_sprint'").all()).toEqual([]);
@@ -130,7 +131,7 @@ describe('migration 007', () => {
     migrate(db, MIGRATIONS.slice(6));
 
     expect(db.prepare('SELECT id, points, release_id FROM stories ORDER BY rank').all()).toEqual([
-      { id: 's1', points: 3, release_id: null },
+      { id: 's1', points: 0, release_id: null },
       { id: 's2', points: 5, release_id: null }
     ]);
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
@@ -662,7 +663,7 @@ describe('sprint states (#17)', () => {
       notDonePoints: 8,
       notDoneStories: 1
     });
-    expect(loaded.sprints.find((sprint) => sprint.id === 's1')?.startItems).toEqual([{ storyId: 'c', code: 'S-3', points: 3 }]);
+    expect(loaded.sprints.find((sprint) => sprint.id === 's1')?.startItems).toEqual([{ storyId: 'c', code: 'S-3', points: null }]);
     expect(loaded.sprints.find((sprint) => sprint.id === 's2')?.startItems).toBeNull();
   });
 
@@ -689,5 +690,43 @@ describe('sprint states (#17)', () => {
     };
     await repository.updateSprint(completed);
     expect((await repository.load()).sprints.find((sprint) => sprint.id === completed.id)).toEqual(completed);
+  });
+});
+
+describe('estimating with cards (#54)', () => {
+  it('AC4.1 migrates the old default of 3 points to not estimated and keeps the other points', async () => {
+    // Given a database before the cards with stories of 3, 5 and 0 points
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, 12));
+    db.exec(`
+      INSERT INTO stories (id, code, title, description, epic_id, points, status, rank) VALUES
+        ('a', 'S-1', 'Default', '', NULL, 3, 'todo', 0), ('b', 'S-2', 'Five', '', NULL, 5, 'todo', 1), ('c', 'S-3', 'None', '', NULL, 0, 'todo', 2);
+    `);
+    // When the cards migration runs and the app loads the data
+    migrate(db, MIGRATIONS.slice(12));
+    const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
+    // Then only the story with 5 points is estimated
+    expect(loaded.stories.map((story) => [story.id, story.points, story.special, story.reference])).toEqual([
+      ['a', null, null, false],
+      ['b', 5, null, false],
+      ['c', null, null, false]
+    ]);
+  });
+
+  it('AC2.5 stores the cards of a story, its reference mark and the size of an epic', async () => {
+    // Given the demo data
+    const { repository } = await freshRepository();
+    const before = await repository.load();
+    const story = before.stories[1];
+    const epic = before.epics[0];
+    // When a story gets "?", another one a number and the reference mark, and an epic a size
+    await repository.updateStory({ ...story, points: null, special: 'unsure', reference: false });
+    await repository.updateStory({ ...before.stories[2], points: 8, special: null, reference: true });
+    await repository.updateEpic({ ...epic, size: 'XL' });
+    // Then everything is read back
+    const after = await repository.load();
+    expect(after.stories.find((item) => item.id === story.id)).toMatchObject({ points: null, special: 'unsure', reference: false });
+    expect(after.stories.find((item) => item.id === before.stories[2].id)).toMatchObject({ points: 8, special: null, reference: true });
+    expect(after.epics.find((item) => item.id === epic.id)?.size).toBe('XL');
   });
 });
