@@ -5,6 +5,7 @@ import { MapSection } from './MapSection';
 import { DefinitionsSection } from './DefinitionsSection';
 import { FeaturesSection } from './FeaturesSection';
 import { DataSection } from './DataSection';
+import { TeamSection } from './TeamSection';
 import { StatusValuesSection } from './StatusValuesSection';
 
 /** Settings of the workspace: a list of sections next to the content of the chosen one. */
@@ -33,6 +34,9 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           <a href={hrefs.settingsFeatures} className="settings__link" aria-current={section === 'features' ? 'page' : undefined}>
             {t('settings.features.title')}
           </a>
+          <a href={hrefs.settingsTeam} className="settings__link" aria-current={section === 'team' ? 'page' : undefined}>
+            {t('team.title')}
+          </a>
           <a href={hrefs.settingsData} className="settings__link" aria-current={section === 'data' ? 'page' : undefined}>
             {t('settings.data.title')}
           </a>
@@ -46,6 +50,8 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <DefinitionsSection />
           ) : section === 'features' ? (
             <FeaturesSection />
+          ) : section === 'team' ? (
+            <TeamSection />
           ) : section === 'data' ? (
             <DataSection />
           ) : (

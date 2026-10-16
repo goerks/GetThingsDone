@@ -522,7 +522,8 @@
       "sprint": "Sprint",
       "type": "Type",
       "points": "Points",
-      "criteria": "Criteria"
+      "criteria": "Criteria",
+      "assignee": "Assigned"
     },
     "kind": {
       "story": "Story",
@@ -1311,10 +1312,47 @@
     "fieldName": {
       "sprint": "Sprint",
       "state": "State",
-      "stories": "Stories"
+      "stories": "Stories",
+      "assignee": "Assigned to"
     },
     "field": "Field",
     "expand": "Show older versions",
     "collapse": "Hide older versions"
+  },
+  "team": {
+    "title": "Team",
+    "intro": "The people you can assign stories to. A plain list, there are no user accounts. Changes apply at once.",
+    "empty": "Nobody in the team yet. Add members, then you can assign stories and filter by person.",
+    "listLabel": "Team members",
+    "add": "Add member",
+    "name": "Name",
+    "initials": "Initials",
+    "initialsOf": "Initials {{initials}}",
+    "save": "Save",
+    "cancel": "Cancel",
+    "changeShort": "Change",
+    "change": "Change {{name}}",
+    "removeShort": "Remove",
+    "remove": "Remove {{name}}",
+    "removeConfirm_one": "{{name}} has {{count}} story. It will not be assigned any more.",
+    "removeConfirm_other": "{{name}} has {{count}} stories. They will not be assigned any more.",
+    "removeYes": "Remove",
+    "problem": {
+      "nameEmpty": "Please enter a name.",
+      "nameTaken": "The team already has this name.",
+      "initialsEmpty": "Please enter initials.",
+      "initialsTooLong": "The initials can have at most {{count}} characters.",
+      "initialsTaken": "These initials are already taken."
+    },
+    "field": "Assigned to",
+    "nobody": "Nobody",
+    "assignedTo": "Assigned to {{name}}",
+    "unassigned": "Unassigned",
+    "filter": {
+      "label": "Person",
+      "all": "All",
+      "none": "Unassigned",
+      "empty": "No stories for this person."
+    }
   }
 }

@@ -522,7 +522,8 @@
       "sprint": "Sprint",
       "type": "Type",
       "points": "Points",
-      "criteria": "Critères"
+      "criteria": "Critères",
+      "assignee": "Assignée"
     },
     "kind": {
       "story": "Story",
@@ -1316,10 +1317,47 @@
     "fieldName": {
       "sprint": "Sprint",
       "state": "État",
-      "stories": "Stories"
+      "stories": "Stories",
+      "assignee": "Assignée à"
     },
     "field": "Champ",
     "expand": "Afficher les versions précédentes",
     "collapse": "Masquer les versions précédentes"
+  },
+  "team": {
+    "title": "Équipe",
+    "intro": "Les personnes auxquelles tu peux assigner des stories. Une simple liste, il n’y a pas de comptes utilisateur. Les changements s’appliquent tout de suite.",
+    "empty": "Personne dans l’équipe pour l’instant. Ajoute des membres, puis tu pourras assigner des stories et filtrer par personne.",
+    "listLabel": "Membres de l’équipe",
+    "add": "Ajouter un membre",
+    "name": "Nom",
+    "initials": "Initiales",
+    "initialsOf": "Initiales {{initials}}",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "changeShort": "Modifier",
+    "change": "Modifier {{name}}",
+    "removeShort": "Retirer",
+    "remove": "Retirer {{name}}",
+    "removeConfirm_one": "{{name}} a {{count}} story. Elle ne sera plus assignée.",
+    "removeConfirm_other": "{{name}} a {{count}} stories. Elles ne seront plus assignées.",
+    "removeYes": "Retirer",
+    "problem": {
+      "nameEmpty": "Saisis un nom.",
+      "nameTaken": "Ce nom existe déjà dans l’équipe.",
+      "initialsEmpty": "Saisis des initiales.",
+      "initialsTooLong": "Les initiales ont {{count}} caractères au maximum.",
+      "initialsTaken": "Ces initiales sont déjà prises."
+    },
+    "field": "Assignée à",
+    "nobody": "Personne",
+    "assignedTo": "Assignée à {{name}}",
+    "unassigned": "Non assignée",
+    "filter": {
+      "label": "Personne",
+      "all": "Toutes",
+      "none": "Non assignées",
+      "empty": "Aucune story pour cette personne."
+    }
   }
 }

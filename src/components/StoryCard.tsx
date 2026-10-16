@@ -7,6 +7,7 @@ import { cardFieldsFor, formatValue, releaseLayout } from '../domain/fields';
 import type { Epic, Story } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
+import { AssigneeBadge } from './AssigneeBadge';
 import { fieldLabel } from './fieldLabel';
 import { DefinitionChip } from './definitions';
 import { EpicTag } from './EpicTag';
@@ -83,6 +84,7 @@ function CardContent({ story, epic }: { story: Story; epic: Epic | undefined }) 
   return (
     <>
       <span className="card__code">{story.code}</span>
+      <AssigneeBadge story={story} corner />
       <TitleButton story={story} className="card__title" />
       <CardFieldValues story={story} />
       <CardRelease story={story} />

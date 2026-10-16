@@ -17,9 +17,11 @@ import { NewStoryDialog } from '../components/NewStoryDialog';
 import { NewButton } from '../components/NewButton';
 import { StartSprintDialog } from '../components/StartSprintDialog';
 import { useNewShortcut } from '../components/useNewShortcut';
+import { MemberFilterBar } from '../components/MemberFilterBar';
 import { OverlayCard } from '../components/StoryCard';
 import { dropTargetIn, placementOf, useDragSensors, type DropTarget } from '../dnd/dnd';
 import { dropStory, parseColumnId, sprintStories, storiesInColumn, totalPoints, type Placement } from '../domain/board';
+import { ALL_MEMBERS, matchesMemberFilter, type MemberFilter } from '../domain/members';
 import { summarizeSprint, type Completion } from '../domain/sprintLife';
 import { boardSprint, isEnded, todayIso } from '../domain/sprints';
 import { formatDayLong, formatSprintDates } from '../components/sprintFormat';
@@ -50,6 +52,7 @@ export function BoardPage() {
   const [completing, setCompleting] = useState(false);
   const [startingId, setStartingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [memberFilter, setMemberFilter] = useState<MemberFilter>(ALL_MEMBERS);
   useNewShortcut(() => setCreating(true), !creating);
 
   const epics = useMemo(() => new Map(app.epics.map((epic) => [epic.id, epic])), [app.epics]);
@@ -161,6 +164,10 @@ export function BoardPage() {
   const ended = isEnded(sprint, today);
   const atStart = sprint.state === 'running' && sprint.startItems ? summarizeSprint(sprint, app.stories, app.isDone).plannedPoints : null;
   const points = totalPoints(inSprint);
+  // A filter on a member who was removed in the meantime shows everything again.
+  const filter = memberFilter.kind === 'member' && !app.members.some((member) => member.id === memberFilter.memberId) ? ALL_MEMBERS : memberFilter;
+  const shown = (status: string) => storiesInColumn(app.stories, sprintId, status).filter((story) => matchesMemberFilter(story, filter));
+  const shownCount = app.statuses.reduce((sum, status) => sum + shown(status.id).length, 0);
 
   return (
     <>
@@ -216,6 +223,12 @@ export function BoardPage() {
       )}
 
       <HighlightBar storyIds={inSprint.map((story) => story.id)} />
+      <MemberFilterBar filter={filter} onChange={setMemberFilter} />
+      {filter.kind !== 'all' && shownCount === 0 && (
+        <p className="muted" role="status">
+          {t('team.filter.empty')}
+        </p>
+      )}
 
       {creating && <NewStoryDialog sprintId={sprintId} onClose={() => setCreating(false)} />}
       {completing && <CompleteSprintDialog sprint={sprint} onClose={() => setCompleting(false)} onCompleted={onCompleted} />}
@@ -236,7 +249,7 @@ export function BoardPage() {
           {STATUS_CATEGORIES.map((category) => {
             const columns = statusesIn(app.statuses, category);
             if (columns.length === 0) return null;
-            const count = columns.reduce((sum, status) => sum + storiesInColumn(app.stories, sprintId, status.id).length, 0);
+            const count = columns.reduce((sum, status) => sum + shown(status.id).length, 0);
             return (
               <div
                 key={category}
@@ -258,7 +271,7 @@ export function BoardPage() {
                       key={status.id}
                       status={status.id}
                       sprintId={sprintId}
-                      stories={storiesInColumn(app.stories, sprintId, status.id)}
+                      stories={shown(status.id)}
                       epics={epics}
                       drop={target?.group === status.id ? { beforeId: target.beforeId } : undefined}
                     />
