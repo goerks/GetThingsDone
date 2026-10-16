@@ -41,7 +41,7 @@ function story(overrides: Partial<Story> = {}): Story {
     criteria: [{ id: 'c1', text: 'Mail arrives', done: true }],
     values: {},
     checks: {},
-    doneItems: null,
+    special: null, reference: false, doneItems: null,
     ...overrides
   };
 }

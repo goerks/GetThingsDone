@@ -487,7 +487,7 @@ describe('SqliteRepository', () => {
     expect((await repository.load()).epics.find((epic) => epic.id === 'epic-boards')?.values).toEqual({
       'field-demo-priority': 'opt-must'
     });
-    await repository.addEpic({ id: 'epic-empty', name: 'Empty', colorKey: 'cyan', position: 4, values: { 'field-demo-priority': 'opt-should' } });
+    await repository.addEpic({ id: 'epic-empty', name: 'Empty', colorKey: 'cyan', position: 4, size: null, values: { 'field-demo-priority': 'opt-should' } });
     await repository.setFieldValue('epic-empty', 'field-demo-priority', 'opt-could');
     expect((await repository.load()).epics.find((epic) => epic.id === 'epic-empty')?.values).toEqual({
       'field-demo-priority': 'opt-could'

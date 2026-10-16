@@ -291,7 +291,7 @@ describe('burndown', () => {
         ...seed.events,
         ...seed.stories
           .filter((story) => story.releaseId === 'release-beta' && story.status !== 'done')
-          .map((story) => ({ id: `finish-${story.id}`, at: new Date().toISOString(), releaseId: 'release-beta', storyId: story.id, code: story.code, kind: 'done' as const, points: story.points, done: true }))
+          .map((story) => ({ id: `finish-${story.id}`, at: new Date().toISOString(), releaseId: 'release-beta', storyId: story.id, code: story.code, kind: 'done' as const, points: story.points ?? 0, done: true }))
       ]
     }), /Release 1\.0/, 'Burndown');
     const target = within(dialog).getByText('Against the target line').nextElementSibling;

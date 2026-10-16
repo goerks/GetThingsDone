@@ -20,8 +20,8 @@ describe('epic colours', () => {
   });
 
   it('suggests the least used colour once all are taken', () => {
-    const epics: Epic[] = EPIC_COLOR_KEYS.map((colorKey, index) => ({ id: `e${index}`, name: 'x', colorKey, position: index, values: {} }));
-    epics.push({ id: 'extra', name: 'x', colorKey: 'blue', position: 8, values: {} });
+    const epics: Epic[] = EPIC_COLOR_KEYS.map((colorKey, index) => ({ id: `e${index}`, name: 'x', colorKey, position: index, size: null, values: {} }));
+    epics.push({ id: 'extra', name: 'x', colorKey: 'blue', position: 8, size: null, values: {} });
     expect(nextColorKey(epics)).toBe('amber');
   });
 });
@@ -31,7 +31,7 @@ describe('managing epics', () => {
 
   it('creates an epic with a trimmed name and the next free colour', () => {
     const result = createEpic(epics, { name: '  Reports ' }, 'epic-new');
-    expect(result?.epic).toEqual({ id: 'epic-new', name: 'Reports', colorKey: 'rose', position: 4, values: {} });
+    expect(result?.epic).toEqual({ id: 'epic-new', name: 'Reports', colorKey: 'rose', position: 4, size: null, values: {} });
     expect(result?.epics).toHaveLength(epics.length + 1);
   });
 
@@ -51,9 +51,9 @@ describe('managing epics', () => {
 
   it('sorts epics by position, then name', () => {
     const list: Epic[] = [
-      { id: 'b', name: 'B', colorKey: 'blue', position: 1, values: {} },
-      { id: 'a', name: 'A', colorKey: 'blue', position: 1, values: {} },
-      { id: 'c', name: 'C', colorKey: 'blue', position: 0, values: {} }
+      { id: 'b', name: 'B', colorKey: 'blue', position: 1, size: null, values: {} },
+      { id: 'a', name: 'A', colorKey: 'blue', position: 1, size: null, values: {} },
+      { id: 'c', name: 'C', colorKey: 'blue', position: 0, size: null, values: {} }
     ];
     expect(sortEpics(list).map((e) => e.id)).toEqual(['c', 'a', 'b']);
   });
@@ -64,7 +64,7 @@ describe('managing epics', () => {
 
   it('deletes only an epic without stories', () => {
     expect(deleteEpic(epics, stories, 'epic-boards')).toBe(epics);
-    const empty = [...epics, { id: 'epic-empty', name: 'Empty', colorKey: 'cyan' as const, position: 4, values: {} }];
+    const empty = [...epics, { id: 'epic-empty', name: 'Empty', colorKey: 'cyan' as const, position: 4, size: null, values: {} }];
     expect(deleteEpic(empty, stories, 'epic-empty').map((e) => e.id)).not.toContain('epic-empty');
   });
 });

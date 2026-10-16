@@ -40,7 +40,7 @@ function story(index: number, title: string, points: number): Story {
     criteria: [],
     values: {},
     checks: {},
-    doneItems: null
+    special: null, reference: false, doneItems: null
   };
 }
 
