@@ -147,9 +147,9 @@ test('FR-MAP-03.1 creates a story in a cell and finds it on the map, the board a
   await page.getByRole('textbox', { name: 'Title of the new story in Sprint 1, Local storage' }).fill('Export data');
   await page.keyboard.press('Enter');
 
-  // Then the card is in that cell (with the default 3 points) and Sprint 1 shows 3 points more
+  // Then the card is in that cell (not estimated, #54) and Sprint 1 shows one more story and one without estimate
   await expect(cell(page, 'Sprint 1', 'Local storage').getByRole('group', { name: 'S-8: Export data' })).toBeVisible();
-  await expect(sprintLabel(page, 'Sprint 1')).toContainText('7 stories · 26 points');
+  await expect(sprintLabel(page, 'Sprint 1')).toContainText('7 stories · 23 points · 1 without estimate');
 
   // And the board shows it in "To do"
   await page.getByRole('link', { name: 'Board' }).click();

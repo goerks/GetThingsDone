@@ -117,7 +117,7 @@ export function StoryQuickAdd({ sprintId, epicId = null, releaseId, status, ...r
       setPending(title);
       return;
     }
-    app.createStory({ title, description: '', epicId, points: 3, sprintId, releaseId: releaseId ?? null, values, status });
+    app.createStory({ title, description: '', epicId, points: null, sprintId, releaseId: releaseId ?? null, values, status });
   };
 
   return (

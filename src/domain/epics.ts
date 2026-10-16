@@ -37,13 +37,13 @@ export function createEpic(epics: Epic[], input: NewEpicInput, id: string): { ep
   const name = input.name.trim();
   if (!name) return null;
   const position = epics.reduce((max, epic) => Math.max(max, epic.position), -1) + 1;
-  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics), position, values: input.values ?? {} };
+  const epic: Epic = { id, name, colorKey: input.colorKey ?? nextColorKey(epics), position, size: null, values: input.values ?? {} };
   return { epics: [...epics, epic], epic };
 }
 
-export type EpicPatch = Partial<Pick<Epic, 'name' | 'colorKey'>>;
+export type EpicPatch = Partial<Pick<Epic, 'name' | 'colorKey' | 'size'>>;
 
-/** Renames or recolours an epic. An empty name is ignored. */
+/** Renames, recolours or sizes an epic. An empty name is ignored. */
 export function updateEpic(epics: Epic[], id: string, patch: EpicPatch): Epic[] {
   const clean: EpicPatch = { ...patch };
   if (clean.name !== undefined) {

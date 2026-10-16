@@ -23,7 +23,7 @@ import type { StatusValue, Story } from './types';
 const defaults = (): StatusValue[] => DEFAULT_STATUSES.map((status) => ({ ...status }));
 
 function story(id: string, status: string): Story {
-  return { id, code: `S-${id}`, title: id, description: '', epicId: null, points: 1, status, sprintId: null, releaseId: null, rank: 0, criteria: [], values: {}, checks: {}, doneItems: null };
+  return { id, code: `S-${id}`, title: id, description: '', epicId: null, points: 1, status, sprintId: null, releaseId: null, rank: 0, criteria: [], values: {}, checks: {}, special: null, reference: false, doneItems: null };
 }
 
 const ids = (statuses: readonly { id: string }[]): string[] => statuses.map((status) => status.id);

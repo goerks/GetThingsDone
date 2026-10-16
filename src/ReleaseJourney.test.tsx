@@ -40,7 +40,7 @@ function story(index: number, title: string, points: number): Story {
     criteria: [],
     values: {},
     checks: {},
-    doneItems: null
+    special: null, reference: false, doneItems: null
   };
 }
 
@@ -76,7 +76,7 @@ async function changeStory(title: string, change: (dialog: HTMLElement) => Promi
 }
 
 const setStatus = (status: string) => async (dialog: HTMLElement) => ui.selectOptions(within(dialog).getByLabelText('Status'), status);
-const setPoints = (points: string) => async (dialog: HTMLElement) => ui.selectOptions(within(dialog).getByLabelText('Points'), points);
+const setPoints = (points: string) => async (dialog: HTMLElement) => ui.click(within(dialog).getByRole('radio', { name: points }));
 
 describe('a release from planning to the last day', () => {
   it('plans, grows, shrinks and burns down, and the reports tell the same story', async () => {

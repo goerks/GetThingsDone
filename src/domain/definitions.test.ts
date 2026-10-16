@@ -41,7 +41,7 @@ function story(overrides: Partial<Story> = {}): Story {
     criteria: [{ id: 'c1', text: 'Mail arrives', done: true }],
     values: {},
     checks: {},
-    doneItems: null,
+    special: null, reference: false, doneItems: null,
     ...overrides
   };
 }
@@ -89,7 +89,7 @@ describe('items and their states', () => {
   it('AC2.3 every automatic check looks at the story', () => {
     expect(itemState(auto('x', 'hasDescription'), story({ description: '  ' }))).toBe('open');
     expect(itemState(auto('x', 'hasCriteria'), story({ criteria: [] }))).toBe('open');
-    expect(itemState(auto('x', 'hasPoints'), story({ points: 0 }))).toBe('open');
+    expect(itemState(auto('x', 'hasPoints'), story({ points: null }))).toBe('open');
     expect(itemState(auto('x', 'hasPoints'), story())).toBe('checked');
     expect(itemState(auto('x', 'hasEpic'), story({ epicId: null }))).toBe('open');
     expect(itemState(auto('x', 'inSprint'), story({ sprintId: 'sprint-1' }))).toBe('checked');

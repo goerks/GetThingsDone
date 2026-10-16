@@ -21,7 +21,7 @@ export function releaseEventsFor(
 ): ReleaseEvent[] {
   const events: ReleaseEvent[] = [];
   const entry = (story: Story, kind: ReleaseEventKind, releaseId: string, done: IsDone = isDone): void => {
-    events.push({ id: newId(), at, releaseId, storyId: story.id, code: story.code, kind, points: story.points, done: done(story) });
+    events.push({ id: newId(), at, releaseId, storyId: story.id, code: story.code, kind, points: story.points ?? 0, done: done(story) });
   };
   const previous = new Map(before.map((story) => [story.id, story]));
   for (const story of after) {
@@ -58,7 +58,7 @@ export function baselineEvents(
     .flatMap((release) =>
       stories
         .filter((story) => story.releaseId === release.id)
-        .map((story): ReleaseEvent => ({ id: newId(), at, releaseId: release.id, storyId: story.id, code: story.code, kind: 'baseline', points: story.points, done: isDone(story) }))
+        .map((story): ReleaseEvent => ({ id: newId(), at, releaseId: release.id, storyId: story.id, code: story.code, kind: 'baseline', points: story.points ?? 0, done: isDone(story) }))
     );
 }
 

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { storiesInEpic } from '../domain/epics';
 import { customFieldsFor, isRequired } from '../domain/fields';
 import { useApp } from '../state/AppState';
+import { EstimateCards } from './EstimateCards';
+import { EPIC_SIZES, type EpicSize } from '../domain/types';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
 import { FieldControl } from './FieldControl';
@@ -63,6 +65,15 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
             />
           </div>
         )}
+        <div className="field">
+          <span id={`${uid}-size`}>{t('epics.size')}</span>
+          <EstimateCards
+            cards={EPIC_SIZES.map((size) => ({ id: size, label: size, name: size }))}
+            value={epic.size}
+            labelledBy={`${uid}-size`}
+            onChange={(size) => app.updateEpic(epic.id, { size: size as EpicSize | null })}
+          />
+        </div>
         {customFields.map((field) => (
           <FieldControl
             key={field.id}

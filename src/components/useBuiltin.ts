@@ -8,8 +8,11 @@ interface Builtin {
   label(key: BuiltinKey, fallback: string): string;
   /** Whether a built-in field shows on an item type. */
   shown(itemType: ItemType, key: BuiltinKey): boolean;
-  /** "6 stories · 23 points", or "6 stories" while points are hidden. Uses a renamed points label. */
-  summary(stories: number, points: number): string;
+  /**
+   * "6 stories · 23 points", or "6 stories" while points are hidden. Uses a renamed points label. With stories that
+   * are not estimated the text ends with "· 2 without estimate" (#54).
+   */
+  summary(stories: number, points: number, unestimated?: number): string;
   /** The points of one story for a tooltip, with a renamed label. */
   pointsTitle(points: number): string;
 }
@@ -29,9 +32,11 @@ export function useBuiltin(): Builtin {
   return {
     label: (key, fallback) => customLabel(key) ?? fallback,
     shown,
-    summary: (stories, points) => {
+    summary: (stories, points, unestimated = 0) => {
       const count = t('summary.stories', { count: stories });
-      return shown('story', 'points') ? `${count} · ${pointsText(points)}` : count;
+      if (!shown('story', 'points')) return count;
+      const text = `${count} · ${pointsText(points)}`;
+      return unestimated > 0 ? `${text} · ${t('summary.unestimated', { count: unestimated })}` : text;
     },
     pointsTitle: pointsText
   };

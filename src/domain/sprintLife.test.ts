@@ -6,8 +6,8 @@ import type { Sprint, Story } from './types';
 const isDone = isDoneIn(DEFAULT_STATUSES);
 const nameFor = (number: number): string => `Sprint ${number}`;
 
-function story(id: string, sprintId: string | null, points: number, status = 'todo', rank = 0): Story {
-  return { id, code: id, title: `Story ${id}`, description: '', epicId: null, points, status, sprintId, releaseId: null, rank, criteria: [], values: {}, checks: {}, doneItems: null };
+function story(id: string, sprintId: string | null, points: number | null, status = 'todo', rank = 0): Story {
+  return { id, code: id, title: `Story ${id}`, description: '', epicId: null, points, status, sprintId, releaseId: null, rank, criteria: [], values: {}, checks: {}, special: null, reference: false, doneItems: null };
 }
 
 function sprint(id: string, startDate: string, endDate: string, state: Sprint['state'] = 'planned', startItems: Sprint['startItems'] = null): Sprint {
@@ -17,7 +17,7 @@ function sprint(id: string, startDate: string, endDate: string, state: Sprint['s
 const input = (over: Partial<CompleteInput> = {}): CompleteInput => ({ target: 'next', endDate: 'today', today: '2026-10-20', newId: 'new', nameFor, ...over });
 
 describe('starting a sprint', () => {
-  const stories = [story('a', 's2', 5), story('b', 's2', 3), story('c', 's2', 0), story('x', null, 8)];
+  const stories = [story('a', 's2', 5), story('b', 's2', 3), story('c', 's2', null), story('x', null, 8)];
 
   it('AC2.1 keeps the stories and points of the sprint as the planned scope and runs it', () => {
     // Given a planned sprint with three stories and no running sprint
@@ -32,7 +32,7 @@ describe('starting a sprint', () => {
       startItems: [
         { storyId: 'a', code: 'a', points: 5 },
         { storyId: 'b', code: 'b', points: 3 },
-        { storyId: 'c', code: 'c', points: 0 }
+        { storyId: 'c', code: 'c', points: null }
       ]
     });
   });
@@ -116,7 +116,7 @@ describe('summary of a sprint', () => {
   });
 
   it('AC6.3 names the stories without points', () => {
-    const summary = summarizeSprint(running, [...stories, story('z', 's1', 0)], isDone);
+    const summary = summarizeSprint(running, [...stories, story('z', 's1', null)], isDone);
     expect(summary.withoutPoints.map((item) => item.code)).toEqual(['z']);
   });
 

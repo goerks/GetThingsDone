@@ -9,7 +9,7 @@ import type { Sprint, SprintResult, SprintStartItem, Story } from './types';
  * what happened, and the unfinished stories move on.
  */
 
-const pointsOf = (stories: readonly { points: number }[]): number => stories.reduce((sum, story) => sum + story.points, 0);
+const pointsOf = (stories: readonly { points: number | null }[]): number => stories.reduce((sum, story) => sum + (story.points ?? 0), 0);
 
 /** The stories in a sprint, by rank. */
 export const storiesOf = (stories: readonly Story[], sprintId: string): Story[] => sortByRank(stories).filter((story) => story.sprintId === sprintId);
@@ -28,7 +28,7 @@ export interface SprintContents {
 
 export function contentsOf(stories: readonly Story[], sprintId: string): SprintContents {
   const inSprint = storiesOf(stories, sprintId);
-  return { stories: inSprint, points: pointsOf(inSprint), withoutPoints: inSprint.filter((story) => story.points === 0) };
+  return { stories: inSprint, points: pointsOf(inSprint), withoutPoints: inSprint.filter((story) => story.points === null) };
 }
 
 /** Whether the planned start differs from today, so starting has to ask which dates the sprint gets. */
@@ -73,7 +73,7 @@ export interface SprintSummary {
   removedPoints: number;
   /** Net change of the points of the stories that stayed. */
   changedPoints: number;
-  /** Stories in the sprint without points; they count as 0. */
+  /** Stories in the sprint that are not estimated; they count as 0 points. */
   withoutPoints: Story[];
 }
 
@@ -87,7 +87,7 @@ export function summarizeSprint(sprint: Sprint, stories: readonly Story[], isDon
   const removed = items.filter((item) => !current.some((story) => story.id === item.storyId));
   const changedPoints = current.reduce((sum, story) => {
     const item = atStart.get(story.id);
-    return item ? sum + (story.points - item.points) : sum;
+    return item ? sum + ((story.points ?? 0) - (item.points ?? 0)) : sum;
   }, 0);
   return {
     plannedPoints: pointsOf(items),
@@ -101,7 +101,7 @@ export function summarizeSprint(sprint: Sprint, stories: readonly Story[], isDon
     removed,
     removedPoints: pointsOf(removed),
     changedPoints,
-    withoutPoints: current.filter((story) => story.points === 0)
+    withoutPoints: current.filter((story) => story.points === null)
   };
 }
 

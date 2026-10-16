@@ -16,7 +16,18 @@ export const EPIC_COLOR_KEYS = ['blue', 'amber', 'teal', 'violet', 'rose', 'gree
 
 export type EpicColorKey = (typeof EPIC_COLOR_KEYS)[number];
 
-export const POINT_VALUES: readonly number[] = [1, 2, 3, 5, 8, 13];
+/** The number cards of the Fibonacci deck for stories (#54). */
+export const POINT_VALUES: readonly number[] = [1, 2, 3, 5, 8, 13, 21];
+
+/** The special cards of the deck: "?" (unsure) and "☕" (break). Neither is an estimate; both count as "without estimate". */
+export type SpecialCard = 'unsure' | 'break';
+
+export const SPECIAL_CARDS: readonly SpecialCard[] = ['unsure', 'break'];
+
+/** The T-shirt sizes an epic is estimated with (#54). */
+export const EPIC_SIZES = ['XS', 'S', 'M', 'L', 'XL'] as const;
+
+export type EpicSize = (typeof EPIC_SIZES)[number];
 
 export interface Epic {
   id: string;
@@ -24,6 +35,8 @@ export interface Epic {
   colorKey: EpicColorKey;
   /** Column order on the story map and order in lists, 0 first. */
   position: number;
+  /** The T-shirt size card of the epic, or null when it is not estimated (#54). */
+  size: EpicSize | null;
   /** Values of custom fields by field id. */
   values: Record<string, FieldValue>;
 }
@@ -35,7 +48,8 @@ export type SprintState = 'planned' | 'running' | 'completed';
 export interface SprintStartItem {
   storyId: string;
   code: string;
-  points: number;
+  /** Null when the story was not estimated at the start. */
+  points: number | null;
 }
 
 /** What a sprint achieved, stored when it is completed. Points of stories without points count as 0. */
@@ -207,7 +221,12 @@ export interface Story {
   description: string;
   /** Null when the story belongs to no epic. */
   epicId: string | null;
-  points: number;
+  /** The number card of the story, or null when it has none: not estimated, or a special card (#54). */
+  points: number | null;
+  /** The special card ("?" or "☕") the story was estimated with, or null. Never set together with points. */
+  special: SpecialCard | null;
+  /** Whether the story is the reference for the card value of its points; at most one story per value (#54). */
+  reference: boolean;
   status: Status;
   /** The sprint the story is planned in, or null when it is not planned. */
   sprintId: string | null;

@@ -61,6 +61,8 @@ export interface ReleaseStats {
   points: number;
   doneStories: number;
   donePoints: number;
+  /** Stories that are not estimated; they count as 0 points. */
+  unestimated: number;
 }
 
 /** Size and progress of a release; the points of its stories are its scope. */
@@ -69,9 +71,10 @@ export function releaseStats(stories: readonly Story[], releaseId: string, isDon
   const done = own.filter(isDone);
   return {
     stories: own.length,
-    points: own.reduce((sum, story) => sum + story.points, 0),
+    points: own.reduce((sum, story) => sum + (story.points ?? 0), 0),
     doneStories: done.length,
-    donePoints: done.reduce((sum, story) => sum + story.points, 0)
+    donePoints: done.reduce((sum, story) => sum + (story.points ?? 0), 0),
+    unestimated: own.filter((story) => story.points === null).length
   };
 }
 

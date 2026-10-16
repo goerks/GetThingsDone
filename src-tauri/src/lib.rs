@@ -78,6 +78,12 @@ pub fn run() {
             sql: include_str!("../migrations/012_definitions.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 13,
+            description: "estimation",
+            sql: include_str!("../migrations/013_estimation.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

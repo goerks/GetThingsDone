@@ -23,7 +23,7 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
     criteria: [],
     values: {},
     checks: {},
-    doneItems: null,
+    special: null, reference: false, doneItems: null,
     ...overrides
   };
 }

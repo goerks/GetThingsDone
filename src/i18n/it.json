@@ -147,7 +147,8 @@
     "noEpic": "Nessun epic",
     "problem": {
       "name": "Inserisci un nome."
-    }
+    },
+    "size": "Taglia"
   },
   "sprint": {
     "label": "Sprint",
@@ -189,8 +190,8 @@
       "plannedPoints": "Punti pianificati",
       "points": "punti",
       "note": "Questi {{points}} punti contano come pianificati. Ciò che si aggiunge o esce dopo compare alla conclusione.",
-      "withoutPoints_one": "{{count}} story senza punti ({{codes}}) vale 0 punti.",
-      "withoutPoints_other": "{{count}} story senza punti ({{codes}}) valgono 0 punti.",
+      "withoutPoints_one": "{{count}} story senza stima ({{codes}}) non conta punti.",
+      "withoutPoints_other": "{{count}} story senza stima ({{codes}}) non contano punti.",
       "datesLegend": "Data di inizio",
       "datesNote": "Previsto il {{planned}}, oggi è il {{today}}.",
       "today": "Avvia oggi: {{dates}}",
@@ -507,7 +508,9 @@
     "stories_one": "{{count}} story",
     "stories_other": "{{count}} storie",
     "points_one": "{{count}} punto",
-    "points_other": "{{count}} punti"
+    "points_other": "{{count}} punti",
+    "unestimated_one": "{{count}} senza stima",
+    "unestimated_other": "{{count}} senza stima"
   },
   "search": {
     "label": "Ricerca",
@@ -918,6 +921,11 @@
         "keywords": "aggiunta rapida plus story colonna sprint cella titolo invio",
         "body": "Fai clic su «+ Story» alla fine di una colonna della board o di una sezione del backlog, oppure sul «+» in una cella della story map. Scrivi un titolo e premi Invio: la story viene aggiunta in quel punto e il campo resta aperto per la successiva. Esc chiude il campo.\nViene chiesto solo il titolo; punti, epic e il resto li aggiungi dopo nella story."
       },
+      "story.estimate": {
+        "title": "Stimare con le carte",
+        "keywords": "stimare stima carte fibonacci punti story riferimento non stimata epic taglia t-shirt",
+        "body": "Apri una story e scegli una carta nel campo «Punti»: 1, 2, 3, 5, 8, 13 o 21. Un clic sulla carta scelta annulla la stima. Le carte «?» (incerto) e la tazza di caffè (pausa) non sono una stima: la story conta allora come «non stimata». Le frecce della tastiera passano da una carta all’altra, Invio sceglie.\nUna nuova story non è mai stimata. Mostra una pillola tratteggiata con un trattino, e il totale di uno sprint o del backlog indica quante story mancano, ad esempio «6 story · 18 punti · 1 senza stima». Le story senza stima non contano punti.\nSegna una story stimata come riferimento del suo valore («Questa story è il riferimento per 3»). Ogni valore ha al massimo una story di riferimento; segnarne un’altra sostituisce la prima. Le carte con un riferimento hanno una linea gialla e mostrano la chiave della story, e l’elenco «Story di riferimento» apre la story per confrontare una nuova story. Se stimi di nuovo una story di riferimento, il segno sparisce.\nGli epic si stimano con una taglia T-shirt (XS, S, M, L, XL) nella finestra dell’epic."
+      },
       "backlog.order": {
         "title": "Ordinare il backlog",
         "keywords": "priorita ordine trascinare ordinare",
@@ -1067,7 +1075,9 @@
       "noRelease": "{{code}} ora non ha una release",
       "points_one": "{{code}} ora ha {{count}} punto",
       "points_other": "{{code}} ora ha {{count}} punti",
-      "reordered": "{{code}} spostata"
+      "reordered": "{{code}} spostata",
+      "special": "{{code}} stimata con {{card}}",
+      "unestimated": "{{code}} non è stimata"
     }
   },
   "velocity": {
@@ -1235,5 +1245,19 @@
       "checked": "fatto",
       "na": "ignorato (non rilevante)"
     }
+  },
+  "estimate": {
+    "none": "Non stimata",
+    "special": {
+      "unsure": "Incerta (?)",
+      "break": "Pausa (caffè)"
+    },
+    "cardWithReference": "{{card}}, story di riferimento {{code}}",
+    "referenceFor": "Questa story è il riferimento per {{value}}",
+    "references": "Story di riferimento",
+    "noReferences": "Ancora nessuna story di riferimento. Segna una story stimata come riferimento della sua carta.",
+    "thisStory": "{{code}} {{title}} (questa story)",
+    "openReference": "{{code}} {{title}}",
+    "replaced": "{{code}} è ora il riferimento per {{value}} e sostituisce {{old}}."
   }
 }
