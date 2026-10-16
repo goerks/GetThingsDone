@@ -1,3 +1,4 @@
+import { applyWrites, type LogWrites } from '../domain/changeLog';
 import { dropRemovedOptions, setItemValue, withoutField } from '../domain/fields';
 import { migrateSnapshot } from '../domain/migrate';
 import { todayIso } from '../domain/sprints';
@@ -166,6 +167,10 @@ export class LocalStorageRepository implements Repository {
 
   async addReleaseEvents(events: readonly ReleaseEvent[]): Promise<void> {
     this.changeReleases((snapshot) => ({ ...snapshot, events: [...snapshot.events, ...events] }));
+  }
+
+  async applyChangeLog(writes: LogWrites): Promise<void> {
+    this.changeReleases((snapshot) => ({ ...snapshot, changeLog: applyWrites(snapshot.changeLog, writes) }));
   }
 
   async saveStatuses(statuses: readonly StatusValue[]): Promise<void> {

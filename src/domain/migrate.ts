@@ -1,3 +1,4 @@
+import type { ChangeVersion } from './changeLog';
 import { normalizeColorKey } from './epics';
 import { missingBuiltins } from './fields';
 import { normalizeSettings } from './settings';
@@ -13,12 +14,14 @@ import type { Epic, FieldAssignment, FieldDefinition, Release, ReleaseEvent, Set
  * Before configurable status values (#5): no status values, so the four defaults apply.
  * Before starting and completing sprints (#17): sprints without a state.
  * Before the definitions (#26): no definitions in the settings, and stories without checks.
+ * Before the change log (#23): no versions.
  */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
   sprints?: StoredSprint[];
   releases?: Release[];
   events?: ReleaseEvent[];
+  changeLog?: ChangeVersion[];
   stories?: Array<
     Omit<Story, 'sprintId' | 'values' | 'releaseId' | 'checks' | 'doneItems'> & {
       sprintId?: string | null;
@@ -78,6 +81,7 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
     sprints: settled.sprints,
     releases: stored.releases ?? [],
     events: stored.events ?? [],
+    changeLog: stored.changeLog ?? [],
     settings: normalizeSettings(stored.settings),
     stories: settled.stories,
     statuses,

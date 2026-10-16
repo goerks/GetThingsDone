@@ -1,3 +1,4 @@
+import type { LogWrites } from '../domain/changeLog';
 import type { Criterion, Epic, FieldAssignment, FieldDefinition, FieldValue, Release, ReleaseEvent, Settings, Snapshot, Sprint, StatusValue, Story } from '../domain/types';
 
 export type StoryPosition = Pick<Story, 'id' | 'status' | 'rank' | 'sprintId' | 'epicId' | 'releaseId'>;
@@ -37,6 +38,8 @@ export interface Repository {
   deleteRelease(releaseId: string): Promise<void>;
   /** Appends entries to the history of the releases. */
   addReleaseEvents(events: readonly ReleaseEvent[]): Promise<void>;
+  /** Stores versions of the change log (#23): inserts or replaces the given versions and deletes the removed ones. */
+  applyChangeLog(writes: LogWrites): Promise<void>;
   /** Replaces the status values (#5) with the given list, in board order. Stories are saved separately. */
   saveStatuses(statuses: readonly StatusValue[]): Promise<void>;
   /** Stores the settings of the workspace. */

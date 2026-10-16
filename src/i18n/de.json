@@ -636,7 +636,8 @@
       "details": "Details",
       "stories": "Stories ({{count}})",
       "scope": "Umfang",
-      "burndown": "Burndown"
+      "burndown": "Burndown",
+      "history": "Verlauf"
     },
     "edit": "Release bearbeiten",
     "close": "Schliessen",
@@ -982,6 +983,11 @@
         "title": "Daten sichern und mitnehmen",
         "keywords": "backup sicherung export import sichern wiederherstellen datei json daten mitnehmen computer kopie",
         "body": "Öffne Einstellungen → Daten. «Alle Daten exportieren» speichert alles in einer Datei, zum Beispiel getitdone-2026-10-15.json. Bewahre sie als Sicherung auf oder nimm sie auf einen anderen Computer mit.\n«Datei wählen …» lädt eine solche Datei. Bevor sich etwas ändert, zeigt die App, was in der Datei steht, neben deinen heutigen Daten und fragt nach. Ein Import ersetzt alle heutigen Daten; exportiere sie vorher, wenn du sie behalten willst.\nDie Datei funktioniert in der Windows-App und im Browser. Eine ungültige Datei oder eine aus einer neueren Version wird abgelehnt, deine Daten bleiben dann, wie sie sind."
+      },
+      "history.compare": {
+        "title": "Verlauf und Stände vergleichen",
+        "keywords": "verlauf änderungen stände version vergleichen unterschied protokoll geändert vorher nachher sprint epic release story",
+        "body": "Jede Story, jedes Epic, jeder Sprint und jedes Release führt einen Verlauf. Öffne das Element und schau unter den anderen Feldern auf „Verlauf“ (beim Release: Reiter „Verlauf“). Jedes Speichern ist ein Stand (V1, V2, …) mit Datum, Uhrzeit und dem, was sich geändert hat. Verschieben auf dem Board und im Backlog zählt als Änderung von Status oder Sprint; reines Umsortieren nicht.\nZwei Stände vergleichst du mit „Stände vergleichen“, mit „Mit Aktuell vergleichen“ an einem Eintrag oder indem du unter „Alle Änderungen anzeigen“ zwei Stände ankreuzt. Links steht der ältere, rechts der neuere Stand; „⇄“ tauscht sie. Geänderte Felder sind mit Zeichen und Wort markiert, unveränderte eingeklappt, die Beschreibung steht Zeile für Zeile.\nDer Vergleich liest nur: er stellt nichts wieder her. Der Verlauf beginnt mit der ersten Änderung; was es vorher schon gab, zeigt „Noch keine Änderungen“."
       }
     },
     "links": {
@@ -1234,6 +1240,78 @@
       "open": "nicht gesetzt",
       "checked": "erledigt",
       "na": "ignoriert (nicht relevant)"
+    }
+  },
+  "history": {
+    "title": "Verlauf",
+    "count_one": "{{count}} Stand",
+    "count_other": "{{count}} Stände",
+    "empty": "Noch keine Änderungen.",
+    "listLabel": "Stände, neueste zuerst",
+    "choose": "{{version}} wählen",
+    "version": "V{{number}}",
+    "versionCurrent": "Aktuell (V{{number}})",
+    "current": "Aktuell",
+    "compareWithCurrent": "Mit Aktuell vergleichen",
+    "compareWithCurrentOf": "{{version}} mit dem aktuellen Stand vergleichen",
+    "compareButton": "Stände vergleichen",
+    "showAll_one": "Die {{count}} Änderung anzeigen",
+    "showAll_other": "Alle {{count}} Änderungen anzeigen",
+    "allTitle": "Verlauf von {{name}}",
+    "chosenTwo": "{{first}} und {{second}} gewählt",
+    "chooseTwo": "Wähle zwei Stände zum Vergleichen.",
+    "compare": "Vergleichen",
+    "compareTitle": "Stände vergleichen",
+    "compareHeading": "Stände von {{name}} vergleichen",
+    "back": "← Zurück",
+    "from": "Von",
+    "to": "Nach",
+    "swap": "Seiten tauschen",
+    "onlyChanges": "Nur Änderungen",
+    "noDifferences": "Keine Unterschiede",
+    "changedFields": "{{changed}} von {{total}} Feldern geändert:",
+    "hidden_one": "{{count}} unverändertes Feld ausgeblendet: {{names}}",
+    "hidden_other": "{{count}} unveränderte Felder ausgeblendet: {{names}}",
+    "rowChanged": "Geändert:",
+    "removed": "Entfernt:",
+    "added": "Hinzugefügt:",
+    "checked": "abgehakt",
+    "unchecked": "nicht abgehakt",
+    "ticked": "abgehakt",
+    "unticked": "wieder geöffnet",
+    "textDiff_one": "Text, {{count}} geänderte Zeile",
+    "textDiff_other": "Text, {{count}} geänderte Zeilen",
+    "none": "–",
+    "yes": "ja",
+    "no": "nein",
+    "fieldRemoved": "Entferntes Feld",
+    "storyWithPoints_one": "{{code}} ({{count}} Punkt)",
+    "storyWithPoints_other": "{{code}} ({{count}} Punkte)",
+    "baseline": "Hier beginnt der Verlauf.",
+    "created": {
+      "story": "Story erstellt",
+      "epic": "Epic erstellt",
+      "sprint": "Sprint erstellt",
+      "release": "Release erstellt",
+      "item": "Erstellt"
+    },
+    "line": {
+      "changed": "{{field}} geändert",
+      "value": "{{field}}: {{from}} → {{to}}",
+      "criterionAdded": "Kriterium hinzugefügt: „{{name}}“",
+      "criterionRemoved": "Kriterium entfernt: „{{name}}“",
+      "criterionTicked": "Kriterium abgehakt: „{{name}}“",
+      "criterionUnticked": "Kriterium wieder geöffnet: „{{name}}“",
+      "criterionEdited": "Kriterium geändert: „{{from}}“ → „{{to}}“",
+      "storyAdded": "Story hinzugefügt: {{name}}",
+      "storyRemoved": "Story entfernt: {{name}}",
+      "entryAdded": "{{field}}: „{{name}}“ hinzugefügt",
+      "entryRemoved": "{{field}}: „{{name}}“ entfernt"
+    },
+    "fieldName": {
+      "sprint": "Sprint",
+      "state": "Zustand",
+      "stories": "Stories"
     }
   }
 }

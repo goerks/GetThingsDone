@@ -1,3 +1,4 @@
+import { applyWrites, recordWorld, type ChangeVersion, type World } from '../domain/changeLog';
 import { DEMO_DEFINITIONS } from '../domain/definitions';
 import { assignTo, missingBuiltins } from '../domain/fields';
 import { DEFAULT_SETTINGS } from '../domain/settings';
@@ -111,6 +112,46 @@ function demoEvents(today: string): ReleaseEvent[] {
 }
 
 /**
+ * A demo change log (#23): story S-3 was written, completed and estimated over eight days, so the preview shows a history
+ * and has two versions to compare. Everything else starts its history with the first version.
+ */
+function demoChangeLog(world: World, today: string): ChangeVersion[] {
+  const at = (daysAgo: number): string => new Date(`${addDays(today, -daysAgo)}T12:00:00`).toISOString();
+  const final = world.stories.find((story) => story.id === 'story-3');
+  if (!final) return [];
+  const [first, second, third] = final.criteria;
+  const early: Story = {
+    ...final,
+    title: 'Reorder the backlog',
+    description: '',
+    epicId: null,
+    points: 3,
+    sprintId: null,
+    criteria: [first],
+    values: { ...final.values, 'field-demo-priority': 'opt-could', 'field-demo-value': 3 }
+  };
+  const steps: Array<[number, Partial<Story>]> = [
+    [7, { description: 'As a product owner, I want to change the priority of stories.', epicId: final.epicId }],
+    [6, { sprintId: final.sprintId, criteria: [first, second] }],
+    [4, { title: final.title, criteria: [first, second, third] }],
+    [3, { description: final.description, values: { ...final.values, 'field-demo-priority': 'opt-should', 'field-demo-value': 3 } }],
+    [1, { points: final.points, values: final.values }]
+  ];
+  let ids = 0;
+  const newId = (): string => `change-demo-${(ids += 1)}`;
+  const withStory = (story: Story): World => ({ ...world, stories: world.stories.map((item) => (item.id === story.id ? story : item)) });
+  let log: ChangeVersion[] = [];
+  let current = early;
+  log = applyWrites(log, recordWorld(log, { stories: [], epics: [], sprints: [], releases: [] }, withStory(current), at(8), newId));
+  for (const [daysAgo, patch] of steps) {
+    const next = { ...current, ...patch };
+    log = applyWrites(log, recordWorld(log, withStory(current), withStory(next), at(daysAgo), newId));
+    current = next;
+  }
+  return log;
+}
+
+/**
  * Demo data shown on the first start so the board is not empty.
  * Sprint 1 runs around `today`, Sprint 2 is planned after it, so the board and the story map always have content.
  */
@@ -129,7 +170,7 @@ export function seedSnapshot(today: string): Snapshot {
     return item;
   });
   const stories: Story[] = demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {}, checks: {}, doneItems: null }));
-  return {
+  const snapshot: Snapshot = {
     settings: { ...DEFAULT_SETTINGS, definitions: DEMO_DEFINITIONS },
     statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
     fields: [...builtins.fields, ...DEMO_FIELDS],
@@ -161,6 +202,7 @@ export function seedSnapshot(today: string): Snapshot {
       }
     ],
     events: demoEvents(today),
+    changeLog: [],
     releases: [
       {
         id: 'release-beta',
@@ -173,6 +215,7 @@ export function seedSnapshot(today: string): Snapshot {
     ],
     stories
   };
+  return { ...snapshot, changeLog: demoChangeLog(snapshot, today) };
 }
 
 const demoStories: Omit<Story, 'values' | 'releaseId' | 'checks' | 'doneItems'>[] = [

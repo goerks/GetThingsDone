@@ -4,6 +4,23 @@ import { seedSnapshot } from './seed';
 import { EMPTY_DEFINITIONS } from '../domain/definitions';
 
 
+describe('LocalStorageRepository change log (#23)', () => {
+  it('AC5.1 keeps the versions after a reload and applies writes', async () => {
+    // Given the demo data with its demo history
+    const repository = new LocalStorageRepository();
+    const seeded = seedSnapshot('2026-10-11');
+    await repository.replaceAll(seeded);
+    const [first, second] = seeded.changeLog.filter((version) => version.itemId === 'story-3');
+    // When a version is removed and one is replaced
+    await repository.applyChangeLog({ upsert: [{ ...first, keys: ['title'] }], remove: [second.id] });
+    // Then a new repository reads the result
+    const loaded = (await new LocalStorageRepository().load()).changeLog;
+    expect(loaded.some((version) => version.id === second.id)).toBe(false);
+    expect(loaded.find((version) => version.id === first.id)?.keys).toEqual(['title']);
+    expect(loaded).toHaveLength(seeded.changeLog.length - 1);
+  });
+});
+
 describe('LocalStorageRepository', () => {
   it('never deletes a system or built-in field', async () => {
     const repository = new LocalStorageRepository();

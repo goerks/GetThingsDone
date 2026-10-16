@@ -636,7 +636,8 @@
       "details": "Dettagli",
       "stories": "Storie ({{count}})",
       "scope": "Ambito",
-      "burndown": "Burndown"
+      "burndown": "Burndown",
+      "history": "Cronologia"
     },
     "edit": "Modifica release",
     "close": "Chiudi",
@@ -982,6 +983,11 @@
         "title": "Salvare e portare con sé i dati",
         "keywords": "backup salvataggio esporta importa salvare ripristinare file json dati portare computer copia",
         "body": "Apri Impostazioni → Dati. «Esporta tutti i dati» salva tutto in un file, per esempio getitdone-2026-10-15.json. Conservalo come copia di sicurezza o portalo su un altro computer.\n«Scegli file …» carica un file di questo tipo. Prima di ogni modifica l'app mostra il contenuto del file accanto ai tuoi dati attuali e chiede conferma. Un'importazione sostituisce tutti i dati attuali; esportali prima se vuoi conservarli.\nIl file funziona nell'app Windows e nel browser. Un file non valido o proveniente da una versione più recente viene rifiutato e i tuoi dati restano come sono."
+      },
+      "history.compare": {
+        "title": "Cronologia e confronto di versioni",
+        "keywords": "cronologia modifiche versioni confronta differenza registro prima dopo sprint epic release story",
+        "body": "Ogni story, epic, sprint e release ha una cronologia. Apri l’elemento e guarda «Cronologia» sotto gli altri pannelli (per una release: la scheda «Cronologia»). Ogni salvataggio è una versione (V1, V2, …) con data, ora e ciò che è cambiato. Gli spostamenti sulla board e nel backlog contano come cambio di stato o di sprint; il solo riordino no.\nPer confrontare due versioni, fai clic su «Confronta versioni», su «Confronta con l’attuale» in una voce, oppure seleziona due versioni sotto «Mostra tutte le modifiche». A sinistra la più vecchia, a destra la più recente; «⇄» le scambia. I campi modificati hanno un segno e una parola, quelli invariati sono compressi, la descrizione è mostrata riga per riga.\nIl confronto è di sola lettura: non ripristina nulla. La cronologia inizia con la prima modifica; ciò che esisteva prima mostra «Ancora nessuna modifica»."
       }
     },
     "links": {
@@ -1234,6 +1240,83 @@
       "open": "non impostato",
       "checked": "fatto",
       "na": "ignorato (non rilevante)"
+    }
+  },
+  "history": {
+    "title": "Cronologia",
+    "count_one": "{{count}} versione",
+    "count_many": "{{count}} versioni",
+    "count_other": "{{count}} versioni",
+    "empty": "Ancora nessuna modifica.",
+    "listLabel": "Versioni, le più recenti per prime",
+    "choose": "Scegli {{version}}",
+    "version": "V{{number}}",
+    "versionCurrent": "Attuale (V{{number}})",
+    "current": "Attuale",
+    "compareWithCurrent": "Confronta con l’attuale",
+    "compareWithCurrentOf": "Confronta {{version}} con la versione attuale",
+    "compareButton": "Confronta versioni",
+    "showAll_one": "Mostra la {{count}} modifica",
+    "showAll_many": "Mostra tutte le {{count}} modifiche",
+    "showAll_other": "Mostra tutte le {{count}} modifiche",
+    "allTitle": "Cronologia di {{name}}",
+    "chosenTwo": "{{first}} e {{second}} scelte",
+    "chooseTwo": "Seleziona due versioni per confrontarle.",
+    "compare": "Confronta",
+    "compareTitle": "Confronta versioni",
+    "compareHeading": "Confronta le versioni di {{name}}",
+    "back": "← Indietro",
+    "from": "Da",
+    "to": "A",
+    "swap": "Scambia i lati",
+    "onlyChanges": "Solo le modifiche",
+    "noDifferences": "Nessuna differenza",
+    "changedFields": "{{changed}} campi su {{total}} modificati:",
+    "hidden_one": "{{count}} campo invariato nascosto: {{names}}",
+    "hidden_many": "{{count}} campi invariati nascosti: {{names}}",
+    "hidden_other": "{{count}} campi invariati nascosti: {{names}}",
+    "rowChanged": "Modificato:",
+    "removed": "Rimosso:",
+    "added": "Aggiunto:",
+    "checked": "spuntato",
+    "unchecked": "non spuntato",
+    "ticked": "spuntato",
+    "unticked": "riaperto",
+    "textDiff_one": "Testo, {{count}} riga modificata",
+    "textDiff_many": "Testo, {{count}} righe modificate",
+    "textDiff_other": "Testo, {{count}} righe modificate",
+    "none": "–",
+    "yes": "sì",
+    "no": "no",
+    "fieldRemoved": "Campo rimosso",
+    "storyWithPoints_one": "{{code}} ({{count}} punto)",
+    "storyWithPoints_many": "{{code}} ({{count}} punti)",
+    "storyWithPoints_other": "{{code}} ({{count}} punti)",
+    "baseline": "La cronologia inizia qui.",
+    "created": {
+      "story": "Story creata",
+      "epic": "Epic creato",
+      "sprint": "Sprint creato",
+      "release": "Release creata",
+      "item": "Creato"
+    },
+    "line": {
+      "changed": "{{field}} modificato",
+      "value": "{{field}}: {{from}} → {{to}}",
+      "criterionAdded": "Criterio aggiunto: «{{name}}»",
+      "criterionRemoved": "Criterio rimosso: «{{name}}»",
+      "criterionTicked": "Criterio spuntato: «{{name}}»",
+      "criterionUnticked": "Criterio riaperto: «{{name}}»",
+      "criterionEdited": "Criterio modificato: «{{from}}» → «{{to}}»",
+      "storyAdded": "Story aggiunta: {{name}}",
+      "storyRemoved": "Story rimossa: {{name}}",
+      "entryAdded": "{{field}}: «{{name}}» aggiunto",
+      "entryRemoved": "{{field}}: «{{name}}» rimosso"
+    },
+    "fieldName": {
+      "sprint": "Sprint",
+      "state": "Stato",
+      "stories": "Stories"
     }
   }
 }
