@@ -3,6 +3,40 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 /// Database file name, relative to the app config directory.
 const DATABASE: &str = "sqlite:getitdone.db";
 
+/// Where the access token for GitHub is kept in the credential store of the operating system (#30).
+const TOKEN_SERVICE: &str = "io.github.goerks.getitdone";
+const TOKEN_USER: &str = "github-token";
+
+fn token_entry() -> Result<keyring::Entry, String> {
+    keyring::Entry::new(TOKEN_SERVICE, TOKEN_USER).map_err(|error| error.to_string())
+}
+
+/// The stored token, or `None` when there is none.
+#[tauri::command]
+fn github_token_get() -> Result<Option<String>, String> {
+    match token_entry()?.get_password() {
+        Ok(token) => Ok(Some(token)),
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+#[tauri::command]
+fn github_token_set(token: String) -> Result<(), String> {
+    token_entry()?
+        .set_password(&token)
+        .map_err(|error| error.to_string())
+}
+
+/// Removes the token. Removing a token that is not there is not an error.
+#[tauri::command]
+fn github_token_delete() -> Result<(), String> {
+    match token_entry()?.delete_credential() {
+        Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let migrations = vec![
@@ -84,9 +118,20 @@ pub fn run() {
             sql: include_str!("../migrations/013_change_log.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 14,
+            description: "github",
+            sql: include_str!("../migrations/014_github.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            github_token_get,
+            github_token_set,
+            github_token_delete
+        ])
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations(DATABASE, migrations)

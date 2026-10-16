@@ -297,7 +297,7 @@ function TopicView({
 
 /** Whether a link leads to the page the user is on, so it is left out. */
 function isHere(id: LinkId, route: Route): boolean {
-  if (route.name === 'settings') return (id === 'settingsFields' && route.section === 'fields') || (id === 'settingsStatuses' && route.section === 'statuses') || (id === 'settingsMap' && route.section === 'map') || (id === 'settingsFeatures' && route.section === 'features');
+  if (route.name === 'settings') return (id === 'settingsFields' && route.section === 'fields') || (id === 'settingsStatuses' && route.section === 'statuses') || (id === 'settingsMap' && route.section === 'map') || (id === 'settingsFeatures' && route.section === 'features') || (id === 'settingsGithub' && route.section === 'github');
   return id === route.name;
 }
 

@@ -227,11 +227,19 @@ export interface Story {
    * is not done or became done before the definitions existed. Such a story is never marked.
    */
   doneItems: string[] | null;
+  /** The GitHub issue this story was imported from (#30), or missing for a story of the team. */
+  github?: GithubLink;
+}
+
+/** The link of an imported story to its GitHub issue. The address names repository and number; `state` is what the last sync saw. */
+export interface GithubLink {
+  url: string;
+  state: 'open' | 'closed';
 }
 
 /** What the rows of the story map are. */
 /** Features a team can switch on and off (#10). */
-export type FeatureKey = 'releases';
+export type FeatureKey = 'releases' | 'github';
 export type Features = Record<FeatureKey, boolean>;
 
 export type MapRows = 'sprints' | 'releases';
@@ -270,6 +278,14 @@ export interface DefinitionList {
 
 export type Definitions = Record<DefinitionKind, DefinitionList>;
 
+/** The connection to GitHub Issues (#30). The access token is not part of the settings: it stays on this device. */
+export interface GithubSettings {
+  /** `owner/name`, or an empty text while no repository is connected. */
+  repo: string;
+  /** When the last import or sync ran, as an ISO timestamp (UTC), or null. */
+  lastSyncAt: string | null;
+}
+
 /** Settings of the workspace, shared by the whole team. */
 export interface Settings {
   mapRows: MapRows;
@@ -277,6 +293,7 @@ export interface Settings {
   features: Features;
   /** The Definition of Ready and the Definition of Done (#26). */
   definitions: Definitions;
+  github: GithubSettings;
 }
 
 export interface Snapshot {

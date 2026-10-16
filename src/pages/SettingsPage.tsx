@@ -5,11 +5,16 @@ import { MapSection } from './MapSection';
 import { DefinitionsSection } from './DefinitionsSection';
 import { FeaturesSection } from './FeaturesSection';
 import { DataSection } from './DataSection';
+import { GithubSection } from './GithubSection';
+import { useFeature } from '../components/useFeature';
 import { StatusValuesSection } from './StatusValuesSection';
 
 /** Settings of the workspace: a list of sections next to the content of the chosen one. */
 export function SettingsPage({ section }: { section: SettingsSection }) {
   const { t } = useTranslation();
+  const githubOn = useFeature('github');
+  // The section "GitHub" only exists while the feature is on; an old link then shows the features.
+  const shown: SettingsSection = section === 'github' && !githubOn ? 'features' : section;
 
   return (
     <>
@@ -36,11 +41,19 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
           <a href={hrefs.settingsData} className="settings__link" aria-current={section === 'data' ? 'page' : undefined}>
             {t('settings.data.title')}
           </a>
+          <a href={hrefs.settingsFeatures} className="settings__link" aria-current={shown === 'features' ? 'page' : undefined}>
+            {t('settings.features.title')}
+          </a>
+          {githubOn && (
+            <a href={hrefs.settingsGithub} className="settings__link" aria-current={shown === 'github' ? 'page' : undefined}>
+              {t('github.settings.title')}
+            </a>
+          )}
         </nav>
         <section className="settings__content">
-          {section === 'statuses' ? (
+          {shown === 'statuses' ? (
             <StatusValuesSection />
-          ) : section === 'map' ? (
+          ) : shown === 'map' ? (
             <MapSection />
           ) : section === 'definitions' ? (
             <DefinitionsSection />
@@ -48,6 +61,10 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <FeaturesSection />
           ) : section === 'data' ? (
             <DataSection />
+          ) : shown === 'features' ? (
+            <FeaturesSection />
+          ) : shown === 'github' ? (
+            <GithubSection />
           ) : (
             <FieldsSection />
           )}

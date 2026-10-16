@@ -1,0 +1,212 @@
+import { useEffect, useId, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemoIssues, saveDemoIssues } from '../github/demoSource';
+import { GithubError, isGithubDemo } from '../github';
+import { parseRepo, repoText, type RepoRef } from '../domain/github';
+import { useApp } from '../state/AppState';
+
+type Status = { kind: 'idle' } | { kind: 'testing' } | { kind: 'ok'; count: number } | { kind: 'error'; error: GithubError['kind'] };
+
+/** The text of a failed call for the user, from `github.errors.<kind>`. */
+export const githubErrorKey = (cause: unknown): GithubError['kind'] => (cause instanceof GithubError ? cause.kind : 'other');
+
+/**
+ * Settings › GitHub (#30): repository and access token of the one repository whose issues are imported. The page only
+ * exists while the feature is on. The token is never shown again after it was saved.
+ */
+export function GithubSection() {
+  const { t } = useTranslation();
+  const app = useApp();
+  const id = useId();
+  const [repoInput, setRepoText] = useState(app.settings.github.repo);
+  const [token, setToken] = useState('');
+  const [hasToken, setHasToken] = useState<boolean | null>(null);
+  const [problem, setProblem] = useState<'repoMissing' | 'repoFormat' | 'tokenMissing' | null>(null);
+  const [status, setStatus] = useState<Status>({ kind: 'idle' });
+  const demo = isGithubDemo();
+
+  useEffect(() => {
+    let cancelled = false;
+    app.githubTokens
+      .get()
+      .then((stored) => !cancelled && setHasToken(stored !== null && stored !== ''))
+      .catch(() => !cancelled && setHasToken(false));
+    return () => {
+      cancelled = true;
+    };
+    // The token store is created once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const connected = app.settings.github.repo !== '';
+
+  const test = async (event: FormEvent): Promise<void> => {
+    event.preventDefault();
+    const text = repoInput.trim();
+    if (text === '') return setProblem('repoMissing');
+    if (!parseRepo(text)) return setProblem('repoFormat');
+    const entered = token.trim();
+    const stored = entered !== '' ? entered : await app.githubTokens.get();
+    if (!stored) return setProblem('tokenMissing');
+    setProblem(null);
+    app.setGithubRepo(text);
+    setStatus({ kind: 'testing' });
+    try {
+      const count = await app.testGithub(text, stored);
+      // The token is only kept once GitHub accepted it.
+      if (entered !== '') {
+        await app.githubTokens.set(entered);
+        setToken('');
+        setHasToken(true);
+      }
+      setRepoText(repoText(parseRepo(text) as RepoRef));
+      setStatus({ kind: 'ok', count });
+    } catch (cause) {
+      setStatus({ kind: 'error', error: githubErrorKey(cause) });
+    }
+  };
+
+  const disconnect = async (): Promise<void> => {
+    await app.githubTokens.clear();
+    app.setGithubRepo('');
+    setRepoText('');
+    setToken('');
+    setHasToken(false);
+    setProblem(null);
+    setStatus({ kind: 'idle' });
+  };
+
+  const repoProblem = problem === 'repoMissing' || problem === 'repoFormat' ? t(`github.settings.problem.${problem}`) : null;
+  const tokenProblem = problem === 'tokenMissing' ? t('github.settings.problem.tokenMissing') : null;
+
+  return (
+    <div className="map-settings github-settings">
+      <div className="map-settings__head">
+        <h2>{t('github.settings.title')}</h2>
+        <span className="github-settings__badges">
+          {demo && <span className="badge badge--demo">{t('github.demo.badge')}</span>}
+          {connected && hasToken && <span className="badge badge--ok">{t('github.settings.connected')}</span>}
+        </span>
+      </div>
+      <p className="muted">{t('github.settings.hint')}</p>
+      <form className="form" onSubmit={(event) => void test(event)} noValidate>
+        <div className="field">
+          <label htmlFor={`${id}-repo`}>{t('github.settings.repo')}</label>
+          <input
+            id={`${id}-repo`}
+            className="input"
+            value={repoInput}
+            placeholder="owner/name"
+            autoComplete="off"
+            spellCheck={false}
+            aria-invalid={repoProblem ? true : undefined}
+            aria-describedby={repoProblem ? `${id}-repo-problem` : undefined}
+            onChange={(event) => setRepoText(event.target.value)}
+          />
+          {repoProblem && (
+            <p id={`${id}-repo-problem`} role="alert" className="field-error">
+              {repoProblem}
+            </p>
+          )}
+        </div>
+        <div className="field">
+          <label htmlFor={`${id}-token`}>{t('github.settings.token')}</label>
+          <input
+            id={`${id}-token`}
+            className="input"
+            type="password"
+            value={token}
+            placeholder={hasToken ? t('github.settings.tokenSaved') : ''}
+            autoComplete="off"
+            aria-invalid={tokenProblem ? true : undefined}
+            aria-describedby={`${id}-token-note${tokenProblem ? ` ${id}-token-problem` : ''}`}
+            onChange={(event) => setToken(event.target.value)}
+          />
+          {tokenProblem && (
+            <p id={`${id}-token-problem`} role="alert" className="field-error">
+              {tokenProblem}
+            </p>
+          )}
+          <p id={`${id}-token-note`} className="muted">
+            {t(demo ? 'github.settings.tokenNoteDemo' : 'github.settings.tokenNote', { wrong: DEMO_WRONG_TOKEN })}
+          </p>
+          {connected && hasToken === false && !tokenProblem && <p className="muted">{t('github.settings.tokenMissingNote')}</p>}
+        </div>
+        <div className="form__actions github-settings__actions">
+          <button type="submit" className="btn btn--primary" disabled={status.kind === 'testing'}>
+            {t('github.settings.test')}
+          </button>
+          {(connected || hasToken) && (
+            <button type="button" className="btn" onClick={() => void disconnect()}>
+              {t('github.settings.disconnect')}
+            </button>
+          )}
+        </div>
+      </form>
+      <div role="status" className="github-settings__status">
+        {status.kind === 'testing' && <span className="muted">{t('github.settings.testing')}</span>}
+        {status.kind === 'ok' && <span className="github-ok">✓ {t('github.settings.ok', { count: status.count })}</span>}
+      </div>
+      {status.kind === 'error' && (
+        <p role="alert" className="notice notice--error">
+          {t(`github.errors.${status.error}`)}
+        </p>
+      )}
+      <p className="muted">{t('github.settings.where')}</p>
+      {demo && <DemoTools />}
+    </div>
+  );
+}
+
+/** The simulated GitHub of the preview: buttons that change its issues, so a sync can be tried out (#30). */
+function DemoTools() {
+  const { t } = useTranslation();
+  const [done, setDone] = useState<string | null>(null);
+
+  const change = (key: string, work: (issues: ReturnType<typeof demoIssues>) => ReturnType<typeof demoIssues>): void => {
+    saveDemoIssues(work(demoIssues()));
+    setDone(key);
+  };
+  const patch = (number: number, changes: Partial<ReturnType<typeof demoIssues>[number]>) => (issues: ReturnType<typeof demoIssues>) =>
+    issues.map((issue) => (issue.number === number ? { ...issue, ...changes } : issue));
+
+  const actions: Array<[string, () => void]> = [
+    ['rename', () => change('rename', patch(31, { title: 'Login-Seite', body: 'Users log in with e-mail and password, on a page of their own.\n\n## Acceptance criteria\n- [ ] Login possible\n- [x] Error message for a wrong password\n', labels: ['feature', 'bug'] }))],
+    ['criteria', () => change('criteria', patch(31, { body: 'Users log in with e-mail and password.\n\n## Acceptance criteria\n- [ ] Login possible\n- [ ] Password can be reset\n- [x] Error message for a wrong password\n' }))],
+    ['close', () => change('close', patch(35, { state: 'closed' }))],
+    ['reopen', () => change('reopen', patch(35, { state: 'open' }))],
+    [
+      'add',
+      () =>
+        change('add', (issues) =>
+          issues.some((issue) => issue.number === 44)
+            ? issues
+            : [...issues, { number: 44, title: 'Notifications', body: 'Tell the team when a sprint ends.', state: 'open', labels: ['feature'], url: `https://github.com/${DEMO_REPO.owner}/${DEMO_REPO.name}/issues/44` }]
+        )
+    ],
+    [
+      'reset',
+      () => {
+        resetDemoIssues();
+        setDone('reset');
+      }
+    ]
+  ];
+
+  return (
+    <section className="github-demo" aria-label={t('github.demo.title')}>
+      <h3>{t('github.demo.title')}</h3>
+      <p className="muted">{t('github.demo.text', { repo: `${DEMO_REPO.owner}/${DEMO_REPO.name}`, wrong: DEMO_WRONG_TOKEN })}</p>
+      <div className="github-demo__buttons">
+        {actions.map(([key, run]) => (
+          <button key={key} type="button" className="btn btn--small" onClick={run}>
+            {t(`github.demo.${key}`)}
+          </button>
+        ))}
+      </div>
+      <p role="status" className="muted">
+        {done ? t('github.demo.done') : ''}
+      </p>
+    </section>
+  );
+}

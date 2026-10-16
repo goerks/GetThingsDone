@@ -443,6 +443,11 @@
         "name": "Releases",
         "description": "Planifier avec des releases : la page Releases, le champ Release des stories, les lignes de release de la story map et les rapports de périmètre et de burndown. À désactiver si l’équipe travaille uniquement avec des sprints.",
         "offNote": "Désactivée. Les releases, leurs stories et leur historique sont conservés et reviennent à la réactivation."
+      },
+      "github": {
+        "name": "Connexion GitHub",
+        "description": "Importer les tickets ouverts d’un dépôt GitHub comme stories et les tenir à jour à la main : la section « GitHub » dans les paramètres, le bouton « Synchroniser » dans le backlog et le numéro du ticket sur les stories importées. Demande une connexion réseau et un jeton d’accès en lecture seule ; l’application continue de fonctionner hors ligne.",
+        "offNote": "Désactivée. Les stories importées, leurs numéros de ticket et la connexion sont conservés et reviennent quand vous l’activez."
       }
     },
     "data": {
@@ -957,7 +962,7 @@
       "settings.basics": {
         "title": "Paramètres",
         "keywords": "champs valeurs de statut fonctions story map lignes roue activer définitions liste",
-        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont six sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
+        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont six sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases ou la connexion GitHub ; elle ajoute la section « GitHub ». Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
       },
       "search.basics": {
         "title": "Recherche",
@@ -988,6 +993,11 @@
         "title": "Historique et comparaison de versions",
         "keywords": "historique modifications versions comparer différence journal avant après sprint epic release story",
         "body": "Chaque story, epic, sprint et release a un historique. Ouvrez l’élément et regardez « Historique » sous les autres panneaux (pour une release : l’onglet « Historique »). Chaque enregistrement est une version (V1, V2, …) avec la date, l’heure et ce qui a changé. Les déplacements sur le tableau et dans le backlog comptent comme changement de statut ou de sprint ; le simple tri non.\nPour comparer deux versions, cliquez sur « Comparer des versions », sur « Comparer à l’actuelle » dans une entrée, ou cochez deux versions sous « Afficher toutes les modifications ». À gauche la plus ancienne, à droite la plus récente ; « ⇄ » les échange. Les champs modifiés portent un signe et un mot, les champs inchangés sont repliés, la description s’affiche ligne par ligne.\nLa comparaison est en lecture seule : elle ne restaure rien. L’historique commence à la première modification ; ce qui existait avant affiche « Aucune modification pour l’instant »."
+      },
+      "github.basics": {
+        "title": "Tickets GitHub",
+        "keywords": "github tickets issues import synchro synchroniser dépôt jeton connecter fonction activer stories labels critères",
+        "body": "Importer les tickets ouverts d’un dépôt GitHub comme stories. Cela ne fonctionne que si la fonction « Connexion GitHub » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Fonctions. La section « GitHub » apparaît alors dans les paramètres.\n2. Ouvrez Paramètres → GitHub, saisissez le dépôt (owner/name) et un jeton d’accès en lecture seule, puis appuyez sur « Tester la connexion ».\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les nouveaux tickets deviennent des stories ; les stories importées reprennent de GitHub le titre, la description, les labels, ouvert ou fermé et la liste de tâches sous le titre « Acceptance criteria ». GitHub l’emporte ; sprint, points et ordre restent les vôtres.\nLes stories importées montrent leur numéro de ticket comme lien vers GitHub. Sans réseau ou avec un mauvais jeton, l’application le dit et garde vos données locales.\nSi vous désactivez la fonction, tout est masqué mais conservé."
       }
     },
     "links": {
@@ -1001,13 +1011,15 @@
       "settingsMap": "Ouvrir Paramètres → Story map",
       "settingsFeatures": "Ouvrir Paramètres → Fonctions",
       "settingsDefinitions": "Ouvrir Paramètres → Définitions",
-      "settingsData": "Ouvrir Paramètres → Données"
+      "settingsData": "Ouvrir Paramètres → Données",
+      "settingsGithub": "Ouvrir Paramètres → GitHub"
     },
     "linksTitle": "Où le trouver",
     "linkLocked": "Activez d’abord la fonction « {{feature}} »",
     "linkHints": {
       "featureFirst": "D’abord activer la fonction",
-      "releaseRows": "Choisir « Releases » comme lignes"
+      "releaseRows": "Choisir « Releases » comme lignes",
+      "githubConnect": "Saisir le dépôt et le jeton"
     }
   },
   "dialog": {
@@ -1321,5 +1333,85 @@
     "field": "Champ",
     "expand": "Afficher les versions précédentes",
     "collapse": "Masquer les versions précédentes"
+  },
+  "github": {
+    "issueLink": "Ouvrir le ticket n° {{number}} sur GitHub",
+    "settings": {
+      "title": "GitHub",
+      "connected": "Connecté",
+      "hint": "Connectez le dépôt dont les tickets ouverts sont importés comme stories. GitHub ne fait que fournir ; rien n’est réécrit.",
+      "repo": "Dépôt (owner/name)",
+      "token": "Jeton d’accès",
+      "tokenSaved": "Jeton enregistré – saisissez-en un nouveau pour le remplacer",
+      "tokenNote": "Un jeton à granularité fine avec accès en lecture aux tickets de ce dépôt suffit. Il est conservé dans le magasin d’identifiants de votre système et n’est plus jamais affiché.",
+      "tokenNoteDemo": "Cet aperçu n’a pas de vraie connexion : tout texte vaut comme jeton, sauf « {{wrong}} », que GitHub refuserait. Rien n’est envoyé.",
+      "tokenMissingNote": "Saisissez à nouveau le jeton : dans le navigateur, il n’est conservé que jusqu’au rechargement de la page.",
+      "test": "Tester la connexion",
+      "testing": "Test en cours…",
+      "disconnect": "Déconnecter",
+      "ok": "Connexion ok · {{count}} tickets ouverts",
+      "where": "L’import et la synchronisation se font dans le backlog, avec le bouton « Synchroniser ».",
+      "problem": {
+        "repoMissing": "Le dépôt manque.",
+        "repoFormat": "Utilisez la forme owner/name.",
+        "tokenMissing": "Le jeton d’accès manque."
+      }
+    },
+    "demo": {
+      "badge": "Démo",
+      "title": "Démo : GitHub simulé",
+      "text": "L’aperçu a son propre petit GitHub : le dépôt {{repo}} avec quelques tickets, conservés dans ce navigateur. Modifiez-les ici, puis appuyez sur « Synchroniser » dans le backlog. (Le jeton « {{wrong}} » est refusé.)",
+      "rename": "Renommer le n° 31, nouveau label",
+      "criteria": "Modifier les critères du n° 31",
+      "close": "Fermer le n° 35",
+      "reopen": "Rouvrir le n° 35",
+      "add": "Ajouter le ticket n° 44",
+      "reset": "Réinitialiser les tickets",
+      "done": "Les tickets sur GitHub ont été modifiés."
+    },
+    "sync": {
+      "button": "Synchroniser",
+      "running": "Synchronisation…",
+      "last": "GitHub · dernière synchro {{when}}",
+      "never": "GitHub · pas encore synchronisé",
+      "done": "Synchronisé avec GitHub",
+      "failed": "La synchronisation a échoué",
+      "nothing": "Tout est à jour. Rien n’a changé sur GitHub.",
+      "created": "nouvellement importées",
+      "updated": "mises à jour",
+      "closed": "terminées (fermées sur GitHub)",
+      "wins": "GitHub l’emporte : vos modifications du titre, de la description, des labels et des critères de ces stories ont été écrasées. Sprint, points et ordre restent inchangés.",
+      "close": "Fermer",
+      "toSettings": "Ouvrir Paramètres → GitHub"
+    },
+    "change": {
+      "created": "Nouvelle story",
+      "title": "Titre modifié : « {{from}} » → « {{to}} »",
+      "description": "Description modifiée",
+      "labels": "Labels : {{parts}}",
+      "labelsAdded": "nouveau {{labels}}",
+      "labelsRemoved": "retiré {{labels}}",
+      "criteria": "Critères : {{parts}}",
+      "criteriaAdded_one": "{{count}} nouveau",
+      "criteriaAdded_many": "{{count}} nouveaux",
+      "criteriaAdded_other": "{{count}} nouveaux",
+      "criteriaRemoved_one": "{{count}} retiré",
+      "criteriaRemoved_many": "{{count}} retirés",
+      "criteriaRemoved_other": "{{count}} retirés",
+      "criteriaTicked_one": "{{count}} coche modifiée",
+      "criteriaTicked_many": "{{count}} coches modifiées",
+      "criteriaTicked_other": "{{count}} coches modifiées",
+      "criteriaOrder": "ordre modifié",
+      "closed": "Fermé sur GitHub → statut « {{status}} »",
+      "reopened": "Rouvert sur GitHub → statut « {{status}} »"
+    },
+    "errors": {
+      "config": "La connexion n’est pas configurée : saisissez le dépôt et le jeton dans les paramètres. Vos données locales sont inchangées.",
+      "network": "Pas de connexion à GitHub. L’application continue avec vos données locales.",
+      "auth": "GitHub a refusé le jeton d’accès. Vérifiez le jeton et ses droits. Vos données locales sont inchangées.",
+      "notFound": "Dépôt introuvable, ou le jeton n’y a pas accès. Vos données locales sont inchangées.",
+      "rateLimit": "GitHub n’accepte plus de requêtes pour le moment. Réessayez plus tard. Vos données locales sont inchangées.",
+      "other": "GitHub n’a pas pu être joint correctement. Réessayez plus tard. Vos données locales sont inchangées."
+    }
   }
 }

@@ -5371,6 +5371,10 @@ a.btn {
 }
 
 .definition-item__auto {
+/* ---------- GitHub issues (#30) ---------- */
+
+.badge--ok {
+  border-color: transparent;
   background: var(--accent-soft);
   color: var(--accent-soft-ink);
 }
@@ -5748,6 +5752,101 @@ a.btn {
 
 .definition-menu__item:hover,
 .definition-menu__item:focus-visible {
+.badge--demo {
+  border-color: transparent;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-weight: 600;
+}
+
+/* The issue number of an imported story, a link to GitHub. */
+.github-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+a.github-badge:hover {
+  text-decoration: underline;
+}
+
+.github-badge--plain {
+  margin-right: 6px;
+}
+
+.github-sync {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.github-sync__last {
+  font-size: 13px;
+}
+
+.github-settings .form {
+  margin-bottom: 0;
+}
+
+.github-settings__badges {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.github-settings__status {
+  min-height: 1.4em;
+}
+
+.github-ok {
+  color: var(--accent-soft-ink);
+  font-weight: 600;
+}
+
+.github-demo {
+  max-width: 640px;
+  padding: 12px 14px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.github-demo h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.github-demo p {
+  margin: 0;
+}
+
+.github-demo__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.github-result__counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.github-result__counts li {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
   background: var(--accent-soft);
   color: var(--accent-soft-ink);
 }
@@ -6415,4 +6514,33 @@ a.btn {
   .textdiff__row {
     grid-template-columns: 1fr;
   }
+.github-result__counts strong {
+  font-size: 18px;
+  margin-right: 4px;
+}
+
+.github-result__list {
+  margin: 0 0 12px;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow: auto;
+}
+
+.github-result__list ul {
+  margin: 2px 0 0;
+  padding-left: 24px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.github-result__error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger);
 }

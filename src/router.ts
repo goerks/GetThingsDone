@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 /** Sections of the settings page. */
 export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'features' | 'data';
+export type SettingsSection = 'fields' | 'statuses' | 'map' | 'features' | 'github';
 
 export type Route =
   | { name: 'board' }
@@ -22,7 +23,8 @@ export const hrefs = {
   settingsMap: '#/settings/map',
   settingsDefinitions: '#/settings/definitions',
   settingsFeatures: '#/settings/features',
-  settingsData: '#/settings/data'
+  settingsData: '#/settings/data',
+  settingsGithub: '#/settings/github'
 };
 
 export function parseHash(hash: string): Route {
@@ -33,6 +35,7 @@ export function parseHash(hash: string): Route {
   if (path === 'releases') return { name: 'releases' };
   if (path === 'settings/features') return { name: 'settings', section: 'features' };
   if (path === 'settings/data') return { name: 'settings', section: 'data' };
+  if (path === 'settings/github') return { name: 'settings', section: 'github' };
   if (path === 'settings/statuses') return { name: 'settings', section: 'statuses' };
   if (path === 'settings/definitions') return { name: 'settings', section: 'definitions' };
   if (path === 'settings/map') return { name: 'settings', section: 'map' };

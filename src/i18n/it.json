@@ -443,6 +443,11 @@
         "name": "Release",
         "description": "Pianificare con le release: la pagina Release, il campo Release delle storie, le righe di release della story map e i rapporti su ambito e burndown. Disattivare se il team lavora solo con gli sprint.",
         "offNote": "Disattivata. Le release, le loro storie e la cronologia vengono conservate e tornano alla riattivazione."
+      },
+      "github": {
+        "name": "Connessione GitHub",
+        "description": "Importare le issue aperte di un repository GitHub come storie e tenerle aggiornate a mano: la sezione «GitHub» nelle impostazioni, il pulsante «Sincronizza» nel backlog e il numero dell’issue sulle storie importate. Richiede una connessione di rete e un token di accesso in sola lettura; l’app continua a funzionare offline.",
+        "offNote": "Disattivata. Le storie importate, i loro numeri di issue e la connessione vengono mantenuti e tornano quando la attivi."
       }
     },
     "data": {
@@ -957,7 +962,7 @@
       "settings.basics": {
         "title": "Impostazioni",
         "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare definizioni lista",
-        "body": "Apri le impostazioni con l’ingranaggio. Hanno sei sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Le funzioni attivano o disattivano parti dell’app, per esempio Release. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno sei sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Le funzioni attivano o disattivano parti dell’app, per esempio Release o il collegamento a GitHub; aggiunge la sezione «GitHub». Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -988,6 +993,11 @@
         "title": "Cronologia e confronto di versioni",
         "keywords": "cronologia modifiche versioni confronta differenza registro prima dopo sprint epic release story",
         "body": "Ogni story, epic, sprint e release ha una cronologia. Apri l’elemento e guarda «Cronologia» sotto gli altri pannelli (per una release: la scheda «Cronologia»). Ogni salvataggio è una versione (V1, V2, …) con data, ora e ciò che è cambiato. Gli spostamenti sulla board e nel backlog contano come cambio di stato o di sprint; il solo riordino no.\nPer confrontare due versioni, fai clic su «Confronta versioni», su «Confronta con l’attuale» in una voce, oppure seleziona due versioni sotto «Mostra tutte le modifiche». A sinistra la più vecchia, a destra la più recente; «⇄» le scambia. I campi modificati hanno un segno e una parola, quelli invariati sono compressi, la descrizione è mostrata riga per riga.\nIl confronto è di sola lettura: non ripristina nulla. La cronologia inizia con la prima modifica; ciò che esisteva prima mostra «Ancora nessuna modifica»."
+      },
+      "github.basics": {
+        "title": "Issue di GitHub",
+        "keywords": "github issue import sincronizza sincronizzazione repository token collegare funzione attivare storie etichette criteri",
+        "body": "Importare le issue aperte di un repository GitHub come storie. Funziona solo se la funzione «Connessione GitHub» è attivata. Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Funzioni. Poi nelle impostazioni compare la sezione «GitHub».\n2. Apri Impostazioni → GitHub, inserisci il repository (owner/name) e un token di accesso in sola lettura, poi premi «Prova la connessione».\n3. Apri il backlog e premi «Sincronizza». Le nuove issue diventano storie; le storie importate prendono da GitHub titolo, descrizione, etichette, aperta o chiusa e l’elenco di attività sotto il titolo «Acceptance criteria». Vince GitHub; sprint, punti e ordine restano tuoi.\nLe storie importate mostrano il numero dell’issue come link a GitHub. Senza rete o con un token sbagliato l’app lo dice e lascia in pace i tuoi dati locali.\nSe disattivi di nuovo la funzione, tutto viene nascosto ma conservato."
       }
     },
     "links": {
@@ -1001,13 +1011,15 @@
       "settingsMap": "Apri Impostazioni → Story map",
       "settingsFeatures": "Apri Impostazioni → Funzioni",
       "settingsDefinitions": "Apri Impostazioni → Definizioni",
-      "settingsData": "Apri Impostazioni → Dati"
+      "settingsData": "Apri Impostazioni → Dati",
+      "settingsGithub": "Apri Impostazioni → GitHub"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",
     "linkHints": {
       "featureFirst": "Prima attivare la funzione",
-      "releaseRows": "Scegliere «Release» come righe"
+      "releaseRows": "Scegliere «Release» come righe",
+      "githubConnect": "Inserisci repository e token"
     }
   },
   "dialog": {
@@ -1321,5 +1333,85 @@
     "field": "Campo",
     "expand": "Mostra le versioni precedenti",
     "collapse": "Nascondi le versioni precedenti"
+  },
+  "github": {
+    "issueLink": "Apri l’issue n. {{number}} su GitHub",
+    "settings": {
+      "title": "GitHub",
+      "connected": "Connesso",
+      "hint": "Collega il repository le cui issue aperte vengono importate come storie. GitHub si limita a fornire; non viene riscritto nulla.",
+      "repo": "Repository (owner/name)",
+      "token": "Token di accesso",
+      "tokenSaved": "Token salvato – inseriscine uno nuovo per sostituirlo",
+      "tokenNote": "Basta un token a granularità fine con accesso in lettura alle issue di questo repository. È conservato nell’archivio delle credenziali del sistema operativo e non viene più mostrato.",
+      "tokenNoteDemo": "Questa anteprima non ha una vera connessione: qualsiasi testo vale come token, tranne «{{wrong}}», che GitHub rifiuterebbe. Non viene inviato nulla.",
+      "tokenMissingNote": "Inserisci di nuovo il token: nel browser resta solo fino al ricaricamento della pagina.",
+      "test": "Prova la connessione",
+      "testing": "Verifica in corso…",
+      "disconnect": "Scollega",
+      "ok": "Connessione ok · {{count}} issue aperte",
+      "where": "Importazione e sincronizzazione sono nel backlog, con il pulsante «Sincronizza».",
+      "problem": {
+        "repoMissing": "Manca il repository.",
+        "repoFormat": "Usa la forma owner/name.",
+        "tokenMissing": "Manca il token di accesso."
+      }
+    },
+    "demo": {
+      "badge": "Demo",
+      "title": "Demo: GitHub simulato",
+      "text": "L’anteprima ha un proprio piccolo GitHub: il repository {{repo}} con alcune issue, salvate in questo browser. Modificale qui, poi premi «Sincronizza» nel backlog. (Il token «{{wrong}}» viene rifiutato.)",
+      "rename": "Rinomina n. 31, nuova etichetta",
+      "criteria": "Cambia i criteri del n. 31",
+      "close": "Chiudi il n. 35",
+      "reopen": "Riapri il n. 35",
+      "add": "Aggiungi l’issue n. 44",
+      "reset": "Ripristina le issue",
+      "done": "Le issue su GitHub sono state modificate."
+    },
+    "sync": {
+      "button": "Sincronizza",
+      "running": "Sincronizzazione…",
+      "last": "GitHub · ultima sincronizzazione {{when}}",
+      "never": "GitHub · non ancora sincronizzato",
+      "done": "Sincronizzato con GitHub",
+      "failed": "Sincronizzazione non riuscita",
+      "nothing": "Tutto è aggiornato. Su GitHub non è cambiato nulla.",
+      "created": "importate di nuovo",
+      "updated": "aggiornate",
+      "closed": "concluse (chiuse su GitHub)",
+      "wins": "Vince GitHub: le tue modifiche a titolo, descrizione, etichette e criteri di queste storie sono state sovrascritte. Sprint, punti e ordine restano invariati.",
+      "close": "Chiudi",
+      "toSettings": "Apri Impostazioni → GitHub"
+    },
+    "change": {
+      "created": "Nuova storia",
+      "title": "Titolo modificato: «{{from}}» → «{{to}}»",
+      "description": "Descrizione modificata",
+      "labels": "Etichette: {{parts}}",
+      "labelsAdded": "nuova {{labels}}",
+      "labelsRemoved": "rimossa {{labels}}",
+      "criteria": "Criteri: {{parts}}",
+      "criteriaAdded_one": "{{count}} nuovo",
+      "criteriaAdded_many": "{{count}} nuovi",
+      "criteriaAdded_other": "{{count}} nuovi",
+      "criteriaRemoved_one": "{{count}} rimosso",
+      "criteriaRemoved_many": "{{count}} rimossi",
+      "criteriaRemoved_other": "{{count}} rimossi",
+      "criteriaTicked_one": "{{count}} spunta modificata",
+      "criteriaTicked_many": "{{count}} spunte modificate",
+      "criteriaTicked_other": "{{count}} spunte modificate",
+      "criteriaOrder": "ordine modificato",
+      "closed": "Chiusa su GitHub → stato «{{status}}»",
+      "reopened": "Riaperta su GitHub → stato «{{status}}»"
+    },
+    "errors": {
+      "config": "La connessione non è configurata: inserisci repository e token nelle impostazioni. I tuoi dati locali sono invariati.",
+      "network": "Nessuna connessione a GitHub. L’app continua a funzionare con i tuoi dati locali.",
+      "auth": "GitHub ha rifiutato il token di accesso. Controlla il token e i suoi diritti. I tuoi dati locali sono invariati.",
+      "notFound": "Repository non trovato, oppure il token non ha accesso. I tuoi dati locali sono invariati.",
+      "rateLimit": "GitHub per ora non accetta altre richieste. Riprova più tardi. I tuoi dati locali sono invariati.",
+      "other": "GitHub non è stato raggiunto correttamente. Riprova più tardi. I tuoi dati locali sono invariati."
+    }
   }
 }
