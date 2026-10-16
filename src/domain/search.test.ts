@@ -47,7 +47,7 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
     criteria: [],
     values: {},
     checks: {},
-    doneItems: null,
+    special: null, reference: false, doneItems: null,
     ...overrides
   };
 }
@@ -55,8 +55,8 @@ function story(id: string, overrides: Partial<Story> = {}): Story {
 const snapshot: SearchSnapshot = {
   statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
   epics: [
-    { id: 'e1', name: 'Boards', colorKey: 'blue', position: 0, values: {} },
-    { id: 'e2', name: 'Local storage', colorKey: 'teal', position: 1, values: {} }
+    { id: 'e1', name: 'Boards', colorKey: 'blue', position: 0, size: null, values: {} },
+    { id: 'e2', name: 'Local storage', colorKey: 'teal', position: 1, size: null, values: {} }
   ],
   sprints: [
     { id: 's2', name: 'Sprint 2', startDate: '2026-10-20', endDate: '2026-11-02', state: 'planned', startItems: null, result: null },

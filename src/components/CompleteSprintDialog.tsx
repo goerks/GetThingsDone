@@ -8,7 +8,6 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
 import { statusLabel } from './statusLabel';
-import { useBuiltin } from './useBuiltin';
 
 interface Props {
   /** The running sprint. */

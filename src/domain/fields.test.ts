@@ -64,7 +64,7 @@ function story(id: string, values: Story['values'] = {}): Story {
     criteria: [],
     values,
     checks: {},
-    doneItems: null
+    special: null, reference: false, doneItems: null
   };
 }
 

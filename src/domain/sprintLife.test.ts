@@ -7,7 +7,7 @@ const isDone = isDoneIn(DEFAULT_STATUSES);
 const nameFor = (number: number): string => `Sprint ${number}`;
 
 function story(id: string, sprintId: string | null, points: number, status = 'todo', rank = 0): Story {
-  return { id, code: id, title: `Story ${id}`, description: '', epicId: null, points, status, sprintId, releaseId: null, rank, criteria: [], values: {}, checks: {}, doneItems: null };
+  return { id, code: id, title: `Story ${id}`, description: '', epicId: null, points, status, sprintId, releaseId: null, rank, criteria: [], values: {}, checks: {}, special: null, reference: false, doneItems: null };
 }
 
 function sprint(id: string, startDate: string, endDate: string, state: Sprint['state'] = 'planned', startItems: Sprint['startItems'] = null): Sprint {

@@ -54,7 +54,7 @@ function story(id: string, status: Story['status'], rank: number, sprintId: stri
     criteria: [],
     values: {},
     checks: {},
-    doneItems: null
+    special: null, reference: false, doneItems: null
   };
 }
 

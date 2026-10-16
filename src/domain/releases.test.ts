@@ -34,7 +34,7 @@ function story(id: string, releaseId: string | null, overrides: Partial<Story> =
     criteria: [],
     values: {},
     checks: {},
-    doneItems: null,
+    special: null, reference: false, doneItems: null,
     ...overrides
   };
 }
