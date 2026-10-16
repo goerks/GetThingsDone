@@ -10,7 +10,7 @@ export const PACKAGES = { 32: PACKAGE_1, 24: PACKAGE_24, 26: PACKAGE_26, 16: PAC
 /** The package of the pull request this build belongs to. */
 export const CURRENT_PACKAGE = PACKAGE_49;
 
-export function selectPackage(search: string): (typeof PACKAGES)[keyof typeof PACKAGES] {
+export function selectPackage(search: string): typeof CURRENT_PACKAGE {
   const wanted = Number(new URLSearchParams(search).get('package'));
   return (PACKAGES as Record<number, typeof CURRENT_PACKAGE>)[wanted] ?? CURRENT_PACKAGE;
 }
