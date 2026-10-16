@@ -121,7 +121,7 @@ describe('comparing two versions', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Compare versions' }));
     const compare = await screen.findByRole('dialog', { name: /Compare versions of S-3/ });
     // When both sides are the current version
-    await user.selectOptions(within(compare).getByLabelText('From'), within(compare).getByRole('option', { name: /^Current \(V6\)/ }));
+    await user.selectOptions(within(compare).getByLabelText('From'), within(within(compare).getByLabelText('From')).getByRole('option', { name: /^Current \(V6\)/ }));
     // Then it says so
     expect(within(compare).getByRole('status')).toHaveTextContent('No differences');
     expect(within(compare).queryByRole('table')).not.toBeInTheDocument();
@@ -134,7 +134,7 @@ describe('comparing two versions', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Compare versions' }));
     const compare = await screen.findByRole('dialog', { name: /Compare versions of S-3/ });
     // When V1 (no description) is compared with the current version
-    await user.selectOptions(within(compare).getByLabelText('From'), within(compare).getByRole('option', { name: /^V1 / }));
+    await user.selectOptions(within(compare).getByLabelText('From'), within(within(compare).getByLabelText('From')).getByRole('option', { name: /^V1 / }));
     // Then the description shows as lines, and the text is only on the right
     const lines = within(compare).getByRole('group', { name: /Text, \d+ changed line/ });
     expect(lines).toHaveTextContent('As a product owner, I want to change the priority of stories');
@@ -147,7 +147,7 @@ describe('comparing two versions', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Compare versions' }));
     const compare = await screen.findByRole('dialog', { name: /Compare versions of S-3/ });
     // When V2 (a short description) is compared with the current version
-    await user.selectOptions(within(compare).getByLabelText('From'), within(compare).getByRole('option', { name: /^V2 / }));
+    await user.selectOptions(within(compare).getByLabelText('From'), within(within(compare).getByLabelText('From')).getByRole('option', { name: /^V2 / }));
     // Then both texts are there in full: the short one on the left and the complete one on the right
     const lines = within(compare).getByRole('group', { name: /Text, \d+ changed line/ });
     expect(lines).toHaveTextContent('As a product owner, I want to change the priority of stories.');
@@ -207,7 +207,7 @@ describe('names, languages and reading only', () => {
     const keys = Object.keys(en.history);
     // Then the other languages have the same groups of texts, and the tab of the release
     for (const file of [de, fr, italian]) {
-      expect(Object.keys(file.history).map((key) => key.replace(/_(one|many|other)$/, '')).sort()).toEqual(
+      expect([...new Set(Object.keys(file.history).map((key) => key.replace(/_(one|many|other)$/, '')))].sort()).toEqual(
         [...new Set(keys.map((key) => key.replace(/_(one|many|other)$/, '')))].sort()
       );
       expect(file.releases.tabs.history).toBeTruthy();

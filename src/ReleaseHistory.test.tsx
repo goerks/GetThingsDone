@@ -32,7 +32,7 @@ async function openScope(tweak?: (seed: Seed) => Seed, release = /Release 1\.0/,
 describe('scope report', () => {
   it('is the third tab of the release dialog', async () => {
     const { dialog } = await openScope();
-    expect(within(dialog).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Details', 'Stories (6)', 'Scope', 'Burndown']);
+    expect(within(dialog).getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Details', 'Stories (6)', 'Scope', 'Burndown', 'History']);
     expect(within(dialog).getByRole('tab', { name: 'Scope' })).toHaveAttribute('aria-selected', 'true');
   });
 
