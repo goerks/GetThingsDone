@@ -660,7 +660,7 @@ describe('sprint states (#17)', () => {
         ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
-    migrate(db, ['011_sprint_states.sql', '012_definitions.sql']);
+    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql']);
     return db;
   }
 
