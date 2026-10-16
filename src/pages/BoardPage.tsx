@@ -165,7 +165,7 @@ export function BoardPage() {
   const atStart = sprint.state === 'running' && sprint.startItems ? summarizeSprint(sprint, app.stories, app.isDone).plannedPoints : null;
   const points = totalPoints(inSprint);
   // A filter on a member who was removed in the meantime shows everything again.
-  const filter = effectiveFilter(memberFilter, app.members);
+  const filter = app.settings.features.team ? effectiveFilter(memberFilter, app.members) : ALL_MEMBERS;
   const shown = (status: string) => storiesInColumn(app.stories, sprintId, status).filter((story) => matchesMemberFilter(story, filter));
   const shownCount = app.statuses.reduce((sum, status) => sum + shown(status.id).length, 0);
 

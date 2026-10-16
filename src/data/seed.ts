@@ -1,7 +1,7 @@
 import { applyWrites, recordWorld, type ChangeVersion, type World } from '../domain/changeLog';
 import { DEMO_DEFINITIONS } from '../domain/definitions';
 import { assignTo, missingBuiltins } from '../domain/fields';
-import { DEFAULT_SETTINGS } from '../domain/settings';
+import { DEFAULT_FEATURES, DEFAULT_SETTINGS } from '../domain/settings';
 import { startItemsOf } from '../domain/sprintLife';
 import { addDays } from '../domain/sprints';
 import { DEFAULT_STATUSES } from '../domain/statuses';
@@ -187,7 +187,8 @@ export function seedSnapshot(today: string): Snapshot {
   const stories: Story[] = demoStories.map((story) => ({ ...story, releaseId: DEMO_RELEASE_OF[story.id] ?? null, assigneeId: DEMO_ASSIGNEE_OF[story.id] ?? null, values: DEMO_VALUES[story.id] ?? {}, checks: {}, doneItems: null }));
   const snapshot: Snapshot = {
     members: DEMO_MEMBERS.map((member) => ({ ...member })),
-    settings: { ...DEFAULT_SETTINGS, definitions: DEMO_DEFINITIONS },
+    // The demo data show the team, so the preview can test it; a new project has the team switched off.
+    settings: { ...DEFAULT_SETTINGS, features: { ...DEFAULT_FEATURES, team: true }, definitions: DEMO_DEFINITIONS },
     statuses: DEFAULT_STATUSES.map((status) => ({ ...status })),
     fields: [...builtins.fields, ...DEMO_FIELDS],
     assignments,

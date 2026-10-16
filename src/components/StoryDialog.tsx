@@ -263,10 +263,12 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               <label htmlFor={`${uid}-epic`}>{builtin.label('epic', t('detail.epic'))}</label>
               <EpicSelect id={`${uid}-epic`} value={story.epicId} onChange={(epicId) => app.updateStory(story.id, { epicId })} />
             </div>
-            <div className="field">
-              <label htmlFor={`${uid}-assignee`}>{t('team.field')}</label>
-              <MemberSelect id={`${uid}-assignee`} value={story.assigneeId} onChange={(assigneeId) => app.updateStory(story.id, { assigneeId })} />
-            </div>
+            {featureOn(app.settings, 'team') && (
+              <div className="field">
+                <label htmlFor={`${uid}-assignee`}>{t('team.field')}</label>
+                <MemberSelect id={`${uid}-assignee`} value={story.assigneeId} onChange={(assigneeId) => app.updateStory(story.id, { assigneeId })} />
+              </div>
+            )}
             {builtin.shown('story', 'points') && (
               <div className="field">
                 <label htmlFor={`${uid}-points`}>{builtin.label('points', t('detail.points'))}</label>
