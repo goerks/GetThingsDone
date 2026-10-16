@@ -989,6 +989,11 @@
         "title": "History and comparing versions",
         "keywords": "history changes versions compare diff version log changed before after audit sprint epic release story",
         "body": "Every story, epic, sprint and release keeps a history. Open the item and look at \"History\" below the other panels (for a release: the tab \"History\"). Each save is one version (V1, V2, …) with date, time and what changed. Dragging a story on the board or in the backlog counts as a change of status or sprint; changing only the order does not.\nTo compare two versions, click \"Compare versions\", or \"Compare with current\" on an entry, or tick two versions under \"Show all changes\". Left is the older, right the newer version; \"⇄\" swaps them. Changed fields are marked with a sign and a word, unchanged fields are folded, and the description is shown line by line.\nThe comparison only reads: it restores nothing. The history starts with the first change; items that existed before show \"No changes yet\"."
+      },
+      "team.assign": {
+        "title": "Team and assignment",
+        "keywords": "team person member assign assigned initials filter someone works who",
+        "body": "Open Settings → Team and add the people you want to assign stories to. A name and initials are enough, there are no accounts. The initials come from the name and can be changed.\nYou assign a story in its dialog, in the field \"Assigned to\", or right when you create a new story. A round badge shows the initials on cards, in the backlog and on the story map. A dashed badge means the story is not assigned.\nAbove the board you filter by one person or by stories nobody works on. The search also finds stories by name or initials.\nWhen you remove a member, their stories stay and are not assigned any more."
       }
     },
     "links": {
@@ -1002,7 +1007,8 @@
       "settingsMap": "Open Settings → Story map",
       "settingsFeatures": "Open Settings → Features",
       "settingsDefinitions": "Open Settings → Definitions",
-      "settingsData": "Open Settings → Data"
+      "settingsData": "Open Settings → Data",
+      "settingsTeam": "Open Settings → Team"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",

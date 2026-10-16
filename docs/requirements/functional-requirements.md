@@ -682,6 +682,13 @@ Stories, epics, sprints and releases keep a history of versions (#23, ADR 0004).
 
 Verified by: unit `src/domain/changeLog.test.ts` and `src/domain/textDiff.test.ts` (AC1.3, AC2.1–AC2.6, AC3.1–AC3.4, AC5.2–AC5.3, AC6.1, AC8.1–AC8.4, AC8.6), repositories `src/data/sqliteRepository.test.ts` and `src/data/localStorageRepository.test.ts` (AC5.1), component `src/ChangeHistory.test.tsx` (AC1.1, AC1.3–AC1.4, AC2.3, AC2.7, AC4.2, AC7.3, AC8.2–AC8.5, AC9.1–AC9.3), e2e `e2e/changeHistory.spec.ts` (AC3.1, AC3.3, AC4.1, AC5.1, AC7.1, AC8.1–AC8.2); AC1.2, AC6.2, AC7.2 and AC8.7 are checked by hand
 
+## Team and assignment (TEAM)
+
+### FR-TEAM-01 Team members and assignment of stories
+Settings › Team (`#/settings/team`, #18) holds the team as a plain list: name and initials, no accounts, no colour. Members are added, changed and removed there; the initials are derived from the name (first letter of the first and last word, at most 3 characters) and can be changed; they follow a renamed member while they were not changed by hand. Initials are unique and at most 3 characters, names are unique, and an empty name or initials are refused with a hint. Removing a member without stories is immediate; with stories it asks first and leaves the stories unassigned. A story is assigned to one member or nobody in the story dialog and in "New story" (field "Assigned to"). A round badge with the initials shows on board cards (top right), backlog rows and story map cards; an unassigned story shows a dashed empty badge, a team without members shows no badge; the full name is the tooltip and the text for assistive technology. Above the board a filter bar shows all, one member or "Unassigned"; a filter on a removed member shows everything again. The search finds stories by the name or initials of the assignee and has the filter field "Assigned". The team and the assignments are part of export and import (older files import with an empty team), the change history records an assignment as a change of the field "Assigned to", and the demo data hold a team of three. Texts in DE, EN, FR and IT, keyboard operable, help topic "Team and assignment".
+
+Source: #18 · Status: Implemented · Verified by: unit `src/domain/members.test.ts` (AC1.1–AC1.4, AC1.6, AC4.1–AC4.4, AC5.1, AC5.3, AC6.1–AC6.3, AC7.1–AC7.3), repositories `src/data/sqliteRepository.test.ts` (AC1.1, AC5.1, AC7.1, AC7.3), component `src/Team.test.tsx` (AC1.1–AC1.6, AC2.1–AC2.5, AC3.1–AC3.5, AC4.1–AC4.5, AC5.1–AC5.2, AC7.2), e2e `e2e/team.spec.ts` (AC2.1, AC4.1); AC3.4 is checked by hand
+
 ## Later
 
 | ID | Requirement | Status |
