@@ -1339,7 +1339,7 @@
       "token": "Access token",
       "tokenSaved": "Token saved – enter a new one to replace it",
       "tokenNote": "To read, a fine-grained token with read access to the issues of this repository is enough. To write back it also needs the permission “Issues: read and write”. The token is kept in the credential store of your operating system and is never shown again.",
-      "tokenNoteDemo": "This preview has no real connection: any text counts as a token, except “{{wrong}}”, which GitHub would refuse, and “{{readonly}}”, which may only read. Nothing is sent.",
+      "tokenNoteDemo": "This preview has no real connection: any text works as a token, except “{{wrong}}”, which GitHub would refuse, and “{{readonly}}”, which may only read. Nothing is sent.",
       "tokenMissingNote": "Enter the token again: in the browser it is only kept until the page is reloaded.",
       "test": "Test connection",
       "testing": "Testing…",

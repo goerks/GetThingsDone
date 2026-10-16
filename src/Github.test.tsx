@@ -279,15 +279,16 @@ describe('importing and syncing', () => {
     const story = (await repository.load()).stories.find((item) => item.title === 'Login');
     if (!story) throw new Error('story missing');
     await repository.updateStory({ ...story, title: 'My own title', points: 5, sprintId: 'sprint-2', status: 'in_progress' });
-    // When GitHub still says "Login" and I synchronise in a new page (it reads what the repository holds)
+    // When GitHub has a new title of its own and I synchronise in a new page (it reads what the repository holds)
+    fake.state.issues = [fakeIssue(31, { title: 'Login-Seite' })];
     cleanup();
     render(<App repository={repository} github={fake.github} />);
     const dialog = await sync(user);
     // Then the title is GitHub's again and the plan is unchanged
-    expect(within(dialog).getByText('Title changed: “My own title” → “Login”')).toBeInTheDocument();
+    expect(within(dialog).getByText('Title changed: “My own title” → “Login-Seite”')).toBeInTheDocument();
     await waitFor(async () => {
       const after = (await repository.load()).stories.find((item) => item.id === story.id);
-      expect(after).toMatchObject({ title: 'Login', points: 5, sprintId: 'sprint-2', status: 'in_progress' });
+      expect(after).toMatchObject({ title: 'Login-Seite', points: 5, sprintId: 'sprint-2', status: 'in_progress' });
     });
   });
 
@@ -462,7 +463,7 @@ describe('when something goes wrong', () => {
     const dialog = await sync(user);
     // Then the message points to the settings
     expect(within(dialog).getByRole('alert')).toHaveTextContent('The connection is not set up');
-    expect(within(dialog).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/github');
+    expect(within(dialog).getByRole('link', { name: 'Open Settings → Connections' })).toHaveAttribute('href', '#/settings/github');
   });
 });
 

@@ -48,7 +48,7 @@ describe('the repository', () => {
 describe('settings of the GitHub connection', () => {
   it('AC1.1 is off by default and has no repository', () => {
     expect(DEFAULT_SETTINGS.features.github).toBe(false);
-    expect(DEFAULT_SETTINGS.github).toEqual({ repo: '', lastSyncAt: null });
+    expect(DEFAULT_SETTINGS.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
     expect(normalizeSettings({ features: { releases: true } }).features.github).toBe(false);
     expect(normalizeSettings({ features: { github: 'x' } }).features.github).toBe(false);
   });
@@ -56,8 +56,8 @@ describe('settings of the GitHub connection', () => {
   it('AC1.5 keeps the repository and the time of the last sync when the feature is switched', () => {
     const stored = { features: { releases: true, github: '1' }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z' } };
     expect(normalizeSettings(stored).features.github).toBe(true);
-    expect(normalizeSettings(stored).github).toEqual(stored.github);
-    expect(normalizeSettings({ ...stored, features: { github: false } }).github).toEqual(stored.github);
+    expect(normalizeSettings(stored).github).toMatchObject(stored.github);
+    expect(normalizeSettings({ ...stored, features: { github: false } }).github).toMatchObject(stored.github);
   });
 });
 
@@ -122,7 +122,7 @@ describe('importing issues', () => {
     const first = planSync(input([issue(31), issue(35)]));
     const second = planSync(input([issue(31), issue(35)], first.stories, first.fields, first.assignments));
     expect(second.stories).toHaveLength(first.stories.length);
-    expect(second.summary).toEqual({ created: [], closed: [], updated: [] });
+    expect(second.summary).toEqual({ created: [], closed: [], updated: [], published: [], overwritten: [], conflicts: [], pending: 0 });
   });
 
   it('AC2.1 does not import a closed issue that has no story', () => {
@@ -174,12 +174,13 @@ describe('syncing', () => {
     expect(plan.summary.updated).toEqual([]);
   });
 
-  it('AC3.3 lets GitHub win over a local change of the title', () => {
+  it('AC3.3 lets GitHub win over a local change of the title when GitHub changed it too', () => {
     const { first, story } = imported();
     const edited = first.stories.map((item) => (item.id === story.id ? { ...item, title: 'My own title' } : item));
-    const plan = planSync(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], edited, first.fields, first.assignments));
-    expect(plan.stories.find((item) => item.id === story.id)?.title).toBe('Login');
-    expect(plan.summary.updated[0].changes[0]).toEqual({ kind: 'title', from: 'My own title', to: 'Login' });
+    const plan = planSync(input([issue(31, { title: 'Login-Seite', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], edited, first.fields, first.assignments));
+    expect(plan.stories.find((item) => item.id === story.id)?.title).toBe('Login-Seite');
+    expect(plan.summary.updated[0].changes[0]).toEqual({ kind: 'title', from: 'My own title', to: 'Login-Seite' });
+    expect(plan.summary.overwritten).toMatchObject([{ field: 'title', side: 'local', value: 'My own title' }]);
   });
 
   it('AC3.4 keeps sprint, points, epic, rank and the column of an open story', () => {

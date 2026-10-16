@@ -4,14 +4,18 @@ import type { Criterion } from './types';
  * GitHub issues (#30): the acceptance criteria and their test cases for the product owner, in German.
  * One source for the issue comment, the acceptance panel of the preview and the names of the automated tests.
  * Design: variant B (switch in Settings → Features, section "GitHub", "Synchronisieren" in the backlog).
- * The preview has a simulated GitHub: the repository goerks/GetThingsDone with the open issues #31 "Login" (two criteria),
- * #35 "Export as CSV" and #38 "Dark mode", the closed issue #29 and a pull request. Under Settings → GitHub the section
+ * The roundtrip (AC7–AC11) publishes local changes with "Synchronisieren" when "Auch nach GitHub schreiben" is on. The preview has a simulated GitHub: the repository goerks/GetThingsDone with the open issues #31 "Login" (two criteria),
+ * #35 "Export as CSV" and #38 "Dark mode", the closed issue #29 and a pull request. Under Settings → Connections the section
  * "Demo" has buttons to change these issues; any text is accepted as a token, except "falsch".
  */
 const COMPONENT = 'src/Github.test.tsx';
 const E2E = 'e2e/github.spec.ts';
 const DOMAIN = 'src/domain/github.test.ts';
 const REST = 'src/github/restSource.test.ts';
+const ROUNDTRIP = 'src/GithubRoundtrip.test.tsx';
+const RDOMAIN = 'src/domain/githubRoundtrip.test.ts';
+const RUN = 'src/github/runSync.test.ts';
+const CONNECTOR = 'src/github/connector.test.ts';
 
 const FEATURES = '#/settings/features';
 const SETTINGS = '#/settings/github';
@@ -20,7 +24,7 @@ const BACKLOG = '#/backlog';
 export const PACKAGE_30: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
   issue: 30,
   pullRequest: 48,
-  title: 'GitHub-Issues importieren und abgleichen',
+  title: 'GitHub-Issues importieren und in beide Richtungen abgleichen',
   criteria: [
     {
       id: 'AC1',
@@ -34,7 +38,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           target: '.features',
           given: 'Frische App, ich habe nichts eingestellt.',
           when: 'Ich öffne Einstellungen → Funktionen und den Backlog.',
-          then: '„GitHub-Anbindung“ steht auf „Aus“. In den Einstellungen gibt es keinen Abschnitt „GitHub“, im Backlog keinen Knopf „Synchronisieren“.',
+          then: '„GitHub-Anbindung“ steht auf „Aus“. In den Einstellungen gibt es keinen Abschnitt „Verbindungen“, im Backlog keinen Knopf „Synchronisieren“.',
           tests: [`${COMPONENT} › AC1.1 is off by default: no section, no button in the backlog`, `${DOMAIN} › AC1.1 is off by default and has no repository`]
         },
         {
@@ -44,7 +48,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           target: '.features',
           given: '„GitHub-Anbindung“ ist aus.',
           when: 'Ich schalte sie ein.',
-          then: 'In den Einstellungen erscheint der Abschnitt „GitHub“ mit den Feldern Repository und Zugriffstoken.',
+          then: 'In den Einstellungen erscheint der Abschnitt „Verbindungen“ mit den Feldern Repository und Zugriffstoken.',
           tests: [`${COMPONENT} › AC1.2 shows the section "GitHub" with repository and token as soon as the feature is on`, `${E2E} › AC1.2 and AC1.3 switch the feature on, connect the repository and show a working connection`]
         },
         {
@@ -52,7 +56,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           title: 'Verbindung speichern',
           link: SETTINGS,
           target: '.github-settings',
-          given: 'Funktion ist an, Abschnitt „GitHub“ ist offen.',
+          given: 'Funktion ist an, Abschnitt „Verbindungen“ ist offen.',
           when: 'Ich trage Repository „goerks/GetThingsDone“ und ein beliebiges Token ein und klicke „Verbindung testen“.',
           then: '„Verbindung ok · 3 offene Issues“. Das Token ist nur als Punkte zu sehen und nach dem Speichern nie mehr lesbar.',
           tests: [`${COMPONENT} › AC1.3 tests the connection, never shows the token again and keeps the repository`]
@@ -74,7 +78,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           target: '.features',
           given: 'Funktion an, Stories wurden importiert.',
           when: 'Ich schalte „GitHub-Anbindung“ aus und später wieder ein.',
-          then: 'Aus: Abschnitt „GitHub“, Sync-Knopf und #-Nummern sind weg. Wieder an: die Stories und die Verbindung sind wieder da.',
+          then: 'Aus: Abschnitt „Verbindungen“, Sync-Knopf und #-Nummern sind weg. Wieder an: die Stories und die Verbindung sind wieder da.',
           tests: [`${COMPONENT} › AC1.5 hides the section, the button and the issue numbers when switched off, and brings them back with the connection`, `${COMPONENT} › AC1.5 lets me disconnect: the repository and the token are removed`, `${DOMAIN} › AC1.5 keeps the repository and the time of the last sync when the feature is switched`]
         },
         {
@@ -99,6 +103,16 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           then: 'Deutlich als „Demo“ gekennzeichnet, simulierte Issues, es wird kein echtes Token benötigt oder gesendet.',
           tests: [`${COMPONENT} › AC1.7 labels the preview "Demo" and works with any token`, `${E2E} › AC1.7 marks the preview as a demo`],
           poCheck: 'Bitte ansehen: Ist die Kennzeichnung „Demo“ und der Kasten „Demo: simuliertes GitHub“ deutlich genug?'
+        }
+        ,{
+          id: 'AC1.8',
+          title: 'Schreiben ist standardmässig aus',
+          link: SETTINGS,
+          target: '.github-options',
+          given: 'Verbindung eingerichtet, ich habe nichts weiter eingestellt.',
+          when: 'Ich öffne Einstellungen → Verbindungen.',
+          then: '„Auch nach GitHub schreiben“ steht auf „aus“. Der Hinweis nennt, dass das Token dafür das Recht „Issues: Lesen und Schreiben“ braucht.',
+          tests: [`${ROUNDTRIP} › AC1.8 has writing off by default and says which right the token needs`]
         }
       ]
     },
@@ -152,7 +166,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Importierte Story „Login“ (#31).',
           when: 'Unter „Demo: simuliertes GitHub“ drücke ich „#31 umbenennen, neues Label“ und synchronisiere im Backlog.',
           then: 'Die Story heisst „Login-Seite“ und hat das Label „bug“. Das Ergebnis nennt „Titel geändert: „Login“ → „Login-Seite““.',
-          tests: [`${COMPONENT} › AC3.1 shows the changes of a synced story and says that GitHub wins`, `${E2E} › AC3.1 brings the changes of GitHub into the stories and shows them (also AC3.2, AC3.3 and AC3.7)`, `${DOMAIN} › AC3.1 takes title, description and labels from GitHub and tells what changed`]
+          tests: [`${COMPONENT} › AC3.1 shows the changes of a synced story that GitHub changed`, `${E2E} › AC3.1 brings the changes of GitHub into the stories and shows them (also AC3.2, AC3.3 and AC3.7)`, `${DOMAIN} › AC3.1 takes title, description and labels from GitHub and tells what changed`]
         },
         {
           id: 'AC3.2',
@@ -166,13 +180,13 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.3',
-          title: 'GitHub gewinnt',
+          title: 'Konflikt: GitHub gewinnt (Standard)',
           link: BACKLOG,
           target: '.github-sync',
-          given: 'Ich habe den Titel einer importierten Story lokal geändert.',
+          given: 'Titel einer importierten Story lokal in „Anmeldung“ geändert, auf GitHub in „Login-Seite“. Konfliktregel steht auf „GitHub gewinnt“.',
           when: 'Ich synchronisiere.',
-          then: 'Der Titel ist wieder der von GitHub. Das Ergebnis sagt, dass lokale Änderungen überschrieben wurden.',
-          tests: [`${COMPONENT} › AC3.3 and AC3.4 let GitHub win on the title and keep the plan of the story`, `${DOMAIN} › AC3.3 lets GitHub win over a local change of the title`]
+          then: 'Der Titel ist „Login-Seite“. Das Ergebnis sagt: „Lokale Änderung überschrieben: Titel „Anmeldung““.',
+          tests: [`${ROUNDTRIP} › AC3.3 lets GitHub win by default and names the overwritten local title`, `${RDOMAIN} › AC3.3 lets GitHub win by default and names the lost local title`, `${COMPONENT} › AC3.3 and AC3.4 let GitHub win on the title and keep the plan of the story`]
         },
         {
           id: 'AC3.4',
@@ -209,9 +223,9 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           title: 'Kriterien ändern sich auf GitHub',
           link: SETTINGS,
           target: '.github-demo',
-          given: 'Story „Login“ mit 2 Kriterien, ich habe lokal eines abgehakt.',
-          when: 'Ich drücke „Kriterien von #31 ändern“ (eine Aufgabe neu) und synchronisiere.',
-          then: 'Kriterien und Haken entsprechen GitHub (mein lokaler Haken ist überschrieben). Das Ergebnis nennt die neuen und entfernten Kriterien.',
+          given: 'Story „Login“ mit 2 Kriterien, lokal nichts geändert.',
+          when: 'Ich drücke „Kriterien von #31 ändern“ (eine Aufgabe neu, eine entfernt, eine abgehakt) und synchronisiere.',
+          then: 'Kriterien und Haken entsprechen GitHub. Das Ergebnis nennt die neuen und entfernten Kriterien.',
           tests: [`${COMPONENT} › AC3.7 takes added, removed and ticked criteria from GitHub and overwrites my tick`, `${DOMAIN} › AC3.7 adds, removes and ticks criteria as GitHub has them and overwrites a local tick`]
         },
         {
@@ -317,6 +331,222 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           tests: [],
           manual: 'Optische Details (Lesbarkeit, Breite) beurteilt nur ein Mensch.',
           poCheck: 'Bitte ansehen: Der Ergebnisdialog ist auf Handy- und Desktop-Breite lesbar, die „Demo“-Kennzeichnung ist gut sichtbar.'
+        }
+      ]
+    }
+    ,{
+      id: 'AC7',
+      story: 'G7',
+      title: 'Lokale Änderungen nach GitHub veröffentlichen',
+      cases: [
+        {
+          id: 'AC7.1',
+          title: 'Lokale Änderung wird veröffentlicht',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Story „Login“ (#31) ist importiert.',
+          when: 'Ich ändere den Titel lokal in „Login-Seite“ und füge das Label „bug“ hinzu, dann klicke ich „Synchronisieren“.',
+          then: 'Auf GitHub heisst Issue #31 „Login-Seite“ und hat das Label „bug“ (in der Vorschau: der Demo-Zustand zeigt es nach erneutem Synchronisieren). Das Ergebnis sagt „2 Änderungen nach GitHub veröffentlicht“ und nennt Titel und Label.',
+          tests: [`${ROUNDTRIP} › AC7.1 publishes the change with "Synchronise" and says what was published`, `${RDOMAIN} › AC7.1 publishes a changed title and a new label when writing is on`, `${RUN} › AC7.1 publishes the change, names it in the result and has nothing pending afterwards (AC9.2)`, `${RUN} › AC7.1 reports labels GitHub does not know and keeps them on the story`]
+        },
+        {
+          id: 'AC7.2',
+          title: 'Kriterien und Haken werden veröffentlicht',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Story mit Kriterien „Login möglich“ und „Fehlermeldung“.',
+          when: 'Ich hake „Login möglich“ ab, füge „Passwort vergessen“ hinzu und synchronisiere.',
+          then: 'Das Issue hat unter „Acceptance criteria“ die Aufgaben „- [x] Login möglich“, „- [ ] Fehlermeldung“, „- [ ] Passwort vergessen“; der übrige Text bleibt unverändert.',
+          tests: [`${RDOMAIN} › AC7.2 publishes criteria and ticks under "Acceptance criteria" and keeps the rest of the text`]
+        },
+        {
+          id: 'AC7.3',
+          title: 'Erledigt wird zu Geschlossen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Importierte Story „Export as CSV“ (#35).',
+          when: 'Ich ziehe die Story nach „Erledigt“ und synchronisiere; danach ziehe ich sie zurück nach „In Arbeit“ und synchronisiere erneut.',
+          then: 'Erst ist das Issue geschlossen, danach wieder offen.',
+          tests: [`${RDOMAIN} › AC7.3 closes the issue of a story that is done and opens it again when the story is not`, `${RUN} › AC7.3 reopens a closed issue whose story left Done, even though it is not in the list of open issues`]
+        },
+        {
+          id: 'AC7.4',
+          title: 'Nichts ohne Knopfdruck',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an, ich habe lokal drei Stories geändert.',
+          when: 'Ich warte und lade die Seite neu, ohne „Synchronisieren“ zu klicken.',
+          then: 'Auf GitHub hat sich nichts geändert.',
+          tests: [`${ROUNDTRIP} › AC7.4 publishes nothing on its own, however long I wait`, `${RUN} › AC7.4 and AC7.5 send nothing when writing is off, and the change stays pending`]
+        },
+        {
+          id: 'AC7.5',
+          title: 'Schreiben aus: nichts wird veröffentlicht',
+          link: SETTINGS,
+          target: '.github-options',
+          given: 'Schreiben ist aus, eine Story wurde lokal geändert.',
+          when: 'Ich synchronisiere.',
+          then: 'Auf GitHub ändert sich nichts. Die lokale Änderung bleibt als „noch nicht auf GitHub“ markiert. Das Ergebnis sagt, dass Schreiben aus ist.',
+          tests: [`${ROUNDTRIP} › AC7.5 publishes nothing when writing is off, says so, and keeps the story marked`, `${RDOMAIN} › AC7.5 publishes nothing when writing is off and counts what stays`]
+        },
+        {
+          id: 'AC7.6',
+          title: 'Kein Recht zum Schreiben',
+          link: SETTINGS,
+          target: '.github-settings',
+          given: 'Schreiben ist an, das Token hat nur Leserecht (in der Vorschau: das Token „nurlesen“).',
+          when: 'Ich ändere eine Story lokal und synchronisiere.',
+          then: 'Meldung „GitHub hat das Schreiben abgelehnt. Das Token braucht das Recht „Issues: Lesen und Schreiben“.“ Die lokale Änderung bleibt erhalten und markiert.',
+          tests: [`${ROUNDTRIP} › AC7.6 says what the token needs and keeps the local change when GitHub refuses to write`, `${RUN} › AC7.6 keeps the local change and says "forbidden" when the token may not write`]
+        }
+      ]
+    },
+    {
+      id: 'AC8',
+      story: 'G8',
+      title: 'Konflikte: wer gewinnt',
+      cases: [
+        {
+          id: 'AC8.1',
+          title: 'Konflikt: Lokal gewinnt',
+          link: SETTINGS,
+          target: '.github-options',
+          given: 'Konfliktregel „Lokal gewinnt“. Titel lokal „Anmeldung“, auf GitHub „Login-Seite“.',
+          when: 'Ich synchronisiere.',
+          then: 'Auf GitHub und lokal heisst es „Anmeldung“. Das Ergebnis sagt: „GitHub-Änderung überschrieben: Titel „Login-Seite““.',
+          tests: [`${ROUNDTRIP} › AC8.1 lets the local change win and names the overwritten GitHub title`, `${RDOMAIN} › AC8.1 lets the local change win and names the lost GitHub title`, `${RDOMAIN} › AC8.1 keeps the local change but cannot publish it when writing is off`]
+        },
+        {
+          id: 'AC8.2',
+          title: 'Konflikt: Ich entscheide',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Konfliktregel „Ich entscheide“. Titel lokal „Anmeldung“, auf GitHub „Login-Seite“.',
+          when: 'Ich synchronisiere und wähle im Dialog „Lokale Fassung behalten“ (oder „GitHub-Fassung nehmen“).',
+          then: 'Der Dialog zeigt beide Fassungen nebeneinander. Bis zu meiner Wahl ändert sich weder lokal noch auf GitHub etwas. Danach gilt meine Wahl auf beiden Seiten.',
+          tests: [`${ROUNDTRIP} › AC8.2 shows both versions and changes nothing until I choose`, `${RDOMAIN} › AC8.2 changes nothing until I decide, then follows my answer on both sides`, `${RUN} › AC8.2 asks and changes nothing until the answer is given`],
+          poCheck: 'Bitte ansehen: Ist der Konflikt-Dialog gut lesbar (beide Fassungen nebeneinander, auf dem Handy untereinander)?'
+        },
+        {
+          id: 'AC8.3',
+          title: 'Dialog abbrechen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Der Konflikt-Dialog ist offen.',
+          when: 'Ich drücke Esc.',
+          then: 'Nichts wurde geändert, der Konflikt bleibt offen und erscheint beim nächsten Synchronisieren wieder.',
+          tests: [`${ROUNDTRIP} › AC8.3 keeps the conflict open when I cancel the dialog with Esc`]
+        },
+        {
+          id: 'AC8.4',
+          title: 'Verschiedene Felder sind kein Konflikt',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Lokal Titel geändert, auf GitHub nur die Beschreibung.',
+          when: 'Ich synchronisiere.',
+          then: 'Beides bleibt: neuer Titel lokal und auf GitHub, neue Beschreibung lokal und auf GitHub. Es gibt keine Konfliktmeldung.',
+          tests: [`${ROUNDTRIP} › AC8.4 is no conflict when different fields changed`, `${RDOMAIN} › AC8.4 is no conflict when different fields changed: both changes stay`, `${RDOMAIN} › AC8.4 takes the same change on both sides without a conflict`]
+        }
+      ]
+    },
+    {
+      id: 'AC9',
+      story: 'G9',
+      title: 'Sehen, was noch nicht auf GitHub ist',
+      cases: [
+        {
+          id: 'AC9.1',
+          title: 'Noch nicht auf GitHub sichtbar',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Ich habe lokal bei 3 importierten Stories je den Titel geändert.',
+          when: 'Ich öffne den Backlog.',
+          then: 'Die 3 Stories sind markiert („nicht auf GitHub“), oben steht „3 Änderungen noch nicht auf GitHub“.',
+          tests: [`${ROUNDTRIP} › AC9.1 and AC9.2 marks the changed stories, counts the changes and clears them after the sync`, `${RDOMAIN} › AC9.1 names the fields that changed here since the last sync`, `${RDOMAIN} › AC9.1 marks nothing on a story of the team`]
+        },
+        {
+          id: 'AC9.2',
+          title: 'Markierung verschwindet nach dem Abgleich',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Wie AC9.1.',
+          when: 'Ich synchronisiere erfolgreich.',
+          then: 'Keine Markierung, keine Zahl mehr. Schlägt das Synchronisieren fehl (offline), bleiben Markierung und Zahl stehen.',
+          tests: [`${ROUNDTRIP} › AC9.2 keeps the marks and the count when the sync fails`, `${RDOMAIN} › AC9.2 has nothing pending once the published fields are the new base`]
+        }
+      ]
+    },
+    {
+      id: 'AC10',
+      story: 'G10',
+      title: 'Neue Story als Issue auf GitHub anlegen',
+      cases: [
+        {
+          id: 'AC10.1',
+          title: 'Neue Story auf GitHub anlegen',
+          link: BACKLOG,
+          target: '.backlog__row',
+          given: 'Schreiben ist an. Meine eigene Story „Export als CSV“ ohne #-Nummer.',
+          when: 'Ich öffne ihr Menü (Rechtsklick) und wähle „Auf GitHub anlegen“.',
+          then: 'Auf GitHub gibt es ein neues Issue „Export als CSV“ mit Beschreibung und Labels. Die Story zeigt jetzt die neue #-Nummer und den Link.',
+          tests: [`${ROUNDTRIP} › AC10.1 creates the issue from the menu and links the story to it`, `${RDOMAIN} › AC10.1 makes the issue of title, description with criteria and labels, and links the story to it`, `${RUN} › AC10.1 creates the issue of a story and links the story to it`]
+        },
+        {
+          id: 'AC10.2',
+          title: 'Nur auf Wunsch',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Zwei eigene Stories ohne GitHub-Verknüpfung, Schreiben ist an.',
+          when: 'Ich synchronisiere.',
+          then: 'Es entsteht kein neues Issue. „Auf GitHub anlegen“ ist nur bei Stories ohne Verknüpfung zu sehen und nur, solange Schreiben an ist.',
+          tests: [`${ROUNDTRIP} › AC10.2 creates nothing on a sync, and offers the item only for a story without link while writing is on`, `${ROUNDTRIP} › AC10.2 does not offer the item while writing is off`]
+        },
+        {
+          id: 'AC10.3',
+          title: 'Nicht doppelt anlegen',
+          link: BACKLOG,
+          target: '.backlog__row',
+          given: '„Export als CSV“ wurde bereits auf GitHub angelegt.',
+          when: 'Ich öffne wieder ihr Menü.',
+          then: '„Auf GitHub anlegen“ fehlt; stattdessen ist der Link zum Issue da.',
+          tests: [`${ROUNDTRIP} › AC10.3 does not offer it again once the issue exists`, `${RDOMAIN} › AC10.3 does not bring back an issue whose story was deleted`]
+        }
+      ]
+    },
+    {
+      id: 'AC11',
+      story: 'G11',
+      title: 'Ein allgemeiner Mechanismus, ein Anschluss pro Dienst',
+      cases: [
+        {
+          id: 'AC11.1',
+          title: 'Verbindungen und geplante Dienste',
+          link: SETTINGS,
+          target: '.github-services',
+          given: 'Funktion ist an.',
+          when: 'Ich öffne Einstellungen → Verbindungen.',
+          then: 'GitHub ist als verbunden gelistet. GitLab, Jira und Trello stehen als „geplant“ da und lassen sich nicht auswählen.',
+          tests: [`${ROUNDTRIP} › AC11.1 lists GitHub as connected and GitLab, Jira and Trello as planned`]
+        },
+        {
+          id: 'AC11.2',
+          title: 'Verbindung entfernen',
+          link: SETTINGS,
+          target: '.github-settings',
+          given: 'GitHub ist verbunden, 3 Stories sind importiert.',
+          when: 'Ich entferne die Verbindung.',
+          then: 'Nach einer Rückfrage ist die Verbindung samt Token weg. Die 3 Stories bleiben unverändert, nur ohne Link und #-Nummer und ohne Markierung „nicht auf GitHub“.',
+          tests: [`${ROUNDTRIP} › AC11.2 removes the connection after asking, and the stories stay without link and marker`]
+        },
+        {
+          id: 'AC11.3',
+          title: 'Ein Mechanismus, ein Anschluss pro Dienst',
+          link: SETTINGS,
+          target: '.github-services',
+          given: 'Rein technisch, deshalb nur automatisiert geprüft.',
+          when: 'Eine gemeinsame Testreihe (Lesen, Schreiben, Fehler, Konflikt) läuft gegen den GitHub-Anschluss, die simulierte Vorschau und einen Test-Anschluss.',
+          then: 'Alle bestehen sie mit demselben Sync-Motor.',
+          tests: [`${CONNECTOR} › AC11.3 connector contract`]
         }
       ]
     }
