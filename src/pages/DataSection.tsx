@@ -29,6 +29,7 @@ export function DataSection() {
     sprints: app.sprints,
     releases: app.releases,
     events: app.events,
+    changeLog: app.changeLog,
     stories: app.stories,
     statuses: app.statuses,
     fields: app.fields,

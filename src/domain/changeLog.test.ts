@@ -60,7 +60,6 @@ function step(log: ChangeVersion[], before: World, after: World, at: string): Ch
 
 const T0 = '2026-10-13T10:00:00.000Z';
 const minutes = (n: number): string => new Date(Date.parse(T0) + n * 60_000).toISOString();
-const seconds = (n: number): string => new Date(Date.parse(T0) + n * 1000).toISOString();
 
 describe('change log: recording', () => {
   it('AC2.3 starts the history of a new story with a created version', () => {
