@@ -27,7 +27,7 @@ async function renderApp(hash: string, { connected = true, issues = [] }: Option
   const seed = seedSnapshot(todayIso());
   await repository.replaceAll({
     ...seed,
-    settings: { ...seed.settings, features: { ...seed.settings.features, github: connected }, github: { repo: connected ? REPO : '', lastSyncAt: null } }
+    settings: { ...seed.settings, features: { ...seed.settings.features, github: connected }, github: { ...seed.settings.github, repo: connected ? REPO : '' } }
   });
   if (connected) await fake.github.tokens.set('good');
   window.location.hash = hash;
@@ -49,7 +49,7 @@ describe('switching the feature on', () => {
     // When I look at the features and the backlog
     expect(screen.getByRole('switch', { name: /GitHub connection/ })).not.toBeChecked();
     // Then there is no section "GitHub" and no button "Synchronise"
-    expect(within(screen.getByRole('navigation', { name: 'Settings sections' })).queryByRole('link', { name: 'GitHub' })).not.toBeInTheDocument();
+    expect(within(screen.getByRole('navigation', { name: 'Settings sections' })).queryByRole('link', { name: 'Connections' })).not.toBeInTheDocument();
     await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Backlog' }));
     await screen.findByRole('heading', { name: 'Backlog' });
     expect(screen.queryByRole('button', { name: 'Synchronise' })).not.toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('switching the feature on', () => {
     await renderApp('#/settings/features', { connected: false });
     // When I switch it on and open the section
     await user.click(screen.getByRole('switch', { name: /GitHub connection/ }));
-    await user.click(within(screen.getByRole('navigation', { name: 'Settings sections' })).getByRole('link', { name: 'GitHub' }));
+    await user.click(within(screen.getByRole('navigation', { name: 'Settings sections' })).getByRole('link', { name: 'Connections' }));
     // Then I can enter the repository and the token
     expect(await screen.findByLabelText('Repository (owner/name)')).toBeInTheDocument();
     expect(screen.getByLabelText('Access token')).toHaveAttribute('type', 'password');
@@ -78,7 +78,7 @@ describe('switching the feature on', () => {
     window.location.hash = '#/settings/features';
     await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
     // Then the section is gone, and so are the button and the number in the backlog
-    expect(within(screen.getByRole('navigation', { name: 'Settings sections' })).queryByRole('link', { name: 'GitHub' })).not.toBeInTheDocument();
+    expect(within(screen.getByRole('navigation', { name: 'Settings sections' })).queryByRole('link', { name: 'Connections' })).not.toBeInTheDocument();
     window.location.hash = '#/backlog';
     await screen.findByRole('heading', { name: 'Backlog' });
     expect(screen.queryByRole('button', { name: 'Synchronise' })).not.toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('connecting the repository', () => {
     const { fake, repository } = await renderApp('#/settings/github', { connected: false });
     // (the feature is off, so the settings show the features; switch it on first)
     await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
-    await user.click(within(screen.getByRole('navigation', { name: 'Settings sections' })).getByRole('link', { name: 'GitHub' }));
+    await user.click(within(screen.getByRole('navigation', { name: 'Settings sections' })).getByRole('link', { name: 'Connections' }));
     fake.state.issues = [fakeIssue(1), fakeIssue(2), fakeIssue(3)];
     // When I enter repository and token and test the connection
     await user.type(await screen.findByLabelText('Repository (owner/name)'), REPO);
@@ -186,7 +186,8 @@ describe('connecting the repository', () => {
     const user = userEvent.setup();
     const { fake, repository } = await renderApp('#/settings/github');
     // When I disconnect
-    await user.click(await screen.findByRole('button', { name: 'Disconnect' }));
+    await user.click(await screen.findByRole('button', { name: 'Remove connection' }));
+    await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Remove connection' }));
     // Then both are gone
     expect(await fake.github.tokens.get()).toBeNull();
     await waitFor(async () => expect((await repository.load()).settings.github.repo).toBe(''));
@@ -232,7 +233,7 @@ describe('importing and syncing', () => {
     expect((await repository.load()).stories).toHaveLength(count);
   });
 
-  it('AC3.1 shows the changes of a synced story and says that GitHub wins', async () => {
+  it('AC3.1 shows the changes of a synced story that GitHub changed', async () => {
     // Given an imported story
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { issues: [fakeIssue(31, { title: 'Login', labels: ['feature'] })] });
@@ -243,7 +244,7 @@ describe('importing and syncing', () => {
     // Then the dialog names the change and the story is updated
     expect(within(dialog).getByText('Title changed: “Login” → “Login-Seite”')).toBeInTheDocument();
     expect(within(dialog).getByText('Labels: new bug')).toBeInTheDocument();
-    expect(dialog).toHaveTextContent('GitHub wins');
+    expect(dialog).toHaveTextContent('Changes from GitHub were taken');
     await user.click(within(dialog).getByRole('button', { name: 'Close' }));
     expect(screen.getByText('Login-Seite')).toBeInTheDocument();
   });

@@ -738,8 +738,8 @@ describe('GitHub link of a story (#30)', () => {
     const { repository } = await freshRepository();
     const [first] = (await repository.load()).stories;
     expect(first.github).toBeUndefined();
-    await repository.addStory({ ...first, id: 'imported', code: 'S-99', rank: 99, criteria: [], values: {}, github: { url, state: 'open' } });
-    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.github).toEqual({ url, state: 'open' });
+    await repository.addStory({ ...first, id: 'imported', code: 'S-99', rank: 99, criteria: [], values: {}, github: { url, state: 'open', base: { title: 'Login', description: '', labels: ['bug'], criteria: [{ text: 'One', done: true }], done: false } } });
+    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.github).toEqual({ url, state: 'open', base: { title: 'Login', description: '', labels: ['bug'], criteria: [{ text: 'One', done: true }], done: false } });
     const imported = (await repository.load()).stories.find((story) => story.id === 'imported');
     if (!imported) throw new Error('story missing');
     await repository.updateStory({ ...imported, github: { url, state: 'closed' } });
@@ -749,14 +749,14 @@ describe('GitHub link of a story (#30)', () => {
 
   it('AC1.5 keeps the repository, the last sync and the switch of the feature in the settings', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null });
+    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
     const settings = (await repository.load()).settings;
-    await repository.saveSettings({ ...settings, features: { ...settings.features, github: true }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z' } });
+    await repository.saveSettings({ ...settings, features: { ...settings.features, github: true }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] } });
     const after = (await repository.load()).settings;
     expect(after.features.github).toBe(true);
-    expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z' });
+    expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] });
     await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null });
+    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
   });
 
   it('keeps the stories of version 0.1 when the migration adds the columns', () => {

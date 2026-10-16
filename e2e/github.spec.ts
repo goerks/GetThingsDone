@@ -17,7 +17,7 @@ const REPO = 'goerks/GetThingsDone';
 /** Switches the feature on and connects the simulated repository, with the mouse. */
 async function connect(page: Page, token = 'any-token'): Promise<void> {
   await page.getByRole('switch', { name: /GitHub connection/ }).click();
-  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'GitHub' }).click();
+  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'Connections' }).click();
   await page.getByLabel('Repository (owner/name)').fill(REPO);
   await page.getByLabel('Access token').fill(token);
   await page.getByRole('button', { name: 'Test connection' }).click();
@@ -38,7 +38,7 @@ const synchronise = async (page: Page) => {
 test('AC1.2 and AC1.3 switch the feature on, connect the repository and show a working connection', async ({ page }) => {
   // Given the feature is off and there is no section "GitHub"
   await expect(page.getByRole('switch', { name: /GitHub connection/ })).not.toBeChecked();
-  await expect(page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'GitHub' })).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'Connections' })).toHaveCount(0);
   // When I switch it on, enter repository and token and test the connection
   await connect(page);
   // Then the connection works and the token cannot be read any more
@@ -50,7 +50,7 @@ test('AC1.2 and AC1.3 switch the feature on, connect the repository and show a w
 test('AC1.7 marks the preview as a demo', async ({ page }) => {
   // Given the preview, When I open the section GitHub
   await page.getByRole('switch', { name: /GitHub connection/ }).click();
-  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'GitHub' }).click();
+  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'Connections' }).click();
   // Then it says "Demo" and offers the simulated GitHub
   await expect(page.locator('.badge--demo').first()).toHaveText('Demo');
   await expect(page.getByRole('region', { name: 'Demo: simulated GitHub' })).toBeVisible();
@@ -71,7 +71,7 @@ test('AC1.6 keeps the repository after a reload but asks for the token again', a
 test('AC1.4 says what is wrong with the repository', async ({ page }) => {
   // Given the section GitHub
   await page.getByRole('switch', { name: /GitHub connection/ }).click();
-  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'GitHub' }).click();
+  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'Connections' }).click();
   await page.getByLabel('Access token').fill('any-token');
   // When I test an empty repository, a wrong form and a repository that does not exist
   await page.getByRole('button', { name: 'Test connection' }).click();
@@ -174,7 +174,7 @@ test('AC6.2 works with the keyboard only, from the switch to the closed result d
   // When I switch the feature on and go to the section GitHub with Enter
   await keyboard.press('Space');
   await expect(page.getByRole('switch', { name: /GitHub connection/ })).toBeChecked();
-  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'GitHub' }).focus();
+  await page.getByRole('navigation', { name: 'Settings sections' }).getByRole('link', { name: 'Connections' }).focus();
   await keyboard.press('Enter');
   // And fill in repository and token with Tab, then test the connection with Enter
   await page.getByLabel('Repository (owner/name)').focus();
