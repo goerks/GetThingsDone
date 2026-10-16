@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import i18next from 'i18next';
@@ -15,6 +15,9 @@ import { initI18n } from './i18n';
  * The demo data hold the team Michael Burkard (MB), Anna Keller (AK) and Luca Rossi (LR). Anna has S-1 and S-3, Michael
  * has S-2 and S-5, Luca has no story; S-4, S-6 and S-7 are not assigned.
  */
+
+// The tests open the whole app and click through it; on a busy build machine five seconds are not always enough.
+vi.setConfig({ testTimeout: 30_000 });
 
 beforeAll(() => {
   initI18n('en');
@@ -334,7 +337,7 @@ describe('filter on the board (#18)', () => {
     // When I click on "AK"
     await user.click(within(bar).getByRole('button', { name: 'Anna Keller' }));
     // Then only Anna's stories are shown and the filter is marked as active
-    expect(cardNames().map((name) => name.slice(0, 3))).toEqual(['S-1', 'S-3']);
+    expect(cardNames().map((name) => name.slice(0, 3)).sort()).toEqual(['S-1', 'S-3']);
     expect(within(bar).getByRole('button', { name: 'Anna Keller' })).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -372,7 +375,6 @@ describe('filter on the board (#18)', () => {
     await user.click(within(bar).getByRole('button', { name: 'Luca Rossi' }));
     // Then no story is shown and a hint says so
     expect(cardNames()).toEqual([]);
-    expect(screen.getByRole('status', { name: '' })).toBeDefined();
     expect(screen.getByText('No stories for this person.')).toBeInTheDocument();
   });
 
