@@ -1,0 +1,221 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Team und Zuweisung Varianten</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant shows small mockups of the real screens. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+h4 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; align-content: start; }
+.decided { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.decided b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.tag { font-family: var(--font-mono); font-size: 12px; background: var(--accent-soft); color: var(--accent-soft-ink); padding: 2px 10px; border-radius: 999px; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); }
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+.shot { display: grid; gap: 6px; min-width: 0; }
+.shot figcaption { font-size: 12px; color: var(--muted); }
+.shot { margin: 0; }
+.frame { border: 1px dashed var(--border); border-radius: var(--r); padding: 10px; background: var(--bg); display: grid; gap: 8px; min-width: 0; overflow: hidden; }
+.frame__label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+.rate { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.rate ul { list-style: none; padding: 0; display: grid; gap: 4px; font-size: 14px; }
+.rate li::before { font-weight: 700; margin-right: 6px; }
+.pro li::before { content: "+"; color: var(--ok); }
+.con li::before { content: "\2212"; color: var(--bad); }
+
+/* mockup parts */
+.m-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: grid; gap: 6px; font-size: 13px; }
+.m-card__row { display: flex; align-items: center; gap: 6px; justify-content: space-between; min-width: 0; }
+.m-card__title { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.m-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; flex: none; }
+.m-pts { font-family: var(--font-mono); font-size: 11px; background: var(--pill); border-radius: 999px; padding: 0 7px; }
+.m-ini { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-soft-ink); font-size: 10px; font-weight: 600; flex: none; letter-spacing: .02em; }
+.m-ini--none { background: transparent; border: 1px dashed var(--border); color: var(--muted); }
+.m-txt { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--accent-soft-ink); background: var(--accent-soft); padding: 0 6px; border-radius: 4px; }
+.m-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.m-col { background: var(--column); border-radius: 6px; padding: 6px; display: grid; gap: 6px; align-content: start; }
+.m-col__h { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.m-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; }
+.m-chip { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 2px 10px; font-size: 12px; display: inline-flex; gap: 6px; align-items: center; }
+.m-chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.m-sel { border: 1px solid var(--border); background: var(--surface); border-radius: 6px; padding: 5px 9px; font-size: 13px; display: flex; justify-content: space-between; gap: 8px; }
+.m-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 6px; padding: 4px 10px; font-size: 12px; }
+.m-btn--pri { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.m-list { display: grid; gap: 6px; }
+.m-row { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; }
+.m-row .grow { flex: 1; min-width: 0; }
+.m-field { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+.m-input { border: 1px solid var(--border); background: var(--surface); border-radius: 6px; padding: 5px 9px; font-size: 13px; color: var(--text); }
+.m-menu { border: 1px solid var(--border); background: var(--surface); border-radius: 6px; box-shadow: 0 4px 14px var(--shadow); display: grid; font-size: 13px; }
+.m-menu div { padding: 5px 9px; display: flex; gap: 8px; align-items: center; }
+.m-menu div + div { border-top: 1px solid var(--border); }
+.m-menu .on { background: var(--accent-soft); }
+.m-drag { transform: rotate(-2deg); box-shadow: 0 6px 16px var(--shadow); }
+.m-hint { font-size: 12px; color: var(--accent-soft-ink); background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; }
+
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.rec { border: 2px solid var(--ok); background: var(--surface); border-radius: var(--r); padding: 18px 20px; display: grid; gap: 10px; }
+.rec h3 { color: var(--ok); }
+@media (max-width: 480px) { .m-cols { grid-template-columns: 1fr; } }
+</style></head><body><div class="wrap">
+
+<header class="intro">
+  <h2>Design-Varianten für #18</h2>
+  <h1>Teammitglieder und Zuweisung von Stories</h1>
+  <p>Drei Wege, wie ein Team Personen anlegt, Stories zuweist und nach Personen filtert. Alle Varianten halten sich an deine Entscheidungen. Die Entwürfe sind Mockups mit Demodaten, nicht die fertige App.</p>
+  <div class="meta"><span>Issue #18</span><span>Entwurf</span><span>Demodaten</span></div>
+</header>
+
+<section class="decided" aria-label="Bereits entschieden">
+  <div class="box"><b>Mitglied</b>Name und Kürzel. Keine Farbe, keine Konten.</div>
+  <div class="box"><b>Zuweisung</b>Genau eine Person oder niemand.</div>
+  <div class="box"><b>Wo sichtbar</b>Board, Backlog, Story-Map. Filter auf dem Board und in der Suche.</div>
+  <div class="box"><b>Mit dem Projekt</b>Export, Import und Verlauf enthalten Mitglieder und Zuweisungen.</div>
+</section>
+
+<!-- Variant 1 -->
+<section class="variant" aria-labelledby="v1">
+  <div class="variant__head"><span class="tag">Variante 1</span><h3 id="v1">Team in den Einstellungen, Filter als Leiste</h3></div>
+  <p>Die Mitglieder pflegst du an einer Stelle: Einstellungen, Bereich „Team“. Die Story weist du im Dialog zu. Über dem Board liegt eine Filterleiste mit den Kürzeln aller Mitglieder.</p>
+  <div class="shots">
+    <figure class="shot"><div class="frame"><span class="frame__label">Entwurf · Einstellungen › Team</span>
+      <div class="m-list">
+        <div class="m-row"><span class="m-ini">MB</span><span class="grow">Michael Burkard</span><span class="muted">Kürzel MB</span><span class="m-btn">Ändern</span></div>
+        <div class="m-row"><span class="m-ini">AK</span><span class="grow">Anna Keller</span><span class="muted">Kürzel AK</span><span class="m-btn">Ändern</span></div>
+        <div class="m-row"><span class="m-ini">LR</span><span class="grow">Luca Rossi</span><span class="muted">Kürzel LR</span><span class="m-btn">Ändern</span></div>
+      </div>
+      <div><span class="m-btn m-btn--pri">+ Mitglied hinzufügen</span></div></div>
+      <figcaption>Mitglieder anlegen, umbenennen, entfernen. Beim Entfernen fragt die App nach, wenn noch Stories zugewiesen sind.</figcaption></figure>
+    <figure class="shot"><div class="frame"><span class="frame__label">Entwurf · Story-Dialog</span>
+      <div class="m-field">Titel<div class="m-input">S-3 Login-Seite</div></div>
+      <div class="m-field">Zugewiesen an<div class="m-sel"><span>Anna Keller (AK)</span><span>▾</span></div></div>
+      <div class="m-menu"><div>Niemand</div><div>Michael Burkard (MB)</div><div class="on">Anna Keller (AK)</div><div>Luca Rossi (LR)</div></div></div>
+      <figcaption>Eine Auswahl im Story-Dialog und im Dialog „Neue Story“.</figcaption></figure>
+    <figure class="shot"><div class="frame"><span class="frame__label">Entwurf · Board</span>
+      <div class="m-bar"><span class="m-chip" aria-pressed="false">Alle</span><span class="m-chip" aria-pressed="true">AK</span><span class="m-chip" aria-pressed="false">MB</span><span class="m-chip" aria-pressed="false">LR</span><span class="m-chip" aria-pressed="false">Nicht zugewiesen</span></div>
+      <div class="m-cols">
+        <div class="m-col"><span class="m-col__h">In Arbeit</span>
+          <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-3 Login-Seite</span><span class="m-ini">AK</span></div><div class="m-card__row"><span><span class="m-dot"></span> Konto</span><span class="m-pts">5</span></div></div></div>
+        <div class="m-col"><span class="m-col__h">Erledigt</span>
+          <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-1 Konto anlegen</span><span class="m-ini">AK</span></div><div class="m-card__row"><span><span class="m-dot"></span> Konto</span><span class="m-pts">3</span></div></div></div>
+      </div></div>
+      <figcaption>Filter „AK“ ist aktiv. Karten anderer Personen sind ausgeblendet.</figcaption></figure>
+  </div>
+  <div class="rate">
+    <div class="box pro"><h4>Vorteile</h4><ul><li>Klarer Ort für die Teamliste, passt zu den anderen Einstellungen.</li><li>Ein Klick auf dem Board genügt zum Filtern.</li><li>Gut per Tastatur bedienbar: Auswahl und Schaltflächen.</li><li>Klein genug für einen PR.</li></ul></div>
+    <div class="box con"><h4>Nachteile</h4><ul><li>Neue Person nur über den Umweg Einstellungen.</li><li>Die Filterleiste braucht Platz. Bei zehn Personen wird sie breit.</li><li>Zuweisen geht nur über den Dialog.</li></ul></div>
+  </div>
+</section>
+
+<!-- Variant 2 -->
+<section class="variant" aria-labelledby="v2">
+  <div class="variant__head"><span class="tag">Variante 2</span><h3 id="v2">Team-Leiste auf dem Board, Zuweisen per Ziehen</h3></div>
+  <p>Über dem Board steht eine Teamleiste mit allen Mitgliedern. Ein Klick filtert. Eine Karte auf ein Kürzel ziehen weist sie zu. Der Dialog bleibt als Alternative, auch für Tastatur und Touch.</p>
+  <div class="shots">
+    <figure class="shot"><div class="frame"><span class="frame__label">Entwurf · Board beim Ziehen</span>
+      <div class="m-bar"><span class="muted">Team</span><span class="m-ini">MB</span><span class="m-ini" style="outline:2px solid var(--accent);outline-offset:2px">AK</span><span class="m-ini">LR</span><span class="m-ini m-ini--none">–</span><span class="m-btn">+ Person</span></div>
+      <div class="m-hint">„S-4 Passwort vergessen“ auf „AK“ ablegen, um sie Anna Keller zuzuweisen.</div>
+      <div class="m-cols">
+        <div class="m-col"><span class="m-col__h">Offen</span>
+          <div class="m-card m-drag"><div class="m-card__row"><span class="m-card__title">S-4 Passwort vergessen</span><span class="m-ini m-ini--none">–</span></div></div></div>
+        <div class="m-col"><span class="m-col__h">In Arbeit</span>
+          <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-3 Login-Seite</span><span class="m-ini">MB</span></div></div></div>
+      </div></div>
+      <figcaption>Das Ziehen auf ein Kürzel ist die schnelle Zuweisung. Ablegen auf „–“ hebt sie auf.</figcaption></figure>
+    <figure class="shot"><div class="frame"><span class="frame__label">Entwurf · Person bearbeiten</span>
+      <div class="m-field">Name<div class="m-input">Luca Rossi</div></div>
+      <div class="m-field">Kürzel<div class="m-input">LR</div></div>
+      <div class="m-bar"><span class="m-btn m-btn--pri">Speichern</span><span class="m-btn">Abbrechen</span><span class="m-btn" style="color:var(--bad)">Entfernen</span></div></div>
+      <figcaption>Klick auf „+ Person“ oder Rechtsklick auf ein Kürzel öffnet dieses kleine Fenster.</figcaption></figure>
+  </div>
+  <div class="rate">
+    <div class="box pro"><h4>Vorteile</h4><ul><li>Schnellste Zuweisung im Alltag, Person direkt auf dem Board anlegbar.</li><li>Die Leiste zeigt auf einen Blick, wer im Team ist.</li><li>Filtern und Zuweisen an derselben Stelle.</li></ul></div>
+    <div class="box con"><h4>Nachteile</h4><ul><li>Neue Ziehfläche neben dem Ziehen zwischen Spalten. Fehlablagen sind möglich.</li><li>Für Tastatur und Screenreader braucht es trotzdem den Dialog, also doppelte Arbeit.</li><li>Auf dem Handy bleibt das Ziehen schwierig (siehe #34).</li><li>Passt schlecht zur Ruhe der kompakten Karten aus #55. Mehr Aufwand, größerer PR.</li></ul></div>
+  </div>
+</section>
+
+<!-- Variant 3 -->
+<section class="variant" aria-labelledby="v3">
+  <div class="variant__head"><span class="tag">Variante 3</span><h3 id="v3">Personen beim Zuweisen anlegen, Filter als Auswahl</h3></div>
+  <p>Es gibt keine eigene Teamliste als Einstieg. Im Story-Dialog tippst du einen Namen. Gibt es ihn nicht, legst du ihn gleich an. Die Verwaltung (umbenennen, entfernen) liegt trotzdem in den Einstellungen. Auf dem Board filtert eine Auswahl „Person“ in der Werkzeugleiste.</p>
+  <div class="shots">
+    <figure class="shot"><div class="frame"><span class="frame__label">Entwurf · Story-Dialog</span>
+      <div class="m-field">Zugewiesen an<div class="m-input">Sa</div></div>
+      <div class="m-menu"><div>Sara Meier (SM)</div><div class="on">+ „Sa“ als neue Person anlegen</div></div></div>
+      <figcaption>Neue Person beim Tippen anlegen. Das Kürzel wird abgeleitet und kann später geändert werden.</figcaption></figure>
+    <figure class="shot"><div class="frame"><span class="frame__label">Entwurf · Board-Werkzeugleiste</span>
+      <div class="m-bar"><span class="m-sel" style="min-width:150px"><span>Person: Alle</span><span>▾</span></span></div>
+      <div class="m-menu"><div>Alle</div><div>Nicht zugewiesen</div><div class="on">Anna Keller (AK)</div><div>Michael Burkard (MB)</div><div>Luca Rossi (LR)</div></div>
+      <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-3 Login-Seite</span><span class="m-ini">AK</span></div></div></div>
+      <figcaption>Die Auswahl braucht auch bei zehn Personen kaum Platz.</figcaption></figure>
+  </div>
+  <div class="rate">
+    <div class="box pro"><h4>Vorteile</h4><ul><li>Kein Umweg: Person und Zuweisung in einem Schritt.</li><li>Die Filterauswahl bleibt schmal, auch bei vielen Personen.</li><li>Tastatur und Screenreader kennen das Muster (Auswahlfeld mit Eingabe).</li></ul></div>
+    <div class="box con"><h4>Nachteile</h4><ul><li>Tippfehler erzeugen leicht doppelte Personen („Anna“, „Ana“).</li><li>Das Team ist nicht auf einen Blick sichtbar.</li><li>Das Filtern braucht zwei Klicks statt einem.</li><li>Das Auswahlfeld mit Eingabe ist aufwendiger zu bauen und zu testen.</li></ul></div>
+  </div>
+</section>
+
+<!-- Options -->
+<section class="variant" aria-labelledby="opt">
+  <div class="variant__head"><h2 id="opt">Optionen für alle Varianten: Darstellung der Kürzel auf der Karte</h2></div>
+  <div class="opts">
+    <figure class="shot"><div class="frame"><span class="frame__label">Option A · Runder Kreis</span>
+      <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-3 Login-Seite</span><span class="m-ini">AK</span></div><div class="m-card__row"><span><span class="m-dot"></span> Konto</span><span class="m-pts">5</span></div></div>
+      <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-4 Passwort vergessen</span><span class="m-ini m-ini--none">–</span></div><div class="m-card__row"><span><span class="m-dot"></span> Konto</span><span class="m-pts">3</span></div></div></div>
+      <figcaption>Gewohnt aus anderen Tools, gut erkennbar rechts oben. Nicht zugewiesen: gestrichelter Kreis.</figcaption></figure>
+    <figure class="shot"><div class="frame"><span class="frame__label">Option B · Text in der Infozeile</span>
+      <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-3 Login-Seite</span></div><div class="m-card__row"><span><span class="m-dot"></span> Konto · <span class="m-txt">AK</span></span><span class="m-pts">5</span></div></div>
+      <div class="m-card"><div class="m-card__row"><span class="m-card__title">S-4 Passwort vergessen</span></div><div class="m-card__row"><span><span class="m-dot"></span> Konto</span><span class="m-pts">3</span></div></div></div>
+      <figcaption>Platzsparend und passend zu den kompakten Karten aus #55. Weniger auffällig, nicht Zugewiesene zeigen nichts.</figcaption></figure>
+  </div>
+  <div class="rate">
+    <div class="box pro"><h4>A: Kreis</h4><ul><li>Auf einen Blick erkennbar, auch auf dem Handy.</li><li>Zeigt „nicht zugewiesen“ sichtbar an.</li></ul></div>
+    <div class="box con"><h4>A: Kreis</h4><ul><li>Braucht Platz in der Karte und ändert das Kartenlayout von #55.</li></ul></div>
+    <div class="box pro"><h4>B: Text</h4><ul><li>Kein zusätzliches Element, Karte bleibt ruhig und kompakt.</li></ul></div>
+    <div class="box con"><h4>B: Text</h4><ul><li>Kürzel gehen leichter unter. Ohne Zuweisung fehlt jeder Hinweis.</li></ul></div>
+  </div>
+</section>
+
+<section class="rec" aria-labelledby="recc">
+  <span class="tag tag--rec">Empfehlung: 1.A</span>
+  <h3 id="recc">Variante 1 mit Kreis-Kürzel</h3>
+  <p>Variante 1 ist der kleinste Schritt, der alle sechs Kriterien erfüllt. Teamliste, Dialog und Filterleiste sind bekannte Bausteine und lassen sich vollständig per Tastatur bedienen. Der Kreis macht die Zuweisung auf dem Board sofort sichtbar. Die Breite der Leiste bei vielen Personen lässt sich später lösen (Kürzel umbrechen oder Variante 3 als Ergänzung).</p>
+  <p class="muted">Du verzichtest auf die schnelle Zuweisung per Ziehen (Variante 2) und auf das Anlegen beim Tippen (Variante 3). Beides kann später als eigenes Issue folgen. Die Kartenform von #55 ist noch im Bau. Option A fügt dort ein Element hinzu, das wir mit #55 abstimmen müssen.</p>
+</section>
+
+</div></body></html>
