@@ -1,4 +1,4 @@
-import type { Criterion } from './types';
+import type { Criterion, Intro } from './types';
 
 /**
  * Workflows (#49): the acceptance criteria and their test cases for the product owner, in German. One source for the issue
@@ -11,11 +11,22 @@ export const PACKAGE_49: {
   issue: number;
   pullRequest: number;
   title: string;
+  intro: Intro;
   criteria: Criterion[];
 } = {
   issue: 49,
   pullRequest: 53,
   title: 'Workflows',
+  intro: {
+    about:
+      'Ticket #49: Du legst selbst fest, welche Status-Übergänge erlaubt sind. Beispiel: Eine Story darf von „To do“ nicht direkt nach „Done“. Das stellst du in Einstellungen › Workflows ein; das Board, der Story-Dialog und das Backlog halten sich daran. Neu seit deinem Wunsch vom 16.10.: Jede Änderung wird als Version gespeichert, und du kannst zu einem früheren, funktionierenden Stand zurückkehren.',
+    todo: [
+      'Die Prüfpunkte unten führen dich der Reihe nach durch: „Zur Seite und markieren“ öffnet die Seite und hebt die Stelle hervor.',
+      'Bei jedem Punkt steht „Das prüfst du“: das ist die Frage an dich (Verständlichkeit, Aussehen, Bedienung).',
+      'Mit „In Ordnung“ oder „Problem“ markieren, bei einem Problem kurz sagen, was dir auffällt.',
+      'Am Ende „Ergebnis kopieren“ und im Chat einfügen. Alles andere ist automatisch getestet.'
+    ]
+  },
   criteria: [
     {
       id: 'AC1',
@@ -519,7 +530,8 @@ export const PACKAGE_49: {
           tests: [
             'src/domain/workflow.test.ts › AC12.1 adds a version with every change, and none for switching on or off',
             'src/Workflows.test.tsx › AC12.1 lists a version with every change, newest first'
-          ]
+          ],
+          poCheck: 'Ist sofort klar, was eine Version ist und welche die aktuelle ist?'
         },
         {
           id: 'AC12.2',
@@ -533,7 +545,8 @@ export const PACKAGE_49: {
           tests: [
             'src/domain/workflow.test.ts › AC12.2 names a version, trims the name and removes it when empty',
             'src/Workflows.test.tsx › AC12.2 names a version and keeps the name after a reload'
-          ]
+          ],
+          poCheck: 'Findest du das Feld zum Benennen, und ist klar, dass Enter speichert?'
         },
         {
           id: 'AC12.3',
@@ -547,7 +560,8 @@ export const PACKAGE_49: {
           tests: [
             'src/domain/workflow.test.ts › AC12.3 goes back to an old version as a new current one without losing any',
             'src/Workflows.test.tsx › AC12.3 goes back to a working version after a confirmation'
-          ]
+          ],
+          poCheck: 'Ist klar, was beim Zurückkehren passiert? Genügt die Rückfrage, und ist verständlich, dass nichts verloren geht?'
         },
         {
           id: 'AC12.4',
