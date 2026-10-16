@@ -484,7 +484,7 @@ describe('help for the GitHub connection', () => {
     // Then the text starts with switching the feature on, and the places that need it are locked
     expect(within(panel()).getByText(/^1\. Switch the feature on under Settings → Features/)).toBeInTheDocument();
     expect(within(panel()).getByRole('link', { name: 'Open Settings → Features' })).toHaveAttribute('href', '#/settings/features');
-    expect(within(panel()).queryByRole('link', { name: 'Open Settings → GitHub' })).not.toBeInTheDocument();
+    expect(within(panel()).queryByRole('link', { name: 'Open Settings → Connections' })).not.toBeInTheDocument();
     expect(within(panel()).getAllByText('Switch the feature “GitHub connection” on first').length).toBeGreaterThan(0);
   });
 
@@ -495,7 +495,7 @@ describe('help for the GitHub connection', () => {
     // When I open the help topic
     await openTopic(user);
     // Then the section GitHub is a link
-    expect(within(panel()).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/github');
+    expect(within(panel()).getByRole('link', { name: 'Open Settings → Connections' })).toHaveAttribute('href', '#/settings/github');
   });
 });
 

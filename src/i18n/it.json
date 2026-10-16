@@ -1392,7 +1392,7 @@
       "closed": "concluse (chiuse su GitHub)",
       "wins": "Le modifiche di GitHub sono state recepite. Sprint, punti e ordine restano invariati.",
       "close": "Chiudi",
-      "toSettings": "Apri Impostazioni → GitHub",
+      "toSettings": "Apri Impostazioni → Connessioni",
       "pendingCount_one": "{{count}} modifica non ancora su GitHub",
       "pendingCount_other": "{{count}} modifiche non ancora su GitHub",
       "publishedCount_one": "{{count}} modifica pubblicata su GitHub",

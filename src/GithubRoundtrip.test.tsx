@@ -103,7 +103,8 @@ describe('the options of the connection', () => {
     // Given a connected repository
     await renderApp('#/settings/github');
     // When I look at the services
-    const list = (await screen.findByRole('heading', { name: 'Services' })).parentElement as HTMLElement;
+    await screen.findByRole('heading', { name: 'Services' });
+    const list = document.querySelector('.github-services') as HTMLElement;
     // Then GitHub is connected and the others are planned
     const entries = within(list).getAllByRole('listitem');
     expect(entries.map((item) => item.textContent)).toEqual(['GitHubconnected', 'GitLabplanned', 'Jiraplanned', 'Trelloplanned']);
@@ -116,7 +117,7 @@ describe('the options of the connection', () => {
     const { fake, repository } = await renderApp('#/settings/github', { stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { title: 'Login' })] });
     // When I remove the connection and confirm
     await user.click(await screen.findByRole('button', { name: 'Remove connection' }));
-    expect(await screen.findByRole('dialog')).toHaveTextContent('the imported stories stay');
+    expect(await screen.findByRole('dialog')).toHaveTextContent(/imported stories stay/);
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove connection' }));
     // Then token and repository are gone, the story is still there and no longer linked
     await waitFor(async () => expect((await repository.load()).settings.github.repo).toBe(''));
@@ -183,11 +184,12 @@ describe('publishing', () => {
 });
 
 describe('conflicts', () => {
-  const both = { stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { title: 'Login-Seite' })] };
+  // A new set for every test: the fake changes its issues when something is published.
+  const both = () => ({ stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { title: 'Login-Seite' })] });
 
   it('AC3.3 lets GitHub win by default and names the overwritten local title', async () => {
     const user = userEvent.setup();
-    await renderApp('#/backlog', both);
+    await renderApp('#/backlog', both());
     const dialog = await sync(user);
     expect(within(dialog).getByText('Local change overwritten: Title “Anmeldung”')).toBeInTheDocument();
     await user.click(within(dialog).getByRole('button', { name: 'Close' }));
@@ -196,7 +198,7 @@ describe('conflicts', () => {
 
   it('AC8.1 lets the local change win and names the overwritten GitHub title', async () => {
     const user = userEvent.setup();
-    const { fake } = await renderApp('#/backlog', { ...both, conflict: 'local' });
+    const { fake } = await renderApp('#/backlog', { ...both(), conflict: 'local' });
     const dialog = await sync(user);
     expect(within(dialog).getByText('GitHub change overwritten: Title “Login-Seite”')).toBeInTheDocument();
     expect(fake.state.issues[0].title).toBe('Anmeldung');
@@ -205,7 +207,7 @@ describe('conflicts', () => {
   it('AC8.2 shows both versions and changes nothing until I choose', async () => {
     // Given the rule "I decide"
     const user = userEvent.setup();
-    const { fake } = await renderApp('#/backlog', { ...both, conflict: 'ask' });
+    const { fake } = await renderApp('#/backlog', { ...both(), conflict: 'ask' });
     // When I synchronise
     const dialog = await sync(user);
     // Then both versions are shown, and nothing has changed yet
@@ -221,7 +223,7 @@ describe('conflicts', () => {
 
   it('AC8.3 keeps the conflict open when I cancel the dialog with Esc', async () => {
     const user = userEvent.setup();
-    const { fake } = await renderApp('#/backlog', { ...both, conflict: 'ask' });
+    const { fake } = await renderApp('#/backlog', { ...both(), conflict: 'ask' });
     await sync(user);
     await user.keyboard('{Escape}');
     // The conflict is still there, nothing changed, and the next sync asks again
@@ -232,7 +234,7 @@ describe('conflicts', () => {
 
   it('AC8.4 is no conflict when different fields changed', async () => {
     const user = userEvent.setup();
-    const { fake } = await renderApp('#/backlog', { stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { body: 'New text' })], conflict: 'ask' });
+    const { fake } = await renderApp('#/backlog', { stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { title: 'Login', body: 'New text' })], conflict: 'ask' });
     const dialog = await sync(user);
     expect(within(dialog).queryByText(/Both sides changed/)).not.toBeInTheDocument();
     expect(fake.state.issues[0]).toMatchObject({ title: 'Anmeldung', body: 'New text' });

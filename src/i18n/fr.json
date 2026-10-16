@@ -1392,7 +1392,7 @@
       "closed": "terminées (fermées sur GitHub)",
       "wins": "Les modifications de GitHub ont été reprises. Sprint, points et ordre restent inchangés.",
       "close": "Fermer",
-      "toSettings": "Ouvrir Paramètres → GitHub",
+      "toSettings": "Ouvrir Paramètres → Connexions",
       "pendingCount_one": "{{count}} modification pas encore sur GitHub",
       "pendingCount_other": "{{count}} modifications pas encore sur GitHub",
       "publishedCount_one": "{{count}} modification publiée sur GitHub",

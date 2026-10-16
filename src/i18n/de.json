@@ -1387,7 +1387,7 @@
       "closed": "erledigt (auf GitHub geschlossen)",
       "wins": "Änderungen von GitHub wurden übernommen. Sprint, Punkte und Reihenfolge bleiben unverändert.",
       "close": "Schliessen",
-      "toSettings": "Einstellungen → GitHub öffnen",
+      "toSettings": "Einstellungen → Verbindungen öffnen",
       "pendingCount_one": "{{count}} Änderung noch nicht auf GitHub",
       "pendingCount_other": "{{count}} Änderungen noch nicht auf GitHub",
       "publishedCount_one": "{{count}} Änderung nach GitHub veröffentlicht",
