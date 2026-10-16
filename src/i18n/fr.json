@@ -443,6 +443,11 @@
         "name": "Releases",
         "description": "Planifier avec des releases : la page Releases, le champ Release des stories, les lignes de release de la story map et les rapports de périmètre et de burndown. À désactiver si l’équipe travaille uniquement avec des sprints.",
         "offNote": "Désactivée. Les releases, leurs stories et leur historique sont conservés et reviennent à la réactivation."
+      },
+      "team": {
+        "name": "Équipe",
+        "description": "Assigne des stories à des personnes : la section « Équipe » dans les paramètres, le champ « Assignée à », les initiales sur les cartes, la barre de filtre du tableau et la recherche par personne. Laisse-la éteinte si tu travailles seul.",
+        "offNote": "Éteinte. Les membres et les assignations sont conservés et reviennent quand tu l’allumes."
       }
     },
     "data": {
@@ -993,7 +998,7 @@
       "team.assign": {
         "title": "Équipe et assignation",
         "keywords": "équipe personne membre assigner assignée initiales filtre quelqu’un travaille qui",
-        "body": "Ouvre Paramètres → Équipe et ajoute les personnes auxquelles tu veux assigner des stories. Un nom et des initiales suffisent, il n’y a pas de comptes. Les initiales viennent du nom et peuvent être modifiées.\nTu assignes une story dans sa fenêtre, dans le champ « Assignée à », ou directement en créant une nouvelle story. Une pastille ronde montre les initiales sur les cartes, dans le backlog et sur la story map. Une pastille en pointillés signifie que la story n’est pas assignée.\nAu-dessus du tableau, tu filtres par personne ou par stories que personne ne traite. La recherche trouve aussi les stories par nom ou par initiales.\nSi tu retires un membre, ses stories restent et ne sont plus assignées."
+        "body": "Allume d’abord « Équipe » sous Paramètres → Fonctions. Ouvre ensuite Paramètres → Équipe et ajoute les personnes auxquelles tu veux assigner des stories. Un nom et des initiales suffisent, il n’y a pas de comptes. Les initiales viennent du nom et peuvent être modifiées.\nTu assignes une story dans sa fenêtre, dans le champ « Assignée à », ou directement en créant une nouvelle story. Une pastille ronde montre les initiales sur les cartes, dans le backlog et sur la story map. Une pastille en pointillés signifie que la story n’est pas assignée.\nAu-dessus du tableau, tu filtres par personne ou par stories que personne ne traite. La recherche trouve aussi les stories par nom ou par initiales.\nSi tu retires un membre, ses stories restent et ne sont plus assignées. Si tu éteins « Équipe », les membres et les assignations sont conservés."
       }
     },
     "links": {

@@ -49,6 +49,11 @@ function Shell() {
   useEffect(() => {
     if (hidden) window.location.replace(hrefs.board);
   }, [hidden]);
+  // Without the team the address of Settings › Team leads to the features, where it is switched on again (#18).
+  const teamHidden = route.name === 'settings' && route.section === 'team' && !loading && !featureOn(settings, 'team');
+  useEffect(() => {
+    if (teamHidden) window.location.replace(hrefs.settingsFeatures);
+  }, [teamHidden]);
 
   return (
     <div className={`app${help.open ? ' app--help' : ''}`}>

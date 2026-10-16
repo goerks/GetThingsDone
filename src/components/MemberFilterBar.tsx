@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { MemberFilter } from '../domain/members';
 import { useApp } from '../state/AppState';
+import { useFeature } from './useFeature';
 
 interface Props {
   filter: MemberFilter;
@@ -14,7 +15,8 @@ interface Props {
 export function MemberFilterBar({ filter, onChange }: Props) {
   const { t } = useTranslation();
   const app = useApp();
-  if (app.members.length === 0) return null;
+  const on = useFeature('team');
+  if (!on || app.members.length === 0) return null;
   return (
     <div className="member-filter" role="group" aria-label={t('team.filter.label')}>
       <button type="button" className="member-filter__chip" aria-pressed={filter.kind === 'all'} onClick={() => onChange({ kind: 'all' })}>

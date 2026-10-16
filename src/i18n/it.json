@@ -443,6 +443,11 @@
         "name": "Release",
         "description": "Pianificare con le release: la pagina Release, il campo Release delle storie, le righe di release della story map e i rapporti su ambito e burndown. Disattivare se il team lavora solo con gli sprint.",
         "offNote": "Disattivata. Le release, le loro storie e la cronologia vengono conservate e tornano alla riattivazione."
+      },
+      "team": {
+        "name": "Team",
+        "description": "Assegna le storie alle persone: la sezione «Team» nelle impostazioni, il campo «Assegnata a», le iniziali sulle carte, la barra dei filtri della bacheca e la ricerca per persona. Lasciala spenta se lavori da solo.",
+        "offNote": "Spenta. Membri e assegnazioni vengono conservati e tornano quando la accendi."
       }
     },
     "data": {
@@ -993,7 +998,7 @@
       "team.assign": {
         "title": "Team e assegnazione",
         "keywords": "team persona membro assegnare assegnata iniziali filtro qualcuno lavora chi",
-        "body": "Apri Impostazioni → Team e aggiungi le persone a cui vuoi assegnare le storie. Bastano un nome e le iniziali, non ci sono account. Le iniziali derivano dal nome e si possono modificare.\nAssegni una storia nella sua finestra, nel campo «Assegnata a», oppure subito quando crei una nuova storia. Un cerchio mostra le iniziali sulle carte, nel backlog e sulla story map. Un cerchio tratteggiato significa che la storia non è assegnata.\nSopra la bacheca filtri per una persona o per le storie su cui nessuno lavora. La ricerca trova le storie anche per nome o iniziali.\nSe rimuovi un membro, le sue storie restano e non sono più assegnate."
+        "body": "Accendi prima «Team» in Impostazioni → Funzioni. Poi apri Impostazioni → Team e aggiungi le persone a cui vuoi assegnare le storie. Bastano un nome e le iniziali, non ci sono account. Le iniziali derivano dal nome e si possono modificare.\nAssegni una storia nella sua finestra, nel campo «Assegnata a», oppure subito quando crei una nuova storia. Un cerchio mostra le iniziali sulle carte, nel backlog e sulla story map. Un cerchio tratteggiato significa che la storia non è assegnata.\nSopra la bacheca filtri per una persona o per le storie su cui nessuno lavora. La ricerca trova le storie anche per nome o iniziali.\nSe rimuovi un membro, le sue storie restano e non sono più assegnate. Se spegni «Team», membri e assegnazioni vengono conservati."
       }
     },
     "links": {
