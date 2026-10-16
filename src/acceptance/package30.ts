@@ -397,7 +397,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Schreiben ist an, das Token hat nur Leserecht (in der Vorschau: das Token „nurlesen“).',
           when: 'Ich ändere eine Story lokal und synchronisiere.',
           then: 'Meldung „GitHub hat das Schreiben abgelehnt. Das Token braucht das Recht „Issues: Lesen und Schreiben“.“ Die lokale Änderung bleibt erhalten und markiert.',
-          tests: [`${ROUNDTRIP} › AC7.6 says what the token needs and keeps the local change when GitHub refuses to write`, `${RUN} › AC7.6 keeps the local change and says "forbidden" when the token may not write`]
+          tests: [`${ROUNDTRIP} › AC7.6 says what the token needs and keeps the local change when GitHub refuses to write`, `${RUN} › AC7.6 keeps the local change and says "forbidden" when the token may not write`, `${E2E} › AC7.6 says what the token needs when GitHub refuses to write`]
         }
       ]
     },
@@ -489,7 +489,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Schreiben ist an. Meine eigene Story „Export als CSV“ ohne #-Nummer.',
           when: 'Ich öffne ihr Menü (Rechtsklick) und wähle „Auf GitHub anlegen“.',
           then: 'Auf GitHub gibt es ein neues Issue „Export als CSV“ mit Beschreibung und Labels. Die Story zeigt jetzt die neue #-Nummer und den Link.',
-          tests: [`${ROUNDTRIP} › AC10.1 creates the issue from the menu and links the story to it`, `${RDOMAIN} › AC10.1 makes the issue of title, description with criteria and labels, and links the story to it`, `${RUN} › AC10.1 creates the issue of a story and links the story to it`]
+          tests: [`${ROUNDTRIP} › AC10.1 creates the issue from the menu and links the story to it`, `${RDOMAIN} › AC10.1 makes the issue of title, description with criteria and labels, and links the story to it`, `${RUN} › AC10.1 creates the issue of a story and links the story to it`, `${E2E} › AC10.1 creates an issue from a story of my own, links it, and AC10.3 does not offer it a second time`]
         },
         {
           id: 'AC10.2',
@@ -526,7 +526,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Funktion ist an.',
           when: 'Ich öffne Einstellungen → Verbindungen.',
           then: 'GitHub ist als verbunden gelistet. GitLab, Jira und Trello stehen als „geplant“ da und lassen sich nicht auswählen.',
-          tests: [`${ROUNDTRIP} › AC11.1 lists GitHub as connected and GitLab, Jira and Trello as planned`]
+          tests: [`${ROUNDTRIP} › AC11.1 lists GitHub as connected and GitLab, Jira and Trello as planned`, `${E2E} › AC11.1 lists GitHub as connected and the other services as planned`]
         },
         {
           id: 'AC11.2',

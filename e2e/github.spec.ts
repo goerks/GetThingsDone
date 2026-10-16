@@ -133,7 +133,7 @@ test('AC3.1 brings the changes of GitHub into the stories and shows them (also A
   await expect(dialog.getByText('Title changed: “Login” → “Login-Seite”')).toBeVisible();
   await expect(dialog.getByText('Labels: new bug')).toBeVisible();
   await expect(dialog.getByText('Closed on GitHub → status “Done”')).toBeVisible();
-  await expect(dialog).toContainText('GitHub wins');
+  await expect(dialog).toContainText('Changes from GitHub were taken');
   await dialog.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByRole('button', { name: 'Login-Seite', exact: true })).toBeVisible();
   // And the criteria of #31 follow GitHub, and #35 goes back to "To do" when it is opened again
@@ -199,4 +199,48 @@ test('AC6.2 works with the keyboard only, from the switch to the closed result d
   await expect(dialog).toBeHidden();
   await expect(page.getByRole('button', { name: 'Synchronise' })).toBeFocused();
   await expect(page.getByRole('link', { name: 'Open issue #31 on GitHub' })).toBeVisible();
+});
+
+/** The menu of the story with this code in the backlog. */
+async function openMenu(page: Page, code: string): Promise<void> {
+  await page.locator('.backlog__row', { hasText: code }).first().click({ button: 'right' });
+  await expect(page.getByRole('menu')).toBeVisible();
+}
+
+test('AC10.1 creates an issue from a story of my own, links it, and AC10.3 does not offer it a second time', async ({ page }) => {
+  // Given a connected repository with writing on
+  await connect(page);
+  await expect(page.getByText('✓ Connection ok · 3 open issues')).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: 'Also write to GitHub' })).not.toBeChecked();
+  await page.getByRole('checkbox', { name: 'Also write to GitHub' }).check();
+  await toBacklog(page);
+  // When I choose "Create on GitHub" in the menu of a story of my own
+  await openMenu(page, 'S-1');
+  await page.getByRole('menuitem', { name: 'Create on GitHub' }).click();
+  // Then the story shows the number of the new issue as a link
+  await expect(page.locator('.backlog__row', { hasText: 'S-1' }).first().getByRole('link', { name: /Open issue #\d+ on GitHub/ })).toBeVisible();
+  // And the menu does not offer it again
+  await openMenu(page, 'S-1');
+  await expect(page.getByRole('menuitem', { name: 'Create on GitHub' })).toHaveCount(0);
+});
+
+test('AC7.6 says what the token needs when GitHub refuses to write', async ({ page }) => {
+  // Given a token that may only read, and writing on
+  await connect(page, 'nurlesen');
+  await expect(page.getByText('✓ Connection ok · 3 open issues')).toBeVisible();
+  await page.getByRole('checkbox', { name: 'Also write to GitHub' }).check();
+  await toBacklog(page);
+  // When I try to create an issue
+  await openMenu(page, 'S-1');
+  await page.getByRole('menuitem', { name: 'Create on GitHub' }).click();
+  // Then a notice names the missing right and the story stays without a number
+  await expect(page.getByText(/Issues: read and write/)).toBeVisible();
+  await expect(page.locator('.backlog__row', { hasText: 'S-1' }).first().getByRole('link', { name: /Open issue/ })).toHaveCount(0);
+});
+
+test('AC11.1 lists GitHub as connected and the other services as planned', async ({ page }) => {
+  await connect(page);
+  await expect(page.getByText('✓ Connection ok · 3 open issues')).toBeVisible();
+  const services = page.locator('.github-services li');
+  await expect(services).toHaveText(['GitHubconnected', 'GitLabplanned', 'Jiraplanned', 'Trelloplanned']);
 });
