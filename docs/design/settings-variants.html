@@ -134,187 +134,89 @@ table.ft { width: 100%; border-collapse: collapse; background: var(--surface); b
 .rows .row:last-child { border-bottom: 0; }
 .pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
 @media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+.cards { display: grid; gap: 10px; }
+.cardx { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.cardx h4 { margin: 0; font-size: 14px; }
+.cardx p { font-size: 12.5px; color: var(--muted); max-width: none; }
+.cardx .act { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cardx .file { font-family: var(--font-mono); font-size: 12px; background: var(--pill); padding: 2px 8px; border-radius: 4px; }
+.cardx--later { border-style: dashed; opacity: .75; }
+.btn--d { background: var(--bad); color: #fff; border-color: var(--bad); font-weight: 500; }
+.sumtab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.sumtab th, .sumtab td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.sumtab thead th { color: var(--muted); font-weight: 600; font-size: 11.5px; }
+.sumtab td.n { font-family: var(--font-mono); }
+.warnbar { background: var(--bad-soft); color: var(--bad); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; display: flex; gap: 8px; }
+.okbar { background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; }
+.dlg { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 520px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px; display: grid; gap: 12px; }
+.dlg .foot { display: flex; gap: 8px; justify-content: flex-end; }
+.tag--demo { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu2 { position: absolute; top: 42px; right: 12px; width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; }
+.menu2 span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; gap: 8px; }
+.menu2 .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu2 hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+.menu2 small { color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+
+/* settings redesign */
+.side .grp { margin-top: 10px; }
+.side .badge-off { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; color: var(--muted); }
+.side .badge-on { font-size: 10px; border: 1px solid var(--ok); border-radius: 8px; padding: 0 6px; color: var(--ok); background: var(--ok-soft); }
+.sw { width: 30px; height: 16px; border-radius: 999px; background: var(--border); position: relative; flex: none; display: inline-block; }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+.sw--on { background: var(--ok); } .sw--on::after { left: 16px; }
+.side .sr { align-items: center; }
+.sr .nm { display: flex; align-items: center; gap: 6px; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+.panel--start { text-align: left; border-style: dashed; }
+.panel--ghost { opacity: .55; }
+.hdrow { display: flex; align-items: center; gap: 12px; }
+.hdrow b { font-size: 16px; }
+.hdrow .grow { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.swl { display: inline-flex; gap: 8px; align-items: center; font-weight: 500; }
+.members { display: grid; gap: 4px; }
+.members span { display: flex; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.ini { width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-soft-ink); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.fcard { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.fcard--open { border-color: var(--accent); }
+.fcard .inner { border-top: 1px solid var(--border); padding-top: 10px; display: grid; gap: 4px; }
+.chev { color: var(--muted); margin-left: 6px; }
+.pair2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; }
+.cap { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
 </style>
 </head>
 <body>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
-  <symbol id="moon" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
-</svg>
-
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></g></symbol></svg>
 <main class="wrap">
-  <header class="intro">
-    <div class="meta"><span>Issue #4</span><span>Pull Request #6</span><span>Stufe 1, Nachbesserung</span></div>
-    <h1>Wohin mit den Feldern?</h1>
-    <p class="muted">Die Seite «Felder» steht heute gleichwertig neben Board, Backlog, Story Map und Epics in der Hauptnavigation. Sie wird aber selten gebraucht: Felder richtet ein Team einmal ein. Drei Varianten, sie in die Einstellungen zu verschieben. Der Inhalt der Felder-Seite bleibt in allen Varianten gleich.</p>
-  </header>
+<header class="intro"><div class="meta"><span>Issue #61</span><span>Einstellungen</span><span>Entwurf (Demo-Daten)</span></div>
+<h1>Funktionen und ihre Einstellungen an einem Ort</h1>
+<p class="muted">Heute: Der Tab «Funktionen» schaltet Team und Releases ein. Erst danach erscheint der Tab «Team». Gesucht ist eine Lösung, bei der jede Funktion nur noch einen Ort hat: Schalter und Einstellungen zusammen. Alle Texte sind Demo-Texte.</p></header>
 
-  <section class="variant" aria-labelledby="now">
-    <div class="variant__head">
-      <h3 id="now">Heute</h3>
-      <span class="tag tag--now">zu prominent</span>
-    </div>
-    <div class="scroll">
-      <div class="app" role="img" aria-label="Heutiger Stand: Felder als fünfter Eintrag in der Hauptnavigation">
-        <div class="bar">
-          <span class="brand"><span class="logo">✓</span>Get It Done</span>
-          <div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span><span class="flag">Felder</span></div>
-          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span></div>
-        </div>
-        <div class="page">
-          <div class="ph"><b>Felder</b><span class="muted">Felder beschreiben eure Items …</span><span class="btn btn--p">Neues Feld</span></div>
-          <table class="ft">
-            <thead><tr><th>Feld</th><th>Art</th><th>Typ</th><th>Verwendet für</th></tr></thead>
-            <tbody>
-              <tr><th>Titel</th><td><span class="badge">System</span></td><td>Text</td><td>Stories, Epics</td></tr>
-              <tr><th>Punkte</th><td><span class="badge">Mitgeliefert</span></td><td>Punkte</td><td>Stories</td></tr>
-              <tr><th>Priority</th><td><span class="badge badge--c">Eigenes</span></td><td>Einfachauswahl</td><td>Stories</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
+<section class="variant" id="v1"><div class="variant__head"><h3>1 · Ein Tab pro Funktion, Schalter ganz oben im Tab</h3><span class="tag tag--rec">Empfehlung</span></div>
+<p>Der Tab «Funktionen» entfällt. Die Navigation hat eine Gruppe «Funktionen» mit Releases und Team. Beide Tabs sind immer da; ein Etikett «An» oder «Aus» zeigt den Zustand. Im Tab steht oben der Schalter, darunter die Einstellungen der Funktion.</p>
+<div class="cap">Team eingeschaltet</div><div class="scroll"><div class="app" id="v1-on" role="img" aria-label="Variante 1: Tab Team, Funktion eingeschaltet"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span>Releases<small class="badge-on">An</small></span><span class="on">Team<small class="badge-on">An</small></span></div><div><div class="panel"><div class="hdrow"><b>Team</b><div class="grow"><span class="swl"><i class="sw sw--on"></i>Funktion eingeschaltet</span></div></div><p class="muted">Stories Personen zuweisen: Feld «Zugewiesen an», Initialen auf Karten, Filter am Board.</p><hr style="border:0;border-top:1px solid var(--border);width:100%"><b>Mitglieder</b><div class="members"><span><i class="ini">AM</i>Anna Meier</span><span><i class="ini">BK</i>Ben Keller</span><span><i class="ini">CS</i>Carla Sommer</span></div><span class="btn" style="width:max-content">Mitglied hinzufügen</span></div></div></div></div></div></div>
+<p><b>Option A · Ausgeschaltet: Startseite.</b> Der Tab erklärt die Funktion und bietet «Team einschalten». Keine Einstellungen sichtbar.</p>
+<div class="cap">Option A</div><div class="scroll"><div class="app" id="v1-offA" role="img" aria-label="Variante 1 Option A: Tab Team, Funktion ausgeschaltet, Startseite"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span>Releases<small class="badge-on">An</small></span><span class="on">Team<small class="badge-off">Aus</small></span></div><div><div class="panel panel--start"><div class="hdrow"><b>Team</b><div class="grow"><span class="swl"><i class="sw"></i>Funktion ausgeschaltet</span></div></div><p>Weise Stories Personen zu: Feld «Zugewiesen an», Initialen auf Karten, Filter am Board und Suche nach Person. Wenn du allein arbeitest, lass die Funktion aus.</p><p class="muted">Ausgeschaltet. Mitglieder und Zuweisungen bleiben erhalten und sind wieder da, wenn du einschaltest.</p><span class="btn btn--p" style="width:max-content">Team einschalten</span></div></div></div></div></div></div>
+<p><b>Option B · Ausgeschaltet: abgeblendete Vorschau.</b> Der Tab zeigt die Einstellungen abgeblendet und nicht bedienbar.</p>
+<div class="cap">Option B</div><div class="scroll"><div class="app" id="v1-offB" role="img" aria-label="Variante 1 Option B: Tab Team, Funktion ausgeschaltet, Vorschau abgeblendet"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span>Releases<small class="badge-on">An</small></span><span class="on">Team<small class="badge-off">Aus</small></span></div><div><div class="panel"><div class="hdrow"><b>Team</b><div class="grow"><span class="swl"><i class="sw"></i>Funktion ausgeschaltet</span></div></div><div class="warnbar" style="background:var(--accent-soft);color:var(--accent-soft-ink)"><span>Die Funktion ist aus: Team ist im Rest der App unsichtbar. Schalte sie oben ein, um Mitglieder zu bearbeiten.</span></div><div class="panel--ghost"><b>Mitglieder</b><div class="members"><span><i class="ini">AM</i>Anna Meier</span><span><i class="ini">BK</i>Ben Keller</span><span><i class="ini">CS</i>Carla Sommer</span></div></div></div></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>＋ Dafür</b><ul><li>Ein Ort pro Funktion: einschalten und einstellen im selben Tab</li><li>Man sieht, welche Funktionen es gibt, auch wenn sie aus sind</li><li>Skaliert für weitere Funktionen (je ein Tab)</li><li>Option A: einfach und klar, kein Bedienen von Ausgeschaltetem</li></ul></div>
+<div class="box"><b>－ Dagegen</b><ul><li>Die Navigation wird länger, je mehr Funktionen es gibt</li><li>Option B: wirkt gedämpft und verwirrt eher («warum kann ich nichts klicken?»)</li><li>Funktionen ohne eigene Einstellungen (wie Releases) haben einen fast leeren Tab</li></ul></div></div></section>
 
-  <section class="variant" aria-labelledby="va">
-    <div class="variant__head">
-      <h3 id="va">A · Zahnrad öffnet eine Einstellungsseite</h3>
-      <span class="tag tag--rec">Empfehlung</span>
-    </div>
-    <p>Ein Zahnrad neben Theme und Sprache führt auf <code>#/settings/fields</code>. Links stehen die Bereiche der Einstellungen, rechts der Inhalt. Heute gibt es nur «Felder»; die Status-Werte aus #5 kommen später als zweiter Bereich dazu. Die Hauptnavigation enthält nur noch die Arbeitsansichten. Das Zahnrad ist markiert, solange man in den Einstellungen ist.</p>
-    <div class="scroll">
-      <div class="app" role="img" aria-label="Variante A: Einstellungsseite mit Bereichsliste links und Feldern rechts, erreichbar über ein Zahnrad im Header">
-        <div class="bar">
-          <span class="brand"><span class="logo">✓</span>Get It Done</span>
-          <div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
-          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on" title="Einstellungen"><svg><use href="#gear"/></svg></span></div>
-        </div>
-        <div class="page">
-          <div class="ph"><b>Einstellungen</b></div>
-          <div class="settings">
-            <div class="side">
-              <span class="lbl">Arbeitsbereich</span>
-              <span class="on">Felder</span>
-              <span class="later">Status-Werte <small>#5</small></span>
-            </div>
-            <div style="display:grid; gap:10px; min-width:0">
-              <div class="ph"><b>Felder</b><span class="btn btn--p">Neues Feld</span></div>
-              <table class="ft">
-                <thead><tr><th>Feld</th><th>Art</th><th>Typ</th><th>Verwendet für</th></tr></thead>
-                <tbody>
-                  <tr><th>Titel</th><td><span class="badge">System</span></td><td>Text</td><td>Stories, Epics</td></tr>
-                  <tr><th>Punkte</th><td><span class="badge">Mitgeliefert</span></td><td>Punkte</td><td>Stories</td></tr>
-                  <tr><th>Priority</th><td><span class="badge badge--c">Eigenes</span></td><td>Einfachauswahl</td><td>Stories</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="pair">
-      <div class="proscons">
-        <div class="box"><b>Dafür</b><ul><li>Hauptnavigation nur noch für die tägliche Arbeit</li><li>Wächst mit: Status-Werte, später Export oder Sync, ohne neue Navigation</li><li>Volle Seitenbreite für die Feldtabelle und ihre Dialoge</li><li>Eigene Adresse, im Browser verlinkbar</li></ul></div>
-        <div class="box"><b>Dagegen</b><ul><li>Mit nur einem Bereich wirkt die Liste links noch leer</li><li>Ein Symbol ohne Text: braucht Tooltip und Screenreader-Beschriftung «Einstellungen»</li></ul></div>
-      </div>
-      <div class="phone" role="img" aria-label="Variante A auf dem Handy: Bereiche als Chips über dem Inhalt">
-        <div class="bar">
-          <span class="brand"><span class="logo">✓</span>Get It Done</span>
-          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div>
-          <div class="nav"><span>Board</span><span>Backlog</span><span>Map</span><span>Epics</span></div>
-        </div>
-        <div class="page" style="padding:12px">
-          <b style="font-size:15px">Einstellungen</b>
-          <div class="chips"><span class="on">Felder</span><span>Status-Werte</span></div>
-          <div class="rows"><div class="row"><span>Titel</span><span class="badge">System</span></div><div class="row"><span>Punkte</span><span class="badge">Mitgeliefert</span></div><div class="row"><span>Priority</span><span class="badge badge--c">Eigenes</span></div></div>
-          <span class="muted" style="font-size:11px">Schmal: Bereiche als Chips oben</span>
-        </div>
-      </div>
-    </div>
-  </section>
+<section class="variant" id="v2"><div class="variant__head"><h3>2 · Eine Seite «Funktionen» mit aufklappbaren Karten</h3><span class="tag">Alternative</span></div>
+<p>Es bleibt ein Tab «Funktionen». Jede Funktion ist eine Karte mit Schalter. Eingeschaltete Karten klappen auf und enthalten die Einstellungen, zum Beispiel die Mitglieder. Der Tab «Team» entfällt.</p><div class="scroll"><div class="app" id="w2" role="img" aria-label="Variante 2: eine Seite Funktionen mit aufklappbaren Karten"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span class="on">Funktionen</span><span>Daten</span></div><div><div class="cards"><div class="ph"><b>Funktionen</b><span class="muted">Schalter und Einstellungen am selben Ort</span></div><div class="fcard fcard--open"><div class="hdrow"><b>Team</b><span class="chev">▾</span><div class="grow"><i class="sw sw--on"></i><small class="badge-on" style="font-size:11px;border:1px solid var(--ok);border-radius:8px;padding:0 6px;color:var(--ok)">An</small></div></div><p class="muted">Stories Personen zuweisen.</p><div class="inner"><b>Mitglieder</b><div class="members"><span><i class="ini">AM</i>Anna Meier</span><span><i class="ini">BK</i>Ben Keller</span><span><i class="ini">CS</i>Carla Sommer</span></div><span class="btn" style="width:max-content;margin-top:6px">Mitglied hinzufügen</span></div></div><div class="fcard"><div class="hdrow"><b>Releases</b><span class="chev">▸</span><div class="grow"><i class="sw sw--on"></i><small style="font-size:11px;border:1px solid var(--ok);border-radius:8px;padding:0 6px;color:var(--ok)">An</small></div></div><p class="muted">Mit Releases planen: Seite Releases, Release-Zeilen auf der Story Map, Berichte.</p></div></div></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>＋ Dafür</b><ul><li>Navigation bleibt kurz</li><li>Alle Funktionen auf einen Blick, mit Schalter</li></ul></div>
+<div class="box"><b>－ Dagegen</b><ul><li>Die Seite wird lang, sobald Team, Releases und weitere Einstellungen aufgeklappt sind</li><li>Mitgliederverwaltung in einer Karte wirkt eingezwängt</li><li>Die Einstellungen einer Funktion sind schwerer zu finden als ein eigener Tab</li></ul></div></div></section>
 
-  <section class="variant" aria-labelledby="vb">
-    <div class="variant__head">
-      <h3 id="vb">B · Zahnrad öffnet ein Menü</h3>
-      <span class="tag">möglich, später</span>
-    </div>
-    <p>Das Zahnrad klappt ein Menü auf. Jeder Eintrag führt auf seine eigene Seite, «Felder» auf die heutige Felder-Seite. Sprache und Theme könnten ebenfalls in dieses Menü wandern.</p>
-    <div class="scroll">
-      <div class="app" role="img" aria-label="Variante B: aufgeklapptes Menü unter dem Zahnrad mit den Einträgen Felder und Status-Werte über dem Board">
-        <div class="bar">
-          <span class="brand"><span class="logo">✓</span>Get It Done</span>
-          <div class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
-          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div>
-        </div>
-        <div class="menu">
-          <span class="on">Felder</span>
-          <span class="later">Status-Werte <small class="muted">#5</small></span>
-          <hr>
-          <span class="later">Über Get It Done</span>
-        </div>
-        <div class="page">
-          <div class="ph"><b>Sprint 1</b><span class="muted">6 Stories · 23 Punkte</span></div>
-          <div class="ghost"><div class="lane"><i>Zu erledigen</i><div class="card"></div><div class="card"></div></div><div class="lane"><i>In Arbeit</i><div class="card"></div></div><div class="lane"><i>Review</i><div class="card"></div></div><div class="lane"><i>Erledigt</i><div class="card"></div></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="proscons">
-      <div class="box"><b>Dafür</b><ul><li>Header bleibt aufgeräumt, auch wenn später viele Einstellungen dazukommen</li><li>Platz für Einträge wie «Über» oder «Export»</li></ul></div>
-      <div class="box"><b>Dagegen</b><ul><li>Heute ein Klick mehr für einen einzigen Eintrag</li><li>Ein Menü braucht eigene Tastatur- und Screenreader-Logik</li><li>Die Felder-Seite steht trotzdem allein, ohne Rahmen «Einstellungen»</li></ul></div>
-    </div>
-  </section>
+<section class="variant" id="v3"><div class="variant__head"><h3>3 · Schalter direkt in der Navigation</h3><span class="tag">Alternative</span></div>
+<p>Wie Variante 1, aber der Schalter sitzt schon in der Navigationszeile. Man schaltet um, ohne den Tab zu öffnen. Im Tab steht der Schalter trotzdem noch einmal oben.</p><div class="scroll"><div class="app" id="w3" role="img" aria-label="Variante 3: Schalter direkt in der Navigation"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span class="on sr"><span class="nm">Releases</span><i class="sw sw--on"></i></span><span class="sr"><span class="nm">Team</span><i class="sw"></i></span></div><div><div class="panel"><div class="hdrow"><b>Releases</b><div class="grow"><span class="swl"><i class="sw sw--on"></i>Funktion eingeschaltet</span></div></div><p class="muted">Release-Zeilen auf der Story Map, Berichte zu Umfang und Burndown.</p><b>Zeilen der Story Map</b><div class="rows"><div class="row"><span>◉ Sprints</span><span class="muted">Standard</span></div><div class="row"><span>○ Releases</span><span class="muted"></span></div></div></div></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>＋ Dafür</b><ul><li>Schneller: ein Klick in der Navigation</li><li>Zustand sofort sichtbar</li></ul></div>
+<div class="box"><b>－ Dagegen</b><ul><li>Versehentliches Umschalten beim Navigieren; auf dem Handy schwer zu treffen</li><li>Zwei Schalter für dieselbe Funktion (Navigation und Tab)</li><li>Unruhige Navigation</li></ul></div></div></section>
 
-  <section class="variant" aria-labelledby="vc">
-    <div class="variant__head">
-      <h3 id="vc">C · Einstellungen als Dialog</h3>
-      <span class="tag">nicht empfohlen</span>
-    </div>
-    <p>Das Zahnrad öffnet einen grossen Dialog über der aktuellen Seite, mit Reitern für die Bereiche. Ein neues Feld öffnet einen zweiten Dialog darüber.</p>
-    <div class="scroll">
-      <div class="app" role="img" aria-label="Variante C: Einstellungsdialog mit Reitern über dem Board, darüber ein zweiter Dialog Neues Feld">
-        <div class="bar">
-          <span class="brand"><span class="logo">✓</span>Get It Done</span>
-          <div class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div>
-          <div class="tools"><span class="ibtn"><svg><use href="#moon"/></svg></span><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div>
-        </div>
-        <div class="page">
-          <div class="ph"><b>Sprint 1</b></div>
-          <div class="ghost"><div class="lane"></div><div class="lane"></div><div class="lane"></div><div class="lane" style="min-height:250px"></div></div>
-        </div>
-        <div class="scrim"></div>
-        <div class="dialog">
-          <div style="display:flex"><b style="font-size:15px">Einstellungen</b><span class="x">✕</span></div>
-          <div class="tabs"><span class="on">Felder</span><span>Status-Werte</span></div>
-          <table class="ft">
-            <tbody>
-              <tr><th>Titel</th><td><span class="badge">System</span></td><td>Text</td></tr>
-              <tr><th>Punkte</th><td><span class="badge">Mitgeliefert</span></td><td>Punkte</td></tr>
-              <tr><th>Priority</th><td><span class="badge badge--c">Eigenes</span></td><td>Einfachauswahl</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="stack">
-          <b>Neues Feld</b>
-          <span class="muted">Name</span><div class="field"></div>
-          <span class="muted">Typ</span><div class="field"></div>
-        </div>
-      </div>
-    </div>
-    <div class="proscons">
-      <div class="box"><b>Dafür</b><ul><li>Man verlässt die aktuelle Ansicht nicht</li></ul></div>
-      <div class="box"><b>Dagegen</b><ul><li>Dialog im Dialog: Fokus und Escape werden für Tastatur und Screenreader verwirrend</li><li>Wenig Platz für die Tabelle und spätere Optionslisten</li><li>Keine eigene Adresse</li></ul></div>
-    </div>
-  </section>
+<section class="variant" id="vr"><div class="variant__head"><h3>Zusätzlich zu allen Varianten</h3><span class="tag tag--rec">Empfehlung</span></div>
+<ul><li><b>Navigation in Gruppen:</b> «Arbeitsbereich» (Felder, Status-Werte, Definitionen, Story Map, Daten) und «Funktionen» (Releases, Team).</li>
+<li><b>Von der Funktion zu den Einstellungen:</b> Wo eine ausgeschaltete Funktion gebraucht würde (zum Beispiel die Release-Zeilen der Story Map), führt ein Link direkt zum Tab der Funktion, wo man einschalten kann.</li>
+<li><b>Story-Map-Zeilen:</b> Die Wahl «Sprints oder Releases» gehört inhaltlich zu Releases. Sie könnte in den Tab «Releases» wandern (Frage an dich).</li></ul></section>
 
-  <section class="variant" aria-labelledby="dec">
-    <h2 id="dec">Vorschlag</h2>
-    <div class="proscons">
-      <div class="box"><b>Bauen</b><span>Variante A, als Nachbesserung zu Stufe 1 im Pull Request #6. <code>#/fields</code> leitet auf <code>#/settings/fields</code> um.</span></div>
-      <div class="box"><b>Bleibt im Header</b><span>Theme und Sprache, weil man sie schnell umschalten will.</span></div>
-      <div class="box"><b>Später</b><span>Wenn die Einstellungen viele Bereiche haben, kann aus dem Zahnrad ein Menü werden (Variante B), das auf dieselbe Seite führt.</span></div>
-    </div>
-  </section>
-</main>
-</body>
-</html>
+<section class="variant" id="rec"><div class="variant__head"><h3>Empfehlung</h3><span class="tag tag--rec">1.A</span></div>
+<p>Variante 1 mit Option A (Startseite für ausgeschaltete Funktionen) und Gruppen in der Navigation. Du gibst dafür eine kürzere Navigation auf, gewinnst aber einen Ort pro Funktion: Man findet Schalter und Einstellungen ohne Vorwissen, und neue Funktionen passen ohne Umbau dazu.</p></section>
+</main></body></html>
