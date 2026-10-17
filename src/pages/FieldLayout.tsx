@@ -56,7 +56,7 @@ function ReleaseRow({ entry }: { entry: LayoutEntry }) {
         <span className="layout-row__name">{fieldLabel(t, field)}</span>
         <span className="muted layout-row__type">{t(`fields.type.${field.dataType}`)}</span>
         <span className="muted layout-row__note">
-          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsFeatures}>{t('fields.layout.releaseOffLink')}</a>
+          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsReleases}>{t('fields.layout.releaseOffLink')}</a>
         </span>
       </li>
     );

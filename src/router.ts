@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 /** Sections of the settings page. */
-export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'features' | 'team' | 'data';
+export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'releases' | 'team' | 'data';
 
 export type Route =
   | { name: 'board' }
@@ -21,7 +21,7 @@ export const hrefs = {
   settingsStatuses: '#/settings/statuses',
   settingsMap: '#/settings/map',
   settingsDefinitions: '#/settings/definitions',
-  settingsFeatures: '#/settings/features',
+  settingsReleases: '#/settings/releases',
   settingsTeam: '#/settings/team',
   settingsData: '#/settings/data'
 };
@@ -32,7 +32,8 @@ export function parseHash(hash: string): Route {
   if (path === 'map') return { name: 'map' };
   if (path === 'epics') return { name: 'epics' };
   if (path === 'releases') return { name: 'releases' };
-  if (path === 'settings/features') return { name: 'settings', section: 'features' };
+  // "#/settings/features" was the address of the features tab before each feature got its own tab.
+  if (path === 'settings/releases' || path === 'settings/features') return { name: 'settings', section: 'releases' };
   if (path === 'settings/team') return { name: 'settings', section: 'team' };
   if (path === 'settings/data') return { name: 'settings', section: 'data' };
   if (path === 'settings/statuses') return { name: 'settings', section: 'statuses' };

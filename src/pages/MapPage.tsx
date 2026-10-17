@@ -594,7 +594,7 @@ export function MapPage() {
 
       {app.settings.mapRows === 'releases' && !featureOn(app.settings, 'releases') && (
         <p className="hint hint--warn" role="note">
-          {t('map.rowsOff')} <a href={hrefs.settingsFeatures}>{t('settings.map.toReleases')}</a>
+          {t('map.rowsOff')} <a href={hrefs.settingsReleases}>{t('settings.map.toReleases')}</a>
         </p>
       )}
 
