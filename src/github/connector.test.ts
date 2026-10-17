@@ -24,8 +24,8 @@ interface Backend {
 }
 
 function restBackend(): Backend {
-  const state = { issues: SEED.map((issue) => ({ ...issue })), known: ['feature', 'bug', 'docs'] };
-  const raw = (issue: GithubIssue) => ({ number: issue.number, title: issue.title, body: issue.body, state: issue.state, html_url: issue.url, labels: issue.labels.map((name) => ({ name })) });
+  const state = { issues: SEED.map((issue) => ({ ...issue })), known: ['feature', 'bug', 'docs'], milestones: [] as Array<{ number: number; title: string; description: string; due_on: string | null; state: string }> };
+  const raw = (issue: GithubIssue) => ({ number: issue.number, title: issue.title, body: issue.body, state: issue.state, html_url: issue.url, labels: issue.labels.map((name) => ({ name })), milestone: issue.milestone ? { title: issue.milestone } : null });
   const answer = (status: number, body: unknown): Response => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
   const fetchImpl = (async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const url = new URL(String(input));
@@ -36,6 +36,16 @@ function restBackend(): Backend {
     if (method !== 'GET' && authorization !== 'Bearer writer') return answer(403, {});
     if (method === 'GET' && path === '/issues') return answer(200, state.issues.filter((issue) => issue.state === 'open').map(raw));
     if (method === 'GET' && path === '/labels') return answer(200, state.known.map((name) => ({ name })));
+    if (method === 'POST' && path === '/labels') {
+      state.known.push(String(body.name));
+      return answer(201, { name: body.name });
+    }
+    if (method === 'GET' && path === '/milestones') return answer(200, state.milestones);
+    if (method === 'POST' && path === '/milestones') {
+      const created = { number: state.milestones.length + 1, title: String(body.title), description: String(body.description ?? ''), due_on: (body.due_on as string | undefined) ?? null, state: 'open' };
+      state.milestones.push(created);
+      return answer(201, created);
+    }
     const match = /^\/issues\/(\d+)$/.exec(path);
     if (method === 'GET' && match) {
       const found = state.issues.find((issue) => issue.number === Number(match[1]));
@@ -44,7 +54,8 @@ function restBackend(): Backend {
     if (method === 'PATCH' && match) {
       const index = state.issues.findIndex((issue) => issue.number === Number(match[1]));
       if (index < 0) return answer(404, {});
-      const changed = { ...state.issues[index], ...body } as GithubIssue;
+      const { milestone, ...rest } = body;
+      const changed = { ...state.issues[index], ...rest, ...(milestone !== undefined ? { milestone: milestone === null ? null : (state.milestones.find((item) => item.number === milestone)?.title ?? null) } : {}) } as GithubIssue;
       state.issues[index] = changed;
       return answer(200, raw(changed));
     }
@@ -81,6 +92,16 @@ function fakeBackend(): Backend {
     createIssue: async (r, t, input) => {
       fake.state.canWrite = t === 'writer';
       return wrapped.createIssue(r, 'good', input);
+    },
+    listMilestones: (r) => wrapped.listMilestones(r, 'good'),
+    createMilestone: async (r, t, milestone) => {
+      fake.state.canWrite = t === 'writer';
+      return wrapped.createMilestone(r, 'good', milestone);
+    },
+    listLabels: (r) => wrapped.listLabels(r, 'good'),
+    createLabel: async (r, t, label) => {
+      fake.state.canWrite = t === 'writer';
+      return wrapped.createLabel(r, 'good', label);
     }
   };
   return { connector, token: (canWrite) => (canWrite ? 'writer' : 'reader') };
@@ -132,5 +153,28 @@ describe.each(BACKENDS)('AC11.3 connector contract: %s', (_name, make) => {
   it('says "forbidden" when the token may only read', async () => {
     await expect(backend.connector.updateIssue(repo, backend.token(false), 31, { title: 'x' })).rejects.toMatchObject({ kind: 'forbidden' });
     await expect(backend.connector.createIssue(repo, backend.token(false), { title: 'x', body: '', labels: [] })).rejects.toMatchObject({ kind: 'forbidden' });
+  });
+
+  it('makes a milestone, lists it and sets it on an item', async () => {
+    const made = await backend.connector.createMilestone(repo, backend.token(true), { title: 'Herbst', description: 'Autumn', dueOn: '2026-11-30' });
+    expect(made).toMatchObject({ title: 'Herbst', description: 'Autumn', state: 'open' });
+    expect((await backend.connector.listMilestones(repo, backend.token(false))).map((item) => item.title)).toContain('Herbst');
+    const { item: changed } = await backend.connector.updateIssue(repo, backend.token(true), 31, { milestone: made.number });
+    expect(changed.milestone).toBe('Herbst');
+    const { item: cleared } = await backend.connector.updateIssue(repo, backend.token(true), 31, { milestone: null });
+    expect(cleared.milestone).toBeNull();
+  });
+
+  it('makes a label that can then be set on an item', async () => {
+    await backend.connector.createLabel(repo, backend.token(true), { name: 'epic: Storage', color: '14b8a6' });
+    expect(await backend.connector.listLabels(repo, backend.token(false))).toContain('epic: Storage');
+    const { item: changed, skippedLabels } = await backend.connector.updateIssue(repo, backend.token(true), 31, { labels: ['epic: Storage'] });
+    expect(changed.labels).toEqual(['epic: Storage']);
+    expect(skippedLabels).toEqual([]);
+  });
+
+  it('says "forbidden" when the token may only read and tries to make a milestone or a label', async () => {
+    await expect(backend.connector.createMilestone(repo, backend.token(false), { title: 'x', description: '', dueOn: null })).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.connector.createLabel(repo, backend.token(false), { name: 'x', color: '000000' })).rejects.toMatchObject({ kind: 'forbidden' });
   });
 });
