@@ -349,7 +349,7 @@ test('AC10.3 explains that the feature Releases must be switched on first, and l
 
   // When I follow the link to the Releases settings and switch Releases on, with the help still open
   await panel(page).getByRole('link', { name: 'Open Settings → Releases' }).click();
-  await expect(page).toHaveURL(/#\/settings\/features$/);
+  await expect(page).toHaveURL(/#\/settings\/releases$/);
   await expect(panel(page).getByRole('heading', { name: 'Help · Settings', level: 2 })).toBeVisible();
   await page.getByRole('switch', { name: /Releases/ }).check();
 

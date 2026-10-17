@@ -460,13 +460,13 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
         {
           "id": "AC8.1",
           "title": "Team einschalten",
-          "link": "#/settings/features",
-          "target": ".feature",
+          "link": "#/settings/team",
+          "target": ".feature-tab",
           "given": "Ein neues Projekt ohne Demodaten. „Team“ steht auf „Aus“.",
           "when": "Ich schalte „Team“ ein.",
-          "then": "Der Schalter steht auf „An“. In den Einstellungen erscheint der Bereich „Team“, im Story-Dialog das Feld „Zugewiesen an“. Nach dem Neuladen ist es noch an.",
+          "then": "Der Schalter steht auf „An“. In den Einstellungen zeigt der Tab „Team“ die Mitglieder, im Story-Dialog das Feld „Zugewiesen an“. Nach dem Neuladen ist es noch an.",
           "tests": [
-            "src/Team.test.tsx › AC8.1 switches the team on in Settings › Features and keeps the choice"
+            "src/Team.test.tsx › AC8.1 switches the team on in Settings › Team and keeps the choice"
           ]
         },
         {
@@ -476,19 +476,19 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
           "target": ".card[data-story-id]",
           "given": "Demodaten mit Team. Ich schalte „Team“ aus.",
           "when": "Ich schaue Board, Dialoge, Einstellungen und Suche an.",
-          "then": "Keine Kreise, keine Filterleiste, kein Feld „Zugewiesen an“, kein Bereich „Team“. Die Suche findet „S-3“ nicht über „Anna“. Die Adresse der Team-Einstellungen führt zu den Funktionen.",
+          "then": "Keine Kreise, keine Filterleiste, kein Feld „Zugewiesen an“, Der Tab „Team“ zeigt nur die Startseite. Die Suche findet „S-3“ nicht über „Anna“.",
           "tests": [
             "src/Team.test.tsx › AC8.2 shows nothing of the team on the board and in the dialogs while it is off",
             "src/Team.test.tsx › AC8.2 leaves out the field \"Assigned to\" in \"New story\" while the team is off",
-            "src/Team.test.tsx › AC8.2 leads the address of the team settings back to the features while the team is off",
+            "src/Team.test.tsx › AC8.2 keeps the address of the team settings while the team is off and shows the start page",
             "src/domain/members.test.ts › AC8.2 finds nobody by name while the team is off, because the search has no member list"
           ]
         },
         {
           "id": "AC8.3",
           "title": "Daten bleiben erhalten",
-          "link": "#/settings/features",
-          "target": ".feature",
+          "link": "#/settings/team",
+          "target": ".feature-tab",
           "given": "„S-3“ ist Anna zugewiesen. „Team“ ist ausgeschaltet.",
           "when": "Ich schalte „Team“ wieder ein.",
           "then": "Anna ist in der Liste, „S-3“ zeigt wieder „AK“. Ein Export im ausgeschalteten Zustand enthält das Team trotzdem.",
@@ -500,8 +500,8 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
         {
           "id": "AC8.4",
           "title": "Standard",
-          "link": "#/settings/features",
-          "target": ".feature",
+          "link": "#/settings/team",
+          "target": ".feature-tab",
           "given": "Web-Vorschau frisch geladen, ein neues Projekt, eine Datei von vor dem Team.",
           "when": "Ich schaue auf den Schalter „Team“.",
           "then": "In der Web-Vorschau mit Demodaten ist „Team“ an. Bei einem neuen Projekt, älteren Daten und einem Import einer alten Datei ist es aus.",
@@ -525,9 +525,9 @@ export const PACKAGE_18: { issue: number; pullRequest: number; title: string; cr
         {
           "id": "AC8.6",
           "title": "Schalter, Tastatur, Sprachen",
-          "link": "#/settings/features",
-          "target": ".feature",
-          "given": "Einstellungen › Funktionen.",
+          "link": "#/settings/team",
+          "target": ".feature-tab",
+          "given": "Einstellungen › Team.",
           "when": "Ich erreiche „Team“ mit Tab und schalte mit der Leertaste. Dann wechsle ich die Sprache.",
           "then": "Der Schalter wird mit Name und Zustand vorgelesen. Name und Beschreibung stehen in DE, EN, FR und IT. Ist er aus, erklärt ein Hinweis, dass Mitglieder und Zuweisungen erhalten bleiben.",
           "tests": [
