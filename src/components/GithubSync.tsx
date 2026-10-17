@@ -28,6 +28,12 @@ function valueText(t: TFunction, fields: ExternalFields, name: FieldName): strin
       return fields.criteria.length === 0 ? t('github.value.empty') : fields.criteria.map((item) => `${item.done ? '☑' : '☐'} ${item.text}`).join('\n');
     case 'done':
       return fields.done ? t('github.value.done') : t('github.value.open');
+    case 'release':
+      return fields.release ?? t('github.value.none');
+    case 'epic':
+      return fields.epic ?? t('github.value.none');
+    case 'status':
+      return fields.status ?? t('github.value.firstColumn');
   }
 }
 
@@ -54,6 +60,12 @@ function changeText(t: TFunction, change: GithubChange, status: string): string 
       ].filter(Boolean);
       return t('github.change.criteria', { parts: parts.length > 0 ? parts.join(', ') : t('github.change.criteriaOrder') });
     }
+    case 'release':
+      return t('github.change.release', { from: change.from ?? t('github.value.none'), to: change.to ?? t('github.value.none') });
+    case 'epic':
+      return t('github.change.epic', { from: change.from ?? t('github.value.none'), to: change.to ?? t('github.value.none') });
+    case 'status':
+      return t('github.change.status', { from: change.from ?? t('github.value.firstColumn'), to: change.to ?? t('github.value.firstColumn') });
     case 'closed':
       return t('github.change.closed', { status });
     case 'reopened':
@@ -209,6 +221,22 @@ function Result({ outcome, onClose, onDecide }: { outcome: Outcome; onClose: () 
           </ul>
         </section>
       )}
+      {(summary.releasesCreated.length > 0 || summary.epicsCreated.length > 0) && (
+        <section className="github-result__section">
+          <ul className="github-result__list">
+            {summary.releasesCreated.map((title) => (
+              <li key={`release-${title}`}>{t('github.sync.releaseCreated', { title })}</li>
+            ))}
+            {summary.epicsCreated.map((name) => (
+              <li key={`epic-${name}`}>{t('github.sync.epicCreated', { name })}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {summary.missingMilestones.length > 0 && <p className="github-result__section">{t('github.sync.missingMilestones', { titles: summary.missingMilestones.join(', ') })}</p>}
+      {summary.multipleEpics.length > 0 && (
+        <p className="github-result__section">{t('github.sync.multipleEpics', { issues: summary.multipleEpics.map((item) => `${item.code} (#${item.number})`).join(', ') })}</p>
+      )}
       {summary.pending > 0 && <p className="github-result__section">{t('github.sync.pendingNote', { count: summary.pending })}</p>}
       {summary.conflicts.length > 0 && (
         <p className="github-result__section">
@@ -242,9 +270,13 @@ export function GithubSync() {
   const lastText = last ? new Date(last).toLocaleString(i18n.resolvedLanguage, { dateStyle: 'short', timeStyle: 'short' }) : null;
 
   const pendingCount = app.stories.reduce(
-    (sum, story) => sum + pendingFields(story, app.fields.find((field) => field.id === LABELS_FIELD_ID), app.statuses).length,
+    (sum, story) => sum + pendingFields(story, app.fields.find((field) => field.id === LABELS_FIELD_ID), app.statuses, { epics: app.epics, releases: app.releases }).length,
     0
   );
+  const name = t('github.sync.button');
+  const tooltip = [name, busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never'), pendingCount > 0 ? t('github.sync.pendingCount', { count: pendingCount }) : '']
+    .filter(Boolean)
+    .join(' · ');
 
   const sync = async (decisions?: Record<string, Decision>): Promise<void> => {
     if (running.current) return;
@@ -265,17 +297,23 @@ export function GithubSync() {
 
   return (
     <span className="github-sync">
-      <span className="github-sync__last muted" role="status">
+      <button type="button" className="btn btn--icon github-sync__button" aria-label={name} aria-busy={busy || undefined} title={tooltip} aria-disabled={busy || undefined} onClick={() => void sync()}>
+        <svg className={`github-sync__icon${busy ? ' github-sync__icon--spin' : ''}`} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M21 12a9 9 0 0 0-15.5-6.2L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M3 12a9 9 0 0 0 15.5 6.2L21 16" />
+          <path d="M21 21v-5h-5" />
+        </svg>
+        {pendingCount > 0 && (
+          <span className="github-sync__count" aria-hidden="true">
+            {pendingCount}
+          </span>
+        )}
+      </button>
+      <span className="sr-only" role="status">
         {busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never')}
       </span>
-      {pendingCount > 0 && (
-        <span className="github-sync__pending" role="status">
-          {t('github.sync.pendingCount', { count: pendingCount })}
-        </span>
-      )}
-      <button type="button" className="btn" aria-disabled={busy || undefined} onClick={() => void sync()}>
-        {t('github.sync.button')}
-      </button>
+      {pendingCount > 0 && <span className="sr-only">{t('github.sync.pendingCount', { count: pendingCount })}</span>}
       {outcome && outcome.kind === 'done' && deciding && (
         <Conflicts
           conflicts={outcome.summary.conflicts}

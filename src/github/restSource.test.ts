@@ -25,8 +25,8 @@ describe('reading issues from GitHub', () => {
     });
     const issues = await source.openIssues(repo, 'secret');
     expect(issues).toEqual([
-      { number: 31, title: 'Issue 31', body: 'Text', state: 'open', labels: ['feature', 'bug'], url: 'https://github.com/goerks/GetThingsDone/issues/31' },
-      { number: 35, title: 'Issue 35', body: '', state: 'open', labels: ['feature', 'bug'], url: 'https://github.com/goerks/GetThingsDone/issues/35' }
+      { number: 31, title: 'Issue 31', body: 'Text', state: 'open', labels: ['feature', 'bug'], url: 'https://github.com/goerks/GetThingsDone/issues/31', milestone: null },
+      { number: 35, title: 'Issue 35', body: '', state: 'open', labels: ['feature', 'bug'], url: 'https://github.com/goerks/GetThingsDone/issues/35', milestone: null }
     ]);
     expect(calls).toHaveLength(1);
     expect(calls[0].url).toBe('https://api.github.com/repos/goerks/GetThingsDone/issues?state=open&per_page=100&page=1');

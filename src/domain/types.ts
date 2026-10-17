@@ -248,6 +248,12 @@ export interface ExternalFields {
   criteria: Array<{ text: string; done: boolean }>;
   /** Done on this side, closed on GitHub. */
   done: boolean;
+  /** The title of the release, the milestone on GitHub. Missing in a base of an earlier version: it then counts as none. */
+  release?: string | null;
+  /** The name of the epic, the label "epic: <name>" on GitHub. */
+  epic?: string | null;
+  /** The name of a board column between the first and done, the label "status: <name>" on GitHub; null for the first column and done. */
+  status?: string | null;
 }
 
 /** What happens when the same field changed on both sides: GitHub wins, the local change wins, or the user decides each time. */

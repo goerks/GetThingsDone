@@ -1,4 +1,4 @@
-import type { GithubIssue, ItemPatch, RepoRef } from '../domain/github';
+import type { ExternalMilestone, GithubIssue, ItemPatch, RepoRef } from '../domain/github';
 import { repoText } from '../domain/github';
 import { GithubError, type TrackerConnector, type WriteResult } from './source';
 
@@ -15,6 +15,19 @@ interface RawIssue {
   html_url: string;
   labels?: Array<string | { name?: string | null }>;
   pull_request?: unknown;
+  milestone?: { title?: string | null } | null;
+}
+
+interface RawMilestone {
+  number: number;
+  title: string;
+  description?: string | null;
+  due_on?: string | null;
+  state: string;
+}
+
+function toMilestone(raw: RawMilestone): ExternalMilestone {
+  return { number: raw.number, title: raw.title, description: raw.description ?? '', dueOn: raw.due_on ? raw.due_on.slice(0, 10) : null, state: raw.state === 'closed' ? 'closed' : 'open' };
 }
 
 function toIssue(raw: RawIssue): GithubIssue {
@@ -24,7 +37,8 @@ function toIssue(raw: RawIssue): GithubIssue {
     body: raw.body ?? '',
     state: raw.state === 'closed' ? 'closed' : 'open',
     labels: (raw.labels ?? []).map((label) => (typeof label === 'string' ? label : (label.name ?? ''))).filter((name) => name !== ''),
-    url: raw.html_url
+    url: raw.html_url,
+    milestone: raw.milestone?.title ?? null
   };
 }
 
@@ -103,6 +117,7 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
       if (patch.title !== undefined) body.title = patch.title;
       if (patch.body !== undefined) body.body = patch.body;
       if (patch.state !== undefined) body.state = patch.state;
+      if (patch.milestone !== undefined) body.milestone = patch.milestone;
       let skipped: string[] = [];
       if (patch.labels !== undefined) {
         const only = await onlyKnown(repo, token, patch.labels);
@@ -111,6 +126,27 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
       }
       const raw = (await (await call('PATCH', `/repos/${repoText(repo)}/issues/${number}`, token, body)).json()) as RawIssue;
       return { item: toIssue(raw), skippedLabels: skipped };
+    },
+    async listMilestones(repo: RepoRef, token: string): Promise<ExternalMilestone[]> {
+      const milestones: ExternalMilestone[] = [];
+      for (let page = 1; page <= MAX_PAGES; page += 1) {
+        const raw = (await (await get(`/repos/${repoText(repo)}/milestones?state=all&per_page=${PAGE_SIZE}&page=${page}`, token)).json()) as RawMilestone[];
+        milestones.push(...raw.map(toMilestone));
+        if (raw.length < PAGE_SIZE) break;
+      }
+      return milestones;
+    },
+    async createMilestone(repo: RepoRef, token: string, milestone): Promise<ExternalMilestone> {
+      const body: Record<string, unknown> = { title: milestone.title, description: milestone.description };
+      // GitHub wants a time; the end of the day in UTC keeps the date the same in every time zone east of it.
+      if (milestone.dueOn) body.due_on = `${milestone.dueOn}T23:59:59Z`;
+      return toMilestone((await (await call('POST', `/repos/${repoText(repo)}/milestones`, token, body)).json()) as RawMilestone);
+    },
+    async listLabels(repo: RepoRef, token: string): Promise<string[]> {
+      return knownLabels(repo, token);
+    },
+    async createLabel(repo: RepoRef, token: string, label): Promise<void> {
+      await call('POST', `/repos/${repoText(repo)}/labels`, token, { name: label.name, color: label.color });
     },
     async createIssue(repo: RepoRef, token: string, item): Promise<WriteResult> {
       const only = await onlyKnown(repo, token, item.labels);

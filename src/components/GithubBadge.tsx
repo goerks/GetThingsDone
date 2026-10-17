@@ -15,7 +15,7 @@ export function GithubBadge({ story }: { story: Story }) {
   const on = useFeature('github');
   const number = story.github ? issueNumberOf(story.github.url) : null;
   if (!on || !story.github || number === null) return null;
-  const pending = pendingFields(story, app.fields.find((field) => field.id === LABELS_FIELD_ID), app.statuses);
+  const pending = pendingFields(story, app.fields.find((field) => field.id === LABELS_FIELD_ID), app.statuses, { epics: app.epics, releases: app.releases });
   return (
     <>
       <a

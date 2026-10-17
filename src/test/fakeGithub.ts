@@ -1,6 +1,6 @@
 import { issueUrl, type GithubIssue } from '../domain/github';
 import { GithubError, type GithubSource, type TokenStore } from '../github';
-import type { ItemPatch } from '../domain/github';
+import type { ExternalMilestone, ItemPatch } from '../domain/github';
 
 export const REPO = 'goerks/GetThingsDone';
 
@@ -26,8 +26,10 @@ export function fakeGithub(issues: GithubIssue[]) {
     canWrite: true,
     /** The labels the repository has; any other label is not set. */
     knownLabels: ['feature', 'bug', 'docs'],
+    /** The milestones of the repository. */
+    milestones: [] as ExternalMilestone[],
     /** What was sent to GitHub: one entry for every change or creation. */
-    writes: [] as Array<{ number: number; patch: ItemPatch } | { created: number }>
+    writes: [] as Array<{ number: number; patch: ItemPatch } | { created: number } | { milestone: string } | { label: string }>
   };
   const check = (repo: { owner: string; name: string }, token: string): void => {
     state.calls += 1;
@@ -61,9 +63,32 @@ export function fakeGithub(issues: GithubIssue[]) {
         ...(patch.title !== undefined ? { title: patch.title } : {}),
         ...(patch.body !== undefined ? { body: patch.body } : {}),
         ...(patch.state !== undefined ? { state: patch.state } : {}),
+        ...(patch.milestone !== undefined ? { milestone: patch.milestone === null ? null : (state.milestones.find((item) => item.number === patch.milestone)?.title ?? null) } : {}),
         ...(labels ? { labels: labels.labels } : {})
       };
       return { item: { ...state.issues[index] }, skippedLabels: labels?.skipped ?? [] };
+    },
+    async listMilestones(repo, token) {
+      check(repo, token);
+      return state.milestones.map((item) => ({ ...item }));
+    },
+    async createMilestone(repo, token, milestone) {
+      check(repo, token);
+      if (!state.canWrite) throw new GithubError('forbidden');
+      const created: ExternalMilestone = { number: state.milestones.reduce((max, item) => Math.max(max, item.number), 0) + 1, title: milestone.title, description: milestone.description, dueOn: milestone.dueOn, state: 'open' };
+      state.milestones.push(created);
+      state.writes.push({ milestone: milestone.title });
+      return { ...created };
+    },
+    async listLabels(repo, token) {
+      check(repo, token);
+      return [...state.knownLabels];
+    },
+    async createLabel(repo, token, label) {
+      check(repo, token);
+      if (!state.canWrite) throw new GithubError('forbidden');
+      if (!state.knownLabels.some((item) => item.toLowerCase() === label.name.toLowerCase())) state.knownLabels.push(label.name);
+      state.writes.push({ label: label.name });
     },
     async createIssue(repo, token, item) {
       check(repo, token);

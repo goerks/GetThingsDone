@@ -1360,6 +1360,13 @@
         "remote": "GitHub gewinnt (Standard)",
         "local": "Lokal gewinnt",
         "ask": "Ich entscheide (ein Dialog zeigt beide Fassungen)"
+      },
+      "statusLabels": {
+        "button": "Status-Labels auf GitHub anlegen",
+        "help": "Legt die Labels „status: …“ für die Board-Spalten zwischen der ersten und „Erledigt“ an, die es auf GitHub noch nicht gibt. Nur auf Knopfdruck.",
+        "done_one": "{{count}} Label angelegt: {{labels}}",
+        "done_other": "{{count}} Labels angelegt: {{labels}}",
+        "none": "Alle Status-Labels gibt es schon."
       }
     },
     "demo": {
@@ -1399,7 +1406,11 @@
       "conflictsOpen_one": "Bei {{count}} Feld entscheidest du noch; bis dahin bleibt es, wie es ist.",
       "conflictsOpen_other": "Bei {{count}} Feldern entscheidest du noch; bis dahin bleibt es, wie es ist.",
       "skippedLabels": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
-      "decide": "Konflikte entscheiden"
+      "decide": "Konflikte entscheiden",
+      "releaseCreated": "Release neu: {{title}}",
+      "epicCreated": "Epic neu: {{name}}",
+      "missingMilestones": "Diese Releases haben auf GitHub noch keinen Milestone, die Zuweisung bleibt hier: {{titles}}",
+      "multipleEpics": "Mehrere Epic-Labels an einem Issue, es zählt das erste: {{issues}}"
     },
     "change": {
       "created": "Neue Story",
@@ -1417,7 +1428,10 @@
       "criteriaTicked_other": "{{count}} Haken geändert",
       "criteriaOrder": "Reihenfolge geändert",
       "closed": "Auf GitHub geschlossen → Status „{{status}}“",
-      "reopened": "Auf GitHub wieder geöffnet → Status „{{status}}“"
+      "reopened": "Auf GitHub wieder geöffnet → Status „{{status}}“",
+      "release": "Release: {{from}} → {{to}}",
+      "epic": "Epic: {{from}} → {{to}}",
+      "status": "Spalte: {{from}} → {{to}}"
     },
     "errors": {
       "config": "Die Verbindung ist nicht eingerichtet: Trage Repository und Token in den Einstellungen ein. Deine lokalen Daten sind unverändert.",
@@ -1452,12 +1466,17 @@
       "description": "Beschreibung",
       "labels": "Labels",
       "criteria": "Kriterien",
-      "done": "Erledigt/Offen"
+      "done": "Erledigt/Offen",
+      "release": "Release",
+      "epic": "Epic",
+      "status": "Spalte"
     },
     "value": {
       "done": "Erledigt",
       "open": "Offen",
-      "empty": "(leer)"
+      "empty": "(leer)",
+      "none": "keins",
+      "firstColumn": "erste Spalte"
     },
     "overwritten": {
       "local": "Lokale Änderung überschrieben: {{field}}",
@@ -1484,7 +1503,12 @@
       "menu": "Auf GitHub anlegen",
       "done": "{{code}} wurde auf GitHub angelegt.",
       "skipped": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
-      "failed": "{{code}} konnte nicht auf GitHub angelegt werden: {{reason}}"
+      "failed": "{{code}} konnte nicht auf GitHub angelegt werden: {{reason}}",
+      "releaseDone": "Der Milestone wurde auf GitHub angelegt.",
+      "releaseExists": "GitHub hat schon einen Milestone mit diesem Titel.",
+      "epicDone": "Das Label „epic: …“ wurde auf GitHub angelegt.",
+      "epicExists": "GitHub hat dieses Label schon.",
+      "itemFailed": "Auf GitHub konnte nichts angelegt werden: {{reason}}"
     }
   }
 }

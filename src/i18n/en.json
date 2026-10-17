@@ -1360,6 +1360,13 @@
         "remote": "GitHub wins (default)",
         "local": "Local wins",
         "ask": "I decide (a dialog shows both versions)"
+      },
+      "statusLabels": {
+        "button": "Create status labels on GitHub",
+        "help": "Makes the labels “status: …” for the board columns between the first one and Done that GitHub does not have yet. Only when you press the button.",
+        "done_one": "{{count}} label created: {{labels}}",
+        "done_other": "{{count}} labels created: {{labels}}",
+        "none": "All status labels exist already."
       }
     },
     "demo": {
@@ -1399,7 +1406,11 @@
       "conflictsOpen_one": "You still decide {{count}} field; until then it stays as it is.",
       "conflictsOpen_other": "You still decide {{count}} fields; until then they stay as they are.",
       "skippedLabels": "GitHub does not know these labels, they were not created: {{labels}}",
-      "decide": "Decide conflicts"
+      "decide": "Decide conflicts",
+      "releaseCreated": "Release new: {{title}}",
+      "epicCreated": "Epic new: {{name}}",
+      "missingMilestones": "These releases have no milestone on GitHub yet, the assignment stays here: {{titles}}",
+      "multipleEpics": "More than one epic label on an issue, only the first counts: {{issues}}"
     },
     "change": {
       "created": "New story",
@@ -1417,7 +1428,10 @@
       "criteriaTicked_other": "{{count}} ticks changed",
       "criteriaOrder": "order changed",
       "closed": "Closed on GitHub → status “{{status}}”",
-      "reopened": "Reopened on GitHub → status “{{status}}”"
+      "reopened": "Reopened on GitHub → status “{{status}}”",
+      "release": "Release: {{from}} → {{to}}",
+      "epic": "Epic: {{from}} → {{to}}",
+      "status": "Column: {{from}} → {{to}}"
     },
     "errors": {
       "config": "The connection is not set up: enter repository and token in the settings. Your local data is unchanged.",
@@ -1452,12 +1466,17 @@
       "description": "Description",
       "labels": "Labels",
       "criteria": "Criteria",
-      "done": "Done/open"
+      "done": "Done/open",
+      "release": "Release",
+      "epic": "Epic",
+      "status": "Column"
     },
     "value": {
       "done": "Done",
       "open": "Open",
-      "empty": "(empty)"
+      "empty": "(empty)",
+      "none": "none",
+      "firstColumn": "first column"
     },
     "overwritten": {
       "local": "Local change overwritten: {{field}}",
@@ -1484,7 +1503,12 @@
       "menu": "Create on GitHub",
       "done": "{{code}} was created on GitHub.",
       "skipped": "GitHub does not know these labels, they were not created: {{labels}}",
-      "failed": "{{code}} could not be created on GitHub: {{reason}}"
+      "failed": "{{code}} could not be created on GitHub: {{reason}}",
+      "releaseDone": "The milestone was created on GitHub.",
+      "releaseExists": "GitHub already has a milestone with this title.",
+      "epicDone": "The label “epic: …” was created on GitHub.",
+      "epicExists": "GitHub already has this label.",
+      "itemFailed": "Nothing could be created on GitHub: {{reason}}"
     }
   }
 }

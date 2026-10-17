@@ -1365,6 +1365,13 @@
         "remote": "Vince GitHub (predefinito)",
         "local": "Vince il locale",
         "ask": "Decido io (una finestra mostra entrambe le versioni)"
+      },
+      "statusLabels": {
+        "button": "Crea le label di stato su GitHub",
+        "help": "Crea le label «status: …» per le colonne della board tra la prima e «Fatto» che GitHub non ha ancora. Solo quando premi il pulsante.",
+        "done_one": "{{count}} label creata: {{labels}}",
+        "done_other": "{{count}} label create: {{labels}}",
+        "none": "Tutte le label di stato esistono già."
       }
     },
     "demo": {
@@ -1404,7 +1411,11 @@
       "conflictsOpen_one": "Devi ancora decidere per {{count}} campo; fino ad allora resta com’è.",
       "conflictsOpen_other": "Devi ancora decidere per {{count}} campi; fino ad allora restano come sono.",
       "skippedLabels": "GitHub non conosce queste label, non sono state create: {{labels}}",
-      "decide": "Decidi i conflitti"
+      "decide": "Decidi i conflitti",
+      "releaseCreated": "Nuova release: {{title}}",
+      "epicCreated": "Nuovo epic: {{name}}",
+      "missingMilestones": "Queste release non hanno ancora una milestone su GitHub, l’assegnazione resta qui: {{titles}}",
+      "multipleEpics": "Più label epic su una issue, conta solo la prima: {{issues}}"
     },
     "change": {
       "created": "Nuova storia",
@@ -1425,7 +1436,10 @@
       "criteriaTicked_other": "{{count}} spunte modificate",
       "criteriaOrder": "ordine modificato",
       "closed": "Chiusa su GitHub → stato «{{status}}»",
-      "reopened": "Riaperta su GitHub → stato «{{status}}»"
+      "reopened": "Riaperta su GitHub → stato «{{status}}»",
+      "release": "Release: {{from}} → {{to}}",
+      "epic": "Epic: {{from}} → {{to}}",
+      "status": "Colonna: {{from}} → {{to}}"
     },
     "errors": {
       "config": "La connessione non è configurata: inserisci repository e token nelle impostazioni. I tuoi dati locali sono invariati.",
@@ -1460,12 +1474,17 @@
       "description": "Descrizione",
       "labels": "Label",
       "criteria": "Criteri",
-      "done": "Fatto/aperto"
+      "done": "Fatto/aperto",
+      "release": "Release",
+      "epic": "Epic",
+      "status": "Colonna"
     },
     "value": {
       "done": "Fatto",
       "open": "Aperto",
-      "empty": "(vuoto)"
+      "empty": "(vuoto)",
+      "none": "nessuna",
+      "firstColumn": "prima colonna"
     },
     "overwritten": {
       "local": "Modifica locale sovrascritta: {{field}}",
@@ -1492,7 +1511,12 @@
       "menu": "Crea su GitHub",
       "done": "{{code}} è stata creata su GitHub.",
       "skipped": "GitHub non conosce queste label, non sono state create: {{labels}}",
-      "failed": "{{code}} non è stata creata su GitHub: {{reason}}"
+      "failed": "{{code}} non è stata creata su GitHub: {{reason}}",
+      "releaseDone": "La milestone è stata creata su GitHub.",
+      "releaseExists": "GitHub ha già una milestone con questo titolo.",
+      "epicDone": "La label «epic: …» è stata creata su GitHub.",
+      "epicExists": "GitHub ha già questa label.",
+      "itemFailed": "Non è stato possibile creare nulla su GitHub: {{reason}}"
     }
   }
 }

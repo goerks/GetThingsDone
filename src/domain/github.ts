@@ -1,7 +1,7 @@
 import { nextCode } from './board';
 import { assignTo } from './fields';
 import { startStatus, statusesIn } from './statuses';
-import { EPIC_COLOR_KEYS, type ConflictRule, type Criterion, type ExternalFields, type FieldAssignment, type FieldDefinition, type FieldOption, type StatusValue, type Story } from './types';
+import { EPIC_COLOR_KEYS, type ConflictRule, type Criterion, type Epic, type ExternalFields, type FieldAssignment, type FieldDefinition, type FieldOption, type Release, type StatusValue, type Story } from './types';
 
 /*
  * Import and sync with GitHub Issues (#30): the rules, without any network. The access to GitHub is in `src/github/`.
@@ -22,6 +22,18 @@ export interface GithubIssue {
   labels: string[];
   /** The address of the issue on github.com, `https://github.com/<owner>/<name>/issues/<number>`. */
   url: string;
+  /** The title of the milestone of the issue, or null/missing when it has none. */
+  milestone?: string | null;
+}
+
+/** A milestone of the repository: the counterpart of a release (#30). */
+export interface ExternalMilestone {
+  number: number;
+  title: string;
+  description: string;
+  /** The due date as `YYYY-MM-DD`, or null. */
+  dueOn: string | null;
+  state: 'open' | 'closed';
 }
 
 export interface RepoRef {
@@ -139,11 +151,37 @@ const optionIdsOf = (field: FieldDefinition, labels: readonly string[]): string[
 
 const asIds = (value: unknown): string[] => (Array.isArray(value) ? (value as string[]) : []);
 
+/* ---------- Epics, statuses and releases as labels and milestones ---------- */
+
+const EPIC_LABEL = /^epic:\s*(.+?)\s*$/i;
+const STATUS_LABEL = /^status:\s*(.+?)\s*$/i;
+
+/** The epic a label names (`epic: Boards` is the epic "Boards"), or null when it is no epic label. */
+export const epicOfLabel = (label: string): string | null => EPIC_LABEL.exec(label)?.[1] ?? null;
+
+/** The status a label names (`status: in progress`), or null when it is no status label. */
+export const statusOfLabel = (label: string): string | null => STATUS_LABEL.exec(label)?.[1] ?? null;
+
+export const epicLabelText = (name: string): string => `epic: ${name}`;
+export const statusLabelText = (name: string): string => `status: ${name}`;
+
+/** The name a status has on GitHub: its own label, or its id without underscores ("in_progress" is "in progress"). */
+export const statusName = (status: StatusValue): string => (status.label ?? status.id.replace(/_/g, ' ')).trim();
+
+/** The statuses that have a label on GitHub: all that are not done and not the first one. A closed issue is done, an open one without label is in the first status. */
+export function labelledStatuses(statuses: readonly StatusValue[]): StatusValue[] {
+  const start = startStatus(statuses);
+  return statuses.filter((status) => status.category !== 'done' && status.id !== start);
+}
+
+const same = (a: string | null | undefined, b: string | null | undefined): boolean => (a ?? '').trim().toLowerCase() === (b ?? '').trim().toLowerCase();
+
 /* ---------- The fields that are compared ---------- */
 
-export type FieldName = 'title' | 'description' | 'labels' | 'criteria' | 'done';
+export type FieldName = 'title' | 'description' | 'labels' | 'criteria' | 'release' | 'epic' | 'done' | 'status';
 
-export const FIELD_NAMES: readonly FieldName[] = ['title', 'description', 'labels', 'criteria', 'done'];
+/** The order matters: done comes before status, so a closed issue is done whatever its status label says. */
+export const FIELD_NAMES: readonly FieldName[] = ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status'];
 
 const norm = (text: string): string => text.replace(/\r\n?/g, '\n').trim();
 const sameLabels = (a: readonly string[], b: readonly string[]): boolean =>
@@ -160,36 +198,74 @@ export function sameField(name: FieldName, a: ExternalFields, b: ExternalFields)
       return sameLabels(a.labels, b.labels);
     case 'criteria':
       return a.criteria.length === b.criteria.length && a.criteria.every((item, index) => item.text === b.criteria[index].text && item.done === b.criteria[index].done);
+    case 'release':
+      return same(a.release, b.release);
+    case 'epic':
+      return same(a.epic, b.epic);
     case 'done':
       return a.done === b.done;
+    case 'status':
+      return same(a.status, b.status);
   }
 }
 
-/** The compared fields of an issue. */
+/**
+ * The compared fields of an issue. The labels "epic: …" and "status: …" are not labels of the story: the first of each
+ * is its epic and its status (a closed issue is done, so its status label does not count).
+ */
 export function remoteFields(item: GithubIssue): ExternalFields {
   const { description, criteria } = splitBody(item.body);
-  return { title: item.title.trim(), description, labels: [...item.labels], criteria, done: item.state === 'closed' };
+  const done = item.state === 'closed';
+  const plain = item.labels.filter((label) => epicOfLabel(label) === null && statusOfLabel(label) === null);
+  return {
+    title: item.title.trim(),
+    description,
+    labels: plain,
+    criteria,
+    release: item.milestone ?? null,
+    epic: item.labels.map(epicOfLabel).find((name) => name !== null) ?? null,
+    done,
+    status: done ? null : (item.labels.map(statusOfLabel).find((name) => name !== null) ?? null)
+  };
+}
+
+/** What a story needs besides its own fields to be compared: the epics and releases it points to. */
+export interface LocalContext {
+  epics?: readonly Epic[];
+  releases?: readonly Release[];
 }
 
 /** The compared fields of a story. `field` is the labels field, if there is one. */
-export function localFields(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[]): ExternalFields {
+export function localFields(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[], context: LocalContext = {}): ExternalFields {
   const ids = field ? asIds(story.values[field.id]) : [];
+  const status = statuses.find((item) => item.id === story.status);
+  const labelled = status !== undefined && labelledStatuses(statuses).some((item) => item.id === status.id);
   return {
     title: story.title.trim(),
     description: story.description.trim(),
     labels: ids.flatMap((id) => field?.options.find((option) => option.id === id)?.label ?? []),
     criteria: story.criteria.map((item) => ({ text: item.text, done: item.done })),
-    done: statuses.some((status) => status.id === story.status && status.category === 'done')
+    release: story.releaseId === null ? null : (context.releases?.find((item) => item.id === story.releaseId)?.title ?? null),
+    epic: story.epicId === null ? null : (context.epics?.find((item) => item.id === story.epicId)?.name ?? null),
+    done: status?.category === 'done',
+    status: labelled && status ? statusName(status) : null
   };
 }
 
 /** The fields of a linked story that changed here since the last sync, and so are not on GitHub yet. */
-export function pendingFields(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[]): FieldName[] {
+export function pendingFields(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[], context: LocalContext = {}): FieldName[] {
   const base = story.github?.base;
   if (!base) return [];
-  const local = localFields(story, field, statuses);
+  const local = localFields(story, field, statuses, context);
   return FIELD_NAMES.filter((name) => !sameField(name, local, base));
 }
+
+/** The labels an issue has on GitHub for these fields: the plain labels, the epic and the status. */
+export const labelsOf = (fields: Pick<ExternalFields, 'labels' | 'epic' | 'status'>, epic: string | null | undefined, status: string | null | undefined): string[] => [
+  ...fields.labels,
+  ...(epic ? [epicLabelText(epic)] : []),
+  ...(status ? [statusLabelText(status)] : [])
+];
 
 /* ---------- The text of an issue from description and criteria ---------- */
 
@@ -238,6 +314,9 @@ export type GithubChange =
   | { kind: 'description' }
   | { kind: 'labels'; added: string[]; removed: string[] }
   | { kind: 'criteria'; added: number; removed: number; changed: number }
+  | { kind: 'release'; from: string | null; to: string | null }
+  | { kind: 'epic'; from: string | null; to: string | null }
+  | { kind: 'status'; from: string | null; to: string | null }
   | { kind: 'closed' }
   | { kind: 'reopened' };
 
@@ -257,7 +336,7 @@ export interface PublishEntry {
   number: number;
   title: string;
   fields: FieldName[];
-  /** Labels GitHub does not know; they are not created, and the story keeps them. */
+  /** Labels GitHub does not know (also epic and status labels); they are not created, and the story keeps them. */
   skippedLabels: string[];
 }
 
@@ -292,6 +371,14 @@ export interface SyncSummary {
   conflicts: ConflictEntry[];
   /** Local changes that were not published because writing is off. */
   pending: number;
+  /** Titles of releases that were made from milestones. */
+  releasesCreated: string[];
+  /** Names of epics that were made from labels. */
+  epicsCreated: string[];
+  /** Releases a story is in that have no milestone on GitHub: the assignment stays here and is not published. */
+  missingMilestones: string[];
+  /** Issues with more than one epic label: only the first counts. */
+  multipleEpics: Array<{ code: string; number: number }>;
 }
 
 export type Decision = 'local' | 'remote';
@@ -308,6 +395,11 @@ export interface SyncInput {
   /** The issues to bring in: the open issues of the repository, and the issues the stories already point to. */
   issues: readonly GithubIssue[];
   newId: () => string;
+  /** The epics and releases of the app; the sync adds those it finds on GitHub (labels "epic: …", milestones). */
+  epics?: readonly Epic[];
+  releases?: readonly Release[];
+  /** The milestones of the repository. */
+  milestones?: readonly ExternalMilestone[];
   /** Whether the sync may change issues on GitHub. */
   write?: boolean;
   /** The rule for fields that changed on both sides. */
@@ -324,6 +416,8 @@ export interface ItemPatch {
   body?: string;
   state?: 'open' | 'closed';
   labels?: string[];
+  /** The number of the milestone, or null for none. */
+  milestone?: number | null;
 }
 
 /** A change of one story to publish. */
@@ -338,24 +432,52 @@ export interface SyncPlan {
   stories: Story[];
   fields: FieldDefinition[];
   assignments: FieldAssignment[];
+  epics: Epic[];
+  releases: Release[];
   summary: SyncSummary;
   pushes: Push[];
+}
+
+const emptySummary = (): SyncSummary => ({
+  created: [],
+  closed: [],
+  updated: [],
+  published: [],
+  overwritten: [],
+  conflicts: [],
+  pending: 0,
+  releasesCreated: [],
+  epicsCreated: [],
+  missingMilestones: [],
+  multipleEpics: []
+});
+
+/** The colour of an epic that was made from a label: the same name always gets the same colour. */
+function epicColorFor(name: string): Epic['colorKey'] {
+  let hash = 0;
+  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return EPIC_COLOR_KEYS[hash % EPIC_COLOR_KEYS.length];
 }
 
 /**
  * Compares stories and issues. An open issue without a story becomes a story at the end of the backlog. For a story that
  * points to an issue every field is compared with the base: what only the issue changed is taken, what only the story
  * changed is published (when writing is on, else it stays and is counted as pending), what both changed follows the
- * conflict rule. A closed issue puts the story into the first "done" status, an issue that is open again puts a done
- * story back to the start status. Everything else of a story stays as it is.
+ * conflict rule. Besides title, description, labels and criteria the fields are the release (milestone), the epic
+ * (label "epic: <name>"), done (closed) and the board column between the first and done (label "status: <name>"). A
+ * closed issue puts the story into the first "done" status, an issue that is open again puts a done story back to the
+ * start status. Everything else of a story stays as it is.
  */
 export function planSync(input: SyncInput): SyncPlan {
   const { repo, statuses, newId } = input;
   const write = input.write ?? false;
   const rule: ConflictRule = input.conflict ?? 'remote';
   const ignored = input.ignored ?? [];
+  const milestones = input.milestones ?? [];
+  const epics = [...(input.epics ?? [])];
+  const releases = [...(input.releases ?? [])];
   const issues = input.issues.filter((issue) => inRepo(issue.url, repo));
-  const labelNames = [...new Set(issues.flatMap((issue) => issue.labels))];
+  const labelNames = [...new Set(issues.flatMap((issue) => issue.labels).filter((label) => epicOfLabel(label) === null && statusOfLabel(label) === null))];
   const hadField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
   const field = withLabelOptions(hadField, labelNames);
   const fieldChanged = field !== hadField;
@@ -364,27 +486,53 @@ export function planSync(input: SyncInput): SyncPlan {
 
   const doneStatus = statusesIn(statuses, 'done')[0]?.id;
   const start = startStatus(statuses);
-  const summary: SyncSummary = { created: [], closed: [], updated: [], published: [], overwritten: [], conflicts: [], pending: 0 };
+  const labelled = labelledStatuses(statuses);
+  const summary = emptySummary();
   const pushes: Push[] = [];
   const stories = [...input.stories];
 
+  /** The epic of that name, made when there is none. */
+  const epicNamed = (name: string): Epic => {
+    const found = epics.find((epic) => same(epic.name, name));
+    if (found) return found;
+    const created: Epic = { id: newId(), name, colorKey: epicColorFor(name), position: epics.reduce((max, epic) => Math.max(max, epic.position), -1) + 1, values: {} };
+    epics.push(created);
+    summary.epicsCreated.push(name);
+    return created;
+  };
+  /** The release of that title, made from its milestone when there is none. */
+  const releaseTitled = (title: string): Release => {
+    const found = releases.find((release) => same(release.title, title));
+    if (found) return found;
+    const milestone = milestones.find((item) => same(item.title, title));
+    const created: Release = { id: newId(), title: milestone?.title ?? title, description: milestone?.description ?? '', startDate: null, endDate: milestone?.dueOn ?? null };
+    releases.push(created);
+    summary.releasesCreated.push(created.title);
+    return created;
+  };
+  /** The status a label names, or the start status. */
+  const statusNamed = (name: string | null | undefined): string => (name ? (labelled.find((status) => same(statusName(status), name))?.id ?? start) : start);
+
   for (const issue of issues) {
     const remote = remoteFields(issue);
+    // A label of a status this app does not have counts as no label: the story stays in the first column.
+    if (remote.status && !labelled.some((status) => same(statusName(status), remote.status))) remote.status = null;
     const index = stories.findIndex((story) => story.github?.url === issue.url);
+    const epicLabels = issue.labels.filter((label) => epicOfLabel(label) !== null);
 
     if (index < 0) {
       if (issue.state !== 'open' || ignored.includes(issue.url)) continue;
-      const optionIds = optionIdsOf(field, issue.labels);
+      const optionIds = optionIdsOf(field, remote.labels);
       const story: Story = {
         id: newId(),
         code: nextCode(stories),
         title: remote.title,
         description: remote.description,
-        epicId: null,
+        epicId: remote.epic ? epicNamed(remote.epic).id : null,
         points: 0,
-        status: start,
+        status: statusNamed(remote.status),
         sprintId: null,
-        releaseId: null,
+        releaseId: remote.release ? releaseTitled(remote.release).id : null,
         rank: stories.reduce((max, item) => Math.max(max, item.rank), -1) + 1,
         criteria: remote.criteria.map((item) => ({ id: newId(), text: item.text, done: item.done })),
         values: optionIds.length > 0 ? { [field.id]: optionIds } : {},
@@ -393,12 +541,14 @@ export function planSync(input: SyncInput): SyncPlan {
         github: { url: issue.url, state: 'open', base: remote }
       };
       stories.push(story);
+      if (epicLabels.length > 1) summary.multipleEpics.push({ code: story.code, number: issue.number });
       summary.created.push({ storyId: story.id, code: story.code, number: issue.number, title: story.title, changes: [{ kind: 'created' }] });
       continue;
     }
 
     const story = stories[index];
-    const local = localFields(story, field, statuses);
+    const context: LocalContext = { epics, releases };
+    const local = localFields(story, field, statuses, context);
     // A story from a version without a base takes the issue as it is: the base is the story, so every difference is the issue's.
     const base = story.github?.base ?? local;
     const nextBase: ExternalFields = { ...base };
@@ -406,6 +556,7 @@ export function planSync(input: SyncInput): SyncPlan {
     const pushFields: FieldName[] = [];
     let next: Story = story;
     let closed = false;
+    if (epicLabels.length > 1) summary.multipleEpics.push({ code: story.code, number: issue.number });
 
     const pull = (name: FieldName): void => {
       nextBase[name] = remote[name] as never;
@@ -445,6 +596,18 @@ export function planSync(input: SyncInput): SyncPlan {
           next = { ...next, criteria };
           return;
         }
+        case 'release': {
+          const releaseId = remote.release ? releaseTitled(remote.release).id : null;
+          changes.push({ kind: 'release', from: localFields(next, field, statuses, { epics, releases }).release ?? null, to: remote.release ?? null });
+          next = { ...next, releaseId };
+          return;
+        }
+        case 'epic': {
+          const epicId = remote.epic ? epicNamed(remote.epic).id : null;
+          changes.push({ kind: 'epic', from: localFields(next, field, statuses, { epics, releases }).epic ?? null, to: remote.epic ?? null });
+          next = { ...next, epicId };
+          return;
+        }
         case 'done':
           if (remote.done && doneStatus) {
             changes.push({ kind: 'closed' });
@@ -455,6 +618,12 @@ export function planSync(input: SyncInput): SyncPlan {
             next = { ...next, status: start };
           }
           return;
+        case 'status':
+          // A closed issue is done whatever its label says: only the base moves on.
+          if (remote.done) return;
+          changes.push({ kind: 'status', from: localFields(next, field, statuses, { epics, releases }).status ?? null, to: remote.status ?? null });
+          next = { ...next, status: statusNamed(remote.status) };
+          return;
       }
     };
 
@@ -462,10 +631,20 @@ export function planSync(input: SyncInput): SyncPlan {
       const localChanged = !sameField(name, local, base);
       const remoteChanged = !sameField(name, remote, base);
       if (!localChanged && !remoteChanged) continue;
+      // A release without a milestone cannot be published; the assignment stays here.
+      const unpublishable = name === 'release' && local.release && !milestones.some((item) => same(item.title, local.release));
+      const publish = (): void => {
+        if (unpublishable) {
+          summary.pending += 1;
+          if (local.release && !summary.missingMilestones.includes(local.release)) summary.missingMilestones.push(local.release);
+        } else {
+          pushFields.push(name);
+        }
+      };
       if (!localChanged) {
         pull(name);
       } else if (!remoteChanged) {
-        if (write) pushFields.push(name);
+        if (write) publish();
         else summary.pending += 1;
       } else if (sameField(name, local, remote)) {
         nextBase[name] = remote[name] as never;
@@ -478,8 +657,8 @@ export function planSync(input: SyncInput): SyncPlan {
           pull(name);
           summary.overwritten.push({ ...entry, side: 'local', ...(name === 'title' ? { value: local.title } : {}) });
         } else if (write) {
-          pushFields.push(name);
-          summary.overwritten.push({ ...entry, side: 'github', ...(name === 'title' ? { value: remote.title } : {}) });
+          publish();
+          if (!unpublishable) summary.overwritten.push({ ...entry, side: 'github', ...(name === 'title' ? { value: remote.title } : {}) });
         } else {
           summary.pending += 1;
         }
@@ -487,11 +666,19 @@ export function planSync(input: SyncInput): SyncPlan {
     }
 
     if (pushFields.length > 0) {
-      const after = localFields(next, field, statuses);
+      const after = localFields(next, field, statuses, { epics, releases });
       const patch: ItemPatch = {};
       if (pushFields.includes('title')) patch.title = after.title;
-      if (pushFields.includes('labels')) patch.labels = after.labels;
+      if (pushFields.includes('labels') || pushFields.includes('epic') || pushFields.includes('status')) {
+        // The labels of the issue are plain labels, epic and status together: what is not pushed stays as GitHub has it.
+        patch.labels = labelsOf(
+          { labels: pushFields.includes('labels') ? after.labels : remote.labels, epic: null, status: null },
+          pushFields.includes('epic') ? after.epic : remote.epic,
+          pushFields.includes('status') ? after.status : remote.status
+        );
+      }
       if (pushFields.includes('done')) patch.state = after.done ? 'closed' : 'open';
+      if (pushFields.includes('release')) patch.milestone = after.release ? (milestones.find((item) => same(item.title, after.release))?.number ?? null) : null;
       if (pushFields.includes('description')) patch.body = composeBody(after.description, after.criteria);
       else if (pushFields.includes('criteria')) patch.body = withCriteria(issue.body, after.criteria);
       pushes.push({ storyId: story.id, number: issue.number, fields: pushFields, patch });
@@ -507,7 +694,7 @@ export function planSync(input: SyncInput): SyncPlan {
     }
   }
 
-  return { stories, fields, assignments, summary, pushes };
+  return { stories, fields, assignments, epics, releases, summary, pushes };
 }
 
 /**
@@ -524,10 +711,15 @@ export function linkedNumbersMissingIn(stories: readonly Story[], repo: RepoRef,
   });
 }
 
-/** What a new issue is made of: the title, the text with the criteria, and the labels. */
-export function newIssueOf(story: Story, field: FieldDefinition | undefined, statuses: readonly StatusValue[]): { title: string; body: string; labels: string[] } {
-  const fields = localFields(story, field, statuses);
-  return { title: fields.title, body: composeBody(fields.description, fields.criteria), labels: fields.labels };
+/** What a new issue is made of: the title, the text with the criteria, and the labels with the epic and the status. */
+export function newIssueOf(
+  story: Story,
+  field: FieldDefinition | undefined,
+  statuses: readonly StatusValue[],
+  context: LocalContext = {}
+): { title: string; body: string; labels: string[] } {
+  const fields = localFields(story, field, statuses, context);
+  return { title: fields.title, body: composeBody(fields.description, fields.criteria), labels: labelsOf(fields, fields.epic, fields.status) };
 }
 
 /** The link of a story to the issue it was just published as. */
@@ -552,4 +744,12 @@ const localFieldsFallback = (story: Story): ExternalFields => ({
 
 /** Whether nothing changed. */
 export const isEmptySummary = (summary: SyncSummary): boolean =>
-  summary.created.length + summary.closed.length + summary.updated.length + summary.published.length + summary.overwritten.length + summary.conflicts.length === 0;
+  summary.created.length +
+    summary.closed.length +
+    summary.updated.length +
+    summary.published.length +
+    summary.overwritten.length +
+    summary.conflicts.length +
+    summary.releasesCreated.length +
+    summary.epicsCreated.length ===
+  0;

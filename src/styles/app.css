@@ -6656,3 +6656,44 @@ a.github-badge:hover {
   display: block;
   margin: 2px 0;
 }
+
+/* The sync icon on backlog, board and story map (#30). */
+.github-sync__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 6px 8px;
+}
+
+.github-sync__count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--warn);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.github-sync__icon--spin {
+  animation: github-spin 1s linear infinite;
+}
+
+@keyframes github-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .github-sync__icon--spin {
+    animation-duration: 3s;
+  }
+}

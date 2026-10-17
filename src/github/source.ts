@@ -1,4 +1,4 @@
-import type { GithubIssue, ItemPatch, RepoRef } from '../domain/github';
+import type { ExternalMilestone, GithubIssue, ItemPatch, RepoRef } from '../domain/github';
 
 /** Why a call to a service failed. The texts for the user are `github.errors.<kind>`. */
 export type GithubErrorKind = 'config' | 'network' | 'auth' | 'forbidden' | 'notFound' | 'rateLimit' | 'other';
@@ -15,6 +15,7 @@ export class GithubError extends Error {
 
 /** An item of an external service as the sync sees it. `number` is its number in the service; the address identifies it across syncs. */
 export type ExternalItem = GithubIssue;
+export type { ExternalMilestone };
 
 /** The result of a change on the service: the item as it is now, and the labels the service does not know. */
 export interface WriteResult {
@@ -47,6 +48,14 @@ export interface TrackerConnector {
   updateIssue(repo: RepoRef, token: string, number: number, patch: ItemPatch): Promise<WriteResult>;
   /** Creates an item. Throws a `GithubError`. */
   createIssue(repo: RepoRef, token: string, item: { title: string; body: string; labels: string[] }): Promise<WriteResult>;
+  /** The milestones of the repository, open and closed. Throws a `GithubError`. */
+  listMilestones(repo: RepoRef, token: string): Promise<ExternalMilestone[]>;
+  /** Creates a milestone (the counterpart of a release). Throws a `GithubError`, `forbidden` when the token may not write. */
+  createMilestone(repo: RepoRef, token: string, milestone: { title: string; description: string; dueOn: string | null }): Promise<ExternalMilestone>;
+  /** The names of the labels of the repository. */
+  listLabels(repo: RepoRef, token: string): Promise<string[]>;
+  /** Creates a label; `color` is a hex colour without the hash. Throws a `GithubError`, `forbidden` when the token may not write. */
+  createLabel(repo: RepoRef, token: string, label: { name: string; color: string }): Promise<void>;
 }
 
 /** The connector of GitHub; the name the rest of the app knows. */
