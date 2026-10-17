@@ -615,11 +615,11 @@ describe('links to the right pages', () => {
     await openTopic(user, 'Releases');
     const text = within(panel()).getAllByText(/^(Releases only work|1\.|2\.|3\.)/).map((node) => node.textContent ?? '');
     expect(text[0]).toMatch(/^Releases only work when the feature “Releases” is switched on/);
-    expect(text[1]).toMatch(/^1\. Switch the feature on under Settings → Features/);
+    expect(text[1]).toMatch(/^1\. Switch the feature on under Settings → Releases/);
     expect(text[2]).toMatch(/^2\. Open the Releases page/);
     expect(text[3]).toMatch(/^3\. .*Settings → Story map/);
-    expect(link('Open Settings → Features')).toHaveAttribute('href', '#/settings/features');
-    expect(link('Open Settings → Features')).toHaveClass('linkbtn--first');
+    expect(link('Open Settings → Releases')).toHaveAttribute('href', '#/settings/releases');
+    expect(link('Open Settings → Releases')).toHaveClass('linkbtn--first');
     expect(link('Open Releases')).toHaveAttribute('href', '#/releases');
     expect(link('Open Releases')).not.toHaveClass('linkbtn--first');
     expect(link('Open Settings → Story map')).toHaveTextContent('Choose “Releases” as the rows');
@@ -627,14 +627,14 @@ describe('links to the right pages', () => {
     expect(link('Open Story Map')).toHaveAttribute('href', '#/map');
     // The feature is first in the list of places
     const places = within(panel()).getAllByRole('link').map((anchor) => anchor.textContent);
-    expect(places.indexOf('Open Settings → Features')).toBeLessThan(places.indexOf('Open Releases'));
+    expect(places.indexOf('Open Settings → Releases')).toBeLessThan(places.indexOf('Open Releases'));
   });
 
   it('AC10.3 does not link to places that need Releases while the feature is off, and says to switch it on first', async () => {
     const user = userEvent.setup();
     await renderApp('#/board', { releasesOff: true });
     await openTopic(user, 'Releases');
-    expect(link('Open Settings → Features')).toBeInTheDocument();
+    expect(link('Open Settings → Releases')).toBeInTheDocument();
     for (const name of ['Open Releases', 'Open Settings → Story map']) expect(within(panel()).queryByRole('link', { name })).not.toBeInTheDocument();
     for (const name of ['Open Releases', 'Open Settings → Story map', 'Open Story Map']) {
       const locked = within(panel()).getByText(name).closest('.linkbtn');
@@ -642,15 +642,15 @@ describe('links to the right pages', () => {
       expect(locked).toHaveTextContent('Switch the feature “Releases” on first');
     }
     // The feature itself stands out, with its hint, and is a link
-    expect(link('Open Settings → Features')).toHaveClass('linkbtn--first');
-    expect(link('Open Settings → Features')).toHaveTextContent('Switch the feature on first');
+    expect(link('Open Settings → Releases')).toHaveClass('linkbtn--first');
+    expect(link('Open Settings → Releases')).toHaveTextContent('Switch the feature on first');
   });
 
   it('AC10.3 turns the places into links when the feature is switched on, with the help open', async () => {
     const user = userEvent.setup();
     await renderApp('#/board', { releasesOff: true });
     await openTopic(user, 'Releases');
-    await user.click(link('Open Settings → Features'));
+    await user.click(link('Open Settings → Releases'));
     await user.click(await screen.findByRole('switch', { name: /Releases/ }));
     expect(link('Open Releases')).toHaveAttribute('href', '#/releases');
     expect(within(panel()).queryByText(/switch the feature “Releases” on first/)).not.toBeInTheDocument();
@@ -684,7 +684,7 @@ describe('links to the right pages', () => {
     await openHelp(user);
     await user.click(within(panel()).getByRole('button', { name: /^Settings/ }));
     const places = within(panel()).getAllByRole('link').map((anchor) => anchor.textContent);
-    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Definitions', 'Open Settings → Features', 'Open Settings → Data']);
+    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Definitions', 'Open Settings → Releases', 'Open Settings → Team', 'Open Settings → Data']);
   });
 });
 

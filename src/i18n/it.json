@@ -395,7 +395,7 @@
       "noCustom": "Ancora nessun campo personalizzato per questo tipo. Spuntali in Assegnazione.",
       "instructions": "Premi spazio per prendere un campo. Spostalo con le frecce, rilascialo con spazio, annulla con esc.",
       "releaseOff": "Non disponibile: le release sono disattivate",
-      "releaseOffLink": "Impostazioni › Funzioni"
+      "releaseOffLink": "Impostazioni › Release"
     },
     "invalidUrl": "Inserisci un indirizzo web, per esempio example.com.",
     "openLink": "Apri {{name}}",
@@ -438,10 +438,12 @@
       "unavailable": "Non disponibile"
     },
     "features": {
-      "title": "Funzioni",
-      "hint": "Attiva o disattiva le funzioni per tutto il team. Una funzione disattivata è nascosta, i suoi dati vengono conservati.",
       "on": "Attiva",
       "off": "Disattivata",
+      "enabled": "Funzione attiva",
+      "disabled": "Funzione disattivata",
+      "switchOn": "Attiva {{name}}",
+      "openReleases": "Apri la pagina Release",
       "saved": "La scelta vale per tutto il team e viene salvata subito.",
       "releases": {
         "name": "Release",
@@ -510,6 +512,10 @@
         "exportFirst": "Esporta prima i dati attuali",
         "replace": "Sostituisci i dati"
       }
+    },
+    "groups": {
+      "workspace": "Area di lavoro",
+      "features": "Funzioni"
     }
   },
   "summary": {
@@ -955,7 +961,7 @@
       "map.basics": {
         "title": "Story Map",
         "keywords": "mappa attivita epic sprint righe colonne release pianificazione board delle release funzione",
-        "body": "La Story Map ha una colonna per epic e una riga per sprint. Ogni cella contiene le story di quell’epic in quello sprint.\nTrascina una story in un’altra cella per cambiare sprint ed epic.\nPer pianificare per release invece che per sprint, attiva prima la funzione «Release» (Impostazioni → Funzioni), poi scegli «Release» come righe (Impostazioni → Story map)."
+        "body": "La Story Map ha una colonna per epic e una riga per sprint. Ogni cella contiene le story di quell’epic in quello sprint.\nTrascina una story in un’altra cella per cambiare sprint ed epic.\nPer pianificare per release invece che per sprint, attiva prima la funzione «Release» (Impostazioni → Release), poi scegli «Release» come righe (Impostazioni → Story map)."
       },
       "epics.basics": {
         "title": "Epic",
@@ -965,12 +971,12 @@
       "releases.basics": {
         "title": "Release",
         "keywords": "release versione ambito burndown cronologia funzione attivare accendere story map righe board delle release",
-        "body": "Le release funzionano solo se la funzione «Release» è attiva. Procedi in questo ordine:\n1. Attiva la funzione in Impostazioni → Funzioni. La pagina Release compare poi nella navigazione.\n2. Apri la pagina Release per creare una release e vedere ambito, progressi e cronologia.\n3. Per pianificare per release nella Story Map, scegli «Release» come righe in Impostazioni → Story map. La Story Map mostra poi una riga per release.\nSe disattivi di nuovo la funzione, tutto ciò che riguarda le release è nascosto, ma conservato."
+        "body": "Le release funzionano solo se la funzione «Release» è attiva. Procedi in questo ordine:\n1. Attiva la funzione in Impostazioni → Release. La pagina Release compare poi nella navigazione.\n2. Apri la pagina Release per creare una release e vedere ambito, progressi e cronologia.\n3. Per pianificare per release nella Story Map, scegli «Release» come righe in Impostazioni → Story map. La Story Map mostra poi una riga per release.\nSe disattivi di nuovo la funzione, tutto ciò che riguarda le release è nascosto, ma conservato."
       },
       "settings.basics": {
         "title": "Impostazioni",
         "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare definizioni lista",
-        "body": "Apri le impostazioni con l’ingranaggio. Hanno sei sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Le funzioni attivano o disattivano parti dell’app, per esempio Release. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno sette sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Release e Team hanno ciascuna una sezione propria, dove attivi o disattivi la funzione e la configuri. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -1005,7 +1011,7 @@
       "team.assign": {
         "title": "Team e assegnazione",
         "keywords": "team persona membro assegnare assegnata iniziali filtro qualcuno lavora chi",
-        "body": "Accendi prima «Team» in Impostazioni → Funzioni. Poi apri Impostazioni → Team e aggiungi le persone a cui vuoi assegnare le storie. Bastano un nome e le iniziali, non ci sono account. Le iniziali derivano dal nome e si possono modificare.\nAssegni una storia nella sua finestra, nel campo «Assegnata a», oppure subito quando crei una nuova storia. Un cerchio mostra le iniziali sulle carte, nel backlog e sulla story map. Un cerchio tratteggiato significa che la storia non è assegnata.\nSopra la bacheca filtri per una persona o per le storie su cui nessuno lavora. La ricerca trova le storie anche per nome o iniziali.\nSe rimuovi un membro, le sue storie restano e non sono più assegnate. Se spegni «Team», membri e assegnazioni vengono conservati."
+        "body": "Apri Impostazioni → Team e accendi «Team». Poi aggiungi le persone a cui vuoi assegnare le storie. Bastano un nome e le iniziali, non ci sono account. Le iniziali derivano dal nome e si possono modificare.\nAssegni una storia nella sua finestra, nel campo «Assegnata a», oppure subito quando crei una nuova storia. Un cerchio mostra le iniziali sulle carte, nel backlog e sulla story map. Un cerchio tratteggiato significa che la storia non è assegnata.\nSopra la bacheca filtri per una persona o per le storie su cui nessuno lavora. La ricerca trova le storie anche per nome o iniziali.\nSe rimuovi un membro, le sue storie restano e non sono più assegnate. Se spegni «Team», membri e assegnazioni vengono conservati."
       }
     },
     "links": {
@@ -1017,7 +1023,7 @@
       "settingsFields": "Apri Impostazioni → Campi",
       "settingsStatuses": "Apri Impostazioni → Valori di stato",
       "settingsMap": "Apri Impostazioni → Story map",
-      "settingsFeatures": "Apri Impostazioni → Funzioni",
+      "settingsReleases": "Apri Impostazioni → Release",
       "settingsDefinitions": "Apri Impostazioni → Definizioni",
       "settingsData": "Apri Impostazioni → Dati",
       "settingsTeam": "Apri Impostazioni → Team"

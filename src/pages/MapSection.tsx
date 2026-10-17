@@ -35,7 +35,7 @@ export function MapSection() {
       </div>
       {!releasesEnabled && (
         <p className="hint hint--warn" role="note">
-          {t('settings.map.off')} <a href={hrefs.settingsFeatures}>{t('settings.map.toReleases')}</a>
+          {t('settings.map.off')} <a href={hrefs.settingsReleases}>{t('settings.map.toReleases')}</a>
         </p>
       )}
       <fieldset className="choices">
