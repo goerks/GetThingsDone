@@ -25,12 +25,12 @@ beforeEach(async () => {
   await i18next.changeLanguage('en');
 });
 
-async function open(hash: string, off: FeatureKey[] = []): Promise<LocalStorageRepository> {
+async function open(hash: string, off: FeatureKey[] = [], mapRows: 'sprints' | 'releases' = 'sprints'): Promise<LocalStorageRepository> {
   const repository = new LocalStorageRepository();
   const seed = seedSnapshot(todayIso());
   const features = { ...seed.settings.features };
   for (const key of off) features[key] = false;
-  await repository.replaceAll({ ...seed, settings: { ...seed.settings, features, definitions: EMPTY_DEFINITIONS } });
+  await repository.replaceAll({ ...seed, settings: { ...seed.settings, mapRows, features, definitions: EMPTY_DEFINITIONS } });
   window.location.hash = hash;
   render(<App repository={repository} />);
   await screen.findByRole('heading', { level: 1 });
@@ -142,7 +142,7 @@ describe('settings with one tab per feature (#61)', () => {
 
   it('AC5.1 leads from the story map to the tab "Releases"', async () => {
     // Given releases are off and the story map shows the hint about the rows
-    await open('#/map', ['releases']);
+    await open('#/map', ['releases'], 'releases');
     const note = await screen.findByRole('note');
     // When I follow the link of the hint
     expect(within(note).getByRole('link')).toHaveAttribute('href', '#/settings/releases');
@@ -193,8 +193,9 @@ describe('settings with one tab per feature (#61)', () => {
     await open('#/settings/team', ['team']);
     // Then the groups and the button are translated
     expect(await screen.findByRole('button', { name: button })).toBeInTheDocument();
-    expect(within(nav()).getByRole('group', { name: workspace })).toBeInTheDocument();
-    expect(within(nav()).getByRole('group', { name: features })).toBeInTheDocument();
+    const list = document.querySelector('.settings__nav') as HTMLElement;
+    expect(within(list).getByRole('group', { name: workspace })).toBeInTheDocument();
+    expect(within(list).getByRole('group', { name: features })).toBeInTheDocument();
   });
 
   it('AC7.2 operates the switch with the keyboard and names it', async () => {
