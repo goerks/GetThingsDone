@@ -178,6 +178,9 @@ test('AC6.2 works with the keyboard only, from the switch to the closed result d
   // And fill in repository and token with Tab, then test the connection with Enter
   await page.getByLabel('Repository (owner/name)').focus();
   await keyboard.type(REPO);
+  // The info symbol next to the token label comes first and opens its text with Enter
+  await keyboard.press('Tab');
+  await expect(page.locator('.field__label-row .info-hint__button')).toBeFocused();
   await keyboard.press('Tab');
   await expect(page.getByLabel('Access token')).toBeFocused();
   await keyboard.type('any-token');
