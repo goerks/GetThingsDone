@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Einstellungen Entwürfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a small app window mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --e-rose: #be123c; --e-amber: #b45309; --e-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.tag--now { background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+/* ---------- App window mockup ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 760px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.nav .flag { color: var(--bad); font-weight: 600; border-bottom-color: var(--bad); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); position: relative; }
+.ibtn svg { width: 15px; height: 15px; }
+.ibtn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.sel { height: 30px; padding: 0 22px 0 8px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; color: var(--text); background: var(--surface); }
+.hint { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: baseline; gap: 12px; }
+.ph b { font-size: 17px; }
+.ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+
+table.ft { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.ft th, .ft td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ft thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.ft tr:last-child td, .ft tr:last-child th { border-bottom: 0; }
+.ft tbody th { font-weight: 500; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; }
+.badge--c { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+/* Settings layout of variant A */
+.settings { display: grid; grid-template-columns: 180px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 0 10px 6px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.side .later { opacity: .7; }
+.side small { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 5px; }
+
+/* Board ghost behind menus and dialogs */
+.ghost { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 150px; }
+.lane i { font-style: normal; color: var(--muted); font-size: 11px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; height: 38px; }
+
+/* Variant B menu */
+.menu { position: absolute; top: 42px; right: 52px; width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; z-index: 2; }
+.menu span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+.menu .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu .later { color: var(--muted); }
+.menu hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* Variant C dialog */
+.scrim { position: absolute; inset: 46px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 640px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 12px; z-index: 2; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); }
+.tabs span { padding: 6px 12px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs .on { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+.x { margin-left: auto; color: var(--muted); }
+.stack { position: absolute; top: 160px; left: 50%; transform: translateX(-38%); width: 360px; background: var(--surface); border: 1px solid var(--accent); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 14px 16px; display: grid; gap: 8px; z-index: 3; }
+.field { height: 26px; border: 1px solid var(--border); border-radius: 5px; }
+
+/* Phone mockup of variant A */
+.phone { width: 300px; border: 1px solid var(--border); border-radius: 18px; background: var(--bg); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); font-size: 12px; justify-self: start; }
+.phone .bar { height: auto; flex-wrap: wrap; padding: 8px 12px; gap: 6px 10px; }
+.phone .nav { height: 30px; }
+.phone .nav span { padding: 0 6px; }
+.chips { display: flex; gap: 6px; overflow: hidden; }
+.chips span { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; color: var(--muted); }
+.chips .on { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: transparent; font-weight: 600; }
+.row { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.rows .row:last-child { border-bottom: 0; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: start; }
+@media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+.cards { display: grid; gap: 10px; }
+.cardx { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.cardx h4 { margin: 0; font-size: 14px; }
+.cardx p { font-size: 12.5px; color: var(--muted); max-width: none; }
+.cardx .act { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.cardx .file { font-family: var(--font-mono); font-size: 12px; background: var(--pill); padding: 2px 8px; border-radius: 4px; }
+.cardx--later { border-style: dashed; opacity: .75; }
+.btn--d { background: var(--bad); color: #fff; border-color: var(--bad); font-weight: 500; }
+.sumtab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.sumtab th, .sumtab td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+.sumtab thead th { color: var(--muted); font-weight: 600; font-size: 11.5px; }
+.sumtab td.n { font-family: var(--font-mono); }
+.warnbar { background: var(--bad-soft); color: var(--bad); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; display: flex; gap: 8px; }
+.okbar { background: var(--ok-soft); color: var(--ok); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; }
+.dlg { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 520px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px; display: grid; gap: 12px; }
+.dlg .foot { display: flex; gap: 8px; justify-content: flex-end; }
+.tag--demo { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu2 { position: absolute; top: 42px; right: 12px; width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 30px var(--shadow); padding: 6px; display: grid; gap: 2px; }
+.menu2 span { padding: 7px 10px; border-radius: 5px; display: flex; justify-content: space-between; gap: 8px; }
+.menu2 .on { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.menu2 hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+.menu2 small { color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+
+/* settings redesign */
+.side .grp { margin-top: 10px; }
+.side .badge-off { font-size: 10px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; color: var(--muted); }
+.side .badge-on { font-size: 10px; border: 1px solid var(--ok); border-radius: 8px; padding: 0 6px; color: var(--ok); background: var(--ok-soft); }
+.sw { width: 30px; height: 16px; border-radius: 999px; background: var(--border); position: relative; flex: none; display: inline-block; }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+.sw--on { background: var(--ok); } .sw--on::after { left: 16px; }
+.side .sr { align-items: center; }
+.sr .nm { display: flex; align-items: center; gap: 6px; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+.panel--start { text-align: left; border-style: dashed; }
+.panel--ghost { opacity: .55; }
+.hdrow { display: flex; align-items: center; gap: 12px; }
+.hdrow b { font-size: 16px; }
+.hdrow .grow { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.swl { display: inline-flex; gap: 8px; align-items: center; font-weight: 500; }
+.members { display: grid; gap: 4px; }
+.members span { display: flex; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.ini { width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-soft-ink); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.fcard { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.fcard--open { border-color: var(--accent); }
+.fcard .inner { border-top: 1px solid var(--border); padding-top: 10px; display: grid; gap: 4px; }
+.chev { color: var(--muted); margin-left: 6px; }
+.pair2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; }
+.cap { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></g></symbol></svg>
+<main class="wrap">
+<header class="intro"><div class="meta"><span>Issue #61</span><span>Einstellungen</span><span>Entwurf (Demo-Daten)</span></div>
+<h1>Funktionen und ihre Einstellungen an einem Ort</h1>
+<p class="muted">Heute: Der Tab «Funktionen» schaltet Team und Releases ein. Erst danach erscheint der Tab «Team». Gesucht ist eine Lösung, bei der jede Funktion nur noch einen Ort hat: Schalter und Einstellungen zusammen. Alle Texte sind Demo-Texte.</p></header>
+
+<section class="variant" id="v1"><div class="variant__head"><h3>1 · Ein Tab pro Funktion, Schalter ganz oben im Tab</h3><span class="tag tag--rec">Empfehlung</span></div>
+<p>Der Tab «Funktionen» entfällt. Die Navigation hat eine Gruppe «Funktionen» mit Releases und Team. Beide Tabs sind immer da; ein Etikett «An» oder «Aus» zeigt den Zustand. Im Tab steht oben der Schalter, darunter die Einstellungen der Funktion.</p>
+<div class="cap">Team eingeschaltet</div><div class="scroll"><div class="app" id="v1-on" role="img" aria-label="Variante 1: Tab Team, Funktion eingeschaltet"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span>Releases<small class="badge-on">An</small></span><span class="on">Team<small class="badge-on">An</small></span></div><div><div class="panel"><div class="hdrow"><b>Team</b><div class="grow"><span class="swl"><i class="sw sw--on"></i>Funktion eingeschaltet</span></div></div><p class="muted">Stories Personen zuweisen: Feld «Zugewiesen an», Initialen auf Karten, Filter am Board.</p><hr style="border:0;border-top:1px solid var(--border);width:100%"><b>Mitglieder</b><div class="members"><span><i class="ini">AM</i>Anna Meier</span><span><i class="ini">BK</i>Ben Keller</span><span><i class="ini">CS</i>Carla Sommer</span></div><span class="btn" style="width:max-content">Mitglied hinzufügen</span></div></div></div></div></div></div>
+<p><b>Option A · Ausgeschaltet: Startseite.</b> Der Tab erklärt die Funktion und bietet «Team einschalten». Keine Einstellungen sichtbar.</p>
+<div class="cap">Option A</div><div class="scroll"><div class="app" id="v1-offA" role="img" aria-label="Variante 1 Option A: Tab Team, Funktion ausgeschaltet, Startseite"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span>Releases<small class="badge-on">An</small></span><span class="on">Team<small class="badge-off">Aus</small></span></div><div><div class="panel panel--start"><div class="hdrow"><b>Team</b><div class="grow"><span class="swl"><i class="sw"></i>Funktion ausgeschaltet</span></div></div><p>Weise Stories Personen zu: Feld «Zugewiesen an», Initialen auf Karten, Filter am Board und Suche nach Person. Wenn du allein arbeitest, lass die Funktion aus.</p><p class="muted">Ausgeschaltet. Mitglieder und Zuweisungen bleiben erhalten und sind wieder da, wenn du einschaltest.</p><span class="btn btn--p" style="width:max-content">Team einschalten</span></div></div></div></div></div></div>
+<p><b>Option B · Ausgeschaltet: abgeblendete Vorschau.</b> Der Tab zeigt die Einstellungen abgeblendet und nicht bedienbar.</p>
+<div class="cap">Option B</div><div class="scroll"><div class="app" id="v1-offB" role="img" aria-label="Variante 1 Option B: Tab Team, Funktion ausgeschaltet, Vorschau abgeblendet"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span>Releases<small class="badge-on">An</small></span><span class="on">Team<small class="badge-off">Aus</small></span></div><div><div class="panel"><div class="hdrow"><b>Team</b><div class="grow"><span class="swl"><i class="sw"></i>Funktion ausgeschaltet</span></div></div><div class="warnbar" style="background:var(--accent-soft);color:var(--accent-soft-ink)"><span>Die Funktion ist aus: Team ist im Rest der App unsichtbar. Schalte sie oben ein, um Mitglieder zu bearbeiten.</span></div><div class="panel--ghost"><b>Mitglieder</b><div class="members"><span><i class="ini">AM</i>Anna Meier</span><span><i class="ini">BK</i>Ben Keller</span><span><i class="ini">CS</i>Carla Sommer</span></div></div></div></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>＋ Dafür</b><ul><li>Ein Ort pro Funktion: einschalten und einstellen im selben Tab</li><li>Man sieht, welche Funktionen es gibt, auch wenn sie aus sind</li><li>Skaliert für weitere Funktionen (je ein Tab)</li><li>Option A: einfach und klar, kein Bedienen von Ausgeschaltetem</li></ul></div>
+<div class="box"><b>－ Dagegen</b><ul><li>Die Navigation wird länger, je mehr Funktionen es gibt</li><li>Option B: wirkt gedämpft und verwirrt eher («warum kann ich nichts klicken?»)</li><li>Funktionen ohne eigene Einstellungen (wie Releases) haben einen fast leeren Tab</li></ul></div></div></section>
+
+<section class="variant" id="v2"><div class="variant__head"><h3>2 · Eine Seite «Funktionen» mit aufklappbaren Karten</h3><span class="tag">Alternative</span></div>
+<p>Es bleibt ein Tab «Funktionen». Jede Funktion ist eine Karte mit Schalter. Eingeschaltete Karten klappen auf und enthalten die Einstellungen, zum Beispiel die Mitglieder. Der Tab «Team» entfällt.</p><div class="scroll"><div class="app" id="w2" role="img" aria-label="Variante 2: eine Seite Funktionen mit aufklappbaren Karten"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span class="on">Funktionen</span><span>Daten</span></div><div><div class="cards"><div class="ph"><b>Funktionen</b><span class="muted">Schalter und Einstellungen am selben Ort</span></div><div class="fcard fcard--open"><div class="hdrow"><b>Team</b><span class="chev">▾</span><div class="grow"><i class="sw sw--on"></i><small class="badge-on" style="font-size:11px;border:1px solid var(--ok);border-radius:8px;padding:0 6px;color:var(--ok)">An</small></div></div><p class="muted">Stories Personen zuweisen.</p><div class="inner"><b>Mitglieder</b><div class="members"><span><i class="ini">AM</i>Anna Meier</span><span><i class="ini">BK</i>Ben Keller</span><span><i class="ini">CS</i>Carla Sommer</span></div><span class="btn" style="width:max-content;margin-top:6px">Mitglied hinzufügen</span></div></div><div class="fcard"><div class="hdrow"><b>Releases</b><span class="chev">▸</span><div class="grow"><i class="sw sw--on"></i><small style="font-size:11px;border:1px solid var(--ok);border-radius:8px;padding:0 6px;color:var(--ok)">An</small></div></div><p class="muted">Mit Releases planen: Seite Releases, Release-Zeilen auf der Story Map, Berichte.</p></div></div></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>＋ Dafür</b><ul><li>Navigation bleibt kurz</li><li>Alle Funktionen auf einen Blick, mit Schalter</li></ul></div>
+<div class="box"><b>－ Dagegen</b><ul><li>Die Seite wird lang, sobald Team, Releases und weitere Einstellungen aufgeklappt sind</li><li>Mitgliederverwaltung in einer Karte wirkt eingezwängt</li><li>Die Einstellungen einer Funktion sind schwerer zu finden als ein eigener Tab</li></ul></div></div></section>
+
+<section class="variant" id="v3"><div class="variant__head"><h3>3 · Schalter direkt in der Navigation</h3><span class="tag">Alternative</span></div>
+<p>Wie Variante 1, aber der Schalter sitzt schon in der Navigationszeile. Man schaltet um, ohne den Tab zu öffnen. Im Tab steht der Schalter trotzdem noch einmal oben.</p><div class="scroll"><div class="app" id="w3" role="img" aria-label="Variante 3: Schalter direkt in der Navigation"><div class="bar"><span class="brand"><span class="logo">✓</span>Get It Done</span><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="sel">Deutsch</span><span class="ibtn ibtn--on"><svg><use href="#gear"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span class="lbl grp">Arbeitsbereich</span><span>Felder</span><span>Status-Werte</span><span>Definitionen</span><span>Story Map</span><span>Daten</span><span class="lbl grp">Funktionen</span><span class="on sr"><span class="nm">Releases</span><i class="sw sw--on"></i></span><span class="sr"><span class="nm">Team</span><i class="sw"></i></span></div><div><div class="panel"><div class="hdrow"><b>Releases</b><div class="grow"><span class="swl"><i class="sw sw--on"></i>Funktion eingeschaltet</span></div></div><p class="muted">Release-Zeilen auf der Story Map, Berichte zu Umfang und Burndown.</p><b>Zeilen der Story Map</b><div class="rows"><div class="row"><span>◉ Sprints</span><span class="muted">Standard</span></div><div class="row"><span>○ Releases</span><span class="muted"></span></div></div></div></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>＋ Dafür</b><ul><li>Schneller: ein Klick in der Navigation</li><li>Zustand sofort sichtbar</li></ul></div>
+<div class="box"><b>－ Dagegen</b><ul><li>Versehentliches Umschalten beim Navigieren; auf dem Handy schwer zu treffen</li><li>Zwei Schalter für dieselbe Funktion (Navigation und Tab)</li><li>Unruhige Navigation</li></ul></div></div></section>
+
+<section class="variant" id="vr"><div class="variant__head"><h3>Zusätzlich zu allen Varianten</h3><span class="tag tag--rec">Empfehlung</span></div>
+<ul><li><b>Navigation in Gruppen:</b> «Arbeitsbereich» (Felder, Status-Werte, Definitionen, Story Map, Daten) und «Funktionen» (Releases, Team).</li>
+<li><b>Von der Funktion zu den Einstellungen:</b> Wo eine ausgeschaltete Funktion gebraucht würde (zum Beispiel die Release-Zeilen der Story Map), führt ein Link direkt zum Tab der Funktion, wo man einschalten kann.</li>
+<li><b>Story-Map-Zeilen:</b> Die Wahl «Sprints oder Releases» gehört inhaltlich zu Releases. Sie könnte in den Tab «Releases» wandern (Frage an dich).</li></ul></section>
+
+<section class="variant" id="rec"><div class="variant__head"><h3>Empfehlung</h3><span class="tag tag--rec">1.A</span></div>
+<p>Variante 1 mit Option A (Startseite für ausgeschaltete Funktionen) und Gruppen in der Navigation. Du gibst dafür eine kürzere Navigation auf, gewinnst aber einen Ort pro Funktion: Man findet Schalter und Einstellungen ohne Vorwissen, und neue Funktionen passen ohne Umbau dazu.</p></section>
+</main></body></html>
