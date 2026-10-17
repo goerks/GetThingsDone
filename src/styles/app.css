@@ -6750,3 +6750,11 @@ a.github-badge:hover {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* Title and its info symbol stay together, even in a head that spreads its children. */
+.github-settings__title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}

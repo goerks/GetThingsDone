@@ -97,8 +97,10 @@ export function GithubSection() {
   return (
     <div className="map-settings github-settings">
       <div className="map-settings__head">
-        <h2>{t('github.settings.title')}</h2>
-        <InfoHint text={t('github.settings.hint')} />
+        <span className="github-settings__title">
+          <h2>{t('github.settings.title')}</h2>
+          <InfoHint text={t('github.settings.hint')} />
+        </span>
         <span className="github-settings__badges">
           {demo && <span className="badge badge--demo">{t('github.demo.badge')}</span>}
           {connected && hasToken && <span className="badge badge--ok">{t('github.settings.connected')}</span>}
