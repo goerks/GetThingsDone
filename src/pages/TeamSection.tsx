@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { MAX_INITIALS, freeInitials, initialsFollowName, storiesOfMember, type MemberProblem } from '../domain/members';
 import type { Member } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { FeatureTab } from './FeatureTab';
 
 /** The form for a new or an existing member: name and initials. Saves with Enter, cancels with Escape. */
 function MemberForm({ member, onDone }: { member: Member | null; onDone: () => void }) {
@@ -152,29 +153,30 @@ export function TeamSection() {
   const [adding, setAdding] = useState(false);
 
   return (
-    <div className="team">
-      <h2>{t('team.title')}</h2>
-      <p className="muted">{t('team.intro')}</p>
-      {app.members.length === 0 ? (
-        <p className="hint hint--info" role="note">
-          {t('team.empty')}
-        </p>
-      ) : (
-        <ul className="team__list" aria-label={t('team.listLabel')}>
-          {app.members.map((member) => (
-            <MemberRow key={member.id} member={member} />
-          ))}
-        </ul>
-      )}
-      {adding ? (
-        <MemberForm member={null} onDone={() => setAdding(false)} />
-      ) : (
-        <div>
-          <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
-            {t('team.add')}
-          </button>
-        </div>
-      )}
-    </div>
+    <FeatureTab feature="team">
+      <div className="team">
+        <p className="muted">{t('team.intro')}</p>
+        {app.members.length === 0 ? (
+          <p className="hint hint--info" role="note">
+            {t('team.empty')}
+          </p>
+        ) : (
+          <ul className="team__list" aria-label={t('team.listLabel')}>
+            {app.members.map((member) => (
+              <MemberRow key={member.id} member={member} />
+            ))}
+          </ul>
+        )}
+        {adding ? (
+          <MemberForm member={null} onDone={() => setAdding(false)} />
+        ) : (
+          <div>
+            <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
+              {t('team.add')}
+            </button>
+          </div>
+        )}
+      </div>
+    </FeatureTab>
   );
 }

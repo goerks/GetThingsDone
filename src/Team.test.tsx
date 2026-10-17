@@ -411,16 +411,16 @@ describe('history of the assignment (#18)', () => {
 const teamOff = (snapshot: Snapshot): Snapshot => ({ ...snapshot, settings: { ...snapshot.settings, features: { ...snapshot.settings.features, team: false } } });
 
 describe('the team as a feature (#18)', () => {
-  it('AC8.1 switches the team on in Settings › Features and keeps the choice', async () => {
+  it('AC8.1 switches the team on in Settings › Team and keeps the choice', async () => {
     // Given a project with the team switched off
     const user = userEvent.setup();
-    const repository = await open('#/settings/features', teamOff);
+    const repository = await open('#/settings/team', teamOff);
     const nav = await screen.findByRole('navigation', { name: 'Settings sections' });
-    expect(within(nav).queryByRole('link', { name: 'Team' })).toBeNull();
+    expect(within(nav).getByRole('link', { name: 'Team Off' })).toBeInTheDocument();
     // When I switch "Team" on
-    await user.click(screen.getByRole('switch', { name: /^Team/ }));
-    // Then the section "Team" appears in the settings and the choice is stored
-    expect(await within(nav).findByRole('link', { name: 'Team' })).toBeInTheDocument();
+    await user.click(screen.getByRole('switch', { name: 'Team' }));
+    // Then the section "Team" is labelled "On" in the settings and the choice is stored
+    expect(await within(nav).findByRole('link', { name: 'Team On' })).toBeInTheDocument();
     await waitFor(async () => expect((await repository.load()).settings.features.team).toBe(true));
   });
 
@@ -450,18 +450,19 @@ describe('the team as a feature (#18)', () => {
     expect(within(dialog).queryByLabelText('Assigned to')).toBeNull();
   });
 
-  it('AC8.2 leads the address of the team settings back to the features while the team is off', async () => {
+  it('AC8.2 keeps the address of the team settings while the team is off and shows the start page', async () => {
     // Given the team is off
     await open('#/settings/team', teamOff);
-    // Then the address leads to Settings › Features
-    await waitFor(() => expect(window.location.hash).toBe('#/settings/features'));
+    // Then the address stays and the tab offers to switch the team on
+    expect(await screen.findByRole('button', { name: 'Switch on Team' })).toBeInTheDocument();
+    expect(window.location.hash).toBe('#/settings/team');
   });
 
   it('AC8.3 brings the members and assignments back when the team is switched on again', async () => {
     // Given the team is on, with Anna and her stories
     const user = userEvent.setup();
-    const repository = await open('#/settings/features');
-    const toggle = await screen.findByRole('switch', { name: /^Team/ });
+    const repository = await open('#/settings/team');
+    const toggle = await screen.findByRole('switch', { name: 'Team' });
     // When I switch it off and on again
     await user.click(toggle);
     await waitFor(async () => expect((await repository.load()).settings.features.team).toBe(false));
@@ -497,17 +498,18 @@ describe('the team as a feature (#18)', () => {
   });
 
   it('AC8.6 operates the switch with the space key and names it with its state', async () => {
-    // Given Settings › Features with the team on
+    // Given Settings › Team with the team on
     const user = userEvent.setup();
-    await open('#/settings/features');
-    const toggle = await screen.findByRole('switch', { name: /^Team/ });
+    await open('#/settings/team');
+    const toggle = await screen.findByRole('switch', { name: 'Team' });
     expect(toggle).toBeChecked();
     // When I focus the switch and press the space key
     toggle.focus();
     await user.keyboard(' ');
     // Then it is off
     expect(toggle).not.toBeChecked();
-    expect(toggle).toHaveAccessibleName(/Off$/);
+    expect(toggle).toHaveAccessibleName('Team');
+    expect(screen.getByText('Feature off')).toBeInTheDocument();
   });
 });
 
@@ -516,13 +518,12 @@ describe('help for the team (#18)', () => {
     // Given the help topics
     const { TOPICS, LINK_TARGETS } = await import('./help/topics');
     const { default: en } = await import('./i18n/en.json');
-    // Then the topic "Team and assignment" exists, sends the user to the features first and locks the team settings behind the feature
+    // Then the topic "Team and assignment" exists, sends the user to the team settings first, where the feature is switched on
     const topic = TOPICS.find((item) => item.id === 'team.assign');
-    expect(topic?.links?.[0]).toEqual({ id: 'settingsFeatures', hint: 'featureFirst' });
-    expect(topic?.links?.[1]).toEqual({ id: 'settingsTeam', requires: 'team' });
+    expect(topic?.links?.[0]).toEqual({ id: 'settingsTeam', hint: 'featureFirst' });
     expect(LINK_TARGETS.settingsTeam).toBe('#/settings/team');
     expect(en.help.topics['team.assign'].title).toBe('Team and assignment');
-    expect(en.help.topics['team.assign'].body.startsWith('First switch on "Team"')).toBe(true);
+    expect(en.help.topics['team.assign'].body.startsWith('Open Settings → Team and switch "Team" on.')).toBe(true);
     expect(en.help.links.settingsTeam).toBe('Open Settings → Team');
   });
 });

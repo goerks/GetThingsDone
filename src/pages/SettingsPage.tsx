@@ -3,16 +3,22 @@ import { hrefs, type SettingsSection } from '../router';
 import { FieldsSection } from './FieldsSection';
 import { MapSection } from './MapSection';
 import { DefinitionsSection } from './DefinitionsSection';
-import { FeaturesSection } from './FeaturesSection';
+import { ReleasesSection } from './ReleasesSection';
 import { DataSection } from './DataSection';
 import { TeamSection } from './TeamSection';
 import { StatusValuesSection } from './StatusValuesSection';
-import { useFeature } from '../components/useFeature';
+import { useApp } from '../state/AppState';
+
+/** The features with a tab of their own (#61), in the order of the navigation. */
+const FEATURE_TABS = [
+  { key: 'releases', section: 'releases', href: hrefs.settingsReleases },
+  { key: 'team', section: 'team', href: hrefs.settingsTeam }
+] as const;
 
 /** Settings of the workspace: a list of sections next to the content of the chosen one. */
 export function SettingsPage({ section }: { section: SettingsSection }) {
   const { t } = useTranslation();
-  const teamOn = useFeature('team');
+  const { settings } = useApp();
 
   return (
     <>
@@ -21,29 +27,37 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
       </div>
       <div className="settings">
         <nav className="settings__nav" aria-label={t('settings.sections')}>
-          <a href={hrefs.settings} className="settings__link" aria-current={section === 'fields' ? 'page' : undefined}>
-            {t('fields.title')}
-          </a>
-          <a href={hrefs.settingsStatuses} className="settings__link" aria-current={section === 'statuses' ? 'page' : undefined}>
-            {t('statusValues.title')}
-          </a>
-          <a href={hrefs.settingsMap} className="settings__link" aria-current={section === 'map' ? 'page' : undefined}>
-            {t('settings.map.title')}
-          </a>
-          <a href={hrefs.settingsDefinitions} className="settings__link" aria-current={section === 'definitions' ? 'page' : undefined}>
-            {t('definitions.title')}
-          </a>
-          <a href={hrefs.settingsFeatures} className="settings__link" aria-current={section === 'features' ? 'page' : undefined}>
-            {t('settings.features.title')}
-          </a>
-          {teamOn && (
-            <a href={hrefs.settingsTeam} className="settings__link" aria-current={section === 'team' ? 'page' : undefined}>
-              {t('team.title')}
+          <div className="settings__group" role="group" aria-label={t('settings.groups.workspace')}>
+            <p className="settings__group-title" aria-hidden="true">
+              {t('settings.groups.workspace')}
+            </p>
+            <a href={hrefs.settings} className="settings__link" aria-current={section === 'fields' ? 'page' : undefined}>
+              {t('fields.title')}
             </a>
-          )}
-          <a href={hrefs.settingsData} className="settings__link" aria-current={section === 'data' ? 'page' : undefined}>
-            {t('settings.data.title')}
-          </a>
+            <a href={hrefs.settingsStatuses} className="settings__link" aria-current={section === 'statuses' ? 'page' : undefined}>
+              {t('statusValues.title')}
+            </a>
+            <a href={hrefs.settingsMap} className="settings__link" aria-current={section === 'map' ? 'page' : undefined}>
+              {t('settings.map.title')}
+            </a>
+            <a href={hrefs.settingsDefinitions} className="settings__link" aria-current={section === 'definitions' ? 'page' : undefined}>
+              {t('definitions.title')}
+            </a>
+            <a href={hrefs.settingsData} className="settings__link" aria-current={section === 'data' ? 'page' : undefined}>
+              {t('settings.data.title')}
+            </a>
+          </div>
+          <div className="settings__group" role="group" aria-label={t('settings.groups.features')}>
+            <p className="settings__group-title" aria-hidden="true">
+              {t('settings.groups.features')}
+            </p>
+            {FEATURE_TABS.map(({ key, section: target, href }) => (
+              <a key={key} href={href} className="settings__link" aria-current={section === target ? 'page' : undefined}>
+                {t(`settings.features.${key}.name`)}
+                <span className={`badge${settings.features[key] ? '' : ' badge--off'}`}>{t(settings.features[key] ? 'settings.features.on' : 'settings.features.off')}</span>
+              </a>
+            ))}
+          </div>
         </nav>
         <section className="settings__content">
           {section === 'statuses' ? (
@@ -52,9 +66,9 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <MapSection />
           ) : section === 'definitions' ? (
             <DefinitionsSection />
-          ) : section === 'features' ? (
-            <FeaturesSection />
-          ) : section === 'team' && teamOn ? (
+          ) : section === 'releases' ? (
+            <ReleasesSection />
+          ) : section === 'team' ? (
             <TeamSection />
           ) : section === 'data' ? (
             <DataSection />

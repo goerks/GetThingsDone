@@ -395,7 +395,7 @@
       "noCustom": "Pas encore de champ personnalisé pour ce type. Cochez-les sous Attribution.",
       "instructions": "Appuyez sur espace pour saisir un champ. Déplacez-le avec les flèches, déposez-le avec espace, annulez avec échap.",
       "releaseOff": "Non disponible : les releases sont désactivées",
-      "releaseOffLink": "Paramètres › Fonctions"
+      "releaseOffLink": "Paramètres › Releases"
     },
     "invalidUrl": "Saisissez une adresse web, par exemple example.com.",
     "openLink": "Ouvrir {{name}}",
@@ -438,10 +438,12 @@
       "unavailable": "Non disponible"
     },
     "features": {
-      "title": "Fonctions",
-      "hint": "Activer ou désactiver des fonctions pour toute l’équipe. Une fonction désactivée est masquée, ses données sont conservées.",
       "on": "Activée",
       "off": "Désactivée",
+      "enabled": "Fonction activée",
+      "disabled": "Fonction désactivée",
+      "switchOn": "Activer {{name}}",
+      "openReleases": "Ouvrir la page Releases",
       "saved": "Le choix s’applique à toute l’équipe et est enregistré immédiatement.",
       "releases": {
         "name": "Releases",
@@ -510,6 +512,10 @@
         "exportFirst": "Exporter d'abord les données actuelles",
         "replace": "Remplacer les données"
       }
+    },
+    "groups": {
+      "workspace": "Espace de travail",
+      "features": "Fonctions"
     }
   },
   "summary": {
@@ -955,7 +961,7 @@
       "map.basics": {
         "title": "Story Map",
         "keywords": "carte activites epics sprints lignes colonnes release planification tableau des releases fonction",
-        "body": "La Story Map a une colonne par epic et une ligne par sprint. Chaque cellule contient les stories de cet epic dans ce sprint.\nFaites glisser une story dans une autre cellule pour changer son sprint et son epic.\nPour planifier par release plutôt que par sprint, activez d’abord la fonction « Releases » (Paramètres → Fonctions), puis choisissez « Releases » comme lignes (Paramètres → Story map)."
+        "body": "La Story Map a une colonne par epic et une ligne par sprint. Chaque cellule contient les stories de cet epic dans ce sprint.\nFaites glisser une story dans une autre cellule pour changer son sprint et son epic.\nPour planifier par release plutôt que par sprint, activez d’abord la fonction « Releases » (Paramètres → Releases), puis choisissez « Releases » comme lignes (Paramètres → Story map)."
       },
       "epics.basics": {
         "title": "Epics",
@@ -965,12 +971,12 @@
       "releases.basics": {
         "title": "Releases",
         "keywords": "release version perimetre burndown historique fonction activer allumer story map lignes tableau des releases",
-        "body": "Les releases ne fonctionnent que si la fonction « Releases » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Fonctions. La page Releases apparaît alors dans la navigation.\n2. Ouvrez la page Releases pour créer une release et voir son périmètre, son avancement et son historique.\n3. Pour planifier par release dans la Story Map, choisissez « Releases » comme lignes sous Paramètres → Story map. La Story Map montre alors une ligne par release.\nSi vous désactivez la fonction, tout ce qui concerne les releases est masqué, mais conservé."
+        "body": "Les releases ne fonctionnent que si la fonction « Releases » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Releases. La page Releases apparaît alors dans la navigation.\n2. Ouvrez la page Releases pour créer une release et voir son périmètre, son avancement et son historique.\n3. Pour planifier par release dans la Story Map, choisissez « Releases » comme lignes sous Paramètres → Story map. La Story Map montre alors une ligne par release.\nSi vous désactivez la fonction, tout ce qui concerne les releases est masqué, mais conservé."
       },
       "settings.basics": {
         "title": "Paramètres",
         "keywords": "champs valeurs de statut fonctions story map lignes roue activer définitions liste",
-        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont six sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les fonctions activent ou désactivent des parties de l’application, par exemple Releases. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
+        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont sept sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Releases et Équipe ont chacune leur section, où vous activez ou désactivez la fonction et la réglez. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
       },
       "search.basics": {
         "title": "Recherche",
@@ -1005,7 +1011,7 @@
       "team.assign": {
         "title": "Équipe et assignation",
         "keywords": "équipe personne membre assigner assignée initiales filtre quelqu’un travaille qui",
-        "body": "Allume d’abord « Équipe » sous Paramètres → Fonctions. Ouvre ensuite Paramètres → Équipe et ajoute les personnes auxquelles tu veux assigner des stories. Un nom et des initiales suffisent, il n’y a pas de comptes. Les initiales viennent du nom et peuvent être modifiées.\nTu assignes une story dans sa fenêtre, dans le champ « Assignée à », ou directement en créant une nouvelle story. Une pastille ronde montre les initiales sur les cartes, dans le backlog et sur la story map. Une pastille en pointillés signifie que la story n’est pas assignée.\nAu-dessus du tableau, tu filtres par personne ou par stories que personne ne traite. La recherche trouve aussi les stories par nom ou par initiales.\nSi tu retires un membre, ses stories restent et ne sont plus assignées. Si tu éteins « Équipe », les membres et les assignations sont conservés."
+        "body": "Ouvre Paramètres → Équipe et allume « Équipe ». Ajoute ensuite les personnes auxquelles tu veux assigner des stories. Un nom et des initiales suffisent, il n’y a pas de comptes. Les initiales viennent du nom et peuvent être modifiées.\nTu assignes une story dans sa fenêtre, dans le champ « Assignée à », ou directement en créant une nouvelle story. Une pastille ronde montre les initiales sur les cartes, dans le backlog et sur la story map. Une pastille en pointillés signifie que la story n’est pas assignée.\nAu-dessus du tableau, tu filtres par personne ou par stories que personne ne traite. La recherche trouve aussi les stories par nom ou par initiales.\nSi tu retires un membre, ses stories restent et ne sont plus assignées. Si tu éteins « Équipe », les membres et les assignations sont conservés."
       }
     },
     "links": {
@@ -1017,7 +1023,7 @@
       "settingsFields": "Ouvrir Paramètres → Champs",
       "settingsStatuses": "Ouvrir Paramètres → Valeurs de statut",
       "settingsMap": "Ouvrir Paramètres → Story map",
-      "settingsFeatures": "Ouvrir Paramètres → Fonctions",
+      "settingsReleases": "Ouvrir Paramètres → Releases",
       "settingsDefinitions": "Ouvrir Paramètres → Définitions",
       "settingsData": "Ouvrir Paramètres → Données",
       "settingsTeam": "Ouvrir Paramètres → Équipe"

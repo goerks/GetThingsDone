@@ -6681,3 +6681,57 @@ a.btn {
 .backlog__row .backlog__title {
   min-width: 0;
 }
+
+/* ---------- Settings: groups and feature tabs (#61) ---------- */
+
+.settings__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings__group + .settings__group {
+  margin-top: 12px;
+}
+
+.settings__group-title {
+  margin: 0;
+  padding: 0 12px 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.feature-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature-tab__head {
+  flex-wrap: wrap;
+}
+
+.feature-tab__start {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 720px) {
+  .settings__group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .settings__group-title {
+    flex-basis: 100%;
+    padding-bottom: 0;
+  }
+}

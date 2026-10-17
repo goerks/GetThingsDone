@@ -530,7 +530,7 @@ export function FieldsSection() {
       </div>
       {!featureOn(app.settings, 'releases') && (
         <p className="hint hint--info" role="note">
-          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsFeatures}>{t('fields.layout.releaseOffLink')}</a>
+          {t('fields.layout.releaseOff')} · <a href={hrefs.settingsReleases}>{t('fields.layout.releaseOffLink')}</a>
         </p>
       )}
       {view === 'layout' ? (

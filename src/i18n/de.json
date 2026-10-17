@@ -395,7 +395,7 @@
       "noCustom": "Noch keine eigenen Felder für diesen Typ. Unter Zuordnung anhaken.",
       "instructions": "Leertaste drücken, um ein Feld aufzunehmen. Mit den Pfeiltasten verschieben, mit der Leertaste ablegen, mit Escape abbrechen.",
       "releaseOff": "Nicht verfügbar: Releases sind ausgeschaltet",
-      "releaseOffLink": "Einstellungen › Funktionen"
+      "releaseOffLink": "Einstellungen › Releases"
     },
     "invalidUrl": "Bitte eine Webadresse eingeben, zum Beispiel example.com.",
     "openLink": "{{name}} öffnen",
@@ -438,10 +438,12 @@
       "unavailable": "Nicht verfügbar"
     },
     "features": {
-      "title": "Funktionen",
-      "hint": "Funktionen für das ganze Team ein- oder ausschalten. Eine ausgeschaltete Funktion ist ausgeblendet, ihre Daten bleiben erhalten.",
       "on": "Ein",
       "off": "Aus",
+      "enabled": "Funktion eingeschaltet",
+      "disabled": "Funktion ausgeschaltet",
+      "switchOn": "{{name}} einschalten",
+      "openReleases": "Seite «Releases» öffnen",
       "saved": "Die Auswahl gilt für das ganze Team und wird sofort gespeichert.",
       "releases": {
         "name": "Releases",
@@ -510,6 +512,10 @@
         "exportFirst": "Heutige Daten zuerst exportieren",
         "replace": "Daten ersetzen"
       }
+    },
+    "groups": {
+      "workspace": "Arbeitsbereich",
+      "features": "Funktionen"
     }
   },
   "summary": {
@@ -955,7 +961,7 @@
       "map.basics": {
         "title": "Story Map",
         "keywords": "karte aktivitäten epics sprints zeilen spalten release planung release board funktion",
-        "body": "Die Story Map hat eine Spalte pro Epic und eine Zeile pro Sprint. Jede Zelle enthält die Stories dieses Epics in diesem Sprint.\nZiehe eine Story in eine andere Zelle, um Sprint und Epic zu ändern.\nUm statt nach Sprint nach Release zu planen, schalte zuerst die Funktion «Releases» ein (Einstellungen → Funktionen) und wähle dann «Releases» als Zeilen (Einstellungen → Story Map)."
+        "body": "Die Story Map hat eine Spalte pro Epic und eine Zeile pro Sprint. Jede Zelle enthält die Stories dieses Epics in diesem Sprint.\nZiehe eine Story in eine andere Zelle, um Sprint und Epic zu ändern.\nUm statt nach Sprint nach Release zu planen, schalte zuerst die Funktion «Releases» ein (Einstellungen → Releases) und wähle dann «Releases» als Zeilen (Einstellungen → Story Map)."
       },
       "epics.basics": {
         "title": "Epics",
@@ -965,12 +971,12 @@
       "releases.basics": {
         "title": "Releases",
         "keywords": "release version umfang burndown verlauf funktion aktivieren einschalten story map zeilen release board",
-        "body": "Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist. Gehe so vor:\n1. Schalte die Funktion unter Einstellungen → Funktionen ein. Danach erscheint die Seite Releases in der Navigation.\n2. Öffne die Seite Releases, um ein Release anzulegen und seinen Umfang, seinen Fortschritt und seinen Verlauf zu sehen.\n3. Um in der Story Map nach Release zu planen, wähle unter Einstellungen → Story Map «Releases» als Zeilen. Die Story Map zeigt dann eine Zeile pro Release.\nSchaltest du die Funktion wieder aus, ist alles zu Releases ausgeblendet, bleibt aber erhalten."
+        "body": "Releases funktionieren nur, wenn die Funktion «Releases» eingeschaltet ist. Gehe so vor:\n1. Schalte die Funktion unter Einstellungen → Releases ein. Danach erscheint die Seite Releases in der Navigation.\n2. Öffne die Seite Releases, um ein Release anzulegen und seinen Umfang, seinen Fortschritt und seinen Verlauf zu sehen.\n3. Um in der Story Map nach Release zu planen, wähle unter Einstellungen → Story Map «Releases» als Zeilen. Die Story Map zeigt dann eine Zeile pro Release.\nSchaltest du die Funktion wieder aus, ist alles zu Releases ausgeblendet, bleibt aber erhalten."
       },
       "settings.basics": {
         "title": "Einstellungen",
         "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren definitionen checkliste",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben sechs Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Funktionen schalten Teile der App ein oder aus, zum Beispiel Releases. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben sieben Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Releases und Team haben je einen eigenen Bereich, in dem du die Funktion ein- oder ausschaltest und einstellst. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -1005,7 +1011,7 @@
       "team.assign": {
         "title": "Team und Zuweisung",
         "keywords": "team person mitglied zuweisen zugewiesen kürzel initialen filter jemand arbeiten wer",
-        "body": "Schalte zuerst unter Einstellungen → Funktionen den Schalter „Team“ ein. Öffne dann Einstellungen → Team und lege die Personen an, denen du Stories zuweisen willst. Name und Kürzel genügen, es gibt keine Konten. Das Kürzel entsteht aus dem Namen und lässt sich ändern.\nEine Story weist du im Dialog der Story im Feld „Zugewiesen an“ zu, oder gleich beim Anlegen einer neuen Story. Auf Karten, im Backlog und auf der Story Map zeigt ein runder Kreis das Kürzel. Ein gestrichelter Kreis heisst: nicht zugewiesen.\nÜber dem Board filterst du nach einer Person oder nach nicht zugewiesenen Stories. Die Suche findet Stories auch über den Namen oder das Kürzel.\nWenn du ein Mitglied entfernst, bleiben seine Stories erhalten und sind danach nicht mehr zugewiesen. Schaltest du „Team“ wieder aus, bleiben Mitglieder und Zuweisungen erhalten."
+        "body": "Öffne Einstellungen → Team und schalte „Team“ ein. Lege dann die Personen an, denen du Stories zuweisen willst. Name und Kürzel genügen, es gibt keine Konten. Das Kürzel entsteht aus dem Namen und lässt sich ändern.\nEine Story weist du im Dialog der Story im Feld „Zugewiesen an“ zu, oder gleich beim Anlegen einer neuen Story. Auf Karten, im Backlog und auf der Story Map zeigt ein runder Kreis das Kürzel. Ein gestrichelter Kreis heisst: nicht zugewiesen.\nÜber dem Board filterst du nach einer Person oder nach nicht zugewiesenen Stories. Die Suche findet Stories auch über den Namen oder das Kürzel.\nWenn du ein Mitglied entfernst, bleiben seine Stories erhalten und sind danach nicht mehr zugewiesen. Schaltest du „Team“ wieder aus, bleiben Mitglieder und Zuweisungen erhalten."
       }
     },
     "links": {
@@ -1017,7 +1023,7 @@
       "settingsFields": "Einstellungen → Felder öffnen",
       "settingsStatuses": "Einstellungen → Status-Werte öffnen",
       "settingsMap": "Einstellungen → Story Map öffnen",
-      "settingsFeatures": "Einstellungen → Funktionen öffnen",
+      "settingsReleases": "Einstellungen → Releases öffnen",
       "settingsDefinitions": "Einstellungen → Definitionen öffnen",
       "settingsData": "Einstellungen → Daten öffnen",
       "settingsTeam": "Einstellungen → Team öffnen"

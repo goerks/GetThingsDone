@@ -395,7 +395,7 @@
       "noCustom": "No custom fields for this type yet. Tick them under Assignment.",
       "instructions": "Press space to pick up a field. Use the arrow keys to move it, space to drop it and escape to cancel.",
       "releaseOff": "Not available: releases are switched off",
-      "releaseOffLink": "Settings › Features"
+      "releaseOffLink": "Settings › Releases"
     },
     "invalidUrl": "Enter a web address, for example example.com.",
     "openLink": "Open {{name}}",
@@ -438,10 +438,12 @@
       "unavailable": "Not available"
     },
     "features": {
-      "title": "Features",
-      "hint": "Switch features on or off for the whole team. A feature that is off is hidden; its data is kept.",
       "on": "On",
       "off": "Off",
+      "enabled": "Feature on",
+      "disabled": "Feature off",
+      "switchOn": "Switch on {{name}}",
+      "openReleases": "Open the Releases page",
       "saved": "The choice applies to the whole team and is saved at once.",
       "releases": {
         "name": "Releases",
@@ -510,6 +512,10 @@
         "exportFirst": "Export current data first",
         "replace": "Replace data"
       }
+    },
+    "groups": {
+      "workspace": "Workspace",
+      "features": "Features"
     }
   },
   "summary": {
@@ -955,7 +961,7 @@
       "map.basics": {
         "title": "Story Map",
         "keywords": "map activities epics sprints rows columns release planning release board feature",
-        "body": "The Story Map has one column per epic and one row per sprint. Every cell holds the stories of that epic in that sprint.\nDrag a story into another cell to change its sprint and epic.\nTo plan by release instead of by sprint, first switch the feature “Releases” on (Settings → Features), then choose “Releases” as the rows (Settings → Story map)."
+        "body": "The Story Map has one column per epic and one row per sprint. Every cell holds the stories of that epic in that sprint.\nDrag a story into another cell to change its sprint and epic.\nTo plan by release instead of by sprint, first switch the feature “Releases” on (Settings → Releases), then choose “Releases” as the rows (Settings → Story map)."
       },
       "epics.basics": {
         "title": "Epics",
@@ -965,12 +971,12 @@
       "releases.basics": {
         "title": "Releases",
         "keywords": "release version scope burndown history feature activate switch on enable toggle story map rows release board",
-        "body": "Releases only work when the feature “Releases” is switched on. Do it in this order:\n1. Switch the feature on under Settings → Features. The page Releases then appears in the navigation.\n2. Open the Releases page to create a release and to see its scope, progress and history.\n3. To plan by release on the story map, choose “Releases” as the rows of the story map under Settings → Story map. The Story Map then shows one row per release.\nIf you switch the feature off again, everything about releases is hidden, but kept."
+        "body": "Releases only work when the feature “Releases” is switched on. Do it in this order:\n1. Switch the feature on under Settings → Releases. The page Releases then appears in the navigation.\n2. Open the Releases page to create a release and to see its scope, progress and history.\n3. To plan by release on the story map, choose “Releases” as the rows of the story map under Settings → Story map. The Story Map then shows one row per release.\nIf you switch the feature off again, everything about releases is hidden, but kept."
       },
       "settings.basics": {
         "title": "Settings",
         "keywords": "fields status values features story map rows gear switch on activate definitions checklist",
-        "body": "Open the settings with the gear button. They have six sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Features switch parts of the app on or off, for example Releases. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
+        "body": "Open the settings with the gear button. They have seven sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Releases and Team each have a section of their own, where you switch the feature on or off and set it up. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -1005,7 +1011,7 @@
       "team.assign": {
         "title": "Team and assignment",
         "keywords": "team person member assign assigned initials filter someone works who",
-        "body": "First switch on \"Team\" in Settings → Features. Then open Settings → Team and add the people you want to assign stories to. A name and initials are enough, there are no accounts. The initials come from the name and can be changed.\nYou assign a story in its dialog, in the field \"Assigned to\", or right when you create a new story. A round badge shows the initials on cards, in the backlog and on the story map. A dashed badge means the story is not assigned.\nAbove the board you filter by one person or by stories nobody works on. The search also finds stories by name or initials.\nWhen you remove a member, their stories stay and are not assigned any more. If you switch \"Team\" off again, members and assignments are kept."
+        "body": "Open Settings → Team and switch \"Team\" on. Then add the people you want to assign stories to. A name and initials are enough, there are no accounts. The initials come from the name and can be changed.\nYou assign a story in its dialog, in the field \"Assigned to\", or right when you create a new story. A round badge shows the initials on cards, in the backlog and on the story map. A dashed badge means the story is not assigned.\nAbove the board you filter by one person or by stories nobody works on. The search also finds stories by name or initials.\nWhen you remove a member, their stories stay and are not assigned any more. If you switch \"Team\" off again, members and assignments are kept."
       }
     },
     "links": {
@@ -1017,7 +1023,7 @@
       "settingsFields": "Open Settings → Fields",
       "settingsStatuses": "Open Settings → Status values",
       "settingsMap": "Open Settings → Story map",
-      "settingsFeatures": "Open Settings → Features",
+      "settingsReleases": "Open Settings → Releases",
       "settingsDefinitions": "Open Settings → Definitions",
       "settingsData": "Open Settings → Data",
       "settingsTeam": "Open Settings → Team"

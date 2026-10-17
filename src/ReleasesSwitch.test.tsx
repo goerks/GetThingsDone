@@ -42,7 +42,7 @@ describe('the releases feature toggle', () => {
     expect(screen.getByRole('link', { name: /Rows of the story map: Sprints/ })).toBeInTheDocument();
     // The team chose releases, so the map says why it shows sprints and where to change it.
     expect(screen.getByRole('note')).toHaveTextContent('Rows are sprints: releases are switched off.');
-    expect(within(screen.getByRole('note')).getByRole('link')).toHaveAttribute('href', '#/settings/features');
+    expect(within(screen.getByRole('note')).getByRole('link')).toHaveAttribute('href', '#/settings/releases');
   });
 
   it('says nothing on the map when the team never chose releases', async () => {
@@ -65,7 +65,7 @@ describe('the releases feature toggle', () => {
 
   it('brings everything back when it is switched on again, and keeps the data', async () => {
     const user = userEvent.setup();
-    const repository = await renderApp('#/settings/features', false);
+    const repository = await renderApp('#/settings/releases', false);
     expect(within(mainNav()).queryByRole('link', { name: 'Releases' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('switch', { name: /Releases/ }));
     await waitFor(() => expect(within(mainNav()).getByRole('link', { name: 'Releases' })).toBeInTheDocument());
