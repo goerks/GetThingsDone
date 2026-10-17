@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
@@ -7,7 +7,7 @@ import { seedSnapshot } from './data/seed';
 import { assignTo } from './domain/fields';
 import { LABELS_FIELD_ID, issueUrl } from './domain/github';
 import { todayIso } from './domain/sprints';
-import type { ConflictRule, ExternalFields, FieldDefinition, Story } from './domain/types';
+import type { ConflictRule, ExternalFields, FieldDefinition, Release, Story } from './domain/types';
 import { EPIC_COLOR_KEYS } from './domain/types';
 import { initI18n } from './i18n';
 import { fakeGithub, fakeIssue, REPO } from './test/fakeGithub';
@@ -55,9 +55,11 @@ interface Options {
   issues?: Parameters<typeof fakeGithub>[0];
   write?: boolean;
   conflict?: ConflictRule;
+  featureOn?: boolean;
+  releases?: Release[];
 }
 
-async function renderApp(hash: string, { stories = [], issues = [], write = true, conflict = 'remote' }: Options = {}) {
+async function renderApp(hash: string, { stories = [], issues = [], write = true, conflict = 'remote', featureOn = true, releases = [] }: Options = {}) {
   const fake = fakeGithub(issues);
   const repository = new LocalStorageRepository();
   const seed = seedSnapshot(todayIso());
@@ -66,9 +68,10 @@ async function renderApp(hash: string, { stories = [], issues = [], write = true
     fields: [...seed.fields, labelsField],
     assignments: assignTo(seed.assignments, LABELS_FIELD_ID, ['story']),
     stories: [...seed.stories, ...stories],
+    releases: [...seed.releases, ...releases],
     settings: {
       ...seed.settings,
-      features: { ...seed.settings.features, github: true },
+      features: { ...seed.settings.features, github: featureOn },
       github: { repo: REPO, lastSyncAt: null, write, conflict, ignored: [] }
     }
   });
@@ -315,5 +318,142 @@ describe('creating an issue from a story', () => {
     openMenu('S-90');
     await screen.findByRole('menu');
     expect(screen.queryByRole('menuitem', { name: 'Create on GitHub' })).not.toBeInTheDocument();
+  });
+});
+
+describe('the sync icon', () => {
+  it('AC14.1 shows an icon button instead of the text on backlog, board and story map', async () => {
+    for (const hash of ['#/backlog', '#/board', '#/map']) {
+      // Given the page with the feature on
+      await renderApp(hash);
+      // Then there is a button named "Synchronise" that has an icon and no text, and a tooltip
+      const button = await screen.findByRole('button', { name: 'Synchronise' });
+      expect(button).toHaveTextContent('');
+      expect(button.querySelector('svg')).not.toBeNull();
+      expect(button).toHaveAttribute('title', expect.stringContaining('Synchronise'));
+      cleanup();
+    }
+  });
+
+  it('AC14.2 synchronises from the board with the same result dialog and gives the focus back to the icon', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/board', { issues: [fakeIssue(31, { title: 'Login' })] });
+    const dialog = await sync(user);
+    expect(dialog).toHaveTextContent('newly imported');
+    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Synchronise' })).toHaveFocus());
+  });
+
+  it('AC14.3 has no icon on epics, releases and settings, and none while the feature is off', async () => {
+    for (const hash of ['#/epics', '#/releases', '#/settings/fields']) {
+      await renderApp(hash);
+      await screen.findByRole('heading', { level: 1 });
+      expect(screen.queryByRole('button', { name: 'Synchronise' })).not.toBeInTheDocument();
+      cleanup();
+    }
+    await renderApp('#/backlog', { featureOn: false });
+    expect(screen.queryByRole('button', { name: 'Synchronise' })).not.toBeInTheDocument();
+  });
+
+  it('AC14.4 turns while a sync runs and starts nothing new on a second click', async () => {
+    const user = userEvent.setup();
+    const { fake } = await renderApp('#/backlog');
+    let calls = 0;
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    fake.github.source.openIssues = async () => {
+      calls += 1;
+      await gate;
+      return [];
+    };
+    const button = await screen.findByRole('button', { name: 'Synchronise' });
+    await user.click(button);
+    await user.click(button);
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button.querySelector('.github-sync__icon--spin')).not.toBeNull();
+    expect(calls).toBe(1);
+    release();
+    await screen.findByRole('dialog');
+    expect(button).not.toHaveAttribute('aria-busy');
+  });
+
+  it('AC14.5 shows the number of changes that are not on GitHub yet at the icon', async () => {
+    const stories = [31, 32, 33].map((n) => linked(n, { title: `Changed ${n}` }, { title: `Old ${n}` }));
+    await renderApp('#/backlog', { stories, issues: [31, 32, 33].map((n) => fakeIssue(n, { title: `Old ${n}` })) });
+    const button = await screen.findByRole('button', { name: 'Synchronise' });
+    expect(button.querySelector('.github-sync__count')).toHaveTextContent('3');
+    expect(button).toHaveAttribute('title', expect.stringContaining('3 changes not on GitHub yet'));
+  });
+
+  it('AC14.6 works with the keyboard', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/backlog');
+    const button = await screen.findByRole('button', { name: 'Synchronise' });
+    button.focus();
+    await user.keyboard('{Enter}');
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+});
+
+describe('creating milestones, epic labels and status labels', () => {
+  it('AC12.5 creates the milestone of a release from its dialog, once, and only while writing is on', async () => {
+    // Given a release without a milestone and writing on
+    const user = userEvent.setup();
+    const herbst: Release = { id: 'release-herbst', title: 'Herbst', description: 'Autumn', startDate: null, endDate: '2026-11-30' };
+    const { fake } = await renderApp('#/releases', { releases: [herbst] });
+    // When I choose "Create on GitHub" in its dialog
+    await user.click(await screen.findByRole('button', { name: /Herbst/ }));
+    await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Create on GitHub' }));
+    // Then GitHub has the milestone with description and due date
+    await waitFor(() => expect(fake.state.milestones).toHaveLength(1));
+    expect(fake.state.milestones[0]).toMatchObject({ title: 'Herbst', description: 'Autumn', dueOn: '2026-11-30' });
+    // And a second try says that it exists and creates nothing
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Create on GitHub' }));
+    expect(await screen.findByText('GitHub already has a milestone with this title.')).toBeInTheDocument();
+    expect(fake.state.milestones).toHaveLength(1);
+  });
+
+  it('AC12.5 offers nothing while writing is off', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/releases', { write: false, releases: [{ id: 'release-herbst', title: 'Herbst', description: '', startDate: null, endDate: null }] });
+    await user.click(await screen.findByRole('button', { name: /Herbst/ }));
+    expect(within(await screen.findByRole('dialog')).queryByRole('button', { name: 'Create on GitHub' })).not.toBeInTheDocument();
+  });
+
+  it('AC13.5 creates the label of an epic from its dialog and does not create it twice', async () => {
+    const user = userEvent.setup();
+    const { fake } = await renderApp('#/epics');
+    await user.click(await screen.findByRole('button', { name: /Local storage/ }));
+    await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Create on GitHub' }));
+    await waitFor(() => expect(fake.state.knownLabels).toContain('epic: Local storage'));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Create on GitHub' }));
+    expect(await screen.findByText('GitHub already has this label.')).toBeInTheDocument();
+    expect(fake.state.knownLabels.filter((label) => label === 'epic: Local storage')).toHaveLength(1);
+  });
+
+  it('AC15.6 creates the missing status labels from the connection settings, once, and only while writing is on', async () => {
+    const user = userEvent.setup();
+    const { fake } = await renderApp('#/settings/github');
+    await user.click(await screen.findByRole('button', { name: 'Create status labels on GitHub' }));
+    expect(await screen.findByText('2 labels created: status: in progress, status: review')).toBeInTheDocument();
+    expect(fake.state.knownLabels).toEqual(expect.arrayContaining(['status: in progress', 'status: review']));
+    await user.click(screen.getByRole('button', { name: 'Create status labels on GitHub' }));
+    expect(await screen.findByText('All status labels exist already.')).toBeInTheDocument();
+    expect(fake.state.knownLabels.filter((label) => label.startsWith('status:'))).toHaveLength(2);
+    cleanup();
+    await renderApp('#/settings/github', { write: false });
+    await screen.findByRole('checkbox', { name: 'Also write to GitHub' });
+    expect(screen.queryByRole('button', { name: 'Create status labels on GitHub' })).not.toBeInTheDocument();
+  });
+
+  it('AC12.1 and AC13.1 name the release and the epic that a sync made', async () => {
+    const user = userEvent.setup();
+    const { fake } = await renderApp('#/backlog', { issues: [fakeIssue(31, { title: 'Login', labels: ['epic: Login & Konto'], milestone: 'v1.0' })] });
+    fake.state.milestones = [{ number: 1, title: 'v1.0', description: 'First version', dueOn: '2026-12-31', state: 'open' }];
+    const dialog = await sync(user);
+    expect(within(dialog).getByText('Release new: v1.0')).toBeInTheDocument();
+    expect(within(dialog).getByText('Epic new: Login & Konto')).toBeInTheDocument();
   });
 });

@@ -3,7 +3,7 @@ import { LABELS_FIELD_ID, issueUrl, pendingFields, type GithubIssue } from '../d
 import { DEFAULT_STATUSES } from '../domain/statuses';
 import { EPIC_COLOR_KEYS, type ExternalFields, type FieldDefinition, type Story } from '../domain/types';
 import { fakeGithub, fakeIssue, REPO } from '../test/fakeGithub';
-import { createOnGithub, runSync, type RunSyncInput } from './runSync';
+import { createEpicLabelFor, createMilestoneFor, createOnGithub, createStatusLabels, runSync, type RunSyncInput } from './runSync';
 
 const repo = { owner: 'goerks', name: 'GetThingsDone' };
 const statuses = DEFAULT_STATUSES.map((status) => ({ ...status }));
@@ -52,6 +52,8 @@ const input = (fake: ReturnType<typeof fakeGithub>, stories: Story[], extra: Par
   fields: [labelsField],
   assignments: [],
   statuses,
+  epics: [],
+  releases: [],
   newId,
   write: true,
   conflict: 'remote',
@@ -130,5 +132,46 @@ describe('one sync with a connector', () => {
     expect(fake.state.issues[0]).toMatchObject({ title: 'Export as CSV', body: 'Text', labels: ['bug'] });
     expect(created.skippedLabels).toEqual(['unknown']);
     expect(created.story.github).toMatchObject({ url: `https://github.com/${REPO}/issues/1`, state: 'open' });
+  });
+
+  it('AC13.4 and AC15.5 create no label: a missing epic or status label is reported and the assignment stays pending', async () => {
+    const fake = fakeGithub(issues());
+    const epicStory = story({ epicId: 'e-storage', status: 'review' });
+    const result = await runSync(input(fake, [epicStory], { epics: [{ id: 'e-storage', name: 'Storage', colorKey: EPIC_COLOR_KEYS[0], position: 0, values: {} }] }));
+    expect(result.summary.published[0].skippedLabels).toEqual(['epic: Storage', 'status: review']);
+    expect(fake.state.issues[0].labels).toEqual([]);
+    expect(fake.state.knownLabels).not.toContain('epic: Storage');
+    expect(pendingFields(result.plan.stories[0], labelsField, statuses, { epics: [{ id: 'e-storage', name: 'Storage', colorKey: EPIC_COLOR_KEYS[0], position: 0, values: {} }] })).toEqual(['epic', 'status']);
+  });
+
+  it('AC12.3 publishes the milestone of a release to the issue', async () => {
+    const fake = fakeGithub(issues());
+    fake.state.milestones = [{ number: 2, title: 'v2.0', description: '', dueOn: null, state: 'open' }];
+    const result = await runSync(input(fake, [story({ releaseId: 'r2' })], { releases: [{ id: 'r2', title: 'v2.0', description: '', startDate: null, endDate: null }] }));
+    expect(fake.state.issues[0].milestone).toBe('v2.0');
+    expect(result.summary.published[0].fields).toEqual(['release']);
+  });
+
+  it('AC12.5 makes a milestone once and AC13.5 a label once', async () => {
+    const fake = fakeGithub([]);
+    const common = { connector: fake.github.source, token: 'good', repo };
+    const herbst = { id: 'r', title: 'Herbst', description: 'Autumn', startDate: null, endDate: '2026-11-30' };
+    expect(await createMilestoneFor({ ...common, release: herbst })).toBe(true);
+    expect(await createMilestoneFor({ ...common, release: herbst })).toBe(false);
+    expect(fake.state.milestones).toHaveLength(1);
+    const storage = { id: 'e', name: 'Storage', colorKey: EPIC_COLOR_KEYS[0], position: 0, values: {} };
+    expect(await createEpicLabelFor({ ...common, epic: storage })).toBe(true);
+    expect(await createEpicLabelFor({ ...common, epic: storage })).toBe(false);
+    expect(fake.state.knownLabels.filter((label) => label === 'epic: Storage')).toHaveLength(1);
+  });
+
+  it('AC15.6 makes the labels of the columns between the first one and done, and only the missing ones', async () => {
+    const fake = fakeGithub([]);
+    const common = { connector: fake.github.source, token: 'good', repo, statuses };
+    expect(await createStatusLabels(common)).toEqual(['status: in progress', 'status: review']);
+    expect(await createStatusLabels(common)).toEqual([]);
+    fake.state.canWrite = false;
+    fake.state.knownLabels = fake.state.knownLabels.filter((label) => label !== 'status: review');
+    await expect(createStatusLabels(common)).rejects.toMatchObject({ kind: 'forbidden' });
   });
 });
