@@ -16,6 +16,7 @@ const ROUNDTRIP = 'src/GithubRoundtrip.test.tsx';
 const RDOMAIN = 'src/domain/githubRoundtrip.test.ts';
 const RUN = 'src/github/runSync.test.ts';
 const CONNECTOR = 'src/github/connector.test.ts';
+const SMAP = 'src/domain/githubStoryMap.test.ts';
 
 const FEATURES = '#/settings/features';
 const SETTINGS = '#/settings/github';
@@ -547,6 +548,334 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           when: 'Eine gemeinsame Testreihe (Lesen, Schreiben, Fehler, Konflikt) läuft gegen den GitHub-Anschluss, die simulierte Vorschau und einen Test-Anschluss.',
           then: 'Alle bestehen sie mit demselben Sync-Motor.',
           tests: [`${CONNECTOR} › AC11.3 connector contract`]
+        }
+      ]
+    },
+    {
+      id: 'AC12',
+      story: 'G12',
+      title: 'Releases und Milestones abgleichen',
+      cases: [
+        {
+          id: 'AC12.1',
+          title: 'Milestone wird zum Release',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Auf GitHub hat Issue #31 „Login“ den Milestone „v1.0“ (Beschreibung „Erste Version“, fällig am 31.12.2026). In der App gibt es kein Release „v1.0“.',
+          when: 'Ich synchronisiere.',
+          then: 'Es gibt ein Release „v1.0“ mit Beschreibung und Ende 31.12.2026. Die Story gehört dazu. Das Ergebnis nennt „Release neu: v1.0“.',
+          tests: [`${SMAP} › AC12.1 makes a release of a milestone that has none yet and puts the story into it`]
+        },
+        {
+          id: 'AC12.2',
+          title: 'Release einer Story von GitHub übernehmen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Story „Login“ (#31) gehört zu Release „v1.0“, lokal nichts geändert.',
+          when: 'Auf GitHub setze ich #31 auf den Milestone „v2.0“ (als Release vorhanden) und synchronisiere.',
+          then: 'Die Story gehört zu „v2.0“. Das Ergebnis nennt die Änderung.',
+          tests: [`${SMAP} › AC12.2 takes the milestone of the issue as the release of the story`]
+        },
+        {
+          id: 'AC12.3',
+          title: 'Release einer Story nach GitHub veröffentlichen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Release „v2.0“ hat schon einen Milestone auf GitHub.',
+          when: 'Ich weise die Story „Login“ lokal dem Release „v2.0“ zu und synchronisiere.',
+          then: 'Auf GitHub hat #31 den Milestone „v2.0“. Entferne ich das Release lokal, hat das Issue keinen Milestone mehr.',
+          tests: [`${SMAP} › AC12.3 publishes the release of a story as the milestone, and removes it when the story has none`, `${RUN} › AC12.3 publishes the milestone of a release to the issue`]
+        },
+        {
+          id: 'AC12.4',
+          title: 'Release ohne Milestone',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Das Release „Herbst“ hat noch keinen Milestone auf GitHub.',
+          when: 'Ich weise eine verknüpfte Story dem Release „Herbst“ zu und synchronisiere.',
+          then: 'Auf GitHub ändert sich der Milestone nicht. Das Ergebnis sagt, dass „Herbst“ noch keinen Milestone hat; die Zuweisung bleibt lokal markiert.',
+          tests: [`${SMAP} › AC12.4 does not publish a release without a milestone and says so`]
+        },
+        {
+          id: 'AC12.5',
+          title: 'Release als Milestone anlegen',
+          link: "#/releases",
+          target: '.release-card',
+          given: 'Schreiben ist an. Release „Herbst“ (Beschreibung, Ende 30.11.2026) ohne Milestone.',
+          when: 'Ich öffne das Release und wähle „Auf GitHub anlegen“.',
+          then: 'Auf GitHub gibt es den Milestone „Herbst“ mit Beschreibung und Fälligkeitsdatum. Ohne eingeschaltetes Schreiben fehlt der Knopf; ein Abgleich legt nie von selbst einen Milestone an. (Der Knopf steht im Dialog des Releases statt in einem Menü.)',
+          tests: [`${ROUNDTRIP} › AC12.5 creates the milestone of a release from its dialog, once, and only while writing is on`, `${ROUNDTRIP} › AC12.5 offers nothing while writing is off`, `${RUN} › AC12.5 makes a milestone once and AC13.5 a label once`]
+        },
+        {
+          id: 'AC12.6',
+          title: 'Release und Milestone ändern sich beide',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Story „Login“ gehört zu „v1.0“. Lokal setze ich sie auf „v2.0“, auf GitHub auf den Milestone „v3.0“.',
+          when: 'Ich synchronisiere.',
+          then: 'Es gilt die Konfliktregel der Verbindung (Standard: „v3.0“). Das Ergebnis nennt, was überschrieben wurde; bei „Ich entscheide“ zeigt der Dialog beide Fassungen.',
+          tests: [`${SMAP} › AC12.6 lets GitHub win by default when story and issue moved to different releases`]
+        },
+        {
+          id: 'AC12.7',
+          title: 'Sprachen und Tastatur',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Die Meldungen und Knöpfe zu Releases und Epics.',
+          when: 'Ich wechsle die Sprache und bediene die neuen Knöpfe nur mit der Tastatur.',
+          then: 'Alles ist in DE, EN, FR und IT, der Fokus ist sichtbar, die Hilfe nennt Milestones und Epic-Labels.',
+          tests: [`${ROUNDTRIP} › AC12.7 has the texts of the new features in German, English, French and Italian`]
+        }
+      ]
+    },
+    {
+      id: 'AC13',
+      story: 'G13',
+      title: 'Epics über Labels abgleichen',
+      cases: [
+        {
+          id: 'AC13.1',
+          title: 'Epic-Label wird zum Epic',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Auf GitHub hat Issue #31 das Label „epic: Login & Konto“. In der App gibt es kein Epic dieses Namens.',
+          when: 'Ich synchronisiere.',
+          then: 'Es gibt ein Epic „Login & Konto“, die Story gehört dazu. Das Label erscheint nicht zusätzlich im Feld „Labels“. Das Ergebnis nennt „Epic neu: Login & Konto“.',
+          tests: [`${SMAP} › AC13.1 makes an epic of a label "epic: …", takes it out of the labels and puts the story into it`, `${SMAP} › AC13.1 does the same for a story that is imported`]
+        },
+        {
+          id: 'AC13.2',
+          title: 'Epic einer Story von GitHub übernehmen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Story „Login“ gehört zum Epic „Boards“, lokal nichts geändert.',
+          when: 'Auf GitHub ersetze ich „epic: Boards“ durch „epic: Backlog“ und synchronisiere.',
+          then: 'Die Story gehört zum Epic „Backlog“. Das Ergebnis nennt die Änderung.',
+          tests: [`${SMAP} › AC13.2 takes the epic of the issue as the epic of the story`]
+        },
+        {
+          id: 'AC13.3',
+          title: 'Epic einer Story nach GitHub veröffentlichen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Auf GitHub gibt es das Label „epic: Backlog“.',
+          when: 'Ich weise die Story „Login“ lokal dem Epic „Backlog“ zu und synchronisiere.',
+          then: '#31 trägt „epic: Backlog“; ein altes Epic-Label ist entfernt, andere Labels bleiben. Nehme ich der Story das Epic, verschwindet das Epic-Label.',
+          tests: [`${SMAP} › AC13.3 publishes the epic as a label, replaces the old epic label and keeps the other labels`]
+        },
+        {
+          id: 'AC13.4',
+          title: 'Epic ohne Label auf GitHub',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Das Epic „Storage“ hat auf GitHub noch kein Label.',
+          when: 'Ich weise eine verknüpfte Story dem Epic „Storage“ zu und synchronisiere.',
+          then: 'Auf GitHub wird kein Label angelegt. Das Ergebnis sagt, dass es „epic: Storage“ nicht gibt; die Zuweisung bleibt lokal markiert.',
+          tests: [`${RUN} › AC13.4 and AC15.5 create no label: a missing epic or status label is reported and the assignment stays pending`]
+        },
+        {
+          id: 'AC13.5',
+          title: 'Epic als Label anlegen',
+          link: "#/epics",
+          target: '.epic-card',
+          given: 'Schreiben ist an. Epic „Storage“ ohne Label auf GitHub.',
+          when: 'Ich öffne das Epic und wähle „Auf GitHub anlegen“.',
+          then: 'Auf GitHub gibt es das Label „epic: Storage“ in der Farbe des Epics. Ohne eingeschaltetes Schreiben fehlt der Knopf; ein Abgleich legt nie von selbst ein Label an. (Der Knopf steht im Dialog des Epics statt in einem Menü.)',
+          tests: [`${ROUNDTRIP} › AC13.5 creates the label of an epic from its dialog and does not create it twice`]
+        },
+        {
+          id: 'AC13.6',
+          title: 'Mehrere Epic-Labels',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Ein Issue hat zwei Labels „epic: Boards“ und „epic: Backlog“.',
+          when: 'Ich synchronisiere.',
+          then: 'Es gilt das erste („Boards“). Das Ergebnis weist darauf hin, dass das Issue mehrere Epic-Labels hat.',
+          tests: [`${SMAP} › AC13.6 counts only the first epic label and says that there are several`]
+        },
+        {
+          id: 'AC13.7',
+          title: 'Sprachen und Tastatur',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Die Meldungen und Knöpfe zu Epics.',
+          when: 'Ich wechsle die Sprache und bediene die neuen Knöpfe nur mit der Tastatur.',
+          then: 'Alles ist in DE, EN, FR und IT, der Fokus ist sichtbar, die Hilfe nennt die Epic-Labels.',
+          tests: [`${ROUNDTRIP} › AC13.7 has the texts of the new features in German, English, French and Italian`]
+        }
+      ]
+    },
+    {
+      id: 'AC14',
+      story: 'G14',
+      title: 'Sync-Icon auf Backlog, Board und Story Map',
+      cases: [
+        {
+          id: 'AC14.1',
+          title: 'Icon statt Text',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Funktion „GitHub-Anbindung“ ist an und verbunden.',
+          when: 'Ich öffne nacheinander Backlog, Board und Story Map.',
+          then: 'Auf jeder Seite steht oben ein Icon mit zwei runden Pfeilen im Kreis, kein Text „Synchronisieren“. Mit der Maus darauf erscheint „Synchronisieren“ und der Zeitpunkt des letzten Abgleichs. Ein Screenreader liest „Synchronisieren“.',
+          tests: [`${ROUNDTRIP} › AC14.1 shows an icon button instead of the text on backlog, board and story map`]
+        },
+        {
+          id: 'AC14.2',
+          title: 'Auf jeder Seite derselbe Abgleich',
+          link: "#/board",
+          target: '.github-sync',
+          given: 'Auf GitHub ist ein Issue neu.',
+          when: 'Ich klicke das Icon im Board (danach in der Story Map).',
+          then: 'Derselbe Ergebnisdialog wie im Backlog („1 neu importiert …“). Nach dem Schliessen ist der Fokus wieder auf dem Icon.',
+          tests: [`${ROUNDTRIP} › AC14.2 synchronises from the board with the same result dialog and gives the focus back to the icon`]
+        },
+        {
+          id: 'AC14.3',
+          title: 'Nur wo es sinnvoll ist',
+          link: "#/epics",
+          target: '.page-head',
+          given: 'Funktion ist an.',
+          when: 'Ich öffne Epics, Releases und Einstellungen.',
+          then: 'Dort gibt es kein Sync-Icon. Schalte ich die Funktion aus, verschwindet es auch auf Backlog, Board und Story Map.',
+          tests: [`${ROUNDTRIP} › AC14.3 has no icon on epics, releases and settings, and none while the feature is off`]
+        },
+        {
+          id: 'AC14.4',
+          title: 'Läuft gerade',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Die Verbindung ist langsam.',
+          when: 'Ich klicke das Icon und gleich noch einmal.',
+          then: 'Solange der Abgleich läuft, dreht sich das Icon und ein zweiter Klick startet nichts Neues. Danach steht es still.',
+          tests: [`${ROUNDTRIP} › AC14.4 turns while a sync runs and starts nothing new on a second click`]
+        },
+        {
+          id: 'AC14.5',
+          title: 'Noch nicht auf GitHub',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Ich habe lokal bei 3 verknüpften Stories etwas geändert.',
+          when: 'Ich sehe mir das Icon an.',
+          then: 'Am Icon steht die Zahl 3; der Tooltip sagt „3 Änderungen noch nicht auf GitHub“. Nach erfolgreichem Abgleich ist die Zahl weg.',
+          tests: [`${ROUNDTRIP} › AC14.5 shows the number of changes that are not on GitHub yet at the icon`]
+        },
+        {
+          id: 'AC14.6',
+          title: 'Nur Tastatur und Sprachen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Die App, nur Tastatur.',
+          when: 'Ich erreiche das Icon mit Tab, löse es mit Enter oder Leertaste aus und wechsle die Sprache.',
+          then: 'Der Fokus ist sichtbar, Name und Tooltip sind in DE, EN, FR und IT.',
+          tests: [`${ROUNDTRIP} › AC14.6 works with the keyboard`]
+        },
+        {
+          id: 'AC14.7',
+          title: 'Optik',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Importierte Stories.',
+          when: 'Ich sehe das Icon auf Handy- und Desktop-Breite an, hell und dunkel.',
+          then: 'Das Icon passt in die Kopfzeile, ist gut erkennbar, die Zahl ist lesbar und überdeckt nichts.',
+          tests: [], manual: 'Optische Details (Lesbarkeit, Platz in der Kopfzeile) beurteilt nur ein Mensch.', poCheck: 'Bitte ansehen: Das Sync-Icon passt auf Handy- und Desktop-Breite, hell und dunkel, und die Zahl ist lesbar.'
+        }
+      ]
+    },
+    {
+      id: 'AC15',
+      story: 'G15',
+      title: 'Board-Zwischenstände über Status-Labels',
+      cases: [
+        {
+          id: 'AC15.1',
+          title: 'Status-Label wird zur Spalte',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Auf GitHub ist Issue #31 offen und hat das Label „status: in progress“. Die Story „Login“ steht in „Offen“.',
+          when: 'Ich synchronisiere.',
+          then: 'Die Story steht in „In Arbeit“. Das Label erscheint nicht im Feld „Labels“. Das Ergebnis nennt die Änderung.',
+          tests: [`${SMAP} › AC15.1 puts the story into the column a label "status: …" names and keeps the label out of the labels`]
+        },
+        {
+          id: 'AC15.2',
+          title: 'Label entfernen bringt in die erste Spalte',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Story „Login“ steht in „Review“ (Issue hat „status: review“), lokal nichts geändert.',
+          when: 'Auf GitHub entferne ich das Label und synchronisiere.',
+          then: 'Die Story steht in „Offen“.',
+          tests: [`${SMAP} › AC15.2 puts the story back into the first column when the label is gone`]
+        },
+        {
+          id: 'AC15.3',
+          title: 'Geschlossen bleibt Erledigt',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Issue #31 trägt „status: review“ und wird auf GitHub geschlossen.',
+          when: 'Ich synchronisiere.',
+          then: 'Die Story steht in „Erledigt“; das Label spielt keine Rolle mehr.',
+          tests: [`${SMAP} › AC15.3 keeps a closed issue done whatever its status label says`]
+        },
+        {
+          id: 'AC15.4',
+          title: 'Spalte nach GitHub veröffentlichen',
+          link: "#/board",
+          target: '.github-sync',
+          given: 'Schreiben ist an. Auf GitHub gibt es das Label „status: in progress“.',
+          when: 'Ich ziehe die Story „Login“ auf dem Board nach „In Arbeit“ und synchronisiere.',
+          then: 'Das Issue trägt „status: in progress“; ein altes Status-Label ist entfernt, andere Labels bleiben. Nach „Offen“ verschwindet das Label, nach „Erledigt“ wird das Issue geschlossen.',
+          tests: [`${SMAP} › AC15.4 publishes the column as a label, replaces the old one and drops it for the first column and done`]
+        },
+        {
+          id: 'AC15.5',
+          title: 'Fehlendes Status-Label',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Das Label „status: review“ gibt es auf GitHub noch nicht.',
+          when: 'Ich ziehe eine verknüpfte Story nach „Review“ und synchronisiere.',
+          then: 'Es wird kein Label angelegt. Das Ergebnis sagt, dass „status: review“ fehlt; die Story bleibt als „nicht auf GitHub“ markiert.',
+          tests: [`${SMAP} › AC15.5 keeps a column without a label on GitHub as pending`]
+        },
+        {
+          id: 'AC15.6',
+          title: 'Status-Labels anlegen',
+          link: SETTINGS,
+          target: '.github-options',
+          given: 'Schreiben ist an; die Labels für „In Arbeit“ und „Review“ fehlen auf GitHub.',
+          when: 'Ich wähle in Einstellungen → Verbindungen „Status-Labels auf GitHub anlegen“.',
+          then: 'Auf GitHub gibt es „status: in progress“ und „status: review“. Ein zweiter Klick legt nichts doppelt an. Ohne eingeschaltetes Schreiben fehlt der Knopf; ein Abgleich legt nie von selbst Labels an.',
+          tests: [`${ROUNDTRIP} › AC15.6 creates the missing status labels from the connection settings, once, and only while writing is on`, `${RUN} › AC15.6 makes the labels of the columns between the first one and done, and only the missing ones`]
+        },
+        {
+          id: 'AC15.7',
+          title: 'Beides geändert',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Story „Login“ lokal in „Review“, auf GitHub mit „status: in progress“.',
+          when: 'Ich synchronisiere.',
+          then: 'Es gilt die Konfliktregel der Verbindung (Standard: „In Arbeit“). Das Ergebnis nennt, was überschrieben wurde.',
+          tests: [`${SMAP} › AC15.7 lets GitHub win by default when both sides changed the column`]
+        },
+        {
+          id: 'AC15.8',
+          title: 'Eigene Spaltennamen',
+          link: "#/board",
+          target: '.github-sync',
+          given: 'Es gibt einen eigenen Status „Test“ (Kategorie „In Arbeit“).',
+          when: 'Ich ziehe eine Story dorthin und lege die Status-Labels an.',
+          then: 'Das Label heisst „status: Test“; die Story landet nach dem Abgleich wieder in „Test“.',
+          tests: [`${SMAP} › AC15.8 names a column of its own after its label and finds it again`]
+        },
+        {
+          id: 'AC15.9',
+          title: 'Sprachen und Tastatur',
+          link: SETTINGS,
+          target: '.github-options',
+          given: 'Der Knopf für die Status-Labels.',
+          when: 'Ich wechsle die Sprache und bediene den Knopf mit der Tastatur.',
+          then: 'Knopf, Meldungen und Hilfe sind in DE, EN, FR und IT, der Knopf ist per Tastatur bedienbar.',
+          tests: [`${ROUNDTRIP} › AC15.9 has the texts of the new features in German, English, French and Italian`]
         }
       ]
     }

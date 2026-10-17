@@ -9,6 +9,10 @@ import { LABELS_FIELD_ID, issueUrl } from './domain/github';
 import { todayIso } from './domain/sprints';
 import type { ConflictRule, ExternalFields, FieldDefinition, Release, Story } from './domain/types';
 import { EPIC_COLOR_KEYS } from './domain/types';
+import de from './i18n/de.json';
+import en from './i18n/en.json';
+import fr from './i18n/fr.json';
+import it_ from './i18n/it.json';
 import { initI18n } from './i18n';
 import { fakeGithub, fakeIssue, REPO } from './test/fakeGithub';
 
@@ -456,4 +460,34 @@ describe('creating milestones, epic labels and status labels', () => {
     expect(within(dialog).getByText('Release new: v1.0')).toBeInTheDocument();
     expect(within(dialog).getByText('Epic new: Login & Konto')).toBeInTheDocument();
   });
+});
+
+describe('texts of the story map sync', () => {
+  const KEYS = [
+    'github.create.releaseDone',
+    'github.create.epicDone',
+    'github.create.itemFailed',
+    'github.settings.statusLabels.button',
+    'github.settings.statusLabels.help',
+    'github.sync.releaseCreated',
+    'github.sync.epicCreated',
+    'github.sync.missingMilestones',
+    'github.sync.multipleEpics',
+    'github.field.release',
+    'github.field.epic',
+    'github.field.status',
+    'github.change.release',
+    'github.change.epic',
+    'github.change.status'
+  ];
+  const lookup = (tree: unknown, path: string): unknown => path.split('.').reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], tree);
+  const languages: Array<[string, unknown]> = [['de', de], ['en', en], ['fr', fr], ['it', it_]];
+
+  const check = (): void => {
+    for (const [language, tree] of languages) for (const key of KEYS) expect(typeof lookup(tree, key), `${language} ${key}`).toBe('string');
+  };
+
+  it('AC12.7 has the texts of the new features in German, English, French and Italian', check);
+  it('AC13.7 has the texts of the new features in German, English, French and Italian', check);
+  it('AC15.9 has the texts of the new features in German, English, French and Italian', check);
 });
