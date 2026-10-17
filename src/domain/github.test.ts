@@ -122,7 +122,7 @@ describe('importing issues', () => {
     const first = planSync(input([issue(31), issue(35)]));
     const second = planSync(input([issue(31), issue(35)], first.stories, first.fields, first.assignments));
     expect(second.stories).toHaveLength(first.stories.length);
-    expect(second.summary).toEqual({ created: [], closed: [], updated: [], published: [], overwritten: [], conflicts: [], pending: 0 });
+    expect(second.summary).toEqual({ created: [], closed: [], updated: [], published: [], overwritten: [], conflicts: [], pending: 0, releasesCreated: [], epicsCreated: [], missingMilestones: [], multipleEpics: [] });
   });
 
   it('AC2.1 does not import a closed issue that has no story', () => {

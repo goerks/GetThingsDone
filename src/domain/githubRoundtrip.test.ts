@@ -97,7 +97,7 @@ describe('publishing local changes', () => {
     // And a story moved out of Done whose issue is closed
     const closed = issue(31, { state: 'closed' });
     const open = plan([story({ status: 'in_progress' }, { done: true })], [closed], { write: true });
-    expect(open.pushes[0].patch).toEqual({ state: 'open' });
+    expect(open.pushes[0].patch).toEqual({ state: 'open', labels: ['status: in progress'] });
   });
 
   it('AC7.5 publishes nothing when writing is off and counts what stays', () => {
@@ -217,7 +217,7 @@ describe('creating an issue from a story', () => {
     expect(linkTo(created)).toEqual({
       url: issueUrl(repo, 44),
       state: 'open',
-      base: { title: 'Export as CSV', description: 'Export the backlog.', labels: ['bug'], criteria: [{ text: 'Header row', done: true }], done: false }
+      base: { title: 'Export as CSV', description: 'Export the backlog.', labels: ['bug'], criteria: [{ text: 'Header row', done: true }], done: false, release: null, epic: null, status: null }
     });
   });
 
