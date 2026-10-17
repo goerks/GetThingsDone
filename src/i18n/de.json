@@ -1334,13 +1334,13 @@
     "settings": {
       "title": "Verbindungen",
       "connected": "Verbunden",
-      "hint": "Verbinde ein GitHub-Repository: Seine offenen Issues werden als Stories importiert, und Änderungen lassen sich in beide Richtungen abgleichen. Es passiert nur etwas, wenn du im Backlog „Synchronisieren“ drückst.",
+      "hint": "Offene Issues werden Stories; Änderungen gehen in beide Richtungen, nur wenn du „Synchronisieren“ drückst.",
       "repo": "Repository (owner/name)",
       "token": "Zugriffstoken",
       "tokenSaved": "Token gespeichert – neues eingeben, um es zu ersetzen",
-      "tokenNote": "Zum Lesen genügt ein Fine-grained Token mit Lesezugriff auf die Issues dieses Repositories. Zum Zurückschreiben braucht es zusätzlich das Recht „Issues: Lesen und Schreiben“. Das Token liegt im Anmeldeinformationsspeicher deines Betriebssystems und wird nie wieder angezeigt.",
-      "tokenNoteDemo": "Diese Vorschau hat keine echte Verbindung: Jeder Text gilt als Token, ausser „{{wrong}}“, das GitHub ablehnen würde, und „{{readonly}}“, das nur lesen darf. Es wird nichts versendet.",
-      "tokenMissingNote": "Gib das Token erneut ein: Im Browser bleibt es nur, bis die Seite neu geladen wird.",
+      "tokenNote": "Zum Lesen genügt Lesezugriff auf die Issues, zum Schreiben braucht das Token „Issues: Lesen und Schreiben“. Es liegt im Schlüsselbund des Betriebssystems und wird nie wieder angezeigt.",
+      "tokenNoteDemo": "Jeder Text geht, ausser „{{wrong}}“ (abgelehnt) und „{{readonly}}“ (nur lesen). Es wird nichts versendet.",
+      "tokenMissingNote": "Token erneut eingeben: Im Browser gilt es nur bis zum Neuladen.",
       "test": "Verbindung testen",
       "testing": "Teste …",
       "disconnect": "Verbindung entfernen",
@@ -1353,7 +1353,7 @@
       },
       "write": {
         "label": "Auch nach GitHub schreiben",
-        "help": "Aus: Die App liest nur. An: „Synchronisieren“ veröffentlicht auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen auf GitHub, und du kannst eigene Stories als neue Issues anlegen. Das Token braucht dafür das Recht „Issues: Lesen und Schreiben“."
+        "help": "Aus: nur lesen. An: „Synchronisieren“ veröffentlicht auch deine Änderungen. Das Token braucht „Issues: Lesen und Schreiben“."
       },
       "conflict": {
         "legend": "Wenn beide Seiten dasselbe Feld geändert haben",
@@ -1363,7 +1363,7 @@
       },
       "statusLabels": {
         "button": "Status-Labels auf GitHub anlegen",
-        "help": "Legt die Labels „status: …“ für die Board-Spalten zwischen der ersten und „Erledigt“ an, die es auf GitHub noch nicht gibt. Nur auf Knopfdruck.",
+        "help": "Legt die fehlenden Labels „status: …“ für die Board-Spalten an.",
         "done_one": "{{count}} Label angelegt: {{labels}}",
         "done_other": "{{count}} Labels angelegt: {{labels}}",
         "none": "Alle Status-Labels gibt es schon."
@@ -1372,7 +1372,7 @@
     "demo": {
       "badge": "Demo",
       "title": "Demo: simuliertes GitHub",
-      "text": "Die Vorschau hat ein eigenes kleines GitHub: das Repository {{repo}} mit ein paar Issues, gespeichert in diesem Browser. Ändere sie hier und drücke dann im Backlog „Synchronisieren“. Mit eingeschaltetem Schreiben landen deine Änderungen auch dort. (Das Token „{{wrong}}“ wird abgelehnt, „{{readonly}}“ darf nicht schreiben.)",
+      "text": "Ein kleines simuliertes GitHub in diesem Browser ({{repo}}). Ändere hier die Issues und synchronisiere. Token „{{wrong}}“ wird abgelehnt, „{{readonly}}“ darf nicht schreiben.",
       "rename": "#31 umbenennen, neues Label",
       "criteria": "Kriterien von #31 ändern",
       "close": "#35 schliessen",
@@ -1388,7 +1388,7 @@
       "never": "GitHub · noch nicht synchronisiert",
       "done": "Mit GitHub synchronisiert",
       "failed": "Synchronisieren fehlgeschlagen",
-      "nothing": "Alles ist auf dem neuesten Stand. Auf GitHub hat sich nichts geändert.",
+      "nothing": "Alles ist aktuell.",
       "created": "neu importiert",
       "updated": "aktualisiert",
       "closed": "erledigt (auf GitHub geschlossen)",
@@ -1401,16 +1401,16 @@
       "publishedCount_other": "{{count}} Änderungen nach GitHub veröffentlicht",
       "publishedTitle": "Nach GitHub veröffentlicht",
       "overwrittenTitle": "Überschrieben",
-      "pendingNote_one": "Schreiben ist aus: {{count}} Änderung wurde nicht nach GitHub veröffentlicht und bleibt markiert.",
-      "pendingNote_other": "Schreiben ist aus: {{count}} Änderungen wurden nicht nach GitHub veröffentlicht und bleiben markiert.",
-      "conflictsOpen_one": "Bei {{count}} Feld entscheidest du noch; bis dahin bleibt es, wie es ist.",
-      "conflictsOpen_other": "Bei {{count}} Feldern entscheidest du noch; bis dahin bleibt es, wie es ist.",
-      "skippedLabels": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
+      "pendingNote_one": "Schreiben aus: {{count}} Änderung nicht veröffentlicht.",
+      "pendingNote_other": "Schreiben aus: {{count}} Änderungen nicht veröffentlicht.",
+      "conflictsOpen_one": "{{count}} Konflikt offen",
+      "conflictsOpen_other": "{{count}} Konflikte offen",
+      "skippedLabels": "Diese Labels fehlen auf GitHub: {{labels}}",
       "decide": "Konflikte entscheiden",
       "releaseCreated": "Release neu: {{title}}",
       "epicCreated": "Epic neu: {{name}}",
-      "missingMilestones": "Diese Releases haben auf GitHub noch keinen Milestone, die Zuweisung bleibt hier: {{titles}}",
-      "multipleEpics": "Mehrere Epic-Labels an einem Issue, es zählt das erste: {{issues}}"
+      "missingMilestones": "Noch kein Milestone auf GitHub: {{titles}}",
+      "multipleEpics": "Mehrere Epic-Labels, das erste zählt: {{issues}}"
     },
     "change": {
       "created": "Neue Story",
@@ -1440,11 +1440,11 @@
       "notFound": "Repository nicht gefunden, oder das Token hat keinen Zugriff darauf. Deine lokalen Daten sind unverändert.",
       "rateLimit": "GitHub erlaubt vorerst keine weiteren Anfragen. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
       "other": "GitHub war nicht richtig erreichbar. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
-      "forbidden": "GitHub hat das Schreiben abgelehnt. Das Token braucht das Recht „Issues: Lesen und Schreiben“. Deine lokalen Änderungen bleiben erhalten."
+      "forbidden": "GitHub hat das Schreiben abgelehnt. Das Token braucht „Issues: Lesen und Schreiben“."
     },
     "connections": {
       "title": "Dienste",
-      "intro": "Der Abgleich ist ein allgemeiner Mechanismus; jeder Dienst bekommt einen eigenen Anschluss. GitHub ist der erste.",
+      "intro": "Ein Mechanismus, ein Anschluss pro Dienst.",
       "available": "verfügbar",
       "connected": "verbunden",
       "planned": "geplant",
@@ -1457,7 +1457,7 @@
     },
     "disconnect": {
       "title": "Verbindung entfernen?",
-      "text": "Repository und Token werden vergessen. Die importierten Stories bleiben, verlieren aber ihre Verknüpfung mit GitHub: Nummer, Link und Markierungen sind weg. Auf GitHub ändert sich nichts.",
+      "text": "Die importierten Stories bleiben, ihre GitHub-Verknüpfung geht.",
       "confirm": "Verbindung entfernen",
       "cancel": "Abbrechen"
     },
@@ -1486,14 +1486,15 @@
     },
     "conflict": {
       "title": "Beide Seiten haben dasselbe geändert",
-      "intro": "Wähle für jedes Feld, welche Fassung gilt. Bis du „Übernehmen“ drückst, ändert sich weder hier noch auf GitHub etwas.",
+      "intro": "Wähle, welche Fassung gilt.",
       "local": "Lokal",
       "remote": "GitHub",
       "keepLocal": "Lokale Fassung behalten",
       "takeRemote": "GitHub-Fassung nehmen",
       "apply": "Übernehmen",
       "cancel": "Abbrechen",
-      "group": "{{field}} von {{code}}"
+      "group": "{{field}} von {{code}}",
+      "hint": "Bis du „Übernehmen“ drückst, ändert sich nichts."
     },
     "pending": {
       "badge": "nicht auf GitHub",
@@ -1510,5 +1511,8 @@
       "epicExists": "GitHub hat dieses Label schon.",
       "itemFailed": "Auf GitHub konnte nichts angelegt werden: {{reason}}"
     }
+  },
+  "info": {
+    "label": "Mehr Informationen"
   }
 }

@@ -178,7 +178,7 @@ describe('connecting the repository', () => {
     // Then it is marked as demo and finds the simulated issues; the refused token is named
     expect(await screen.findByText('✓ Connection ok · 3 open issues')).toBeInTheDocument();
     expect(screen.getAllByText('Demo').length).toBeGreaterThan(0);
-    expect(screen.getByText(/any text works as a token, except “falsch”/)).toBeInTheDocument();
+    expect(screen.getByText(/Any text works, except “falsch”/)).toBeInTheDocument();
   });
 
   it('AC1.5 lets me disconnect: the repository and the token are removed', async () => {
@@ -244,7 +244,6 @@ describe('importing and syncing', () => {
     // Then the dialog names the change and the story is updated
     expect(within(dialog).getByText('Title changed: “Login” → “Login-Seite”')).toBeInTheDocument();
     expect(within(dialog).getByText('Labels: new bug')).toBeInTheDocument();
-    expect(dialog).toHaveTextContent('Changes from GitHub were taken');
     await user.click(within(dialog).getByRole('button', { name: 'Close' }));
     expect(screen.getByText('Login-Seite')).toBeInTheDocument();
   });

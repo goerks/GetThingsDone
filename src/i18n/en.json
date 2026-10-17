@@ -1334,13 +1334,13 @@
     "settings": {
       "title": "Connections",
       "connected": "Connected",
-      "hint": "Connect a GitHub repository: its open issues are imported as stories, and changes can be synced in both directions. Nothing happens until you press “Sync” in the backlog.",
+      "hint": "Open issues become stories; changes go both ways, only when you press “Sync”.",
       "repo": "Repository (owner/name)",
       "token": "Access token",
       "tokenSaved": "Token saved – enter a new one to replace it",
-      "tokenNote": "To read, a fine-grained token with read access to the issues of this repository is enough. To write back it also needs the permission “Issues: read and write”. The token is kept in the credential store of your operating system and is never shown again.",
-      "tokenNoteDemo": "This preview has no real connection: any text works as a token, except “{{wrong}}”, which GitHub would refuse, and “{{readonly}}”, which may only read. Nothing is sent.",
-      "tokenMissingNote": "Enter the token again: in the browser it is only kept until the page is reloaded.",
+      "tokenNote": "To read, read access to the issues is enough; to write, the token needs “Issues: read and write”. It is kept in the system keychain and never shown again.",
+      "tokenNoteDemo": "Any text works, except “{{wrong}}” (refused) and “{{readonly}}” (read only). Nothing is sent.",
+      "tokenMissingNote": "Enter the token again: in the browser it only lasts until the page is reloaded.",
       "test": "Test connection",
       "testing": "Testing…",
       "disconnect": "Remove connection",
@@ -1353,7 +1353,7 @@
       },
       "write": {
         "label": "Also write to GitHub",
-        "help": "Off: the app only reads. On: “Sync” also publishes your changes to title, description, labels, criteria and done/open on GitHub, and you can create your own stories as new issues. The token needs the permission “Issues: read and write” for this."
+        "help": "Off: read only. On: “Sync” also publishes your changes. The token needs “Issues: read and write”."
       },
       "conflict": {
         "legend": "When both sides changed the same field",
@@ -1363,7 +1363,7 @@
       },
       "statusLabels": {
         "button": "Create status labels on GitHub",
-        "help": "Makes the labels “status: …” for the board columns between the first one and Done that GitHub does not have yet. Only when you press the button.",
+        "help": "Makes the missing “status: …” labels for the board columns.",
         "done_one": "{{count}} label created: {{labels}}",
         "done_other": "{{count}} labels created: {{labels}}",
         "none": "All status labels exist already."
@@ -1372,7 +1372,7 @@
     "demo": {
       "badge": "Demo",
       "title": "Demo: simulated GitHub",
-      "text": "The preview has a small GitHub of its own: the repository {{repo}} with a few issues, kept in this browser. Change them here, then press “Sync” in the backlog. With writing on, your changes land there too. (The token “{{wrong}}” is refused, “{{readonly}}” may not write.)",
+      "text": "A small simulated GitHub in this browser ({{repo}}). Change its issues here, then sync. Token “{{wrong}}” is refused, “{{readonly}}” may not write.",
       "rename": "Rename #31, new label",
       "criteria": "Change the criteria of #31",
       "close": "Close #35",
@@ -1388,7 +1388,7 @@
       "never": "GitHub · not synchronised yet",
       "done": "Synchronised with GitHub",
       "failed": "Synchronising failed",
-      "nothing": "Everything is up to date. Nothing changed on GitHub.",
+      "nothing": "Everything is up to date.",
       "created": "newly imported",
       "updated": "updated",
       "closed": "done (closed on GitHub)",
@@ -1401,16 +1401,16 @@
       "publishedCount_other": "{{count}} changes published to GitHub",
       "publishedTitle": "Published to GitHub",
       "overwrittenTitle": "Overwritten",
-      "pendingNote_one": "Writing is off: {{count}} change was not published to GitHub and stays marked.",
-      "pendingNote_other": "Writing is off: {{count}} changes were not published to GitHub and stay marked.",
-      "conflictsOpen_one": "You still decide {{count}} field; until then it stays as it is.",
-      "conflictsOpen_other": "You still decide {{count}} fields; until then they stay as they are.",
-      "skippedLabels": "GitHub does not know these labels, they were not created: {{labels}}",
+      "pendingNote_one": "Writing is off: {{count}} change not published.",
+      "pendingNote_other": "Writing is off: {{count}} changes not published.",
+      "conflictsOpen_one": "{{count}} conflict open",
+      "conflictsOpen_other": "{{count}} conflicts open",
+      "skippedLabels": "Labels GitHub does not have: {{labels}}",
       "decide": "Decide conflicts",
       "releaseCreated": "Release new: {{title}}",
       "epicCreated": "Epic new: {{name}}",
-      "missingMilestones": "These releases have no milestone on GitHub yet, the assignment stays here: {{titles}}",
-      "multipleEpics": "More than one epic label on an issue, only the first counts: {{issues}}"
+      "missingMilestones": "No milestone on GitHub yet: {{titles}}",
+      "multipleEpics": "Several epic labels, the first counts: {{issues}}"
     },
     "change": {
       "created": "New story",
@@ -1440,11 +1440,11 @@
       "notFound": "Repository not found, or the token has no access to it. Your local data is unchanged.",
       "rateLimit": "GitHub allows no more requests for now. Try again later. Your local data is unchanged.",
       "other": "GitHub could not be reached properly. Try again later. Your local data is unchanged.",
-      "forbidden": "GitHub refused to write. The token needs the permission “Issues: read and write”. Your local changes are kept."
+      "forbidden": "GitHub refused to write. The token needs “Issues: read and write”."
     },
     "connections": {
       "title": "Services",
-      "intro": "The sync is one general mechanism; every service gets its own connector. GitHub is the first.",
+      "intro": "One mechanism, one connector per service.",
       "available": "available",
       "connected": "connected",
       "planned": "planned",
@@ -1457,7 +1457,7 @@
     },
     "disconnect": {
       "title": "Remove the connection?",
-      "text": "Repository and token are forgotten. The imported stories stay but lose their link to GitHub: number, link and markers are gone. Nothing changes on GitHub.",
+      "text": "The imported stories stay; their GitHub links go.",
       "confirm": "Remove connection",
       "cancel": "Cancel"
     },
@@ -1486,14 +1486,15 @@
     },
     "conflict": {
       "title": "Both sides changed the same thing",
-      "intro": "Choose for each field which version counts. Until you press “Apply”, nothing changes here or on GitHub.",
+      "intro": "Choose which version counts.",
       "local": "Local",
       "remote": "GitHub",
       "keepLocal": "Keep the local version",
       "takeRemote": "Take the GitHub version",
       "apply": "Apply",
       "cancel": "Cancel",
-      "group": "{{field}} of {{code}}"
+      "group": "{{field}} of {{code}}",
+      "hint": "Nothing changes until you press “Apply”."
     },
     "pending": {
       "badge": "not on GitHub",
@@ -1510,5 +1511,8 @@
       "epicExists": "GitHub already has this label.",
       "itemFailed": "Nothing could be created on GitHub: {{reason}}"
     }
+  },
+  "info": {
+    "label": "More information"
   }
 }

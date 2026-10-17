@@ -1339,13 +1339,13 @@
     "settings": {
       "title": "Connexions",
       "connected": "Connecté",
-      "hint": "Connectez un dépôt GitHub : ses issues ouvertes sont importées comme stories, et les modifications peuvent être synchronisées dans les deux sens. Rien ne se passe tant que vous n’appuyez pas sur « Synchroniser » dans le backlog.",
+      "hint": "Les issues ouvertes deviennent des stories ; les modifications vont dans les deux sens, seulement quand vous appuyez sur « Synchroniser ».",
       "repo": "Dépôt (owner/name)",
       "token": "Jeton d’accès",
       "tokenSaved": "Jeton enregistré – saisissez-en un nouveau pour le remplacer",
-      "tokenNote": "Pour lire, un jeton à granularité fine avec accès en lecture aux issues de ce dépôt suffit. Pour réécrire, il faut en plus l’autorisation « Issues : lecture et écriture ». Le jeton est conservé dans le magasin d’identifiants de votre système et n’est plus jamais affiché.",
-      "tokenNoteDemo": "Cet aperçu n’a pas de vraie connexion : tout texte vaut comme jeton, sauf « {{wrong}} », que GitHub refuserait, et « {{readonly}} », qui ne peut que lire. Rien n’est envoyé.",
-      "tokenMissingNote": "Saisissez à nouveau le jeton : dans le navigateur, il n’est conservé que jusqu’au rechargement de la page.",
+      "tokenNote": "Pour lire, l’accès en lecture aux issues suffit ; pour écrire, le jeton doit avoir « Issues : lecture et écriture ». Il est gardé dans le magasin d’identifiants du système et n’est plus jamais affiché.",
+      "tokenNoteDemo": "Tout texte convient, sauf « {{wrong}} » (refusé) et « {{readonly}} » (lecture seule). Rien n’est envoyé.",
+      "tokenMissingNote": "Saisissez à nouveau le jeton : dans le navigateur, il ne dure que jusqu’au rechargement.",
       "test": "Tester la connexion",
       "testing": "Test en cours…",
       "disconnect": "Supprimer la connexion",
@@ -1358,7 +1358,7 @@
       },
       "write": {
         "label": "Écrire aussi vers GitHub",
-        "help": "Désactivé : l’application ne fait que lire. Activé : « Synchroniser » publie aussi vos modifications du titre, de la description, des labels, des critères et de fait/ouvert sur GitHub, et vous pouvez créer vos propres stories comme nouvelles issues. Le jeton a besoin pour cela de l’autorisation « Issues : lecture et écriture »."
+        "help": "Désactivé : lecture seule. Activé : « Synchroniser » publie aussi vos modifications. Le jeton a besoin de « Issues : lecture et écriture »."
       },
       "conflict": {
         "legend": "Quand les deux côtés ont modifié le même champ",
@@ -1368,7 +1368,7 @@
       },
       "statusLabels": {
         "button": "Créer les labels de statut sur GitHub",
-        "help": "Crée les labels « status : … » des colonnes du tableau entre la première et « Terminé » que GitHub n’a pas encore. Seulement sur clic.",
+        "help": "Crée les labels « status : … » manquants pour les colonnes du tableau.",
         "done_one": "{{count}} label créé : {{labels}}",
         "done_other": "{{count}} labels créés : {{labels}}",
         "none": "Tous les labels de statut existent déjà."
@@ -1377,7 +1377,7 @@
     "demo": {
       "badge": "Démo",
       "title": "Démo : GitHub simulé",
-      "text": "L’aperçu a son propre petit GitHub : le dépôt {{repo}} avec quelques issues, conservé dans ce navigateur. Modifiez-les ici, puis appuyez sur « Synchroniser » dans le backlog. Avec l’écriture activée, vos modifications y arrivent aussi. (Le jeton « {{wrong}} » est refusé, « {{readonly}} » n’a pas le droit d’écrire.)",
+      "text": "Un petit GitHub simulé dans ce navigateur ({{repo}}). Modifiez ses issues ici, puis synchronisez. Le jeton « {{wrong}} » est refusé, « {{readonly}} » ne peut pas écrire.",
       "rename": "Renommer le n° 31, nouveau label",
       "criteria": "Modifier les critères du n° 31",
       "close": "Fermer le n° 35",
@@ -1393,7 +1393,7 @@
       "never": "GitHub · pas encore synchronisé",
       "done": "Synchronisé avec GitHub",
       "failed": "La synchronisation a échoué",
-      "nothing": "Tout est à jour. Rien n’a changé sur GitHub.",
+      "nothing": "Tout est à jour.",
       "created": "nouvellement importées",
       "updated": "mises à jour",
       "closed": "terminées (fermées sur GitHub)",
@@ -1406,16 +1406,16 @@
       "publishedCount_other": "{{count}} modifications publiées sur GitHub",
       "publishedTitle": "Publié sur GitHub",
       "overwrittenTitle": "Écrasé",
-      "pendingNote_one": "L’écriture est désactivée : {{count}} modification n’a pas été publiée sur GitHub et reste marquée.",
-      "pendingNote_other": "L’écriture est désactivée : {{count}} modifications n’ont pas été publiées sur GitHub et restent marquées.",
-      "conflictsOpen_one": "Vous décidez encore pour {{count}} champ ; d’ici là, il reste tel quel.",
-      "conflictsOpen_other": "Vous décidez encore pour {{count}} champs ; d’ici là, ils restent tels quels.",
-      "skippedLabels": "GitHub ne connaît pas ces labels, ils n’ont pas été créés : {{labels}}",
+      "pendingNote_one": "Écriture désactivée : {{count}} modification non publiée.",
+      "pendingNote_other": "Écriture désactivée : {{count}} modifications non publiées.",
+      "conflictsOpen_one": "{{count}} conflit à décider",
+      "conflictsOpen_other": "{{count}} conflits à décider",
+      "skippedLabels": "Labels absents de GitHub : {{labels}}",
       "decide": "Décider les conflits",
       "releaseCreated": "Nouvelle release : {{title}}",
       "epicCreated": "Nouvel epic : {{name}}",
-      "missingMilestones": "Ces releases n’ont pas encore de jalon sur GitHub, l’affectation reste ici : {{titles}}",
-      "multipleEpics": "Plusieurs labels epic sur une issue, seul le premier compte : {{issues}}"
+      "missingMilestones": "Pas encore de jalon sur GitHub : {{titles}}",
+      "multipleEpics": "Plusieurs labels epic, le premier compte : {{issues}}"
     },
     "change": {
       "created": "Nouvelle story",
@@ -1448,11 +1448,11 @@
       "notFound": "Dépôt introuvable, ou le jeton n’y a pas accès. Vos données locales sont inchangées.",
       "rateLimit": "GitHub n’accepte plus de requêtes pour le moment. Réessayez plus tard. Vos données locales sont inchangées.",
       "other": "GitHub n’a pas pu être joint correctement. Réessayez plus tard. Vos données locales sont inchangées.",
-      "forbidden": "GitHub a refusé l’écriture. Le jeton a besoin de l’autorisation « Issues : lecture et écriture ». Vos modifications locales sont conservées."
+      "forbidden": "GitHub a refusé l’écriture. Le jeton a besoin de « Issues : lecture et écriture »."
     },
     "connections": {
       "title": "Services",
-      "intro": "La synchronisation est un mécanisme général ; chaque service a son propre connecteur. GitHub est le premier.",
+      "intro": "Un mécanisme, un connecteur par service.",
       "available": "disponible",
       "connected": "connecté",
       "planned": "prévu",
@@ -1465,7 +1465,7 @@
     },
     "disconnect": {
       "title": "Supprimer la connexion ?",
-      "text": "Le dépôt et le jeton sont oubliés. Les stories importées restent mais perdent leur lien avec GitHub : numéro, lien et marques disparaissent. Rien ne change sur GitHub.",
+      "text": "Les stories importées restent, leur lien avec GitHub disparaît.",
       "confirm": "Supprimer la connexion",
       "cancel": "Annuler"
     },
@@ -1494,14 +1494,15 @@
     },
     "conflict": {
       "title": "Les deux côtés ont modifié la même chose",
-      "intro": "Choisissez pour chaque champ quelle version compte. Tant que vous n’appuyez pas sur « Appliquer », rien ne change ici ni sur GitHub.",
+      "intro": "Choisissez quelle version compte.",
       "local": "Local",
       "remote": "GitHub",
       "keepLocal": "Garder la version locale",
       "takeRemote": "Prendre la version GitHub",
       "apply": "Appliquer",
       "cancel": "Annuler",
-      "group": "{{field}} de {{code}}"
+      "group": "{{field}} de {{code}}",
+      "hint": "Rien ne change tant que vous n’appuyez pas sur « Appliquer »."
     },
     "pending": {
       "badge": "pas sur GitHub",
@@ -1518,5 +1519,8 @@
       "epicExists": "GitHub a déjà ce label.",
       "itemFailed": "Rien n’a pu être créé sur GitHub : {{reason}}"
     }
+  },
+  "info": {
+    "label": "Plus d’informations"
   }
 }

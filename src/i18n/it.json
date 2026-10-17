@@ -1339,13 +1339,13 @@
     "settings": {
       "title": "Connessioni",
       "connected": "Connesso",
-      "hint": "Collega un repository GitHub: le sue issue aperte vengono importate come story e le modifiche si possono sincronizzare in entrambe le direzioni. Non succede nulla finché non premi «Sincronizza» nel backlog.",
+      "hint": "Le issue aperte diventano story; le modifiche vanno in entrambe le direzioni, solo quando premi «Sincronizza».",
       "repo": "Repository (owner/name)",
       "token": "Token di accesso",
       "tokenSaved": "Token salvato – inseriscine uno nuovo per sostituirlo",
-      "tokenNote": "Per leggere basta un token a granularità fine con accesso in lettura alle issue di questo repository. Per riscrivere serve anche il permesso «Issues: lettura e scrittura». Il token è conservato nell’archivio delle credenziali del tuo sistema operativo e non viene mai più mostrato.",
-      "tokenNoteDemo": "Questa anteprima non ha una vera connessione: qualsiasi testo vale come token, tranne «{{wrong}}», che GitHub rifiuterebbe, e «{{readonly}}», che può solo leggere. Non viene inviato nulla.",
-      "tokenMissingNote": "Inserisci di nuovo il token: nel browser resta solo fino al ricaricamento della pagina.",
+      "tokenNote": "Per leggere basta l’accesso in lettura alle issue; per scrivere il token ha bisogno di «Issues: lettura e scrittura». È conservato nell’archivio delle credenziali del sistema e non viene più mostrato.",
+      "tokenNoteDemo": "Va bene qualsiasi testo, tranne «{{wrong}}» (rifiutato) e «{{readonly}}» (sola lettura). Non viene inviato nulla.",
+      "tokenMissingNote": "Inserisci di nuovo il token: nel browser dura solo fino al ricaricamento.",
       "test": "Prova la connessione",
       "testing": "Verifica in corso…",
       "disconnect": "Rimuovi la connessione",
@@ -1358,7 +1358,7 @@
       },
       "write": {
         "label": "Scrivi anche su GitHub",
-        "help": "Disattivato: l’app legge soltanto. Attivato: «Sincronizza» pubblica anche le tue modifiche a titolo, descrizione, label, criteri e fatto/aperto su GitHub e puoi creare le tue story come nuove issue. Per questo il token ha bisogno del permesso «Issues: lettura e scrittura»."
+        "help": "Disattivato: sola lettura. Attivato: «Sincronizza» pubblica anche le tue modifiche. Il token ha bisogno di «Issues: lettura e scrittura»."
       },
       "conflict": {
         "legend": "Quando entrambi i lati hanno modificato lo stesso campo",
@@ -1368,7 +1368,7 @@
       },
       "statusLabels": {
         "button": "Crea le label di stato su GitHub",
-        "help": "Crea le label «status: …» per le colonne della board tra la prima e «Fatto» che GitHub non ha ancora. Solo quando premi il pulsante.",
+        "help": "Crea le label «status: …» mancanti per le colonne della board.",
         "done_one": "{{count}} label creata: {{labels}}",
         "done_other": "{{count}} label create: {{labels}}",
         "none": "Tutte le label di stato esistono già."
@@ -1377,7 +1377,7 @@
     "demo": {
       "badge": "Demo",
       "title": "Demo: GitHub simulato",
-      "text": "L’anteprima ha un piccolo GitHub tutto suo: il repository {{repo}} con qualche issue, conservato in questo browser. Modificale qui, poi premi «Sincronizza» nel backlog. Con la scrittura attivata, le tue modifiche arrivano anche lì. (Il token «{{wrong}}» viene rifiutato, «{{readonly}}» non può scrivere.)",
+      "text": "Un piccolo GitHub simulato in questo browser ({{repo}}). Modifica qui le issue, poi sincronizza. Il token «{{wrong}}» viene rifiutato, «{{readonly}}» non può scrivere.",
       "rename": "Rinomina n. 31, nuova etichetta",
       "criteria": "Cambia i criteri del n. 31",
       "close": "Chiudi il n. 35",
@@ -1393,7 +1393,7 @@
       "never": "GitHub · non ancora sincronizzato",
       "done": "Sincronizzato con GitHub",
       "failed": "Sincronizzazione non riuscita",
-      "nothing": "Tutto è aggiornato. Su GitHub non è cambiato nulla.",
+      "nothing": "Tutto è aggiornato.",
       "created": "importate di nuovo",
       "updated": "aggiornate",
       "closed": "concluse (chiuse su GitHub)",
@@ -1406,16 +1406,16 @@
       "publishedCount_other": "{{count}} modifiche pubblicate su GitHub",
       "publishedTitle": "Pubblicato su GitHub",
       "overwrittenTitle": "Sovrascritto",
-      "pendingNote_one": "La scrittura è disattivata: {{count}} modifica non è stata pubblicata su GitHub e resta contrassegnata.",
-      "pendingNote_other": "La scrittura è disattivata: {{count}} modifiche non sono state pubblicate su GitHub e restano contrassegnate.",
-      "conflictsOpen_one": "Devi ancora decidere per {{count}} campo; fino ad allora resta com’è.",
-      "conflictsOpen_other": "Devi ancora decidere per {{count}} campi; fino ad allora restano come sono.",
-      "skippedLabels": "GitHub non conosce queste label, non sono state create: {{labels}}",
+      "pendingNote_one": "Scrittura disattivata: {{count}} modifica non pubblicata.",
+      "pendingNote_other": "Scrittura disattivata: {{count}} modifiche non pubblicate.",
+      "conflictsOpen_one": "{{count}} conflitto da decidere",
+      "conflictsOpen_other": "{{count}} conflitti da decidere",
+      "skippedLabels": "Label che GitHub non ha: {{labels}}",
       "decide": "Decidi i conflitti",
       "releaseCreated": "Nuova release: {{title}}",
       "epicCreated": "Nuovo epic: {{name}}",
-      "missingMilestones": "Queste release non hanno ancora una milestone su GitHub, l’assegnazione resta qui: {{titles}}",
-      "multipleEpics": "Più label epic su una issue, conta solo la prima: {{issues}}"
+      "missingMilestones": "Ancora nessuna milestone su GitHub: {{titles}}",
+      "multipleEpics": "Più label epic, conta la prima: {{issues}}"
     },
     "change": {
       "created": "Nuova storia",
@@ -1448,11 +1448,11 @@
       "notFound": "Repository non trovato, oppure il token non ha accesso. I tuoi dati locali sono invariati.",
       "rateLimit": "GitHub per ora non accetta altre richieste. Riprova più tardi. I tuoi dati locali sono invariati.",
       "other": "GitHub non è stato raggiunto correttamente. Riprova più tardi. I tuoi dati locali sono invariati.",
-      "forbidden": "GitHub ha rifiutato la scrittura. Il token ha bisogno del permesso «Issues: lettura e scrittura». Le tue modifiche locali restano."
+      "forbidden": "GitHub ha rifiutato la scrittura. Il token ha bisogno di «Issues: lettura e scrittura»."
     },
     "connections": {
       "title": "Servizi",
-      "intro": "La sincronizzazione è un meccanismo generale; ogni servizio ha un proprio connettore. GitHub è il primo.",
+      "intro": "Un meccanismo, un connettore per servizio.",
       "available": "disponibile",
       "connected": "collegato",
       "planned": "previsto",
@@ -1465,7 +1465,7 @@
     },
     "disconnect": {
       "title": "Rimuovere la connessione?",
-      "text": "Repository e token vengono dimenticati. Le story importate restano ma perdono il collegamento con GitHub: numero, link e contrassegni spariscono. Su GitHub non cambia nulla.",
+      "text": "Le story importate restano, il collegamento con GitHub no.",
       "confirm": "Rimuovi la connessione",
       "cancel": "Annulla"
     },
@@ -1494,14 +1494,15 @@
     },
     "conflict": {
       "title": "Entrambi i lati hanno modificato la stessa cosa",
-      "intro": "Scegli per ogni campo quale versione vale. Finché non premi «Applica», non cambia nulla né qui né su GitHub.",
+      "intro": "Scegli quale versione vale.",
       "local": "Locale",
       "remote": "GitHub",
       "keepLocal": "Mantieni la versione locale",
       "takeRemote": "Prendi la versione GitHub",
       "apply": "Applica",
       "cancel": "Annulla",
-      "group": "{{field}} di {{code}}"
+      "group": "{{field}} di {{code}}",
+      "hint": "Non cambia nulla finché non premi «Applica»."
     },
     "pending": {
       "badge": "non su GitHub",
@@ -1518,5 +1519,8 @@
       "epicExists": "GitHub ha già questa label.",
       "itemFailed": "Non è stato possibile creare nulla su GitHub: {{reason}}"
     }
+  },
+  "info": {
+    "label": "Maggiori informazioni"
   }
 }

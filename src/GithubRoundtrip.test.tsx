@@ -99,7 +99,7 @@ describe('the options of the connection', () => {
     const box = await screen.findByRole('checkbox', { name: 'Also write to GitHub' });
     // Then writing is off and the hint names the right
     expect(box).not.toBeChecked();
-    expect(screen.getByText(/Issues: read and write/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/Issues: read and write/, { selector: '[role="note"]' })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'GitHub wins (default)' })).toBeChecked();
     // And switching it on is kept
     await userEvent.setup().click(box);
@@ -110,7 +110,7 @@ describe('the options of the connection', () => {
     // Given a connected repository
     await renderApp('#/settings/github');
     // When I look at the services
-    await screen.findByRole('heading', { name: 'Services' });
+    await screen.findByRole('heading', { name: /^Services/ });
     const list = document.querySelector('.github-services') as HTMLElement;
     // Then GitHub is connected and the others are planned
     const entries = within(list).getAllByRole('listitem');
@@ -169,7 +169,7 @@ describe('publishing', () => {
     // When I synchronise
     const dialog = await sync(user);
     // Then the dialog says that writing is off, and the story is still marked
-    expect(within(dialog).getByText('Writing is off: 1 change was not published to GitHub and stays marked.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Writing is off: 1 change not published.')).toBeInTheDocument();
     expect(fake.state.writes).toEqual([]);
     await user.click(within(dialog).getByRole('button', { name: 'Close' }));
     expect(screen.getByText('not on GitHub')).toBeInTheDocument();
@@ -234,7 +234,7 @@ describe('conflicts', () => {
     await sync(user);
     await user.keyboard('{Escape}');
     // The conflict is still there, nothing changed, and the next sync asks again
-    expect(await screen.findByText('You still decide 1 field; until then it stays as it is.')).toBeInTheDocument();
+    expect(await screen.findByText('1 conflict open')).toBeInTheDocument();
     expect(fake.state.issues[0].title).toBe('Login-Seite');
     expect(screen.getByText('Anmeldung')).toBeInTheDocument();
   });

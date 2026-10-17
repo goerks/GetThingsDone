@@ -133,7 +133,6 @@ test('AC3.1 brings the changes of GitHub into the stories and shows them (also A
   await expect(dialog.getByText('Title changed: “Login” → “Login-Seite”')).toBeVisible();
   await expect(dialog.getByText('Labels: new bug')).toBeVisible();
   await expect(dialog.getByText('Closed on GitHub → status “Done”')).toBeVisible();
-  await expect(dialog).toContainText('Changes from GitHub were taken');
   await dialog.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByRole('button', { name: 'Login-Seite', exact: true })).toBeVisible();
   // And the criteria of #31 follow GitHub, and #35 goes back to "To do" when it is opened again

@@ -8,6 +8,7 @@ import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
 import type { GithubErrorKind } from '../github';
 import { Dialog } from './Dialog';
+import { InfoHint } from './InfoHint';
 import { statusLabel } from './statusLabel';
 import { useFeature } from './useFeature';
 
@@ -104,7 +105,9 @@ function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[
   const [chosen, setChosen] = useState<Record<string, Decision>>(() => Object.fromEntries(conflicts.map((item) => [decisionKey(item.storyId, item.field), 'remote' as Decision])));
   return (
     <Dialog title={t('github.conflict.title')} onClose={onCancel} wide>
-      <p>{t('github.conflict.intro')}</p>
+      <p>
+        {t('github.conflict.intro')} <InfoHint text={t('github.conflict.hint')} />
+      </p>
       {conflicts.map((item, index) => {
         const key = decisionKey(item.storyId, item.field);
         const title = app.stories.find((story) => story.id === item.storyId)?.title ?? '';
@@ -190,7 +193,6 @@ function Result({ outcome, onClose, onDecide }: { outcome: Outcome; onClose: () 
       ) : (
         <>
           <Entries entries={[...summary.created, ...summary.updated, ...summary.closed]} />
-          {summary.updated.length + summary.closed.length > 0 && <p className="muted">{t('github.sync.wins')}</p>}
         </>
       )}
       {summary.published.length > 0 && (

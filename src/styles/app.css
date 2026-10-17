@@ -6697,3 +6697,56 @@ a.github-badge:hover {
     animation-duration: 3s;
   }
 }
+
+/* A small "i" with an explanation behind it (#30). */
+.info-hint {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  vertical-align: middle;
+}
+
+.info-hint__button {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font: italic 600 11px/16px serif;
+  cursor: pointer;
+}
+
+.info-hint__button:hover,
+.info-hint__button[aria-expanded='true'] {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.info-hint__text {
+  flex-basis: 100%;
+  max-width: 60ch;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.info-hint__text[hidden] {
+  display: none;
+}
+
+.field__label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.github-options--row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}

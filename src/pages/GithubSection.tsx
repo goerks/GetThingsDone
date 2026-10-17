@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { DEMO_READONLY_TOKEN, DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemoIssues, saveDemoIssues } from '../github/demoSource';
 import { CONNECTOR_KINDS, GithubError, isGithubDemo } from '../github';
 import { Dialog } from '../components/Dialog';
+import { InfoHint } from '../components/InfoHint';
 import type { ConflictRule } from '../domain/types';
 import { parseRepo, repoText, type RepoRef } from '../domain/github';
 import { useApp } from '../state/AppState';
@@ -97,14 +98,15 @@ export function GithubSection() {
     <div className="map-settings github-settings">
       <div className="map-settings__head">
         <h2>{t('github.settings.title')}</h2>
+        <InfoHint text={t('github.settings.hint')} />
         <span className="github-settings__badges">
           {demo && <span className="badge badge--demo">{t('github.demo.badge')}</span>}
           {connected && hasToken && <span className="badge badge--ok">{t('github.settings.connected')}</span>}
         </span>
       </div>
-      <p className="muted">{t('github.settings.hint')}</p>
-      <h3>{t('github.connections.title')}</h3>
-      <p className="muted">{t('github.connections.intro')}</p>
+      <h3>
+        {t('github.connections.title')} <InfoHint text={t('github.connections.intro')} />
+      </h3>
       <ul className="github-services">
         {CONNECTOR_KINDS.map((service) => (
           <li key={service.kind} className={service.status === 'planned' ? 'github-services__off' : undefined}>
@@ -137,7 +139,10 @@ export function GithubSection() {
           )}
         </div>
         <div className="field">
-          <label htmlFor={`${id}-token`}>{t('github.settings.token')}</label>
+          <div className="field__label-row">
+            <label htmlFor={`${id}-token`}>{t('github.settings.token')}</label>
+            <InfoHint id={`${id}-token-note`} text={t(demo ? 'github.settings.tokenNoteDemo' : 'github.settings.tokenNote', { wrong: DEMO_WRONG_TOKEN, readonly: DEMO_READONLY_TOKEN })} />
+          </div>
           <input
             id={`${id}-token`}
             className="input"
@@ -154,9 +159,6 @@ export function GithubSection() {
               {tokenProblem}
             </p>
           )}
-          <p id={`${id}-token-note`} className="muted">
-            {t(demo ? 'github.settings.tokenNoteDemo' : 'github.settings.tokenNote', { wrong: DEMO_WRONG_TOKEN, readonly: DEMO_READONLY_TOKEN })}
-          </p>
           {connected && hasToken === false && !tokenProblem && <p className="muted">{t('github.settings.tokenMissingNote')}</p>}
         </div>
         <div className="form__actions github-settings__actions">
@@ -179,19 +181,18 @@ export function GithubSection() {
           {t(`github.errors.${status.error}`)}
         </p>
       )}
-      <fieldset className="github-options">
-        <legend>{t('github.settings.write.label')}</legend>
+      <div className="github-options github-options--row">
         <label>
           <input type="checkbox" checked={app.settings.github.write} onChange={(event) => app.setGithubOptions({ write: event.target.checked })} /> {t('github.settings.write.label')}
         </label>
-        <p className="muted">{t('github.settings.write.help')}</p>
-      </fieldset>
+        <InfoHint text={t('github.settings.write.help')} />
+      </div>
       {app.settings.github.write && connected && (
-        <div className="github-options">
+        <div className="github-options github-options--row">
           <button type="button" className="btn" onClick={() => void makeStatusLabels()}>
             {t('github.settings.statusLabels.button')}
           </button>
-          <p className="muted">{t('github.settings.statusLabels.help')}</p>
+          <InfoHint text={t('github.settings.statusLabels.help')} />
           <p role="status" className="muted">
             {labelsMade === null ? '' : labelsMade.length === 0 ? t('github.settings.statusLabels.none') : t('github.settings.statusLabels.done', { count: labelsMade.length, labels: labelsMade.join(', ') })}
           </p>
@@ -205,7 +206,6 @@ export function GithubSection() {
           </label>
         ))}
       </fieldset>
-      <p className="muted">{t('github.settings.where')}</p>
       {removing && (
         <Dialog title={t('github.disconnect.title')} onClose={() => setRemoving(false)}>
           <p>{t('github.disconnect.text')}</p>
@@ -261,8 +261,9 @@ function DemoTools() {
 
   return (
     <section className="github-demo" aria-label={t('github.demo.title')}>
-      <h3>{t('github.demo.title')}</h3>
-      <p className="muted">{t('github.demo.text', { repo: `${DEMO_REPO.owner}/${DEMO_REPO.name}`, wrong: DEMO_WRONG_TOKEN, readonly: DEMO_READONLY_TOKEN })}</p>
+      <h3>
+        {t('github.demo.title')} <InfoHint text={t('github.demo.text', { repo: `${DEMO_REPO.owner}/${DEMO_REPO.name}`, wrong: DEMO_WRONG_TOKEN, readonly: DEMO_READONLY_TOKEN })} />
+      </h3>
       <div className="github-demo__buttons">
         {actions.map(([key, run]) => (
           <button key={key} type="button" className="btn btn--small" onClick={run}>
