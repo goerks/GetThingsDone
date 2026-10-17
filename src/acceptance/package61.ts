@@ -7,7 +7,7 @@ import type { Criterion } from './types';
  */
 export const PACKAGE_61: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
   issue: 61,
-  pullRequest: 0,
+  pullRequest: 65,
   title: 'Einstellungen: ein Ort pro Funktion',
   criteria: [
     {
