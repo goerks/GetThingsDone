@@ -53,7 +53,7 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             </p>
             {FEATURE_TABS.map(({ key, section: target, href }) => (
               <a key={key} href={href} className="settings__link" aria-current={section === target ? 'page' : undefined}>
-                {t(`settings.features.${key}.name`)}
+                {t(`settings.features.${key}.name`)}{' '}
                 <span className={`badge${settings.features[key] ? '' : ' badge--off'}`}>{t(settings.features[key] ? 'settings.features.on' : 'settings.features.off')}</span>
               </a>
             ))}
