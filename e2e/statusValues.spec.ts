@@ -446,7 +446,7 @@ test('AC3.5 lets me drop a status into an empty category', async ({ page }) => {
 
 test('AC3.4 counts the stories of a status that moves to "Done" as done in the releases, from today on', async ({ page }) => {
   // Given Release 1.0 holds S-2 in "Review", so only S-5 (3 points) is done
-  await page.getByRole('link', { name: 'Releases' }).click();
+  await page.getByRole('link', { name: 'Releases', exact: true }).click();
   const beta = page.locator('.release-card').filter({ hasText: 'Release 1.0 – Public Beta' });
   await expect(beta).toContainText('3 Points done');
 
@@ -460,7 +460,7 @@ test('AC3.4 counts the stories of a status that moves to "Done" as done in the r
   expect(await namesIn(page, 'Done')).toEqual(['Review', 'Done']);
 
   // Then S-2 counts as done in the release (3 + 2 points)
-  await page.getByRole('link', { name: 'Releases' }).click();
+  await page.getByRole('link', { name: 'Releases', exact: true }).click();
   await expect(beta).toContainText('5 Points done');
 });
 
