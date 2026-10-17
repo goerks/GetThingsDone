@@ -332,7 +332,7 @@ test('AC9.2 the help is a sheet over the whole page on a phone, and can be close
 test('AC10.3 explains that the feature Releases must be switched on first, and leads to the right pages once it is', async ({ page }) => {
   // Given the feature Releases is switched off in the settings
   await page.getByRole('button', { name: 'No thanks' }).click();
-  await page.goto('/#/settings/features');
+  await page.goto('/#/settings/releases');
   await page.getByRole('switch', { name: /Releases/ }).uncheck();
   await page.getByRole('link', { name: 'Close settings' }).click();
   await expect(page.getByRole('link', { name: 'Releases', exact: true })).toHaveCount(0);
@@ -347,8 +347,8 @@ test('AC10.3 explains that the feature Releases must be switched on first, and l
   await expect(panel(page).locator('.linkbtn--locked', { hasText: 'Open Releases' })).toContainText('Switch the feature “Releases” on first');
   await expect(panel(page).getByRole('link', { name: 'Open Releases' })).toHaveCount(0);
 
-  // When I follow the link to the features and switch Releases on, with the help still open
-  await panel(page).getByRole('link', { name: 'Open Settings → Features' }).click();
+  // When I follow the link to the Releases settings and switch Releases on, with the help still open
+  await panel(page).getByRole('link', { name: 'Open Settings → Releases' }).click();
   await expect(page).toHaveURL(/#\/settings\/features$/);
   await expect(panel(page).getByRole('heading', { name: 'Help · Settings', level: 2 })).toBeVisible();
   await page.getByRole('switch', { name: /Releases/ }).check();

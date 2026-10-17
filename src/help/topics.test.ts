@@ -76,7 +76,7 @@ describe.each(languages)('help topics in %s', (code, file) => {
   it('AC10.2 tells the order for releases: the feature first, in every language', () => {
     const body = help.topics['releases.basics'].body.split('\n');
     expect(body[1].startsWith('1.')).toBe(true);
-    expect(body[1]).toContain(help.links.settingsFeatures.replace(/^(Open |Ouvrir |Apri )|( öffnen)$/g, ''));
+    expect(body[1]).toContain(help.links.settingsReleases.replace(/^(Open |Ouvrir |Apri )|( öffnen)$/g, ''));
   });
 
   it('AC2.1 names every page', () => {
@@ -93,8 +93,8 @@ describe('help topics', () => {
       expect(new Set(ids).size, topic.id).toBe(ids.length);
       for (const link of topic.links ?? []) expect(Object.keys(LINK_TARGETS), `${topic.id}: ${link.id}`).toContain(link.id);
       const needing = (topic.links ?? []).findIndex((link) => link.requires);
-      if (needing !== -1) expect(ids.indexOf('settingsFeatures'), `${topic.id} links to the features before the places that need one`).toBeGreaterThanOrEqual(0);
-      if (needing !== -1) expect(ids.indexOf('settingsFeatures')).toBeLessThan(needing);
+      if (needing !== -1) expect(ids.indexOf('settingsReleases'), `${topic.id} links to the features before the places that need one`).toBeGreaterThanOrEqual(0);
+      if (needing !== -1) expect(ids.indexOf('settingsReleases')).toBeLessThan(needing);
     }
   });
 

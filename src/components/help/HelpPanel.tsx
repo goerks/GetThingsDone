@@ -297,7 +297,7 @@ function TopicView({
 
 /** Whether a link leads to the page the user is on, so it is left out. */
 function isHere(id: LinkId, route: Route): boolean {
-  if (route.name === 'settings') return (id === 'settingsFields' && route.section === 'fields') || (id === 'settingsStatuses' && route.section === 'statuses') || (id === 'settingsMap' && route.section === 'map') || (id === 'settingsFeatures' && route.section === 'features');
+  if (route.name === 'settings') return (id === 'settingsFields' && route.section === 'fields') || (id === 'settingsStatuses' && route.section === 'statuses') || (id === 'settingsMap' && route.section === 'map') || (id === 'settingsReleases' && route.section === 'releases') || (id === 'settingsTeam' && route.section === 'team');
   return id === route.name;
 }
 
@@ -320,7 +320,7 @@ function TopicLinks({ links, route }: { links: readonly HelpLinkDef[]; route: Ro
           const locked = link.requires !== undefined && !featureOn(settings, link.requires);
           const settingsPlace = link.id.startsWith('settings');
           // The feature that has to be switched on first stands out, the places that need it say so while it is off.
-          const first = links.some((other) => other.requires) && link.id === 'settingsFeatures';
+          const first = links.some((other) => other.requires) && link.id === 'settingsReleases';
           const hint = locked ? t('help.linkLocked', { feature: t(`settings.features.${link.requires}.name`) }) : link.hint ? t(`help.linkHints.${link.hint}`) : null;
           const hintId = `${baseId}-${link.id}`;
           const content = (

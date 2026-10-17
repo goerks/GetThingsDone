@@ -314,7 +314,7 @@ Source: Issue #10, PO decisions · Status: Implemented · Verified by: burndown.
 
 ### FR-REL-13 Feature toggle for releases
 As a PO of a team that works with sprints only, I want to switch the releases feature off and on again later without losing anything.
-- Settings › Features lists the feature toggles of the team; "Releases" is the first. A toggle is a team setting, on by default, saved at once (`settings.features`, SQLite keys `feature_<name>`).
+- Each feature has its own tab in Settings, in the group "Features" (Releases, Team); there is no separate tab "Features" (#61, FR-SET-FEATURE). The switch is at the top of the tab. A toggle is a team setting, on by default (Team: off), saved at once (`settings.features`, SQLite keys `feature_<name>`). While a feature is off, its tab is a start page (description, the note that data is kept, button "Switch on …"); the list labels both tabs "On" or "Off". `#/settings/features` leads to the tab "Releases". Verified by `src/SettingsFeatures.test.tsx`, `e2e/settingsFeatures.spec.ts`.
 - Off: the main navigation has no "Releases", the address `#/releases` leads to the board, the story dialog, the create dialog and the cards do not show the release field, and the story map shows sprints.
 - The story map says so clearly: in Settings › Story map the choice "Releases" is disabled, marked "Not available" and a warning above it says that releases are switched off, with a link to the toggle. When the team had chosen releases as rows, the map page shows the same warning with the link.
 - In the field settings the release field and the column "Releases" are marked as not available because releases are switched off, with a link to the toggle.
@@ -335,7 +335,7 @@ Source: ADR 0002 · Status: Implemented · Verified by: App "switches the theme 
 ### FR-SET-03 Settings page
 As a team, we want the workspace settings in one place that stays out of the way of the daily work.
 - A gear button next to theme and language opens the settings (`#/settings/fields`); it is marked while the settings are open. Pressed again ("Close settings"), it goes back to the page shown before. The main navigation holds only the working views.
-- The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section, then "Status values" (FR-BOARD-06), "Story map" (FR-REL-09) and "Features".
+- The settings list their sections next to the content (on narrow screens as chips above it). "Fields" is the first section, then "Status values" (FR-BOARD-06), "Story map" (FR-REL-09), "Definitions" and "Data", then the group "Features" with "Releases" and "Team".
 - The former address `#/fields` opens the fields section.
 
 Source: #4, PO feedback (variant A in `docs/design/settings.md`) · Status: Implemented · Verified by: App "opens the fields from the settings, not from the main navigation", "closes the settings with the gear…", "parses known routes…"
@@ -570,8 +570,8 @@ Source: #33 · Status: Implemented · Verified by: #33 AC8.1 to AC8.4 (`src/Help
 
 ### FR-HELP-06 Links to the right pages
 As a team member, I want help topics to lead me to the pages they talk about, so that I find the feature without searching.
-- A topic lists the places it talks about as link buttons (icon, name, arrow; at least 44 px high): pages, and the sections of the settings (fields, status values, story map, features). The help stays open and follows the page. A link to the page the user is on is left out.
-- A feature that has to be switched on first (today Releases, Settings → Features) is explained first, and linked before the places that need it. The feature button is highlighted. While the feature is off, those places are not links but grey, dashed buttons with a lock that say to switch the feature on first; they become links when it is on.
+- A topic lists the places it talks about as link buttons (icon, name, arrow; at least 44 px high): pages, and the sections of the settings (fields, status values, story map, releases, team). The help stays open and follows the page. A link to the page the user is on is left out.
+- A feature that has to be switched on first (today Releases and Team, switched on in their own settings tab) is explained first, and linked before the places that need it. The feature button is highlighted. While the feature is off, those places are not links but grey, dashed buttons with a lock that say to switch the feature on first; they become links when it is on.
 - The help is extended with every feature, like the technical documentation (Definition of Done). The topics of the first steps are agreed with the PO first.
 
 Source: #33 (PO feedback) · Status: Implemented · Verified by: #33 AC10.1 to AC10.5 (`src/Help.test.tsx`, `src/help/topics.test.ts`, `e2e/help.spec.ts` "AC10.3")

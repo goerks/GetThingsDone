@@ -23,13 +23,13 @@ export const LINK_TARGETS = {
   settingsStatuses: hrefs.settingsStatuses,
   settingsMap: hrefs.settingsMap,
   settingsDefinitions: hrefs.settingsDefinitions,
-  settingsFeatures: hrefs.settingsFeatures,
+  settingsReleases: hrefs.settingsReleases,
   settingsTeam: hrefs.settingsTeam,
   settingsData: hrefs.settingsData
 } as const;
 export type LinkId = keyof typeof LINK_TARGETS;
 
-/** A link of a topic. With `requires`, the place only exists while that feature is switched on (Settings → Features). */
+/** A link of a topic. With `requires`, the place only exists while that feature is switched on (Settings → Releases, Settings → Team). */
 export interface HelpLinkDef {
   id: LinkId;
   requires?: FeatureKey;
@@ -67,13 +67,13 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'backlog.sprints', pages: ['backlog'], show: { selector: '.backlog__heading', missing: 'plain' }, links: [{ id: 'backlog' }] },
   { id: 'board.velocity', pages: ['board'], show: { selector: '.velocity-button', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }] },
   { id: 'sprint.lifecycle', pages: ['board', 'backlog', 'map'], show: { selector: '.page-head__actions', missing: 'plain' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'map' }] },
-  { id: 'map.basics', pages: ['map'], links: [{ id: 'map' }, { id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }] },
+  { id: 'map.basics', pages: ['map'], links: [{ id: 'map' }, { id: 'settingsReleases', hint: 'featureFirst' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }] },
   { id: 'epics.basics', pages: ['epics'], links: [{ id: 'epics' }] },
-  { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }, { id: 'map', requires: 'releases' }] },
+  { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsReleases', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }, { id: 'map', requires: 'releases' }] },
   { id: 'definitions.basics', pages: ['board', 'backlog', 'settings'], show: { selector: '.definition-chip, .definitions-settings, .card[data-story-id]', missing: 'plain' }, links: [{ id: 'settingsDefinitions' }, { id: 'backlog' }, { id: 'board' }] },
-  { id: 'history.compare', pages: ['board', 'backlog', 'epics', 'releases'], show: { selector: '.card__title, .backlog__title', missing: 'story' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'epics' }, { id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }] },
-  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsFeatures' }, { id: 'settingsData' }] },
-  { id: 'team.assign', pages: ['board', 'backlog', 'map', 'settings'], show: { selector: '.member-filter, .team, .assignee', missing: 'plain' }, links: [{ id: 'settingsFeatures', hint: 'featureFirst' }, { id: 'settingsTeam', requires: 'team' }, { id: 'board' }, { id: 'backlog' }] },
+  { id: 'history.compare', pages: ['board', 'backlog', 'epics', 'releases'], show: { selector: '.card__title, .backlog__title', missing: 'story' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'epics' }, { id: 'settingsReleases', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }] },
+  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsReleases' }, { id: 'settingsTeam' }, { id: 'settingsData' }] },
+  { id: 'team.assign', pages: ['board', 'backlog', 'map', 'settings'], show: { selector: '.member-filter, .team, .assignee', missing: 'plain' }, links: [{ id: 'settingsTeam', hint: 'featureFirst' }, { id: 'board' }, { id: 'backlog' }] },
   { id: 'data.backup', pages: ['settings'], show: { selector: '.data-settings', missing: 'plain' }, links: [{ id: 'settingsData' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
