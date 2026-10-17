@@ -12,7 +12,7 @@ Until now the app made no network call at runtime (arc42 chapters 3 and 8). #30 
 - Writing to GitHub is a separate switch per connection, off by default (the app only reads).
 - Conflicts (the same field changed on both sides since the last sync): **GitHub wins** by default; the settings also offer "Local wins" and "I decide" (a dialog shows both versions). Every sync names what it overwrote.
 - A story that exists only here is published as a new issue one by one from its menu, never automatically.
-- Fields that are compared: title, description, labels, the task list under the heading "Acceptance criteria" (the criteria and their ticks) and done/not done (closed/open). Sprint, points, rank, epic and the board columns "In progress"/"Review" stay local. Milestones and epics are not synchronised.
+- Fields that are compared: title, description, labels, the task list under the heading "Acceptance criteria" (the criteria and their ticks), done/not done (closed/open), and, added on 2026-10-17, the release (milestone), the epic (label "epic: <name>") and the board column between the first and done (label "status: <name>"). Sprint, points and rank stay local.
 - The access token lives in the keychain of the operating system on the desktop and only in the memory of the page in the browser. The public preview has no real token.
 
 Constraints from ADR 0001: the repository interface between app and storage stays; the browser build and the desktop app run the same frontend.
@@ -39,6 +39,13 @@ Constraints from ADR 0001: the repository interface between app and storage stay
 - Title, description, labels (only labels the repository has: the sync never creates labels, unknown ones are reported and stay on the story), the criteria as the task list under "Acceptance criteria" (the rest of the text of the issue is kept), closed/open from done/not done.
 - A new issue is created from a story with title, text and criteria and labels; the story is linked to it. A deleted story is remembered by the address of its issue (`Settings.github.ignored`), so the sync does not bring it back; the issue itself stays on GitHub.
 - A token that may only read gets `403` when it writes: the error `forbidden` says that it needs "Issues: read and write". What was done before the failure stays; the rest remains pending.
+
+### 3b. Story map and board columns (added 2026-10-17)
+
+- Release and milestone are matched by title, epic and label by the name after "epic: ", column and label by the name after "status: " (the id without underscores for the default columns, the label for own ones). No new storage is needed: the base of a story holds the three new fields next to the others. A renamed release or epic is a new one for the sync.
+- A milestone or an epic label that is unknown becomes a release or an epic; the colour of an epic made from a label is chosen from its name. Milestones, epic labels and status labels are **never made by a sync**: the dialog of a release or an epic and Settings → Connections offer "Create on GitHub" once, only while writing is on. A story whose release or epic has no counterpart stays marked and the result names it.
+- The labels "epic: …" and "status: …" are not labels of the story: they are left out of the field "Labels". A closed issue is done whatever its status label says.
+- The connector has four more calls for this: `listMilestones`, `createMilestone`, `listLabels` and `createLabel`; the milestone of an issue is part of `ItemPatch`.
 
 ### 4. Settings and data
 
