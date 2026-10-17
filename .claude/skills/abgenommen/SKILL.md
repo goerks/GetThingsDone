@@ -11,5 +11,5 @@ Arguments: $ARGUMENTS. The number can be the issue or its pull request. The comm
 1. Find the open pull request (`Closes #<n>`). If there is none, or more than one, say so and stop.
 2. Check it can be merged: CI green on the latest commit, no merge conflict, no unanswered review comments. If something blocks, fix what is yours to fix (rebase on `main`, never merge `main` into the branch), push, wait for CI, then continue. If you cannot fix it, say what blocks and stop.
 3. Record "PO accepted the pull request (date, via /abgenommen)" in the issue, with any notes.
-4. Merge with "Rebase and merge" (the only enabled method), then delete the branch on GitHub. The issue closes through `Closes #<n>`; check that it did.
+4. Merge with "Rebase and merge" (the only enabled method), then, before deleting the branch, switch the images in the issue comments (and the pull request) from the branch to `main`: every image link containing the branch name or a commit hash becomes `https://github.com/<owner>/<repo>/blob/main/<path>?raw=true` (#63). Check the images load, then delete the branch on GitHub. The issue closes through `Closes #<n>`; check that it did.
 5. Answer in German: merged, the issue is closed, the address of `main` (`https://getthingsdone.onrender.com`). Suggest the next step briefly (for example `/start`).

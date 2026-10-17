@@ -25,7 +25,7 @@ Load the `artifact-design` skill, write the page (HTML, mobile friendly: the PO 
 
 ## 4. Document it in the issue (as before)
 
-Post it as a comment on the issue in the same step (CLAUDE.md, rule 2): the variants, options, ratings and the recommendation as text, plus a screenshot of every mockup. Commit the screenshots under `docs/design/` and embed them in the comment. Link the Artifact too, but the comment must stand on its own, because the Artifact is not part of the repository.
+Post it as a comment on the issue in the same step (CLAUDE.md, rule 2): the variants, options, ratings and the recommendation as text, plus a screenshot of every mockup. Commit the screenshots under `docs/design/` and embed them in the comment with `https://github.com/<owner>/<repo>/blob/<branch>/<path>?raw=true`; `/abgenommen` switches these links to `main` at the merge, because the branch is deleted then (#63). Link the Artifact too, but the comment must stand on its own, because the Artifact is not part of the repository.
 
 ## 5. Ask for the decision
 
