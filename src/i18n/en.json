@@ -1021,7 +1021,7 @@
       "github.basics": {
         "title": "GitHub issues",
         "keywords": "github issues import sync synchronise repository token connect feature activate switch on enable stories labels criteria write publish conflict connections roundtrip milestone epic label status icon",
-        "body": "Import the open issues of a GitHub repository as stories and sync changes in both directions. This only works while the feature “GitHub connection” is on. Go in this order:\n1. Switch the feature on under Settings → Features. The section “Connections” then appears in the settings.\n2. Open Settings → Connections, enter the repository (owner/name) and an access token and press “Test connection”. If the app should also write to GitHub, switch on “Also write to GitHub” (the token then needs “Issues: read and write”) and choose who wins in a conflict: GitHub (default), local, or you decide.\n3. Open the backlog and press “Sync”. New issues become stories; what changed on one side only goes to the other. With writing on, “Sync” also publishes your changes to title, description, labels, criteria and done/open. Nothing goes to GitHub without this button. Stories with changes that are not on GitHub yet are marked.\nYou create an issue from a story of your own with “Create on GitHub” in its menu. Sprint, points and order always stay local. Without a network connection or with a wrong token the app says so and leaves your local data alone.\nThe sync icon (two circular arrows) is on the backlog, the board and the story map; the number on it is the changes that are not on GitHub yet. Releases are the milestones, epics are the labels “epic: Name”, and the board columns between “To do” and “Done” are the labels “status: Name”. The sync never creates missing milestones or labels on its own: you create the milestone and the epic label with “Create on GitHub” in the dialog of the release or the epic, and the status labels under Settings → Connections.\nIf you switch the feature off again, everything is hidden but kept."
+        "body": "Import the open issues of a GitHub repository as stories and sync changes in both directions. This only works while the feature “GitHub connection” is on. Go in this order:\n1. Switch the feature on under Settings → GitHub connection (the switch at the top).\n2. Below the switch, enter the repository (owner/name) and an access token and press “Test connection”. If the app should also write to GitHub, switch on “Also write to GitHub” (the token then needs “Issues: read and write”) and choose who wins in a conflict: GitHub (default), local, or you decide.\n3. Open the backlog and press “Sync”. New issues become stories; what changed on one side only goes to the other. With writing on, “Sync” also publishes your changes to title, description, labels, criteria and done/open. Nothing goes to GitHub without this button. Stories with changes that are not on GitHub yet are marked.\nYou create an issue from a story of your own with “Create on GitHub” in its menu. Sprint, points and order always stay local. Without a network connection or with a wrong token the app says so and leaves your local data alone.\nThe sync icon (two circular arrows) is on the backlog, the board and the story map; the number on it is the changes that are not on GitHub yet. Releases are the milestones, epics are the labels “epic: Name”, and the board columns between “To do” and “Done” are the labels “status: Name”. The sync never creates missing milestones or labels on its own: you create the milestone and the epic label with “Create on GitHub” in the dialog of the release or the epic, and the status labels under Settings → Connections.\nIf you switch the feature off again, everything is hidden but kept."
       }
     },
     "links": {
@@ -1037,7 +1037,7 @@
       "settingsDefinitions": "Open Settings → Definitions",
       "settingsData": "Open Settings → Data",
       "settingsTeam": "Open Settings → Team",
-      "settingsGithub": "Open Settings → Connections"
+      "settingsGithub": "Open Settings → GitHub"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
@@ -1455,7 +1455,7 @@
       "closed": "done (closed on GitHub)",
       "wins": "Changes from GitHub were taken. Sprint, points and order stay unchanged.",
       "close": "Close",
-      "toSettings": "Open Settings → Connections",
+      "toSettings": "Open Settings → GitHub",
       "pendingCount_one": "{{count}} change not on GitHub yet",
       "pendingCount_other": "{{count}} changes not on GitHub yet",
       "publishedCount_one": "{{count}} change published to GitHub",
