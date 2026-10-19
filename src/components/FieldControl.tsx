@@ -1,3 +1,4 @@
+import { openLink } from '../github/openExternal';
 import { useEffect, useId, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseOptions, parseValue } from '../domain/fields';
@@ -193,7 +194,7 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
             }}
           />
           {link && (
-            <a className="field__link" href={link} target="_blank" rel="noopener noreferrer">
+            <a className="field__link" href={link} target="_blank" rel="noopener noreferrer" onClick={(event) => openLink(event, link)}>
               {t('fields.openLink', { name: label })}
             </a>
           )}

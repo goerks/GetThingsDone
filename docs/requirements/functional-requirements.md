@@ -1,6 +1,6 @@
 # Functional requirements
 
-Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints), issue #4 (configurable fields), issue #10 (release planning) and issue #5 (configurable status values) and issue #33 (help system). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
+Release 0.1 (app skeleton, including the PO feedback from the first test), issue #2 (story map with sprints), issue #4 (configurable fields), issue #10 (release planning) and issue #5 (configurable status values) and issue #33 (help system) and issue #30 (GitHub issues). Tests: `src/domain/board.test.ts`, `src/domain/epics.test.ts`, `src/domain/sprints.test.ts`, `src/domain/migrate.test.ts`, `src/domain/fields.test.ts` (unit), `src/App.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration, SQLite in memory).
 
 ## Board (BOARD)
 
@@ -681,6 +681,67 @@ Verified by: unit `src/domain/backup.test.ts` (AC1.2–AC1.4, AC3.2, AC4.1–AC4
 Stories, epics, sprints and releases keep a history of versions (#23, ADR 0004). One save is one version (V1, V2, …) with date and time; the story, epic and sprint dialogs have a panel "History" that is collapsed by default and shows only the current version ("Show older versions" opens the last three, then "Show all changes", "Compare versions", "Compare with current" per entry), the release dialog has a tab "History". Recorded: creation, title or name, description (the list says "changed", the comparison shows the full text), status, points, epic, sprint, release, custom field values, acceptance criteria (added, ticked, removed), colour, dates, sprint state, and the stories that join or leave a sprint. Moves on the board and in the backlog are changes of status or sprint; pure reordering is not recorded; edits of the same field within 60 seconds are one version. Names follow the chosen language. Two versions (including "Current") are compared side by side, older left and newer right: field by field with changed fields marked by sign and word, unchanged fields folded ("Only changes"), the description line by line with line numbers; the sides can be swapped; the view only reads. The comparison starts from an entry, from the button "Compare versions" or by ticking two versions in the full list. The history is saved, part of export and import (older files import with an empty history), and works for every item type without new history code. Items older than the history show "No changes yet". Texts in DE, EN, FR and IT, keyboard operable, help topic "History and comparing versions".
 
 Verified by: unit `src/domain/changeLog.test.ts` and `src/domain/textDiff.test.ts` (AC1.3, AC2.1–AC2.6, AC3.1–AC3.4, AC5.2–AC5.3, AC6.1, AC8.1–AC8.4, AC8.6), repositories `src/data/sqliteRepository.test.ts` and `src/data/localStorageRepository.test.ts` (AC5.1), component `src/ChangeHistory.test.tsx` (AC1.1, AC1.3–AC1.4, AC2.3, AC2.7, AC4.2, AC7.3, AC8.2–AC8.5, AC9.1–AC9.3), e2e `e2e/changeHistory.spec.ts` (AC3.1, AC3.3, AC4.1, AC5.1, AC7.1, AC8.1–AC8.2); AC1.2, AC6.2, AC7.2 and AC8.7 are checked by hand
+## GitHub issues (GH)
+
+Issue #30, ADR 0005. Tests: `src/domain/github.test.ts` and `src/domain/githubRoundtrip.test.ts` (unit), `src/github/restSource.test.ts`, `src/github/connector.test.ts` and `src/github/runSync.test.ts` (the connectors and the sync), `src/Github.test.tsx` and `src/GithubRoundtrip.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration), `e2e/github.spec.ts` (end-to-end, simulated GitHub).
+
+### FR-GH-01 Switch on and connect one repository
+As a team that uses GitHub, we want to connect a GitHub repository in the settings, so that we can plan with its issues.
+- The feature "GitHub connection" is off by default (Settings → Features). While it is off, there is no section "Connections", no "Synchronise" button and no issue numbers; switching it off keeps the imported stories and the connection.
+- Settings → Connections (only while the feature is on) lists the services (GitHub; GitLab, Jira and Trello as planned), takes the repository as `owner/name` and an access token, and "Test connection" says "Connection ok · n open issues" or what is wrong (repository missing, wrong form, not found, token refused, no network). "Remove connection" asks first, then forgets repository and token; the stories stay, without link and marker.
+- "Also write to GitHub" is off by default; the token then needs "Issues: read and write". "When both sides changed the same field": GitHub wins (default), local wins, or I decide.
+- The token is never shown again after it was saved; desktop app: kept in the credential store of the operating system; browser: only in the memory of the page, asked for again after a reload. The public preview is labelled "Demo", uses a simulated GitHub and needs no real token.
+- Fully keyboard operable, all texts in DE, EN, FR and IT.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC1.1–AC1.8, AC6.1, AC6.2, AC11.1, AC11.2 (`src/Github.test.tsx`, `src/GithubRoundtrip.test.tsx`, `e2e/github.spec.ts`, `src/domain/github.test.ts`); keychain: manual check on the Windows app
+
+### FR-GH-02 Import open issues as stories
+As a team member, I want to import the open issues as stories, so that I do not copy them by hand.
+- "Synchronise" in the head of the backlog creates a story for every open issue that has none: title, description, labels (field "Labels") and the address of the issue; the story starts in the first status, in no sprint, with 0 points.
+- An issue that was imported is never imported twice; pull requests and closed issues without a story are not imported. A story that was deleted here is not imported again.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC2.1–AC2.3
+
+### FR-GH-03 Sync imported stories in both directions
+As a team member, I want to bring the imported stories and their issues up to date, and see what changed.
+- Title, description, labels, closed or open (done or not done) and the task list under the heading "Acceptance criteria" ("Akzeptanzkriterien", "Abnahmekriterien") with its ticks are compared field by field with what the issue looked like at the last sync. A field that changed only on GitHub is taken; a field that changed only here is published (when writing is on). Tasks under any other heading stay in the description.
+- A field that changed on both sides follows the conflict rule of the connection (GitHub wins by default; local wins; I decide, with a dialog that shows both versions and changes nothing until I choose). The result always names what was overwritten.
+- A closed issue puts its story into the first "done" status; an issue that is open again puts a done story back to the first status. Sprint, points, rank, epic and the column of an open story stay as they are and never go to GitHub.
+- After each sync a dialog counts the stories newly imported, updated and done and the changes published, lists the changes per issue, says what was overwritten and what stayed pending, and closes with the button or Esc (focus returns to the button). The head of the backlog shows the time of the last sync.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC3.1–AC3.8, AC8.1–AC8.4
+
+### FR-GH-04 Issue number and link
+Imported stories show their issue number (`#31`) as a link that opens the issue on GitHub in a new tab: on cards, in the backlog and in the story. Stories of the team have none; the numbers are hidden while the feature is off.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC4.1, AC4.2
+
+### FR-GH-05 Clear messages, local data stays
+Without network, with a refused token, an unknown repository, a missing connection or when GitHub limits the requests, the sync shows a clear message in a dialog and changes nothing; the app keeps working with the local data. A token that may not write is told so ("Issues: read and write"); the local changes stay.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC5.1, AC5.2, AC7.6
+
+### FR-GH-06 Publish local changes to GitHub
+As a team member, I want my changes to an imported story to reach its issue, so that both sides say the same.
+- With "Also write to GitHub" on, "Synchronise" publishes title, description, labels (only labels the repository has; unknown ones are reported and stay on the story), criteria with their ticks and done/not done as closed/open. Nothing is published without pressing "Synchronise". With writing off, local changes stay marked and the result says so.
+- Stories with changes that are not on GitHub yet are marked ("not on GitHub") and counted ("n changes not on GitHub yet") in the backlog before the sync.
+- A story that exists only here becomes a new issue with "Create on GitHub" in its menu (only while writing is on); it is linked from then on. No story is published without that action.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC7.1–AC7.6, AC9.1, AC9.2, AC10.1–AC10.3
+
+### FR-GH-07 One mechanism, a connector per service
+The sync is one general mechanism: the engine asks a connector for the open items, one item, and tells it what to change. GitHub is the first connector; the settings list GitLab, Jira and Trello as planned. A connector has to pass the shared connector tests (reading, writing, errors); a connection can be removed without touching the stories.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC11.1–AC11.3 (`src/github/connector.test.ts`)
+
+### FR-GH-08 Story map and board columns through milestones and labels
+As a team that plans with the story map, I want releases, epics and board columns to follow GitHub, so that the whole plan is visible there.
+- A release is a milestone: the release of a story and the milestone of its issue follow each other like the other fields (changed on one side goes to the other, both sides follow the conflict rule). An unknown milestone becomes a release (title, description, end date = due date, no start date). A release without a milestone stays as it is and the result says so. "Create on GitHub" in the dialog of a release makes its milestone (only while writing is on); a sync never makes one.
+- An epic is a label "epic: <name>", shown only as the epic, not in the field "Labels". An unknown label becomes an epic. With several epic labels the first counts and the result says so. "Create on GitHub" in the dialog of an epic makes the label in the colour of the epic (only while writing is on); a sync never makes one.
+- A board column between the first one and Done is a label "status: <name>" (own columns by their name). An open issue without such a label is in the first column, a closed one is Done. "Create status labels on GitHub" in Settings → Connections makes the missing labels; a sync never makes one. A column or epic whose label GitHub does not have stays marked as "not on GitHub" and the result names the label.
+- The sync icon (two circular arrows) replaces the text button on Backlog, Board and Story Map; it turns while a sync runs, shows the number of changes that are not on GitHub yet and has the name "Synchronise" for tooltip and screen readers.
+
+Source: #30 · Status: Implemented · Verified by: #30 AC12.1–AC12.7, AC13.1–AC13.7, AC14.1–AC14.7, AC15.1–AC15.9 (`src/domain/githubStoryMap.test.ts`, `src/github/runSync.test.ts`, `src/GithubRoundtrip.test.tsx`)
 
 ## Team and assignment (TEAM)
 
