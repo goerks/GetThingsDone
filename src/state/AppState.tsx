@@ -67,7 +67,11 @@ import {
   type ReleaseInput
 } from '../domain/releases';
 import { gatesToAsk, pruneChecks, setCheck as setCheckIn, withDoneSnapshots } from '../domain/definitions';
+import { parseRepo, type Decision, type SyncSummary } from '../domain/github';
 import { DEFAULT_SETTINGS } from '../domain/settings';
+import { createGithubSource, createTokenStore, GithubError, type GithubSource, type TokenStore } from '../github';
+import { persistSync } from '../github/persist';
+import { createEpicLabelFor, createMilestoneFor, createOnGithub as createOnGithubWith, createStatusLabels as createStatusLabelsWith, runSync } from '../github/runSync';
 import {
   DEFAULT_STATUSES,
   addStatus as addStatusIn,
@@ -224,6 +228,30 @@ interface AppApi {
   updateFieldLayout(itemType: ItemType, fieldId: string, patch: LayoutPatch): boolean;
   /** Sets or clears (null) the value of a custom field on a story or an epic. */
   setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): void;
+  /** Where the access token for GitHub is kept (#30): the keychain on the desktop, the memory of the page in the browser. */
+  githubTokens: TokenStore;
+  /** Connects the repository for the sync; an empty text disconnects. False when the text is not `owner/name`. */
+  setGithubRepo(text: string): boolean;
+  /** Asks GitHub whether repository and token work. Resolves with the number of open issues; rejects with a `GithubError`. */
+  testGithub(repoText: string, token: string): Promise<number>;
+  /**
+   * Compares the stories with their issues, takes what changed on GitHub, publishes what changed here when writing is on,
+   * and imports new open issues (#30). `decisions` answer the conflicts of an earlier run that asked. Resolves with what
+   * changed; rejects with a `GithubError` (what was done before the failure stays).
+   */
+  syncGithub(decisions?: Record<string, Decision>): Promise<SyncSummary>;
+  /** Changes the options of the connection: whether the app may write to GitHub, and who wins in a conflict. */
+  setGithubOptions(patch: Partial<Pick<Settings['github'], 'write' | 'conflict'>>): void;
+  /** Publishes a story that exists only here as a new issue and links it. Resolves with the labels GitHub does not know; rejects with a `GithubError`. */
+  createOnGithub(storyId: string): Promise<string[]>;
+  /** Makes the milestone of a release on GitHub (the counterpart of the release). Resolves with false when the repository already has one of that title. */
+  createMilestoneOnGithub(releaseId: string): Promise<boolean>;
+  /** Makes the label "epic: <name>" of an epic on GitHub. Resolves with false when the repository already has it. */
+  createEpicLabelOnGithub(epicId: string): Promise<boolean>;
+  /** Makes the missing labels "status: <name>" for the board columns between the first and done. Resolves with the names that were made. */
+  createStatusLabelsOnGithub(): Promise<string[]>;
+  /** Removes the connection: repository and ignored issues are forgotten and the stories lose their link. The stories stay as they are. */
+  disconnectGithub(): void;
 }
 
 const AppContext = createContext<AppApi | null>(null);
@@ -236,10 +264,14 @@ export function useApp(): AppApi {
 
 interface Props {
   repository: Promise<Repository> | Repository;
+  /** Where GitHub issues come from and where the token is kept; the app's own by default, other ones for tests. */
+  github?: { source: GithubSource; tokens: TokenStore };
   children: ReactNode;
 }
 
-export function AppProvider({ repository, children }: Props) {
+export function AppProvider({ repository, github, children }: Props) {
+  // Kept for the whole life of the provider, so the token in memory survives a re-render.
+  const githubRef = useRef(github ?? { source: createGithubSource(), tokens: createTokenStore() });
   const { t } = useTranslation();
   const toast = useToast();
   const [flashed, setFlashed] = useState<string | null>(null);
@@ -761,8 +793,15 @@ export function AppProvider({ repository, children }: Props) {
       flashed,
       flashScroll,
       deleteStory(id) {
+        const url = storiesRef.current.find((story) => story.id === id)?.github?.url;
         update(deleteStoryIn(storiesRef.current, id));
         persist((repo) => repo.deleteStory(id));
+        if (url) {
+          // The issue stays on GitHub; the story is not brought back by the next sync.
+          const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, ignored: [...settingsRef.current.github.ignored, url] } };
+          updateSettings(settings);
+          persist((repo) => repo.saveSettings(settings));
+        }
       },
       toggleCriterion(storyId, criterionId) {
         const before = storiesRef.current;
@@ -942,6 +981,119 @@ export function AppProvider({ repository, children }: Props) {
         if (storiesRef.current.some((story) => story.id === itemId)) update(setItemValue(storiesRef.current, itemId, fieldId, value));
         else updateEpics(setItemValue(epicsRef.current, itemId, fieldId, value));
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
+      },
+      githubTokens: githubRef.current.tokens,
+      setGithubRepo(text) {
+        const trimmed = text.trim();
+        const parsed = trimmed === '' ? null : parseRepo(trimmed);
+        if (trimmed !== '' && !parsed) return false;
+        const repo = parsed ? `${parsed.owner}/${parsed.name}` : '';
+        if (settingsRef.current.github.repo === repo) return true;
+        // Another repository starts without a last sync; the stories already imported stay as they are.
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo, lastSyncAt: null } };
+        updateSettings(settings);
+        persist((repoStore) => repoStore.saveSettings(settings));
+        return true;
+      },
+      async testGithub(repoText, token) {
+        const repo = parseRepo(repoText);
+        if (!repo) throw new GithubError('notFound');
+        return (await githubRef.current.source.openIssues(repo, token)).length;
+      },
+      async syncGithub(decisions) {
+        const connection = settingsRef.current.github;
+        const repo = parseRepo(connection.repo);
+        const token = await githubRef.current.tokens.get();
+        if (!repo || !token) throw new GithubError('config');
+        const before = { stories: storiesRef.current, fields: fieldsRef.current.fields, epics: epicsRef.current, releases: releasesRef.current };
+        const { plan, summary, error: failure } = await runSync({
+          connector: githubRef.current.source,
+          token,
+          repo,
+          stories: before.stories,
+          fields: before.fields,
+          assignments: fieldsRef.current.assignments,
+          statuses: statusesRef.current,
+          epics: epicsRef.current,
+          releases: releasesRef.current,
+          newId,
+          write: connection.write,
+          conflict: connection.conflict,
+          decisions,
+          ignored: connection.ignored
+        });
+        if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
+        if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
+        update(plan.stories);
+        updateFields(plan.fields, plan.assignments);
+        // A sync that stopped on an error is not a finished sync: the time of the last one stays.
+        const settings = failure ? settingsRef.current : { ...settingsRef.current, github: { ...connection, lastSyncAt: new Date().toISOString() } };
+        updateSettings(settings);
+        persist(async (repoStore) => {
+          await persistSync(repoStore, before, plan);
+          await repoStore.saveSettings(settings);
+        });
+        if (failure) throw failure;
+        return summary;
+      },
+      setGithubOptions(patch) {
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, ...patch } };
+        updateSettings(settings);
+        persist((repoStore) => repoStore.saveSettings(settings));
+      },
+      async createOnGithub(storyId) {
+        const story = storiesRef.current.find((item) => item.id === storyId);
+        const repo = parseRepo(settingsRef.current.github.repo);
+        const token = await githubRef.current.tokens.get();
+        if (!story || story.github || !repo || !token) throw new GithubError('config');
+        const { story: linked, skippedLabels } = await createOnGithubWith({
+          connector: githubRef.current.source,
+          token,
+          repo,
+          story,
+          fields: fieldsRef.current.fields,
+          statuses: statusesRef.current,
+          epics: epicsRef.current,
+          releases: releasesRef.current
+        });
+        update(storiesRef.current.map((item) => (item.id === storyId ? linked : item)));
+        persist((repoStore) => repoStore.updateStory(linked));
+        return skippedLabels;
+      },
+      async createMilestoneOnGithub(releaseId) {
+        const release = releasesRef.current.find((item) => item.id === releaseId);
+        const repo = parseRepo(settingsRef.current.github.repo);
+        const token = await githubRef.current.tokens.get();
+        if (!release || !repo || !token) throw new GithubError('config');
+        return createMilestoneFor({ connector: githubRef.current.source, token, repo, release });
+      },
+      async createEpicLabelOnGithub(epicId) {
+        const epic = epicsRef.current.find((item) => item.id === epicId);
+        const repo = parseRepo(settingsRef.current.github.repo);
+        const token = await githubRef.current.tokens.get();
+        if (!epic || !repo || !token) throw new GithubError('config');
+        return createEpicLabelFor({ connector: githubRef.current.source, token, repo, epic });
+      },
+      async createStatusLabelsOnGithub() {
+        const repo = parseRepo(settingsRef.current.github.repo);
+        const token = await githubRef.current.tokens.get();
+        if (!repo || !token) throw new GithubError('config');
+        return createStatusLabelsWith({ connector: githubRef.current.source, token, repo, statuses: statusesRef.current });
+      },
+      disconnectGithub() {
+        const linkedStories = storiesRef.current.filter((story) => story.github);
+        const unlinked = storiesRef.current.map((story) => {
+          if (!story.github) return story;
+          const { github: _github, ...rest } = story;
+          return rest;
+        });
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo: '', lastSyncAt: null, ignored: [] } };
+        update(unlinked);
+        updateSettings(settings);
+        persist(async (repoStore) => {
+          for (const story of unlinked.filter((item) => linkedStories.some((was) => was.id === item.id))) await repoStore.updateStory(story);
+          await repoStore.saveSettings(settings);
+        });
       }
     }),
     [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t]

@@ -6,13 +6,15 @@ import { DefinitionsSection } from './DefinitionsSection';
 import { ReleasesSection } from './ReleasesSection';
 import { DataSection } from './DataSection';
 import { TeamSection } from './TeamSection';
+import { GithubSection } from './GithubSection';
 import { StatusValuesSection } from './StatusValuesSection';
 import { useApp } from '../state/AppState';
 
 /** The features with a tab of their own (#61), in the order of the navigation. */
 const FEATURE_TABS = [
   { key: 'releases', section: 'releases', href: hrefs.settingsReleases },
-  { key: 'team', section: 'team', href: hrefs.settingsTeam }
+  { key: 'team', section: 'team', href: hrefs.settingsTeam },
+  { key: 'github', section: 'github', href: hrefs.settingsGithub }
 ] as const;
 
 /** Settings of the workspace: a list of sections next to the content of the chosen one. */
@@ -70,6 +72,8 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <ReleasesSection />
           ) : section === 'team' ? (
             <TeamSection />
+          ) : section === 'github' ? (
+            <GithubSection />
           ) : section === 'data' ? (
             <DataSection />
           ) : (
