@@ -18,7 +18,7 @@ const RUN = 'src/github/runSync.test.ts';
 const CONNECTOR = 'src/github/connector.test.ts';
 const SMAP = 'src/domain/githubStoryMap.test.ts';
 
-const FEATURES = '#/settings/features';
+const FEATURES = '#/settings/github';
 const SETTINGS = '#/settings/github';
 const BACKLOG = '#/backlog';
 
@@ -36,17 +36,17 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           id: 'AC1.1',
           title: 'Funktion ist standardmässig aus',
           link: FEATURES,
-          target: '.features',
+          target: '.feature-tab',
           given: 'Frische App, ich habe nichts eingestellt.',
-          when: 'Ich öffne Einstellungen → Funktionen und den Backlog.',
-          then: '„GitHub-Anbindung“ steht auf „Aus“. In den Einstellungen gibt es keinen Abschnitt „Verbindungen“, im Backlog keinen Knopf „Synchronisieren“.',
+          when: 'Ich öffne Einstellungen → GitHub-Anbindung und den Backlog.',
+          then: '„GitHub-Anbindung“ steht auf „Aus“. Unter „Verbindungen“ gibt es nichts zum Einrichten, im Backlog keinen Knopf „Synchronisieren“.',
           tests: [`${COMPONENT} › AC1.1 is off by default: no section, no button in the backlog`, `${DOMAIN} › AC1.1 is off by default and has no repository`]
         },
         {
           id: 'AC1.2',
           title: 'Funktion einschalten',
           link: FEATURES,
-          target: '.features',
+          target: '.feature-tab',
           given: '„GitHub-Anbindung“ ist aus.',
           when: 'Ich schalte sie ein.',
           then: 'In den Einstellungen erscheint der Abschnitt „Verbindungen“ mit den Feldern Repository und Zugriffstoken.',
@@ -76,7 +76,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           id: 'AC1.5',
           title: 'Funktion wieder ausschalten',
           link: FEATURES,
-          target: '.features',
+          target: '.feature-tab',
           given: 'Funktion an, Stories wurden importiert.',
           when: 'Ich schalte „GitHub-Anbindung“ aus und später wieder ein.',
           then: 'Aus: Abschnitt „Verbindungen“, Sync-Knopf und #-Nummern sind weg. Wieder an: die Stories und die Verbindung sind wieder da.',
@@ -315,7 +315,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           id: 'AC6.2',
           title: 'Nur Tastatur',
           link: FEATURES,
-          target: '.features',
+          target: '.feature-tab',
           given: 'Die App, nur Tastatur.',
           when: 'Ich schalte die Funktion ein, trage Repository und Token ein, teste die Verbindung, synchronisiere und schliesse den Ergebnisdialog, alles mit Tab, Leertaste, Enter und Esc.',
           then: 'Alles ist erreichbar, der Fokus ist sichtbar und kehrt nach dem Dialog zum Sync-Knopf zurück.',

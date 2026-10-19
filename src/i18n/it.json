@@ -1021,7 +1021,7 @@
       "github.basics": {
         "title": "Issue di GitHub",
         "keywords": "github issue import sincronizza sincronizzazione repository token collegare funzione attivare storie etichette criteri scrivere pubblicare conflitto connessioni andata ritorno milestone epic label stato icona",
-        "body": "Importare le issue aperte di un repository GitHub come story e sincronizzare le modifiche in entrambe le direzioni. Funziona solo se la funzione «Collegamento GitHub» è attivata. Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Funzioni. Nelle impostazioni compare poi la sezione «Connessioni».\n2. Apri Impostazioni → Connessioni, inserisci il repository (owner/name) e un token di accesso e premi «Prova la connessione». Se l’app deve scrivere anche su GitHub, attiva «Scrivi anche su GitHub» (il token ha allora bisogno di «Issues: lettura e scrittura») e scegli chi vince in caso di conflitto: GitHub (predefinito), il locale, oppure decidi tu.\n3. Apri il backlog e premi «Sincronizza». Le nuove issue diventano story; ciò che è cambiato solo su un lato passa all’altro. Con la scrittura attivata «Sincronizza» pubblica anche le tue modifiche a titolo, descrizione, label, criteri e fatto/aperto. Senza questo pulsante nulla va su GitHub. Le story con modifiche non ancora su GitHub sono contrassegnate.\nCrei una issue da una tua story con «Crea su GitHub» nel suo menu. Sprint, punti e ordine restano sempre locali. Senza connessione di rete o con un token sbagliato l’app lo dice e lascia in pace i tuoi dati locali.\nL’icona di sincronizzazione (due frecce circolari) si trova su backlog, board e story map; il numero indica le modifiche non ancora su GitHub. Le release corrispondono alle milestone, gli epic alle label «epic: Nome», le colonne della board tra «Da fare» e «Fatto» alle label «status: Nome». La sincronizzazione non crea mai da sola milestone o label mancanti: crei la milestone e la label dell’epic con «Crea su GitHub» nella finestra della release o dell’epic, e le label di stato in Impostazioni → Connessioni.\nSe disattivi di nuovo la funzione, tutto viene nascosto ma conservato."
+        "body": "Importare le issue aperte di un repository GitHub come story e sincronizzare le modifiche in entrambe le direzioni. Funziona solo se la funzione «Collegamento GitHub» è attivata. Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Connessione GitHub (l’interruttore in alto).\n2. Sotto l’interruttore inserisci il repository (owner/name) e un token di accesso e premi «Prova la connessione». Se l’app deve scrivere anche su GitHub, attiva «Scrivi anche su GitHub» (il token ha allora bisogno di «Issues: lettura e scrittura») e scegli chi vince in caso di conflitto: GitHub (predefinito), il locale, oppure decidi tu.\n3. Apri il backlog e premi «Sincronizza». Le nuove issue diventano story; ciò che è cambiato solo su un lato passa all’altro. Con la scrittura attivata «Sincronizza» pubblica anche le tue modifiche a titolo, descrizione, label, criteri e fatto/aperto. Senza questo pulsante nulla va su GitHub. Le story con modifiche non ancora su GitHub sono contrassegnate.\nCrei una issue da una tua story con «Crea su GitHub» nel suo menu. Sprint, punti e ordine restano sempre locali. Senza connessione di rete o con un token sbagliato l’app lo dice e lascia in pace i tuoi dati locali.\nL’icona di sincronizzazione (due frecce circolari) si trova su backlog, board e story map; il numero indica le modifiche non ancora su GitHub. Le release corrispondono alle milestone, gli epic alle label «epic: Nome», le colonne della board tra «Da fare» e «Fatto» alle label «status: Nome». La sincronizzazione non crea mai da sola milestone o label mancanti: crei la milestone e la label dell’epic con «Crea su GitHub» nella finestra della release o dell’epic, e le label di stato in Impostazioni → Connessioni.\nSe disattivi di nuovo la funzione, tutto viene nascosto ma conservato."
       }
     },
     "links": {
@@ -1037,7 +1037,7 @@
       "settingsDefinitions": "Apri Impostazioni → Definizioni",
       "settingsData": "Apri Impostazioni → Dati",
       "settingsTeam": "Apri Impostazioni → Team",
-      "settingsGithub": "Apri Impostazioni → Connessioni"
+      "settingsGithub": "Apri Impostazioni → GitHub"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",
@@ -1460,7 +1460,7 @@
       "closed": "concluse (chiuse su GitHub)",
       "wins": "Le modifiche di GitHub sono state recepite. Sprint, punti e ordine restano invariati.",
       "close": "Chiudi",
-      "toSettings": "Apri Impostazioni → Connessioni",
+      "toSettings": "Apri Impostazioni → GitHub",
       "pendingCount_one": "{{count}} modifica non ancora su GitHub",
       "pendingCount_other": "{{count}} modifiche non ancora su GitHub",
       "publishedCount_one": "{{count}} modifica pubblicata su GitHub",

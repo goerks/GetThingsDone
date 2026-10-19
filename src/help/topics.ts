@@ -76,7 +76,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsReleases' }, { id: 'settingsTeam' }, { id: 'settingsGithub' }, { id: 'settingsData' }] },
   { id: 'team.assign', pages: ['board', 'backlog', 'map', 'settings'], show: { selector: '.member-filter, .team, .assignee', missing: 'plain' }, links: [{ id: 'settingsTeam', hint: 'featureFirst' }, { id: 'board' }, { id: 'backlog' }] },
   { id: 'data.backup', pages: ['settings'], show: { selector: '.data-settings', missing: 'plain' }, links: [{ id: 'settingsData' }] },
-  { id: 'github.basics', pages: ['backlog', 'settings'], show: { selector: '.github-sync, .github-settings', missing: 'plain' }, links: [{ id: 'settingsGithub', hint: 'featureFirst' }, { id: 'backlog', requires: 'github' }] },
+  { id: 'github.basics', pages: ['backlog', 'settings'], show: { selector: '.github-sync, .github-settings', missing: 'plain' }, links: [{ id: 'settingsGithub', hint: 'featureFirst' }, { id: 'backlog' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
 ];
