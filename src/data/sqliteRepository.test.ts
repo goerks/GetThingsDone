@@ -780,6 +780,8 @@ describe('team members (#18)', () => {
     // Then there is no member and no story is assigned
     expect(loaded.members).toEqual([]);
     expect(loaded.stories.every((story) => !story.assigneeId)).toBe(true);
+  });
+});
 
 describe('GitHub link of a story (#30)', () => {
   const url = 'https://github.com/goerks/GetThingsDone/issues/31';

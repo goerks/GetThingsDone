@@ -45,11 +45,11 @@ describe('switching the feature on', () => {
   it('AC1.1 is off by default: no section, no button in the backlog', async () => {
     // Given a fresh app that was not set up
     const user = userEvent.setup();
-    await renderApp('#/settings/features', { connected: false });
+    await renderApp('#/settings/github', { connected: false });
     // When I look at the features and the backlog
     expect(screen.getByRole('switch', { name: /GitHub connection/ })).not.toBeChecked();
-    // Then there is no section "GitHub" and no button "Synchronise"
-    expect(within(screen.getByRole('navigation', { name: 'Settings sections' })).queryByRole('link', { name: 'Connections' })).not.toBeInTheDocument();
+    // Then the connection is not shown and there is no button "Synchronise"
+    expect(screen.queryByLabelText('Repository (owner/name)')).not.toBeInTheDocument();
     await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Backlog' }));
     await screen.findByRole('heading', { name: 'Backlog' });
     expect(screen.queryByRole('button', { name: 'Synchronise' })).not.toBeInTheDocument();
@@ -58,10 +58,9 @@ describe('switching the feature on', () => {
   it('AC1.2 shows the section "GitHub" with repository and token as soon as the feature is on', async () => {
     // Given the feature is off
     const user = userEvent.setup();
-    await renderApp('#/settings/features', { connected: false });
+    await renderApp('#/settings/github', { connected: false });
     // When I switch it on and open the section
     await user.click(screen.getByRole('switch', { name: /GitHub connection/ }));
-    await user.click(within(screen.getByRole('navigation', { name: 'Settings sections' })).getByRole('link', { name: 'Connections' }));
     // Then I can enter the repository and the token
     expect(await screen.findByLabelText('Repository (owner/name)')).toBeInTheDocument();
     expect(screen.getByLabelText('Access token')).toHaveAttribute('type', 'password');
@@ -75,17 +74,17 @@ describe('switching the feature on', () => {
     await user.click(screen.getByRole('button', { name: 'Close' }));
     expect(await screen.findByRole('link', { name: 'Open issue #31 on GitHub' })).toBeInTheDocument();
     // When I switch the feature off
-    window.location.hash = '#/settings/features';
+    window.location.hash = '#/settings/github';
     await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
-    // Then the section is gone, and so are the button and the number in the backlog
-    expect(within(screen.getByRole('navigation', { name: 'Settings sections' })).queryByRole('link', { name: 'Connections' })).not.toBeInTheDocument();
+    // Then the connection is gone, and so are the button and the number in the backlog
+    expect(screen.queryByLabelText('Repository (owner/name)')).not.toBeInTheDocument();
     window.location.hash = '#/backlog';
     await screen.findByRole('heading', { name: 'Backlog' });
     expect(screen.queryByRole('button', { name: 'Synchronise' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Open issue #31/ })).not.toBeInTheDocument();
     expect(screen.getByText('Login')).toBeInTheDocument();
     // And when I switch it on again, everything is back
-    window.location.hash = '#/settings/features';
+    window.location.hash = '#/settings/github';
     await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
     window.location.hash = '#/backlog';
     expect(await screen.findByRole('link', { name: 'Open issue #31 on GitHub' })).toBeInTheDocument();
@@ -100,7 +99,6 @@ describe('connecting the repository', () => {
     const { fake, repository } = await renderApp('#/settings/github', { connected: false });
     // (the feature is off, so the settings show the features; switch it on first)
     await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
-    await user.click(within(screen.getByRole('navigation', { name: 'Settings sections' })).getByRole('link', { name: 'Connections' }));
     fake.state.issues = [fakeIssue(1), fakeIssue(2), fakeIssue(3)];
     // When I enter repository and token and test the connection
     await user.type(await screen.findByLabelText('Repository (owner/name)'), REPO);
@@ -462,7 +460,7 @@ describe('when something goes wrong', () => {
     const dialog = await sync(user);
     // Then the message points to the settings
     expect(within(dialog).getByRole('alert')).toHaveTextContent('The connection is not set up');
-    expect(within(dialog).getByRole('link', { name: 'Open Settings → Connections' })).toHaveAttribute('href', '#/settings/github');
+    expect(within(dialog).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/github');
   });
 });
 
@@ -481,10 +479,8 @@ describe('help for the GitHub connection', () => {
     // When I open the help topic
     await openTopic(user);
     // Then the text starts with switching the feature on, and the places that need it are locked
-    expect(within(panel()).getByText(/^1\. Switch the feature on under Settings → Features/)).toBeInTheDocument();
-    expect(within(panel()).getByRole('link', { name: 'Open Settings → Features' })).toHaveAttribute('href', '#/settings/features');
-    expect(within(panel()).queryByRole('link', { name: 'Open Settings → Connections' })).not.toBeInTheDocument();
-    expect(within(panel()).getAllByText('Switch the feature “GitHub connection” on first').length).toBeGreaterThan(0);
+    expect(within(panel()).getByText(/^1\. Switch the feature on under Settings → GitHub connection/)).toBeInTheDocument();
+    expect(within(panel()).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/github');
   });
 
   it('Help: links to the section GitHub once the feature is on', async () => {
@@ -494,7 +490,7 @@ describe('help for the GitHub connection', () => {
     // When I open the help topic
     await openTopic(user);
     // Then the section GitHub is a link
-    expect(within(panel()).getByRole('link', { name: 'Open Settings → Connections' })).toHaveAttribute('href', '#/settings/github');
+    expect(within(panel()).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/github');
   });
 });
 

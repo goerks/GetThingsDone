@@ -1021,7 +1021,7 @@
       "github.basics": {
         "title": "Tickets GitHub",
         "keywords": "github tickets issues import synchro synchroniser dépôt jeton connecter fonction activer stories labels critères écrire publier conflit connexions aller-retour jalon epic label statut icône",
-        "body": "Importer les issues ouvertes d’un dépôt GitHub comme stories et synchroniser les modifications dans les deux sens. Cela ne fonctionne que si la fonction « Connexion GitHub » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Fonctions. La section « Connexions » apparaît alors dans les paramètres.\n2. Ouvrez Paramètres → Connexions, saisissez le dépôt (owner/name) et un jeton d’accès, puis appuyez sur « Tester la connexion ». Si l’application doit aussi écrire vers GitHub, activez « Écrire aussi vers GitHub » (le jeton doit alors avoir « Issues : lecture et écriture ») et choisissez qui l’emporte en cas de conflit : GitHub (par défaut), le local, ou vous décidez.\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les nouvelles issues deviennent des stories ; ce qui n’a changé que d’un côté passe de l’autre. Avec l’écriture activée, « Synchroniser » publie aussi vos modifications du titre, de la description, des labels, des critères et de fait/ouvert. Rien ne part vers GitHub sans ce bouton. Les stories dont les modifications ne sont pas encore sur GitHub sont marquées.\nVous créez une issue à partir d’une de vos stories avec « Créer sur GitHub » dans son menu. Sprint, points et ordre restent toujours locaux. Sans connexion réseau ou avec un mauvais jeton, l’application le dit et laisse vos données locales tranquilles.\nL’icône de synchronisation (deux flèches circulaires) se trouve sur le backlog, le tableau et la story map ; le nombre affiché est celui des modifications pas encore sur GitHub. Les releases correspondent aux jalons, les epics aux labels « epic : Nom », les colonnes du tableau entre « À faire » et « Terminé » aux labels « status : Nom ». La synchronisation ne crée jamais d’elle-même les jalons ou labels manquants : vous créez le jalon et le label d’epic avec « Créer sur GitHub » dans la fenêtre de la release ou de l’epic, et les labels de statut sous Paramètres → Connexions.\nSi vous désactivez la fonction, tout est masqué mais conservé."
+        "body": "Importer les issues ouvertes d’un dépôt GitHub comme stories et synchroniser les modifications dans les deux sens. Cela ne fonctionne que si la fonction « Connexion GitHub » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Connexion GitHub (l’interrupteur en haut).\n2. Sous l’interrupteur, saisissez le dépôt (owner/name) et un jeton d’accès, puis appuyez sur « Tester la connexion ». Si l’application doit aussi écrire vers GitHub, activez « Écrire aussi vers GitHub » (le jeton doit alors avoir « Issues : lecture et écriture ») et choisissez qui l’emporte en cas de conflit : GitHub (par défaut), le local, ou vous décidez.\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les nouvelles issues deviennent des stories ; ce qui n’a changé que d’un côté passe de l’autre. Avec l’écriture activée, « Synchroniser » publie aussi vos modifications du titre, de la description, des labels, des critères et de fait/ouvert. Rien ne part vers GitHub sans ce bouton. Les stories dont les modifications ne sont pas encore sur GitHub sont marquées.\nVous créez une issue à partir d’une de vos stories avec « Créer sur GitHub » dans son menu. Sprint, points et ordre restent toujours locaux. Sans connexion réseau ou avec un mauvais jeton, l’application le dit et laisse vos données locales tranquilles.\nL’icône de synchronisation (deux flèches circulaires) se trouve sur le backlog, le tableau et la story map ; le nombre affiché est celui des modifications pas encore sur GitHub. Les releases correspondent aux jalons, les epics aux labels « epic : Nom », les colonnes du tableau entre « À faire » et « Terminé » aux labels « status : Nom ». La synchronisation ne crée jamais d’elle-même les jalons ou labels manquants : vous créez le jalon et le label d’epic avec « Créer sur GitHub » dans la fenêtre de la release ou de l’epic, et les labels de statut sous Paramètres → Connexions.\nSi vous désactivez la fonction, tout est masqué mais conservé."
       }
     },
     "links": {
@@ -1037,7 +1037,7 @@
       "settingsDefinitions": "Ouvrir Paramètres → Définitions",
       "settingsData": "Ouvrir Paramètres → Données",
       "settingsTeam": "Ouvrir Paramètres → Équipe",
-      "settingsGithub": "Ouvrir Paramètres → Connexions"
+      "settingsGithub": "Ouvrir Paramètres → GitHub"
     },
     "linksTitle": "Où le trouver",
     "linkLocked": "Activez d’abord la fonction « {{feature}} »",
@@ -1460,7 +1460,7 @@
       "closed": "terminées (fermées sur GitHub)",
       "wins": "Les modifications de GitHub ont été reprises. Sprint, points et ordre restent inchangés.",
       "close": "Fermer",
-      "toSettings": "Ouvrir Paramètres → Connexions",
+      "toSettings": "Ouvrir Paramètres → GitHub",
       "pendingCount_one": "{{count}} modification pas encore sur GitHub",
       "pendingCount_other": "{{count}} modifications pas encore sur GitHub",
       "publishedCount_one": "{{count}} modification publiée sur GitHub",
