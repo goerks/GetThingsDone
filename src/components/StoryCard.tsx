@@ -11,6 +11,7 @@ import { AssigneeBadge } from './AssigneeBadge';
 import { fieldLabel } from './fieldLabel';
 import { DefinitionChip } from './definitions';
 import { EpicTag } from './EpicTag';
+import { GithubBadge } from './GithubBadge';
 import { useBuiltin } from './useBuiltin';
 import { useMatchClass } from './search/HighlightBar';
 import { useStoryMenu } from '../state/StoryMenu';
@@ -190,6 +191,7 @@ export function StoryCardContent({ story, epic, compact }: ContentProps) {
       <>
         <CardLetters letters={letters} />
         <TitleButton story={story} className="card__title" showTitle />
+        <GithubBadge story={story} />
         {epic && builtin.shown('epic', 'color') && (
           <span className="card__epic-dot epic__dot" title={epic.name} style={{ background: `var(--epic-${epic.colorKey})` }}>
             <span className="sr-only">{epic.name}</span>
@@ -212,6 +214,7 @@ export function StoryCardContent({ story, epic, compact }: ContentProps) {
         <CardPoints story={story} />
       </div>
       <TitleButton story={story} className="card__title" />
+      <GithubBadge story={story} />
       <DefinitionChip story={story} kind="done" />
       <div className="card__meta">
         <EpicTag epic={epic} inCard />

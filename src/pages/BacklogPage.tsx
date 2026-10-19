@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 import { AssigneeBadge } from '../components/AssigneeBadge';
 import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
+import { GithubBadge } from '../components/GithubBadge';
+import { GithubSync } from '../components/GithubSync';
 import { NewButton } from '../components/NewButton';
 import { SprintPlan } from '../components/SprintPlan';
 import { StoryQuickAdd } from '../components/QuickAdd';
@@ -60,6 +62,7 @@ function RowContent({ story, epic, editable = true }: Omit<RowProps, 'dropLabel'
       <span className="card__code backlog__code">{story.code}</span>
       <TitleButton story={story} className="backlog__title" />
       <DefinitionChip story={story} kind="ready" />
+      <GithubBadge story={story} />
       <EpicTag epic={epic} inCard />
       <AssigneeBadge story={story} />
       {builtin.shown('story', 'points') &&
@@ -280,6 +283,7 @@ export function BacklogPage() {
       <div className="page-head">
         <h1>{t('backlog.title')}</h1>
         <span className="muted">{t('backlog.hint')}</span>
+        <GithubSync />
         <NewButton label={t('newStory.open')} onClick={() => setCreating(true)} />
       </div>
 

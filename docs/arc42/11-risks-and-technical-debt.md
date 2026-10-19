@@ -16,4 +16,5 @@
 |---|---|
 | WebView differences between Windows, macOS and Linux | Test builds on all three before release 1 |
 | Unsigned Windows executables trigger SmartScreen warnings | Document for testers; code signing before a public release |
+| The `keyring` crate and the Windows Credential Manager (#30) are only compiled by the Windows build in CI, not in the Linux test environment | The Windows build runs on every push; the PO checks the token on the Windows app (test case AC1.6). Without a keychain the token commands fail and the app says so |
 | Fast-moving major versions of the toolchain (React 19, Vite 8, TypeScript 7) | Lockfile, CI on every push |

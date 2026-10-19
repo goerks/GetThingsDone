@@ -11,7 +11,7 @@ import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 import { EMPTY_DEFINITIONS } from '../domain/definitions';
 
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -186,13 +186,13 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, team: true }, definitions: seedSnapshot(todayIso()).settings.definitions });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false }, definitions: EMPTY_DEFINITIONS });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, team: false }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, team: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: seedSnapshot(todayIso()).settings.definitions });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, team: false }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, team: false }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
   });
 
   it('falls back to the default for a value it does not know', async () => {
@@ -660,7 +660,7 @@ describe('sprint states (#17)', () => {
         ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
-    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql']);
+    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql']);
     return db;
   }
 
@@ -780,5 +780,40 @@ describe('team members (#18)', () => {
     // Then there is no member and no story is assigned
     expect(loaded.members).toEqual([]);
     expect(loaded.stories.every((story) => !story.assigneeId)).toBe(true);
+
+describe('GitHub link of a story (#30)', () => {
+  const url = 'https://github.com/goerks/GetThingsDone/issues/31';
+
+  it('AC2.2 keeps the address and the state of an imported story and nothing for the others', async () => {
+    const { repository } = await freshRepository();
+    const [first] = (await repository.load()).stories;
+    expect(first.github).toBeUndefined();
+    await repository.addStory({ ...first, id: 'imported', code: 'S-99', rank: 99, criteria: [], values: {}, github: { url, state: 'open', base: { title: 'Login', description: '', labels: ['bug'], criteria: [{ text: 'One', done: true }], done: false } } });
+    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.github).toEqual({ url, state: 'open', base: { title: 'Login', description: '', labels: ['bug'], criteria: [{ text: 'One', done: true }], done: false } });
+    const imported = (await repository.load()).stories.find((story) => story.id === 'imported');
+    if (!imported) throw new Error('story missing');
+    await repository.updateStory({ ...imported, github: { url, state: 'closed' } });
+    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.github?.state).toBe('closed');
+    expect((await repository.load()).stories.find((story) => story.id === first.id)?.github).toBeUndefined();
+  });
+
+  it('AC1.5 keeps the repository, the last sync and the switch of the feature in the settings', async () => {
+    const { repository } = await freshRepository();
+    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
+    const settings = (await repository.load()).settings;
+    await repository.saveSettings({ ...settings, features: { ...settings.features, github: true }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] } });
+    const after = (await repository.load()).settings;
+    expect(after.features.github).toBe(true);
+    expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] });
+    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
+  });
+
+  it('keeps the stories of version 0.1 when the migration adds the columns', () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, -1));
+    db.exec("INSERT INTO stories (id, code, title, description, points, status, rank) VALUES ('s1', 'S-1', 'A', '', 1, 'todo', 0)");
+    migrate(db, MIGRATIONS.slice(-1));
+    expect(db.prepare('SELECT github_url, github_state FROM stories').all()).toEqual([{ github_url: null, github_state: null }]);
   });
 });
