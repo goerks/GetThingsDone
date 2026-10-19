@@ -63,7 +63,7 @@ describe('settings with one tab per feature (#61)', () => {
     const workspace = within(nav()).getByRole('group', { name: 'Workspace' });
     const features = within(nav()).getByRole('group', { name: 'Features' });
     expect(names(workspace)).toEqual(['Fields', 'Status values', 'Story map', 'Definitions', 'Data']);
-    expect(names(features)).toEqual(['Releases On', 'Team On']);
+    expect(names(features)).toEqual(['Releases On', 'Team On', 'GitHub connection Off']);
   });
 
   it('AC2.2 shows both features always, with their state', async () => {
