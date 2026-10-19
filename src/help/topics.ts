@@ -25,6 +25,7 @@ export const LINK_TARGETS = {
   settingsDefinitions: hrefs.settingsDefinitions,
   settingsReleases: hrefs.settingsReleases,
   settingsTeam: hrefs.settingsTeam,
+  settingsGithub: hrefs.settingsGithub,
   settingsData: hrefs.settingsData
 } as const;
 export type LinkId = keyof typeof LINK_TARGETS;
@@ -34,7 +35,7 @@ export interface HelpLinkDef {
   id: LinkId;
   requires?: FeatureKey;
   /** A short line under the name of the button: help.linkHints.<hint>. */
-  hint?: 'featureFirst' | 'releaseRows';
+  hint?: 'featureFirst' | 'releaseRows' | 'githubConnect';
 }
 
 export interface TopicDef {
@@ -72,9 +73,10 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'releases.basics', pages: ['releases'], links: [{ id: 'settingsReleases', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }, { id: 'settingsMap', requires: 'releases', hint: 'releaseRows' }, { id: 'map', requires: 'releases' }] },
   { id: 'definitions.basics', pages: ['board', 'backlog', 'settings'], show: { selector: '.definition-chip, .definitions-settings, .card[data-story-id]', missing: 'plain' }, links: [{ id: 'settingsDefinitions' }, { id: 'backlog' }, { id: 'board' }] },
   { id: 'history.compare', pages: ['board', 'backlog', 'epics', 'releases'], show: { selector: '.card__title, .backlog__title', missing: 'story' }, links: [{ id: 'board' }, { id: 'backlog' }, { id: 'epics' }, { id: 'settingsReleases', hint: 'featureFirst' }, { id: 'releases', requires: 'releases' }] },
-  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsReleases' }, { id: 'settingsTeam' }, { id: 'settingsData' }] },
+  { id: 'settings.basics', pages: ['settings'], links: [{ id: 'settingsFields' }, { id: 'settingsStatuses' }, { id: 'settingsMap' }, { id: 'settingsDefinitions' }, { id: 'settingsReleases' }, { id: 'settingsTeam' }, { id: 'settingsGithub' }, { id: 'settingsData' }] },
   { id: 'team.assign', pages: ['board', 'backlog', 'map', 'settings'], show: { selector: '.member-filter, .team, .assignee', missing: 'plain' }, links: [{ id: 'settingsTeam', hint: 'featureFirst' }, { id: 'board' }, { id: 'backlog' }] },
   { id: 'data.backup', pages: ['settings'], show: { selector: '.data-settings', missing: 'plain' }, links: [{ id: 'settingsData' }] },
+  { id: 'github.basics', pages: ['backlog', 'settings'], show: { selector: '.github-sync, .github-settings', missing: 'plain' }, links: [{ id: 'settingsGithub', hint: 'featureFirst' }, { id: 'backlog', requires: 'github' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
 ];

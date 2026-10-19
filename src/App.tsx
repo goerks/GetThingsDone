@@ -1,5 +1,5 @@
 import { featureOn } from './domain/settings';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AcceptancePanel } from './acceptance/Panel';
 import { acceptanceEnabled } from './acceptance/preview';
@@ -87,11 +87,11 @@ function Shell() {
   );
 }
 
-export default function App({ repository }: { repository?: Promise<Repository> | Repository }) {
+export default function App({ repository, github }: { repository?: Promise<Repository> | Repository; github?: ComponentProps<typeof AppProvider>['github'] }) {
   const source = useMemo(() => repository ?? createRepository(), [repository]);
   return (
     <ToastProvider>
-      <AppProvider repository={source}>
+      <AppProvider repository={source} github={github}>
         <DetailsProvider>
           <StoryMenuProvider>
             <SearchProvider>

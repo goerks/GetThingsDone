@@ -7,7 +7,10 @@ import { sortEpics } from '../domain/epics';
 import { sortSprints } from '../domain/sprints';
 import { STATUS_CATEGORIES, statusColor, statusesIn } from '../domain/statuses';
 import { POINT_VALUES } from '../domain/types';
+import { githubErrorKey } from '../pages/GithubSection';
+import { featureOn } from '../domain/settings';
 import { useApp } from './AppState';
+import { useToast } from './Toast';
 import { useDetails } from './Details';
 
 interface StoryMenuApi {
@@ -39,6 +42,7 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
   const app = useApp();
   const details = useDetails();
   const builtin = useBuiltin();
+  const toast = useToast();
   const [open, setOpen] = useState<Open | null>(null);
 
   const openFor = useCallback((storyId: string, event: MouseEvent<HTMLElement>) => {
@@ -132,10 +136,27 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
         }))
       });
     }
+    // Only a story that exists just here can become an issue, and only while the app may write to GitHub (#30).
+    if (featureOn(app.settings, 'github') && app.settings.github.write && app.settings.github.repo !== '' && !story.github) {
+      list.push({
+        id: 'github-create',
+        label: t('github.create.menu'),
+        onSelect: () => {
+          setOpen(null);
+          app
+            .createOnGithub(story.id)
+            .then((skipped) => {
+              toast.notify(t('github.create.done', { code: story.code }));
+              if (skipped.length > 0) toast.notify(t('github.create.skipped', { labels: skipped.join(', ') }));
+            })
+            .catch((cause: unknown) => toast.notify(t('github.create.failed', { code: story.code, reason: t(`github.errors.${githubErrorKey(cause)}`) })));
+        }
+      });
+    }
     return list;
     // `choose` closes over the current opener; the menu is rebuilt when a story or the opened menu changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [story, open, app.statuses, app.sprints, app.epics, t]);
+  }, [story, open, app.statuses, app.sprints, app.epics, app.settings, t]);
 
   const openId = open?.storyId ?? null;
   const api = useMemo<StoryMenuApi>(() => ({ openFor, openId }), [openFor, openId]);
