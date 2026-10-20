@@ -1,4 +1,4 @@
-import { epicLabelText, epicOfLabel, labelledStatuses, linkTo, linkedNumbersMissingIn, newIssueOf, pendingFields, planSync, statusLabelText, statusName, statusOfLabel, withBase, LABELS_FIELD_ID, type Decision, type GithubIssue, type PublishEntry, type RepoRef, type SyncPlan, type SyncSummary } from '../domain/github';
+import { epicOfLabel, labelledStatuses, linkTo, linkedNumbersMissingIn, newIssueOf, pendingFields, planSync, statusName, statusOfLabel, withBase, LABELS_FIELD_ID, type Decision, type GithubIssue, type PublishEntry, type RepoRef, type SyncPlan, type SyncSummary } from '../domain/github';
 import type { ConflictRule, Epic, FieldAssignment, FieldDefinition, Release, StatusValue, Story } from '../domain/types';
 import { GithubError, type TrackerConnector } from './source';
 

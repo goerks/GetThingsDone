@@ -26,7 +26,7 @@ const labelsField: FieldDefinition = {
 
 const base = (extra: Partial<ExternalFields> = {}): ExternalFields => ({ title: 'Login', description: '', labels: [], criteria: [], done: false, ...extra });
 
-const story = (extra: Partial<Story> = {}): Story => ({
+const story = (extra: Partial<Story> = {}, baseExtra: Partial<ExternalFields> = {}): Story => ({
   id: 's1',
   code: 'S-1',
   title: 'Login',
@@ -41,7 +41,7 @@ const story = (extra: Partial<Story> = {}): Story => ({
   values: {},
   checks: {},
   doneItems: null,
-  github: { url: issueUrl(repo, 31), state: 'open', base: base() },
+  github: { url: issueUrl(repo, 31), state: 'open', base: base(baseExtra) },
   ...extra
 });
 
