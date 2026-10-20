@@ -15,10 +15,9 @@ type Status = { kind: 'idle' } | { kind: 'testing' } | { kind: 'ok'; count: numb
 export const githubErrorKey = (cause: unknown): GithubError['kind'] => (cause instanceof GithubError ? cause.kind : 'other');
 
 /**
- * Settings › GitHub (#30): repository and access token of the one repository whose issues are imported. The page only
- * exists while the feature is on. The token is never shown again after it was saved.
+ * Settings › GitHub (#30, #61): the switch of the feature and, while it is on, repository and access token of the one
+ * repository whose issues are imported. The token is never shown again after it was saved.
  */
-/** Settings › GitHub connection (#30, #61): the switch of the feature and, while it is on, the connection. */
 export function GithubSection() {
   return (
     <FeatureTab feature="github">
@@ -37,7 +36,6 @@ function GithubSettings() {
   const [problem, setProblem] = useState<'repoMissing' | 'repoFormat' | 'tokenMissing' | null>(null);
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   const [removing, setRemoving] = useState(false);
-  const [labelsMade, setLabelsMade] = useState<string[] | null>(null);
   const demo = isGithubDemo();
 
   useEffect(() => {
@@ -77,15 +75,6 @@ function GithubSettings() {
       setRepoText(repoText(parseRepo(text) as RepoRef));
       setStatus({ kind: 'ok', count });
     } catch (cause) {
-      setStatus({ kind: 'error', error: githubErrorKey(cause) });
-    }
-  };
-
-  const makeStatusLabels = async (): Promise<void> => {
-    try {
-      setLabelsMade(await app.createStatusLabelsOnGithub());
-    } catch (cause) {
-      setLabelsMade(null);
       setStatus({ kind: 'error', error: githubErrorKey(cause) });
     }
   };
@@ -199,17 +188,6 @@ function GithubSettings() {
         </label>
         <InfoHint text={t('github.settings.write.help')} />
       </div>
-      {app.settings.github.write && connected && (
-        <div className="github-options github-options--row">
-          <button type="button" className="btn" onClick={() => void makeStatusLabels()}>
-            {t('github.settings.statusLabels.button')}
-          </button>
-          <InfoHint text={t('github.settings.statusLabels.help')} />
-          <p role="status" className="muted">
-            {labelsMade === null ? '' : labelsMade.length === 0 ? t('github.settings.statusLabels.none') : t('github.settings.statusLabels.done', { count: labelsMade.length, labels: labelsMade.join(', ') })}
-          </p>
-        </div>
-      )}
       <fieldset className="github-options">
         <legend>{t('github.settings.conflict.legend')}</legend>
         {(['remote', 'local', 'ask'] as const).map((rule: ConflictRule) => (

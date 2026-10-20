@@ -40,6 +40,20 @@ function restBackend(): Backend {
       state.known.push(String(body.name));
       return answer(201, { name: body.name });
     }
+    const labelMatch = /^\/labels\/(.+)$/.exec(path);
+    if (method === 'DELETE' && labelMatch) {
+      const name = decodeURIComponent(labelMatch[1]);
+      state.known = state.known.filter((item) => item !== name);
+      state.issues = state.issues.map((issue) => ({ ...issue, labels: issue.labels.filter((item) => item !== name) }));
+      return new Response(null, { status: 204 });
+    }
+    const milestoneMatch = /^\/milestones\/(\d+)$/.exec(path);
+    if (method === 'DELETE' && milestoneMatch) {
+      const gone = state.milestones.find((item) => item.number === Number(milestoneMatch[1]));
+      state.milestones = state.milestones.filter((item) => item.number !== Number(milestoneMatch[1]));
+      if (gone) state.issues = state.issues.map((issue) => (issue.milestone === gone.title ? { ...issue, milestone: null } : issue));
+      return new Response(null, { status: 204 });
+    }
     if (method === 'GET' && path === '/milestones') return answer(200, state.milestones);
     if (method === 'POST' && path === '/milestones') {
       const created = { number: state.milestones.length + 1, title: String(body.title), description: String(body.description ?? ''), due_on: (body.due_on as string | undefined) ?? null, state: 'open' };
@@ -99,6 +113,14 @@ function fakeBackend(): Backend {
       return wrapped.createMilestone(r, 'good', milestone);
     },
     listLabels: (r) => wrapped.listLabels(r, 'good'),
+    deleteLabel: async (r, t, name) => {
+      fake.state.canWrite = t === 'writer';
+      return wrapped.deleteLabel(r, 'good', name);
+    },
+    deleteMilestone: async (r, t, number) => {
+      fake.state.canWrite = t === 'writer';
+      return wrapped.deleteMilestone(r, 'good', number);
+    },
     createLabel: async (r, t, label) => {
       fake.state.canWrite = t === 'writer';
       return wrapped.createLabel(r, 'good', label);
@@ -176,5 +198,23 @@ describe.each(BACKENDS)('AC11.3 connector contract: %s', (_name, make) => {
   it('says "forbidden" when the token may only read and tries to make a milestone or a label', async () => {
     await expect(backend.connector.createMilestone(repo, backend.token(false), { title: 'x', description: '', dueOn: null })).rejects.toMatchObject({ kind: 'forbidden' });
     await expect(backend.connector.createLabel(repo, backend.token(false), { name: 'x', color: '000000' })).rejects.toMatchObject({ kind: 'forbidden' });
+  });
+
+  it('deletes a label, which then leaves every item, and a milestone, which then leaves its items', async () => {
+    await backend.connector.createLabel(repo, backend.token(true), { name: 'epic: Gone', color: '000000' });
+    await backend.connector.updateIssue(repo, backend.token(true), 31, { labels: ['epic: Gone'] });
+    await backend.connector.deleteLabel(repo, backend.token(true), 'epic: Gone');
+    expect(await backend.connector.listLabels(repo, backend.token(false))).not.toContain('epic: Gone');
+    expect((await backend.connector.issue(repo, backend.token(false), 31))?.labels).toEqual([]);
+    const made = await backend.connector.createMilestone(repo, backend.token(true), { title: 'Gone', description: '', dueOn: null });
+    await backend.connector.updateIssue(repo, backend.token(true), 31, { milestone: made.number });
+    await backend.connector.deleteMilestone(repo, backend.token(true), made.number);
+    expect((await backend.connector.listMilestones(repo, backend.token(false))).map((item) => item.title)).not.toContain('Gone');
+    expect((await backend.connector.issue(repo, backend.token(false), 31))?.milestone ?? null).toBeNull();
+  });
+
+  it('says "forbidden" when the token may only read and tries to delete', async () => {
+    await expect(backend.connector.deleteLabel(repo, backend.token(false), 'feature')).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.connector.deleteMilestone(repo, backend.token(false), 1)).rejects.toMatchObject({ kind: 'forbidden' });
   });
 });

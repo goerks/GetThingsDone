@@ -71,7 +71,7 @@ import { parseRepo, type Decision, type SyncSummary } from '../domain/github';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import { createGithubSource, createTokenStore, GithubError, type GithubSource, type TokenStore } from '../github';
 import { persistSync } from '../github/persist';
-import { createEpicLabelFor, createMilestoneFor, createOnGithub as createOnGithubWith, createStatusLabels as createStatusLabelsWith, runSync } from '../github/runSync';
+import { createOnGithub as createOnGithubWith, runSync } from '../github/runSync';
 import {
   DEFAULT_STATUSES,
   addStatus as addStatusIn,
@@ -244,12 +244,6 @@ interface AppApi {
   setGithubOptions(patch: Partial<Pick<Settings['github'], 'write' | 'conflict'>>): void;
   /** Publishes a story that exists only here as a new issue and links it. Resolves with the labels GitHub does not know; rejects with a `GithubError`. */
   createOnGithub(storyId: string): Promise<string[]>;
-  /** Makes the milestone of a release on GitHub (the counterpart of the release). Resolves with false when the repository already has one of that title. */
-  createMilestoneOnGithub(releaseId: string): Promise<boolean>;
-  /** Makes the label "epic: <name>" of an epic on GitHub. Resolves with false when the repository already has it. */
-  createEpicLabelOnGithub(epicId: string): Promise<boolean>;
-  /** Makes the missing labels "status: <name>" for the board columns between the first and done. Resolves with the names that were made. */
-  createStatusLabelsOnGithub(): Promise<string[]>;
   /** Removes the connection: repository and ignored issues are forgotten and the stories lose their link. The stories stay as they are. */
   disconnectGithub(): void;
 }
@@ -990,7 +984,7 @@ export function AppProvider({ repository, github, children }: Props) {
         const repo = parsed ? `${parsed.owner}/${parsed.name}` : '';
         if (settingsRef.current.github.repo === repo) return true;
         // Another repository starts without a last sync; the stories already imported stay as they are.
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo, lastSyncAt: null } };
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo, lastSyncAt: null, managed: { labels: [], milestones: [] } } };
         updateSettings(settings);
         persist((repoStore) => repoStore.saveSettings(settings));
         return true;
@@ -1006,7 +1000,7 @@ export function AppProvider({ repository, github, children }: Props) {
         const token = await githubRef.current.tokens.get();
         if (!repo || !token) throw new GithubError('config');
         const before = { stories: storiesRef.current, fields: fieldsRef.current.fields, epics: epicsRef.current, releases: releasesRef.current };
-        const { plan, summary, error: failure } = await runSync({
+        const { plan, summary, managed, error: failure } = await runSync({
           connector: githubRef.current.source,
           token,
           repo,
@@ -1020,14 +1014,15 @@ export function AppProvider({ repository, github, children }: Props) {
           write: connection.write,
           conflict: connection.conflict,
           decisions,
-          ignored: connection.ignored
+          ignored: connection.ignored,
+          managed: connection.managed
         });
         if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
         if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
         update(plan.stories);
         updateFields(plan.fields, plan.assignments);
         // A sync that stopped on an error is not a finished sync: the time of the last one stays.
-        const settings = failure ? settingsRef.current : { ...settingsRef.current, github: { ...connection, lastSyncAt: new Date().toISOString() } };
+        const settings = { ...settingsRef.current, github: { ...connection, managed, lastSyncAt: failure ? connection.lastSyncAt : new Date().toISOString() } };
         updateSettings(settings);
         persist(async (repoStore) => {
           await persistSync(repoStore, before, plan);
@@ -1046,7 +1041,7 @@ export function AppProvider({ repository, github, children }: Props) {
         const repo = parseRepo(settingsRef.current.github.repo);
         const token = await githubRef.current.tokens.get();
         if (!story || story.github || !repo || !token) throw new GithubError('config');
-        const { story: linked, skippedLabels } = await createOnGithubWith({
+        const { story: linked, skippedLabels, madeLabels } = await createOnGithubWith({
           connector: githubRef.current.source,
           token,
           repo,
@@ -1058,27 +1053,13 @@ export function AppProvider({ repository, github, children }: Props) {
         });
         update(storiesRef.current.map((item) => (item.id === storyId ? linked : item)));
         persist((repoStore) => repoStore.updateStory(linked));
+        if (madeLabels.length > 0) {
+          const managed = { ...settingsRef.current.github.managed, labels: [...settingsRef.current.github.managed.labels, ...madeLabels] };
+          const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, managed } };
+          updateSettings(settings);
+          persist((repoStore) => repoStore.saveSettings(settings));
+        }
         return skippedLabels;
-      },
-      async createMilestoneOnGithub(releaseId) {
-        const release = releasesRef.current.find((item) => item.id === releaseId);
-        const repo = parseRepo(settingsRef.current.github.repo);
-        const token = await githubRef.current.tokens.get();
-        if (!release || !repo || !token) throw new GithubError('config');
-        return createMilestoneFor({ connector: githubRef.current.source, token, repo, release });
-      },
-      async createEpicLabelOnGithub(epicId) {
-        const epic = epicsRef.current.find((item) => item.id === epicId);
-        const repo = parseRepo(settingsRef.current.github.repo);
-        const token = await githubRef.current.tokens.get();
-        if (!epic || !repo || !token) throw new GithubError('config');
-        return createEpicLabelFor({ connector: githubRef.current.source, token, repo, epic });
-      },
-      async createStatusLabelsOnGithub() {
-        const repo = parseRepo(settingsRef.current.github.repo);
-        const token = await githubRef.current.tokens.get();
-        if (!repo || !token) throw new GithubError('config');
-        return createStatusLabelsWith({ connector: githubRef.current.source, token, repo, statuses: statusesRef.current });
       },
       disconnectGithub() {
         const linkedStories = storiesRef.current.filter((story) => story.github);
@@ -1087,7 +1068,7 @@ export function AppProvider({ repository, github, children }: Props) {
           const { github: _github, ...rest } = story;
           return rest;
         });
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo: '', lastSyncAt: null, ignored: [] } };
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo: '', lastSyncAt: null, ignored: [], managed: { labels: [], milestones: [] } } };
         update(unlinked);
         updateSettings(settings);
         persist(async (repoStore) => {
