@@ -19,7 +19,7 @@ const isOn = (value: unknown): boolean => value === true || value === 'true' || 
 interface StoredSettings {
   mapRows?: unknown;
   features?: Partial<Record<FeatureKey, unknown>> | null;
-  github?: { repo?: unknown; lastSyncAt?: unknown; write?: unknown; conflict?: unknown; ignored?: unknown; managed?: { labels?: unknown; milestones?: unknown } | null } | null;
+  github?: { repo?: unknown; lastSyncAt?: unknown; write?: unknown; conflict?: unknown; ignored?: unknown; managed?: unknown } | null;
   definitions?: unknown;
 }
 
