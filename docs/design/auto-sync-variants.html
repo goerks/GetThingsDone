@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Auto-Sync Entwürfe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; each variant is a small app window mockup. Tokens mirror the app's "Focus" design. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea;
+  --e-rose: #be123c; --e-amber: #b45309; --e-slate: #475569;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a;
+  --e-rose: #fb7185; --e-amber: #f0a050; --e-slate: #94a3b8;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+h3 { font-size: 20px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+ul { margin: 0; padding-left: 20px; }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+header.intro { display: grid; gap: 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.meta span { background: var(--pill); padding: 2px 8px; border-radius: 999px; }
+
+.variant { display: grid; gap: 16px; }
+.variant__head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.tag--now { background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; font-size: 14px; }
+.box b { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+
+/* ---------- App window mockup ---------- */
+.scroll { overflow-x: auto; border-radius: var(--r); }
+.app { min-width: 760px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.nav .flag { color: var(--bad); font-weight: 600; border-bottom-color: var(--bad); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); position: relative; }
+.ibtn svg { width: 15px; height: 15px; }
+.ibtn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.sel { height: 30px; padding: 0 22px 0 8px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; color: var(--text); background: var(--surface); }
+.hint { position: absolute; font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: baseline; gap: 12px; }
+.ph b { font-size: 17px; }
+.ph .btn { margin-left: auto; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+
+table.ft { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.ft th, .ft td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.ft thead th { color: var(--muted); font-weight: 600; font-size: 12px; }
+.ft tr:last-child td, .ft tr:last-child th { border-bottom: 0; }
+.ft tbody th { font-weight: 500; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; }
+.badge--c { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+
+.settings { display: grid; grid-template-columns: 170px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.ghost { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 170px; }
+.lane i { font-style: normal; color: var(--muted); font-size: 11px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; height: 38px; padding: 4px 8px; font-size: 12px; }
+.toast { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); background: var(--text); color: var(--bg); border-radius: 8px; padding: 9px 14px; display: flex; gap: 14px; align-items: center; box-shadow: 0 8px 24px var(--shadow); white-space: nowrap; }
+.toast u { color: var(--accent-ink); background: none; text-decoration: underline; opacity: .9; }
+.toast--err { background: var(--bad); color: #fff; }
+.chk { position: absolute; right: -4px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--ok); color: #fff; font-size: 9px; display: grid; place-items: center; }
+.tip { position: absolute; top: 44px; right: 12px; background: var(--text); color: var(--bg); border-radius: 6px; padding: 5px 10px; font-size: 12px; z-index: 2; }
+.stat { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.switch { width: 34px; height: 20px; border-radius: 999px; background: var(--accent); position: relative; flex: none; }
+.switch::after { content: ""; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+.switch--off { background: var(--border); } .switch--off::after { right: auto; left: 2px; }
+.set { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: grid; gap: 12px; }
+.set h4 { margin: 0; font-size: 14px; }
+.line { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.line .grow { flex: 1; min-width: 160px; }
+.radio { display: flex; gap: 8px; align-items: center; } .radio i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); display: inline-block; flex: none; } .radio .on { border-color: var(--accent); background: radial-gradient(var(--accent) 45%, transparent 50%); }
+.log { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.log .r { display: grid; grid-template-columns: 110px 100px 1fr auto; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--border); align-items: center; }
+.log .r:last-child { border-bottom: 0; }
+.log .d { background: var(--column); padding: 8px 12px 10px 232px; border-bottom: 1px solid var(--border); display: grid; gap: 3px; font-size: 12.5px; }
+.log .h { color: var(--muted); font-size: 11.5px; font-weight: 600; }
+.pill2 { font-size: 11px; border-radius: 999px; padding: 0 8px; background: var(--pill); color: var(--muted); }
+.pill2--ok { background: var(--ok-soft); color: var(--ok); } .pill2--bad { background: var(--bad-soft); color: var(--bad); } .pill2--acc { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.cmp th, .cmp td { padding: 7px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.cmp thead th { color: var(--muted); font-size: 12px; }
+</style>
+</head><body><div class="wrap">
+<header class="intro"><h1>Automatische Synchronisation (Entwurf)</h1>
+<div class="meta"><span>Issue #30</span><span>Entwurf, nur Demodaten</span></div>
+<p>Drei Wünsche: (1) nach dem Sync <b>kein Bericht im Dialog</b>, nur eine dezente Bestätigung; (2) <b>volle Synchronisation von selbst</b>: neue Tickets importieren und alle abgleichen, nur alle oder keine; (3) <b>Protokoll</b> darüber, was sich geändert hat. Die Mockups sind Vorschläge, nichts davon ist gebaut.</p></header>
+
+<h2>Teil 1 · Rückmeldung nach dem Sync (ohne Dialog)</h2>
+<section class="variant"><div class="variant__head"><h3>1 · Kurze Meldung unten (Toast)</h3><span class="tag tag--rec">★ Empfehlung</span></div><p>Eine kleine Meldung unten, verschwindet nach 5 Sekunden (die App kennt diese Meldungen schon). Sie sagt in einer Zeile, was passiert ist, und führt mit „Protokoll“ zu den Details. Am Sync-Icon erscheint kurz ein Häkchen. Nichts ändert sich im Layout, nichts muss geschlossen werden.</p><div class="scroll"><div class="app" id="m1" style="min-height:300px"><div class="bar"><div class="brand"><span class="logo">✓</span>Get It Done</div><div class="nav"><span class="on">Backlog</span><span class="">Board</span><span class="">Story Map</span><span class="">Epics</span><span class="">Releases</span><span class="">Einstellungen</span></div><div class="tools"><span class="ibtn" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"/><path d="M16 16h5v5"/></svg><span class="chk">✓</span></span></div></div><div class="page"><div class="ph"><b>Backlog</b><span class="muted">12 Stories</span></div><div class="ghost"><div class="lane"><i>Offen</i><div class="card">G-31 Login-Seite</div><div class="card">G-33 Passwort zurücksetzen</div></div><div class="lane"><i>In Arbeit</i><div class="card">G-35 Export</div></div><div class="lane"><i>Erledigt</i><div class="card">G-29 Start</div></div></div></div><div class="toast"><span>✓ Synchronisiert: 2 neu, 3 aktualisiert</span><u>Protokoll</u></div></div></div><div class="proscons"><div class="box"><b>Dafür</b><span>＋ Bekanntes Muster der App, dezent</span><span>＋ Details nur auf Wunsch (Protokoll)</span><span>＋ Wird von Screenreadern vorgelesen</span></div><div class="box"><b>Dagegen</b><span>− Wer wegschaut, verpasst die Zeile (steht dann im Protokoll)</span></div></div></section>
+<section class="variant"><div class="variant__head"><h3>2 · Ruhige Statuszeile neben dem Icon</h3></div><p>Keine Meldung. Neben dem Sync-Icon steht dauerhaft „✓ Synchronisiert 10:42“. Beim Lauf dreht das Icon, danach wechselt der Text.</p><div class="scroll"><div class="app" id="m2" style="min-height:300px"><div class="bar"><div class="brand"><span class="logo">✓</span>Get It Done</div><div class="nav"><span class="on">Backlog</span><span class="">Board</span><span class="">Story Map</span><span class="">Epics</span><span class="">Releases</span><span class="">Einstellungen</span></div><div class="tools"><span class="stat">✓ Synchronisiert 10:42</span><span class="ibtn" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"/><path d="M16 16h5v5"/></svg></span></div></div><div class="page"><div class="ph"><b>Backlog</b><span class="muted">12 Stories</span></div><div class="ghost"><div class="lane"><i>Offen</i><div class="card">G-31 Login-Seite</div><div class="card">G-33 Passwort zurücksetzen</div></div><div class="lane"><i>In Arbeit</i><div class="card">G-35 Export</div></div><div class="lane"><i>Erledigt</i><div class="card">G-29 Start</div></div></div></div></div></div><div class="proscons"><div class="box"><b>Dafür</b><span>＋ Nie aufdringlich</span><span>＋ Man sieht jederzeit, wie aktuell die Daten sind</span></div><div class="box"><b>Dagegen</b><span>− Man sieht nicht, was sich geändert hat</span><span>− Braucht Platz in der Kopfzeile, besonders auf dem Handy</span></div></div></section>
+<section class="variant"><div class="variant__head"><h3>3 · Nur das Icon: Häkchen und Tooltip</h3></div><p>Das Icon zeigt ein grünes Häkchen (bei Fehler ein rotes Ausrufezeichen); die Zusammenfassung steht im Tooltip beim Darüberfahren.</p><div class="scroll"><div class="app" id="m3" style="min-height:300px"><div class="bar"><div class="brand"><span class="logo">✓</span>Get It Done</div><div class="nav"><span class="on">Backlog</span><span class="">Board</span><span class="">Story Map</span><span class="">Epics</span><span class="">Releases</span><span class="">Einstellungen</span></div><div class="tools"><span class="stat">✓ Synchronisiert 10:42</span><span class="ibtn" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"/><path d="M16 16h5v5"/></svg><span class="chk">✓</span></span></div></div><div class="page"><div class="ph"><b>Backlog</b><span class="muted">12 Stories</span></div><div class="ghost"><div class="lane"><i>Offen</i><div class="card">G-31 Login-Seite</div><div class="card">G-33 Passwort zurücksetzen</div></div><div class="lane"><i>In Arbeit</i><div class="card">G-35 Export</div></div><div class="lane"><i>Erledigt</i><div class="card">G-29 Start</div></div></div></div><div class="tip">Zuletzt synchronisiert 10:42 · 2 neu, 3 aktualisiert</div></div></div><div class="proscons"><div class="box"><b>Dafür</b><span>＋ Maximal zurückhaltend</span></div><div class="box"><b>Dagegen</b><span>− Auf Touch-Geräten kein Tooltip</span><span>− Fehler leicht zu übersehen</span></div></div></section>
+<p><b>Fehler</b> und <b>Konflikte</b> sind wichtiger als Erfolg: sie bleiben länger sichtbar und haben eine Schaltfläche.</p>
+<div class="grid2"><div class="scroll"><div class="app" id="m3b" style="min-height:300px"><div class="bar"><div class="brand"><span class="logo">✓</span>Get It Done</div><div class="nav"><span class="on">Backlog</span><span class="">Board</span><span class="">Story Map</span><span class="">Epics</span><span class="">Releases</span><span class="">Einstellungen</span></div><div class="tools"><span class="ibtn" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"/><path d="M16 16h5v5"/></svg><span class="chk" style="background:var(--bad)">!</span></span></div></div><div class="page"><div class="ph"><b>Backlog</b><span class="muted">12 Stories</span></div><div class="ghost"><div class="lane"><i>Offen</i><div class="card">G-31 Login-Seite</div><div class="card">G-33 Passwort zurücksetzen</div></div><div class="lane"><i>In Arbeit</i><div class="card">G-35 Export</div></div><div class="lane"><i>Erledigt</i><div class="card">G-29 Start</div></div></div></div><div class="toast toast--err"><span>⚠ Synchronisation fehlgeschlagen: Keine Verbindung</span><u>Protokoll</u></div></div></div><div class="scroll"><div class="app" id="m6" style="min-height:300px"><div class="bar"><div class="brand"><span class="logo">✓</span>Get It Done</div><div class="nav"><span class="on">Backlog</span><span class="">Board</span><span class="">Story Map</span><span class="">Epics</span><span class="">Releases</span><span class="">Einstellungen</span></div><div class="tools"><span class="ibtn" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"/><path d="M16 16h5v5"/></svg><span class="chk" style="background:var(--accent)">2</span></span></div></div><div class="page"><div class="ph"><b>Backlog</b><span class="muted">12 Stories</span></div><div class="ghost"><div class="lane"><i>Offen</i><div class="card">G-31 Login-Seite</div><div class="card">G-33 Passwort zurücksetzen</div></div><div class="lane"><i>In Arbeit</i><div class="card">G-35 Export</div></div><div class="lane"><i>Erledigt</i><div class="card">G-29 Start</div></div></div></div><div class="toast"><span>Synchronisiert, 2 Konflikte warten auf dich</span><u>Prüfen</u></div></div></div></div>
+<p class="muted">Links: Fehler (bleibt, bis du ihn schliesst). Rechts: Konflikte, wenn die Konfliktregel „Ich entscheide“ gilt. Dann fragt die App nicht von selbst, sondern markiert die Tickets und zeigt eine Zahl am Icon; „Prüfen“ öffnet die bekannte Konflikt-Auswahl.</p>
+
+<h2>Teil 2 · Automatisch synchronisieren: Einstellungen</h2>
+<section class="variant"><div class="variant__head"><h3>So würde es konfiguriert (Einstellungen → GitHub)</h3></div>
+<p>Ein Schalter „Automatisch synchronisieren“ (standardmässig aus). Ist er an, gilt das für <b>alle</b> offenen Tickets: neue werden importiert, bekannte abgeglichen, genau wie beim Knopf. Dasselbe Verhalten bei Konflikten und „Auch auf GitHub schreiben“ wie bisher; der Knopf bleibt zusätzlich für „jetzt sofort“.</p><div class="scroll"><div class="app" id="m4" style="min-height:420px"><div class="bar"><div class="brand"><span class="logo">✓</span>Get It Done</div><div class="nav"><span class="">Backlog</span><span class="">Board</span><span class="">Story Map</span><span class="">Epics</span><span class="">Releases</span><span class="on">Einstellungen</span></div><div class="tools"><span class="ibtn" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"/><path d="M16 16h5v5"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span>Funktionen</span><span>Felder</span><span>Status</span><span class="on">GitHub</span><span>Backup</span></div><div style="display:grid;gap:12px">
+<div class="set"><h4>Verbindung <span class="pill2 pill2--ok">verbunden</span></h4><div class="line"><span class="mono">goerks/GetThingsDone</span><span class="btn">Verbindung testen</span></div></div>
+<div class="set"><div class="line"><span class="switch"></span><h4 class="grow">Automatisch synchronisieren</h4></div>
+<p class="muted" style="font-size:12.5px">Alle offenen Tickets werden importiert und abgeglichen, ohne dass du etwas drücken musst. Nur alle oder keine.</p>
+<div class="line"><span class="muted">Wann</span><span class="sel">Alle 15 Minuten ▾</span></div>
+<div class="line"><span class="radio"><i class="on"></i>Beim Start der App</span><span class="radio"><i class="on"></i>Wenn ich die App wieder öffne</span></div>
+<div class="line stat">Nächster Lauf um 10:57 · Zuletzt 10:42 · <u style="color:var(--accent)">Protokoll ansehen</u></div></div>
+<div class="set"><h4>Beim Abgleich</h4><div class="line"><span class="switch"></span><span class="grow">Auch auf GitHub schreiben</span></div><div class="line"><span class="muted">Bei Konflikten</span><span class="sel">GitHub gewinnt ▾</span></div></div>
+</div></div></div></div></div></section>
+<section class="variant"><div class="variant__head"><h3>Rhythmus</h3></div>
+<table class="cmp"><thead><tr><th>Option</th><th>Was</th><th>Dafür</th><th>Dagegen</th></tr></thead><tbody>
+<tr><td><b>A</b> Beim Start und beim Zurückkehren</td><td>Ein Lauf, wenn die App startet oder wieder in den Vordergrund kommt, sonst nie</td><td>Sehr ruhig, kaum Last auf GitHub</td><td>Bei langer Sitzung veralten die Daten</td></tr>
+<tr><td><b>B</b> Fester Takt (alle 15 Minuten) <span class="tag tag--rec">★</span></td><td>Zusätzlich zu A alle 15 Minuten, solange die App offen ist</td><td>Einfach, immer ziemlich aktuell, GitHub-Limit (5000 Anfragen/Stunde) bleibt weit unterschritten</td><td>Nicht wählbar</td></tr>
+<tr><td><b>C</b> Wählbar</td><td>Auswahl: 5, 15, 30, 60 Minuten, oder nur Start (Standard 15)</td><td>Du bestimmst das Tempo</td><td>Eine Einstellung mehr; 5 Minuten verbrauchen mehr Anfragen</td></tr>
+<tr><td><b>D</b> Im Hintergrund bei geschlossener App</td><td>Läuft auch ohne offene App</td><td>Immer aktuell</td><td>Geht nicht: die App ist rein lokal, es gibt keinen Server. Nicht vorgeschlagen.</td></tr></tbody></table>
+<p>Regeln für alle Optionen: Es läuft nur <b>ein</b> Lauf gleichzeitig; ein Lauf, der gerade etwas tippen würde (Dialog offen, Eingabefeld aktiv), wartet, bis du fertig bist. Ohne Netz wird übersprungen. Nach 3 Fehlern in Folge pausiert die Automatik, das Icon zeigt „!“ und das Protokoll sagt warum; ein Klick auf das Icon startet wieder. Das gilt für die Web-Vorschau (nur bei offenem Tab) wie für die Windows-App (nur bei laufender App).</p></section>
+
+<h2>Teil 3 · Protokoll</h2>
+<section class="variant"><div class="variant__head"><h3>Synchronisations-Protokoll (Einstellungen → GitHub)</h3><span class="tag tag--rec">★ Empfehlung</span></div>
+<p>Jeder Lauf bekommt eine Zeile: Zeit, Auslöser (Start, Automatisch, Manuell), kurze Zusammenfassung, Ergebnis. Ein Klick klappt die einzelnen Änderungen auf (welches Ticket, welches Feld, von → nach, wer gewonnen hat, angelegte oder gelöschte Labels und Milestones). Läufe ohne Änderung werden zu einer Zeile zusammengefasst, Fehler stehen mit Grund drin. Filter: Alle Läufe / nur mit Änderungen / nur Fehler. Aufbewahrt werden die letzten 100 Läufe oder 90 Tage; „Leeren“ löscht das Protokoll nur lokal.</p><div class="scroll"><div class="app" id="m5" style="min-height:470px"><div class="bar"><div class="brand"><span class="logo">✓</span>Get It Done</div><div class="nav"><span class="">Backlog</span><span class="">Board</span><span class="">Story Map</span><span class="">Epics</span><span class="">Releases</span><span class="on">Einstellungen</span></div><div class="tools"><span class="ibtn" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"/><path d="M16 16h5v5"/></svg></span></div></div><div class="page"><div class="ph"><b>Einstellungen</b></div><div class="settings"><div class="side"><span>Funktionen</span><span>Felder</span><span>Status</span><span class="on">GitHub</span><span>Backup</span></div><div style="display:grid;gap:10px"><div class="line"><h4 style="margin:0;font-size:15px">Synchronisations-Protokoll</h4><span class="sel" style="margin-left:auto">Alle Läufe ▾</span><span class="btn">Leeren</span></div><div class="log"><div class="r"><span class="mono">20.10. 10:42</span><span class="pill2 ">Automatisch</span><span>2 neu, 3 aktualisiert, 1 Label angelegt</span><span class="pill2 pill2--ok">✓ ok</span></div><div class="d"><span class="h">ÄNDERUNGEN</span><span><b>G-41</b> Notifications · neu importiert</span><span><b>G-31</b> Login-Seite · Titel „Anmeldung“ → „Login-Seite“ (GitHub gewinnt)</span><span><b>G-35</b> Export · Spalte „Offen“ → „In Arbeit“ (von GitHub)</span><span><b>G-33</b> Passwort · Beschreibung (zu GitHub geschrieben)</span><span>Label angelegt: <span class="mono">status: review</span></span></div><div class="r"><span class="mono">20.10. 10:27</span><span class="pill2 ">Automatisch</span><span>Keine Änderungen</span><span class="pill2 ">– leer</span></div><div class="r"><span class="mono">20.10. 10:12</span><span class="pill2 ">Automatisch</span><span>Keine Verbindung</span><span class="pill2 pill2--bad">⚠ Fehler</span></div><div class="r"><span class="mono">20.10. 09:58</span><span class="pill2 pill2--acc">Manuell</span><span>1 aktualisiert</span><span class="pill2 pill2--ok">✓ ok</span></div><div class="r"><span class="mono">20.10. 09:00</span><span class="pill2 ">Start</span><span>5 neu</span><span class="pill2 pill2--ok">✓ ok</span></div></div><span class="muted" style="font-size:12px">Die letzten 100 Läufe oder 90 Tage bleiben erhalten. Läufe ohne Änderung werden zusammengefasst.</span></div></div></div></div></div>
+<div class="proscons"><div class="box"><b>Dafür</b><span>＋ Alles an einem Ort, auch was automatisch passiert ist</span><span>＋ Jede Überschreibung ist nachvollziehbar, auch wenn kein Dialog gefragt hat</span><span>＋ Wirkt wie ein Kontoauszug: ruhig und vollständig</span></div><div class="box"><b>Dagegen</b><span>− Eine Seite mehr in den Einstellungen</span><span>− Nur Änderungen durch den Sync; die Änderungshistorie einer einzelnen Story (#23) bleibt eigenständig</span></div></div></section>
+
+<h2>Empfehlung</h2>
+<section class="variant"><p><b>1 + B + Protokoll.</b> Toast mit „Protokoll“-Link (bei Fehlern und offenen Konflikten länger sichtbar), Schalter „Automatisch synchronisieren“ mit Start/Zurückkehren plus alle 15 Minuten, dazu das Synchronisations-Protokoll. Wer das Tempo selbst wählen will, nimmt <b>C</b> statt B; das ist ein Auswahlfeld mehr, am Rest ändert sich nichts. Du verzichtest auf eine dauerhafte Statusanzeige in der Kopfzeile und auf einen Lauf bei geschlossener App.</p></section>
+</div></body></html>
