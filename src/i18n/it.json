@@ -1021,7 +1021,7 @@
       "github.basics": {
         "title": "Issue di GitHub",
         "keywords": "github issue import sincronizza sincronizzazione repository token collegare funzione attivare storie etichette criteri scrivere pubblicare conflitto connessioni andata ritorno milestone epic label stato icona",
-        "body": "Importare le issue aperte di un repository GitHub come story e sincronizzare le modifiche in entrambe le direzioni. Funziona solo se la funzione «Collegamento GitHub» è attivata. Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Connessione GitHub (l’interruttore in alto).\n2. Sotto l’interruttore inserisci il repository (owner/name) e un token di accesso e premi «Prova la connessione». Se l’app deve scrivere anche su GitHub, attiva «Scrivi anche su GitHub» (il token ha allora bisogno di «Issues: lettura e scrittura») e scegli chi vince in caso di conflitto: GitHub (predefinito), il locale, oppure decidi tu.\n3. Apri il backlog e premi «Sincronizza». Le nuove issue diventano story; ciò che è cambiato solo su un lato passa all’altro. Con la scrittura attivata «Sincronizza» pubblica anche le tue modifiche a titolo, descrizione, label, criteri e fatto/aperto. Senza questo pulsante nulla va su GitHub. Le story con modifiche non ancora su GitHub sono contrassegnate.\nCrei una issue da una tua story con «Crea su GitHub» nel suo menu. Sprint, punti e ordine restano sempre locali. Senza connessione di rete o con un token sbagliato l’app lo dice e lascia in pace i tuoi dati locali.\nL’icona di sincronizzazione (due frecce circolari) si trova su backlog, board e story map; il numero indica le modifiche non ancora su GitHub. Le release corrispondono alle milestone, gli epic alle label «epic: Nome», le colonne della board tra «Da fare» e «Fatto» alle label «status: Nome». La sincronizzazione non crea mai da sola milestone o label mancanti: crei la milestone e la label dell’epic con «Crea su GitHub» nella finestra della release o dell’epic, e le label di stato in Impostazioni → Connessioni.\nSe disattivi di nuovo la funzione, tutto viene nascosto ma conservato."
+        "body": "Importare le issue aperte di un repository GitHub come story e sincronizzare le modifiche in entrambe le direzioni. Funziona solo se la funzione «Collegamento GitHub» è attivata. Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Connessione GitHub (l’interruttore in alto).\n2. Sotto l’interruttore inserisci il repository (owner/name) e un token di accesso e premi «Prova la connessione». Se l’app deve scrivere anche su GitHub, attiva «Scrivi anche su GitHub» (il token ha allora bisogno di «Issues: lettura e scrittura») e scegli chi vince in caso di conflitto: GitHub (predefinito), il locale, oppure decidi tu.\n3. Apri il backlog e premi «Sincronizza». Le nuove issue diventano story; ciò che è cambiato solo su un lato passa all’altro. Con la scrittura attivata «Sincronizza» pubblica anche le tue modifiche a titolo, descrizione, label, criteri e fatto/aperto. Senza questo pulsante nulla va su GitHub. Le story con modifiche non ancora su GitHub sono contrassegnate.\nCrei una issue da una tua story con «Crea su GitHub» nel suo menu. Sprint, punti e ordine restano sempre locali. Senza connessione di rete o con un token sbagliato l’app lo dice e lascia in pace i tuoi dati locali.\nL’icona di sincronizzazione (due frecce circolari) si trova su backlog, board e story map; il numero indica le modifiche non ancora su GitHub. Le release corrispondono alle milestone, gli epic alle label «epic: Nome», le colonne della board tra «Da fare» e «Fatto» alle label «status: Nome». Con la scrittura attiva la sincronizzazione crea da sola le milestone e le label necessarie ed elimina quelle che ha creato lei quando non servono più. Ciò che hai creato tu stesso su GitHub non viene mai eliminato.\nSe disattivi di nuovo la funzione, tutto viene nascosto ma conservato."
       }
     },
     "links": {
@@ -1426,13 +1426,6 @@
         "remote": "Vince GitHub (predefinito)",
         "local": "Vince il locale",
         "ask": "Decido io (una finestra mostra entrambe le versioni)"
-      },
-      "statusLabels": {
-        "button": "Crea le label di stato su GitHub",
-        "help": "Crea le label «status: …» mancanti per le colonne della board.",
-        "done_one": "{{count}} label creata: {{labels}}",
-        "done_other": "{{count}} label create: {{labels}}",
-        "none": "Tutte le label di stato esistono già."
       }
     },
     "demo": {
@@ -1476,7 +1469,12 @@
       "releaseCreated": "Nuova release: {{title}}",
       "epicCreated": "Nuovo epic: {{name}}",
       "missingMilestones": "Ancora nessuna milestone su GitHub: {{titles}}",
-      "multipleEpics": "Più label epic, conta la prima: {{issues}}"
+      "multipleEpics": "Più label epic, conta la prima: {{issues}}",
+      "labelCreated": "Label creata: {{name}}",
+      "labelDeleted": "Label eliminata: {{name}}",
+      "milestoneCreated": "Milestone creata: {{name}}",
+      "milestoneDeleted": "Milestone eliminata: {{name}}",
+      "missingLabels": "Label mancante su GitHub: {{names}}"
     },
     "change": {
       "created": "Nuova storia",
@@ -1573,12 +1571,7 @@
       "menu": "Crea su GitHub",
       "done": "{{code}} è stata creata su GitHub.",
       "skipped": "GitHub non conosce queste label, non sono state create: {{labels}}",
-      "failed": "{{code}} non è stata creata su GitHub: {{reason}}",
-      "releaseDone": "La milestone è stata creata su GitHub.",
-      "releaseExists": "GitHub ha già una milestone con questo titolo.",
-      "epicDone": "La label «epic: …» è stata creata su GitHub.",
-      "epicExists": "GitHub ha già questa label.",
-      "itemFailed": "Non è stato possibile creare nulla su GitHub: {{reason}}"
+      "failed": "{{code}} non è stata creata su GitHub: {{reason}}"
     }
   },
   "info": {

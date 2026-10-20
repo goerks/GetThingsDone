@@ -171,6 +171,20 @@ export function createDemoSource(): TrackerConnector {
       const list = demoLabels();
       if (!list.some((item) => item.toLowerCase() === label.name.toLowerCase())) writeList(LABELS_KEY, [...list, label.name]);
     },
+    async deleteLabel(repo, token, name) {
+      check(repo, token);
+      checkWrite(token);
+      writeList(LABELS_KEY, demoLabels().filter((item) => item.toLowerCase() !== name.toLowerCase()));
+      // The label disappears from every issue.
+      saveDemoIssues(demoIssues().map((issue) => ({ ...issue, labels: issue.labels.filter((item) => item.toLowerCase() !== name.toLowerCase()) })));
+    },
+    async deleteMilestone(repo, token, number) {
+      check(repo, token);
+      checkWrite(token);
+      const gone = demoMilestones().find((item) => item.number === number);
+      writeList(MILESTONES_KEY, demoMilestones().filter((item) => item.number !== number));
+      if (gone) saveDemoIssues(demoIssues().map((issue) => (issue.milestone === gone.title ? { ...issue, milestone: null } : issue)));
+    },
     async createIssue(repo, token, item): Promise<WriteResult> {
       check(repo, token);
       checkWrite(token);

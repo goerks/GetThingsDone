@@ -29,7 +29,7 @@ export function fakeGithub(issues: GithubIssue[]) {
     /** The milestones of the repository. */
     milestones: [] as ExternalMilestone[],
     /** What was sent to GitHub: one entry for every change or creation. */
-    writes: [] as Array<{ number: number; patch: ItemPatch } | { created: number } | { milestone: string } | { label: string }>
+    writes: [] as Array<{ number: number; patch: ItemPatch } | { created: number } | { milestone: string } | { label: string } | { deletedLabel: string } | { deletedMilestone: string }>
   };
   const check = (repo: { owner: string; name: string }, token: string): void => {
     state.calls += 1;
@@ -89,6 +89,21 @@ export function fakeGithub(issues: GithubIssue[]) {
       if (!state.canWrite) throw new GithubError('forbidden');
       if (!state.knownLabels.some((item) => item.toLowerCase() === label.name.toLowerCase())) state.knownLabels.push(label.name);
       state.writes.push({ label: label.name });
+    },
+    async deleteLabel(repo, token, name) {
+      check(repo, token);
+      if (!state.canWrite) throw new GithubError('forbidden');
+      state.knownLabels = state.knownLabels.filter((item) => item.toLowerCase() !== name.toLowerCase());
+      state.issues = state.issues.map((issue) => ({ ...issue, labels: issue.labels.filter((item) => item.toLowerCase() !== name.toLowerCase()) }));
+      state.writes.push({ deletedLabel: name });
+    },
+    async deleteMilestone(repo, token, number) {
+      check(repo, token);
+      if (!state.canWrite) throw new GithubError('forbidden');
+      const gone = state.milestones.find((item) => item.number === number);
+      state.milestones = state.milestones.filter((item) => item.number !== number);
+      if (gone) state.issues = state.issues.map((issue) => (issue.milestone === gone.title ? { ...issue, milestone: null } : issue));
+      state.writes.push({ deletedMilestone: gone?.title ?? String(number) });
     },
     async createIssue(repo, token, item) {
       check(repo, token);

@@ -61,9 +61,10 @@ interface Options {
   conflict?: ConflictRule;
   featureOn?: boolean;
   releases?: Release[];
+  managed?: { labels: string[]; milestones: string[] };
 }
 
-async function renderApp(hash: string, { stories = [], issues = [], write = true, conflict = 'remote', featureOn = true, releases = [] }: Options = {}) {
+async function renderApp(hash: string, { stories = [], issues = [], write = true, conflict = 'remote', featureOn = true, releases = [], managed = { labels: [], milestones: [] } }: Options = {}) {
   const fake = fakeGithub(issues);
   const repository = new LocalStorageRepository();
   const seed = seedSnapshot(todayIso());
@@ -76,7 +77,7 @@ async function renderApp(hash: string, { stories = [], issues = [], write = true
     settings: {
       ...seed.settings,
       features: { ...seed.settings.features, github: featureOn },
-      github: { repo: REPO, lastSyncAt: null, write, conflict, ignored: [] }
+      github: { repo: REPO, lastSyncAt: null, write, conflict, ignored: [], managed }
     }
   });
   await fake.github.tokens.set('good');
@@ -401,55 +402,38 @@ describe('the sync icon', () => {
   });
 });
 
-describe('creating milestones, epic labels and status labels', () => {
-  it('AC12.5 creates the milestone of a release from its dialog, once, and only while writing is on', async () => {
-    // Given a release without a milestone and writing on
+describe('labels and milestones that the sync makes and deletes', () => {
+  it('AC12.5 names the milestone that a sync made for a release', async () => {
+    // Given a story in a release that GitHub has no milestone for, and writing on
     const user = userEvent.setup();
     const herbst: Release = { id: 'release-herbst', title: 'Herbst', description: 'Autumn', startDate: null, endDate: '2026-11-30' };
-    const { fake } = await renderApp('#/releases', { releases: [herbst] });
-    // When I choose "Create on GitHub" in its dialog
-    await user.click(await screen.findByRole('button', { name: /Herbst/ }));
-    await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Create on GitHub' }));
-    // Then GitHub has the milestone with description and due date
+    const { fake } = await renderApp('#/backlog', { releases: [herbst], stories: [linked(31, { releaseId: 'release-herbst' })], issues: [fakeIssue(31, { title: 'Login' })] });
+    // When I synchronise
+    const dialog = await sync(user);
+    // Then GitHub has the milestone with description and due date, and the result says so
     await waitFor(() => expect(fake.state.milestones).toHaveLength(1));
     expect(fake.state.milestones[0]).toMatchObject({ title: 'Herbst', description: 'Autumn', dueOn: '2026-11-30' });
-    // And a second try says that it exists and creates nothing
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Create on GitHub' }));
-    expect(await screen.findByText('GitHub already has a milestone with this title.')).toBeInTheDocument();
-    expect(fake.state.milestones).toHaveLength(1);
+    expect(within(dialog).getByText('Milestone created: Herbst')).toBeInTheDocument();
   });
 
-  it('AC12.5 offers nothing while writing is off', async () => {
+  it('AC15.6 names the status label that a sync made for a column', async () => {
     const user = userEvent.setup();
-    await renderApp('#/releases', { write: false, releases: [{ id: 'release-herbst', title: 'Herbst', description: '', startDate: null, endDate: null }] });
-    await user.click(await screen.findByRole('button', { name: /Herbst/ }));
-    expect(within(await screen.findByRole('dialog')).queryByRole('button', { name: 'Create on GitHub' })).not.toBeInTheDocument();
+    const { fake } = await renderApp('#/board', { stories: [linked(31, { status: 'review' })], issues: [fakeIssue(31, { title: 'Login' })] });
+    const dialog = await sync(user);
+    expect(within(dialog).getByText('Label created: status: review')).toBeInTheDocument();
+    expect(fake.state.knownLabels).toContain('status: review');
   });
 
-  it('AC13.5 creates the label of an epic from its dialog and does not create it twice', async () => {
+  it('AC16.1 names the label that a sync deleted because nothing needs it any more', async () => {
+    // Given a label that the app made and that no epic and no issue needs now
     const user = userEvent.setup();
-    const { fake } = await renderApp('#/epics');
-    await user.click(await screen.findByRole('button', { name: /Local storage/ }));
-    await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Create on GitHub' }));
-    await waitFor(() => expect(fake.state.knownLabels).toContain('epic: Local storage'));
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Create on GitHub' }));
-    expect(await screen.findByText('GitHub already has this label.')).toBeInTheDocument();
-    expect(fake.state.knownLabels.filter((label) => label === 'epic: Local storage')).toHaveLength(1);
-  });
-
-  it('AC15.6 creates the missing status labels from the connection settings, once, and only while writing is on', async () => {
-    const user = userEvent.setup();
-    const { fake } = await renderApp('#/settings/github');
-    await user.click(await screen.findByRole('button', { name: 'Create status labels on GitHub' }));
-    expect(await screen.findByText('2 labels created: status: in progress, status: review')).toBeInTheDocument();
-    expect(fake.state.knownLabels).toEqual(expect.arrayContaining(['status: in progress', 'status: review']));
-    await user.click(screen.getByRole('button', { name: 'Create status labels on GitHub' }));
-    expect(await screen.findByText('All status labels exist already.')).toBeInTheDocument();
-    expect(fake.state.knownLabels.filter((label) => label.startsWith('status:'))).toHaveLength(2);
-    cleanup();
-    await renderApp('#/settings/github', { write: false });
-    await screen.findByRole('checkbox', { name: 'Also write to GitHub' });
-    expect(screen.queryByRole('button', { name: 'Create status labels on GitHub' })).not.toBeInTheDocument();
+    const { fake } = await renderApp('#/backlog', { issues: [fakeIssue(31, { title: 'Login' })], managed: { labels: ['epic: Old'], milestones: [] } });
+    fake.state.knownLabels.push('epic: Old');
+    // When I synchronise
+    const dialog = await sync(user);
+    // Then the label is gone from GitHub and the result says so
+    expect(within(dialog).getByText('Label deleted: epic: Old')).toBeInTheDocument();
+    expect(fake.state.knownLabels).not.toContain('epic: Old');
   });
 
   it('AC12.1 and AC13.1 name the release and the epic that a sync made', async () => {
@@ -464,11 +448,11 @@ describe('creating milestones, epic labels and status labels', () => {
 
 describe('texts of the story map sync', () => {
   const KEYS = [
-    'github.create.releaseDone',
-    'github.create.epicDone',
-    'github.create.itemFailed',
-    'github.settings.statusLabels.button',
-    'github.settings.statusLabels.help',
+    'github.sync.labelCreated',
+    'github.sync.labelDeleted',
+    'github.sync.milestoneCreated',
+    'github.sync.milestoneDeleted',
+    'github.sync.missingLabels',
     'github.sync.releaseCreated',
     'github.sync.epicCreated',
     'github.sync.missingMilestones',
@@ -489,5 +473,6 @@ describe('texts of the story map sync', () => {
 
   it('AC12.7 has the texts of the new features in German, English, French and Italian', check);
   it('AC13.7 has the texts of the new features in German, English, French and Italian', check);
+  it('AC16.7 has the texts of the new features in German, English, French and Italian', check);
   it('AC15.9 has the texts of the new features in German, English, French and Italian', check);
 });

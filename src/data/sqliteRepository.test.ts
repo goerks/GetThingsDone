@@ -186,13 +186,13 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, team: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: seedSnapshot(todayIso()).settings.definitions });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, team: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: seedSnapshot(todayIso()).settings.definitions });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
   });
 
   it('falls back to the default for a value it does not know', async () => {
@@ -801,14 +801,14 @@ describe('GitHub link of a story (#30)', () => {
 
   it('AC1.5 keeps the repository, the last sync and the switch of the feature in the settings', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
+    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } });
     const settings = (await repository.load()).settings;
-    await repository.saveSettings({ ...settings, features: { ...settings.features, github: true }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] } });
+    await repository.saveSettings({ ...settings, features: { ...settings.features, github: true }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'], managed: { labels: ['epic: Storage'], milestones: ['Herbst'] } } });
     const after = (await repository.load()).settings;
     expect(after.features.github).toBe(true);
-    expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] });
-    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
+    expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'], managed: { labels: ['epic: Storage'], milestones: ['Herbst'] } });
+    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } });
   });
 
   it('keeps the stories of version 0.1 when the migration adds the columns', () => {

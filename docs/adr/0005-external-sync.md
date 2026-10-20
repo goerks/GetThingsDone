@@ -36,16 +36,16 @@ Constraints from ADR 0001: the repository interface between app and storage stay
 
 ### 3. What goes to GitHub
 
-- Title, description, labels (only labels the repository has: the sync never creates labels, unknown ones are reported and stay on the story), the criteria as the task list under "Acceptance criteria" (the rest of the text of the issue is kept), closed/open from done/not done.
+- Title, description, labels (only labels the repository has: the sync only creates epic and status labels (see below), other unknown ones are reported and stay on the story), the criteria as the task list under "Acceptance criteria" (the rest of the text of the issue is kept), closed/open from done/not done.
 - A new issue is created from a story with title, text and criteria and labels; the story is linked to it. A deleted story is remembered by the address of its issue (`Settings.github.ignored`), so the sync does not bring it back; the issue itself stays on GitHub.
 - A token that may only read gets `403` when it writes: the error `forbidden` says that it needs "Issues: read and write". What was done before the failure stays; the rest remains pending.
 
 ### 3b. Story map and board columns (added 2026-10-17)
 
 - Release and milestone are matched by title, epic and label by the name after "epic: ", column and label by the name after "status: " (the id without underscores for the default columns, the label for own ones). No new storage is needed: the base of a story holds the three new fields next to the others. A renamed release or epic is a new one for the sync.
-- A milestone or an epic label that is unknown becomes a release or an epic; the colour of an epic made from a label is chosen from its name. Milestones, epic labels and status labels are **never made by a sync**: the dialog of a release or an epic and Settings → Connections offer "Create on GitHub" once, only while writing is on. A story whose release or epic has no counterpart stays marked and the result names it.
+- A milestone or an epic label that is unknown becomes a release or an epic; the colour of an epic made from a label is chosen from its name. While writing is on, the sync makes the milestones, epic labels and status labels that a story needs, and deletes them again once no release, epic, column or linked issue needs them. Only what the app made itself (the registry `managed` in the connection settings) is ever deleted; what someone made on GitHub is never touched. While writing is off nothing is made or deleted. A story whose release or epic has no counterpart stays marked and the result names it.
 - The labels "epic: …" and "status: …" are not labels of the story: they are left out of the field "Labels". A closed issue is done whatever its status label says.
-- The connector has four more calls for this: `listMilestones`, `createMilestone`, `listLabels` and `createLabel`; the milestone of an issue is part of `ItemPatch`.
+- The connector has six more calls for this: `listMilestones`, `createMilestone`, `deleteMilestone`, `listLabels`, `createLabel` and `deleteLabel`; the milestone of an issue is part of `ItemPatch`.
 
 ### 4. Settings and data
 

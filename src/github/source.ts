@@ -56,6 +56,10 @@ export interface TrackerConnector {
   listLabels(repo: RepoRef, token: string): Promise<string[]>;
   /** Creates a label; `color` is a hex colour without the hash. Throws a `GithubError`, `forbidden` when the token may not write. */
   createLabel(repo: RepoRef, token: string, label: { name: string; color: string }): Promise<void>;
+  /** Deletes a label of the repository; it disappears from every issue. Throws a `GithubError`. */
+  deleteLabel(repo: RepoRef, token: string, name: string): Promise<void>;
+  /** Deletes a milestone; the issues in it have none afterwards. Throws a `GithubError`. */
+  deleteMilestone(repo: RepoRef, token: string, number: number): Promise<void>;
 }
 
 /** The connector of GitHub; the name the rest of the app knows. */
