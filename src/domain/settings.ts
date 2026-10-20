@@ -37,7 +37,8 @@ export function normalizeSettings(stored: StoredSettings | null | undefined): Se
   const conflict: ConflictRule = stored?.github?.conflict === 'local' || stored?.github?.conflict === 'ask' ? stored.github.conflict : 'remote';
   const ignored = Array.isArray(stored?.github?.ignored) ? (stored.github.ignored as unknown[]).filter((item): item is string => typeof item === 'string') : [];
   const names = (value: unknown): string[] => (Array.isArray(value) ? (value as unknown[]).filter((item): item is string => typeof item === 'string') : []);
-  const managed = { labels: names(stored?.github?.managed?.labels), milestones: names(stored?.github?.managed?.milestones) };
+  const storedManaged = (typeof stored?.github?.managed === 'object' && stored.github.managed !== null ? stored.github.managed : {}) as { labels?: unknown; milestones?: unknown };
+  const managed = { labels: names(storedManaged.labels), milestones: names(storedManaged.milestones) };
   const lastSyncAt = typeof stored?.github?.lastSyncAt === 'string' && stored.github.lastSyncAt ? stored.github.lastSyncAt : null;
   return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, github: { repo, lastSyncAt, write, conflict, ignored, managed }, definitions: normalizeDefinitions(stored?.definitions) };
 }
