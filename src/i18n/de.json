@@ -1021,7 +1021,7 @@
       "github.basics": {
         "title": "GitHub-Issues",
         "keywords": "github issues import sync synchronisieren abgleich repository token verbinden funktion aktivieren einschalten stories labels kriterien schreiben veröffentlichen konflikt verbindungen roundtrip milestone epic label status icon",
-        "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren und Änderungen in beide Richtungen abgleichen. Das geht nur, wenn die Funktion „GitHub-Anbindung“ eingeschaltet ist. Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → GitHub-Anbindung ein (Schalter ganz oben).\n2. Trage unter dem Schalter das Repository (owner/name) und ein Zugriffstoken ein und drücke „Verbindung testen“. Soll die App auch nach GitHub schreiben, schalte „Auch nach GitHub schreiben“ ein (das Token braucht dann „Issues: Lesen und Schreiben“) und wähle, wer bei einem Konflikt gewinnt: GitHub (Standard), lokal, oder du entscheidest.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; was sich nur auf einer Seite geändert hat, geht auf die andere. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen. Ohne diesen Knopf geht nichts nach GitHub. Stories mit Änderungen, die noch nicht auf GitHub sind, sind markiert.\nEine eigene Story legst du über ihr Menü mit „Auf GitHub anlegen“ als Issue an. Sprint, Punkte und Reihenfolge bleiben immer lokal. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nDas Sync-Icon (zwei runde Pfeile) steht auf Backlog, Board und Story Map; die Zahl daran sind die Änderungen, die noch nicht auf GitHub sind. Releases entsprechen den Milestones, Epics den Labels „epic: Name“, die Board-Spalten zwischen „Offen“ und „Erledigt“ den Labels „status: Name“. Fehlende Milestones und Labels legt der Abgleich nie von selbst an: Milestone und Epic-Label legst du im Dialog des Releases beziehungsweise des Epics mit „Auf GitHub anlegen“ an, die Status-Labels unter Einstellungen → Verbindungen.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
+        "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren und Änderungen in beide Richtungen abgleichen. Das geht nur, wenn die Funktion „GitHub-Anbindung“ eingeschaltet ist. Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → GitHub-Anbindung ein (Schalter ganz oben).\n2. Trage unter dem Schalter das Repository (owner/name) und ein Zugriffstoken ein und drücke „Verbindung testen“. Soll die App auch nach GitHub schreiben, schalte „Auch nach GitHub schreiben“ ein (das Token braucht dann „Issues: Lesen und Schreiben“) und wähle, wer bei einem Konflikt gewinnt: GitHub (Standard), lokal, oder du entscheidest.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; was sich nur auf einer Seite geändert hat, geht auf die andere. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen. Ohne diesen Knopf geht nichts nach GitHub. Stories mit Änderungen, die noch nicht auf GitHub sind, sind markiert.\nEine eigene Story legst du über ihr Menü mit „Auf GitHub anlegen“ als Issue an. Sprint, Punkte und Reihenfolge bleiben immer lokal. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nDas Sync-Icon (zwei runde Pfeile) steht auf Backlog, Board und Story Map; die Zahl daran sind die Änderungen, die noch nicht auf GitHub sind. Releases entsprechen den Milestones, Epics den Labels „epic: Name“, die Board-Spalten zwischen „Offen“ und „Erledigt“ den Labels „status: Name“. Bei eingeschaltetem Schreiben legt der Abgleich die nötigen Milestones und Labels selbst an und löscht die, die er angelegt hat, sobald nichts mehr daran hängt. Was du selbst auf GitHub angelegt hast, löscht er nie.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
       }
     },
     "links": {
@@ -1421,13 +1421,6 @@
         "remote": "GitHub gewinnt (Standard)",
         "local": "Lokal gewinnt",
         "ask": "Ich entscheide (ein Dialog zeigt beide Fassungen)"
-      },
-      "statusLabels": {
-        "button": "Status-Labels auf GitHub anlegen",
-        "help": "Legt die fehlenden Labels „status: …“ für die Board-Spalten an.",
-        "done_one": "{{count}} Label angelegt: {{labels}}",
-        "done_other": "{{count}} Labels angelegt: {{labels}}",
-        "none": "Alle Status-Labels gibt es schon."
       }
     },
     "demo": {
@@ -1471,7 +1464,12 @@
       "releaseCreated": "Release neu: {{title}}",
       "epicCreated": "Epic neu: {{name}}",
       "missingMilestones": "Noch kein Milestone auf GitHub: {{titles}}",
-      "multipleEpics": "Mehrere Epic-Labels, das erste zählt: {{issues}}"
+      "multipleEpics": "Mehrere Epic-Labels, das erste zählt: {{issues}}",
+      "labelCreated": "Label angelegt: {{name}}",
+      "labelDeleted": "Label gelöscht: {{name}}",
+      "milestoneCreated": "Milestone angelegt: {{name}}",
+      "milestoneDeleted": "Milestone gelöscht: {{name}}",
+      "missingLabels": "Label fehlt auf GitHub: {{names}}"
     },
     "change": {
       "created": "Neue Story",
@@ -1565,12 +1563,7 @@
       "menu": "Auf GitHub anlegen",
       "done": "{{code}} wurde auf GitHub angelegt.",
       "skipped": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
-      "failed": "{{code}} konnte nicht auf GitHub angelegt werden: {{reason}}",
-      "releaseDone": "Der Milestone wurde auf GitHub angelegt.",
-      "releaseExists": "GitHub hat schon einen Milestone mit diesem Titel.",
-      "epicDone": "Das Label „epic: …“ wurde auf GitHub angelegt.",
-      "epicExists": "GitHub hat dieses Label schon.",
-      "itemFailed": "Auf GitHub konnte nichts angelegt werden: {{reason}}"
+      "failed": "{{code}} konnte nicht auf GitHub angelegt werden: {{reason}}"
     }
   },
   "info": {

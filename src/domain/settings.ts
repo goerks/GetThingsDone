@@ -9,7 +9,7 @@ export const FEATURE_KEYS: readonly FeatureKey[] = ['releases', 'team', 'github'
 /** Releases are on until the team switches them off; the team (#18) and the GitHub connection (#30) are off until the team switches them on. The demo data switch the team on. */
 export const DEFAULT_FEATURES: Features = { releases: true, team: false, github: false };
 
-export const DEFAULT_GITHUB: GithubSettings = { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] };
+export const DEFAULT_GITHUB: GithubSettings = { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } };
 
 export const DEFAULT_SETTINGS: Settings = { mapRows: 'sprints', features: DEFAULT_FEATURES, github: DEFAULT_GITHUB, definitions: EMPTY_DEFINITIONS };
 
@@ -19,7 +19,7 @@ const isOn = (value: unknown): boolean => value === true || value === 'true' || 
 interface StoredSettings {
   mapRows?: unknown;
   features?: Partial<Record<FeatureKey, unknown>> | null;
-  github?: { repo?: unknown; lastSyncAt?: unknown; write?: unknown; conflict?: unknown; ignored?: unknown } | null;
+  github?: { repo?: unknown; lastSyncAt?: unknown; write?: unknown; conflict?: unknown; ignored?: unknown; managed?: { labels?: unknown; milestones?: unknown } | null } | null;
   definitions?: unknown;
 }
 
@@ -36,8 +36,10 @@ export function normalizeSettings(stored: StoredSettings | null | undefined): Se
   const write = isOn(stored?.github?.write);
   const conflict: ConflictRule = stored?.github?.conflict === 'local' || stored?.github?.conflict === 'ask' ? stored.github.conflict : 'remote';
   const ignored = Array.isArray(stored?.github?.ignored) ? (stored.github.ignored as unknown[]).filter((item): item is string => typeof item === 'string') : [];
+  const names = (value: unknown): string[] => (Array.isArray(value) ? (value as unknown[]).filter((item): item is string => typeof item === 'string') : []);
+  const managed = { labels: names(stored?.github?.managed?.labels), milestones: names(stored?.github?.managed?.milestones) };
   const lastSyncAt = typeof stored?.github?.lastSyncAt === 'string' && stored.github.lastSyncAt ? stored.github.lastSyncAt : null;
-  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, github: { repo, lastSyncAt, write, conflict, ignored }, definitions: normalizeDefinitions(stored?.definitions) };
+  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, github: { repo, lastSyncAt, write, conflict, ignored, managed }, definitions: normalizeDefinitions(stored?.definitions) };
 }
 
 /** Whether a feature is switched on. */

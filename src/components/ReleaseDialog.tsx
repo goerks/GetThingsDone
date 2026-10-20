@@ -2,7 +2,6 @@ import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { validateRelease, releaseStats, storiesAfterReleaseEnd, storiesInRelease, type ReleaseProblem } from '../domain/releases';
 import type { Release } from '../domain/types';
-import { GithubCreateButton } from './GithubCreateButton';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
@@ -200,7 +199,6 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                 {t('releases.afterEnd', { count: late.length, date: formatDay(release.endDate, language), codes: late.map((story) => story.code).join(', ') })}
               </p>
             )}
-            <GithubCreateButton kind="release" id={release.id} />
             <div className="danger">
               {confirmDelete ? (
                 <div role="group" aria-labelledby={`${uid}-confirm`} className="danger__confirm">

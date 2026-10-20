@@ -2,7 +2,6 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { storiesInEpic } from '../domain/epics';
 import { customFieldsFor, isRequired } from '../domain/fields';
-import { GithubCreateButton } from './GithubCreateButton';
 import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { EditableText } from './EditableText';
@@ -77,7 +76,6 @@ export function EpicDialog({ id, onClose }: { id: string; onClose: () => void })
         <p className="muted">{t('epics.storyCount', { count })}</p>
         <HistoryPanel itemType="epic" itemId={epic.id} label={epic.name} />
         <div className="form__actions dialog__footer">
-          <GithubCreateButton kind="epic" id={epic.id} />
           <button type="button" className="btn btn--danger-quiet" disabled={count > 0} onClick={remove} aria-describedby={count > 0 ? `${uid}-in-use` : undefined}>
             {t('epics.deleteButton')}
           </button>

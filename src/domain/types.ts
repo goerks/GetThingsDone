@@ -321,6 +321,8 @@ export interface GithubSettings {
   conflict: ConflictRule;
   /** Addresses of issues whose story was deleted here: they are not imported again. */
   ignored: string[];
+  /** The labels and milestones the sync made on GitHub. Only these are deleted again, when nothing needs them any more. */
+  managed: { labels: string[]; milestones: string[] };
 }
 
 /** Settings of the workspace, shared by the whole team. */

@@ -591,20 +591,20 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           title: 'Release ohne Milestone',
           link: BACKLOG,
           target: '.github-sync',
-          given: 'Schreiben ist an. Das Release „Herbst“ hat noch keinen Milestone auf GitHub.',
+          given: 'Schreiben ist aus. Das Release „Herbst“ hat noch keinen Milestone auf GitHub.',
           when: 'Ich weise eine verknüpfte Story dem Release „Herbst“ zu und synchronisiere.',
           then: 'Auf GitHub ändert sich der Milestone nicht. Das Ergebnis sagt, dass „Herbst“ noch keinen Milestone hat; die Zuweisung bleibt lokal markiert.',
-          tests: [`${SMAP} › AC12.4 does not publish a release without a milestone and says so`]
+          tests: [`${SMAP} › AC12.4 does not publish a release without a milestone while writing is off, and says so`]
         },
         {
           id: 'AC12.5',
-          title: 'Release als Milestone anlegen',
-          link: "#/releases",
-          target: '.release-card',
-          given: 'Schreiben ist an. Release „Herbst“ (Beschreibung, Ende 30.11.2026) ohne Milestone.',
-          when: 'Ich öffne das Release und wähle „Auf GitHub anlegen“.',
-          then: 'Auf GitHub gibt es den Milestone „Herbst“ mit Beschreibung und Fälligkeitsdatum. Ohne eingeschaltetes Schreiben fehlt der Knopf; ein Abgleich legt nie von selbst einen Milestone an. (Der Knopf steht im Dialog des Releases statt in einem Menü.)',
-          tests: [`${ROUNDTRIP} › AC12.5 creates the milestone of a release from its dialog, once, and only while writing is on`, `${ROUNDTRIP} › AC12.5 offers nothing while writing is off`, `${RUN} › AC12.5 makes a milestone once and AC13.5 a label once`]
+          title: 'Milestone legt der Abgleich an',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Release „Herbst“ (Beschreibung, Ende 30.11.2026) ohne Milestone; eine verknüpfte Story ist diesem Release zugewiesen.',
+          when: 'Ich synchronisiere.',
+          then: 'Auf GitHub gibt es den Milestone „Herbst“ mit Beschreibung und Fälligkeitsdatum, das Issue ist ihm zugewiesen, und das Ergebnis nennt „Milestone angelegt: Herbst“. Es gibt keinen Knopf dafür.',
+          tests: [`${SMAP} › AC12.5 asks the run to make the milestone of a release when writing is on`, `${ROUNDTRIP} › AC12.5 names the milestone that a sync made for a release`, `${RUN} › AC12.5 makes the milestone of a release that a story is in, with description and due date`]
         },
         {
           id: 'AC12.6',
@@ -668,20 +668,20 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           title: 'Epic ohne Label auf GitHub',
           link: BACKLOG,
           target: '.github-sync',
-          given: 'Schreiben ist an. Das Epic „Storage“ hat auf GitHub noch kein Label.',
+          given: 'Schreiben ist aus. Das Epic „Storage“ hat auf GitHub noch kein Label.',
           when: 'Ich weise eine verknüpfte Story dem Epic „Storage“ zu und synchronisiere.',
           then: 'Auf GitHub wird kein Label angelegt. Das Ergebnis sagt, dass es „epic: Storage“ nicht gibt; die Zuweisung bleibt lokal markiert.',
-          tests: [`${RUN} › AC13.4 and AC15.5 create no label: a missing epic or status label is reported and the assignment stays pending`]
+          tests: [`${SMAP} › AC13.4 names the epic label that GitHub does not have, and keeps the assignment pending`, `${RUN} › AC13.4 and AC15.5 make nothing while writing is off and name the missing labels`]
         },
         {
           id: 'AC13.5',
-          title: 'Epic als Label anlegen',
-          link: "#/epics",
-          target: '.epic-card',
-          given: 'Schreiben ist an. Epic „Storage“ ohne Label auf GitHub.',
-          when: 'Ich öffne das Epic und wähle „Auf GitHub anlegen“.',
-          then: 'Auf GitHub gibt es das Label „epic: Storage“ in der Farbe des Epics. Ohne eingeschaltetes Schreiben fehlt der Knopf; ein Abgleich legt nie von selbst ein Label an. (Der Knopf steht im Dialog des Epics statt in einem Menü.)',
-          tests: [`${ROUNDTRIP} › AC13.5 creates the label of an epic from its dialog and does not create it twice`]
+          title: 'Epic-Label legt der Abgleich an',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an. Epic „Storage“ ohne Label auf GitHub; eine verknüpfte Story ist diesem Epic zugewiesen.',
+          when: 'Ich synchronisiere.',
+          then: 'Auf GitHub gibt es das Label „epic: Storage“ in der Farbe des Epics, das Issue trägt es, und das Ergebnis nennt „Label angelegt: epic: Storage“. Es gibt keinen Knopf dafür.',
+          tests: [`${RUN} › AC13.5 makes the label of an epic that a story needs before it publishes it, and remembers that it made it`]
         },
         {
           id: 'AC13.6',
@@ -832,20 +832,20 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           title: 'Fehlendes Status-Label',
           link: BACKLOG,
           target: '.github-sync',
-          given: 'Schreiben ist an. Das Label „status: review“ gibt es auf GitHub noch nicht.',
+          given: 'Schreiben ist aus. Das Label „status: review“ gibt es auf GitHub noch nicht.',
           when: 'Ich ziehe eine verknüpfte Story nach „Review“ und synchronisiere.',
           then: 'Es wird kein Label angelegt. Das Ergebnis sagt, dass „status: review“ fehlt; die Story bleibt als „nicht auf GitHub“ markiert.',
-          tests: [`${SMAP} › AC15.5 keeps a column without a label on GitHub as pending`]
+          tests: [`${SMAP} › AC15.5 names the status label that GitHub does not have`, `${SMAP} › AC15.5 keeps a column without a label on GitHub as pending`]
         },
         {
           id: 'AC15.6',
-          title: 'Status-Labels anlegen',
-          link: SETTINGS,
-          target: '.github-options',
-          given: 'Schreiben ist an; die Labels für „In Arbeit“ und „Review“ fehlen auf GitHub.',
-          when: 'Ich wähle in Einstellungen → Verbindungen „Status-Labels auf GitHub anlegen“.',
-          then: 'Auf GitHub gibt es „status: in progress“ und „status: review“. Ein zweiter Klick legt nichts doppelt an. Ohne eingeschaltetes Schreiben fehlt der Knopf; ein Abgleich legt nie von selbst Labels an.',
-          tests: [`${ROUNDTRIP} › AC15.6 creates the missing status labels from the connection settings, once, and only while writing is on`, `${RUN} › AC15.6 makes the labels of the columns between the first one and done, and only the missing ones`]
+          title: 'Status-Label legt der Abgleich an',
+          link: "#/board",
+          target: '.github-sync',
+          given: 'Schreiben ist an. Das Label „status: review“ fehlt auf GitHub; eine verknüpfte Story steht in „Review“.',
+          when: 'Ich synchronisiere.',
+          then: 'Auf GitHub gibt es „status: review“, das Issue trägt es, und das Ergebnis nennt „Label angelegt: status: review“. Spalten ohne Story bekommen kein Label. Es gibt keinen Knopf dafür.',
+          tests: [`${RUN} › AC15.6 makes the label of a column that a story is in`, `${ROUNDTRIP} › AC15.6 names the status label that a sync made for a column`]
         },
         {
           id: 'AC15.7',
@@ -872,10 +872,87 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           title: 'Sprachen und Tastatur',
           link: SETTINGS,
           target: '.github-options',
-          given: 'Der Knopf für die Status-Labels.',
-          when: 'Ich wechsle die Sprache und bediene den Knopf mit der Tastatur.',
-          then: 'Knopf, Meldungen und Hilfe sind in DE, EN, FR und IT, der Knopf ist per Tastatur bedienbar.',
+          given: 'Das Ergebnis eines Abgleichs.',
+          when: 'Ich wechsle die Sprache.',
+          then: 'Meldungen und Hilfe sind in DE, EN, FR und IT.',
           tests: [`${ROUNDTRIP} › AC15.9 has the texts of the new features in German, English, French and Italian`]
+        }
+      ]
+    },
+    {
+      id: 'AC16',
+      story: 'G16',
+      title: 'Labels und Milestones legt und löscht der Abgleich selbst',
+      cases: [
+        {
+          id: 'AC16.1',
+          title: 'Label des gelöschten Epics wird gelöscht',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Das Label „epic: Alt“ hat die App angelegt. Das Epic „Alt“ ist gelöscht und kein Issue trägt das Label mehr.',
+          when: 'Ich synchronisiere.',
+          then: 'Das Label ist auf GitHub gelöscht und das Ergebnis nennt „Label gelöscht: epic: Alt“.',
+          tests: [`${RUN} › AC16.1 deletes the label the app made when its epic is gone and no issue has it any more`, `${ROUNDTRIP} › AC16.1 names the label that a sync deleted because nothing needs it any more`]
+        },
+        {
+          id: 'AC16.2',
+          title: 'Label bleibt, solange das Epic existiert',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Das Epic „Storage“ existiert noch; sein Label hat die App angelegt.',
+          when: 'Ich synchronisiere.',
+          then: 'Das Label bleibt auf GitHub.',
+          tests: [`${RUN} › AC16.2 keeps the label while its epic still exists`]
+        },
+        {
+          id: 'AC16.3',
+          title: 'Label einer gelöschten Spalte wird gelöscht',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Die Spalte „Review“ ist gelöscht; ihr Label hat die App angelegt.',
+          when: 'Ich synchronisiere.',
+          then: 'Das Label „status: review“ ist auf GitHub gelöscht.',
+          tests: [`${RUN} › AC16.3 deletes the label of a column that is gone`]
+        },
+        {
+          id: 'AC16.4',
+          title: 'Milestone eines gelöschten Releases wird gelöscht',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Das Release „Herbst“ ist gelöscht; seinen Milestone hat die App angelegt.',
+          when: 'Ich synchronisiere.',
+          then: 'Die Issues verlassen den Milestone, danach ist er auf GitHub gelöscht.',
+          tests: [`${RUN} › AC16.4 deletes the milestone of a release that is gone, after the issues have left it`]
+        },
+        {
+          id: 'AC16.5',
+          title: 'Fremde Labels und Milestones bleiben',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Auf GitHub gibt es ein Label und einen Milestone, die nicht die App angelegt hat.',
+          when: 'Ich synchronisiere.',
+          then: 'Beide bleiben unberührt.',
+          tests: [`${RUN} › AC16.5 never deletes a label or a milestone that the app did not make`]
+        },
+        {
+          id: 'AC16.6',
+          title: 'Ohne Schreiben wird nichts gelöscht',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist aus.',
+          when: 'Ich synchronisiere.',
+          then: 'Auf GitHub wird nichts angelegt oder gelöscht.',
+          tests: [`${RUN} › AC16.6 deletes nothing while writing is off`]
+        },
+        {
+          id: 'AC16.7',
+          title: 'Sprachen',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Das Ergebnis eines Abgleichs.',
+          when: 'Ich wechsle die Sprache.',
+          then: 'Meldungen „angelegt“ und „gelöscht“ sind in DE, EN, FR und IT.',
+          tests: [`${ROUNDTRIP} › AC16.7 has the texts of the new features in German, English, French and Italian`]
         }
       ]
     }
