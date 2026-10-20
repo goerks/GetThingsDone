@@ -1021,7 +1021,7 @@
       "github.basics": {
         "title": "Tickets GitHub",
         "keywords": "github tickets issues import synchro synchroniser dépôt jeton connecter fonction activer stories labels critères écrire publier conflit connexions aller-retour jalon epic label statut icône",
-        "body": "Importer les issues ouvertes d’un dépôt GitHub comme stories et synchroniser les modifications dans les deux sens. Cela ne fonctionne que si la fonction « Connexion GitHub » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Connexion GitHub (l’interrupteur en haut).\n2. Sous l’interrupteur, saisissez le dépôt (owner/name) et un jeton d’accès, puis appuyez sur « Tester la connexion ». Si l’application doit aussi écrire vers GitHub, activez « Écrire aussi vers GitHub » (le jeton doit alors avoir « Issues : lecture et écriture ») et choisissez qui l’emporte en cas de conflit : GitHub (par défaut), le local, ou vous décidez.\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les nouvelles issues deviennent des stories ; ce qui n’a changé que d’un côté passe de l’autre. Avec l’écriture activée, « Synchroniser » publie aussi vos modifications du titre, de la description, des labels, des critères et de fait/ouvert. Rien ne part vers GitHub sans ce bouton. Les stories dont les modifications ne sont pas encore sur GitHub sont marquées.\nVous créez une issue à partir d’une de vos stories avec « Créer sur GitHub » dans son menu. Sprint, points et ordre restent toujours locaux. Sans connexion réseau ou avec un mauvais jeton, l’application le dit et laisse vos données locales tranquilles.\nL’icône de synchronisation (deux flèches circulaires) se trouve sur le backlog, le tableau et la story map ; le nombre affiché est celui des modifications pas encore sur GitHub. Les releases correspondent aux jalons, les epics aux labels « epic : Nom », les colonnes du tableau entre « À faire » et « Terminé » aux labels « status : Nom ». La synchronisation ne crée jamais d’elle-même les jalons ou labels manquants : vous créez le jalon et le label d’epic avec « Créer sur GitHub » dans la fenêtre de la release ou de l’epic, et les labels de statut sous Paramètres → Connexions.\nSi vous désactivez la fonction, tout est masqué mais conservé."
+        "body": "Importer les issues ouvertes d’un dépôt GitHub comme stories et synchroniser les modifications dans les deux sens. Cela ne fonctionne que si la fonction « Connexion GitHub » est activée. Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Connexion GitHub (l’interrupteur en haut).\n2. Sous l’interrupteur, saisissez le dépôt (owner/name) et un jeton d’accès, puis appuyez sur « Tester la connexion ». Si l’application doit aussi écrire vers GitHub, activez « Écrire aussi vers GitHub » (le jeton doit alors avoir « Issues : lecture et écriture ») et choisissez qui l’emporte en cas de conflit : GitHub (par défaut), le local, ou vous décidez.\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les nouvelles issues deviennent des stories ; ce qui n’a changé que d’un côté passe de l’autre. Avec l’écriture activée, « Synchroniser » publie aussi vos modifications du titre, de la description, des labels, des critères et de fait/ouvert. Rien ne part vers GitHub sans ce bouton. Les stories dont les modifications ne sont pas encore sur GitHub sont marquées.\nVous créez une issue à partir d’une de vos stories avec « Créer sur GitHub » dans son menu. Sprint, points et ordre restent toujours locaux. Sans connexion réseau ou avec un mauvais jeton, l’application le dit et laisse vos données locales tranquilles.\nL’icône de synchronisation (deux flèches circulaires) se trouve sur le backlog, le tableau et la story map ; le nombre affiché est celui des modifications pas encore sur GitHub. Les releases correspondent aux jalons, les epics aux labels « epic : Nom », les colonnes du tableau entre « À faire » et « Terminé » aux labels « status : Nom ». Quand l’écriture est activée, la synchronisation crée elle-même les jalons et labels nécessaires et supprime ceux qu’elle a créés dès que plus rien n’en dépend. Ce que vous avez créé vous-même sur GitHub n’est jamais supprimé.\nSi vous désactivez la fonction, tout est masqué mais conservé."
       }
     },
     "links": {
@@ -1426,13 +1426,6 @@
         "remote": "GitHub l’emporte (par défaut)",
         "local": "Le local l’emporte",
         "ask": "Je décide (une fenêtre montre les deux versions)"
-      },
-      "statusLabels": {
-        "button": "Créer les labels de statut sur GitHub",
-        "help": "Crée les labels « status : … » manquants pour les colonnes du tableau.",
-        "done_one": "{{count}} label créé : {{labels}}",
-        "done_other": "{{count}} labels créés : {{labels}}",
-        "none": "Tous les labels de statut existent déjà."
       }
     },
     "demo": {
@@ -1476,7 +1469,12 @@
       "releaseCreated": "Nouvelle release : {{title}}",
       "epicCreated": "Nouvel epic : {{name}}",
       "missingMilestones": "Pas encore de jalon sur GitHub : {{titles}}",
-      "multipleEpics": "Plusieurs labels epic, le premier compte : {{issues}}"
+      "multipleEpics": "Plusieurs labels epic, le premier compte : {{issues}}",
+      "labelCreated": "Label créé : {{name}}",
+      "labelDeleted": "Label supprimé : {{name}}",
+      "milestoneCreated": "Jalon créé : {{name}}",
+      "milestoneDeleted": "Jalon supprimé : {{name}}",
+      "missingLabels": "Label absent de GitHub : {{names}}"
     },
     "change": {
       "created": "Nouvelle story",
@@ -1573,12 +1571,7 @@
       "menu": "Créer sur GitHub",
       "done": "{{code}} a été créée sur GitHub.",
       "skipped": "GitHub ne connaît pas ces labels, ils n’ont pas été créés : {{labels}}",
-      "failed": "{{code}} n’a pas pu être créée sur GitHub : {{reason}}",
-      "releaseDone": "Le jalon a été créé sur GitHub.",
-      "releaseExists": "GitHub a déjà un jalon avec ce titre.",
-      "epicDone": "Le label « epic : … » a été créé sur GitHub.",
-      "epicExists": "GitHub a déjà ce label.",
-      "itemFailed": "Rien n’a pu être créé sur GitHub : {{reason}}"
+      "failed": "{{code}} n’a pas pu être créée sur GitHub : {{reason}}"
     }
   },
   "info": {

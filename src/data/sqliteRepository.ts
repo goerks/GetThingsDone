@@ -332,7 +332,8 @@ export class SqliteRepository implements Repository {
         lastSyncAt: settingRows.find((row) => row.key === 'github_last_sync')?.value,
         write: settingRows.find((row) => row.key === 'github_write')?.value,
         conflict: settingRows.find((row) => row.key === 'github_conflict')?.value,
-        ignored: parseJson<unknown>(settingRows.find((row) => row.key === 'github_ignored')?.value ?? null)
+        ignored: parseJson<unknown>(settingRows.find((row) => row.key === 'github_ignored')?.value ?? null),
+        managed: parseJson<unknown>(settingRows.find((row) => row.key === 'github_managed')?.value ?? null)
       }
     });
     const statusRows = await this.db.select<{ id: string; label: string | null; category: string }[]>(
@@ -596,6 +597,7 @@ export class SqliteRepository implements Repository {
     await this.db.execute(upsert, ['github_write', settings.github.write ? '1' : '0']);
     await this.db.execute(upsert, ['github_conflict', settings.github.conflict]);
     await this.db.execute(upsert, ['github_ignored', JSON.stringify(settings.github.ignored)]);
+    await this.db.execute(upsert, ['github_managed', JSON.stringify(settings.github.managed)]);
     if (settings.github.lastSyncAt) await this.db.execute(upsert, ['github_last_sync', settings.github.lastSyncAt]);
     else await this.db.execute('DELETE FROM settings WHERE key = $1', ['github_last_sync']);
   }

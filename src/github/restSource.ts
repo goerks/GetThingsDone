@@ -44,7 +44,7 @@ function toIssue(raw: RawIssue): GithubIssue {
 
 /** Talks to the REST API of GitHub. Reading needs a token that may read issues; changing needs "Issues: read and write". */
 export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(...args)): TrackerConnector {
-  async function call(method: 'GET' | 'POST' | 'PATCH', path: string, token: string, body?: unknown): Promise<Response> {
+  async function call(method: 'GET' | 'POST' | 'PATCH' | 'DELETE', path: string, token: string, body?: unknown): Promise<Response> {
     let response: Response;
     try {
       response = await fetchImpl(`${API}${path}`, {
@@ -147,6 +147,21 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
     },
     async createLabel(repo: RepoRef, token: string, label): Promise<void> {
       await call('POST', `/repos/${repoText(repo)}/labels`, token, { name: label.name, color: label.color });
+    },
+    async deleteLabel(repo: RepoRef, token: string, name: string): Promise<void> {
+      try {
+        await call('DELETE', `/repos/${repoText(repo)}/labels/${encodeURIComponent(name)}`, token);
+      } catch (cause) {
+        // A label that is already gone is what was wanted.
+        if (!(cause instanceof GithubError && cause.kind === 'notFound')) throw cause;
+      }
+    },
+    async deleteMilestone(repo: RepoRef, token: string, number: number): Promise<void> {
+      try {
+        await call('DELETE', `/repos/${repoText(repo)}/milestones/${number}`, token);
+      } catch (cause) {
+        if (!(cause instanceof GithubError && cause.kind === 'notFound')) throw cause;
+      }
     },
     async createIssue(repo: RepoRef, token: string, item): Promise<WriteResult> {
       const only = await onlyKnown(repo, token, item.labels);

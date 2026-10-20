@@ -48,7 +48,7 @@ describe('the repository', () => {
 describe('settings of the GitHub connection', () => {
   it('AC1.1 is off by default and has no repository', () => {
     expect(DEFAULT_SETTINGS.features.github).toBe(false);
-    expect(DEFAULT_SETTINGS.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [] });
+    expect(DEFAULT_SETTINGS.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } });
     expect(normalizeSettings({ features: { releases: true } }).features.github).toBe(false);
     expect(normalizeSettings({ features: { github: 'x' } }).features.github).toBe(false);
   });

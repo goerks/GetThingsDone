@@ -379,6 +379,13 @@ export interface SyncSummary {
   missingMilestones: string[];
   /** Issues with more than one epic label: only the first counts. */
   multipleEpics: Array<{ code: string; number: number }>;
+  /** Labels and milestones the sync made or deleted on GitHub (#30, AC16); filled in by the run, not by the plan. */
+  labelsCreated: string[];
+  labelsDeleted: string[];
+  milestonesCreated: string[];
+  milestonesDeleted: string[];
+  /** Labels (epic, status) a story needs that GitHub does not have, while writing is off. */
+  missingLabels: string[];
 }
 
 export type Decision = 'local' | 'remote';
@@ -400,6 +407,8 @@ export interface SyncInput {
   releases?: readonly Release[];
   /** The milestones of the repository. */
   milestones?: readonly ExternalMilestone[];
+  /** The names of the labels of the repository; with them a sync that may not write can say which label is missing. */
+  knownLabels?: readonly string[];
   /** Whether the sync may change issues on GitHub. */
   write?: boolean;
   /** The rule for fields that changed on both sides. */
@@ -426,6 +435,8 @@ export interface Push {
   number: number;
   fields: FieldName[];
   patch: ItemPatch;
+  /** The title of a release that has no milestone yet: the run makes it before it publishes, and sets it in the patch. */
+  needsMilestone?: string;
 }
 
 export interface SyncPlan {
@@ -449,7 +460,12 @@ const emptySummary = (): SyncSummary => ({
   releasesCreated: [],
   epicsCreated: [],
   missingMilestones: [],
-  multipleEpics: []
+  multipleEpics: [],
+  labelsCreated: [],
+  labelsDeleted: [],
+  milestonesCreated: [],
+  milestonesDeleted: [],
+  missingLabels: []
 });
 
 /** The colour of an epic that was made from a label: the same name always gets the same colour. */
@@ -554,6 +570,7 @@ export function planSync(input: SyncInput): SyncPlan {
     const nextBase: ExternalFields = { ...base };
     const changes: GithubChange[] = [];
     const pushFields: FieldName[] = [];
+    let needsMilestone: string | undefined;
     let next: Story = story;
     let closed = false;
     if (epicLabels.length > 1) summary.multipleEpics.push({ code: story.code, number: issue.number });
@@ -631,21 +648,24 @@ export function planSync(input: SyncInput): SyncPlan {
       const localChanged = !sameField(name, local, base);
       const remoteChanged = !sameField(name, remote, base);
       if (!localChanged && !remoteChanged) continue;
-      // A release without a milestone cannot be published; the assignment stays here.
-      const unpublishable = name === 'release' && local.release && !milestones.some((item) => same(item.title, local.release));
+      // A release without a milestone and a label that GitHub does not have are made by the run when it may write (#30, AC16).
+      const missingMilestone = name === 'release' && local.release && !milestones.some((item) => same(item.title, local.release));
       const publish = (): void => {
-        if (unpublishable) {
-          summary.pending += 1;
-          if (local.release && !summary.missingMilestones.includes(local.release)) summary.missingMilestones.push(local.release);
-        } else {
-          pushFields.push(name);
-        }
+        pushFields.push(name);
+        if (missingMilestone && local.release) needsMilestone = local.release;
+      };
+      // When it may not write, the change stays here and the result says what is missing.
+      const pend = (): void => {
+        summary.pending += 1;
+        if (missingMilestone && local.release && !summary.missingMilestones.includes(local.release)) summary.missingMilestones.push(local.release);
+        const label = name === 'epic' && local.epic ? epicLabelText(local.epic) : name === 'status' && local.status ? statusLabelText(local.status) : null;
+        if (label && input.knownLabels && !input.knownLabels.some((item) => same(item, label)) && !summary.missingLabels.includes(label)) summary.missingLabels.push(label);
       };
       if (!localChanged) {
         pull(name);
       } else if (!remoteChanged) {
         if (write) publish();
-        else summary.pending += 1;
+        else pend();
       } else if (sameField(name, local, remote)) {
         nextBase[name] = remote[name] as never;
       } else {
@@ -658,9 +678,9 @@ export function planSync(input: SyncInput): SyncPlan {
           summary.overwritten.push({ ...entry, side: 'local', ...(name === 'title' ? { value: local.title } : {}) });
         } else if (write) {
           publish();
-          if (!unpublishable) summary.overwritten.push({ ...entry, side: 'github', ...(name === 'title' ? { value: remote.title } : {}) });
+          summary.overwritten.push({ ...entry, side: 'github', ...(name === 'title' ? { value: remote.title } : {}) });
         } else {
-          summary.pending += 1;
+          pend();
         }
       }
     }
@@ -678,10 +698,10 @@ export function planSync(input: SyncInput): SyncPlan {
         );
       }
       if (pushFields.includes('done')) patch.state = after.done ? 'closed' : 'open';
-      if (pushFields.includes('release')) patch.milestone = after.release ? (milestones.find((item) => same(item.title, after.release))?.number ?? null) : null;
+      if (pushFields.includes('release') && !needsMilestone) patch.milestone = after.release ? (milestones.find((item) => same(item.title, after.release))?.number ?? null) : null;
       if (pushFields.includes('description')) patch.body = composeBody(after.description, after.criteria);
       else if (pushFields.includes('criteria')) patch.body = withCriteria(issue.body, after.criteria);
-      pushes.push({ storyId: story.id, number: issue.number, fields: pushFields, patch });
+      pushes.push({ storyId: story.id, number: issue.number, fields: pushFields, patch, ...(needsMilestone ? { needsMilestone } : {}) });
     }
 
     if (JSON.stringify(nextBase) !== JSON.stringify(story.github?.base) || story.github?.state !== issue.state) {
@@ -751,5 +771,9 @@ export const isEmptySummary = (summary: SyncSummary): boolean =>
     summary.overwritten.length +
     summary.conflicts.length +
     summary.releasesCreated.length +
-    summary.epicsCreated.length ===
+    summary.epicsCreated.length +
+    summary.labelsCreated.length +
+    summary.labelsDeleted.length +
+    summary.milestonesCreated.length +
+    summary.milestonesDeleted.length ===
   0;

@@ -3,7 +3,8 @@ import { LABELS_FIELD_ID, issueUrl, pendingFields, type GithubIssue } from '../d
 import { DEFAULT_STATUSES } from '../domain/statuses';
 import { EPIC_COLOR_KEYS, type ExternalFields, type FieldDefinition, type Story } from '../domain/types';
 import { fakeGithub, fakeIssue, REPO } from '../test/fakeGithub';
-import { createEpicLabelFor, createMilestoneFor, createOnGithub, createStatusLabels, runSync, type RunSyncInput } from './runSync';
+import type { Epic, Release } from '../domain/types';
+import { createOnGithub, runSync, type RunSyncInput } from './runSync';
 
 const repo = { owner: 'goerks', name: 'GetThingsDone' };
 const statuses = DEFAULT_STATUSES.map((status) => ({ ...status }));
@@ -54,6 +55,7 @@ const input = (fake: ReturnType<typeof fakeGithub>, stories: Story[], extra: Par
   statuses,
   epics: [],
   releases: [],
+  managed: { labels: [], milestones: [] },
   newId,
   write: true,
   conflict: 'remote',
@@ -134,16 +136,6 @@ describe('one sync with a connector', () => {
     expect(created.story.github).toMatchObject({ url: `https://github.com/${REPO}/issues/1`, state: 'open' });
   });
 
-  it('AC13.4 and AC15.5 create no label: a missing epic or status label is reported and the assignment stays pending', async () => {
-    const fake = fakeGithub(issues());
-    const epicStory = story({ epicId: 'e-storage', status: 'review' });
-    const result = await runSync(input(fake, [epicStory], { epics: [{ id: 'e-storage', name: 'Storage', colorKey: EPIC_COLOR_KEYS[0], position: 0, values: {} }] }));
-    expect(result.summary.published[0].skippedLabels).toEqual(['epic: Storage', 'status: review']);
-    expect(fake.state.issues[0].labels).toEqual([]);
-    expect(fake.state.knownLabels).not.toContain('epic: Storage');
-    expect(pendingFields(result.plan.stories[0], labelsField, statuses, { epics: [{ id: 'e-storage', name: 'Storage', colorKey: EPIC_COLOR_KEYS[0], position: 0, values: {} }] })).toEqual(['epic', 'status']);
-  });
-
   it('AC12.3 publishes the milestone of a release to the issue', async () => {
     const fake = fakeGithub(issues());
     fake.state.milestones = [{ number: 2, title: 'v2.0', description: '', dueOn: null, state: 'open' }];
@@ -151,27 +143,105 @@ describe('one sync with a connector', () => {
     expect(fake.state.issues[0].milestone).toBe('v2.0');
     expect(result.summary.published[0].fields).toEqual(['release']);
   });
+})
 
-  it('AC12.5 makes a milestone once and AC13.5 a label once', async () => {
-    const fake = fakeGithub([]);
-    const common = { connector: fake.github.source, token: 'good', repo };
-    const herbst = { id: 'r', title: 'Herbst', description: 'Autumn', startDate: null, endDate: '2026-11-30' };
-    expect(await createMilestoneFor({ ...common, release: herbst })).toBe(true);
-    expect(await createMilestoneFor({ ...common, release: herbst })).toBe(false);
-    expect(fake.state.milestones).toHaveLength(1);
-    const storage = { id: 'e', name: 'Storage', colorKey: EPIC_COLOR_KEYS[0], position: 0, values: {} };
-    expect(await createEpicLabelFor({ ...common, epic: storage })).toBe(true);
-    expect(await createEpicLabelFor({ ...common, epic: storage })).toBe(false);
-    expect(fake.state.knownLabels.filter((label) => label === 'epic: Storage')).toHaveLength(1);
+describe('labels and milestones the sync makes and deletes (AC16)', () => {
+  const storage: Epic = { id: 'e-storage', name: 'Storage', colorKey: EPIC_COLOR_KEYS[0], position: 0, values: {} };
+  const herbst: Release = { id: 'r-herbst', title: 'Herbst', description: 'Autumn', startDate: null, endDate: '2026-11-30' };
+  const noReview = statuses.filter((status) => status.id !== 'review');
+
+  it('AC13.5 makes the label of an epic that a story needs before it publishes it, and remembers that it made it', async () => {
+    const fake = fakeGithub(issues());
+    const result = await runSync(input(fake, [story({ epicId: 'e-storage' })], { epics: [storage] }));
+    expect(fake.state.knownLabels).toContain('epic: Storage');
+    expect(fake.state.issues[0].labels).toEqual(['epic: Storage']);
+    expect(result.summary.labelsCreated).toEqual(['epic: Storage']);
+    expect(result.managed.labels).toEqual(['epic: Storage']);
+    expect(result.error).toBeNull();
   });
 
-  it('AC15.6 makes the labels of the columns between the first one and done, and only the missing ones', async () => {
-    const fake = fakeGithub([]);
-    const common = { connector: fake.github.source, token: 'good', repo, statuses };
-    expect(await createStatusLabels(common)).toEqual(['status: in progress', 'status: review']);
-    expect(await createStatusLabels(common)).toEqual([]);
-    fake.state.canWrite = false;
-    fake.state.knownLabels = fake.state.knownLabels.filter((label) => label !== 'status: review');
-    await expect(createStatusLabels(common)).rejects.toMatchObject({ kind: 'forbidden' });
+  it('AC15.6 makes the label of a column that a story is in', async () => {
+    const fake = fakeGithub(issues());
+    const result = await runSync(input(fake, [story({ status: 'review' })]));
+    expect(fake.state.issues[0].labels).toEqual(['status: review']);
+    expect(result.summary.labelsCreated).toEqual(['status: review']);
+    // A column that no story is in gets no label
+    expect(fake.state.knownLabels).not.toContain('status: in progress');
+  });
+
+  it('AC12.5 makes the milestone of a release that a story is in, with description and due date', async () => {
+    const fake = fakeGithub(issues());
+    const result = await runSync(input(fake, [story({ releaseId: 'r-herbst' })], { releases: [herbst] }));
+    expect(fake.state.milestones).toMatchObject([{ title: 'Herbst', description: 'Autumn', dueOn: '2026-11-30' }]);
+    expect(fake.state.issues[0].milestone).toBe('Herbst');
+    expect(result.summary.milestonesCreated).toEqual(['Herbst']);
+    expect(result.managed.milestones).toEqual(['Herbst']);
+  });
+
+  it('AC13.4 and AC15.5 make nothing while writing is off and name the missing labels', async () => {
+    const fake = fakeGithub(issues());
+    const result = await runSync(input(fake, [story({ epicId: 'e-storage', status: 'review' })], { epics: [storage], write: false }));
+    expect(fake.state.writes).toEqual([]);
+    expect(result.summary.missingLabels).toEqual(['epic: Storage', 'status: review']);
+    expect(result.managed.labels).toEqual([]);
+  });
+
+  it('AC16.1 deletes the label the app made when its epic is gone and no issue has it any more', async () => {
+    const fake = fakeGithub([fakeIssue(31, { title: 'Login', labels: ['epic: Storage'] })]);
+    fake.state.knownLabels.push('epic: Storage');
+    const was = story({ epicId: null }, { epic: 'Storage' });
+    const result = await runSync(input(fake, [was], { managed: { labels: ['epic: Storage'], milestones: [] } }));
+    expect(fake.state.issues[0].labels).toEqual([]);
+    expect(fake.state.knownLabels).not.toContain('epic: Storage');
+    expect(result.summary.labelsDeleted).toEqual(['epic: Storage']);
+    expect(result.managed.labels).toEqual([]);
+  });
+
+  it('AC16.2 keeps the label while its epic still exists', async () => {
+    const fake = fakeGithub([fakeIssue(31, { title: 'Login', labels: ['epic: Storage'] })]);
+    fake.state.knownLabels.push('epic: Storage');
+    const keeps = story({ epicId: 'e-storage' }, { epic: 'Storage' });
+    const result = await runSync(input(fake, [keeps], { epics: [storage], managed: { labels: ['epic: Storage'], milestones: [] } }));
+    expect(fake.state.knownLabels).toContain('epic: Storage');
+    expect(result.summary.labelsDeleted).toEqual([]);
+    expect(result.managed.labels).toEqual(['epic: Storage']);
+  });
+
+  it('AC16.3 deletes the label of a column that is gone', async () => {
+    const fake = fakeGithub(issues());
+    fake.state.knownLabels.push('status: review');
+    const result = await runSync(input(fake, [story()], { statuses: noReview, managed: { labels: ['status: review'], milestones: [] } }));
+    expect(fake.state.knownLabels).not.toContain('status: review');
+    expect(result.summary.labelsDeleted).toEqual(['status: review']);
+  });
+
+  it('AC16.4 deletes the milestone of a release that is gone, after the issues have left it', async () => {
+    const fake = fakeGithub([fakeIssue(31, { title: 'Login', milestone: 'Herbst' })]);
+    fake.state.milestones = [{ number: 3, title: 'Herbst', description: '', dueOn: null, state: 'open' }];
+    const result = await runSync(input(fake, [story({ releaseId: null }, { release: 'Herbst' })], { managed: { labels: [], milestones: ['Herbst'] } }));
+    expect(fake.state.issues[0].milestone).toBeNull();
+    expect(fake.state.milestones).toEqual([]);
+    expect(result.summary.milestonesDeleted).toEqual(['Herbst']);
+    expect(result.managed.milestones).toEqual([]);
+  });
+
+  it('AC16.5 never deletes a label or a milestone that the app did not make', async () => {
+    const fake = fakeGithub(issues());
+    fake.state.knownLabels.push('epic: Alt');
+    fake.state.milestones = [{ number: 4, title: 'Q4', description: '', dueOn: null, state: 'open' }];
+    const result = await runSync(input(fake, [story()]));
+    expect(fake.state.knownLabels).toContain('epic: Alt');
+    expect(fake.state.milestones).toHaveLength(1);
+    expect(result.summary.labelsDeleted).toEqual([]);
+    expect(result.summary.milestonesDeleted).toEqual([]);
+  });
+
+  it('AC16.6 deletes nothing while writing is off', async () => {
+    const fake = fakeGithub(issues());
+    fake.state.knownLabels.push('status: review');
+    const result = await runSync(input(fake, [story()], { write: false, statuses: noReview, managed: { labels: ['status: review'], milestones: [] } }));
+    expect(fake.state.knownLabels).toContain('status: review');
+    expect(fake.state.writes).toEqual([]);
+    expect(result.managed.labels).toEqual(['status: review']);
   });
 });

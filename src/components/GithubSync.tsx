@@ -235,6 +235,25 @@ function Result({ outcome, onClose, onDecide }: { outcome: Outcome; onClose: () 
           </ul>
         </section>
       )}
+      {summary.milestonesCreated.length + summary.milestonesDeleted.length + summary.labelsCreated.length + summary.labelsDeleted.length > 0 && (
+        <section className="github-result__section">
+          <ul className="github-result__list">
+            {summary.milestonesCreated.map((name) => (
+              <li key={`milestone-created-${name}`}>{t('github.sync.milestoneCreated', { name })}</li>
+            ))}
+            {summary.labelsCreated.map((name) => (
+              <li key={`label-created-${name}`}>{t('github.sync.labelCreated', { name })}</li>
+            ))}
+            {summary.labelsDeleted.map((name) => (
+              <li key={`label-deleted-${name}`}>{t('github.sync.labelDeleted', { name })}</li>
+            ))}
+            {summary.milestonesDeleted.map((name) => (
+              <li key={`milestone-deleted-${name}`}>{t('github.sync.milestoneDeleted', { name })}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {summary.missingLabels.length > 0 && <p className="github-result__section">{t('github.sync.missingLabels', { names: summary.missingLabels.join(', ') })}</p>}
       {summary.missingMilestones.length > 0 && <p className="github-result__section">{t('github.sync.missingMilestones', { titles: summary.missingMilestones.join(', ') })}</p>}
       {summary.multipleEpics.length > 0 && (
         <p className="github-result__section">{t('github.sync.multipleEpics', { issues: summary.multipleEpics.map((item) => `${item.code} (#${item.number})`).join(', ') })}</p>

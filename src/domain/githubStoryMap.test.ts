@@ -68,12 +68,20 @@ describe('releases and milestones', () => {
     expect(cleared.pushes[0].patch).toEqual({ milestone: null });
   });
 
-  it('AC12.4 does not publish a release without a milestone and says so', () => {
-    const result = plan([story({ releaseId: 'r3' })], [issue(31)], { releases: [release('r3', 'Herbst')], milestones: [milestone(2, 'v2.0')], write: true });
+  it('AC12.4 does not publish a release without a milestone while writing is off, and says so', () => {
+    const result = plan([story({ releaseId: 'r3' })], [issue(31)], { releases: [release('r3', 'Herbst')], milestones: [milestone(2, 'v2.0')], write: false });
     expect(result.pushes).toEqual([]);
     expect(result.summary.missingMilestones).toEqual(['Herbst']);
     expect(result.summary.pending).toBe(1);
     expect(result.stories[0].releaseId).toBe('r3');
+  });
+
+  it('AC12.5 asks the run to make the milestone of a release when writing is on', () => {
+    const result = plan([story({ releaseId: 'r3' })], [issue(31)], { releases: [release('r3', 'Herbst')], milestones: [milestone(2, 'v2.0')], write: true });
+    expect(result.pushes).toHaveLength(1);
+    expect(result.pushes[0]).toMatchObject({ fields: ['release'], needsMilestone: 'Herbst' });
+    expect(result.pushes[0].patch.milestone).toBeUndefined();
+    expect(result.summary.missingMilestones).toEqual([]);
   });
 
   it('AC12.6 lets GitHub win by default when story and issue moved to different releases', () => {
@@ -119,6 +127,20 @@ describe('epics and labels', () => {
     const result = plan([story()], [issue(31, { labels: ['epic: Boards', 'epic: Backlog'] })]);
     expect(result.epics.map((item) => item.name)).toEqual(['Boards']);
     expect(result.summary.multipleEpics).toEqual([{ code: 'S-1', number: 31 }]);
+  });
+});
+
+describe('missing labels while writing is off', () => {
+  it('AC13.4 names the epic label that GitHub does not have, and keeps the assignment pending', () => {
+    const result = plan([story({ epicId: 'e3' })], [issue(31)], { epics: [epic('e3', 'Storage')], write: false, knownLabels: ['feature'] });
+    expect(result.pushes).toEqual([]);
+    expect(result.summary.missingLabels).toEqual(['epic: Storage']);
+    expect(result.summary.pending).toBe(1);
+  });
+
+  it('AC15.5 names the status label that GitHub does not have', () => {
+    const result = plan([story({ status: 'review' })], [issue(31)], { write: false, knownLabels: ['status: in progress'] });
+    expect(result.summary.missingLabels).toEqual(['status: review']);
   });
 });
 
