@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jira-Sync Entwurf</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one reading column; every mockup sits in its own scrollable frame so the page never scrolls sideways. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --border: #dde1e7; --text: #14181f; --muted: #566170;
+  --accent: #2457d6; --accent-ink: #ffffff; --accent-soft: #e3e8f4; --accent-soft-ink: #173c99;
+  --pill: #eef0f4; --column: #eceff3; --shadow: rgba(20,24,31,.08); --scrim: rgba(20,24,31,.35);
+  --ok: #11713a; --ok-soft: #e1f3e8; --bad: #b42318; --bad-soft: #fdecea; --warn: #8a5a00; --warn-soft: #fff4d6;
+  --font-sans: system-ui, "Segoe UI", sans-serif; --font-mono: ui-monospace, Menlo, Consolas, monospace; --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a; --warn: #f0c060; --warn-soft: #33290f; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1318; --surface: #171c23; --border: #2b3340; --text: #e6eaf0; --muted: #9aa6b5;
+  --accent: #7aa2ff; --accent-ink: #0f1318; --accent-soft: #1f2a44; --accent-soft-ink: #b8ccff;
+  --pill: #232b36; --column: #13181e; --shadow: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.55);
+  --ok: #6fd69a; --ok-soft: #133222; --bad: #ff8a7a; --bad-soft: #3a1d1a; --warn: #f0c060; --warn-soft: #33290f; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font: 15px/1.55 var(--font-sans); margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 52px; }
+.wrap > * { min-width: 0; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; } h2 { font-size: 22px; } h3 { font-size: 18px; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+p { margin: 0; max-width: 70ch; } ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.muted { color: var(--muted); }
+code { font-family: var(--font-mono); font-size: 13px; background: var(--pill); padding: 1px 5px; border-radius: 4px; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sec { display: grid; gap: 16px; }
+.variant { display: grid; gap: 14px; }
+.head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.tag { font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--pill); color: var(--muted); }
+.tag--rec { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.proscons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; font-size: 14px; display: grid; gap: 4px; align-content: start; }
+.box b { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.box--rec { border-color: var(--ok); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--r); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 640px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--column); }
+tr:last-child td { border-bottom: 0; }
+.ph1, .ph2, .ph3, .ph4 { font-size: 12px; padding: 0 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-soft-ink); white-space: nowrap; }
+.shot { overflow-x: auto; padding-bottom: 6px; }
+
+/* mockup, labelled as a proposal */
+.app { min-width: 760px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 6px 24px var(--shadow); position: relative; font-size: 13px; line-height: 1.45; }
+.bar { display: flex; align-items: center; gap: 20px; padding: 0 16px; height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 12px; }
+.nav { display: flex; gap: 2px; height: 100%; }
+.nav span { display: flex; align-items: center; padding: 0 10px; color: var(--muted); border-bottom: 3px solid transparent; }
+.nav .on { color: var(--text); font-weight: 600; border-bottom-color: var(--accent); }
+.tools { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.ibtn { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; display: grid; place-items: center; color: var(--muted); background: var(--surface); position: relative; }
+.ibtn .cnt { position: absolute; top: -6px; right: -6px; background: var(--warn); color: var(--surface); border-radius: 9px; font-size: 10px; padding: 0 5px; font-weight: 700; }
+.page { padding: 18px 20px 22px; display: grid; gap: 12px; }
+.ph { display: flex; align-items: center; gap: 10px; }
+.ph b { font-size: 17px; }
+.btn { height: 28px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn--p { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.settings { display: grid; grid-template-columns: 170px 1fr; gap: 18px; align-items: start; }
+.side { display: grid; gap: 2px; }
+.side span { padding: 7px 10px; border-radius: 6px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.side .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; }
+.panel h4 { margin: 0; font-size: 15px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sw { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.sw i { width: 30px; height: 16px; border-radius: 9px; background: var(--border); position: relative; display: inline-block; }
+.sw i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); }
+.sw.on i { background: var(--accent); } .sw.on i::after { left: 16px; }
+.badge { font-size: 11px; border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; font-weight: 400; color: var(--muted); }
+.badge--ok { border-color: transparent; background: var(--ok-soft); color: var(--ok); }
+.badge--demo { border-color: transparent; background: var(--warn-soft); color: var(--warn); }
+.form { display: grid; gap: 10px; }
+.f { display: grid; gap: 3px; }
+.f label { font-size: 12px; color: var(--muted); font-weight: 600; }
+.in { height: 30px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; display: flex; align-items: center; background: var(--bg); gap: 8px; }
+.in--tok { font-family: var(--font-mono); letter-spacing: 2px; }
+.in .caret { margin-left: auto; color: var(--muted); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; display: grid; gap: 2px; background: var(--bg); align-content: start; }
+.opt--on { border-color: var(--accent); background: var(--accent-soft); }
+.kinds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.kind { border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; background: var(--surface); display: grid; gap: 2px; }
+.kind--later { opacity: .6; border-style: dashed; }
+.kind--on { border-color: var(--accent); background: var(--accent-soft); }
+.radio { display: inline-flex; gap: 6px; align-items: center; font-weight: 600; }
+.radio i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); display: inline-block; }
+.kind--on .radio i { border-color: var(--accent); background: radial-gradient(var(--accent) 40%, transparent 45%); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.note { font-size: 12px; color: var(--muted); }
+.okline { color: var(--ok); font-size: 12px; }
+.warnbox { background: var(--warn-soft); color: var(--warn); border-radius: 6px; padding: 8px 10px; }
+.errbox { background: var(--bad-soft); color: var(--bad); border-radius: 6px; padding: 8px 10px; }
+.rows { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.row { display: flex; gap: 10px; padding: 7px 10px; border-bottom: 1px solid var(--border); align-items: center; }
+.row:last-child { border-bottom: 0; }
+.row > .grow { flex: 1; min-width: 0; }
+.row small { color: var(--muted); }
+.k { font-family: var(--font-mono); font-size: 11px; color: var(--accent-soft-ink); background: var(--accent-soft); padding: 0 6px; border-radius: 8px; white-space: nowrap; }
+.pill { font-size: 11px; padding: 0 6px; border-radius: 8px; background: var(--pill); color: var(--muted); white-space: nowrap; }
+.pill--pend { background: var(--warn-soft); color: var(--warn); }
+.pts { font-family: var(--font-mono); font-size: 11px; background: var(--pill); border-radius: 8px; padding: 0 6px; }
+.who { width: 20px; height: 20px; border-radius: 50%; background: var(--column); display: grid; place-items: center; font-size: 10px; font-weight: 600; border: 1px solid var(--border); }
+.sprint { background: var(--column); border-radius: 6px; padding: 6px 10px; display: flex; gap: 8px; align-items: center; font-weight: 600; }
+.sprint span { font-weight: 400; color: var(--muted); }
+.scrim { position: absolute; inset: 46px 0 0 0; background: var(--scrim); }
+.dialog { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); width: 580px; max-width: 94%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 16px 40px var(--shadow); padding: 16px 18px; display: grid; gap: 12px; z-index: 2; }
+.dialog h4 { margin: 0; font-size: 16px; display: flex; }
+.dialog h4 .x { margin-left: auto; color: var(--muted); font-weight: 400; }
+.steps { display: flex; gap: 6px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.steps span { padding: 2px 10px; border-radius: 999px; background: var(--pill); }
+.steps .on { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.app--dlg { min-height: 520px; }
+.lanes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.lane { background: var(--column); border-radius: 6px; padding: 8px; display: grid; gap: 6px; align-content: start; min-height: 190px; }
+.lane > b { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; display: grid; gap: 4px; }
+.card--pend { border-color: var(--warn); }
+.toast { position: absolute; left: 16px; bottom: 16px; width: 520px; max-width: calc(100% - 32px); background: var(--surface); border: 1px solid var(--bad); border-left-width: 4px; border-radius: 8px; padding: 10px 12px; box-shadow: 0 8px 24px var(--shadow); display: grid; gap: 8px; }
+.app--toast { min-height: 440px; }
+.map td:first-child { white-space: nowrap; }
+
+/* integration */
+.layers { display: grid; gap: 10px; }
+.layer { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 16px; display: grid; gap: 4px; }
+.layer--engine { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+.layer--engine .note { color: inherit; opacity: .85; }
+.layer-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.arrow { text-align: center; color: var(--muted); line-height: 1; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+@media (max-width: 640px) { h1 { font-size: 24px; } }
+</style></head><body>
+
+<div class="wrap">
+
+<header class="sec">
+  <span class="eyebrow">Issue #66 · Entwurf zur Entscheidung</span>
+  <h1>Sync mit Jira als Alternative zu GitHub</h1>
+  <p>Konzept, Design-Varianten und Integration. Es gibt genau einen aktiven Sync-Dienst. Jira wird mit seinen eigenen Mitteln abgeglichen: Workflow-Status, Epics, Fix-Versionen, Sprints, Story Points und Zuständige, ohne die Label-Absprachen, die GitHub braucht. Alle Mockups sind Vorschläge mit Demodaten.</p>
+</header>
+
+<section class="sec" id="mapping">
+  <span class="eyebrow">Konzept</span>
+  <h2>Was Jira nativ abgleichen kann</h2>
+  <p>Der Abgleich-Motor aus #30 bleibt: Dreiwege-Vergleich mit Basis, Konfliktregel, Schreibschalter, Abgleich nur auf Knopfdruck oder automatisch. Neu ist, dass ein Anschluss dem Motor mehr Felder anbietet. Die Phase sagt, wann ein Feld kommen soll.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Feld in Get It Done</th><th>GitHub heute (#30)</th><th>Jira nativ</th><th>Phase</th></tr></thead>
+    <tbody>
+      <tr><td>Titel</td><td>Titel</td><td><code>summary</code></td><td><span class="ph1">1</span></td></tr>
+      <tr><td>Beschreibung</td><td>Markdown-Text</td><td><code>description</code> im Atlassian-Dokumentformat (ADF); Umwandlung nötig, unbekannte Elemente bleiben unberührt</td><td><span class="ph1">1</span></td></tr>
+      <tr><td>Labels</td><td>Labels</td><td>Labels</td><td><span class="ph1">1</span></td></tr>
+      <tr><td>Status / Spalte</td><td>offen oder geschlossen, dazu Labels „status: …“</td><td>Workflow-Status; Schreiben als <b>Übergang</b> (Transition). Die Statuskategorien Neu, In Arbeit, Fertig entsprechen unseren Kategorien</td><td><span class="ph1">1</span></td></tr>
+      <tr><td>Kriterien und Haken</td><td>Aufgabenliste unter „Acceptance criteria“</td><td>Aufgabenliste (ADF <code>taskList</code>) unter derselben Überschrift; später optional ein eigenes Feld</td><td><span class="ph1">1</span></td></tr>
+      <tr><td>Epic</td><td>Label „epic: Name“</td><td>Epic-Vorgang, Zuordnung über <code>parent</code></td><td><span class="ph2">2</span></td></tr>
+      <tr><td>Release</td><td>Milestone (ohne Startdatum)</td><td>Fix-Version mit Startdatum, Veröffentlichungsdatum und „veröffentlicht“</td><td><span class="ph2">2</span></td></tr>
+      <tr><td>Sprint</td><td>bleibt lokal</td><td>Sprints des gewählten Boards (Name, Ziel, Daten, Zustand)</td><td><span class="ph3">3</span></td></tr>
+      <tr><td>Story Points</td><td>bleiben lokal</td><td>Feld „Story point estimate“, die Feld-ID wird je Projekt ermittelt</td><td><span class="ph3">3</span></td></tr>
+      <tr><td>Reihenfolge im Backlog</td><td>bleibt lokal</td><td>Rank (LexoRank) über die Agile-API</td><td><span class="ph3">3</span></td></tr>
+      <tr><td>Zuständig (#18)</td><td>nicht abgeglichen</td><td>Assignee, Zuordnung zu Teammitgliedern über eine Tabelle</td><td><span class="ph4">4</span></td></tr>
+      <tr><td>Abhängigkeiten (#21)</td><td>nicht möglich</td><td>Vorgangsverknüpfungen „blockiert / wird blockiert von“</td><td><span class="ph4">4</span></td></tr>
+      <tr><td>Aufgaben in einer Story (#20)</td><td>nicht möglich</td><td>Unteraufgaben</td><td><span class="ph4">4</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="sec" id="variants">
+  <span class="eyebrow">Design, Frage 1</span>
+  <h2>Wie wählt man den Dienst und richtet ihn ein?</h2>
+  <p>Gleich bei allen Varianten: standardmäßig aus, Token nach dem Speichern nie sichtbar, Schreiben ist ein eigener Schalter (Standard: nur lesen), Konfliktregel wie in #30. In der Web-Vorschau steht „Demo“ und es gibt ein simuliertes Jira.</p>
+
+  <div class="variant" id="variant-1">
+    <div class="head"><h3>Variante 1 · Ein Tab „Synchronisation“ mit Dienstwahl</h3><span class="tag tag--rec">Empfehlung</span></div>
+    <p>Ein Schalter für die Funktion, darunter vier Karten. Die gewählte Karte ist aktiv, die Maske darunter gehört zu ihr. Es ist immer genau ein Dienst gewählt.</p>
+    <div class="shot"><div class="app" id="v1">
+      <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+      <div class="page"><div class="ph"><b>Einstellungen</b></div>
+        <div class="settings">
+          <div class="side"><span>Felder</span><span>Statuswerte</span><span>Story Map</span><span>Team</span><span class="on">Synchronisation</span></div>
+          <div class="panel">
+            <h4>Synchronisation <span class="badge badge--ok">Jira verbunden</span></h4>
+            <div class="sw on"><i></i>Synchronisation einschalten</div>
+            <div class="f"><label>Dienst (es ist immer genau einer aktiv)</label>
+              <div class="kinds">
+                <div class="kind"><span class="radio"><i></i>GitHub</span><span class="note">Issues</span></div>
+                <div class="kind kind--on"><span class="radio"><i></i>Jira</span><span class="note">Cloud · aktiv</span></div>
+                <div class="kind kind--later"><span class="radio"><i></i>GitLab</span><span class="note">geplant</span></div>
+                <div class="kind kind--later"><span class="radio"><i></i>Trello</span><span class="note">geplant</span></div>
+              </div></div>
+            <div class="two">
+              <div class="f"><label>Jira-Adresse</label><div class="in">https://beispiel.atlassian.net</div></div>
+              <div class="f"><label>E-Mail</label><div class="in">anna@beispiel.ch</div></div>
+              <div class="f"><label>API-Token</label><div class="in in--tok">••••••••••••••••</div></div>
+              <div class="f"><label>Projekt</label><div class="in">PROJ · Produkt <span class="caret">▾</span></div></div>
+              <div class="f"><label>Board für Sprints</label><div class="in">PROJ Board (Scrum) <span class="caret">▾</span></div></div>
+              <div class="f"><label>Filter (optional)</label><div class="in">statusCategory != Done</div></div>
+            </div>
+            <div class="two">
+              <div class="opt"><b>Nur lesen</b><span class="note">Änderungen kommen aus Jira.</span></div>
+              <div class="opt opt--on"><b>Lesen und zurückschreiben</b><span class="note">Lokale Änderungen gehen beim Abgleich nach Jira.</span></div>
+            </div>
+            <div class="actions"><span class="btn">Verbindung testen</span><span class="btn">Trennen</span><span class="okline">✓ Verbindung ok · Schreibrecht ok · 128 offene Issues</span></div>
+          </div>
+        </div></div></div></div>
+    <div class="proscons">
+      <div class="box"><b>＋ Dafür</b><span>＋ Ein Ort, ein Schalter: „nur einer aktiv“ ist sichtbar und kann nicht verletzt werden.</span><span>＋ Weitere Dienste (GitLab, Trello) sind nur eine weitere Karte.</span><span>＋ Baut auf dem Tab „Verbindungen“ aus #30 auf.</span></div>
+      <div class="box"><b>－ Dagegen</b><span>－ Der bestehende Tab „GitHub-Anbindung“ wird umbenannt und umgebaut.</span><span>－ Die Maske wechselt je nach Karte, das muss gut getestet sein.</span></div>
+    </div>
+  </div>
+
+  <div class="variant" id="variant-2">
+    <div class="head"><h3>Variante 2 · Ein Tab und ein Schalter pro Dienst</h3></div>
+    <p>Wie heute bei Releases und Team: jeder Dienst hat seinen eigenen Tab mit Schalter. Wer Jira einschaltet, schaltet GitHub aus, und die App sagt es.</p>
+    <div class="shot"><div class="app" id="v2">
+      <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+      <div class="page"><div class="ph"><b>Einstellungen</b></div>
+        <div class="settings">
+          <div class="side"><span>Felder</span><span>Statuswerte</span><span>Team</span><span>GitHub-Anbindung <span class="badge">aus</span></span><span class="on">Jira-Anbindung <span class="badge badge--ok">an</span></span></div>
+          <div class="panel">
+            <h4>Jira-Anbindung</h4>
+            <div class="sw on"><i></i>Jira-Anbindung einschalten</div>
+            <div class="warnbox">Die GitHub-Anbindung wurde ausgeschaltet. Es kann nur ein Dienst aktiv sein. Die 12 Verknüpfungen mit GitHub sind entfernt, die Stories sind geblieben.</div>
+            <div class="two">
+              <div class="f"><label>Jira-Adresse</label><div class="in">https://beispiel.atlassian.net</div></div>
+              <div class="f"><label>E-Mail</label><div class="in">anna@beispiel.ch</div></div>
+              <div class="f"><label>API-Token</label><div class="in in--tok">••••••••••••••••</div></div>
+              <div class="f"><label>Projekt</label><div class="in">PROJ · Produkt <span class="caret">▾</span></div></div>
+            </div>
+            <div class="actions"><span class="btn">Verbindung testen</span><span class="okline">✓ Verbindung ok · 128 offene Issues</span></div>
+          </div>
+        </div></div></div></div>
+    <div class="proscons">
+      <div class="box"><b>＋ Dafür</b><span>＋ Gleiches Muster wie Releases und Team (#61), wenig Neues zu lernen.</span><span>＋ Jeder Dienst bleibt in seinem Tab übersichtlich.</span></div>
+      <div class="box"><b>－ Dagegen</b><span>－ Zwei Schalter, die sich ausschließen, sind ein Widerspruch in der Oberfläche.</span><span>－ Mit jedem weiteren Dienst kommt ein Tab und ein Schalter dazu.</span><span>－ Das Ausschalten eines anderen Dienstes passiert indirekt.</span></div>
+    </div>
+  </div>
+
+  <div class="variant" id="variant-3">
+    <div class="head"><h3>Variante 3 · Assistent „Mit Dienst verbinden“</h3></div>
+    <p>Ein Dialog in vier Schritten: Dienst, Zugang, Projekt, Zuordnung. Nach dem Zugang liest die App Projekte und Boards aus und bietet sie zur Auswahl an. Danach ist alles in einer Zusammenfassung unter Einstellungen.</p>
+    <div class="shot"><div class="app app--dlg" id="v3">
+      <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div><div class="nav"><span>Board</span><span>Backlog</span><span class="on">Story Map</span><span>Epics</span></div><div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+      <div class="scrim"></div>
+      <div class="dialog">
+        <h4>Mit Jira verbinden <span class="x">✕</span></h4>
+        <div class="steps"><span>1 Dienst</span><span>2 Zugang</span><span class="on">3 Projekt</span><span>4 Zuordnung</span></div>
+        <div class="form">
+          <div class="f"><label>Projekt</label><div class="in">PROJ · Produkt <span class="caret">▾</span></div></div>
+          <div class="f"><label>Board für die Sprints</label><div class="in">PROJ Board (Scrum) <span class="caret">▾</span></div></div>
+          <div class="f"><label>Welche Vorgänge? (JQL, optional)</label><div class="in">statusCategory != Done</div></div>
+          <div class="okline">✓ 128 offene Vorgänge gefunden · 6 Epics · 3 Versionen · 2 aktive Sprints</div>
+        </div>
+        <div class="actions"><span class="btn">Zurück</span><span class="btn btn--p">Weiter</span></div>
+      </div></div></div>
+    <div class="proscons">
+      <div class="box"><b>＋ Dafür</b><span>＋ Führt durch das Einrichten, Fehler erscheinen direkt im Schritt.</span><span>＋ Die Auswahl aus gelesenen Projekten und Boards verhindert Tippfehler.</span></div>
+      <div class="box"><b>－ Dagegen</b><span>－ Mehr zu bauen und zu testen (vier Schritte, vier Texte in vier Sprachen).</span><span>－ Nachträgliches Ändern braucht trotzdem eine normale Maske in den Einstellungen.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="options">
+  <span class="eyebrow">Design, Frage 2</span>
+  <h2>Wie wird die Zuordnung eingestellt?</h2>
+  <p>Jira hat viel mehr zuzuordnen als GitHub: Status, Epics, Versionen, Sprints, Punkte, Personen. Das kann mit Optionen kombiniert werden, zum Beispiel <b>1.A</b>.</p>
+
+  <div class="variant" id="option-a">
+    <div class="head"><h3>Option A · Vorschlag mit Zusammenfassung</h3><span class="tag tag--rec">Empfehlung</span></div>
+    <p>Nach „Verbindung testen“ erkennt die App alles selbst (Status nach Name und Kategorie, Epics, Versionen, Sprints, das Punktefeld) und zeigt eine Zusammenfassung. „Anpassen“ öffnet die Tabelle aus Option B nur für das, was nicht eindeutig war.</p>
+    <div class="shot"><div class="app" id="oa">
+      <div class="page"><div class="panel">
+        <h4>Zuordnung <span class="badge badge--ok">automatisch erkannt</span></h4>
+        <div class="rows">
+          <div class="row"><b style="width:130px">Status</b><span class="grow">To Do → Offen · In Progress → In Arbeit · In Review → Review · Done → Erledigt</span><span class="okline">✓ 4 von 4</span></div>
+          <div class="row"><b style="width:130px">Epics</b><span class="grow">Jira-Epics (6) werden Epics</span><span class="okline">✓</span></div>
+          <div class="row"><b style="width:130px">Releases</b><span class="grow">Fix-Versionen (3), mit Start- und Enddatum</span><span class="okline">✓</span></div>
+          <div class="row"><b style="width:130px">Sprints</b><span class="grow">Sprints von „PROJ Board“ (Name, Daten, Ziel)</span><span class="okline">✓</span></div>
+          <div class="row"><b style="width:130px">Story Points</b><span class="grow">Feld „Story point estimate“</span><span class="okline">✓</span></div>
+          <div class="row"><b style="width:130px">Zuständig</b><span class="grow">Teammitglieder nach Name: 2 von 4 gefunden</span><span class="pill pill--pend">! 2 prüfen</span></div>
+        </div>
+        <div class="actions"><span class="btn">Anpassen</span><span class="note">Nur was nicht eindeutig war, muss man ansehen.</span></div>
+      </div></div></div></div>
+    <div class="proscons">
+      <div class="box"><b>＋ Dafür</b><span>＋ Meist reicht ein Blick, die Einrichtung dauert eine Minute.</span><span>＋ Unklares wird markiert, nichts wird still geraten.</span></div>
+      <div class="box"><b>－ Dagegen</b><span>－ Die Erkennung muss für viele Jira-Einrichtungen stimmen (Feldnamen, Sprache der Statusnamen).</span></div>
+    </div>
+  </div>
+
+  <div class="variant" id="option-b">
+    <div class="head"><h3>Option B · Tabelle immer sichtbar</h3></div>
+    <p>Eine Tabelle Jira-Status → Spalte und je Feld ein Schalter „abgleichen“. Alles ist von Anfang an sichtbar und einstellbar.</p>
+    <div class="shot"><div class="app" id="ob">
+      <div class="page"><div class="panel">
+        <h4>Zuordnung</h4>
+        <div class="rows">
+          <div class="row"><b style="width:130px">Jira-Status</b><b class="grow">Spalte in Get It Done</b><b style="width:90px">Kategorie</b></div>
+          <div class="row"><span style="width:130px">To Do</span><span class="grow"><span class="in">Offen <span class="caret">▾</span></span></span><span class="pill" style="width:90px">Neu</span></div>
+          <div class="row"><span style="width:130px">In Progress</span><span class="grow"><span class="in">In Arbeit <span class="caret">▾</span></span></span><span class="pill" style="width:90px">In Arbeit</span></div>
+          <div class="row"><span style="width:130px">In Review</span><span class="grow"><span class="in">Review <span class="caret">▾</span></span></span><span class="pill" style="width:90px">In Arbeit</span></div>
+          <div class="row"><span style="width:130px">Done</span><span class="grow"><span class="in">Erledigt <span class="caret">▾</span></span></span><span class="pill" style="width:90px">Fertig</span></div>
+        </div>
+        <div class="rows">
+          <div class="row"><span class="sw on grow"><i></i>Epics</span><span class="note">Epic-Vorgänge</span></div>
+          <div class="row"><span class="sw on grow"><i></i>Releases</span><span class="note">Fix-Versionen</span></div>
+          <div class="row"><span class="sw on grow"><i></i>Sprints</span><span class="note">Board „PROJ Board“</span></div>
+          <div class="row"><span class="sw on grow"><i></i>Story Points</span><span class="note">Story point estimate</span></div>
+          <div class="row"><span class="sw grow"><i></i>Zuständig</span><span class="note">aus</span></div>
+        </div>
+      </div></div></div></div>
+    <div class="proscons">
+      <div class="box"><b>＋ Dafür</b><span>＋ Volle Kontrolle, nichts passiert hinter dem Rücken.</span><span>＋ Einfacher zu bauen als eine Erkennung.</span></div>
+      <div class="box"><b>－ Dagegen</b><span>－ Viele Felder auf einmal, auch wenn alles Standard ist.</span><span>－ Jede neue Eigenschaft eines Dienstes macht die Tabelle länger.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="screens">
+  <span class="eyebrow">Weitere Bildschirme (gelten für alle Varianten)</span>
+  <h2>Dienst wechseln, Backlog mit Jira-Schlüsseln, abgelehnter Übergang</h2>
+
+  <div class="variant" id="screen-1">
+    <h3>Dienst wechseln</h3>
+    <p>Wer den Dienst wechselt, bekommt vorher gesagt, was geschieht. Die Stories bleiben immer.</p>
+    <div class="shot"><div class="app app--dlg" id="s1">
+      <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div><div class="nav"><span>Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+      <div class="scrim"></div>
+      <div class="dialog">
+        <h4>Zu Jira wechseln? <span class="x">✕</span></h4>
+        <p>GitHub ist aktiv, 12 Stories sind mit GitHub-Issues verknüpft.</p>
+        <ul>
+          <li>Die Verbindung zu GitHub wird getrennt, das Token wird gelöscht.</li>
+          <li>Die 12 Stories bleiben unverändert, nur ohne GitHub-Nummer und Link.</li>
+          <li>Der erste Abgleich mit Jira importiert alle offenen Vorgänge als neue Stories. Gleiche Arbeit kann dadurch doppelt vorkommen.</li>
+          <li>Eigene Stories lassen sich einzeln im Menü „In Jira anlegen“ nach Jira bringen.</li>
+        </ul>
+        <div class="actions"><span class="btn btn--p">Trennen und zu Jira wechseln</span><span class="btn">Abbrechen</span></div>
+      </div></div></div>
+  </div>
+
+  <div class="variant" id="screen-2">
+    <h3>Backlog mit Jira-Schlüsseln</h3>
+    <p>Der Schlüssel (<code>PROJ-123</code>) ersetzt die GitHub-Nummer und ist ein Link. Sprint und Punkte kommen aus Jira. Das Zeichen oben rechts zeigt die Zahl der Änderungen, die noch nicht in Jira sind.</p>
+    <div class="shot"><div class="app" id="s2">
+      <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div><div class="nav"><span>Board</span><span class="on">Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="ibtn">⟳<span class="cnt">2</span></span><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+      <div class="page">
+        <div class="ph"><b>Backlog</b><span class="badge badge--ok">Jira · zuletzt abgeglichen 10:42</span></div>
+        <div class="sprint">Sprint 14 <span>2.–15. Nov · Ziel: Login fertig · läuft</span></div>
+        <div class="rows">
+          <div class="row"><span class="k">PROJ-123</span><span class="grow">Login-Seite gestalten</span><span class="pill">Login &amp; Konto</span><span class="pts">5</span><span class="who">AM</span></div>
+          <div class="row"><span class="k">PROJ-124</span><span class="grow">Passwort zurücksetzen</span><span class="pill">Login &amp; Konto</span><span class="pts">3</span><span class="who">TK</span><span class="pill pill--pend">nicht in Jira</span></div>
+          <div class="row"><span class="k">PROJ-131</span><span class="grow">Export als CSV</span><span class="pill">Berichte</span><span class="pts">8</span><span class="who">AM</span><span class="pill pill--pend">nicht in Jira</span></div>
+        </div>
+        <div class="sprint">Nicht geplant <span>Fix-Version 1.1</span></div>
+        <div class="rows">
+          <div class="row"><span class="k">PROJ-140</span><span class="grow">Dunkles Farbschema</span><span class="pill">Oberfläche</span><span class="pts">2</span></div>
+          <div class="row"><span class="grow">Eigene Story ohne Jira-Vorgang</span><span class="pill">Oberfläche</span><span class="note">Menü: In Jira anlegen</span></div>
+        </div>
+      </div></div></div>
+  </div>
+
+  <div class="variant" id="screen-3">
+    <h3>Jira lehnt einen Übergang ab</h3>
+    <p>Jira-Workflows können Bedingungen haben. Wenn eine verschobene Karte nicht in den neuen Status darf, bleibt die Änderung lokal und markiert. Die Meldung nennt den Grund und bleibt stehen, bis man sie schließt.</p>
+    <div class="shot"><div class="app app--toast" id="s3">
+      <div class="bar"><div class="brand"><span class="logo">G</span>Get It Done</div><div class="nav"><span class="on">Board</span><span>Backlog</span><span>Story Map</span><span>Epics</span></div><div class="tools"><span class="ibtn">⟳<span class="cnt">1</span></span><span class="ibtn">?</span><span class="ibtn">⚙</span></div></div>
+      <div class="page"><div class="lanes">
+        <div class="lane"><b>Offen</b><div class="card"><span class="k">PROJ-140</span>Dunkles Farbschema</div></div>
+        <div class="lane"><b>In Arbeit</b><div class="card"><span class="k">PROJ-124</span>Passwort zurücksetzen</div></div>
+        <div class="lane"><b>Review</b><div class="card"><span class="k">PROJ-131</span>Export als CSV</div></div>
+        <div class="lane"><b>Erledigt</b><div class="card card--pend"><span class="k">PROJ-123</span>Login-Seite gestalten<span class="pill pill--pend">nicht in Jira</span></div></div>
+      </div></div>
+      <div class="toast"><b>PROJ-123 konnte nicht nach „Erledigt“.</b><span>Jira verlangt für diesen Übergang das Feld „Lösung“. Die Änderung bleibt lokal und ist markiert.</span><div class="actions"><span class="btn">In Jira öffnen</span><span class="btn">Log</span><span class="btn">Schließen</span></div></div>
+    </div></div>
+  </div>
+</section>
+
+<section class="sec" id="recommendation">
+  <span class="eyebrow">Empfehlung</span>
+  <h2>1.A, in Phasen</h2>
+  <div class="box box--rec">
+    <p><b>Variante 1 mit Option A.</b> Ein Tab „Synchronisation“ mit Dienstwahl und eine automatisch erkannte Zuordnung, die man bei Bedarf anpasst. Der Wechsel des Dienstes trennt den alten sauber (Variante „Wechsel gleich Trennen“) und sagt vorher, was geschieht.</p>
+    <p>Aufgegeben wird: das gewohnte Muster „ein Tab pro Dienst“ aus #61 (Variante 2) und der geführte Einstieg (Variante 3), der später nachgerüstet werden kann.</p>
+  </div>
+</section>
+
+<section class="sec" id="integration">
+  <span class="eyebrow">Integration</span>
+  <h2>Wie Jira an den bestehenden Sync andockt</h2>
+  <p>Die GitHub-Anbindung steckt in Pull Request #62 und ist noch nicht ausgeliefert. Der Motor ist allgemein gedacht (ADR 0005), die Namen im Code sind aber GitHub-spezifisch (<code>github.*</code> in den Einstellungen, <code>stories.github_*</code>, <code>GithubIssue</code>) und die Label-Regeln für Epics und Status liegen im gemeinsamen Teil. Das muss zuerst allgemein werden.</p>
+  <div class="layers">
+    <div class="layer"><b>Oberfläche</b><span class="note">Einstellungen „Synchronisation“ (Dienst wählen) · Sync-Zeichen auf Backlog, Board, Story Map · Toast und Log · Schlüssel-Badge</span></div>
+    <div class="arrow">↓</div>
+    <div class="layer layer--engine"><b>Abgleich-Motor (allgemein, kennt keinen Dienst)</b><span class="note">Neutrales Ticket-Modell mit optionalen Feldern (Status, Epic, Release, Sprint, Punkte, Zuständig, Rang) · Dreiwege-Vergleich mit Basis · Konfliktregel · Log. Welche Felder gelten, bestimmen die <b>Fähigkeiten</b> des Anschlusses.</span></div>
+    <div class="arrow">↓ genau ein aktiver Anschluss</div>
+    <div class="layer-row">
+      <div class="layer"><b>GitHub-Anschluss</b><span class="note">Markdown, Aufgabenliste, Labels. Die Absprachen „epic: …“ und „status: …“ wandern hierher, der Motor sieht nur Epic und Status.</span></div>
+      <div class="layer"><b>Jira-Anschluss</b><span class="note">ADF-Umwandlung, Übergänge, Fix-Versionen, Agile-API für Sprints und Rang, Feld-Erkennung.</span></div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="layer-row">
+      <div class="layer"><b>HTTP im Browser</b><span class="note"><code>fetch</code>, reicht für GitHub. Jira Cloud erlaubt dies für Token-Logins nicht (CORS), hier gibt es nur die Demo.</span></div>
+      <div class="layer"><b>HTTP in der Desktop-App</b><span class="note">Anfrage über die Rust-Seite (Tauri). Das Token kommt aus dem Schlüsselbund und verlässt die Rust-Seite nicht.</span></div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="box"><b>Anmeldung</b><span>Jira Cloud: Adresse, E-Mail und API-Token (Basic). OAuth 2.0 braucht eine registrierte App und einen Rückruf, das passt nicht zu einer lokalen App und kommt später, falls gewünscht. Die Atlassian-API-Tokens laufen ab, die App muss das als Fehler „Token abgelaufen“ erklären. Jira Data Center (Personal Access Token, API-Version 2) kommt später.</span></div>
+    <div class="box"><b>Netzwerk und Browser</b><span>Direkte Browser-Anfragen an Jira Cloud scheitern an CORS. Echter Abgleich läuft deshalb nur in der Windows-App. Die Web-Vorschau nutzt ein simuliertes Jira mit Workflow, Epics, Versionen und Sprints. Die Entscheidung ist ein ADR.</span></div>
+    <div class="box"><b>API-Besonderheiten</b><span>Suche über <code>/rest/api/3/search/jql</code> mit Seitenmarke und ohne Gesamtzahl (die alte Suche ist abgeschaltet). „Seit“-Abfragen per JQL <code>updated &gt;=</code> nur auf die Minute genau, darum ein Überlappungsfenster und Vergleich mit der Basis. Anfragen können mit 429 und <code>Retry-After</code> abgewiesen werden, Atlassian stellt 2026 auf punktebasierte Limits um. Details noch zu prüfen.</span></div>
+    <div class="box"><b>Daten im Code</b><span>Eine Verknüpfung je Story (<code>sync_link</code>: Dienst, Schlüssel, Adresse, Basis) statt <code>github_*</code>. Einstellungen <code>sync.service</code> (<code>github</code>, <code>jira</code> oder leer) und eine Verbindung je Dienst. Eine Migration überführt die Felder aus #62 vor der Auslieferung.</span></div>
+    <div class="box"><b>Löschen</b><span>GitHub-Labels und -Milestones, die der Sync selbst angelegt hat, werden wieder gelöscht (AC16 in #30). Bei Jira schlägt die Empfehlung vor, nichts zu löschen und nur Fehlendes anzulegen, weil Löschen dort zerstörend ist und Rechte braucht.</span></div>
+    <div class="box"><b>Tests und Abnahme</b><span>Dieselbe Anschluss-Testreihe wie bei GitHub, dazu ein Fake-Jira. Kein echtes Jira in der CI. Für die Abnahme braucht der PO eine Jira-Cloud-Testinstanz (der kostenlose Tarif reicht) und die Windows-App.</span></div>
+  </div>
+
+  <h3>Risiken</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Risiko</th><th>Wirkung</th><th>Gegenmaßnahme</th></tr></thead>
+    <tbody>
+      <tr><td>ADF-Umwandlung ist verlustbehaftet</td><td>Tabellen, Bilder oder Makros in der Beschreibung gehen beim Zurückschreiben verloren</td><td>Nur zurückschreiben, wenn der Text lokal geändert wurde. Enthält die Beschreibung unbekannte Elemente, bleibt sie schreibgeschützt und das Ergebnis sagt es.</td></tr>
+      <tr><td>Übergänge mit Pflichtfeldern</td><td>Status lässt sich nicht setzen</td><td>Fehlermeldung mit Grund, Änderung bleibt lokal markiert, Link nach Jira</td></tr>
+      <tr><td>Feld-IDs und Einrichtung unterscheiden sich je Projekt</td><td>Punkte, Epic und Sprint werden falsch oder nicht gefunden</td><td>Erkennung beim Verbinden, Zusammenfassung zeigt Unklares, manuelles Anpassen</td></tr>
+      <tr><td>Große Projekte</td><td>Langsamer erster Abgleich, Limits</td><td>Filter (JQL), Standard „nur offene“, Seiten mit Fortschritt</td></tr>
+      <tr><td>API-Änderungen und Limits bei Atlassian</td><td>Abgleich bricht plötzlich</td><td>Anschluss-Testreihe, klare Fehlerart „Limit erreicht“, Wartezeit beachten</td></tr>
+      <tr><td>Echtes Jira nicht in der Web-Vorschau testbar</td><td>Abnahme nur über die Windows-App</td><td>Simuliertes Jira in der Vorschau, Abnahme des Echtbetriebs auf Windows</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Vorgehen in Phasen</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Schritt</th><th>Inhalt</th></tr></thead>
+    <tbody>
+      <tr><td>0 · Allgemein machen</td><td>Neutrales Modell, Fähigkeiten, <code>sync_link</code>, Dienstwahl in den Einstellungen, GitHub-Label-Regeln in den GitHub-Anschluss. Kein neues Verhalten, alle GitHub-Tests bleiben grün.</td></tr>
+      <tr><td><span class="ph1">1</span> Kern</td><td>Verbinden, importieren, Titel, Beschreibung, Labels, Status per Übergang, Kriterien, Schlüssel und Link, Roundtrip, Konflikte, Log</td></tr>
+      <tr><td><span class="ph2">2</span> Story Map</td><td>Epics und Fix-Versionen</td></tr>
+      <tr><td><span class="ph3">3</span> Planung</td><td>Sprints, Story Points, Reihenfolge</td></tr>
+      <tr><td><span class="ph4">4</span> Weiteres</td><td>Zuständige, Verknüpfungen, Unteraufgaben; Data Center</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</div>
+
+</body></html>
