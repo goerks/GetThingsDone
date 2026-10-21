@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { emptySummary } from './github';
+import { emptySummary } from './sync';
 import { AUTO_INTERVAL_MS, LOG_MAX_ENTRIES, appendLog, autoTick, filterLog, normalizeLog } from './syncLog';
 import type { SyncLogEntry } from './types';
 
 const NOW = new Date('2026-10-21T10:00:00.000Z');
 
 const quiet = (id: string, at = NOW.toISOString()): SyncLogEntry => ({ id, at, runs: 1, trigger: 'auto', error: null, summary: emptySummary() });
-const changed = (id: string, at = NOW.toISOString()): SyncLogEntry => ({ id, at, runs: 1, trigger: 'manual', error: null, summary: { ...emptySummary(), updated: [{ storyId: 's1', number: 31, code: 'G-31', title: 'Login', changes: [{ kind: 'title', from: 'a', to: 'b' }] }] } });
+const changed = (id: string, at = NOW.toISOString()): SyncLogEntry => ({ id, at, runs: 1, trigger: 'manual', error: null, summary: { ...emptySummary(), updated: [{ storyId: 's1', key: '#31', code: 'G-31', title: 'Login', changes: [{ kind: 'title', from: 'a', to: 'b' }] }] } });
 const failed = (id: string): SyncLogEntry => ({ id, at: NOW.toISOString(), runs: 1, trigger: 'auto', error: 'network', summary: null });
 
 describe('the timer of the automatic sync', () => {
@@ -67,5 +67,15 @@ describe('the sync log', () => {
     // And stored data that is not a log gives an empty one
     expect(normalizeLog('nonsense')).toEqual([]);
     expect(normalizeLog([{ id: 'x', at: NOW.toISOString(), trigger: 'start', summary: null }, { nope: true }]).map((entry) => [entry.id, entry.runs, entry.trigger])).toEqual([['x', 1, 'start']]);
+  });
+
+  it('AC11.2 reads a log of before the generalisation: issue numbers become keys and the side "github" becomes "remote"', () => {
+    // Given a stored run that names issues by number
+    const stored = [{ id: 'old', at: NOW.toISOString(), runs: 1, trigger: 'manual', error: null, summary: { ...emptySummary(), updated: [{ storyId: 's1', code: 'S-1', number: 31, title: 'Login', changes: [] }], overwritten: [{ storyId: 's1', code: 'S-1', number: 31, field: 'title', side: 'github', value: 'Login' }] } }];
+    // When it is read
+    const [entry] = normalizeLog(stored);
+    // Then it has keys and the neutral side
+    expect(entry.summary?.updated[0].key).toBe('#31');
+    expect(entry.summary?.overwritten[0]).toMatchObject({ key: '#31', side: 'remote' });
   });
 });

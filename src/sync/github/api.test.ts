@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { GithubIssue } from '../domain/github';
-import { fakeGithub } from '../test/fakeGithub';
-import { createDemoSource, DEMO_READONLY_TOKEN, DEMO_REPO, saveDemoIssues, resetDemoIssues } from './demoSource';
-import { createRestSource } from './restSource';
-import type { TrackerConnector } from './source';
+import { fakeGithub } from '../../test/fakeGithub';
+import type { GithubApi } from './api';
+import { createDemoApi, DEMO_READONLY_TOKEN, DEMO_REPO, saveDemoIssues, resetDemoIssues } from './demoApi';
+import type { GithubIssue } from './format';
+import { createRestApi } from './restApi';
 
 /*
- * One test series that every connector has to pass (#30, ADR 0005): reading, writing, errors. The sync engine knows no
- * service, so a new service is "only" a connector that passes this series. Three connectors run it: the REST connector
- * of GitHub against a small imitation of the API, the simulated GitHub of the preview, and the fake of the other tests.
+ * The calls to GitHub (#30, ADR 0005): reading, writing, errors. Three implementations run the same series: the REST
+ * calls against a small imitation of the API, the simulated GitHub of the preview, and the fake of the other tests. The
+ * connector built on them is tested in `src/sync/connector.test.ts` together with the other connectors.
  */
 
 const repo = { owner: DEMO_REPO.owner, name: DEMO_REPO.name };
@@ -18,7 +18,7 @@ const item = (number: number, extra: Partial<GithubIssue> = {}): GithubIssue => 
 const SEED: GithubIssue[] = [item(31, { title: 'Login', body: 'Text', labels: ['feature'] }), item(29, { title: 'Imprint', state: 'closed' }), item(35, { title: 'Export' })];
 
 interface Backend {
-  connector: TrackerConnector;
+  api: GithubApi;
   /** The token to use: the one that may write, or the one that may only read. */
   token(write: boolean): string;
 }
@@ -82,21 +82,20 @@ function restBackend(): Backend {
     return answer(404, {});
   }) as typeof fetch;
   // The imitation answers labels of a PATCH as names; the connector sends names, so they land in the issue as they are.
-  return { connector: createRestSource(fetchImpl), token: (write) => (write ? 'writer' : 'reader') };
+  return { api: createRestApi(fetchImpl), token: (write) => (write ? 'writer' : 'reader') };
 }
 
 function demoBackend(): Backend {
   resetDemoIssues();
   saveDemoIssues(SEED.map((issue) => ({ ...issue })));
-  return { connector: createDemoSource(), token: (write) => (write ? 'writer' : DEMO_READONLY_TOKEN) };
+  return { api: createDemoApi(), token: (write) => (write ? 'writer' : DEMO_READONLY_TOKEN) };
 }
 
 function fakeBackend(): Backend {
   const fake = fakeGithub(SEED.map((issue) => ({ ...issue })));
-  const wrapped = fake.github.source;
+  const wrapped = fake.api;
   // The fake knows one token; the right to write is switched by the token of the call.
-  const connector: TrackerConnector = {
-    kind: 'github',
+  const api: GithubApi = {
     openIssues: (r) => wrapped.openIssues(r, 'good'),
     issue: (r, _t, n) => wrapped.issue(r, 'good', n),
     updateIssue: async (r, t, n, patch) => {
@@ -126,7 +125,7 @@ function fakeBackend(): Backend {
       return wrapped.createLabel(r, 'good', label);
     }
   };
-  return { connector, token: (canWrite) => (canWrite ? 'writer' : 'reader') };
+  return { api, token: (canWrite) => (canWrite ? 'writer' : 'reader') };
 }
 
 const BACKENDS: Array<[string, () => Backend]> = [
@@ -142,79 +141,79 @@ describe.each(BACKENDS)('AC11.3 connector contract: %s', (_name, make) => {
   });
 
   it('lists only the open items, with title, text, labels and address', async () => {
-    const open = await backend.connector.openIssues(repo, backend.token(false));
+    const open = await backend.api.openIssues(repo, backend.token(false));
     expect(open.map((issue) => issue.number).sort()).toEqual([31, 35]);
     expect(open.find((issue) => issue.number === 31)).toMatchObject({ title: 'Login', body: 'Text', labels: ['feature'], state: 'open', url: urlOf(31) });
   });
 
   it('returns one item even when it is closed, and nothing for an unknown one', async () => {
-    expect(await backend.connector.issue(repo, backend.token(false), 29)).toMatchObject({ number: 29, state: 'closed' });
-    expect(await backend.connector.issue(repo, backend.token(false), 999)).toBeNull();
+    expect(await backend.api.issue(repo, backend.token(false), 29)).toMatchObject({ number: 29, state: 'closed' });
+    expect(await backend.api.issue(repo, backend.token(false), 999)).toBeNull();
   });
 
   it('changes title, text and state and gives back the item as it is now', async () => {
-    const { item: changed, skippedLabels } = await backend.connector.updateIssue(repo, backend.token(true), 31, { title: 'Login-Seite', body: 'New text', state: 'closed' });
+    const { issue: changed, skippedLabels } = await backend.api.updateIssue(repo, backend.token(true), 31, { title: 'Login-Seite', body: 'New text', state: 'closed' });
     expect(changed).toMatchObject({ number: 31, title: 'Login-Seite', body: 'New text', state: 'closed' });
     expect(skippedLabels).toEqual([]);
-    expect(await backend.connector.issue(repo, backend.token(false), 31)).toMatchObject({ title: 'Login-Seite', state: 'closed' });
+    expect(await backend.api.issue(repo, backend.token(false), 31)).toMatchObject({ title: 'Login-Seite', state: 'closed' });
   });
 
   it('sets only labels the service has and reports the others', async () => {
-    const { item: changed, skippedLabels } = await backend.connector.updateIssue(repo, backend.token(true), 31, { labels: ['bug', 'does-not-exist'] });
+    const { issue: changed, skippedLabels } = await backend.api.updateIssue(repo, backend.token(true), 31, { labels: ['bug', 'does-not-exist'] });
     expect(changed.labels).toEqual(['bug']);
     expect(skippedLabels).toEqual(['does-not-exist']);
   });
 
   it('creates an item that is then in the list of open items', async () => {
-    const { item: created, skippedLabels } = await backend.connector.createIssue(repo, backend.token(true), { title: 'Export as CSV', body: 'Text', labels: ['feature', 'nope'] });
+    const { issue: created, skippedLabels } = await backend.api.createIssue(repo, backend.token(true), { title: 'Export as CSV', body: 'Text', labels: ['feature', 'nope'] });
     expect(created).toMatchObject({ title: 'Export as CSV', body: 'Text', state: 'open', labels: ['feature'] });
     expect(skippedLabels).toEqual(['nope']);
-    expect((await backend.connector.openIssues(repo, backend.token(false))).map((issue) => issue.number)).toContain(created.number);
+    expect((await backend.api.openIssues(repo, backend.token(false))).map((issue) => issue.number)).toContain(created.number);
   });
 
   it('says "forbidden" when the token may only read', async () => {
-    await expect(backend.connector.updateIssue(repo, backend.token(false), 31, { title: 'x' })).rejects.toMatchObject({ kind: 'forbidden' });
-    await expect(backend.connector.createIssue(repo, backend.token(false), { title: 'x', body: '', labels: [] })).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.api.updateIssue(repo, backend.token(false), 31, { title: 'x' })).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.api.createIssue(repo, backend.token(false), { title: 'x', body: '', labels: [] })).rejects.toMatchObject({ kind: 'forbidden' });
   });
 
   it('makes a milestone, lists it and sets it on an item', async () => {
-    const made = await backend.connector.createMilestone(repo, backend.token(true), { title: 'Herbst', description: 'Autumn', dueOn: '2026-11-30' });
+    const made = await backend.api.createMilestone(repo, backend.token(true), { title: 'Herbst', description: 'Autumn', dueOn: '2026-11-30' });
     expect(made).toMatchObject({ title: 'Herbst', description: 'Autumn', state: 'open' });
-    expect((await backend.connector.listMilestones(repo, backend.token(false))).map((item) => item.title)).toContain('Herbst');
-    const { item: changed } = await backend.connector.updateIssue(repo, backend.token(true), 31, { milestone: made.number });
+    expect((await backend.api.listMilestones(repo, backend.token(false))).map((item) => item.title)).toContain('Herbst');
+    const { issue: changed } = await backend.api.updateIssue(repo, backend.token(true), 31, { milestone: made.number });
     expect(changed.milestone).toBe('Herbst');
-    const { item: cleared } = await backend.connector.updateIssue(repo, backend.token(true), 31, { milestone: null });
+    const { issue: cleared } = await backend.api.updateIssue(repo, backend.token(true), 31, { milestone: null });
     expect(cleared.milestone).toBeNull();
   });
 
   it('makes a label that can then be set on an item', async () => {
-    await backend.connector.createLabel(repo, backend.token(true), { name: 'epic: Storage', color: '14b8a6' });
-    expect(await backend.connector.listLabels(repo, backend.token(false))).toContain('epic: Storage');
-    const { item: changed, skippedLabels } = await backend.connector.updateIssue(repo, backend.token(true), 31, { labels: ['epic: Storage'] });
+    await backend.api.createLabel(repo, backend.token(true), { name: 'epic: Storage', color: '14b8a6' });
+    expect(await backend.api.listLabels(repo, backend.token(false))).toContain('epic: Storage');
+    const { issue: changed, skippedLabels } = await backend.api.updateIssue(repo, backend.token(true), 31, { labels: ['epic: Storage'] });
     expect(changed.labels).toEqual(['epic: Storage']);
     expect(skippedLabels).toEqual([]);
   });
 
   it('says "forbidden" when the token may only read and tries to make a milestone or a label', async () => {
-    await expect(backend.connector.createMilestone(repo, backend.token(false), { title: 'x', description: '', dueOn: null })).rejects.toMatchObject({ kind: 'forbidden' });
-    await expect(backend.connector.createLabel(repo, backend.token(false), { name: 'x', color: '000000' })).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.api.createMilestone(repo, backend.token(false), { title: 'x', description: '', dueOn: null })).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.api.createLabel(repo, backend.token(false), { name: 'x', color: '000000' })).rejects.toMatchObject({ kind: 'forbidden' });
   });
 
   it('deletes a label, which then leaves every item, and a milestone, which then leaves its items', async () => {
-    await backend.connector.createLabel(repo, backend.token(true), { name: 'epic: Gone', color: '000000' });
-    await backend.connector.updateIssue(repo, backend.token(true), 31, { labels: ['epic: Gone'] });
-    await backend.connector.deleteLabel(repo, backend.token(true), 'epic: Gone');
-    expect(await backend.connector.listLabels(repo, backend.token(false))).not.toContain('epic: Gone');
-    expect((await backend.connector.issue(repo, backend.token(false), 31))?.labels).toEqual([]);
-    const made = await backend.connector.createMilestone(repo, backend.token(true), { title: 'Gone', description: '', dueOn: null });
-    await backend.connector.updateIssue(repo, backend.token(true), 31, { milestone: made.number });
-    await backend.connector.deleteMilestone(repo, backend.token(true), made.number);
-    expect((await backend.connector.listMilestones(repo, backend.token(false))).map((item) => item.title)).not.toContain('Gone');
-    expect((await backend.connector.issue(repo, backend.token(false), 31))?.milestone ?? null).toBeNull();
+    await backend.api.createLabel(repo, backend.token(true), { name: 'epic: Gone', color: '000000' });
+    await backend.api.updateIssue(repo, backend.token(true), 31, { labels: ['epic: Gone'] });
+    await backend.api.deleteLabel(repo, backend.token(true), 'epic: Gone');
+    expect(await backend.api.listLabels(repo, backend.token(false))).not.toContain('epic: Gone');
+    expect((await backend.api.issue(repo, backend.token(false), 31))?.labels).toEqual([]);
+    const made = await backend.api.createMilestone(repo, backend.token(true), { title: 'Gone', description: '', dueOn: null });
+    await backend.api.updateIssue(repo, backend.token(true), 31, { milestone: made.number });
+    await backend.api.deleteMilestone(repo, backend.token(true), made.number);
+    expect((await backend.api.listMilestones(repo, backend.token(false))).map((item) => item.title)).not.toContain('Gone');
+    expect((await backend.api.issue(repo, backend.token(false), 31))?.milestone ?? null).toBeNull();
   });
 
   it('says "forbidden" when the token may only read and tries to delete', async () => {
-    await expect(backend.connector.deleteLabel(repo, backend.token(false), 'feature')).rejects.toMatchObject({ kind: 'forbidden' });
-    await expect(backend.connector.deleteMilestone(repo, backend.token(false), 1)).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.api.deleteLabel(repo, backend.token(false), 'feature')).rejects.toMatchObject({ kind: 'forbidden' });
+    await expect(backend.api.deleteMilestone(repo, backend.token(false), 1)).rejects.toMatchObject({ kind: 'forbidden' });
   });
 });

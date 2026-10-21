@@ -455,10 +455,10 @@
         "description": "Weise Stories Personen zu: der Bereich „Team“ in den Einstellungen, das Feld „Zugewiesen an“, die Kürzel auf den Karten, die Filterleiste auf dem Board und die Suche nach Personen. Schalte es aus, wenn du allein arbeitest.",
         "offNote": "Ausgeschaltet. Mitglieder und Zuweisungen bleiben erhalten und kommen zurück, wenn du es einschaltest."
       },
-      "github": {
-        "name": "GitHub-Anbindung",
-        "description": "Offene GitHub-Issues als Stories importieren und in beide Richtungen abgleichen.",
-        "offNote": "Ausgeschaltet. Importierte Stories, ihre Issue-Nummern und die Verbindung bleiben erhalten und sind wieder da, wenn du sie einschaltest."
+      "sync": {
+        "name": "Synchronisation",
+        "description": "Stories in beide Richtungen mit den Issues eines Dienstes (GitHub) abgleichen.",
+        "offNote": "Ausgeschaltet. Verknüpfte Stories, ihre Issue-Nummern und die Verbindung bleiben erhalten und sind wieder da, wenn du sie einschaltest."
       }
     },
     "data": {
@@ -981,7 +981,7 @@
       "settings.basics": {
         "title": "Einstellungen",
         "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren definitionen checkliste",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben acht Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Releases, Team und GitHub haben je einen eigenen Bereich, in dem du die Funktion ein- oder ausschaltest und einstellst. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben acht Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Releases, Team und Synchronisation haben je einen eigenen Bereich, in dem du die Funktion ein- oder ausschaltest und einstellst. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -1018,10 +1018,10 @@
         "keywords": "team person mitglied zuweisen zugewiesen kürzel initialen filter jemand arbeiten wer",
         "body": "Öffne Einstellungen → Team und schalte „Team“ ein. Lege dann die Personen an, denen du Stories zuweisen willst. Name und Kürzel genügen, es gibt keine Konten. Das Kürzel entsteht aus dem Namen und lässt sich ändern.\nEine Story weist du im Dialog der Story im Feld „Zugewiesen an“ zu, oder gleich beim Anlegen einer neuen Story. Auf Karten, im Backlog und auf der Story Map zeigt ein runder Kreis das Kürzel. Ein gestrichelter Kreis heisst: nicht zugewiesen.\nÜber dem Board filterst du nach einer Person oder nach nicht zugewiesenen Stories. Die Suche findet Stories auch über den Namen oder das Kürzel.\nWenn du ein Mitglied entfernst, bleiben seine Stories erhalten und sind danach nicht mehr zugewiesen. Schaltest du „Team“ wieder aus, bleiben Mitglieder und Zuweisungen erhalten."
       },
-      "github.basics": {
-        "title": "GitHub-Issues",
-        "keywords": "github issues import sync synchronisieren abgleich repository token verbinden funktion aktivieren einschalten stories labels kriterien schreiben veröffentlichen konflikt verbindungen roundtrip milestone epic label status icon automatisch protokoll meldung",
-        "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren und Änderungen in beide Richtungen abgleichen. Das geht nur, wenn die Funktion „GitHub-Anbindung“ eingeschaltet ist. Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → GitHub-Anbindung ein (Schalter ganz oben).\n2. Trage unter dem Schalter das Repository (owner/name) und ein Zugriffstoken ein und drücke „Verbindung testen“. Soll die App auch nach GitHub schreiben, schalte „Auch nach GitHub schreiben“ ein (das Token braucht dann „Issues: Lesen und Schreiben“) und wähle, wer bei einem Konflikt gewinnt: GitHub (Standard), lokal, oder du entscheidest.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; was sich nur auf einer Seite geändert hat, geht auf die andere. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen. Ohne die automatische Synchronisation (nächster Absatz) geht nichts ohne diesen Knopf nach GitHub. Stories mit Änderungen, die noch nicht auf GitHub sind, sind markiert.\nEine eigene Story legst du über ihr Menü mit „Auf GitHub anlegen“ als Issue an. Sprint, Punkte und Reihenfolge bleiben immer lokal. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nDas Sync-Icon (zwei runde Pfeile) steht auf Backlog, Board und Story Map; die Zahl daran sind die Änderungen, die noch nicht auf GitHub sind. Releases entsprechen den Milestones, Epics den Labels „epic: Name“, die Board-Spalten zwischen „Offen“ und „Erledigt“ den Labels „status: Name“. Bei eingeschaltetem Schreiben legt der Abgleich die nötigen Milestones und Labels selbst an und löscht die, die er angelegt hat, sobald nichts mehr daran hängt. Was du selbst auf GitHub angelegt hast, löscht er nie.\nDas Ergebnis ist eine kurze Meldung unten, nie ein Dialog; „Protokoll“ darin führt zum Sync-Protokoll unter Einstellungen → GitHub, das jeden Lauf und seine einzelnen Änderungen auflistet. Schalte dort „Automatisch synchronisieren“ ein, und die App importiert und gleicht alle offenen Issues von selbst ab: beim Start, wenn du zur App zurückkehrst und alle 15 Minuten, solange sie offen ist. Konflikte bei der Regel „Ich entscheide“ werden dann nur markiert; „Prüfen“ in der Meldung öffnet die Auswahl. Nach drei Fehlern in Folge pausiert die Automatik, bis du das Sync-Symbol drückst.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
+      "sync.basics": {
+        "title": "Synchronisation mit GitHub",
+        "keywords": "github issues import sync synchronisieren abgleich repository token verbinden funktion aktivieren einschalten stories labels kriterien schreiben veröffentlichen konflikt verbindungen roundtrip milestone epic label status icon automatisch protokoll meldung synchronisation dienst wechseln",
+        "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren und Änderungen in beide Richtungen abgleichen. Das geht nur, wenn die Funktion „Synchronisation“ eingeschaltet und GitHub als Dienst gewählt ist (es ist immer nur ein Dienst aktiv). Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Synchronisation ein (Schalter ganz oben).\n2. Trage unter dem Schalter das Repository (owner/name) und ein Zugriffstoken ein und drücke „Verbindung testen“. Soll die App auch nach GitHub schreiben, schalte „Auch nach GitHub schreiben“ ein (das Token braucht dann „Issues: Lesen und Schreiben“) und wähle, wer bei einem Konflikt gewinnt: GitHub (Standard), lokal, oder du entscheidest.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; was sich nur auf einer Seite geändert hat, geht auf die andere. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen. Ohne die automatische Synchronisation (nächster Absatz) geht nichts ohne diesen Knopf nach GitHub. Stories mit Änderungen, die noch nicht auf GitHub sind, sind markiert.\nEine eigene Story legst du über ihr Menü mit „Auf GitHub anlegen“ als Issue an. Sprint, Punkte und Reihenfolge bleiben immer lokal. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nDas Sync-Icon (zwei runde Pfeile) steht auf Backlog, Board und Story Map; die Zahl daran sind die Änderungen, die noch nicht auf GitHub sind. Releases entsprechen den Milestones, Epics den Labels „epic: Name“, die Board-Spalten zwischen „Offen“ und „Erledigt“ den Labels „status: Name“. Bei eingeschaltetem Schreiben legt der Abgleich die nötigen Milestones und Labels selbst an und löscht die, die er angelegt hat, sobald nichts mehr daran hängt. Was du selbst auf GitHub angelegt hast, löscht er nie.\nDas Ergebnis ist eine kurze Meldung unten, nie ein Dialog; „Protokoll“ darin führt zum Sync-Protokoll unter Einstellungen → Synchronisation, das jeden Lauf und seine einzelnen Änderungen auflistet. Schalte dort „Automatisch synchronisieren“ ein, und die App importiert und gleicht alle offenen Issues von selbst ab: beim Start, wenn du zur App zurückkehrst und alle 15 Minuten, solange sie offen ist. Konflikte bei der Regel „Ich entscheide“ werden dann nur markiert; „Prüfen“ in der Meldung öffnet die Auswahl. Nach drei Fehlern in Folge pausiert die Automatik, bis du das Sync-Symbol drückst.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
       }
     },
     "links": {
@@ -1037,14 +1037,14 @@
       "settingsDefinitions": "Einstellungen → Definitionen öffnen",
       "settingsData": "Einstellungen → Daten öffnen",
       "settingsTeam": "Einstellungen → Team öffnen",
-      "settingsGithub": "Einstellungen → GitHub öffnen"
+      "settingsSync": "Einstellungen → Synchronisation öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",
     "linkHints": {
       "featureFirst": "Zuerst die Funktion einschalten",
       "releaseRows": "Zeilen «Releases» wählen",
-      "githubConnect": "Repository und Token eintragen"
+      "syncConnect": "Repository und Token eintragen"
     }
   },
   "dialog": {
@@ -1390,86 +1390,42 @@
       "empty": "Keine Stories für diese Person."
     }
   },
-  "github": {
-    "issueLink": "Issue #{{number}} auf GitHub öffnen",
-    "settings": {
-      "title": "Verbindungen",
-      "connected": "Verbunden",
-      "hint": "Offene Issues werden Stories; Änderungen gehen in beide Richtungen, nur wenn du „Synchronisieren“ drückst.",
-      "repo": "Repository (owner/name)",
-      "token": "Zugriffstoken",
-      "tokenSaved": "Token gespeichert – neues eingeben, um es zu ersetzen",
-      "tokenNote": "Zum Lesen genügt Lesezugriff auf die Issues, zum Schreiben braucht das Token „Issues: Lesen und Schreiben“. Es liegt im Schlüsselbund des Betriebssystems und wird nie wieder angezeigt.",
-      "tokenNoteDemo": "Jeder Text geht, ausser „{{wrong}}“ (abgelehnt) und „{{readonly}}“ (nur lesen). Es wird nichts versendet.",
-      "tokenMissingNote": "Token erneut eingeben: Im Browser gilt es nur bis zum Neuladen.",
-      "test": "Verbindung testen",
-      "testing": "Teste …",
-      "disconnect": "Verbindung entfernen",
-      "ok": "Verbindung ok · {{count}} offene Issues",
-      "where": "Importieren und Abgleichen findest du im Backlog, mit dem Knopf „Synchronisieren“.",
-      "problem": {
-        "repoMissing": "Das Repository fehlt.",
-        "repoFormat": "Bitte im Format owner/name angeben.",
-        "tokenMissing": "Das Zugriffstoken fehlt."
-      },
-      "write": {
-        "label": "Auch nach GitHub schreiben",
-        "help": "Aus: nur lesen. An: „Synchronisieren“ veröffentlicht auch deine Änderungen. Das Token braucht „Issues: Lesen und Schreiben“."
-      },
-      "conflict": {
-        "legend": "Wenn beide Seiten dasselbe Feld geändert haben",
-        "remote": "GitHub gewinnt (Standard)",
-        "local": "Lokal gewinnt",
-        "ask": "Ich entscheide (ein Dialog zeigt beide Fassungen)"
-      }
-    },
-    "demo": {
-      "badge": "Demo",
-      "title": "Demo: simuliertes GitHub",
-      "text": "Ein kleines simuliertes GitHub in diesem Browser ({{repo}}). Ändere hier die Issues und synchronisiere. Token „{{wrong}}“ wird abgelehnt, „{{readonly}}“ darf nicht schreiben.",
-      "rename": "#31 umbenennen, neues Label",
-      "criteria": "Kriterien von #31 ändern",
-      "close": "#35 schliessen",
-      "reopen": "#35 wieder öffnen",
-      "add": "Issue #44 hinzufügen",
-      "reset": "Issues zurücksetzen",
-      "done": "Die Issues auf GitHub wurden geändert."
-    },
+  "sync": {
     "sync": {
       "button": "Synchronisieren",
       "running": "Synchronisiere …",
-      "last": "GitHub · letzter Sync {{when}}",
-      "never": "GitHub · noch nicht synchronisiert",
-      "done": "Mit GitHub synchronisiert",
+      "last": "{{service}} · letzter Sync {{when}}",
+      "never": "{{service}} · noch nicht synchronisiert",
+      "done": "Mit {{service}} synchronisiert",
       "failed": "Synchronisieren fehlgeschlagen",
       "nothing": "Alles ist aktuell.",
       "created": "neu importiert",
       "updated": "aktualisiert",
-      "closed": "erledigt (auf GitHub geschlossen)",
-      "wins": "Änderungen von GitHub wurden übernommen. Sprint, Punkte und Reihenfolge bleiben unverändert.",
+      "closed": "erledigt (auf {{service}} geschlossen)",
+      "wins": "Änderungen von {{service}} wurden übernommen. Sprint, Punkte und Reihenfolge bleiben unverändert.",
       "close": "Schliessen",
-      "toSettings": "Einstellungen → GitHub öffnen",
-      "pendingCount_one": "{{count}} Änderung noch nicht auf GitHub",
-      "pendingCount_other": "{{count}} Änderungen noch nicht auf GitHub",
-      "publishedCount_one": "{{count}} Änderung nach GitHub veröffentlicht",
-      "publishedCount_other": "{{count}} Änderungen nach GitHub veröffentlicht",
-      "publishedTitle": "Nach GitHub veröffentlicht",
+      "toSettings": "Einstellungen → Synchronisation öffnen",
+      "pendingCount_one": "{{count}} Änderung noch nicht auf {{service}}",
+      "pendingCount_other": "{{count}} Änderungen noch nicht auf {{service}}",
+      "publishedCount_one": "{{count}} Änderung nach {{service}} veröffentlicht",
+      "publishedCount_other": "{{count}} Änderungen nach {{service}} veröffentlicht",
+      "publishedTitle": "Nach {{service}} veröffentlicht",
       "overwrittenTitle": "Überschrieben",
       "pendingNote_one": "Schreiben aus: {{count}} Änderung nicht veröffentlicht.",
       "pendingNote_other": "Schreiben aus: {{count}} Änderungen nicht veröffentlicht.",
       "conflictsOpen_one": "{{count}} Konflikt offen",
       "conflictsOpen_other": "{{count}} Konflikte offen",
-      "skippedLabels": "Diese Labels fehlen auf GitHub: {{labels}}",
+      "skippedLabels": "Diese Labels fehlen auf {{service}}: {{labels}}",
       "decide": "Konflikte entscheiden",
       "releaseCreated": "Release neu: {{title}}",
       "epicCreated": "Epic neu: {{name}}",
-      "missingMilestones": "Noch kein Milestone auf GitHub: {{titles}}",
+      "missingMilestones": "Noch kein Milestone auf {{service}}: {{titles}}",
       "multipleEpics": "Mehrere Epic-Labels, das erste zählt: {{issues}}",
       "labelCreated": "Label angelegt: {{name}}",
       "labelDeleted": "Label gelöscht: {{name}}",
       "milestoneCreated": "Milestone angelegt: {{name}}",
       "milestoneDeleted": "Milestone gelöscht: {{name}}",
-      "missingLabels": "Label fehlt auf GitHub: {{names}}",
+      "missingLabels": "Label fehlt auf {{service}}: {{names}}",
       "paused": "automatische Synchronisation pausiert"
     },
     "change": {
@@ -1487,39 +1443,20 @@
       "criteriaTicked_one": "{{count}} Haken geändert",
       "criteriaTicked_other": "{{count}} Haken geändert",
       "criteriaOrder": "Reihenfolge geändert",
-      "closed": "Auf GitHub geschlossen → Status „{{status}}“",
-      "reopened": "Auf GitHub wieder geöffnet → Status „{{status}}“",
+      "closed": "Auf {{service}} geschlossen → Status „{{status}}“",
+      "reopened": "Auf {{service}} wieder geöffnet → Status „{{status}}“",
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
       "status": "Spalte: {{from}} → {{to}}"
     },
     "errors": {
       "config": "Die Verbindung ist nicht eingerichtet: Trage Repository und Token in den Einstellungen ein. Deine lokalen Daten sind unverändert.",
-      "network": "Keine Verbindung zu GitHub. Die App arbeitet mit den lokalen Daten weiter.",
-      "auth": "Token wurde von GitHub abgelehnt. Prüfe das Token und seine Rechte. Deine lokalen Daten sind unverändert.",
+      "network": "Keine Verbindung zu {{service}}. Die App arbeitet mit den lokalen Daten weiter.",
+      "auth": "Token wurde von {{service}} abgelehnt. Prüfe das Token und seine Rechte. Deine lokalen Daten sind unverändert.",
       "notFound": "Repository nicht gefunden, oder das Token hat keinen Zugriff darauf. Deine lokalen Daten sind unverändert.",
-      "rateLimit": "GitHub erlaubt vorerst keine weiteren Anfragen. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
-      "other": "GitHub war nicht richtig erreichbar. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
-      "forbidden": "GitHub hat das Schreiben abgelehnt. Das Token braucht „Issues: Lesen und Schreiben“."
-    },
-    "connections": {
-      "title": "Dienste",
-      "intro": "Ein Mechanismus, ein Anschluss pro Dienst.",
-      "available": "verfügbar",
-      "connected": "verbunden",
-      "planned": "geplant",
-      "names": {
-        "github": "GitHub",
-        "gitlab": "GitLab",
-        "jira": "Jira",
-        "trello": "Trello"
-      }
-    },
-    "disconnect": {
-      "title": "Verbindung entfernen?",
-      "text": "Die importierten Stories bleiben, ihre GitHub-Verknüpfung geht.",
-      "confirm": "Verbindung entfernen",
-      "cancel": "Abbrechen"
+      "rateLimit": "{{service}} erlaubt vorerst keine weiteren Anfragen. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
+      "other": "{{service}} war nicht richtig erreichbar. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
+      "forbidden": "{{service}} hat das Schreiben abgelehnt. Das Token braucht „Issues: Lesen und Schreiben“."
     },
     "field": {
       "title": "Titel",
@@ -1541,30 +1478,30 @@
     "overwritten": {
       "local": "Lokale Änderung überschrieben: {{field}}",
       "localValue": "Lokale Änderung überschrieben: {{field}} „{{value}}“",
-      "github": "GitHub-Änderung überschrieben: {{field}}",
-      "githubValue": "GitHub-Änderung überschrieben: {{field}} „{{value}}“"
+      "remote": "{{service}}-Änderung überschrieben: {{field}}",
+      "remoteValue": "{{service}}-Änderung überschrieben: {{field}} „{{value}}“"
     },
     "conflict": {
       "title": "Beide Seiten haben dasselbe geändert",
       "intro": "Wähle, welche Fassung gilt.",
       "local": "Lokal",
-      "remote": "GitHub",
+      "remote": "{{service}}",
       "keepLocal": "Lokale Fassung behalten",
-      "takeRemote": "GitHub-Fassung nehmen",
+      "takeRemote": "{{service}}-Fassung nehmen",
       "apply": "Übernehmen",
       "cancel": "Abbrechen",
       "group": "{{field}} von {{code}}",
       "hint": "Bis du „Übernehmen“ drückst, ändert sich nichts."
     },
     "pending": {
-      "badge": "nicht auf GitHub",
-      "title": "Lokale Änderungen, die noch nicht auf GitHub sind: {{fields}}"
+      "badge": "nicht auf {{service}}",
+      "title": "Lokale Änderungen, die noch nicht auf {{service}} sind: {{fields}}"
     },
     "create": {
-      "menu": "Auf GitHub anlegen",
-      "done": "{{code}} wurde auf GitHub angelegt.",
-      "skipped": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
-      "failed": "{{code}} konnte nicht auf GitHub angelegt werden: {{reason}}"
+      "menu": "Auf {{service}} anlegen",
+      "done": "{{code}} wurde auf {{service}} angelegt.",
+      "skipped": "Diese Labels kennt {{service}} nicht, sie wurden nicht angelegt: {{labels}}",
+      "failed": "{{code}} konnte nicht auf {{service}} angelegt werden: {{reason}}"
     },
     "toast": {
       "done": "Synchronisiert: {{parts}}",
@@ -1572,7 +1509,7 @@
       "new": "{{count}} neu",
       "updated": "{{count}} aktualisiert",
       "closed": "{{count}} geschlossen",
-      "published": "{{count}} zu GitHub gesendet",
+      "published": "{{count}} zu {{service}} gesendet",
       "other": "{{count}} Labels und Milestones",
       "failed": "Synchronisation fehlgeschlagen: {{reason}}",
       "paused": "Automatische Synchronisation nach Fehlern pausiert. Das Sync-Symbol drücken, um fortzufahren.",
@@ -1607,9 +1544,91 @@
       "error": "Fehler",
       "quiet": "Keine Änderungen",
       "quietRuns": "{{count}} Läufe ohne Änderungen"
+    },
+    "disconnect": {
+      "title": "Verbindung entfernen?",
+      "text": "Die importierten Stories bleiben, ihre {{service}}-Verknüpfung geht.",
+      "confirm": "Verbindung entfernen",
+      "cancel": "Abbrechen"
+    },
+    "issueLink": "Issue {{key}} auf {{service}} öffnen",
+    "settings": {
+      "connected": "Verbunden",
+      "hint": "Offene Issues werden Stories; Änderungen gehen in beide Richtungen, nur wenn du „Synchronisieren“ drückst.",
+      "test": "Verbindung testen",
+      "testing": "Teste …",
+      "disconnect": "Verbindung entfernen",
+      "ok": "Verbindung ok · {{count}} offene Issues",
+      "where": "Importieren und Abgleichen findest du im Backlog, mit dem Knopf „Synchronisieren“.",
+      "write": {
+        "label": "Auch nach {{service}} schreiben",
+        "help": "Aus: nur lesen. An: „Synchronisieren“ veröffentlicht auch deine Änderungen. Das Token braucht „Issues: Lesen und Schreiben“."
+      },
+      "conflict": {
+        "legend": "Wenn beide Seiten dasselbe Feld geändert haben",
+        "remote": "{{service}} gewinnt (Standard)",
+        "local": "Lokal gewinnt",
+        "ask": "Ich entscheide (ein Dialog zeigt beide Fassungen)"
+      }
+    },
+    "service": {
+      "legend": "Dienst",
+      "hint": "Es ist immer nur ein Dienst aktiv. Beim Wechsel wird die Verbindung zum alten entfernt; deine Stories bleiben.",
+      "planned": "geplant",
+      "connected": "verbunden",
+      "active": "gewählt",
+      "available": "verfügbar"
+    },
+    "services": {
+      "github": "GitHub",
+      "jira": "Jira",
+      "gitlab": "GitLab"
+    },
+    "switch": {
+      "title": "Zu {{to}} wechseln?",
+      "linked_one": "{{service}} ist aktiv, {{count}} Story ist mit einem {{service}}-Issue verknüpft.",
+      "linked_other": "{{service}} ist aktiv, {{count}} Stories sind mit {{service}}-Issues verknüpft.",
+      "connected": "{{service}} ist verbunden.",
+      "removes": "Die Verbindung zu {{service}} und das Token werden entfernt.",
+      "stay_one": "Die {{count}} Story bleibt, ohne Issue-Nummer und Link.",
+      "stay_other": "Die {{count}} Stories bleiben, ohne Issue-Nummer und Link.",
+      "importAgain": "Der erste Abgleich mit {{to}} importiert alle offenen Vorgänge als neue Stories, gleiche Arbeit kann dadurch doppelt vorkommen.",
+      "create": "Eigene Stories kannst du einzeln über ihr Menü mit „Auf {{to}} anlegen“ nach {{to}} bringen.",
+      "confirm": "Trennen und zu {{to}} wechseln",
+      "cancel": "Abbrechen"
+    },
+    "localId": "Lokale ID {{code}}",
+    "demo": {
+      "badge": "Demo"
     }
   },
   "info": {
     "label": "Mehr Informationen"
+  },
+  "github": {
+    "settings": {
+      "repo": "Repository (owner/name)",
+      "token": "Zugriffstoken",
+      "tokenSaved": "Token gespeichert – neues eingeben, um es zu ersetzen",
+      "tokenNote": "Zum Lesen genügt Lesezugriff auf die Issues, zum Schreiben braucht das Token „Issues: Lesen und Schreiben“. Es liegt im Schlüsselbund des Betriebssystems und wird nie wieder angezeigt.",
+      "tokenNoteDemo": "Jeder Text geht, ausser „{{wrong}}“ (abgelehnt) und „{{readonly}}“ (nur lesen). Es wird nichts versendet.",
+      "tokenMissingNote": "Token erneut eingeben: Im Browser gilt es nur bis zum Neuladen.",
+      "problem": {
+        "repoMissing": "Das Repository fehlt.",
+        "repoFormat": "Bitte im Format owner/name angeben.",
+        "tokenMissing": "Das Zugriffstoken fehlt."
+      }
+    },
+    "demo": {
+      "title": "Demo: simuliertes GitHub",
+      "text": "Ein kleines simuliertes GitHub in diesem Browser ({{repo}}). Ändere hier die Issues und synchronisiere. Token „{{wrong}}“ wird abgelehnt, „{{readonly}}“ darf nicht schreiben.",
+      "rename": "#31 umbenennen, neues Label",
+      "criteria": "Kriterien von #31 ändern",
+      "close": "#35 schliessen",
+      "reopen": "#35 wieder öffnen",
+      "add": "Issue #44 hinzufügen",
+      "reset": "Issues zurücksetzen",
+      "done": "Die Issues auf GitHub wurden geändert."
+    }
   }
 }

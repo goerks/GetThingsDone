@@ -67,14 +67,15 @@ import {
   type ReleaseInput
 } from '../domain/releases';
 import { gatesToAsk, pruneChecks, setCheck as setCheckIn, withDoneSnapshots } from '../domain/definitions';
-import { isEmptySummary, parseRepo, type Decision, type SyncSummary } from '../domain/github';
+import { isEmptySummary, type Decision, type SyncSummary } from '../domain/sync';
 import { AUTO_PAUSE_AFTER, appendLog } from '../domain/syncLog';
-import { syncMessage } from '../github/syncMessage';
+import { syncMessage } from '../sync/syncMessage';
+import { withService } from '../sync/syncT';
 import { hrefs } from '../router';
-import { DEFAULT_SETTINGS } from '../domain/settings';
-import { createGithubSource, createTokenStore, GithubError, type GithubSource, type TokenStore } from '../github';
-import { persistSync } from '../github/persist';
-import { createOnGithub as createOnGithubWith, runSync } from '../github/runSync';
+import { DEFAULT_SETTINGS, DEFAULT_SYNC } from '../domain/settings';
+import { createConnectors, createTokenVault, SyncError, type Connectors, type TokenStore, type TokenVault } from '../sync';
+import { persistSync } from '../sync/persist';
+import { createInService as createInServiceWith, runSync } from '../sync/runSync';
 import {
   DEFAULT_STATUSES,
   addStatus as addStatusIn,
@@ -106,7 +107,9 @@ import type {
   Sprint,
   StatusCategory,
   StatusValue,
+  ServiceKind,
   Story,
+  SyncSettings,
   SyncTrigger
 } from '../domain/types';
 
@@ -232,37 +235,41 @@ interface AppApi {
   updateFieldLayout(itemType: ItemType, fieldId: string, patch: LayoutPatch): boolean;
   /** Sets or clears (null) the value of a custom field on a story or an epic. */
   setFieldValue(itemId: string, fieldId: string, value: FieldValue | null): void;
-  /** Where the access token for GitHub is kept (#30): the keychain on the desktop, the memory of the page in the browser. */
-  githubTokens: TokenStore;
-  /** Connects the repository for the sync; an empty text disconnects. False when the text is not `owner/name`. */
-  setGithubRepo(text: string): boolean;
-  /** Asks GitHub whether repository and token work. Resolves with the number of open issues; rejects with a `GithubError`. */
-  testGithub(repoText: string, token: string): Promise<number>;
+  /** Where the access token of the chosen service is kept (#30, #66): the keychain on the desktop, the memory of the page in the browser. */
+  syncTokens: TokenStore;
+  /** The services that have a connector; the others are planned and cannot be chosen. */
+  syncAvailable: readonly ServiceKind[];
+  /** Connects the chosen service: checks the text values of its settings (GitHub: the repository as `owner/name`). An empty connection disconnects. False when it is not valid. */
+  setSyncConnection(connection: Record<string, string>): boolean;
+  /** Asks the service whether the connection and the token work. Resolves with the number of open issues; rejects with a `SyncError`. */
+  testSync(connection: Record<string, string>, token: string): Promise<number>;
   /**
-   * Compares the stories with their issues, takes what changed on GitHub, publishes what changed here when writing is on,
+   * Compares the stories with their issues, takes what changed in the service, publishes what changed here when writing is on,
    * and imports new open issues (#30). `decisions` answer the conflicts of an earlier run that asked. Resolves with what
    * changed, or with null when it failed (the notice says so, and what was done before the failure stays) or when another
    * run is going on. Every run is logged and answered with a short notice; never with a dialog (AC17).
    */
-  syncGithub(decisions?: Record<string, Decision>, trigger?: SyncTrigger): Promise<SyncSummary | null>;
+  syncNow(decisions?: Record<string, Decision>, trigger?: SyncTrigger): Promise<SyncSummary | null>;
   /** The state of the sync: a run is going on, the automatic sync paused after errors, when the next automatic run is due, and a request to review conflicts. */
-  githubSync: { busy: boolean; paused: boolean; nextAt: number | null; review: boolean };
+  syncState: { busy: boolean; paused: boolean; nextAt: number | null; review: boolean };
   /** Switches the automatic sync of all issues on or off. */
-  setGithubAuto(on: boolean): void;
+  setSyncAuto(on: boolean): void;
   /** Tells where the next automatic run is due (a time in milliseconds), or null. */
-  setGithubNextRun(at: number | null): void;
+  setSyncNextRun(at: number | null): void;
   /** Asks the sync icon to open the conflicts: goes to the backlog and syncs by hand. */
-  requestGithubReview(): void;
+  requestSyncReview(): void;
   /** The icon has seen the request. */
-  clearGithubReview(): void;
+  clearSyncReview(): void;
   /** Empties the sync log. */
-  clearGithubLog(): void;
-  /** Changes the options of the connection: whether the app may write to GitHub, and who wins in a conflict. */
-  setGithubOptions(patch: Partial<Pick<Settings['github'], 'write' | 'conflict'>>): void;
-  /** Publishes a story that exists only here as a new issue and links it. Resolves with the labels GitHub does not know; rejects with a `GithubError`. */
-  createOnGithub(storyId: string): Promise<string[]>;
-  /** Removes the connection: repository and ignored issues are forgotten and the stories lose their link. The stories stay as they are. */
-  disconnectGithub(): void;
+  clearSyncLog(): void;
+  /** Changes the options of the connection: whether the app may write to the service, and who wins in a conflict. */
+  setSyncOptions(patch: Partial<Pick<SyncSettings, 'write' | 'conflict'>>): void;
+  /** Publishes a story that exists only here as a new issue and links it. Resolves with the labels the service does not know; rejects with a `SyncError`. */
+  createInService(storyId: string): Promise<string[]>;
+  /** Removes the connection: the settings of the connection and the ignored issues are forgotten, the token is deleted and the stories lose their link. The stories stay as they are. */
+  disconnectSync(): Promise<void>;
+  /** Chooses another service (#66): the connection of the old one is removed as described for `disconnectSync`, and the new one starts empty and read only. */
+  switchService(service: ServiceKind): Promise<void>;
 }
 
 const AppContext = createContext<AppApi | null>(null);
@@ -275,22 +282,22 @@ export function useApp(): AppApi {
 
 interface Props {
   repository: Promise<Repository> | Repository;
-  /** Where GitHub issues come from and where the token is kept; the app's own by default, other ones for tests. */
-  github?: { source: GithubSource; tokens: TokenStore };
+  /** Where the issues come from and where the tokens are kept; the app's own by default, other ones for tests. */
+  sync?: { connectors: Connectors; tokens: TokenVault };
   children: ReactNode;
 }
 
-export function AppProvider({ repository, github, children }: Props) {
-  // Kept for the whole life of the provider, so the token in memory survives a re-render.
-  const githubRef = useRef(github ?? { source: createGithubSource(), tokens: createTokenStore() });
+export function AppProvider({ repository, sync, children }: Props) {
+  // Kept for the whole life of the provider, so the tokens in memory survive a re-render.
+  const syncRef = useRef(sync ?? { connectors: createConnectors(), tokens: createTokenVault() });
   const { t } = useTranslation();
   const toast = useToast();
   const syncing = useRef(false);
   const failures = useRef(0);
-  const [githubBusy, setGithubBusy] = useState(false);
-  const [githubPaused, setGithubPaused] = useState(false);
-  const [githubNextAt, setGithubNextAt] = useState<number | null>(null);
-  const [githubReview, setGithubReview] = useState(false);
+  const [syncBusy, setSyncBusy] = useState(false);
+  const [syncPaused, setSyncPaused] = useState(false);
+  const [syncNextAt, setSyncNextAt] = useState<number | null>(null);
+  const [syncReview, setSyncReview] = useState(false);
   const [flashed, setFlashed] = useState<string | null>(null);
   const [flashScroll, setFlashScroll] = useState(false);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -540,6 +547,35 @@ export function AppProvider({ repository, github, children }: Props) {
     setPending({ storyId, from: story.status, to, gates, commit });
     return true;
   }, []);
+
+  /**
+   * Removes the connection of the chosen service (#30, #66): its token, the settings of the connection and the ignored
+   * issues are forgotten, and the stories lose their link and stay. A switch of the service (`reset`) also resets the
+   * options (read only, the service wins) and chooses the next service.
+   */
+  const disconnectService = useCallback(
+    async (reset: boolean, next?: ServiceKind): Promise<void> => {
+      const current = settingsRef.current.sync;
+      await syncRef.current.tokens(current.service).clear().catch(() => undefined);
+      const linkedStories = storiesRef.current.filter((story) => story.link);
+      const unlinked = storiesRef.current.map((story) => {
+        if (!story.link) return story;
+        const { link: _link, ...rest } = story;
+        return rest;
+      });
+      const sync: SyncSettings = reset
+        ? { ...DEFAULT_SYNC, service: next ?? current.service }
+        : { ...current, connection: {}, lastSyncAt: null, ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] };
+      const settings = { ...settingsRef.current, sync };
+      update(unlinked);
+      updateSettings(settings);
+      persist(async (repoStore) => {
+        for (const story of unlinked.filter((item) => linkedStories.some((was) => was.id === item.id))) await repoStore.updateStory(story);
+        await repoStore.saveSettings(settings);
+      });
+    },
+    [update, updateSettings, persist]
+  );
 
   const api = useMemo<AppApi>(
     () => ({
@@ -810,12 +846,12 @@ export function AppProvider({ repository, github, children }: Props) {
       flashed,
       flashScroll,
       deleteStory(id) {
-        const url = storiesRef.current.find((story) => story.id === id)?.github?.url;
+        const url = storiesRef.current.find((story) => story.id === id)?.link?.url;
         update(deleteStoryIn(storiesRef.current, id));
         persist((repo) => repo.deleteStory(id));
         if (url) {
           // The issue stays on GitHub; the story is not brought back by the next sync.
-          const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, ignored: [...settingsRef.current.github.ignored, url] } };
+          const settings = { ...settingsRef.current, sync: { ...settingsRef.current.sync, ignored: [...settingsRef.current.sync.ignored, url] } };
           updateSettings(settings);
           persist((repo) => repo.saveSettings(settings));
         }
@@ -999,67 +1035,71 @@ export function AppProvider({ repository, github, children }: Props) {
         else updateEpics(setItemValue(epicsRef.current, itemId, fieldId, value));
         persist((repo) => repo.setFieldValue(itemId, fieldId, value));
       },
-      githubTokens: githubRef.current.tokens,
-      setGithubRepo(text) {
-        const trimmed = text.trim();
-        const parsed = trimmed === '' ? null : parseRepo(trimmed);
-        if (trimmed !== '' && !parsed) return false;
-        const repo = parsed ? `${parsed.owner}/${parsed.name}` : '';
-        if (settingsRef.current.github.repo === repo) return true;
-        // Another repository starts without a last sync; the stories already imported stay as they are.
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo, lastSyncAt: null, managed: { labels: [], milestones: [] } } };
+      syncTokens: syncRef.current.tokens(settingsRef.current.sync.service),
+      syncAvailable: Object.keys(syncRef.current.connectors) as ServiceKind[],
+      setSyncConnection(connection) {
+        const current = settingsRef.current.sync;
+        const connector = syncRef.current.connectors[current.service];
+        const normalized = connector ? connector.normalize(connection) : Object.keys(connection).length === 0 ? {} : null;
+        if (normalized === null) return false;
+        if (JSON.stringify(current.connection) === JSON.stringify(normalized)) return true;
+        // Another target starts without a last sync; the stories already imported stay as they are.
+        const settings = { ...settingsRef.current, sync: { ...current, connection: normalized, lastSyncAt: null, managed: { labels: [], milestones: [] } } };
         updateSettings(settings);
         persist((repoStore) => repoStore.saveSettings(settings));
         return true;
       },
-      async testGithub(repoText, token) {
-        const repo = parseRepo(repoText);
-        if (!repo) throw new GithubError('notFound');
-        return (await githubRef.current.source.openIssues(repo, token)).length;
+      async testSync(connection, token) {
+        const connector = syncRef.current.connectors[settingsRef.current.sync.service];
+        const target = connector?.target(connection) ?? null;
+        if (!connector || target === null) throw new SyncError('notFound');
+        return (await connector.open(target, token)).length;
       },
-      githubSync: { busy: githubBusy, paused: githubPaused, nextAt: githubNextAt, review: githubReview },
-      setGithubAuto(on) {
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, auto: on } };
+      syncState: { busy: syncBusy, paused: syncPaused, nextAt: syncNextAt, review: syncReview },
+      setSyncAuto(on) {
+        const settings = { ...settingsRef.current, sync: { ...settingsRef.current.sync, auto: on } };
         updateSettings(settings);
         persist((repoStore) => repoStore.saveSettings(settings));
         failures.current = 0;
-        setGithubPaused(false);
-        if (!on) setGithubNextAt(null);
+        setSyncPaused(false);
+        if (!on) setSyncNextAt(null);
       },
-      setGithubNextRun: setGithubNextAt,
-      requestGithubReview() {
+      setSyncNextRun: setSyncNextAt,
+      requestSyncReview() {
         window.location.hash = hrefs.backlog;
-        setGithubReview(true);
+        setSyncReview(true);
       },
-      clearGithubReview: () => setGithubReview(false),
-      clearGithubLog() {
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, log: [] } };
+      clearSyncReview: () => setSyncReview(false),
+      clearSyncLog() {
+        const settings = { ...settingsRef.current, sync: { ...settingsRef.current.sync, log: [] } };
         updateSettings(settings);
         persist((repoStore) => repoStore.saveSettings(settings));
       },
-      async syncGithub(decisions, trigger = 'manual') {
+      async syncNow(decisions, trigger = 'manual') {
         if (syncing.current) return null;
         syncing.current = true;
-        setGithubBusy(true);
+        setSyncBusy(true);
         // The icon resumes an automatic sync that paused after errors.
         if (trigger === 'manual') {
           failures.current = 0;
-          setGithubPaused(false);
+          setSyncPaused(false);
         }
         const at = new Date().toISOString();
         let summary: SyncSummary | null = null;
         let failure: unknown = null;
-        let managed = settingsRef.current.github.managed;
+        let managed = settingsRef.current.sync.managed;
+        const service = settingsRef.current.sync.service;
         try {
-          const connection = settingsRef.current.github;
-          const repo = parseRepo(connection.repo);
-          const token = await githubRef.current.tokens.get();
-          if (!repo || !token) throw new GithubError('config');
+          const connection = settingsRef.current.sync;
+          const connector = syncRef.current.connectors[service];
+          const target = connector ? connector.target(connection.connection) : null;
+          const token = await syncRef.current.tokens(service).get();
+          if (!connector || target === null || !token) throw new SyncError('config');
           const before = { stories: storiesRef.current, fields: fieldsRef.current.fields, epics: epicsRef.current, releases: releasesRef.current };
           const result = await runSync({
-            connector: githubRef.current.source,
+            connector,
+            target,
             token,
-            repo,
             stories: before.stories,
             fields: before.fields,
             assignments: fieldsRef.current.assignments,
@@ -1085,23 +1125,24 @@ export function AppProvider({ repository, github, children }: Props) {
         } catch (cause) {
           failure = cause;
         }
-        const errorKind = failure === null ? null : failure instanceof GithubError ? failure.kind : 'other';
+        const errorKind = failure === null ? null : failure instanceof SyncError ? failure.kind : 'other';
         // A sync that stopped on an error is not a finished sync: the time of the last one stays. The log is fresh: the PO may have changed settings meanwhile.
-        const current = settingsRef.current.github;
+        const current = settingsRef.current.sync;
         const entry = { id: newId(), at, runs: 1, trigger, error: errorKind, summary };
-        const settings = { ...settingsRef.current, github: { ...current, managed, lastSyncAt: failure ? current.lastSyncAt : at, log: appendLog(current.log, entry, new Date()) } };
+        const settings = { ...settingsRef.current, sync: { ...current, managed, lastSyncAt: failure ? current.lastSyncAt : at, log: appendLog(current.log, entry, new Date()) } };
         updateSettings(settings);
         persist((repoStore) => repoStore.saveSettings(settings));
         syncing.current = false;
-        setGithubBusy(false);
+        setSyncBusy(false);
 
-        const showLog = { label: t('github.toast.log'), onClick: () => (window.location.hash = hrefs.settingsGithub) };
+        const st = withService(t, service);
+        const showLog = { label: st('sync.toast.log'), onClick: () => (window.location.hash = hrefs.settingsSync) };
         if (failure) {
           failures.current += 1;
-          toast.notify(t('github.toast.failed', { reason: t(`github.errors.${errorKind}`) }), showLog, { sticky: true, tone: 'error' });
+          toast.notify(st('sync.toast.failed', { reason: st(`sync.errors.${errorKind}`) }), showLog, { sticky: true, tone: 'error' });
           if (trigger !== 'manual' && failures.current >= AUTO_PAUSE_AFTER) {
-            setGithubPaused(true);
-            toast.notify(t('github.toast.paused'), showLog, { sticky: true, tone: 'error' });
+            setSyncPaused(true);
+            toast.notify(st('sync.toast.paused'), showLog, { sticky: true, tone: 'error' });
           }
           return null;
         }
@@ -1109,26 +1150,28 @@ export function AppProvider({ repository, github, children }: Props) {
         const conflicts = summary?.conflicts.length ?? 0;
         if (conflicts > 0) {
           // A run by hand opens the choice itself; a run by itself never asks.
-          if (trigger !== 'manual') toast.notify(t('github.toast.conflicts', { count: conflicts }), { label: t('github.toast.review'), onClick: () => api.requestGithubReview() });
+          if (trigger !== 'manual') toast.notify(st('sync.toast.conflicts', { count: conflicts }), { label: st('sync.toast.review'), onClick: () => api.requestSyncReview() });
         } else if (summary && (trigger === 'manual' || !isEmptySummary(summary))) {
-          toast.notify(syncMessage(t, summary), showLog);
+          toast.notify(syncMessage(st, summary), showLog);
         }
         return summary;
       },
-      setGithubOptions(patch) {
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, ...patch } };
+      setSyncOptions(patch) {
+        const settings = { ...settingsRef.current, sync: { ...settingsRef.current.sync, ...patch } };
         updateSettings(settings);
         persist((repoStore) => repoStore.saveSettings(settings));
       },
-      async createOnGithub(storyId) {
+      async createInService(storyId) {
+        const service = settingsRef.current.sync.service;
         const story = storiesRef.current.find((item) => item.id === storyId);
-        const repo = parseRepo(settingsRef.current.github.repo);
-        const token = await githubRef.current.tokens.get();
-        if (!story || story.github || !repo || !token) throw new GithubError('config');
-        const { story: linked, skippedLabels, madeLabels } = await createOnGithubWith({
-          connector: githubRef.current.source,
+        const connector = syncRef.current.connectors[service];
+        const target = connector ? connector.target(settingsRef.current.sync.connection) : null;
+        const token = await syncRef.current.tokens(service).get();
+        if (!story || story.link || !connector || target === null || !token) throw new SyncError('config');
+        const { story: linked, skippedLabels, made } = await createInServiceWith({
+          connector,
+          target,
           token,
-          repo,
           story,
           fields: fieldsRef.current.fields,
           statuses: statusesRef.current,
@@ -1137,31 +1180,24 @@ export function AppProvider({ repository, github, children }: Props) {
         });
         update(storiesRef.current.map((item) => (item.id === storyId ? linked : item)));
         persist((repoStore) => repoStore.updateStory(linked));
-        if (madeLabels.length > 0) {
-          const managed = { ...settingsRef.current.github.managed, labels: [...settingsRef.current.github.managed.labels, ...madeLabels] };
-          const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, managed } };
+        if (made.labels.length > 0 || made.milestones.length > 0) {
+          const current = settingsRef.current.sync.managed;
+          const managed = { labels: [...current.labels, ...made.labels], milestones: [...current.milestones, ...made.milestones] };
+          const settings = { ...settingsRef.current, sync: { ...settingsRef.current.sync, managed } };
           updateSettings(settings);
           persist((repoStore) => repoStore.saveSettings(settings));
         }
         return skippedLabels;
       },
-      disconnectGithub() {
-        const linkedStories = storiesRef.current.filter((story) => story.github);
-        const unlinked = storiesRef.current.map((story) => {
-          if (!story.github) return story;
-          const { github: _github, ...rest } = story;
-          return rest;
-        });
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo: '', lastSyncAt: null, ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] } };
-        update(unlinked);
-        updateSettings(settings);
-        persist(async (repoStore) => {
-          for (const story of unlinked.filter((item) => linkedStories.some((was) => was.id === item.id))) await repoStore.updateStory(story);
-          await repoStore.saveSettings(settings);
-        });
+      async disconnectSync() {
+        await disconnectService(false);
+      },
+      async switchService(service) {
+        if (service === settingsRef.current.sync.service) return;
+        await disconnectService(true, service);
       }
     }),
-    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t, githubBusy, githubPaused, githubNextAt, githubReview]
+    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t, syncBusy, syncPaused, syncNextAt, syncReview, disconnectService]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

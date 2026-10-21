@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { LABELS_FIELD_ID, issueUrl, localFields, pendingFields, planSync, remoteFields, type ExternalMilestone, type GithubIssue, type SyncInput } from './github';
+import { LABELS_FIELD_ID, localFields, pendingFields } from './sync';
+import { issueUrl, toItem, type ExternalMilestone, type GithubIssue } from '../sync/github/format';
+import { planGithub, type GithubSyncInput } from '../test/githubPlan';
 import { DEFAULT_STATUSES } from './statuses';
 import { EPIC_COLOR_KEYS, type Epic, type ExternalFields, type FieldDefinition, type Release, type Story } from './types';
 
@@ -28,7 +30,7 @@ const story = (extra: Partial<Story> = {}, base: Partial<ExternalFields> = {}): 
   values: {},
   checks: {},
   doneItems: null,
-  github: { url: issueUrl(repo, 31), state: 'open', base: baseFields(base) },
+  link: { service: 'github', key: '#31', url: issueUrl(repo, 31), state: 'open', base: baseFields(base) },
   ...extra
 });
 
@@ -38,8 +40,8 @@ const milestone = (number: number, title: string, extra: Partial<ExternalMilesto
 
 const labelsField: FieldDefinition = { id: LABELS_FIELD_ID, builtinKey: null, kind: 'custom', dataType: 'multi_select', label: 'Labels', options: [], defaultValue: null };
 
-const plan = (stories: Story[], issues: GithubIssue[], extra: Partial<SyncInput> = {}) =>
-  planSync({ stories, fields: [labelsField], assignments: [], statuses, repo, issues, newId, epics: [], releases: [], milestones: [], ...extra });
+const plan = (stories: Story[], issues: GithubIssue[], extra: Partial<GithubSyncInput> = {}) =>
+  planGithub({ stories, fields: [labelsField], assignments: [], statuses, repo, issues, newId, epics: [], releases: [], milestones: [], ...extra });
 
 describe('releases and milestones', () => {
   it('AC12.1 makes a release of a milestone that has none yet and puts the story into it', () => {
@@ -126,7 +128,7 @@ describe('epics and labels', () => {
   it('AC13.6 counts only the first epic label and says that there are several', () => {
     const result = plan([story()], [issue(31, { labels: ['epic: Boards', 'epic: Backlog'] })]);
     expect(result.epics.map((item) => item.name)).toEqual(['Boards']);
-    expect(result.summary.multipleEpics).toEqual([{ code: 'S-1', number: 31 }]);
+    expect(result.summary.multipleEpics).toEqual([{ code: 'S-1', key: '#31' }]);
   });
 });
 
@@ -185,7 +187,7 @@ describe('board columns and status labels', () => {
 
   it('AC15.8 names a column of its own after its label and finds it again', () => {
     const own = [...statuses, { id: 'test', label: 'Test', category: 'in_progress' as const }];
-    const pushed = planSync({ stories: [story({ status: 'test' })], fields: [labelsField], assignments: [], statuses: own, repo, issues: [issue(31)], newId, write: true });
+    const pushed = planGithub({ stories: [story({ status: 'test' })], fields: [labelsField], assignments: [], statuses: own, repo, issues: [issue(31)], newId, write: true });
     expect(pushed.pushes[0].patch.labels).toEqual(['status: Test']);
     const pulled = planSync({ stories: [story()], fields: [labelsField], assignments: [], statuses: own, repo, issues: [issue(31, { labels: ['status: Test'] })], newId });
     expect(pulled.stories[0].status).toBe('test');
@@ -194,6 +196,6 @@ describe('board columns and status labels', () => {
   it('ignores a status label this app has no column for', () => {
     const result = plan([story()], [issue(31, { labels: ['status: someday'] })]);
     expect(result.stories[0].status).toBe('todo');
-    expect(remoteFields(issue(31, { labels: ['status: someday'] })).status).toBe('someday');
+    expect(toItem(issue(31, { labels: ['status: someday'] })).fields.status).toBe('someday');
   });
 });

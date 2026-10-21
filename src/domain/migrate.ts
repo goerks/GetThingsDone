@@ -1,11 +1,11 @@
 import type { ChangeVersion } from './changeLog';
 import { normalizeColorKey } from './epics';
 import { missingBuiltins } from './fields';
-import { normalizeSettings } from './settings';
+import { normalizeSettings, type StoredSettings } from './settings';
 import { isDoneIn, normalizeStatuses } from './statuses';
 import { settleSprints, type StoredSprint } from './sprintLife';
 import { addDays, SPRINT_LENGTH_DAYS } from './sprints';
-import type { Epic, FieldAssignment, FieldDefinition, Member, Release, ReleaseEvent, Settings, Snapshot, StatusValue, Story } from './types';
+import type { Epic, ExternalFields, ExternalLink, FieldAssignment, FieldDefinition, Member, Release, ReleaseEvent, Snapshot, StatusValue, Story } from './types';
 
 /**
  * Snapshot as stored by an older release. Release 0.1: one fixed sprint, stories with `inSprint`, epics without
@@ -16,6 +16,7 @@ import type { Epic, FieldAssignment, FieldDefinition, Member, Release, ReleaseEv
  * Before the definitions (#26): no definitions in the settings, and stories without checks.
  * Before the change log (#23): no versions.
  * Before the team (#18): no members, and stories without an assignee.
+ * Before the generalisation of the sync (#66): the link of a story to its GitHub issue is `github` (address, state, base) and the settings hold `github`.
  */
 interface StoredSnapshot {
   epics?: Array<Omit<Epic, 'position' | 'colorKey' | 'values'> & { position?: number; colorKey: string; values?: Epic['values'] }>;
@@ -25,7 +26,10 @@ interface StoredSnapshot {
   events?: ReleaseEvent[];
   changeLog?: ChangeVersion[];
   stories?: Array<
-    Omit<Story, 'sprintId' | 'values' | 'releaseId' | 'checks' | 'doneItems'> & {
+    Omit<Story, 'sprintId' | 'values' | 'releaseId' | 'checks' | 'doneItems' | 'link'> & {
+      link?: ExternalLink;
+      /** The link of a story imported from GitHub, as stored before #66. */
+      github?: { url: string; state?: 'open' | 'closed'; base?: ExternalFields };
       sprintId?: string | null;
       releaseId?: string | null;
       inSprint?: boolean;
@@ -36,11 +40,14 @@ interface StoredSnapshot {
   >;
   fields?: Array<Omit<FieldDefinition, 'defaultValue'> & { defaultValue?: FieldDefinition['defaultValue'] }>;
   assignments?: FieldAssignment[];
-  settings?: Partial<Settings>;
+  settings?: StoredSettings;
   statuses?: Array<Partial<StatusValue>>;
 }
 
 export const MIGRATED_SPRINT_ID = 'sprint-1';
+
+/** The key of an issue from its address: the number at the end with a hash (`#31`). Links made before #66 have no key. */
+export const legacyKey = (url: string): string => `#${/(\d+)\/?$/.exec(url)?.[1] ?? url}`;
 
 /**
  * Brings a stored snapshot to the current shape. Release 0.1 had one fixed "Sprint 1": it becomes a real sprint
@@ -65,8 +72,9 @@ export function migrateSnapshot(stored: StoredSnapshot, today: string): Snapshot
   }
   const members: Member[] = stored.members ?? [];
   const memberIds = new Set(members.map((member) => member.id));
-  const stories: Story[] = rawStories.map(({ inSprint, sprintId, ...story }) => ({
+  const stories: Story[] = rawStories.map(({ inSprint, sprintId, github, ...story }) => ({
     ...story,
+    ...(story.link ? { link: story.link } : github ? { link: { service: 'github' as const, key: legacyKey(github.url), url: github.url, state: github.state === 'closed' ? ('closed' as const) : ('open' as const), ...(github.base ? { base: github.base } : {}) } } : {}),
     // A story assigned to a member that does not exist (any more) is not assigned.
     ...(story.assigneeId && !memberIds.has(story.assigneeId) ? { assigneeId: null } : {}),
     epicId: story.epicId || null,

@@ -1,19 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  LABELS_FIELD_ID,
-  composeBody,
-  decisionKey,
-  issueUrl,
-  linkTo,
-  newIssueOf,
-  pendingFields,
-  planSync,
-  splitBody,
-  withBase,
-  withCriteria,
-  type GithubIssue,
-  type SyncInput
-} from './github';
+import { LABELS_FIELD_ID, decisionKey, linkTo, newItemOf, pendingFields, withBase } from './sync';
+import { composeBody, issueUrl, splitBody, toItem, toNewIssue, withCriteria, type GithubIssue } from '../sync/github/format';
+import { planGithub, type GithubSyncInput } from '../test/githubPlan';
 import { DEFAULT_STATUSES } from './statuses';
 import { EPIC_COLOR_KEYS, type ExternalFields, type FieldDefinition, type Story } from './types';
 
@@ -42,7 +30,7 @@ const story = (extra: Partial<Story> = {}, base: Partial<ExternalFields> = {}): 
   values: {},
   checks: {},
   doneItems: null,
-  github: { url: issueUrl(repo, 31), state: 'open', base: baseFields(base) },
+  link: { service: 'github', key: '#31', url: issueUrl(repo, 31), state: 'open', base: baseFields(base) },
   ...extra
 });
 
@@ -56,8 +44,8 @@ const labelsField: FieldDefinition = {
   defaultValue: null
 };
 
-const plan = (stories: Story[], issues: GithubIssue[], extra: Partial<SyncInput> = {}) =>
-  planSync({ stories, fields: [labelsField], assignments: [], statuses, repo, issues, newId, ...extra });
+const plan = (stories: Story[], issues: GithubIssue[], extra: Partial<GithubSyncInput> = {}) =>
+  planGithub({ stories, fields: [labelsField], assignments: [], statuses, repo, issues, newId, ...extra });
 
 describe('publishing local changes', () => {
   it('AC7.1 publishes a changed title and a new label when writing is on', () => {
@@ -120,7 +108,7 @@ describe('conflicts', () => {
     // Then the title is the one of GitHub and the sync says what was overwritten
     expect(result.stories[0].title).toBe('Login-Seite');
     expect(result.pushes).toEqual([]);
-    expect(result.summary.overwritten).toEqual([{ storyId: 's1', code: 'S-1', number: 31, field: 'title', side: 'local', value: 'Anmeldung' }]);
+    expect(result.summary.overwritten).toEqual([{ storyId: 's1', code: 'S-1', key: '#31', field: 'title', side: 'local', value: 'Anmeldung' }]);
   });
 
   it('AC8.1 lets the local change win and names the lost GitHub title', () => {
@@ -129,7 +117,7 @@ describe('conflicts', () => {
     // Then the local title is published and the sync says what was overwritten
     expect(result.stories[0].title).toBe('Anmeldung');
     expect(result.pushes[0].patch).toEqual({ title: 'Anmeldung' });
-    expect(result.summary.overwritten).toEqual([{ storyId: 's1', code: 'S-1', number: 31, field: 'title', side: 'github', value: 'Login-Seite' }]);
+    expect(result.summary.overwritten).toEqual([{ storyId: 's1', code: 'S-1', key: '#31', field: 'title', side: 'remote', value: 'Login-Seite' }]);
   });
 
   it('AC8.1 keeps the local change but cannot publish it when writing is off', () => {
@@ -171,7 +159,7 @@ describe('conflicts', () => {
     const result = plan([story({ title: 'Login-Seite' })], [issue(31, { title: 'Login-Seite' })], { write: true, conflict: 'ask' });
     expect(result.summary.conflicts).toEqual([]);
     expect(result.pushes).toEqual([]);
-    expect(result.stories[0].github?.base?.title).toBe('Login-Seite');
+    expect(result.stories[0].link?.base?.title).toBe('Login-Seite');
   });
 });
 
@@ -183,14 +171,14 @@ describe('what is not on GitHub yet', () => {
   });
 
   it('AC9.1 marks nothing on a story of the team', () => {
-    const own = story({ title: 'Anmeldung', github: undefined });
+    const own = story({ title: 'Anmeldung', link: undefined });
     expect(pendingFields(own, labelsField, statuses)).toEqual([]);
   });
 
   it('AC9.2 has nothing pending once the published fields are the new base', () => {
     // Given a story with a changed title that was published
     const changed = story({ title: 'Anmeldung' });
-    const after = withBase(changed, issue(31, { title: 'Anmeldung' }), ['title']);
+    const after = withBase(changed, toItem(issue(31, { title: 'Anmeldung' })), ['title']);
     // Then it is no longer pending
     expect(pendingFields(after, labelsField, statuses)).toEqual([]);
   });
@@ -205,16 +193,18 @@ describe('creating an issue from a story', () => {
         description: 'Export the backlog.',
         criteria: [{ id: 'c1', text: 'Header row', done: true }],
         values: { [LABELS_FIELD_ID]: ['gh-label-bug'] },
-        github: undefined
+        link: undefined
       },
       {}
     );
     // When the issue is made
-    const input = newIssueOf(own, labelsField, statuses);
+    const input = toNewIssue(newItemOf(own, labelsField, statuses));
     expect(input).toEqual({ title: 'Export as CSV', body: 'Export the backlog.\n\n## Acceptance criteria\n- [x] Header row', labels: ['bug'] });
     // Then the link points to the new issue and starts from its state
     const created = issue(44, { title: 'Export as CSV', body: input.body, labels: ['bug'] });
-    expect(linkTo(created)).toEqual({
+    expect(linkTo('github', toItem(created))).toEqual({
+      service: 'github',
+      key: '#44',
       url: issueUrl(repo, 44),
       state: 'open',
       base: { title: 'Export as CSV', description: 'Export the backlog.', labels: ['bug'], criteria: [{ text: 'Header row', done: true }], done: false, release: null, epic: null, status: null }

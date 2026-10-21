@@ -1,5 +1,5 @@
 import type { Repository } from '../data/repository';
-import { LABELS_FIELD_ID, type SyncPlan } from '../domain/github';
+import { LABELS_FIELD_ID, type SyncPlan } from '../domain/sync';
 import type { Epic, FieldDefinition, Release, Story } from '../domain/types';
 
 const sameJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
@@ -33,7 +33,7 @@ export async function persistSync(
       continue;
     }
     if (story === was) continue;
-    if (story.title !== was.title || story.description !== was.description || story.status !== was.status || story.epicId !== was.epicId || story.releaseId !== was.releaseId || !sameJson(story.github, was.github)) {
+    if (story.title !== was.title || story.description !== was.description || story.status !== was.status || story.epicId !== was.epicId || story.releaseId !== was.releaseId || !sameJson(story.link, was.link)) {
       await repo.updateStory(story);
     }
     for (const criterion of was.criteria) {

@@ -1,5 +1,5 @@
 import type { SyncLogEntry, SyncTrigger } from './types';
-import { isEmptySummary, type SyncSummary } from './github';
+import { isEmptySummary, type SyncSummary } from './sync';
 
 /** The log keeps the last 100 entries of the last 90 days (#30). */
 export const LOG_MAX_ENTRIES = 100;
@@ -20,6 +20,26 @@ export function appendLog(log: readonly SyncLogEntry[], entry: SyncLogEntry, now
   return joined.filter((item) => Date.parse(item.at) >= oldest).slice(0, LOG_MAX_ENTRIES);
 }
 
+/** An entry of the summary as an earlier version stored it: the issue number instead of the key, and the side "github". */
+type StoredEntry = { key?: string; number?: number; side?: string };
+
+const keyOf = (entry: StoredEntry): string => entry.key ?? (entry.number !== undefined ? `#${entry.number}` : '');
+
+/** A summary stored before the generalisation (#66) names issues by `number` and the side of the service `github`; it is read with `key` and `remote`. */
+function upgradeSummary(summary: SyncSummary): SyncSummary {
+  const upgrade = <T extends object>(entries: readonly T[] | undefined): T[] => (entries ?? []).map((entry) => ({ ...entry, key: keyOf(entry as StoredEntry) }));
+  return {
+    ...summary,
+    created: upgrade(summary.created),
+    closed: upgrade(summary.closed),
+    updated: upgrade(summary.updated),
+    published: upgrade(summary.published),
+    overwritten: upgrade(summary.overwritten).map((entry) => ({ ...entry, side: (entry as StoredEntry).side === 'github' ? ('remote' as const) : entry.side })),
+    conflicts: upgrade(summary.conflicts),
+    multipleEpics: upgrade(summary.multipleEpics)
+  };
+}
+
 const TRIGGERS: readonly SyncTrigger[] = ['start', 'auto', 'manual'];
 
 /** Log entries from stored data; whatever is not an entry is dropped. */
@@ -35,7 +55,7 @@ export function normalizeLog(value: unknown): SyncLogEntry[] {
       runs: typeof item.runs === 'number' && item.runs >= 1 ? item.runs : 1,
       trigger,
       error: typeof item.error === 'string' ? item.error : null,
-      summary: item.summary && typeof item.summary === 'object' ? (item.summary as SyncSummary) : null
+      summary: item.summary && typeof item.summary === 'object' ? upgradeSummary(item.summary as SyncSummary) : null
     });
   }
   return entries;

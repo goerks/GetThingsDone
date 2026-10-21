@@ -7,7 +7,8 @@ import { sortEpics } from '../domain/epics';
 import { sortSprints } from '../domain/sprints';
 import { STATUS_CATEGORIES, statusColor, statusesIn } from '../domain/statuses';
 import { POINT_VALUES } from '../domain/types';
-import { githubErrorKey } from '../pages/GithubSection';
+import { syncErrorKey } from '../pages/SyncSection';
+import { withService } from '../sync/syncT';
 import { featureOn } from '../domain/settings';
 import { useApp } from './AppState';
 import { useToast } from './Toast';
@@ -136,20 +137,21 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
         }))
       });
     }
-    // Only a story that exists just here can become an issue, and only while the app may write to GitHub (#30).
-    if (featureOn(app.settings, 'github') && app.settings.github.write && app.settings.github.repo !== '' && !story.github) {
+    // Only a story that exists just here can become an issue, and only while the app may write to the service (#30, #66).
+    if (featureOn(app.settings, 'sync') && app.settings.sync.write && Object.keys(app.settings.sync.connection).length > 0 && !story.link) {
+      const st = withService(t, app.settings.sync.service);
       list.push({
-        id: 'github-create',
-        label: t('github.create.menu'),
+        id: 'sync-create',
+        label: st('sync.create.menu'),
         onSelect: () => {
           setOpen(null);
           app
-            .createOnGithub(story.id)
+            .createInService(story.id)
             .then((skipped) => {
-              toast.notify(t('github.create.done', { code: story.code }));
-              if (skipped.length > 0) toast.notify(t('github.create.skipped', { labels: skipped.join(', ') }));
+              toast.notify(st('sync.create.done', { code: story.code }));
+              if (skipped.length > 0) toast.notify(st('sync.create.skipped', { labels: skipped.join(', ') }));
             })
-            .catch((cause: unknown) => toast.notify(t('github.create.failed', { code: story.code, reason: t(`github.errors.${githubErrorKey(cause)}`) })));
+            .catch((cause: unknown) => toast.notify(st('sync.create.failed', { code: story.code, reason: st(`sync.errors.${syncErrorKey(cause)}`) })));
         }
       });
     }

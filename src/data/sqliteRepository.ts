@@ -1,7 +1,8 @@
 import Database from '@tauri-apps/plugin-sql';
 import { normalizeColorKey } from '../domain/epics';
 import { missingBuiltins } from '../domain/fields';
-import { FEATURE_KEYS, normalizeSettings } from '../domain/settings';
+import { legacyKey } from '../domain/migrate';
+import { FEATURE_KEYS, normalizeSettings, SERVICE_KINDS } from '../domain/settings';
 import { isDoneIn, normalizeStatuses } from '../domain/statuses';
 import { changedPositions } from '../domain/board';
 import type { ChangeVersion, ItemState, LogWrites, VersionOrigin } from '../domain/changeLog';
@@ -117,9 +118,11 @@ interface StoryRow {
   rank: number;
   checks: string | null;
   done_items: string | null;
-  github_url: string | null;
-  github_state: string | null;
-  github_base: string | null;
+  sync_service: string | null;
+  sync_key: string | null;
+  sync_url: string | null;
+  sync_state: string | null;
+  sync_base: string | null;
 }
 
 interface CriterionRow {
@@ -215,7 +218,7 @@ export class SqliteRepository implements Repository {
       'SELECT id, at, item_type, item_id, version, origin, keys, state FROM change_log ORDER BY at, rowid'
     );
     const storyRows = await this.db.select<StoryRow[]>(
-      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items, github_url, github_state, github_base FROM stories ORDER BY rank'
+      'SELECT id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items, sync_service, sync_key, sync_url, sync_state, sync_base FROM stories ORDER BY rank'
     );
     const criterionRows = await this.db.select<CriterionRow[]>(
       'SELECT id, story_id, text, done FROM criteria ORDER BY story_id, position'
@@ -305,12 +308,14 @@ export class SqliteRepository implements Repository {
       values: valuesByItem.get(row.id) ?? {},
       checks: parseJson<Story['checks']>(row.checks) ?? {},
       doneItems: parseJson<string[]>(row.done_items),
-      ...(row.github_url
+      ...(row.sync_url
         ? {
-            github: {
-              url: row.github_url,
-              state: row.github_state === 'closed' ? ('closed' as const) : ('open' as const),
-              ...(row.github_base ? { base: parseJson<ExternalFields>(row.github_base) ?? undefined } : {})
+            link: {
+              service: SERVICE_KINDS.find((kind) => kind === row.sync_service) ?? ('github' as const),
+              key: row.sync_key ?? legacyKey(row.sync_url),
+              url: row.sync_url,
+              state: row.sync_state === 'closed' ? ('closed' as const) : ('open' as const),
+              ...(row.sync_base ? { base: parseJson<ExternalFields>(row.sync_base) ?? undefined } : {})
             }
           }
         : {})
@@ -327,15 +332,16 @@ export class SqliteRepository implements Repository {
       mapRows: settingRows.find((row) => row.key === 'map_rows')?.value,
       features: Object.fromEntries(FEATURE_KEYS.map((key) => [key, settingRows.find((row) => row.key === `feature_${key}`)?.value])),
       definitions: parseJson<unknown>(settingRows.find((row) => row.key === 'definitions')?.value ?? null),
-      github: {
-        repo: settingRows.find((row) => row.key === 'github_repo')?.value,
-        lastSyncAt: settingRows.find((row) => row.key === 'github_last_sync')?.value,
-        write: settingRows.find((row) => row.key === 'github_write')?.value,
-        conflict: settingRows.find((row) => row.key === 'github_conflict')?.value,
-        ignored: parseJson<unknown>(settingRows.find((row) => row.key === 'github_ignored')?.value ?? null),
-        managed: parseJson<unknown>(settingRows.find((row) => row.key === 'github_managed')?.value ?? null),
-        auto: settingRows.find((row) => row.key === 'github_auto')?.value,
-        log: parseJson<unknown>(settingRows.find((row) => row.key === 'github_log')?.value ?? null)
+      sync: {
+        service: settingRows.find((row) => row.key === 'sync_service')?.value,
+        connection: parseJson<unknown>(settingRows.find((row) => row.key === 'sync_connection')?.value ?? null),
+        lastSyncAt: settingRows.find((row) => row.key === 'sync_last_sync')?.value,
+        write: settingRows.find((row) => row.key === 'sync_write')?.value,
+        conflict: settingRows.find((row) => row.key === 'sync_conflict')?.value,
+        ignored: parseJson<unknown>(settingRows.find((row) => row.key === 'sync_ignored')?.value ?? null),
+        managed: parseJson<unknown>(settingRows.find((row) => row.key === 'sync_managed')?.value ?? null),
+        auto: settingRows.find((row) => row.key === 'sync_auto')?.value,
+        log: parseJson<unknown>(settingRows.find((row) => row.key === 'sync_log')?.value ?? null)
       }
     });
     const statusRows = await this.db.select<{ id: string; label: string | null; category: string }[]>(
@@ -455,8 +461,8 @@ export class SqliteRepository implements Repository {
 
   async addStory(story: Story): Promise<void> {
     await this.db.execute(
-      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items, github_url, github_state, github_base) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)',
-      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.assigneeId ?? null, story.rank, JSON.stringify(story.checks), json(story.doneItems), story.github?.url ?? null, story.github?.state ?? null, json(story.github?.base ?? null)]
+      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items, sync_service, sync_key, sync_url, sync_state, sync_base) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)',
+      [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.assigneeId ?? null, story.rank, JSON.stringify(story.checks), json(story.doneItems), story.link?.service ?? null, story.link?.key ?? null, story.link?.url ?? null, story.link?.state ?? null, json(story.link?.base ?? null)]
     );
     for (const [position, criterion] of story.criteria.entries()) {
       await this.addCriterion(story.id, criterion, position);
@@ -468,8 +474,8 @@ export class SqliteRepository implements Repository {
 
   async updateStory(story: Story): Promise<void> {
     await this.db.execute(
-      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, assignee_id = $8, rank = $9, github_url = $10, github_state = $11, github_base = $12 WHERE id = $13',
-      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.assigneeId ?? null, story.rank, story.github?.url ?? null, story.github?.state ?? null, json(story.github?.base ?? null), story.id]
+      'UPDATE stories SET title = $1, description = $2, epic_id = $3, points = $4, status = $5, sprint_id = $6, release_id = $7, assignee_id = $8, rank = $9, sync_service = $10, sync_key = $11, sync_url = $12, sync_state = $13, sync_base = $14 WHERE id = $15',
+      [story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.assigneeId ?? null, story.rank, story.link?.service ?? null, story.link?.key ?? null, story.link?.url ?? null, story.link?.state ?? null, json(story.link?.base ?? null), story.id]
     );
   }
 
@@ -595,15 +601,17 @@ export class SqliteRepository implements Repository {
     await this.db.execute(upsert, ['map_rows', settings.mapRows]);
     for (const key of FEATURE_KEYS) await this.db.execute(upsert, [`feature_${key}`, settings.features[key] ? '1' : '0']);
     await this.db.execute(upsert, ['definitions', JSON.stringify(settings.definitions)]);
-    await this.db.execute(upsert, ['github_repo', settings.github.repo]);
-    await this.db.execute(upsert, ['github_write', settings.github.write ? '1' : '0']);
-    await this.db.execute(upsert, ['github_conflict', settings.github.conflict]);
-    await this.db.execute(upsert, ['github_ignored', JSON.stringify(settings.github.ignored)]);
-    await this.db.execute(upsert, ['github_managed', JSON.stringify(settings.github.managed)]);
-    await this.db.execute(upsert, ['github_auto', settings.github.auto ? '1' : '0']);
-    await this.db.execute(upsert, ['github_log', JSON.stringify(settings.github.log)]);
-    if (settings.github.lastSyncAt) await this.db.execute(upsert, ['github_last_sync', settings.github.lastSyncAt]);
-    else await this.db.execute('DELETE FROM settings WHERE key = $1', ['github_last_sync']);
+    const sync = settings.sync;
+    await this.db.execute(upsert, ['sync_service', sync.service]);
+    await this.db.execute(upsert, ['sync_connection', JSON.stringify(sync.connection)]);
+    await this.db.execute(upsert, ['sync_write', sync.write ? '1' : '0']);
+    await this.db.execute(upsert, ['sync_conflict', sync.conflict]);
+    await this.db.execute(upsert, ['sync_ignored', JSON.stringify(sync.ignored)]);
+    await this.db.execute(upsert, ['sync_managed', JSON.stringify(sync.managed)]);
+    await this.db.execute(upsert, ['sync_auto', sync.auto ? '1' : '0']);
+    await this.db.execute(upsert, ['sync_log', JSON.stringify(sync.log)]);
+    if (sync.lastSyncAt) await this.db.execute(upsert, ['sync_last_sync', sync.lastSyncAt]);
+    else await this.db.execute('DELETE FROM settings WHERE key = $1', ['sync_last_sync']);
   }
 
   async addRelease(release: Release): Promise<void> {

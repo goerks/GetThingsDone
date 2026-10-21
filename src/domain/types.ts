@@ -237,12 +237,21 @@ export interface Story {
    * is not done or became done before the definitions existed. Such a story is never marked.
    */
   doneItems: string[] | null;
-  /** The GitHub issue this story was imported from (#30), or missing for a story of the team. */
-  github?: GithubLink;
+  /** The issue of the connected service this story is linked to (#30, #66), or missing for a story that is only here. */
+  link?: ExternalLink;
 }
 
-/** The link of an imported story to its GitHub issue. The address names repository and number; `state` is what the last sync saw. */
-export interface GithubLink {
+/** The services a sync can exist for (ADR 0005, ADR 0006). Only one is active at a time. */
+export type ServiceKind = 'github' | 'jira' | 'gitlab';
+
+/**
+ * The link of a story to its issue in the connected service. `key` is how the issue is called there (`#31` on GitHub,
+ * `PROJ-123` on Jira); it is shown as the ID of the story (#66). The address identifies the issue across syncs; `state`
+ * is what the last sync saw.
+ */
+export interface ExternalLink {
+  service: ServiceKind;
+  key: string;
   url: string;
   state: 'open' | 'closed';
   /** What the issue looked like at the last sync: the common starting point of both sides, so a sync knows who changed what (#30). */
@@ -271,7 +280,7 @@ export type ConflictRule = 'remote' | 'local' | 'ask';
 
 /** What the rows of the story map are. */
 /** Features a team can switch on and off (#10). */
-export type FeatureKey = 'releases' | 'team' | 'github';
+export type FeatureKey = 'releases' | 'team' | 'sync';
 export type Features = Record<FeatureKey, boolean>;
 
 export type MapRows = 'sprints' | 'releases';
@@ -326,19 +335,24 @@ export interface SyncLogEntry {
   summary: SyncSummary | null;
 }
 
-/** The connection to GitHub Issues (#30). The access token is not part of the settings: it stays on this device. */
-export interface GithubSettings {
-  /** `owner/name`, or an empty text while no repository is connected. */
-  repo: string;
+/**
+ * The synchronisation with an external tracker (#30, #66). One service is chosen and connected at a time. The access token
+ * is not part of the settings: it stays on this device.
+ */
+export interface SyncSettings {
+  /** The chosen service. */
+  service: ServiceKind;
+  /** What the chosen service needs to know to find its issues: for GitHub `repo` (`owner/name`). Empty while nothing is connected. */
+  connection: Record<string, string>;
   /** When the last import or sync ran, as an ISO timestamp (UTC), or null. */
   lastSyncAt: string | null;
-  /** Whether a sync may also change issues on GitHub. Off by default: the app only reads. */
+  /** Whether a sync may also change issues in the service. Off by default: the app only reads. */
   write: boolean;
   /** Who wins when both sides changed the same field. */
   conflict: ConflictRule;
   /** Addresses of issues whose story was deleted here: they are not imported again. */
   ignored: string[];
-  /** The labels and milestones the sync made on GitHub. Only these are deleted again, when nothing needs them any more. */
+  /** The labels and milestones the sync made in the service. Only these are deleted again, when nothing needs them any more. */
   managed: { labels: string[]; milestones: string[] };
   /** Whether the app syncs by itself: at the start, when it comes back to the front and every 15 minutes (#30). All issues or none. */
   auto: boolean;
@@ -353,7 +367,7 @@ export interface Settings {
   features: Features;
   /** The Definition of Ready and the Definition of Done (#26). */
   definitions: Definitions;
-  github: GithubSettings;
+  sync: SyncSettings;
 }
 
 export interface Snapshot {
