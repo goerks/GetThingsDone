@@ -15,6 +15,7 @@ import fr from './i18n/fr.json';
 import it_ from './i18n/it.json';
 import { initI18n } from './i18n';
 import { fakeGithub, fakeIssue, REPO } from './test/fakeGithub';
+import { logText, sync, syncAsking } from './test/syncHelpers';
 
 beforeAll(() => {
   initI18n('en');
@@ -77,7 +78,7 @@ async function renderApp(hash: string, { stories = [], issues = [], write = true
     settings: {
       ...seed.settings,
       features: { ...seed.settings.features, github: featureOn },
-      github: { repo: REPO, lastSyncAt: null, write, conflict, ignored: [], managed }
+      github: { repo: REPO, lastSyncAt: null, write, conflict, ignored: [], managed, auto: false, log: [] }
     }
   });
   await fake.github.tokens.set('good');
@@ -86,11 +87,6 @@ async function renderApp(hash: string, { stories = [], issues = [], write = true
   await screen.findByRole('heading', { level: 1 });
   return { fake, repository };
 }
-
-const sync = async (user: ReturnType<typeof userEvent.setup>): Promise<HTMLElement> => {
-  await user.click(await screen.findByRole('button', { name: 'Synchronise' }));
-  return screen.findByRole('dialog');
-};
 
 describe('the options of the connection', () => {
   it('AC1.8 has writing off by default and says which right the token needs', async () => {
@@ -156,11 +152,11 @@ describe('publishing', () => {
       issues: [fakeIssue(31, { title: 'Login' })]
     });
     // When I synchronise
-    const dialog = await sync(user);
-    // Then GitHub has the change and the dialog names title and label
+    const notice = await sync(user);
+    // Then GitHub has the change, the notice counts it and the log names title and label
     expect(fake.state.issues[0]).toMatchObject({ title: 'Login-Seite', labels: ['bug'] });
-    expect(within(dialog).getByText('2 changes published to GitHub')).toBeInTheDocument();
-    expect(within(dialog).getByText(/Title, Labels/)).toBeInTheDocument();
+    expect(notice).toHaveTextContent('Synchronised: 2 sent to GitHub');
+    expect(await logText(user)).toContain('Title, Labels');
   });
 
   it('AC7.5 publishes nothing when writing is off, says so, and keeps the story marked', async () => {
@@ -168,11 +164,10 @@ describe('publishing', () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { write: false, stories: [linked(31, { title: 'Login-Seite' })], issues: [fakeIssue(31, { title: 'Login' })] });
     // When I synchronise
-    const dialog = await sync(user);
-    // Then the dialog says that writing is off, and the story is still marked
-    expect(within(dialog).getByText('Writing is off: 1 change not published.')).toBeInTheDocument();
+    const notice = await sync(user);
+    // Then the notice says that writing is off, and the story is still marked
+    expect(notice).toHaveTextContent('Writing is off: 1 change not published.');
     expect(fake.state.writes).toEqual([]);
-    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
     expect(screen.getByText('not on GitHub')).toBeInTheDocument();
   });
 
@@ -182,10 +177,9 @@ describe('publishing', () => {
     const { fake } = await renderApp('#/backlog', { stories: [linked(31, { title: 'Login-Seite' })], issues: [fakeIssue(31, { title: 'Login' })] });
     fake.state.canWrite = false;
     // When I synchronise
-    const dialog = await sync(user);
+    const notice = await sync(user);
     // Then the message names the right, and the story keeps its title and its marker
-    expect(within(dialog).getByRole('alert')).toHaveTextContent('Issues: read and write');
-    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    expect(notice).toHaveTextContent('Issues: read and write');
     expect(screen.getByText('Login-Seite')).toBeInTheDocument();
     expect(screen.getByText('not on GitHub')).toBeInTheDocument();
   });
@@ -198,17 +192,16 @@ describe('conflicts', () => {
   it('AC3.3 lets GitHub win by default and names the overwritten local title', async () => {
     const user = userEvent.setup();
     await renderApp('#/backlog', both());
-    const dialog = await sync(user);
-    expect(within(dialog).getByText('Local change overwritten: Title “Anmeldung”')).toBeInTheDocument();
-    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    await sync(user);
+    expect(await logText(user)).toContain('Local change overwritten: Title “Anmeldung”');
     expect(screen.getByText('Login-Seite')).toBeInTheDocument();
   });
 
   it('AC8.1 lets the local change win and names the overwritten GitHub title', async () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { ...both(), conflict: 'local' });
-    const dialog = await sync(user);
-    expect(within(dialog).getByText('GitHub change overwritten: Title “Login-Seite”')).toBeInTheDocument();
+    await sync(user);
+    expect(await logText(user)).toContain('GitHub change overwritten: Title “Login-Seite”');
     expect(fake.state.issues[0].title).toBe('Anmeldung');
   });
 
@@ -217,7 +210,7 @@ describe('conflicts', () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { ...both(), conflict: 'ask' });
     // When I synchronise
-    const dialog = await sync(user);
+    const dialog = await syncAsking(user);
     // Then both versions are shown, and nothing has changed yet
     expect(within(dialog).getByRole('heading', { name: 'Both sides changed the same thing' })).toBeInTheDocument();
     expect(within(dialog).getByText('Anmeldung')).toBeInTheDocument();
@@ -229,13 +222,22 @@ describe('conflicts', () => {
     await waitFor(() => expect(fake.state.issues[0].title).toBe('Anmeldung'));
   });
 
+  it('AC17.5 opens the choice for a sync by hand with the rule "I decide" and no other dialog', async () => {
+    const user = userEvent.setup();
+    await renderApp('#/backlog', { ...both(), conflict: 'ask' });
+    const dialog = await syncAsking(user);
+    expect(within(dialog).getByRole('heading', { name: 'Both sides changed the same thing' })).toBeInTheDocument();
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
   it('AC8.3 keeps the conflict open when I cancel the dialog with Esc', async () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { ...both(), conflict: 'ask' });
-    await sync(user);
+    await syncAsking(user);
     await user.keyboard('{Escape}');
     // The conflict is still there, nothing changed, and the next sync asks again
-    expect(await screen.findByText('1 conflict open')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(await screen.findByText('not on GitHub')).toBeInTheDocument();
     expect(fake.state.issues[0].title).toBe('Login-Seite');
     expect(screen.getByText('Anmeldung')).toBeInTheDocument();
   });
@@ -243,8 +245,8 @@ describe('conflicts', () => {
   it('AC8.4 is no conflict when different fields changed', async () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { title: 'Login', body: 'New text' })], conflict: 'ask' });
-    const dialog = await sync(user);
-    expect(within(dialog).queryByText(/Both sides changed/)).not.toBeInTheDocument();
+    await sync(user);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(fake.state.issues[0]).toMatchObject({ title: 'Anmeldung', body: 'New text' });
   });
 });
@@ -259,7 +261,7 @@ describe('what is not on GitHub yet', () => {
     expect(await screen.findByText('3 changes not on GitHub yet')).toBeInTheDocument();
     expect(screen.getAllByText('not on GitHub')).toHaveLength(3);
     // And when I synchronise, the marks and the count are gone
-    await user.click(within(await sync(user)).getByRole('button', { name: 'Close' }));
+    await sync(user);
     await waitFor(() => expect(screen.queryByText('not on GitHub')).not.toBeInTheDocument());
     expect(screen.queryByText(/not on GitHub yet/)).not.toBeInTheDocument();
   });
@@ -268,9 +270,8 @@ describe('what is not on GitHub yet', () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { stories: [linked(31, { title: 'Changed' }, { title: 'Old' })], issues: [fakeIssue(31, { title: 'Old' })] });
     fake.state.offline = true;
-    const dialog = await sync(user);
-    expect(within(dialog).getByRole('alert')).toHaveTextContent('No connection to GitHub');
-    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    const notice = await sync(user);
+    expect(notice).toHaveTextContent('No connection to GitHub');
     expect(screen.getByText('1 change not on GitHub yet')).toBeInTheDocument();
   });
 });
@@ -299,7 +300,7 @@ describe('creating an issue from a story', () => {
   it('AC10.2 creates nothing on a sync, and offers the item only for a story without link while writing is on', async () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { stories: [own, linked(31)], issues: [fakeIssue(31, { title: 'Login' })] });
-    await user.click(within(await sync(user)).getByRole('button', { name: 'Close' }));
+    await sync(user);
     expect(fake.state.issues).toHaveLength(1);
     // A linked story has no such item
     openMenu('G-31');
@@ -340,13 +341,12 @@ describe('the sync icon', () => {
     }
   });
 
-  it('AC14.2 synchronises from the board with the same result dialog and gives the focus back to the icon', async () => {
+  it('AC14.2 synchronises from the board with the same notice and keeps the focus on the icon', async () => {
     const user = userEvent.setup();
     await renderApp('#/board', { issues: [fakeIssue(31, { title: 'Login' })] });
-    const dialog = await sync(user);
-    expect(dialog).toHaveTextContent('newly imported');
-    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Synchronise' })).toHaveFocus());
+    const notice = await sync(user);
+    expect(notice).toHaveTextContent('Synchronised: 1 new');
+    expect(screen.getByRole('button', { name: 'Synchronise' })).toHaveFocus();
   });
 
   it('AC14.3 has no icon on epics, releases and settings, and none while the feature is off', async () => {
@@ -380,8 +380,7 @@ describe('the sync icon', () => {
     expect(button.querySelector('.github-sync__icon--spin')).not.toBeNull();
     expect(calls).toBe(1);
     release();
-    await screen.findByRole('dialog');
-    expect(button).not.toHaveAttribute('aria-busy');
+    await waitFor(() => expect(button).not.toHaveAttribute('aria-busy'));
   });
 
   it('AC14.5 shows the number of changes that are not on GitHub yet at the icon', async () => {
@@ -398,7 +397,7 @@ describe('the sync icon', () => {
     const button = await screen.findByRole('button', { name: 'Synchronise' });
     button.focus();
     await user.keyboard('{Enter}');
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    await waitFor(() => expect(document.querySelector('.toast')).not.toBeNull());
   });
 });
 
@@ -409,18 +408,18 @@ describe('labels and milestones that the sync makes and deletes', () => {
     const herbst: Release = { id: 'release-herbst', title: 'Herbst', description: 'Autumn', startDate: null, endDate: '2026-11-30' };
     const { fake } = await renderApp('#/backlog', { releases: [herbst], stories: [linked(31, { releaseId: 'release-herbst' })], issues: [fakeIssue(31, { title: 'Login' })] });
     // When I synchronise
-    const dialog = await sync(user);
-    // Then GitHub has the milestone with description and due date, and the result says so
+    await sync(user);
+    // Then GitHub has the milestone with description and due date, and the log says so
     await waitFor(() => expect(fake.state.milestones).toHaveLength(1));
     expect(fake.state.milestones[0]).toMatchObject({ title: 'Herbst', description: 'Autumn', dueOn: '2026-11-30' });
-    expect(within(dialog).getByText('Milestone created: Herbst')).toBeInTheDocument();
+    expect(await logText(user)).toContain('Milestone created: Herbst');
   });
 
   it('AC15.6 names the status label that a sync made for a column', async () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/board', { stories: [linked(31, { status: 'review' })], issues: [fakeIssue(31, { title: 'Login' })] });
-    const dialog = await sync(user);
-    expect(within(dialog).getByText('Label created: status: review')).toBeInTheDocument();
+    await sync(user);
+    expect(await logText(user)).toContain('Label created: status: review');
     expect(fake.state.knownLabels).toContain('status: review');
   });
 
@@ -430,9 +429,9 @@ describe('labels and milestones that the sync makes and deletes', () => {
     const { fake } = await renderApp('#/backlog', { issues: [fakeIssue(31, { title: 'Login' })], managed: { labels: ['epic: Old'], milestones: [] } });
     fake.state.knownLabels.push('epic: Old');
     // When I synchronise
-    const dialog = await sync(user);
-    // Then the label is gone from GitHub and the result says so
-    expect(within(dialog).getByText('Label deleted: epic: Old')).toBeInTheDocument();
+    await sync(user);
+    // Then the label is gone from GitHub and the log says so
+    expect(await logText(user)).toContain('Label deleted: epic: Old');
     expect(fake.state.knownLabels).not.toContain('epic: Old');
   });
 
@@ -440,14 +439,27 @@ describe('labels and milestones that the sync makes and deletes', () => {
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog', { issues: [fakeIssue(31, { title: 'Login', labels: ['epic: Login & Konto'], milestone: 'v1.0' })] });
     fake.state.milestones = [{ number: 1, title: 'v1.0', description: 'First version', dueOn: '2026-12-31', state: 'open' }];
-    const dialog = await sync(user);
-    expect(within(dialog).getByText('Release new: v1.0')).toBeInTheDocument();
-    expect(within(dialog).getByText('Epic new: Login & Konto')).toBeInTheDocument();
+    await sync(user);
+    const text = await logText(user);
+    expect(text).toContain('Release new: v1.0');
+    expect(text).toContain('Epic new: Login & Konto');
   });
 });
 
 describe('texts of the story map sync', () => {
   const KEYS = [
+    'github.toast.done',
+    'github.toast.upToDate',
+    'github.toast.failed',
+    'github.toast.paused',
+    'github.toast.conflicts',
+    'github.auto.label',
+    'github.auto.hint',
+    'github.log.title',
+    'github.log.empty',
+    'github.log.trigger.start',
+    'github.log.trigger.auto',
+    'github.log.trigger.manual',
     'github.sync.labelCreated',
     'github.sync.labelDeleted',
     'github.sync.milestoneCreated',
@@ -473,6 +485,7 @@ describe('texts of the story map sync', () => {
 
   it('AC12.7 has the texts of the new features in German, English, French and Italian', check);
   it('AC13.7 has the texts of the new features in German, English, French and Italian', check);
+  it('AC20.5 has the texts of the new features in German, English, French and Italian', check);
   it('AC16.7 has the texts of the new features in German, English, French and Italian', check);
   it('AC15.9 has the texts of the new features in German, English, French and Italian', check);
 });

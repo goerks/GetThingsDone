@@ -94,12 +94,12 @@ describe('LocalStorageRepository', () => {
   it('keeps the settings and the release of a moved story', async () => {
     const repository = new LocalStorageRepository();
     await repository.replaceAll(seedSnapshot('2026-10-12'));
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
     const story = (await repository.load()).stories.find((item) => item.id === 'story-7');
     if (!story) throw new Error('story missing');
     await repository.savePositions([{ ...story, releaseId: 'release-beta' }]);
     const after = await new LocalStorageRepository().load();
-    expect(after.settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] } }, definitions: EMPTY_DEFINITIONS });
+    expect(after.settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
     expect(after.stories.find((item) => item.id === 'story-7')?.releaseId).toBe('release-beta');
   });
 

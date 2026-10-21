@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type ComponentProps } from '
 import { useTranslation } from 'react-i18next';
 import { AcceptancePanel } from './acceptance/Panel';
 import { acceptanceEnabled } from './acceptance/preview';
+import { GithubAutoSync } from './components/GithubAutoSync';
 import { Header } from './components/Header';
 import { TransitionDialog } from './components/TransitionDialog';
 import { HelpPanel } from './components/help/HelpPanel';
@@ -52,6 +53,7 @@ function Shell() {
 
   return (
     <div className={`app${help.open ? ' app--help' : ''}`}>
+      <GithubAutoSync />
       <Header route={route} theme={theme} onToggleTheme={toggleTheme} onShowShortcuts={openShortcuts} />
       <main className="main">
         {/* The settings are no place for an invitation: they are a task of their own. */}

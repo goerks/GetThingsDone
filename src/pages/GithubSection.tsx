@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { DEMO_READONLY_TOKEN, DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemoIssues, saveDemoIssues } from '../github/demoSource';
 import { CONNECTOR_KINDS, GithubError, isGithubDemo } from '../github';
 import { Dialog } from '../components/Dialog';
+import { GithubLog } from '../components/GithubLog';
 import { InfoHint } from '../components/InfoHint';
 import { FeatureTab } from './FeatureTab';
 import type { ConflictRule } from '../domain/types';
@@ -27,7 +28,7 @@ export function GithubSection() {
 }
 
 function GithubSettings() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const app = useApp();
   const id = useId();
   const [repoInput, setRepoText] = useState(app.settings.github.repo);
@@ -188,6 +189,24 @@ function GithubSettings() {
         </label>
         <InfoHint text={t('github.settings.write.help')} />
       </div>
+      <div className="github-auto">
+        <div className="github-options github-options--row">
+          <label>
+            <input type="checkbox" checked={app.settings.github.auto} disabled={!connected} onChange={(event) => app.setGithubAuto(event.target.checked)} /> {t('github.auto.label')}
+          </label>
+          <InfoHint text={t('github.auto.hint')} />
+        </div>
+        {app.settings.github.auto && (
+          <p className="muted" role="status">
+            {[
+              app.settings.github.lastSyncAt ? t('github.auto.last', { when: new Date(app.settings.github.lastSyncAt).toLocaleTimeString(i18n.resolvedLanguage, { timeStyle: 'short' }) }) : '',
+              app.githubSync.paused ? t('github.auto.paused') : app.githubSync.nextAt ? t('github.auto.next', { when: new Date(app.githubSync.nextAt).toLocaleTimeString(i18n.resolvedLanguage, { timeStyle: 'short' }) }) : ''
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        )}
+      </div>
       <fieldset className="github-options">
         <legend>{t('github.settings.conflict.legend')}</legend>
         {(['remote', 'local', 'ask'] as const).map((rule: ConflictRule) => (
@@ -209,6 +228,7 @@ function GithubSettings() {
           </div>
         </Dialog>
       )}
+      {connected && <GithubLog />}
       {demo && <DemoTools />}
     </div>
   );
