@@ -529,7 +529,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Funktion ist an.',
           when: 'Ich öffne Einstellungen → Verbindungen.',
           then: 'GitHub ist als verbunden gelistet. GitLab, Jira und Trello stehen als „geplant“ da und lassen sich nicht auswählen.',
-          tests: [`${ROUNDTRIP} › AC11.1 lists GitHub as connected and GitLab, Jira and Trello as planned`, `${E2E} › AC11.1 lists GitHub as connected and the other services as planned`]
+          tests: [`${ROUNDTRIP} › AC11.1 lists GitHub as connected and GitLab and Jira as planned`, `${E2E} › AC11.1 lists GitHub as connected and the other services as planned`]
         },
         {
           id: 'AC11.2',
