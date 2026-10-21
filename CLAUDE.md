@@ -55,6 +55,7 @@ Two layers: the PO reviews **test cases in German and plain language**; the AI t
   - **Component** (`src/**/*.test.tsx`, Vitest and jsdom, `npm test`): behaviour of one page or dialog, keyboard and screen reader texts.
   - **Unit** (`src/domain/*.test.ts`): rules and calculations.
 - Run both `npm test` and `npm run test:e2e` before every push. In this container: `PLAYWRIGHT_CHROMIUM_PATH=/opt/pw-browsers/chromium npm run test:e2e`.
+- **Cloud sessions have no npm access (decided by the PO, #67).** The network policy of the cloud environment denies `registry.npmjs.org`, so `npm ci`, `npm test`, `npm run typecheck` and `npm run test:e2e` cannot run there. This is known and accepted: do not stop, do not ask the PO to change the network, do not report it as a blocker. **GitHub CI is the build and test environment** (it runs on every push to any branch): push the feature branch, read the CI result of the commit with the REST API (`gh api repos/<owner>/<repo>/actions/runs?branch=<branch>`, then the jobs and their logs), fix every failure and push again until it is green. Without a local compiler, write carefully and re-read your own diff for type and lint errors before pushing; prefer several small pushes whose failures are easy to read in the CI log over one huge push.
 
 ## Definition of Done
 
