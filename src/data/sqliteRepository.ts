@@ -461,7 +461,7 @@ export class SqliteRepository implements Repository {
 
   async addStory(story: Story): Promise<void> {
     await this.db.execute(
-      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items, sync_service, sync_key, sync_url, sync_state, sync_base) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)',
+      'INSERT INTO stories (id, code, title, description, epic_id, points, status, sprint_id, release_id, assignee_id, rank, checks, done_items, sync_service, sync_key, sync_url, sync_state, sync_base) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)',
       [story.id, story.code, story.title, story.description, story.epicId, story.points, story.status, story.sprintId, story.releaseId, story.assigneeId ?? null, story.rank, JSON.stringify(story.checks), json(story.doneItems), story.link?.service ?? null, story.link?.key ?? null, story.link?.url ?? null, story.link?.state ?? null, json(story.link?.base ?? null)]
     );
     for (const [position, criterion] of story.criteria.entries()) {

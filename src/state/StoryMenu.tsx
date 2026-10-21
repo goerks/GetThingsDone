@@ -13,6 +13,7 @@ import { featureOn } from '../domain/settings';
 import { useApp } from './AppState';
 import { useToast } from './Toast';
 import { useDetails } from './Details';
+import { useStoryKey } from '../components/useStoryKey';
 
 interface StoryMenuApi {
   /** Opens the menu of a story at the pointer, or at the card when the menu key or Shift+F10 was used. */
@@ -41,6 +42,7 @@ interface Open {
 export function StoryMenuProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const details = useDetails();
   const builtin = useBuiltin();
   const toast = useToast();
@@ -166,7 +168,7 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
   return (
     <StoryMenuContext.Provider value={api}>
       {children}
-      {open && story && <ContextMenu x={open.x} y={open.y} label={t('menu.label', { code: story.code })} items={items} onClose={close} />}
+      {open && story && <ContextMenu x={open.x} y={open.y} label={t('menu.label', { code: keyOf(story) })} items={items} onClose={close} />}
     </StoryMenuContext.Provider>
   );
 }

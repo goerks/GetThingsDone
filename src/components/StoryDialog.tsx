@@ -26,6 +26,7 @@ import { statusLabel } from './statusLabel';
 import { STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
+import { useStoryKey } from './useStoryKey';
 
 interface CriterionProps {
   storyId: string;
@@ -86,6 +87,7 @@ function CriterionRow({ storyId, criterion }: CriterionProps) {
 export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const builtin = useBuiltin();
   const uid = useId();
   const sensors = useDragSensors();
@@ -145,7 +147,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
   };
 
   return (
-    <Dialog label={`${story.code}: ${story.title}`} wide onClose={onClose}>
+    <Dialog label={`${keyOf(story)}: ${story.title}`} wide onClose={onClose}>
       <div className="detail-dialog__close">
         <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('detail.close')} title={t('detail.close')} onClick={onClose}>
           ×
@@ -237,7 +239,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
 
           <DefinitionsPanel story={story} />
 
-          <HistoryPanel itemType="story" itemId={story.id} label={`${story.code}: ${story.title}`} />
+          <HistoryPanel itemType="story" itemId={story.id} label={`${keyOf(story)}: ${story.title}`} />
         </div>
 
         <aside className="panel detail__side">
@@ -323,7 +325,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
           <div className="danger">
             {confirmDelete ? (
               <div role="group" aria-labelledby={`${uid}-confirm`} className="danger__confirm">
-                <p id={`${uid}-confirm`}>{t('detail.deleteConfirm', { code: story.code, count: story.criteria.length })}</p>
+                <p id={`${uid}-confirm`}>{t('detail.deleteConfirm', { code: keyOf(story), count: story.criteria.length })}</p>
                 <div className="form__actions">
                   <button type="button" className="btn btn--danger" onClick={remove} autoFocus>
                     {t('detail.deleteYes')}

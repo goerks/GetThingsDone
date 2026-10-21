@@ -8,6 +8,7 @@ import type { DefinitionKind } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
 import { useToast } from '../state/Toast';
+import { useStoryKey } from './useStoryKey';
 
 /**
  * The quality gate (#26): a status change that crosses a Definition list the story does not meet does not happen. The
@@ -18,6 +19,7 @@ import { useToast } from '../state/Toast';
 export function TransitionDialog({ storyId, to, gates }: { storyId: string; to: string; gates: DefinitionKind[] }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const details = useDetails();
   const toast = useToast();
   const [step, setStep] = useState(0);
@@ -48,14 +50,14 @@ export function TransitionDialog({ storyId, to, gates }: { storyId: string; to: 
   const lists = gates.slice(step).filter((item) => !evaluate(app.settings.definitions[item], story).met).map((item) => t(`definitions.${item}`));
   const override = (): void => {
     app.resolveTransition('move');
-    toast.notify(t('definitions.toast.overridden', { code: story.code, list: lists.join(' / ') }), { label: t('definitions.toast.open'), onClick: () => details.openStory(story.id) });
+    toast.notify(t('definitions.toast.overridden', { code: keyOf(story), list: lists.join(' / ') }), { label: t('definitions.toast.open'), onClick: () => details.openStory(story.id) });
   };
 
   return (
-    <Dialog title={t(`definitions.transition.title.${kind}`, { code: story.code, target, count: ids.size })} onClose={cancel}>
+    <Dialog title={t(`definitions.transition.title.${kind}`, { code: keyOf(story), target, count: ids.size })} onClose={cancel}>
       {overriding ? (
         <div role="alert" className="definition-override">
-          <h3 className="definition-override__title">{t('definitions.transition.overrideTitle', { list: lists.join(' / '), code: story.code })}</h3>
+          <h3 className="definition-override__title">{t('definitions.transition.overrideTitle', { list: lists.join(' / '), code: keyOf(story) })}</h3>
           <p>{t('definitions.transition.overrideText')}</p>
           <ul className="definition-override__items">
             {staying.map((entry, index) => (

@@ -2,6 +2,7 @@ import { useId, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { searchStories } from '../domain/storySearch';
 import type { Story } from '../domain/types';
+import { useStoryKey } from './useStoryKey';
 
 /** At most this many matches are listed; the rest is reached by typing more. */
 const LIMIT = 8;
@@ -20,6 +21,7 @@ interface Props {
 export function StoryPicker({ stories, onPick }: Props) {
   const { t } = useTranslation();
   const uid = useId();
+  const keyOf = useStoryKey();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -34,7 +36,7 @@ export function StoryPicker({ stories, onPick }: Props) {
 
   const pick = (story: Story): void => {
     onPick(story);
-    setAdded(t('releases.picker.added', { code: story.code }));
+    setAdded(t('releases.picker.added', { code: keyOf(story) }));
     setQuery('');
     setActive(0);
     setOpen(false);
@@ -103,7 +105,7 @@ export function StoryPicker({ stories, onPick }: Props) {
             onClick={() => pick(story)}
             onMouseMove={() => setActive(index)}
           >
-            <span className="story-picker__code">{story.code}</span>
+            <span className="story-picker__code">{keyOf(story)}</span>
             <span className="story-picker__title">{story.title}</span>
           </li>
         ))}

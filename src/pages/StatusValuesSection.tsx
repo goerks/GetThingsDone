@@ -214,11 +214,12 @@ function StatusGroup({ category, target, empty, children }: { category: StatusCa
 function RemoveDialog({ status, onClose }: { status: StatusValue; onClose: () => void }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const name = statusLabel(t, app.statuses, status.id);
   const affected = storiesWithStatus(app.stories, status.id);
   const [target, setTarget] = useState(() => defaultTarget(app.statuses, status.id) ?? '');
   const uid = useId();
-  const codes = codesOf(affected.map((story) => story.code));
+  const codes = codesOf(affected.map((story) => keyOf(story)));
 
   return (
     <Dialog title={t('statusValues.removeDialog.title', { name })} onClose={onClose}>
@@ -264,10 +265,11 @@ function RemoveDialog({ status, onClose }: { status: StatusValue; onClose: () =>
 function ConfirmCategoryDialog({ move, onClose }: { move: PendingMove; onClose: () => void }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const name = statusLabel(t, app.statuses, move.status.id);
   const after = reorderStatuses(app.statuses, move.places) ?? app.statuses;
   const changing = storiesChangingDone(app.stories, app.statuses, after);
-  const codes = codesOf(changing.map((story) => story.code));
+  const codes = codesOf(changing.map((story) => keyOf(story)));
   const key = move.category === 'done' ? 'toDone' : 'fromDone';
 
   return (

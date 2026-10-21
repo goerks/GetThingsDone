@@ -15,6 +15,7 @@ import { PendingMarker, StoryKey } from './StoryKey';
 import { useBuiltin } from './useBuiltin';
 import { useMatchClass } from './search/HighlightBar';
 import { useStoryMenu } from '../state/StoryMenu';
+import { useStoryKey } from './useStoryKey';
 
 /** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
 export function TitleButton({ story, className, showTitle = false }: { story: Story; className: string; showTitle?: boolean }) {
@@ -245,6 +246,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false, compact = f
   const details = useDetails();
   const menu = useStoryMenu();
   const app = useApp();
+  const keyOf = useStoryKey();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -268,7 +270,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false, compact = f
       className={classes}
       data-story-id={story.id}
       {...attributes}
-      aria-label={`${story.code}: ${story.title}`}
+      aria-label={`${keyOf(story)}: ${story.title}`}
       {...listeners}
       onKeyDown={onKeyDown}
       onClick={() => details.openStory(story.id)}
