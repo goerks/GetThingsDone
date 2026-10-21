@@ -62,6 +62,8 @@ export interface ItemPatch {
   epic?: string | null;
   /** The name of the board column, or null for the first column. */
   status?: string | null;
+  /** The story points; 0 for none. */
+  points?: number;
 }
 
 /** What a new issue is made of. */
@@ -131,9 +133,9 @@ const same = (a: string | null | undefined, b: string | null | undefined): boole
 
 /* ---------- The fields that are compared ---------- */
 
-export type FieldName = 'title' | 'description' | 'labels' | 'criteria' | 'release' | 'epic' | 'done' | 'status';
+export type FieldName = 'title' | 'description' | 'labels' | 'criteria' | 'release' | 'epic' | 'done' | 'status' | 'points';
 
-/** The order matters: done comes before status, so a closed issue is done whatever its column says. */
+/** The fields GitHub holds. The order matters: done comes before status, so a closed issue is done whatever its column says. A service with more fields lists them itself (Jira adds the points). */
 export const FIELD_NAMES: readonly FieldName[] = ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status'];
 
 const norm = (text: string): string => text.replace(/\r\n?/g, '\n').trim();
@@ -159,6 +161,8 @@ export function sameField(name: FieldName, a: ExternalFields, b: ExternalFields)
       return a.done === b.done;
     case 'status':
       return same(a.status, b.status);
+    case 'points':
+      return (a.points ?? 0) === (b.points ?? 0);
   }
 }
 
@@ -181,7 +185,8 @@ export function localFields(story: Story, field: FieldDefinition | undefined, st
     release: story.releaseId === null ? null : (context.releases?.find((item) => item.id === story.releaseId)?.title ?? null),
     epic: story.epicId === null ? null : (context.epics?.find((item) => item.id === story.epicId)?.name ?? null),
     done: status?.category === 'done',
-    status: named && status ? statusName(status) : null
+    status: named && status ? statusName(status) : null,
+    points: story.points
   };
 }
 
@@ -205,6 +210,7 @@ export type SyncChange =
   | { kind: 'release'; from: string | null; to: string | null }
   | { kind: 'epic'; from: string | null; to: string | null }
   | { kind: 'status'; from: string | null; to: string | null }
+  | { kind: 'points'; from: number; to: number }
   | { kind: 'closed' }
   | { kind: 'reopened' };
 
@@ -428,7 +434,7 @@ export function planSync(input: SyncInput): SyncPlan {
         title: remote.title,
         description: remote.description,
         epicId: remote.epic ? epicNamed(remote.epic).id : null,
-        points: 0,
+        points: remote.points ?? 0,
         status: statusNamed(remote.status),
         sprintId: null,
         releaseId: remote.release ? releaseTitled(remote.release).id : null,
@@ -523,6 +529,10 @@ export function planSync(input: SyncInput): SyncPlan {
           changes.push({ kind: 'status', from: localFields(next, field, statuses, { epics, releases }).status ?? null, to: remote.status ?? null });
           next = { ...next, status: statusNamed(remote.status) };
           return;
+        case 'points':
+          changes.push({ kind: 'points', from: next.points, to: remote.points ?? 0 });
+          next = { ...next, points: remote.points ?? 0 };
+          return;
       }
     };
 
@@ -574,6 +584,7 @@ export function planSync(input: SyncInput): SyncPlan {
       if (pushFields.includes('epic')) patch.epic = after.epic ?? null;
       if (pushFields.includes('status')) patch.status = after.status ?? null;
       if (pushFields.includes('release')) patch.release = after.release ?? null;
+      if (pushFields.includes('points')) patch.points = after.points ?? 0;
       if (pushFields.includes('done')) patch.done = after.done;
       if (pushFields.includes('description')) {
         patch.description = after.description;

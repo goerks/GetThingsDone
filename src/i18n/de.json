@@ -1452,7 +1452,8 @@
       "reopened": "Auf {{service}} wieder geöffnet → Status „{{status}}“",
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
-      "status": "Spalte: {{from}} → {{to}}"
+      "status": "Spalte: {{from}} → {{to}}",
+      "points": "Punkte: {{from}} → {{to}}"
     },
     "errors": {
       "config": "Die Verbindung ist nicht eingerichtet: Trage Repository und Token in den Einstellungen ein. Deine lokalen Daten sind unverändert.",
@@ -1476,7 +1477,8 @@
       "done": "Erledigt/Offen",
       "release": "Release",
       "epic": "Epic",
-      "status": "Spalte"
+      "status": "Spalte",
+      "points": "Punkte"
     },
     "value": {
       "done": "Erledigt",

@@ -6,7 +6,7 @@ import type { Criterion } from './types';
  * request generalises the shipped GitHub sync (AC1, AC2, AC11), makes the issue number the ID of a story (AC12) and adds the first
  * phase of Jira (AC3 to AC6, AC8, AC9, AC10.3): connect, import, title, description, labels, criteria, status by transition, create.
  * In the preview Jira is simulated (Demo); the real Jira Cloud is only reached by the Windows app. Sprints,
- * points, the list of boards, the table of status names and the message for an expired token follow in later phases.
+ * rank, the list of boards, the table of status names and the message for an expired token follow in later phases.
  */
 const SYNC = 'src/Sync.test.tsx';
 const SERIES = 'src/sync/connector.test.ts';
@@ -320,6 +320,15 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
             `${JIRA} › AC7.2 reads the fix version as the release and the versions with their due date as the releases of the service`,
             `${JIRA} › AC7.2 sets another version, makes a missing one with its dates, and never deletes one`
           ]
+        },
+        {
+          id: 'AC7.4',
+          title: 'Story Points',
+          link: BACKLOG,
+          given: 'Im simulierten Jira hat «PROJ-1» 5 Punkte.',
+          when: 'Ich synchronisiere, ändere lokal auf 8 und synchronisiere erneut (Schreiben an).',
+          then: 'Erst 5, dann 8 in Jira. Ein Vorgang ohne Punkte hat 0.',
+          tests: [`${JIRA} › AC7.4 reads the story points of an issue, and 0 when it has none`, `${JIRA} › AC7.4 writes the story points, and clears them with 0`]
         },
         {
           id: 'AC7.6',

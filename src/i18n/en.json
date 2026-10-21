@@ -1452,7 +1452,8 @@
       "reopened": "Reopened on {{service}} → status “{{status}}”",
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
-      "status": "Column: {{from}} → {{to}}"
+      "status": "Column: {{from}} → {{to}}",
+      "points": "Points: {{from}} → {{to}}"
     },
     "errors": {
       "config": "The connection is not set up: enter repository and token in the settings. Your local data is unchanged.",
@@ -1476,7 +1477,8 @@
       "done": "Done/open",
       "release": "Release",
       "epic": "Epic",
-      "status": "Column"
+      "status": "Column",
+      "points": "Points"
     },
     "value": {
       "done": "Done",
