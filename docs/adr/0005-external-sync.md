@@ -66,10 +66,17 @@ Constraints from ADR 0001: the repository interface between app and storage stay
 
 ## Consequences
 
-- The app now makes network calls, but only when the feature is on and the user presses a button. Everything else works offline.
-- Local changes can reach GitHub only with the write switch on and the button "Sync".
+- The app now makes network calls, but only when the feature is on and the user presses a button or switched on the automatic sync (see "Update 2026-10-21"). Everything else works offline.
+- Local changes can reach GitHub only with the write switch on and a sync (by the button or, if switched on, by itself).
 - The text of a criterion decides its identity (GitHub has no ids for tasks); renaming it on GitHub counts as a removed plus a new criterion.
 - Concurrent edits between reading and writing are not detected (no ETag check): the last write wins on GitHub. Acceptable for a manual, single-user sync; an ETag check can be added in the connector.
 - Further services need a connector, a form for their settings and, where the service has real workflows, a mapping of the status categories; the engine does not change.
 - The Windows app needs the `keyring` crate; CI builds it on every push.
 - Milestones and epics, sprints and points, label filters and background sync stay out of scope and can follow in new decisions.
+
+## Update 2026-10-21: automatic sync and sync log (PO decision in issue #30)
+
+- A sync ends with a short notice, never with a result dialog. Only the conflict choice (rule "I decide", sync by hand) is a dialog.
+- The sync can run by itself (switch "Synchronise automatically", off by default, all issues or none): at the start and when the app comes back to the front, and every 15 minutes while it is open. There is no background run with the app closed (the app is local, there is no server). One run at a time; a run waits while the PO types or a dialog is open; after three errors in a row it pauses.
+- Every run is logged in the connection settings (`github_log`: at most 100 entries of the last 90 days, runs without changes folded), so changes made without a dialog stay traceable. The switch is `github_auto`. No new table and no migration.
+- Load on GitHub: one run lists the open issues (paged) plus the calls for pushes, labels and milestones; every 15 minutes stays far below the limit of 5000 requests per hour.
