@@ -207,6 +207,10 @@ tr:last-child td { border-bottom: 0; }
               <div class="opt"><b>Nur lesen</b><span class="note">Änderungen kommen aus Jira.</span></div>
               <div class="opt opt--on"><b>Lesen und zurückschreiben</b><span class="note">Lokale Änderungen gehen beim Abgleich nach Jira.</span></div>
             </div>
+            <div class="rows">
+              <div class="row"><span class="sw on grow"><i></i>Automatisch synchronisieren</span><span class="note">beim Start und alle 15 Minuten · zuletzt 10:42</span></div>
+              <div class="row"><span class="grow">Sync-Protokoll</span><span class="note">100 Läufe · 90 Tage</span></div>
+            </div>
             <div class="actions"><span class="btn">Verbindung testen</span><span class="btn">Trennen</span><span class="okline">✓ Verbindung ok · Schreibrecht ok · 128 offene Issues</span></div>
           </div>
         </div></div></div></div>
@@ -394,7 +398,7 @@ tr:last-child td { border-bottom: 0; }
 <section class="sec" id="integration">
   <span class="eyebrow">Integration</span>
   <h2>Wie Jira an den bestehenden Sync andockt</h2>
-  <p>Die GitHub-Anbindung steckt in Pull Request #62 und ist noch nicht ausgeliefert. Der Motor ist allgemein gedacht (ADR 0005), die Namen im Code sind aber GitHub-spezifisch (<code>github.*</code> in den Einstellungen, <code>stories.github_*</code>, <code>GithubIssue</code>) und die Label-Regeln für Epics und Status liegen im gemeinsamen Teil. Das muss zuerst allgemein werden.</p>
+  <p>Der GitHub-Sync ist gemerged (#62, ADR 0005 angenommen), mit automatischem Abgleich, Toast und Protokoll. Der Motor ist allgemein gedacht, die Namen und Daten im Code sind aber GitHub-spezifisch und <b>schon ausgeliefert</b>: Einstellung <code>github.*</code> (inklusive Auto-Sync und Log), Funktion <code>github</code>, Spalten <code>stories.github_*</code> (Migration 015), rund 2900 Zeilen in <code>src/github</code> und <code>domain/github.ts</code>, ein einziger Schlüsselbund-Eintrag für das Token. Die Label-Regeln für Epics und Status liegen im gemeinsamen Teil. Das muss allgemein werden, und dafür braucht es jetzt eine Datenmigration.</p>
   <div class="layers">
     <div class="layer"><b>Oberfläche</b><span class="note">Einstellungen „Synchronisation“ (Dienst wählen) · Sync-Zeichen auf Backlog, Board, Story Map · Toast und Log · Schlüssel-Badge</span></div>
     <div class="arrow">↓</div>
@@ -413,9 +417,10 @@ tr:last-child td { border-bottom: 0; }
 
   <div class="cards">
     <div class="box"><b>Anmeldung</b><span>Jira Cloud: Adresse, E-Mail und API-Token (Basic). OAuth 2.0 braucht eine registrierte App und einen Rückruf, das passt nicht zu einer lokalen App und kommt später, falls gewünscht. Die Atlassian-API-Tokens laufen ab, die App muss das als Fehler „Token abgelaufen“ erklären. Jira Data Center (Personal Access Token, API-Version 2) kommt später.</span></div>
+    <div class="box"><b>Automatischer Abgleich</b><span>Der Auto-Sync (Start, Rückkehr, alle 15 Minuten, Pause nach drei Fehlern) und das Protokoll gelten für beide Dienste. Für Jira fragt ein Lauf nur nach Vorgängen, die seit dem letzten Lauf geändert wurden (mit Überlappung), und holt die volle Liste nur beim ersten Mal und gelegentlich. Das schont die neuen Limits.</span></div>
     <div class="box"><b>Netzwerk und Browser</b><span>Direkte Browser-Anfragen an Jira Cloud scheitern an CORS. Echter Abgleich läuft deshalb nur in der Windows-App. Die Web-Vorschau nutzt ein simuliertes Jira mit Workflow, Epics, Versionen und Sprints. Die Entscheidung ist ein ADR.</span></div>
     <div class="box"><b>API-Besonderheiten</b><span>Suche über <code>/rest/api/3/search/jql</code> mit Seitenmarke und ohne Gesamtzahl (die alte Suche ist abgeschaltet). „Seit“-Abfragen per JQL <code>updated &gt;=</code> nur auf die Minute genau, darum ein Überlappungsfenster und Vergleich mit der Basis. Anfragen können mit 429 und <code>Retry-After</code> abgewiesen werden, Atlassian stellt 2026 auf punktebasierte Limits um. Details noch zu prüfen.</span></div>
-    <div class="box"><b>Daten im Code</b><span>Eine Verknüpfung je Story (<code>sync_link</code>: Dienst, Schlüssel, Adresse, Basis) statt <code>github_*</code>. Einstellungen <code>sync.service</code> (<code>github</code>, <code>jira</code> oder leer) und eine Verbindung je Dienst. Eine Migration überführt die Felder aus #62 vor der Auslieferung.</span></div>
+    <div class="box"><b>Daten im Code</b><span>Eine Verknüpfung je Story (<code>sync_link</code>: Dienst, Schlüssel, Adresse, Basis) statt <code>github_*</code>. Einstellungen <code>sync.service</code> (<code>github</code>, <code>jira</code> oder leer) und eine Verbindung je Dienst. Eine neue Migration (016) kopiert die ausgelieferten Felder und Einstellungen um; Protokoll und Auto-Sync wandern mit.</span></div>
     <div class="box"><b>Löschen</b><span>GitHub-Labels und -Milestones, die der Sync selbst angelegt hat, werden wieder gelöscht (AC16 in #30). Bei Jira schlägt die Empfehlung vor, nichts zu löschen und nur Fehlendes anzulegen, weil Löschen dort zerstörend ist und Rechte braucht.</span></div>
     <div class="box"><b>Tests und Abnahme</b><span>Dieselbe Anschluss-Testreihe wie bei GitHub, dazu ein Fake-Jira. Kein echtes Jira in der CI. Für die Abnahme braucht der PO eine Jira-Cloud-Testinstanz (der kostenlose Tarif reicht) und die Windows-App.</span></div>
   </div>
@@ -437,8 +442,8 @@ tr:last-child td { border-bottom: 0; }
   <div class="tablewrap"><table>
     <thead><tr><th>Schritt</th><th>Inhalt</th></tr></thead>
     <tbody>
-      <tr><td>0 · Allgemein machen</td><td>Neutrales Modell, Fähigkeiten, <code>sync_link</code>, Dienstwahl in den Einstellungen, GitHub-Label-Regeln in den GitHub-Anschluss. Kein neues Verhalten, alle GitHub-Tests bleiben grün.</td></tr>
-      <tr><td><span class="ph1">1</span> Kern</td><td>Verbinden, importieren, Titel, Beschreibung, Labels, Status per Übergang, Kriterien, Schlüssel und Link, Roundtrip, Konflikte, Log</td></tr>
+      <tr><td>0 · Allgemein machen</td><td>Neutrales Modell, Fähigkeiten, <code>sync_link</code> mit Migration 016, Dienstwahl in den Einstellungen, Schlüsselbund je Dienst, GitHub-Label-Regeln in den GitHub-Anschluss, <code>src/github</code> wird <code>src/sync</code>. Kein neues Verhalten, alle GitHub-Tests bleiben grün.</td></tr>
+      <tr><td><span class="ph1">1</span> Kern</td><td>Verbinden, importieren, Titel, Beschreibung, Labels, Status per Übergang, Kriterien, Schlüssel und Link, Roundtrip, Konflikte. Auto-Sync, Toast und Protokoll gelten sofort mit (für Jira mit Abfrage „seit der letzten Änderung“ statt voller Liste).</td></tr>
       <tr><td><span class="ph2">2</span> Story Map</td><td>Epics und Fix-Versionen</td></tr>
       <tr><td><span class="ph3">3</span> Planung</td><td>Sprints, Story Points, Reihenfolge</td></tr>
       <tr><td><span class="ph4">4</span> Weiteres</td><td>Zuständige, Verknüpfungen, Unteraufgaben; Data Center</td></tr>
