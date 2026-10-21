@@ -743,6 +743,15 @@ As a team that plans with the story map, I want releases, epics and board column
 
 Source: #30 · Status: Implemented · Verified by: #30 AC12.1–AC12.7, AC13.1–AC13.7, AC14.1–AC14.7, AC15.1–AC15.9 (`src/domain/githubStoryMap.test.ts`, `src/github/runSync.test.ts`, `src/GithubRoundtrip.test.tsx`)
 
+### FR-GH-09 Automatic sync, short notice and sync log
+As a team member, I want the sync to run by itself and to tell me discreetly what it did, so that I never have to press a button or close a report.
+- After every sync (button or automatic) there is no dialog: a notice at the bottom says in one line what changed ("Synchronised: 2 new, 3 updated") or "Already up to date", with a "Log" button; it goes away after 5 seconds. Errors stay until closed. The sync icon shows a tick for a moment. Only a conflict under the rule "I decide" opens a dialog (the choice), and only for a sync by hand.
+- Settings › GitHub has the switch "Synchronise automatically" (off by default; all issues or none). On: a run at the start of the app, when it comes back to the front and every 15 minutes while it is open, with the same rules as the button. A run waits while a dialog is open or someone types, is skipped offline, and never overlaps another run. Settings show the last and the next run.
+- An automatic run asks nothing: under "I decide" it marks the tickets, the icon shows their number and the notice says "Conflicts waiting for you: n" with "Review". After three errors in a row it pauses (icon "!"); pressing the icon runs once and resumes.
+- The sync log (Settings › GitHub) has one row per run (time, trigger Start / Automatic / Manual, summary, result); a row opens to the single changes (ticket, field, from → to, who won, labels and milestones made or deleted, errors). Runs without changes that follow each other are one row. Filter: all / with changes / errors. The last 100 runs of the last 90 days are kept, "Clear" empties it.
+
+Source: #30 (PO decision of 2026-10-21, `docs/design/auto-sync.md`) · Status: Implemented · Verified by: #30 AC17.1–AC17.5, AC18.1–AC18.7, AC19.1–AC19.2, AC20.1–AC20.5 (`src/GithubAuto.test.tsx`, `src/Github.test.tsx`, `src/domain/syncLog.test.ts`)
+
 ## Team and assignment (TEAM)
 
 ### FR-TEAM-01 Team members and assignment of stories
