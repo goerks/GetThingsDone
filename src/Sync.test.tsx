@@ -134,7 +134,8 @@ describe('switching the service', () => {
     // When I confirm
     await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Disconnect and switch to GitLab' }));
     // Then the other service is chosen, the stories are unchanged but unlinked, and the token is gone
-    await waitFor(() => expect(screen.getByRole('radio', { name: /GitLab/ })).toBeChecked());
+    // (the rule "GitLab wins" is a radio too, so the choice of the service is looked up in its group)
+    await waitFor(() => expect(within(screen.getByRole('group', { name: /^Service/ })).getByRole('radio', { name: /GitLab/ })).toBeChecked());
     await waitFor(async () => expect((await repository.load()).settings.sync.service).toBe('gitlab'));
     const after = await repository.load();
     expect(after.settings.sync.connection).toEqual({});
