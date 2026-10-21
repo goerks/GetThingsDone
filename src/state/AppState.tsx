@@ -67,7 +67,10 @@ import {
   type ReleaseInput
 } from '../domain/releases';
 import { gatesToAsk, pruneChecks, setCheck as setCheckIn, withDoneSnapshots } from '../domain/definitions';
-import { parseRepo, type Decision, type SyncSummary } from '../domain/github';
+import { isEmptySummary, parseRepo, type Decision, type SyncSummary } from '../domain/github';
+import { AUTO_PAUSE_AFTER, appendLog } from '../domain/syncLog';
+import { syncMessage } from '../github/syncMessage';
+import { hrefs } from '../router';
 import { DEFAULT_SETTINGS } from '../domain/settings';
 import { createGithubSource, createTokenStore, GithubError, type GithubSource, type TokenStore } from '../github';
 import { persistSync } from '../github/persist';
@@ -103,7 +106,8 @@ import type {
   Sprint,
   StatusCategory,
   StatusValue,
-  Story
+  Story,
+  SyncTrigger
 } from '../domain/types';
 
 /** A change of status that waits for the user: the story and the lists it crosses, in order. */
@@ -237,9 +241,22 @@ interface AppApi {
   /**
    * Compares the stories with their issues, takes what changed on GitHub, publishes what changed here when writing is on,
    * and imports new open issues (#30). `decisions` answer the conflicts of an earlier run that asked. Resolves with what
-   * changed; rejects with a `GithubError` (what was done before the failure stays).
+   * changed, or with null when it failed (the notice says so, and what was done before the failure stays) or when another
+   * run is going on. Every run is logged and answered with a short notice; never with a dialog (AC17).
    */
-  syncGithub(decisions?: Record<string, Decision>): Promise<SyncSummary>;
+  syncGithub(decisions?: Record<string, Decision>, trigger?: SyncTrigger): Promise<SyncSummary | null>;
+  /** The state of the sync: a run is going on, the automatic sync paused after errors, when the next automatic run is due, and a request to review conflicts. */
+  githubSync: { busy: boolean; paused: boolean; nextAt: number | null; review: boolean };
+  /** Switches the automatic sync of all issues on or off. */
+  setGithubAuto(on: boolean): void;
+  /** Tells where the next automatic run is due (a time in milliseconds), or null. */
+  setGithubNextRun(at: number | null): void;
+  /** Asks the sync icon to open the conflicts: goes to the backlog and syncs by hand. */
+  requestGithubReview(): void;
+  /** The icon has seen the request. */
+  clearGithubReview(): void;
+  /** Empties the sync log. */
+  clearGithubLog(): void;
   /** Changes the options of the connection: whether the app may write to GitHub, and who wins in a conflict. */
   setGithubOptions(patch: Partial<Pick<Settings['github'], 'write' | 'conflict'>>): void;
   /** Publishes a story that exists only here as a new issue and links it. Resolves with the labels GitHub does not know; rejects with a `GithubError`. */
@@ -268,6 +285,12 @@ export function AppProvider({ repository, github, children }: Props) {
   const githubRef = useRef(github ?? { source: createGithubSource(), tokens: createTokenStore() });
   const { t } = useTranslation();
   const toast = useToast();
+  const syncing = useRef(false);
+  const failures = useRef(0);
+  const [githubBusy, setGithubBusy] = useState(false);
+  const [githubPaused, setGithubPaused] = useState(false);
+  const [githubNextAt, setGithubNextAt] = useState<number | null>(null);
+  const [githubReview, setGithubReview] = useState(false);
   const [flashed, setFlashed] = useState<string | null>(null);
   const [flashScroll, setFlashScroll] = useState(false);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -994,41 +1017,102 @@ export function AppProvider({ repository, github, children }: Props) {
         if (!repo) throw new GithubError('notFound');
         return (await githubRef.current.source.openIssues(repo, token)).length;
       },
-      async syncGithub(decisions) {
-        const connection = settingsRef.current.github;
-        const repo = parseRepo(connection.repo);
-        const token = await githubRef.current.tokens.get();
-        if (!repo || !token) throw new GithubError('config');
-        const before = { stories: storiesRef.current, fields: fieldsRef.current.fields, epics: epicsRef.current, releases: releasesRef.current };
-        const { plan, summary, managed, error: failure } = await runSync({
-          connector: githubRef.current.source,
-          token,
-          repo,
-          stories: before.stories,
-          fields: before.fields,
-          assignments: fieldsRef.current.assignments,
-          statuses: statusesRef.current,
-          epics: epicsRef.current,
-          releases: releasesRef.current,
-          newId,
-          write: connection.write,
-          conflict: connection.conflict,
-          decisions,
-          ignored: connection.ignored,
-          managed: connection.managed
-        });
-        if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
-        if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
-        update(plan.stories);
-        updateFields(plan.fields, plan.assignments);
-        // A sync that stopped on an error is not a finished sync: the time of the last one stays.
-        const settings = { ...settingsRef.current, github: { ...connection, managed, lastSyncAt: failure ? connection.lastSyncAt : new Date().toISOString() } };
+      githubSync: { busy: githubBusy, paused: githubPaused, nextAt: githubNextAt, review: githubReview },
+      setGithubAuto(on) {
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, auto: on } };
         updateSettings(settings);
-        persist(async (repoStore) => {
-          await persistSync(repoStore, before, plan);
-          await repoStore.saveSettings(settings);
-        });
-        if (failure) throw failure;
+        persist((repoStore) => repoStore.saveSettings(settings));
+        failures.current = 0;
+        setGithubPaused(false);
+        if (!on) setGithubNextAt(null);
+      },
+      setGithubNextRun: setGithubNextAt,
+      requestGithubReview() {
+        window.location.hash = hrefs.backlog;
+        setGithubReview(true);
+      },
+      clearGithubReview: () => setGithubReview(false),
+      clearGithubLog() {
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, log: [] } };
+        updateSettings(settings);
+        persist((repoStore) => repoStore.saveSettings(settings));
+      },
+      async syncGithub(decisions, trigger = 'manual') {
+        if (syncing.current) return null;
+        syncing.current = true;
+        setGithubBusy(true);
+        // The icon resumes an automatic sync that paused after errors.
+        if (trigger === 'manual') {
+          failures.current = 0;
+          setGithubPaused(false);
+        }
+        const at = new Date().toISOString();
+        let summary: SyncSummary | null = null;
+        let failure: unknown = null;
+        let managed = settingsRef.current.github.managed;
+        try {
+          const connection = settingsRef.current.github;
+          const repo = parseRepo(connection.repo);
+          const token = await githubRef.current.tokens.get();
+          if (!repo || !token) throw new GithubError('config');
+          const before = { stories: storiesRef.current, fields: fieldsRef.current.fields, epics: epicsRef.current, releases: releasesRef.current };
+          const result = await runSync({
+            connector: githubRef.current.source,
+            token,
+            repo,
+            stories: before.stories,
+            fields: before.fields,
+            assignments: fieldsRef.current.assignments,
+            statuses: statusesRef.current,
+            epics: epicsRef.current,
+            releases: releasesRef.current,
+            newId,
+            write: connection.write,
+            conflict: connection.conflict,
+            decisions,
+            ignored: connection.ignored,
+            managed: connection.managed
+          });
+          const { plan } = result;
+          if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
+          if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
+          update(plan.stories);
+          updateFields(plan.fields, plan.assignments);
+          summary = result.summary;
+          failure = result.error;
+          managed = result.managed;
+          persist((repoStore) => persistSync(repoStore, before, plan));
+        } catch (cause) {
+          failure = cause;
+        }
+        const errorKind = failure === null ? null : failure instanceof GithubError ? failure.kind : 'other';
+        // A sync that stopped on an error is not a finished sync: the time of the last one stays. The log is fresh: the PO may have changed settings meanwhile.
+        const current = settingsRef.current.github;
+        const entry = { id: newId(), at, runs: 1, trigger, error: errorKind, summary };
+        const settings = { ...settingsRef.current, github: { ...current, managed, lastSyncAt: failure ? current.lastSyncAt : at, log: appendLog(current.log, entry, new Date()) } };
+        updateSettings(settings);
+        persist((repoStore) => repoStore.saveSettings(settings));
+        syncing.current = false;
+        setGithubBusy(false);
+
+        const showLog = { label: t('github.toast.log'), onClick: () => (window.location.hash = hrefs.settingsGithub) };
+        if (failure) {
+          failures.current += 1;
+          toast.notify(t('github.toast.failed', { reason: t(`github.errors.${errorKind}`) }), showLog, { sticky: true, tone: 'error' });
+          if (trigger !== 'manual' && failures.current >= AUTO_PAUSE_AFTER) {
+            setGithubPaused(true);
+            toast.notify(t('github.toast.paused'), showLog, { sticky: true, tone: 'error' });
+          }
+          return null;
+        }
+        failures.current = 0;
+        const conflicts = summary?.conflicts.length ?? 0;
+        if (conflicts > 0) {
+          // A run by hand opens the choice itself; a run by itself never asks.
+          if (trigger !== 'manual') toast.notify(t('github.toast.conflicts', { count: conflicts }), { label: t('github.toast.review'), onClick: () => api.requestGithubReview() });
+        } else if (summary && (trigger === 'manual' || !isEmptySummary(summary))) {
+          toast.notify(syncMessage(t, summary), showLog);
+        }
         return summary;
       },
       setGithubOptions(patch) {
@@ -1068,7 +1152,7 @@ export function AppProvider({ repository, github, children }: Props) {
           const { github: _github, ...rest } = story;
           return rest;
         });
-        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo: '', lastSyncAt: null, ignored: [], managed: { labels: [], milestones: [] } } };
+        const settings = { ...settingsRef.current, github: { ...settingsRef.current.github, repo: '', lastSyncAt: null, ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] } };
         update(unlinked);
         updateSettings(settings);
         persist(async (repoStore) => {
@@ -1077,7 +1161,7 @@ export function AppProvider({ repository, github, children }: Props) {
         });
       }
     }),
-    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t]
+    [snapshot, loading, error, pending, gate, flashed, flashScroll, update, updateEpics, updateSprints, updateReleases, updateSettings, updateFields, persist, adopt, notify, announceMove, flash, toast, t, githubBusy, githubPaused, githubNextAt, githubReview]
   );
 
   return <AppContext.Provider value={api}>{children}</AppContext.Provider>;

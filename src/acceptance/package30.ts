@@ -17,6 +17,8 @@ const RDOMAIN = 'src/domain/githubRoundtrip.test.ts';
 const RUN = 'src/github/runSync.test.ts';
 const CONNECTOR = 'src/github/connector.test.ts';
 const SMAP = 'src/domain/githubStoryMap.test.ts';
+const AUTO = 'src/GithubAuto.test.tsx';
+const SYNCLOG = 'src/domain/syncLog.test.ts';
 
 const FEATURES = '#/settings/github';
 const SETTINGS = '#/settings/github';
@@ -231,14 +233,14 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
         },
         {
           id: 'AC3.8',
-          title: 'Sync zeigt eine Zusammenfassung',
+          title: 'Sync meldet das Ergebnis kurz',
           link: BACKLOG,
           target: '.github-sync',
           given: 'Auf GitHub ist ein Issue neu, zwei sind geändert, eines ist geschlossen.',
           when: 'Ich synchronisiere.',
-          then: 'Ein Dialog mit „1 neu importiert, 2 aktualisiert, 1 erledigt“ und einer Liste der Änderungen je Issue. „Schliessen“ und Esc schliessen ihn, der Fokus ist danach auf „Synchronisieren“.',
-          tests: [`${COMPONENT} › AC3.8 shows the summary of the sync and closes it with the button and with Esc`, `${COMPONENT} › AC3.8 shows the time of the last sync next to the button`, `${DOMAIN} › AC3.8 counts new, updated and closed issues apart`],
-          poCheck: 'Bitte ansehen: Ist der Ergebnisdialog gut lesbar (Zahlen, Liste der Änderungen, Hinweis „GitHub gewinnt“), auch in einem schmalen Browserfenster?'
+          then: 'Kein Dialog (ab AC17): unten steht kurz „Synchronisiert: 1 neu, 2 aktualisiert, 1 geschlossen“. Die Liste der Änderungen je Issue steht im Sync-Protokoll.',
+          tests: [`${COMPONENT} › AC3.8 answers with a short notice and lists the issues in the log`, `${COMPONENT} › AC3.8 shows the time of the last sync next to the button`, `${DOMAIN} › AC3.8 counts new, updated and closed issues apart`],
+          poCheck: 'Bitte ansehen: Ist das Protokoll gut lesbar (Zahlen, Liste der Änderungen, Hinweis „GitHub gewinnt“), auch in einem schmalen Browserfenster?'
         }
       ]
     },
@@ -307,7 +309,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           link: SETTINGS,
           target: '.github-settings',
           given: 'Die App in Deutsch, Englisch, Französisch und Italienisch.',
-          when: 'Ich wechsle die Sprache und sehe Abschnitt, Schalter, Meldungen, Sync-Dialog und Hilfe-Thema „GitHub-Issues“ an.',
+          when: 'Ich wechsle die Sprache und sehe Abschnitt, Schalter, Meldungen, Sync-Meldung und Hilfe-Thema „GitHub-Issues“ an.',
           then: 'Alles ist in der gewählten Sprache; der Sprachwechsel wirkt sofort.',
           tests: [`${COMPONENT} › AC6.1 has every text of the GitHub connection in German, English, French and Italian`, `${COMPONENT} › AC6.1 shows the section and the sync button in German`]
         },
@@ -317,9 +319,9 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           link: FEATURES,
           target: '.feature-tab',
           given: 'Die App, nur Tastatur.',
-          when: 'Ich schalte die Funktion ein, trage Repository und Token ein, teste die Verbindung, synchronisiere und schliesse den Ergebnisdialog, alles mit Tab, Leertaste, Enter und Esc.',
-          then: 'Alles ist erreichbar, der Fokus ist sichtbar und kehrt nach dem Dialog zum Sync-Knopf zurück.',
-          tests: [`${E2E} › AC6.2 works with the keyboard only, from the switch to the closed result dialog`]
+          when: 'Ich schalte die Funktion ein, trage Repository und Token ein, teste die Verbindung, synchronisiere, alles mit Tab, Leertaste, Enter und Esc.',
+          then: 'Alles ist erreichbar, der Fokus ist sichtbar und bleibt nach dem Sync auf dem Sync-Knopf.',
+          tests: [`${E2E} › AC6.2 works with the keyboard only, from the switch to the notice after the sync`]
         },
         {
           id: 'AC6.3',
@@ -727,8 +729,8 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           target: '.github-sync',
           given: 'Auf GitHub ist ein Issue neu.',
           when: 'Ich klicke das Icon im Board (danach in der Story Map).',
-          then: 'Derselbe Ergebnisdialog wie im Backlog („1 neu importiert …“). Nach dem Schliessen ist der Fokus wieder auf dem Icon.',
-          tests: [`${ROUNDTRIP} › AC14.2 synchronises from the board with the same result dialog and gives the focus back to the icon`]
+          then: 'Dieselbe kurze Meldung wie im Backlog („Synchronisiert: 1 neu“). Der Fokus bleibt auf dem Icon.',
+          tests: [`${ROUNDTRIP} › AC14.2 synchronises from the board with the same notice and keeps the focus on the icon`]
         },
         {
           id: 'AC14.3',
@@ -953,6 +955,225 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich wechsle die Sprache.',
           then: 'Meldungen „angelegt“ und „gelöscht“ sind in DE, EN, FR und IT.',
           tests: [`${ROUNDTRIP} › AC16.7 has the texts of the new features in German, English, French and Italian`]
+        }
+      ]
+    },
+    {
+      id: 'AC17',
+      story: 'G17',
+      title: 'Dezente Bestätigung statt Bericht',
+      cases: [
+        {
+          id: 'AC17.1',
+          title: 'Bestätigung statt Bericht',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist an; auf GitHub gibt es 2 neue Tickets und bei 3 bekannten Tickets einen neuen Titel.',
+          when: 'Ich drücke das Sync-Symbol.',
+          then: 'Es öffnet sich kein Fenster. Unten erscheint kurz „Synchronisiert: 2 neu, 3 aktualisiert“ mit „Protokoll“; nach 5 Sekunden ist es weg. Am Symbol erscheint kurz ein Häkchen.',
+          tests: [`${COMPONENT} › AC17.1 answers with a short notice with a log button and opens no dialog`]
+        },
+        {
+          id: 'AC17.2',
+          title: 'Nichts geändert',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Alles ist schon abgeglichen.',
+          when: 'Ich drücke das Sync-Symbol.',
+          then: 'Unten steht „Schon auf dem neuesten Stand“.',
+          tests: [`${COMPONENT} › AC17.2 says that everything is up to date`]
+        },
+        {
+          id: 'AC17.3',
+          title: '„Protokoll“ in der Meldung',
+          link: BACKLOG,
+          target: '.toast',
+          given: 'Eine Meldung nach dem Sync ist sichtbar.',
+          when: 'Ich klicke in der Meldung auf „Protokoll“.',
+          then: 'Das Sync-Protokoll in den Einstellungen öffnet sich.',
+          tests: [`${COMPONENT} › AC17.3 leads from the notice to the sync log`]
+        },
+        {
+          id: 'AC17.4',
+          title: 'Fehler bleibt stehen',
+          link: BACKLOG,
+          target: '.toast',
+          given: 'Das Netz ist weg.',
+          when: 'Ich drücke das Sync-Symbol.',
+          then: 'Eine rote Meldung „Synchronisation fehlgeschlagen: Keine Verbindung“ mit „Protokoll“ bleibt, bis ich sie schliesse.',
+          tests: [`${COMPONENT} › AC17.4 keeps an error notice until it is closed`]
+        },
+        {
+          id: 'AC17.5',
+          title: 'Entscheidung nötig',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Konfliktregel „Ich entscheide“; Ticket „Login“ wurde beidseitig geändert.',
+          when: 'Ich drücke das Sync-Symbol von Hand.',
+          then: 'Das bekannte Fenster zur Auswahl öffnet sich (nur hier gibt es ein Fenster).',
+          tests: [`${ROUNDTRIP} › AC17.5 opens the choice for a sync by hand with the rule "I decide" and no other dialog`]
+        }
+      ]
+    },
+    {
+      id: 'AC18',
+      story: 'G18',
+      title: 'Automatische Synchronisation',
+      cases: [
+        {
+          id: 'AC18.1',
+          title: 'Schalter aus',
+          link: FEATURES,
+          target: '.github-auto',
+          given: 'Neu verbundene GitHub-Verbindung.',
+          when: 'Ich öffne Einstellungen → GitHub.',
+          then: '„Automatisch synchronisieren“ ist aus; es läuft nichts von selbst.',
+          tests: [`${COMPONENT} › AC18.1 has the automatic sync off by default and runs nothing by itself`]
+        },
+        {
+          id: 'AC18.2',
+          title: 'Lauf beim Start und Zurückkehren',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schalter an; auf GitHub gibt es ein neues Ticket „Notifications“.',
+          when: 'Ich starte die App neu (später: ich wechsle weg und zurück).',
+          then: 'Ohne Klick kommt „Notifications“ als Story ins Backlog, mit der kurzen Meldung unten.',
+          tests: [`${AUTO} › AC18.2 runs at the start and when the app comes back`]
+        },
+        {
+          id: 'AC18.3',
+          title: 'Alle 15 Minuten',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schalter an, App offen.',
+          when: 'Ich warte 15 Minuten, nachdem sich ein Ticket auf GitHub geändert hat.',
+          then: 'Die Änderung ist ohne Klick in der Story. Die Einstellungen zeigen „Letzter Lauf“ und „nächster Lauf“ mit neuen Zeiten.',
+          tests: [`${AUTO} › AC18.3 runs again every 15 minutes`, `${SYNCLOG} › AC18.3 is due after 15 minutes`]
+        },
+        {
+          id: 'AC18.4',
+          title: 'Gleiche Regeln wie der Knopf',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schreiben ist aus.',
+          when: 'Ich ändere eine Story lokal und warte auf die Automatik.',
+          then: 'Nichts wird auf GitHub geschrieben; mit eingeschaltetem Schreiben geht die Änderung dorthin.',
+          tests: [`${AUTO} › AC18.4 writes to GitHub only while writing is on`]
+        },
+        {
+          id: 'AC18.5',
+          title: 'Kein Lauf, wenn ich gerade tippe',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Schalter an; ein Fenster ist offen oder ich tippe in ein Feld.',
+          when: 'Ich warte auf den nächsten Lauf.',
+          then: 'Der Lauf wartet, bis ich fertig bin; ohne Netz wird übersprungen.',
+          tests: [`${SYNCLOG} › AC18.5 waits while a dialog is open or someone types, and while offline`]
+        },
+        {
+          id: 'AC18.6',
+          title: 'Schalter bleibt',
+          link: FEATURES,
+          target: '.github-auto',
+          given: 'Schalter an.',
+          when: 'Ich lade die App neu; dann entferne ich die Verbindung.',
+          then: 'Nach dem Neuladen ist er noch an; nach dem Entfernen der Verbindung aus.',
+          tests: [`${AUTO} › AC18.6 keeps the switch and turns it off when the connection is removed`]
+        },
+        {
+          id: 'AC18.7',
+          title: 'Knopf geht weiter',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Automatik an.',
+          when: 'Ich drücke das Sync-Symbol.',
+          then: 'Es läuft sofort; ein gleichzeitiger zweiter Lauf startet nicht.',
+          tests: [`${AUTO} › AC18.7 starts no second run while one is going on`]
+        }
+      ]
+    },
+    {
+      id: 'AC19',
+      story: 'G19',
+      title: 'Konflikte und Fehler der Automatik',
+      cases: [
+        {
+          id: 'AC19.1',
+          title: 'Konflikte bei der Automatik',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Regel „Ich entscheide“, Automatik an, ein Ticket wurde beidseitig geändert.',
+          when: 'Ich warte auf den automatischen Lauf.',
+          then: 'Es öffnet sich nichts. Das Ticket ist markiert, am Symbol steht „1“, die Meldung sagt „Konflikte warten auf dich: 1“ mit „Prüfen“, das die bekannte Auswahl öffnet.',
+          tests: [`${AUTO} › AC19.1 asks nothing in an automatic run and offers to review the conflict`]
+        },
+        {
+          id: 'AC19.2',
+          title: 'Pause nach Fehlern',
+          link: BACKLOG,
+          target: '.github-sync',
+          given: 'Automatik an, das Netz ist weg.',
+          when: 'Ich warte drei Läufe ab.',
+          then: 'Die Automatik pausiert; das Symbol zeigt „!“; das Protokoll nennt den Grund. Ein Klick auf das Symbol startet sie wieder.',
+          tests: [`${AUTO} › AC19.2 pauses after three errors in a row and resumes with the icon`]
+        }
+      ]
+    },
+    {
+      id: 'AC20',
+      story: 'G20',
+      title: 'Sync-Protokoll',
+      cases: [
+        {
+          id: 'AC20.1',
+          title: 'Protokoll pro Lauf',
+          link: FEATURES,
+          target: '.github-log',
+          given: 'Es gab einen Lauf beim Start, einen automatischen und einen von Hand.',
+          when: 'Ich öffne Einstellungen → GitHub → Protokoll.',
+          then: 'Zeilen mit Zeit, Auslöser (Start / Automatisch / Manuell), Zusammenfassung und Ergebnis.',
+          tests: [`${COMPONENT} › AC20.1 logs every run with its trigger`]
+        },
+        {
+          id: 'AC20.2',
+          title: 'Einzelne Änderungen',
+          link: FEATURES,
+          target: '.github-log',
+          given: 'Ein Lauf mit Änderungen.',
+          when: 'Ich klicke auf die Zeile.',
+          then: 'Sie zeigt jedes Ticket mit Feld, von → nach und wer gewonnen hat, dazu angelegte oder gelöschte Labels und Milestones.',
+          tests: [`${COMPONENT} › AC20.2 shows the single changes of a run`]
+        },
+        {
+          id: 'AC20.3',
+          title: 'Leere Läufe und Fehler',
+          link: FEATURES,
+          target: '.github-log',
+          given: 'Mehrere Läufe ohne Änderung und ein Fehler.',
+          when: 'Ich öffne das Protokoll und wechsle den Filter.',
+          then: 'Läufe ohne Änderung sind zu einer Zeile zusammengefasst; ein Fehler steht mit Grund drin. Der Filter zeigt jeweils nur das Passende.',
+          tests: [`${SYNCLOG} › AC20.3 folds runs without changes and filters the log`]
+        },
+        {
+          id: 'AC20.4',
+          title: 'Aufbewahren und leeren',
+          link: FEATURES,
+          target: '.github-log',
+          given: 'Ein Protokoll mit Läufen.',
+          when: 'Ich lade neu; dann drücke ich „Leeren“.',
+          then: 'Das Protokoll ist nach dem Neuladen noch da; nach „Leeren“ leer. Es bleiben höchstens die letzten 100 Läufe oder 90 Tage.',
+          tests: [`${SYNCLOG} › AC20.4 keeps at most 100 runs of 90 days`, `${COMPONENT} › AC20.4 clears the log`]
+        },
+        {
+          id: 'AC20.5',
+          title: 'Sprachen und Tastatur',
+          link: FEATURES,
+          target: '.github-log',
+          given: 'Das Protokoll.',
+          when: 'Ich wechsle auf Französisch und bediene Schalter, Protokoll und Meldung nur mit der Tastatur.',
+          then: 'Alle Texte sind übersetzt, alles ist per Tastatur erreichbar; die Hilfe erklärt die Automatik.',
+          tests: [`${ROUNDTRIP} › AC20.5 has the texts of the new features in German, English, French and Italian`],
+          manual: 'Echte Tastatur und Übersetzungen in vier Sprachen'
         }
       ]
     }

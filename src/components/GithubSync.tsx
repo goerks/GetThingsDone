@@ -1,23 +1,18 @@
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { LABELS_FIELD_ID, decisionKey, isEmptySummary, pendingFields, type ConflictEntry, type Decision, type FieldName, type GithubChange, type SyncEntry, type SyncSummary } from '../domain/github';
+import { LABELS_FIELD_ID, decisionKey, pendingFields, type ConflictEntry, type Decision, type FieldName, type GithubChange, type SyncEntry } from '../domain/github';
 import type { ExternalFields } from '../domain/types';
-import { githubErrorKey } from '../pages/GithubSection';
-import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
-import type { GithubErrorKind } from '../github';
 import { Dialog } from './Dialog';
 import { InfoHint } from './InfoHint';
 import { statusLabel } from './statusLabel';
 import { useFeature } from './useFeature';
 
-type Outcome = { kind: 'done'; summary: SyncSummary } | { kind: 'error'; error: GithubErrorKind };
-
-const fieldList = (t: TFunction, names: readonly FieldName[]): string => names.map((name) => t(`github.field.${name}`)).join(', ');
+export const fieldList = (t: TFunction, names: readonly FieldName[]): string => names.map((name) => t(`github.field.${name}`)).join(', ');
 
 /** One side of a conflict as text. */
-function valueText(t: TFunction, fields: ExternalFields, name: FieldName): string {
+export function valueText(t: TFunction, fields: ExternalFields, name: FieldName): string {
   switch (name) {
     case 'title':
       return fields.title;
@@ -38,7 +33,7 @@ function valueText(t: TFunction, fields: ExternalFields, name: FieldName): strin
   }
 }
 
-function changeText(t: TFunction, change: GithubChange, status: string): string {
+export function changeText(t: TFunction, change: GithubChange, status: string): string {
   switch (change.kind) {
     case 'created':
       return t('github.change.created');
@@ -74,7 +69,7 @@ function changeText(t: TFunction, change: GithubChange, status: string): string 
   }
 }
 
-function Entries({ entries }: { entries: SyncEntry[] }) {
+export function Entries({ entries }: { entries: SyncEntry[] }) {
   const { t } = useTranslation();
   const app = useApp();
   return (
@@ -147,174 +142,61 @@ function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[
   );
 }
 
-function Result({ outcome, onClose, onDecide }: { outcome: Outcome; onClose: () => void; onDecide: () => void }) {
-  const { t } = useTranslation();
-  if (outcome.kind === 'error') {
-    return (
-      <Dialog title={t('github.sync.failed')} onClose={onClose}>
-        <p role="alert" className="github-result__error">
-          {t(`github.errors.${outcome.error}`)}
-        </p>
-        {outcome.error === 'config' && (
-          <p>
-            <a href={hrefs.settingsGithub} onClick={onClose}>
-              {t('github.sync.toSettings')}
-            </a>
-          </p>
-        )}
-        <div className="form__actions">
-          <button type="button" className="btn btn--primary" onClick={onClose}>
-            {t('github.sync.close')}
-          </button>
-        </div>
-      </Dialog>
-    );
-  }
-  const { summary } = outcome;
-  const empty = isEmptySummary(summary) && summary.pending === 0;
-  const publishedCount = summary.published.reduce((sum, entry) => sum + entry.fields.length, 0);
-  const skipped = [...new Set(summary.published.flatMap((entry) => entry.skippedLabels))];
-  return (
-    <Dialog title={t('github.sync.done')} onClose={onClose}>
-      <ul className="github-result__counts">
-        <li>
-          <strong>{summary.created.length}</strong> {t('github.sync.created')}
-        </li>
-        <li>
-          <strong>{summary.updated.length}</strong> {t('github.sync.updated')}
-        </li>
-        <li>
-          <strong>{summary.closed.length}</strong> {t('github.sync.closed')}
-        </li>
-        {publishedCount > 0 && <li>{t('github.sync.publishedCount', { count: publishedCount })}</li>}
-      </ul>
-      {empty ? (
-        <p>{t('github.sync.nothing')}</p>
-      ) : (
-        <>
-          <Entries entries={[...summary.created, ...summary.updated, ...summary.closed]} />
-        </>
-      )}
-      {summary.published.length > 0 && (
-        <section className="github-result__section">
-          <h3>{t('github.sync.publishedTitle')}</h3>
-          <ul className="github-result__list">
-            {summary.published.map((entry) => (
-              <li key={entry.storyId}>
-                <span className="github-badge github-badge--plain">#{entry.number}</span>
-                <span className="card__code">{entry.code}</span> {entry.title}: {fieldList(t, entry.fields)}
-              </li>
-            ))}
-          </ul>
-          {skipped.length > 0 && <p className="muted">{t('github.sync.skippedLabels', { labels: skipped.join(', ') })}</p>}
-        </section>
-      )}
-      {summary.overwritten.length > 0 && (
-        <section className="github-result__section">
-          <h3>{t('github.sync.overwrittenTitle')}</h3>
-          <ul className="github-result__list">
-            {summary.overwritten.map((entry) => (
-              <li key={`${entry.storyId}:${entry.field}`}>
-                <span className="github-badge github-badge--plain">#{entry.number}</span>
-                <span className="card__code">{entry.code}</span>{' '}
-                {t(`github.overwritten.${entry.side}${entry.value !== undefined ? 'Value' : ''}`, { field: t(`github.field.${entry.field}`), value: entry.value })}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {(summary.releasesCreated.length > 0 || summary.epicsCreated.length > 0) && (
-        <section className="github-result__section">
-          <ul className="github-result__list">
-            {summary.releasesCreated.map((title) => (
-              <li key={`release-${title}`}>{t('github.sync.releaseCreated', { title })}</li>
-            ))}
-            {summary.epicsCreated.map((name) => (
-              <li key={`epic-${name}`}>{t('github.sync.epicCreated', { name })}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {summary.milestonesCreated.length + summary.milestonesDeleted.length + summary.labelsCreated.length + summary.labelsDeleted.length > 0 && (
-        <section className="github-result__section">
-          <ul className="github-result__list">
-            {summary.milestonesCreated.map((name) => (
-              <li key={`milestone-created-${name}`}>{t('github.sync.milestoneCreated', { name })}</li>
-            ))}
-            {summary.labelsCreated.map((name) => (
-              <li key={`label-created-${name}`}>{t('github.sync.labelCreated', { name })}</li>
-            ))}
-            {summary.labelsDeleted.map((name) => (
-              <li key={`label-deleted-${name}`}>{t('github.sync.labelDeleted', { name })}</li>
-            ))}
-            {summary.milestonesDeleted.map((name) => (
-              <li key={`milestone-deleted-${name}`}>{t('github.sync.milestoneDeleted', { name })}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {summary.missingLabels.length > 0 && <p className="github-result__section">{t('github.sync.missingLabels', { names: summary.missingLabels.join(', ') })}</p>}
-      {summary.missingMilestones.length > 0 && <p className="github-result__section">{t('github.sync.missingMilestones', { titles: summary.missingMilestones.join(', ') })}</p>}
-      {summary.multipleEpics.length > 0 && (
-        <p className="github-result__section">{t('github.sync.multipleEpics', { issues: summary.multipleEpics.map((item) => `${item.code} (#${item.number})`).join(', ') })}</p>
-      )}
-      {summary.pending > 0 && <p className="github-result__section">{t('github.sync.pendingNote', { count: summary.pending })}</p>}
-      {summary.conflicts.length > 0 && (
-        <p className="github-result__section">
-          {t('github.sync.conflictsOpen', { count: summary.conflicts.length })}{' '}
-          <button type="button" className="btn btn--small" onClick={onDecide}>
-            {t('github.sync.decide')}
-          </button>
-        </p>
-      )}
-      <div className="form__actions">
-        <button type="button" className="btn btn--primary" onClick={onClose}>
-          {t('github.sync.close')}
-        </button>
-      </div>
-    </Dialog>
-  );
-}
-
-/** "Synchronise" in the head of the backlog, with the time of the last sync and the result dialog (#30). Only while the feature is on. */
+/** "Synchronise" icon in the head of the backlog, board and story map (#30). The result is a short notice, never a dialog; only a conflict that the PO has to decide opens one. Only while the feature is on. */
 export function GithubSync() {
   const { t, i18n } = useTranslation();
   const app = useApp();
   const on = useFeature('github');
-  const [outcome, setOutcome] = useState<Outcome | null>(null);
-  const [deciding, setDeciding] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const running = useRef(false);
+  const [conflicts, setConflicts] = useState<ConflictEntry[] | null>(null);
+  const [tick, setTick] = useState(false);
+  const { busy, paused, review } = app.githubSync;
+  const last = app.settings.github.lastSyncAt;
+  const first = useRef(true);
+
+  // A tick for a moment after every finished sync, by hand or by itself.
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    if (!last) return;
+    setTick(true);
+    const timer = setTimeout(() => setTick(false), 3000);
+    return () => clearTimeout(timer);
+  }, [last]);
+
+  const sync = async (decisions?: Record<string, Decision>): Promise<void> => {
+    if (busy) return;
+    const summary = await app.syncGithub(decisions, 'manual');
+    // The rule "I decide" asks right away.
+    if (summary && summary.conflicts.length > 0) setConflicts(summary.conflicts);
+  };
+
+  // "Review" in the notice of an automatic run asks for the same choice.
+  useEffect(() => {
+    if (!on || !review || busy) return;
+    app.clearGithubReview();
+    void sync();
+    // The request is consumed once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [on, review, busy]);
+
   if (!on) return null;
 
-  const last = app.settings.github.lastSyncAt;
   const lastText = last ? new Date(last).toLocaleString(i18n.resolvedLanguage, { dateStyle: 'short', timeStyle: 'short' }) : null;
-
   const pendingCount = app.stories.reduce(
     (sum, story) => sum + pendingFields(story, app.fields.find((field) => field.id === LABELS_FIELD_ID), app.statuses, { epics: app.epics, releases: app.releases }).length,
     0
   );
   const name = t('github.sync.button');
-  const tooltip = [name, busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never'), pendingCount > 0 ? t('github.sync.pendingCount', { count: pendingCount }) : '']
+  const tooltip = [
+    name,
+    busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never'),
+    paused ? t('github.sync.paused') : '',
+    pendingCount > 0 ? t('github.sync.pendingCount', { count: pendingCount }) : ''
+  ]
     .filter(Boolean)
     .join(' · ');
-
-  const sync = async (decisions?: Record<string, Decision>): Promise<void> => {
-    if (running.current) return;
-    running.current = true;
-    setBusy(true);
-    try {
-      const summary = await app.syncGithub(decisions);
-      setOutcome({ kind: 'done', summary });
-      // The rule "I decide" asks right away; the result dialog stays behind it for the rest.
-      setDeciding(summary.conflicts.length > 0);
-    } catch (cause) {
-      setOutcome({ kind: 'error', error: githubErrorKey(cause) });
-    } finally {
-      running.current = false;
-      setBusy(false);
-    }
-  };
 
   return (
     <span className="github-sync">
@@ -325,28 +207,37 @@ export function GithubSync() {
           <path d="M3 12a9 9 0 0 0 15.5 6.2L21 16" />
           <path d="M21 21v-5h-5" />
         </svg>
-        {pendingCount > 0 && (
-          <span className="github-sync__count" aria-hidden="true">
-            {pendingCount}
+        {paused ? (
+          <span className="github-sync__count github-sync__count--warn" aria-hidden="true">
+            !
           </span>
+        ) : tick && pendingCount === 0 ? (
+          <span className="github-sync__count github-sync__count--ok" aria-hidden="true">
+            ✓
+          </span>
+        ) : (
+          pendingCount > 0 && (
+            <span className="github-sync__count" aria-hidden="true">
+              {pendingCount}
+            </span>
+          )
         )}
       </button>
       <span className="sr-only" role="status">
         {busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never')}
       </span>
       {pendingCount > 0 && <span className="sr-only">{t('github.sync.pendingCount', { count: pendingCount })}</span>}
-      {outcome && outcome.kind === 'done' && deciding && (
+      {paused && <span className="sr-only">{t('github.sync.paused')}</span>}
+      {conflicts && (
         <Conflicts
-          conflicts={outcome.summary.conflicts}
-          onCancel={() => setDeciding(false)}
+          conflicts={conflicts}
+          onCancel={() => setConflicts(null)}
           onApply={(decisions) => {
-            setDeciding(false);
-            setOutcome(null);
+            setConflicts(null);
             void sync(decisions);
           }}
         />
       )}
-      {outcome && !(outcome.kind === 'done' && deciding) && <Result outcome={outcome} onClose={() => setOutcome(null)} onDecide={() => setDeciding(true)} />}
     </span>
   );
 }

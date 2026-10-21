@@ -1,4 +1,5 @@
 import type { ChangeVersion } from './changeLog';
+import type { SyncSummary } from './github';
 
 /** The id of a status value. The team configures the status values (#5); the defaults are todo, in_progress, review, done. */
 export type Status = string;
@@ -309,6 +310,22 @@ export interface DefinitionList {
 
 export type Definitions = Record<DefinitionKind, DefinitionList>;
 
+/** What started a sync: the start or return of the app, the timer, or the PO. */
+export type SyncTrigger = 'start' | 'auto' | 'manual';
+
+/** One run of the sync in the log. Runs without changes that follow each other are one entry (`runs`, `at` is the latest). */
+export interface SyncLogEntry {
+  id: string;
+  /** When the run (the latest of several) happened, ISO timestamp. */
+  at: string;
+  /** How many runs this entry stands for: more than one only for runs without changes. */
+  runs: number;
+  trigger: SyncTrigger;
+  /** The kind of the error that stopped the run, or null. */
+  error: string | null;
+  summary: SyncSummary | null;
+}
+
 /** The connection to GitHub Issues (#30). The access token is not part of the settings: it stays on this device. */
 export interface GithubSettings {
   /** `owner/name`, or an empty text while no repository is connected. */
@@ -323,6 +340,10 @@ export interface GithubSettings {
   ignored: string[];
   /** The labels and milestones the sync made on GitHub. Only these are deleted again, when nothing needs them any more. */
   managed: { labels: string[]; milestones: string[] };
+  /** Whether the app syncs by itself: at the start, when it comes back to the front and every 15 minutes (#30). All issues or none. */
+  auto: boolean;
+  /** The sync log, newest first (#30): one entry per run, at most 100 entries of the last 90 days. */
+  log: SyncLogEntry[];
 }
 
 /** Settings of the workspace, shared by the whole team. */

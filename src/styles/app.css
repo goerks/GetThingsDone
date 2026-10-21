@@ -4187,6 +4187,11 @@ a.linkbtn:hover {
   pointer-events: auto;
 }
 
+.toast--error {
+  background: var(--danger);
+  color: #fff;
+}
+
 .toast__close {
   flex: none;
   width: 28px;
@@ -7000,6 +7005,95 @@ a.github-badge:hover {
   font-size: 11px;
   line-height: 18px;
   text-align: center;
+}
+
+.github-sync__count--ok {
+  background: var(--ok, #11713a);
+}
+
+.github-sync__count--warn {
+  background: var(--danger);
+}
+
+.github-auto {
+  display: grid;
+  gap: 8px;
+}
+
+.github-auto__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.github-log {
+  display: grid;
+  gap: 8px;
+}
+
+.github-log__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.github-log__head h3 {
+  margin: 0;
+  margin-right: auto;
+}
+
+.github-log__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.github-log__row {
+  border-bottom: 1px solid var(--border);
+}
+
+.github-log__row:last-child {
+  border-bottom: 0;
+}
+
+.github-log__toggle {
+  display: grid;
+  grid-template-columns: 9.5em 7em minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: var(--target-min);
+  padding: 6px 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.github-log__toggle:hover {
+  background: var(--surface-2, var(--accent-soft));
+}
+
+.github-log__detail {
+  padding: 4px 12px 10px;
+}
+
+.github-log__result--bad {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .github-log__toggle {
+    grid-template-columns: 1fr auto;
+  }
 }
 
 .github-sync__icon--spin {
