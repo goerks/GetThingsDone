@@ -1,6 +1,6 @@
 # ADR 0005: Sync with external trackers (GitHub Issues first)
 
-Status: Proposed (awaits PO approval with the pull request of #30)
+Status: Accepted (PO approved with the pull request of #30 on 2026-10-21)
 Date: 2026-10-16
 Issue: #30
 
