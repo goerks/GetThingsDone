@@ -68,7 +68,7 @@ function gitlabLike(): Backend {
     { iid: 14, title: 'Export', text: '', closed: false, labels: [], milestone: null }
   ]);
   // The right to write is switched by the token of the call.
-  const connector: TrackerConnector = {
+  const connector: TrackerConnector<{ project: string }> = {
     ...tracker.connector,
     update: async (target, token, item, patch, context) => {
       tracker.state.canWrite = token === 'writer';
@@ -81,7 +81,7 @@ function gitlabLike(): Backend {
     open: (target, token) => tracker.connector.open(target, token === 'wrong' ? token : tracker.state.goodToken),
     item: (target, token, id) => tracker.connector.item(target, token === 'wrong' ? token : tracker.state.goodToken, id)
   };
-  return { connector, target: { project: 'team/app' }, token: (kind) => kind, ids: { open: '12', closed: '10', openKey: '#12', unknown: '999' } };
+  return { connector: connector as unknown as TrackerConnector, target: { project: 'team/app' }, token: (kind) => kind, ids: { open: '12', closed: '10', openKey: '#12', unknown: '999' } };
 }
 
 const BACKENDS: Array<[string, () => Backend]> = [

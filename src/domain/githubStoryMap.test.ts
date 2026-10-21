@@ -189,7 +189,7 @@ describe('board columns and status labels', () => {
     const own = [...statuses, { id: 'test', label: 'Test', category: 'in_progress' as const }];
     const pushed = planGithub({ stories: [story({ status: 'test' })], fields: [labelsField], assignments: [], statuses: own, repo, issues: [issue(31)], newId, write: true });
     expect(pushed.pushes[0].patch.labels).toEqual(['status: Test']);
-    const pulled = planSync({ stories: [story()], fields: [labelsField], assignments: [], statuses: own, repo, issues: [issue(31, { labels: ['status: Test'] })], newId });
+    const pulled = planGithub({ stories: [story()], fields: [labelsField], assignments: [], statuses: own, repo, issues: [issue(31, { labels: ['status: Test'] })], newId });
     expect(pulled.stories[0].status).toBe('test');
   });
 

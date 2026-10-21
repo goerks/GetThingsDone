@@ -1,5 +1,5 @@
 import type { ChangeVersion } from './changeLog';
-import type { SyncSummary } from './github';
+import type { SyncSummary } from './sync';
 
 /** The id of a status value. The team configures the status values (#5); the defaults are todo, in_progress, review, done. */
 export type Status = string;
