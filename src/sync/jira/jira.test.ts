@@ -232,6 +232,70 @@ describe('writing to Jira', () => {
   });
 });
 
+describe('epics and fix versions', () => {
+  const catalogOf = (connector: ReturnType<typeof setup>['connector']) => connector.catalog(target, 'good');
+
+  it('AC7.1 reads the epic of an issue as its epic', async () => {
+    const { find } = setup();
+    expect((await find('PROJ-2')).fields.epic).toBe('Payments');
+    expect((await find('PROJ-1')).fields.epic).toBeNull();
+  });
+
+  it('AC7.1 puts an issue into another epic, makes the epic when the project has none, and takes it out again', async () => {
+    const { connector, find, memory } = setup();
+    const catalog = await catalogOf(connector);
+    const withCatalog = { ...context, catalog };
+    const moved = await connector.update(target, 'good', await find('PROJ-1'), { epic: 'Payments' }, withCatalog);
+    expect(moved.item.fields.epic).toBe('Payments');
+    const made = await connector.update(target, 'good', moved.item, { epic: 'Login & Account' }, withCatalog);
+    expect(made.item.fields.epic).toBe('Login & Account');
+    expect(memory.issues().filter((issue) => issue.type === 'Epic').map((issue) => issue.summary)).toEqual(['Payments', 'Login & Account']);
+    const none = await connector.update(target, 'good', made.item, { epic: null }, withCatalog);
+    expect(none.item.fields.epic).toBeNull();
+  });
+
+  it('AC7.1 puts the epic of a new issue into its parent', async () => {
+    const { connector } = setup();
+    const catalog = await catalogOf(connector);
+    const { item } = await connector.create(target, 'good', { title: 'New', description: '', criteria: [], labels: [], epic: 'Payments', status: null }, { ...context, catalog });
+    expect(item.fields.epic).toBe('Payments');
+  });
+
+  it('AC7.2 reads the fix version as the release and the versions with their due date as the releases of the service', async () => {
+    const { connector, find } = setup();
+    expect((await find('PROJ-1')).fields.release).toBe('v1.0');
+    const catalog = await catalogOf(connector);
+    expect(catalog.releases).toEqual([
+      { id: '10001', title: 'v1.0', description: 'First version', dueOn: '2026-12-31', state: 'open' },
+      { id: '10002', title: 'v2.0', description: 'Second version', dueOn: '2027-06-30', state: 'open' }
+    ]);
+  });
+
+  it('AC7.2 sets another version, makes a missing one with its dates, and never deletes one', async () => {
+    const { connector, find, memory } = setup();
+    const catalog = await catalogOf(connector);
+    const release = { id: 'r3', title: 'v3.0', description: 'Third', startDate: '2027-01-01', endDate: '2027-09-30' };
+    const withCatalog = { ...context, catalog, releases: [release] };
+    const other = await connector.update(target, 'good', await find('PROJ-1'), { release: 'v2.0' }, withCatalog);
+    expect(other.item.fields.release).toBe('v2.0');
+    const made = await connector.update(target, 'good', other.item, { release: 'v3.0' }, withCatalog);
+    expect(made.item.fields.release).toBe('v3.0');
+    expect(memory.versions().find((version) => version.name === 'v3.0')).toMatchObject({ description: 'Third', startDate: '2027-01-01', releaseDate: '2027-09-30' });
+    const none = await connector.update(target, 'good', made.item, { release: null }, withCatalog);
+    expect(none.item.fields.release).toBeNull();
+    expect(memory.versions().map((version) => version.name)).toEqual(['v1.0', 'v2.0', 'v3.0']);
+  });
+
+  it('AC7.6 never deletes: nothing is removed from Jira by a write', async () => {
+    const { connector, find, memory } = setup();
+    const before = memory.issues().length;
+    const catalog = await catalogOf(connector);
+    await connector.update(target, 'good', await find('PROJ-1'), { epic: null, release: null, labels: [] }, { ...context, catalog });
+    expect(memory.issues()).toHaveLength(before);
+    expect(connector.capabilities.tidy).toBe(false);
+  });
+});
+
 describe('errors', () => {
   it('AC9.1 tells a wrong token, a project that is not there, a refused write and a missing network apart', async () => {
     const { connector, find } = setup();

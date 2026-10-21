@@ -5,7 +5,7 @@ import type { Criterion } from './types';
  * German. One source for the issue comment, the acceptance panel of the preview and the names of the automated tests. This pull
  * request generalises the shipped GitHub sync (AC1, AC2, AC11), makes the issue number the ID of a story (AC12) and adds the first
  * phase of Jira (AC3 to AC6, AC8, AC9, AC10.3): connect, import, title, description, labels, criteria, status by transition, create.
- * In the preview Jira is simulated (Demo); the real Jira Cloud is only reached by the Windows app. Epics, fix versions, sprints,
+ * In the preview Jira is simulated (Demo); the real Jira Cloud is only reached by the Windows app. Sprints,
  * points, the list of boards, the table of status names and the message for an expired token follow in later phases.
  */
 const SYNC = 'src/Sync.test.tsx';
@@ -206,7 +206,7 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           link: BACKLOG,
           given: 'Das Projekt hat ein Epic und eine Unteraufgabe.',
           when: 'Ich synchronisiere.',
-          then: 'Beide werden nicht zu Stories. Der Hinweis nennt «2 Epics oder Unteraufgaben ausgelassen». Das Epic selbst kommt mit Phase 2.',
+          then: 'Beide werden nicht zu Stories. Der Hinweis nennt «2 Epics oder Unteraufgaben ausgelassen». Das Epic kommt als Epic der Story (AC7.1).',
           tests: [`${JIRA} › AC4.4 leaves out epics and sub-tasks and counts them`]
         }
       ]
@@ -241,6 +241,17 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
       story: 'J4',
       title: 'Status über Workflow-Übergänge',
       cases: [
+        {
+          id: 'AC6.1',
+          title: 'Status wird zugeordnet',
+          link: SETTINGS_PAGE,
+          target: '.jira-mapping',
+          given: 'Jira ist verbunden; der Workflow hat «To Do», «In Progress», «In Review» und «Done», das Board «Offen», «In Arbeit», «Review», «Erledigt».',
+          when: 'Ich sehe mir unter dem Formular die Status-Zuordnung an.',
+          then: 'Die App schlägt die Zuordnung nach dem Namen vor und nennt, wie viele Status erkannt sind. Was nicht eindeutig ist, ist markiert; ich kann für jeden Status die Spalte wählen, die Wahl bleibt gespeichert.',
+          tests: [`${JIRA_UI} › AC6.1 proposes the columns by name, marks what is unclear and keeps my choice`, `${JIRA} › AC6.1 lists the statuses of the workflow with their category`],
+          poCheck: 'Die Namen der Spalten im Board und die Jira-Status prüfen, die Zuordnung der echten Instanz ansehen.'
+        },
         {
           id: 'AC6.2',
           title: 'Status von Jira übernehmen',
@@ -277,6 +288,47 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich drücke «PROJ-2 schliessen» (Demo-Knopf) und synchronisiere; danach öffne ich «PROJ-4» wieder.',
           then: 'Die Story steht in «Erledigt»; wird der Vorgang wieder geöffnet, steht sie wieder in der ersten Spalte.',
           tests: [`${JIRA} › AC6.5 sees an issue in the category done as done`, `${JIRA} › AC6.5 closes an issue and opens it again`]
+        }
+      ]
+    },
+    {
+      id: 'AC7',
+      story: 'J9',
+      title: 'Epics und Fix-Versionen',
+      cases: [
+        {
+          id: 'AC7.1',
+          title: 'Epic',
+          link: BACKLOG,
+          given: 'Im simulierten Jira gehört «PROJ-2» zum Epic «Payments»; lokal gibt es das Epic nicht.',
+          when: 'Ich synchronisiere; danach ordne ich lokal ein anderes Epic zu und synchronisiere mit Schreiben an.',
+          then: 'Es gibt das Epic «Payments», die Story gehört dazu. Nach dem zweiten Abgleich gehört der Vorgang in Jira zum anderen Epic (fehlt es, wird es angelegt). Es entstehen keine Labels.',
+          tests: [
+            `${JIRA} › AC7.1 reads the epic of an issue as its epic`,
+            `${JIRA} › AC7.1 puts an issue into another epic, makes the epic when the project has none, and takes it out again`,
+            `${JIRA} › AC7.1 puts the epic of a new issue into its parent`
+          ]
+        },
+        {
+          id: 'AC7.2',
+          title: 'Release und Fix-Version',
+          link: BACKLOG,
+          given: 'Im simulierten Jira hat «PROJ-1» die Fix-Version «v1.0» (Veröffentlichung 31.12.2026).',
+          when: 'Ich synchronisiere; danach ordne ich lokal ein neues Release «v3.0» mit Daten zu und synchronisiere mit Schreiben an.',
+          then: 'Es gibt das Release «v1.0» mit dem Datum, die Story gehört dazu. Das Release «v3.0» geht als Fix-Version mit Start und Veröffentlichung nach Jira (fehlt sie dort, wird sie angelegt) und wird nie gelöscht.',
+          tests: [
+            `${JIRA} › AC7.2 reads the fix version as the release and the versions with their due date as the releases of the service`,
+            `${JIRA} › AC7.2 sets another version, makes a missing one with its dates, and never deletes one`
+          ]
+        },
+        {
+          id: 'AC7.6',
+          title: 'Nie löschen',
+          link: BACKLOG,
+          given: 'Schreiben ist an. Ich lösche lokal ein Release, ein Epic und eine Story, die der Sync in Jira angelegt hat.',
+          when: 'Ich synchronisiere.',
+          then: 'In Jira bleibt alles bestehen: Version, Epic und Vorgang sind noch da.',
+          tests: [`${JIRA} › AC7.6 never deletes: nothing is removed from Jira by a write`]
         }
       ]
     },
