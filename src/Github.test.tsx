@@ -67,7 +67,6 @@ describe('switching the feature on', () => {
     const user = userEvent.setup();
     const { repository } = await renderApp('#/backlog', { issues: [fakeIssue(31, { title: 'Login' })] });
     await sync(user);
-    await user.click(screen.getByRole('button', { name: 'Close' }));
     expect(await screen.findByRole('link', { name: 'Open issue #31 on GitHub' })).toBeInTheDocument();
     // When I switch the feature off
     window.location.hash = '#/settings/github';
@@ -447,7 +446,7 @@ describe('the notice after a sync and the sync log', () => {
     expect(within(notice).getByRole('button', { name: 'Log' })).toBeInTheDocument();
     await new Promise((resolve) => setTimeout(resolve, 5600));
     expect(notice).toBeInTheDocument();
-    await user.click(within(notice).getByRole('button', { name: 'Close' }));
+    await user.click(within(notice).getByRole('button', { name: 'Dismiss' }));
     expect(notice).not.toBeInTheDocument();
   }, 15000);
 
