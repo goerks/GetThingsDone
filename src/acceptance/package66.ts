@@ -55,7 +55,7 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           given: 'GitHub ist verbunden, eine Story ist mit dem Issue #31 verknüpft.',
           when: 'Ich schalte «Synchronisation» aus und wieder ein.',
           then: 'Beim Ausschalten verschwinden Sync-Zeichen und Issue-Nummer, die Story bleibt mit ihrer eigenen ID. Beim Einschalten ist alles wieder da.',
-          tests: [`${SYNC} › AC1.4 hides the issue keys when the feature is switched off, keeps the stories, and brings them back when it is on`, `${SETTINGS} › AC1.5 keeps the repository and the time of the last sync when the feature is switched`]
+          tests: [`${SYNC} › AC1.4 hides the issue keys when the feature is switched off, keeps the stories, and brings them back when it is on`]
         }
       ]
     },
