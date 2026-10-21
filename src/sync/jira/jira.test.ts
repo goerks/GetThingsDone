@@ -296,6 +296,23 @@ describe('epics and fix versions', () => {
   });
 });
 
+describe('story points', () => {
+  it('AC7.4 reads the story points of an issue, and 0 when it has none', async () => {
+    const { find } = setup();
+    expect((await find('PROJ-1')).fields.points).toBe(5);
+    expect((await find('PROJ-3')).fields.points).toBe(0);
+  });
+
+  it('AC7.4 writes the story points, and clears them with 0', async () => {
+    const { connector, find, memory } = setup();
+    const written = await connector.update(target, 'good', await find('PROJ-1'), { points: 8 }, context);
+    expect(written.item.fields.points).toBe(8);
+    expect(memory.issues().find((issue) => issue.key === 'PROJ-1')?.points).toBe(8);
+    const cleared = await connector.update(target, 'good', written.item, { points: 0 }, context);
+    expect(cleared.item.fields.points).toBe(0);
+  });
+});
+
 describe('errors', () => {
   it('AC9.1 tells a wrong token, a project that is not there, a refused write and a missing network apart', async () => {
     const { connector, find } = setup();

@@ -34,6 +34,8 @@ export interface DemoJiraIssue {
   status: string;
   /** `Story`, `Task`, `Epic` or `Sub-task`. */
   type: string;
+  /** The story points (the field "Story point estimate"). */
+  points?: number | null;
   /** The key of the epic the issue belongs to. */
   parent?: string | null;
   /** The names of the fix versions. */
@@ -55,6 +57,8 @@ export interface DemoJiraVersion {
   released?: boolean;
 }
 
+export const DEMO_POINTS_FIELD = 'customfield_10016';
+
 export const DEMO_JIRA_VERSIONS: readonly DemoJiraVersion[] = [
   { id: '10001', name: 'v1.0', description: 'First version', releaseDate: '2026-12-31', released: false },
   { id: '10002', name: 'v2.0', description: 'Second version', releaseDate: '2027-06-30', released: false }
@@ -72,7 +76,8 @@ export const DEMO_JIRA_ISSUES: readonly DemoJiraIssue[] = [
     labels: ['feature'],
     status: 'To Do',
     type: 'Story',
-    fixVersions: ['v1.0']
+    fixVersions: ['v1.0'],
+    points: 5
   },
   { key: 'PROJ-2', summary: 'Export as CSV', description: doc(para('Export the backlog as a CSV file.')), labels: ['feature', 'quick'], status: 'In Progress', type: 'Story', parent: 'PROJ-5' },
   { key: 'PROJ-3', summary: 'Dark mode', description: null, labels: [], status: 'To Do', type: 'Story' },
@@ -137,6 +142,7 @@ const rawIssue = (issue: DemoJiraIssue, all: readonly DemoJiraIssue[] = []) => (
   fields: {
     parent: issue.parent ? { key: issue.parent, fields: { summary: all.find((entry) => entry.key === issue.parent)?.summary ?? '', issuetype: { name: 'Epic', hierarchyLevel: 1 } } } : undefined,
     fixVersions: (issue.fixVersions ?? []).map((name) => ({ name })),
+    [DEMO_POINTS_FIELD]: issue.points ?? null,
     summary: issue.summary,
     description: issue.description,
     labels: issue.labels,
@@ -176,6 +182,7 @@ export function createJiraSimulation(
     const issues = load();
     const find = (key: string): DemoJiraIssue | undefined => issues.find((issue) => issue.key === key);
 
+    if (path === '/rest/api/3/field') return reply(200, [{ id: 'summary', name: 'Summary' }, { id: DEMO_POINTS_FIELD, name: 'Story point estimate' }]);
     if (path === '/rest/api/3/myself') return reply(200, { emailAddress: DEMO_EMAIL });
 
     const project = /^\/rest\/api\/3\/project\/([^/]+)(\/statuses)?$/.exec(path);
@@ -221,6 +228,7 @@ export function createJiraSimulation(
         if (request.method === 'GET') return reply(200, rawIssue(issue, issues));
         if (request.method === 'PUT') {
           const fields = (body.fields ?? {}) as { summary?: string; labels?: string[]; description?: AdfDoc | null; parent?: { key?: string } | null; fixVersions?: Array<{ name: string }> };
+          if (DEMO_POINTS_FIELD in fields) issue.points = (fields as Record<string, number | null>)[DEMO_POINTS_FIELD];
           if ('parent' in fields) issue.parent = fields.parent?.key ?? null;
           if (fields.fixVersions !== undefined) issue.fixVersions = fields.fixVersions.map((entry) => entry.name);
           if (fields.summary !== undefined) issue.summary = fields.summary;

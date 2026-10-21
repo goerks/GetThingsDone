@@ -1460,7 +1460,8 @@
       "reopened": "Riaperta su {{service}} → stato «{{status}}»",
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
-      "status": "Colonna: {{from}} → {{to}}"
+      "status": "Colonna: {{from}} → {{to}}",
+      "points": "Punti: {{from}} → {{to}}"
     },
     "errors": {
       "config": "La connessione non è configurata: inserisci repository e token nelle impostazioni. I tuoi dati locali sono invariati.",
@@ -1484,7 +1485,8 @@
       "done": "Fatto/aperto",
       "release": "Release",
       "epic": "Epic",
-      "status": "Colonna"
+      "status": "Colonna",
+      "points": "Punti"
     },
     "value": {
       "done": "Fatto",

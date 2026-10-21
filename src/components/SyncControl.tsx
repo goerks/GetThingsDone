@@ -30,6 +30,8 @@ export function valueText(t: TFunction, fields: ExternalFields, name: FieldName)
       return fields.epic ?? t('sync.value.none');
     case 'status':
       return fields.status ?? t('sync.value.firstColumn');
+    case 'points':
+      return String(fields.points ?? 0);
   }
 }
 
@@ -62,6 +64,8 @@ export function changeText(t: TFunction, change: SyncChange, status: string): st
       return t('sync.change.epic', { from: change.from ?? t('sync.value.none'), to: change.to ?? t('sync.value.none') });
     case 'status':
       return t('sync.change.status', { from: change.from ?? t('sync.value.firstColumn'), to: change.to ?? t('sync.value.firstColumn') });
+    case 'points':
+      return t('sync.change.points', { from: change.from, to: change.to });
     case 'closed':
       return t('sync.change.closed', { status });
     case 'reopened':

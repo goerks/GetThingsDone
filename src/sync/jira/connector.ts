@@ -23,6 +23,7 @@ interface RawIssue {
     issuetype?: { name?: string; subtask?: boolean; hierarchyLevel?: number };
     parent?: { key: string; fields?: { summary?: string; issuetype?: { name?: string; hierarchyLevel?: number } } };
     fixVersions?: Array<{ name: string }>;
+    [custom: `customfield_${number}`]: unknown;
   };
 }
 
@@ -63,6 +64,8 @@ interface JiraRaw {
   category: StatusCategory;
 }
 
+/** The names Jira gives the field of the story points. */
+const POINTS_NAMES = ['story point estimate', 'story points'];
 const FIELDS = ['summary', 'description', 'labels', 'status', 'issuetype', 'parent', 'fixVersions'];
 const PAGE = 100;
 const MAX_PAGES = 30;
@@ -107,11 +110,23 @@ const jiraNameFor = (target: JiraTarget, column: string): string | null => Objec
 export function createJiraConnector(transport: JiraTransport): TrackerConnector<JiraTarget> {
   let skipped = 0;
 
+  /** The id of the field of the story points per site, found once with GET /field (it differs per site); null when there is none. */
+  const pointsIds = new Map<string, string | null>();
+  const pointsIdOf = async (client: JiraClient, target: JiraTarget): Promise<string | null> => {
+    if (pointsIds.has(target.site)) return pointsIds.get(target.site) ?? null;
+    const all = (await client.call<Array<{ id: string; name: string }>>('GET', '/rest/api/3/field')) ?? [];
+    const found = all.find((entry) => POINTS_NAMES.includes(entry.name.trim().toLowerCase()))?.id ?? null;
+    pointsIds.set(target.site, found);
+    return found;
+  };
+
   const toItem = (target: JiraTarget, raw: RawIssue): ExternalItem => {
     const adf = isAdf(raw.fields.description) ? raw.fields.description : null;
     const read = readAdf(adf);
     const category = categoryOf(raw);
     const statusName = raw.fields.status?.name ?? '';
+    const pointsId = pointsIds.get(target.site);
+    const pointsValue = pointsId ? raw.fields[pointsId as `customfield_${number}`] : null;
     const done = category === 'done';
     const fields: ExternalFields = {
       title: (raw.fields.summary ?? '').trim(),
@@ -121,15 +136,22 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       release: raw.fields.fixVersions?.[0]?.name ?? null,
       epic: isEpic(raw.fields.parent) ? (raw.fields.parent?.fields?.summary ?? null) : null,
       done,
+      points: typeof pointsValue === 'number' ? pointsValue : 0,
       status: !done && category === 'indeterminate' ? (target.statusMap[statusName] ?? statusName) : null
     };
     const jira: JiraRaw = { adf, lossy: read.lossy, statusName, category };
     return { id: raw.key, key: raw.key, url: `${target.site}/browse/${raw.key}`, state: done ? 'closed' : 'open', fields, raw: jira };
   };
 
-  const getIssue = async (client: JiraClient, key: string): Promise<RawIssue | null> => {
+  /** The fields to ask for: the compared ones and the story points. */
+  const fieldsOf = async (client: JiraClient, target: JiraTarget): Promise<string[]> => {
+    const points = await pointsIdOf(client, target);
+    return points ? [...FIELDS, points] : FIELDS;
+  };
+
+  const getIssue = async (client: JiraClient, target: JiraTarget, key: string): Promise<RawIssue | null> => {
     try {
-      return await client.call<RawIssue>('GET', `/rest/api/3/issue/${encodeURIComponent(key)}?fields=${FIELDS.join(',')}`);
+      return await client.call<RawIssue>('GET', `/rest/api/3/issue/${encodeURIComponent(key)}?fields=${(await fieldsOf(client, target)).join(',')}`);
     } catch (cause) {
       if (cause instanceof SyncError && cause.kind === 'notFound') return null;
       throw cause;
@@ -180,7 +202,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
 
   return {
     kind: 'jira',
-    capabilities: { fields: ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status'], create: true, tidy: false },
+    capabilities: { fields: ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status', 'points'], create: true, tidy: false },
     target: parseTarget,
     normalize,
     skipped: () => skipped,
@@ -193,7 +215,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       skipped = 0;
       let next: string | undefined;
       for (let page = 0; page < MAX_PAGES; page += 1) {
-        const answer = await client.call<{ issues?: RawIssue[]; nextPageToken?: string }>('POST', '/rest/api/3/search/jql', { jql, fields: FIELDS, maxResults: PAGE, ...(next ? { nextPageToken: next } : {}) });
+        const answer = await client.call<{ issues?: RawIssue[]; nextPageToken?: string }>('POST', '/rest/api/3/search/jql', { jql, fields: await fieldsOf(client, target), maxResults: PAGE, ...(next ? { nextPageToken: next } : {}) });
         for (const raw of answer?.issues ?? []) {
           const level = raw.fields.issuetype?.hierarchyLevel;
           // Epics and sub-tasks are not stories.
@@ -206,7 +228,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       return items;
     },
     async item(target, token, id) {
-      const raw = await getIssue(createClient(transport, target, token), id);
+      const raw = await getIssue(createClient(transport, target, token), target, id);
       return raw ? toItem(target, raw) : null;
     },
     idOf(target, link: ExternalLink) {
@@ -233,6 +255,10 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         const only = labelsOf(patch.labels);
         fields.labels = only.labels;
         skippedLabels = only.skipped;
+      }
+      if (patch.points !== undefined) {
+        const pointsId = await pointsIdOf(client, target);
+        if (pointsId) fields[pointsId] = patch.points === 0 ? null : patch.points;
       }
       if (patch.epic !== undefined) fields.parent = patch.epic === null ? null : { key: await epicKeyOf(client, target, patch.epic, context) };
       if (patch.release !== undefined) {
@@ -269,7 +295,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
           }
         }
       }
-      const raw = await getIssue(client, item.id);
+      const raw = await getIssue(client, target, item.id);
       if (!raw) throw new SyncError('notFound');
       return { item: toItem(target, raw), skippedLabels };
     },
@@ -288,7 +314,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         if (cause instanceof SyncError && cause.kind === 'other') created = await make('Task');
         else throw cause;
       }
-      const raw = created ? await getIssue(client, created.key) : null;
+      const raw = created ? await getIssue(client, target, created.key) : null;
       if (!raw) throw new SyncError('other');
       return { item: toItem(target, raw), skippedLabels: only.skipped };
     },

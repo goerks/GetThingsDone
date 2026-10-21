@@ -1460,7 +1460,8 @@
       "reopened": "Rouvert sur {{service}} → statut « {{status}} »",
       "release": "Release : {{from}} → {{to}}",
       "epic": "Epic : {{from}} → {{to}}",
-      "status": "Colonne : {{from}} → {{to}}"
+      "status": "Colonne : {{from}} → {{to}}",
+      "points": "Points : {{from}} → {{to}}"
     },
     "errors": {
       "config": "La connexion n’est pas configurée : saisissez le dépôt et le jeton dans les paramètres. Vos données locales sont inchangées.",
@@ -1484,7 +1485,8 @@
       "done": "Fait/ouvert",
       "release": "Release",
       "epic": "Epic",
-      "status": "Colonne"
+      "status": "Colonne",
+      "points": "Points"
     },
     "value": {
       "done": "Fait",
