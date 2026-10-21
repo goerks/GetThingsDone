@@ -322,7 +322,8 @@ describe('creating an issue from a story', () => {
     openMenu('S-90');
     await user.click(await screen.findByRole('menuitem', { name: 'Create on GitHub' }));
     await screen.findByRole('link', { name: 'Open issue #1 on GitHub' });
-    openMenu('S-90');
+    // The story shows the number of its issue as its ID now (#66)
+    openMenu('#1');
     await screen.findByRole('menu');
     expect(screen.queryByRole('menuitem', { name: 'Create on GitHub' })).not.toBeInTheDocument();
   });
