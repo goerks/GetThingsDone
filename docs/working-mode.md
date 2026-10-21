@@ -110,4 +110,4 @@ Variations go into a small table. Test cases that are checked by hand are marked
 | Component | One page or dialog, keyboard, screen reader texts | `src/**/*.test.tsx`, Vitest, `npm test` |
 | Unit | Rules and calculations | `src/domain/*.test.ts`, Vitest |
 
-The name of every test starts with the ID of its test case, and `docs/requirements/` lists it under "Verified by". CI runs all levels on every push.
+The name of every test starts with the ID of its test case, and `docs/requirements/` lists it under "Verified by". CI runs all levels on every push. In the cloud sessions of the AI the npm registry is not reachable, so there CI on GitHub is the only place where the tests run: the AI pushes the branch and fixes until the CI is green (#67).
