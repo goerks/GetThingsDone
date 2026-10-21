@@ -3,18 +3,23 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 /// Database file name, relative to the app config directory.
 const DATABASE: &str = "sqlite:getitdone.db";
 
-/// Where the access token for GitHub is kept in the credential store of the operating system (#30).
+/// Where the access token of a service is kept in the credential store of the operating system (#30, #66): one entry per
+/// service, so the token of one service never reaches another. GitHub keeps the entry it has always had.
 const TOKEN_SERVICE: &str = "io.github.goerks.getitdone";
-const TOKEN_USER: &str = "github-token";
 
-fn token_entry() -> Result<keyring::Entry, String> {
-    keyring::Entry::new(TOKEN_SERVICE, TOKEN_USER).map_err(|error| error.to_string())
+fn token_entry(service: &str) -> Result<keyring::Entry, String> {
+    let user = match service {
+        "github" => "github-token".to_string(),
+        "jira" | "gitlab" => format!("{service}-token"),
+        _ => return Err(format!("unknown service: {service}")),
+    };
+    keyring::Entry::new(TOKEN_SERVICE, &user).map_err(|error| error.to_string())
 }
 
-/// The stored token, or `None` when there is none.
+/// The stored token of a service, or `None` when there is none.
 #[tauri::command]
-fn github_token_get() -> Result<Option<String>, String> {
-    match token_entry()?.get_password() {
+fn sync_token_get(service: String) -> Result<Option<String>, String> {
+    match token_entry(&service)?.get_password() {
         Ok(token) => Ok(Some(token)),
         Err(keyring::Error::NoEntry) => Ok(None),
         Err(error) => Err(error.to_string()),
@@ -22,16 +27,16 @@ fn github_token_get() -> Result<Option<String>, String> {
 }
 
 #[tauri::command]
-fn github_token_set(token: String) -> Result<(), String> {
-    token_entry()?
+fn sync_token_set(service: String, token: String) -> Result<(), String> {
+    token_entry(&service)?
         .set_password(&token)
         .map_err(|error| error.to_string())
 }
 
 /// Removes the token. Removing a token that is not there is not an error.
 #[tauri::command]
-fn github_token_delete() -> Result<(), String> {
-    match token_entry()?.delete_credential() {
+fn sync_token_delete(service: String) -> Result<(), String> {
+    match token_entry(&service)?.delete_credential() {
         Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
         Err(error) => Err(error.to_string()),
     }
@@ -149,13 +154,19 @@ pub fn run() {
             sql: include_str!("../migrations/015_github.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 16,
+            description: "sync",
+            sql: include_str!("../migrations/016_sync.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            github_token_get,
-            github_token_set,
-            github_token_delete,
+            sync_token_get,
+            sync_token_set,
+            sync_token_delete,
             open_external
         ])
         .plugin(

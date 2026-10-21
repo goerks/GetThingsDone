@@ -455,10 +455,10 @@
         "description": "Assegna le storie alle persone: la sezione «Team» nelle impostazioni, il campo «Assegnata a», le iniziali sulle carte, la barra dei filtri della bacheca e la ricerca per persona. Lasciala spenta se lavori da solo.",
         "offNote": "Spenta. Membri e assegnazioni vengono conservati e tornano quando la accendi."
       },
-      "github": {
-        "name": "Connessione GitHub",
-        "description": "Importare le issue GitHub aperte come story e sincronizzarle in entrambe le direzioni.",
-        "offNote": "Disattivata. Le storie importate, i loro numeri di issue e la connessione vengono mantenuti e tornano quando la attivi."
+      "sync": {
+        "name": "Sincronizzazione",
+        "description": "Sincronizzare le story in entrambe le direzioni con le issue di un servizio (GitHub).",
+        "offNote": "Disattivata. Le story collegate, i loro numeri di issue e la connessione vengono mantenuti e tornano quando la attivi."
       }
     },
     "data": {
@@ -981,7 +981,7 @@
       "settings.basics": {
         "title": "Impostazioni",
         "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare definizioni lista",
-        "body": "Apri le impostazioni con l’ingranaggio. Hanno otto sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Release, Team e GitHub hanno ciascuna una sezione propria, dove attivi o disattivi la funzione e la configuri. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno otto sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Release, Team e Sincronizzazione hanno ciascuna una sezione propria, dove attivi o disattivi la funzione e la configuri. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -1018,10 +1018,10 @@
         "keywords": "team persona membro assegnare assegnata iniziali filtro qualcuno lavora chi",
         "body": "Apri Impostazioni → Team e accendi «Team». Poi aggiungi le persone a cui vuoi assegnare le storie. Bastano un nome e le iniziali, non ci sono account. Le iniziali derivano dal nome e si possono modificare.\nAssegni una storia nella sua finestra, nel campo «Assegnata a», oppure subito quando crei una nuova storia. Un cerchio mostra le iniziali sulle carte, nel backlog e sulla story map. Un cerchio tratteggiato significa che la storia non è assegnata.\nSopra la bacheca filtri per una persona o per le storie su cui nessuno lavora. La ricerca trova le storie anche per nome o iniziali.\nSe rimuovi un membro, le sue storie restano e non sono più assegnate. Se spegni «Team», membri e assegnazioni vengono conservati."
       },
-      "github.basics": {
-        "title": "Issue di GitHub",
-        "keywords": "github issue import sincronizza sincronizzazione repository token collegare funzione attivare storie etichette criteri scrivere pubblicare conflitto connessioni andata ritorno milestone epic label stato icona automatica registro messaggio",
-        "body": "Importare le issue aperte di un repository GitHub come story e sincronizzare le modifiche in entrambe le direzioni. Funziona solo se la funzione «Collegamento GitHub» è attivata. Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Connessione GitHub (l’interruttore in alto).\n2. Sotto l’interruttore inserisci il repository (owner/name) e un token di accesso e premi «Prova la connessione». Se l’app deve scrivere anche su GitHub, attiva «Scrivi anche su GitHub» (il token ha allora bisogno di «Issues: lettura e scrittura») e scegli chi vince in caso di conflitto: GitHub (predefinito), il locale, oppure decidi tu.\n3. Apri il backlog e premi «Sincronizza». Le nuove issue diventano story; ciò che è cambiato solo su un lato passa all’altro. Con la scrittura attivata «Sincronizza» pubblica anche le tue modifiche a titolo, descrizione, label, criteri e fatto/aperto. Senza la sincronizzazione automatica (paragrafo seguente) nulla va su GitHub senza questo pulsante. Le story con modifiche non ancora su GitHub sono contrassegnate.\nCrei una issue da una tua story con «Crea su GitHub» nel suo menu. Sprint, punti e ordine restano sempre locali. Senza connessione di rete o con un token sbagliato l’app lo dice e lascia in pace i tuoi dati locali.\nL’icona di sincronizzazione (due frecce circolari) si trova su backlog, board e story map; il numero indica le modifiche non ancora su GitHub. Le release corrispondono alle milestone, gli epic alle label «epic: Nome», le colonne della board tra «Da fare» e «Fatto» alle label «status: Nome». Con la scrittura attiva la sincronizzazione crea da sola le milestone e le label necessarie ed elimina quelle che ha creato lei quando non servono più. Ciò che hai creato tu stesso su GitHub non viene mai eliminato.\nIl risultato è un breve messaggio in basso, mai una finestra; «Registro» porta al registro di sincronizzazione in Impostazioni → GitHub, che elenca ogni esecuzione e le sue modifiche. Attiva lì «Sincronizza automaticamente»: l’app importa e confronta da sola tutte le issue aperte, all’avvio, quando torni e ogni 15 minuti finché è aperta. Con la regola «Decido io» i conflitti vengono solo segnati; «Controlla» nel messaggio apre la scelta. Dopo tre errori di fila la sincronizzazione automatica va in pausa finché non premi l’icona.\nSe disattivi di nuovo la funzione, tutto viene nascosto ma conservato."
+      "sync.basics": {
+        "title": "Sincronizzazione con GitHub",
+        "keywords": "github issue import sincronizza sincronizzazione repository token collegare funzione attivare storie etichette criteri scrivere pubblicare conflitto connessioni andata ritorno milestone epic label stato icona automatica registro messaggio sincronizzazione servizio cambiare",
+        "body": "Importare le issue aperte di un repository GitHub come story e sincronizzare le modifiche in entrambe le direzioni. Funziona solo se la funzione «Sincronizzazione» è attivata e GitHub è il servizio scelto (è attivo un solo servizio alla volta). Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Sincronizzazione (l’interruttore in alto).\n2. Sotto l’interruttore inserisci il repository (owner/name) e un token di accesso e premi «Prova la connessione». Se l’app deve scrivere anche su GitHub, attiva «Scrivi anche su GitHub» (il token ha allora bisogno di «Issues: lettura e scrittura») e scegli chi vince in caso di conflitto: GitHub (predefinito), il locale, oppure decidi tu.\n3. Apri il backlog e premi «Sincronizza». Le nuove issue diventano story; ciò che è cambiato solo su un lato passa all’altro. Con la scrittura attivata «Sincronizza» pubblica anche le tue modifiche a titolo, descrizione, label, criteri e fatto/aperto. Senza la sincronizzazione automatica (paragrafo seguente) nulla va su GitHub senza questo pulsante. Le story con modifiche non ancora su GitHub sono contrassegnate.\nCrei una issue da una tua story con «Crea su GitHub» nel suo menu. Sprint, punti e ordine restano sempre locali. Senza connessione di rete o con un token sbagliato l’app lo dice e lascia in pace i tuoi dati locali.\nL’icona di sincronizzazione (due frecce circolari) si trova su backlog, board e story map; il numero indica le modifiche non ancora su GitHub. Le release corrispondono alle milestone, gli epic alle label «epic: Nome», le colonne della board tra «Da fare» e «Fatto» alle label «status: Nome». Con la scrittura attiva la sincronizzazione crea da sola le milestone e le label necessarie ed elimina quelle che ha creato lei quando non servono più. Ciò che hai creato tu stesso su GitHub non viene mai eliminato.\nIl risultato è un breve messaggio in basso, mai una finestra; «Registro» porta al registro di sincronizzazione in Impostazioni → Sincronizzazione, che elenca ogni esecuzione e le sue modifiche. Attiva lì «Sincronizza automaticamente»: l’app importa e confronta da sola tutte le issue aperte, all’avvio, quando torni e ogni 15 minuti finché è aperta. Con la regola «Decido io» i conflitti vengono solo segnati; «Controlla» nel messaggio apre la scelta. Dopo tre errori di fila la sincronizzazione automatica va in pausa finché non premi l’icona.\nSe disattivi di nuovo la funzione, tutto viene nascosto ma conservato."
       }
     },
     "links": {
@@ -1037,14 +1037,14 @@
       "settingsDefinitions": "Apri Impostazioni → Definizioni",
       "settingsData": "Apri Impostazioni → Dati",
       "settingsTeam": "Apri Impostazioni → Team",
-      "settingsGithub": "Apri Impostazioni → GitHub"
+      "settingsSync": "Apri Impostazioni → Sincronizzazione"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",
     "linkHints": {
       "featureFirst": "Prima attivare la funzione",
       "releaseRows": "Scegliere «Release» come righe",
-      "githubConnect": "Inserisci repository e token"
+      "syncConnect": "Inserisci repository e token"
     }
   },
   "dialog": {
@@ -1395,86 +1395,42 @@
       "empty": "Nessuna storia per questa persona."
     }
   },
-  "github": {
-    "issueLink": "Apri l’issue n. {{number}} su GitHub",
-    "settings": {
-      "title": "Connessioni",
-      "connected": "Connesso",
-      "hint": "Le issue aperte diventano story; le modifiche vanno in entrambe le direzioni, solo quando premi «Sincronizza».",
-      "repo": "Repository (owner/name)",
-      "token": "Token di accesso",
-      "tokenSaved": "Token salvato – inseriscine uno nuovo per sostituirlo",
-      "tokenNote": "Per leggere basta l’accesso in lettura alle issue; per scrivere il token ha bisogno di «Issues: lettura e scrittura». È conservato nell’archivio delle credenziali del sistema e non viene più mostrato.",
-      "tokenNoteDemo": "Va bene qualsiasi testo, tranne «{{wrong}}» (rifiutato) e «{{readonly}}» (sola lettura). Non viene inviato nulla.",
-      "tokenMissingNote": "Inserisci di nuovo il token: nel browser dura solo fino al ricaricamento.",
-      "test": "Prova la connessione",
-      "testing": "Verifica in corso…",
-      "disconnect": "Rimuovi la connessione",
-      "ok": "Connessione ok · {{count}} issue aperte",
-      "where": "Importazione e sincronizzazione si trovano nel backlog, con il pulsante «Sincronizza».",
-      "problem": {
-        "repoMissing": "Manca il repository.",
-        "repoFormat": "Usa la forma owner/name.",
-        "tokenMissing": "Manca il token di accesso."
-      },
-      "write": {
-        "label": "Scrivi anche su GitHub",
-        "help": "Disattivato: sola lettura. Attivato: «Sincronizza» pubblica anche le tue modifiche. Il token ha bisogno di «Issues: lettura e scrittura»."
-      },
-      "conflict": {
-        "legend": "Quando entrambi i lati hanno modificato lo stesso campo",
-        "remote": "Vince GitHub (predefinito)",
-        "local": "Vince il locale",
-        "ask": "Decido io (una finestra mostra entrambe le versioni)"
-      }
-    },
-    "demo": {
-      "badge": "Demo",
-      "title": "Demo: GitHub simulato",
-      "text": "Un piccolo GitHub simulato in questo browser ({{repo}}). Modifica qui le issue, poi sincronizza. Il token «{{wrong}}» viene rifiutato, «{{readonly}}» non può scrivere.",
-      "rename": "Rinomina n. 31, nuova etichetta",
-      "criteria": "Cambia i criteri del n. 31",
-      "close": "Chiudi il n. 35",
-      "reopen": "Riapri il n. 35",
-      "add": "Aggiungi l’issue n. 44",
-      "reset": "Ripristina le issue",
-      "done": "Le issue su GitHub sono state modificate."
-    },
+  "sync": {
     "sync": {
       "button": "Sincronizza",
       "running": "Sincronizzazione…",
-      "last": "GitHub · ultima sincronizzazione {{when}}",
-      "never": "GitHub · non ancora sincronizzato",
-      "done": "Sincronizzato con GitHub",
+      "last": "{{service}} · ultima sincronizzazione {{when}}",
+      "never": "{{service}} · non ancora sincronizzato",
+      "done": "Sincronizzato con {{service}}",
       "failed": "Sincronizzazione non riuscita",
       "nothing": "Tutto è aggiornato.",
       "created": "importate di nuovo",
       "updated": "aggiornate",
-      "closed": "concluse (chiuse su GitHub)",
-      "wins": "Le modifiche di GitHub sono state recepite. Sprint, punti e ordine restano invariati.",
+      "closed": "concluse (chiuse su {{service}})",
+      "wins": "Le modifiche di {{service}} sono state recepite. Sprint, punti e ordine restano invariati.",
       "close": "Chiudi",
-      "toSettings": "Apri Impostazioni → GitHub",
-      "pendingCount_one": "{{count}} modifica non ancora su GitHub",
-      "pendingCount_other": "{{count}} modifiche non ancora su GitHub",
-      "publishedCount_one": "{{count}} modifica pubblicata su GitHub",
-      "publishedCount_other": "{{count}} modifiche pubblicate su GitHub",
-      "publishedTitle": "Pubblicato su GitHub",
+      "toSettings": "Apri Impostazioni → Sincronizzazione",
+      "pendingCount_one": "{{count}} modifica non ancora su {{service}}",
+      "pendingCount_other": "{{count}} modifiche non ancora su {{service}}",
+      "publishedCount_one": "{{count}} modifica pubblicata su {{service}}",
+      "publishedCount_other": "{{count}} modifiche pubblicate su {{service}}",
+      "publishedTitle": "Pubblicato su {{service}}",
       "overwrittenTitle": "Sovrascritto",
       "pendingNote_one": "Scrittura disattivata: {{count}} modifica non pubblicata.",
       "pendingNote_other": "Scrittura disattivata: {{count}} modifiche non pubblicate.",
       "conflictsOpen_one": "{{count}} conflitto da decidere",
       "conflictsOpen_other": "{{count}} conflitti da decidere",
-      "skippedLabels": "Label che GitHub non ha: {{labels}}",
+      "skippedLabels": "Label che {{service}} non ha: {{labels}}",
       "decide": "Decidi i conflitti",
       "releaseCreated": "Nuova release: {{title}}",
       "epicCreated": "Nuovo epic: {{name}}",
-      "missingMilestones": "Ancora nessuna milestone su GitHub: {{titles}}",
+      "missingMilestones": "Ancora nessuna milestone su {{service}}: {{titles}}",
       "multipleEpics": "Più label epic, conta la prima: {{issues}}",
       "labelCreated": "Label creata: {{name}}",
       "labelDeleted": "Label eliminata: {{name}}",
       "milestoneCreated": "Milestone creata: {{name}}",
       "milestoneDeleted": "Milestone eliminata: {{name}}",
-      "missingLabels": "Label mancante su GitHub: {{names}}",
+      "missingLabels": "Label mancante su {{service}}: {{names}}",
       "paused": "sincronizzazione automatica in pausa"
     },
     "change": {
@@ -1495,39 +1451,20 @@
       "criteriaTicked_many": "{{count}} spunte modificate",
       "criteriaTicked_other": "{{count}} spunte modificate",
       "criteriaOrder": "ordine modificato",
-      "closed": "Chiusa su GitHub → stato «{{status}}»",
-      "reopened": "Riaperta su GitHub → stato «{{status}}»",
+      "closed": "Chiusa su {{service}} → stato «{{status}}»",
+      "reopened": "Riaperta su {{service}} → stato «{{status}}»",
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
       "status": "Colonna: {{from}} → {{to}}"
     },
     "errors": {
       "config": "La connessione non è configurata: inserisci repository e token nelle impostazioni. I tuoi dati locali sono invariati.",
-      "network": "Nessuna connessione a GitHub. L’app continua a funzionare con i tuoi dati locali.",
-      "auth": "GitHub ha rifiutato il token di accesso. Controlla il token e i suoi diritti. I tuoi dati locali sono invariati.",
+      "network": "Nessuna connessione a {{service}}. L’app continua a funzionare con i tuoi dati locali.",
+      "auth": "{{service}} ha rifiutato il token di accesso. Controlla il token e i suoi diritti. I tuoi dati locali sono invariati.",
       "notFound": "Repository non trovato, oppure il token non ha accesso. I tuoi dati locali sono invariati.",
-      "rateLimit": "GitHub per ora non accetta altre richieste. Riprova più tardi. I tuoi dati locali sono invariati.",
-      "other": "GitHub non è stato raggiunto correttamente. Riprova più tardi. I tuoi dati locali sono invariati.",
-      "forbidden": "GitHub ha rifiutato la scrittura. Il token ha bisogno di «Issues: lettura e scrittura»."
-    },
-    "connections": {
-      "title": "Servizi",
-      "intro": "Un meccanismo, un connettore per servizio.",
-      "available": "disponibile",
-      "connected": "collegato",
-      "planned": "previsto",
-      "names": {
-        "github": "GitHub",
-        "gitlab": "GitLab",
-        "jira": "Jira",
-        "trello": "Trello"
-      }
-    },
-    "disconnect": {
-      "title": "Rimuovere la connessione?",
-      "text": "Le story importate restano, il collegamento con GitHub no.",
-      "confirm": "Rimuovi la connessione",
-      "cancel": "Annulla"
+      "rateLimit": "{{service}} per ora non accetta altre richieste. Riprova più tardi. I tuoi dati locali sono invariati.",
+      "other": "{{service}} non è stato raggiunto correttamente. Riprova più tardi. I tuoi dati locali sono invariati.",
+      "forbidden": "{{service}} ha rifiutato la scrittura. Il token ha bisogno di «Issues: lettura e scrittura»."
     },
     "field": {
       "title": "Titolo",
@@ -1549,30 +1486,30 @@
     "overwritten": {
       "local": "Modifica locale sovrascritta: {{field}}",
       "localValue": "Modifica locale sovrascritta: {{field}} «{{value}}»",
-      "github": "Modifica GitHub sovrascritta: {{field}}",
-      "githubValue": "Modifica GitHub sovrascritta: {{field}} «{{value}}»"
+      "remote": "Modifica {{service}} sovrascritta: {{field}}",
+      "remoteValue": "Modifica {{service}} sovrascritta: {{field}} «{{value}}»"
     },
     "conflict": {
       "title": "Entrambi i lati hanno modificato la stessa cosa",
       "intro": "Scegli quale versione vale.",
       "local": "Locale",
-      "remote": "GitHub",
+      "remote": "{{service}}",
       "keepLocal": "Mantieni la versione locale",
-      "takeRemote": "Prendi la versione GitHub",
+      "takeRemote": "Prendi la versione {{service}}",
       "apply": "Applica",
       "cancel": "Annulla",
       "group": "{{field}} di {{code}}",
       "hint": "Non cambia nulla finché non premi «Applica»."
     },
     "pending": {
-      "badge": "non su GitHub",
-      "title": "Modifiche locali non ancora su GitHub: {{fields}}"
+      "badge": "non su {{service}}",
+      "title": "Modifiche locali non ancora su {{service}}: {{fields}}"
     },
     "create": {
-      "menu": "Crea su GitHub",
-      "done": "{{code}} è stata creata su GitHub.",
-      "skipped": "GitHub non conosce queste label, non sono state create: {{labels}}",
-      "failed": "{{code}} non è stata creata su GitHub: {{reason}}"
+      "menu": "Crea su {{service}}",
+      "done": "{{code}} è stata creata su {{service}}.",
+      "skipped": "{{service}} non conosce queste label, non sono state create: {{labels}}",
+      "failed": "{{code}} non è stata creata su {{service}}: {{reason}}"
     },
     "toast": {
       "done": "Sincronizzato: {{parts}}",
@@ -1580,7 +1517,7 @@
       "new": "{{count}} nuovo/i",
       "updated": "{{count}} aggiornato/i",
       "closed": "{{count}} chiuso/i",
-      "published": "{{count}} inviato/i a GitHub",
+      "published": "{{count}} inviato/i a {{service}}",
       "other": "{{count}} label e milestone",
       "failed": "Sincronizzazione non riuscita: {{reason}}",
       "paused": "Sincronizzazione automatica in pausa dopo errori. Premi l’icona di sincronizzazione per riprendere.",
@@ -1615,9 +1552,91 @@
       "error": "errore",
       "quiet": "Nessuna modifica",
       "quietRuns": "{{count}} esecuzioni senza modifiche"
+    },
+    "disconnect": {
+      "title": "Rimuovere la connessione?",
+      "text": "Le story importate restano, il collegamento con {{service}} no.",
+      "confirm": "Rimuovi la connessione",
+      "cancel": "Annulla"
+    },
+    "issueLink": "Apri l’issue n. {{number}} su {{service}}",
+    "settings": {
+      "connected": "Connesso",
+      "hint": "Le issue aperte diventano story; le modifiche vanno in entrambe le direzioni, solo quando premi «Sincronizza».",
+      "test": "Prova la connessione",
+      "testing": "Verifica in corso…",
+      "disconnect": "Rimuovi la connessione",
+      "ok": "Connessione ok · {{count}} issue aperte",
+      "where": "Importazione e sincronizzazione si trovano nel backlog, con il pulsante «Sincronizza».",
+      "write": {
+        "label": "Scrivi anche su {{service}}",
+        "help": "Disattivato: sola lettura. Attivato: «Sincronizza» pubblica anche le tue modifiche. Il token ha bisogno di «Issues: lettura e scrittura»."
+      },
+      "conflict": {
+        "legend": "Quando entrambi i lati hanno modificato lo stesso campo",
+        "remote": "Vince {{service}} (predefinito)",
+        "local": "Vince il locale",
+        "ask": "Decido io (una finestra mostra entrambe le versioni)"
+      }
+    },
+    "service": {
+      "legend": "Servizio",
+      "hint": "È attivo un solo servizio alla volta. Cambiando si rimuove la connessione al vecchio; le story restano.",
+      "planned": "previsto",
+      "connected": "collegato",
+      "active": "scelto",
+      "available": "disponibile"
+    },
+    "services": {
+      "github": "GitHub",
+      "jira": "Jira",
+      "gitlab": "GitLab"
+    },
+    "switch": {
+      "title": "Passare a {{to}}?",
+      "linked_one": "{{service}} è attivo, {{count}} story è collegata a una issue di {{service}}.",
+      "linked_other": "{{service}} è attivo, {{count}} story sono collegate a issue di {{service}}.",
+      "connected": "{{service}} è collegato.",
+      "removes": "La connessione a {{service}} e il suo token vengono rimossi.",
+      "stay_one": "La {{count}} story resta, senza numero di issue e collegamento.",
+      "stay_other": "Le {{count}} story restano, senza numero di issue e collegamento.",
+      "importAgain": "La prima sincronizzazione con {{to}} importa tutte le sue issue aperte come nuove story, quindi lo stesso lavoro può comparire due volte.",
+      "create": "Puoi pubblicare le tue story su {{to}} una per una con «Crea su {{to}}» nel loro menu.",
+      "confirm": "Scollega e passa a {{to}}",
+      "cancel": "Annulla"
+    },
+    "localId": "ID locale {{code}}",
+    "demo": {
+      "badge": "Demo"
     }
   },
   "info": {
     "label": "Maggiori informazioni"
+  },
+  "github": {
+    "settings": {
+      "repo": "Repository (owner/name)",
+      "token": "Token di accesso",
+      "tokenSaved": "Token salvato – inseriscine uno nuovo per sostituirlo",
+      "tokenNote": "Per leggere basta l’accesso in lettura alle issue; per scrivere il token ha bisogno di «Issues: lettura e scrittura». È conservato nell’archivio delle credenziali del sistema e non viene più mostrato.",
+      "tokenNoteDemo": "Va bene qualsiasi testo, tranne «{{wrong}}» (rifiutato) e «{{readonly}}» (sola lettura). Non viene inviato nulla.",
+      "tokenMissingNote": "Inserisci di nuovo il token: nel browser dura solo fino al ricaricamento.",
+      "problem": {
+        "repoMissing": "Manca il repository.",
+        "repoFormat": "Usa la forma owner/name.",
+        "tokenMissing": "Manca il token di accesso."
+      }
+    },
+    "demo": {
+      "title": "Demo: GitHub simulato",
+      "text": "Un piccolo GitHub simulato in questo browser ({{repo}}). Modifica qui le issue, poi sincronizza. Il token «{{wrong}}» viene rifiutato, «{{readonly}}» non può scrivere.",
+      "rename": "Rinomina n. 31, nuova etichetta",
+      "criteria": "Cambia i criteri del n. 31",
+      "close": "Chiudi il n. 35",
+      "reopen": "Riapri il n. 35",
+      "add": "Aggiungi l’issue n. 44",
+      "reset": "Ripristina le issue",
+      "done": "Le issue su GitHub sono state modificate."
+    }
   }
 }

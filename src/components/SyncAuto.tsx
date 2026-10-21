@@ -17,14 +17,14 @@ export function isIdle(): boolean {
 }
 
 /**
- * The automatic sync of all issues (#30): a run when the app starts and when it comes back to the front, and one every
+ * The automatic sync of all issues (#30, #66): a run when the app starts and when it comes back to the front, and one every
  * 15 minutes while it is open. It renders nothing and only works while the feature, the connection and the switch are on.
  */
-export function GithubAutoSync() {
+export function SyncAuto() {
   const app = useApp();
-  const featureOn = useFeature('github');
-  const { auto, repo } = app.settings.github;
-  const active = featureOn && auto && repo !== '' && !app.loading;
+  const featureOn = useFeature('sync');
+  const { auto, connection, service } = app.settings.sync;
+  const active = featureOn && auto && Object.keys(connection).length > 0 && !app.loading;
   const latest = useRef(app);
   latest.current = app;
 
@@ -36,18 +36,18 @@ export function GithubAutoSync() {
     let running = false;
     const look = async (): Promise<void> => {
       if (running) return;
-      const { githubSync, githubTokens, syncGithub, setGithubNextRun } = latest.current;
-      const result = autoTick(state, { now: Date.now(), idle: isIdle(), online: navigator.onLine !== false, paused: githubSync.paused });
+      const { syncState, syncTokens, syncNow, setSyncNextRun } = latest.current;
+      const result = autoTick(state, { now: Date.now(), idle: isIdle(), online: navigator.onLine !== false, paused: syncState.paused });
       state = result.state;
-      setGithubNextRun(state.nextAt);
+      setSyncNextRun(state.nextAt);
       if (!result.run) return;
       // Without a token (the browser forgets it with the session) there is nothing to run with.
-      if (!(await githubTokens.get())) return;
+      if (!(await syncTokens.get())) return;
       const used = trigger;
       trigger = 'auto';
       running = true;
       try {
-        await syncGithub(undefined, used);
+        await syncNow(undefined, used);
       } finally {
         running = false;
       }
@@ -69,7 +69,8 @@ export function GithubAutoSync() {
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('online', markStart);
     };
-  }, [active]);
+    // The service is part of the key: another service starts its own timer.
+  }, [active, service]);
 
   return null;
 }

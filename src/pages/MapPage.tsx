@@ -13,7 +13,7 @@ import {
   type UniqueIdentifier
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
-import { GithubSync } from '../components/GithubSync';
+import { SyncControl } from '../components/SyncControl';
 import { useTranslation } from 'react-i18next';
 import { NewEpicDialog } from '../components/EpicDialogs';
 import { NewStoryDialog } from '../components/NewStoryDialog';
@@ -573,7 +573,7 @@ export function MapPage() {
             ? t('map.summaryReleases', { epics: epics.length, releases: releases.length, stories: shownStories.length })
             : t('map.summary', { epics: epics.length, sprints: sprints.length, stories: shownStories.length })}
         </span>
-        <GithubSync />
+        <SyncControl />
         <a
           href={hrefs.settingsMap}
           className="btn page-head__action map-rows-link"

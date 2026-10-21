@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
-import { issueUrl } from './domain/github';
+import { issueUrl } from './domain/sync';
 import { todayIso } from './domain/sprints';
 import { AUTO_INTERVAL_MS } from './domain/syncLog';
 import type { ConflictRule, Story } from './domain/types';
@@ -42,7 +42,7 @@ const linked = (number: number, title: string, baseTitle: string): Story => ({
   values: {},
   checks: {},
   doneItems: null,
-  github: { url: issueUrl(repoRef, number), state: 'open', base: { title: baseTitle, description: '', labels: [], criteria: [], done: false } }
+  link: { service: 'github', key: `#${number}`, url: issueUrl(repoRef, number), state: 'open', base: { title: baseTitle, description: '', labels: [], criteria: [], done: false } }
 });
 
 interface Options {
@@ -61,11 +61,11 @@ async function renderApp({ auto = true, write = false, conflict = 'remote', stor
   await repository.replaceAll({
     ...seed,
     stories: [...seed.stories, ...stories],
-    settings: { ...seed.settings, features: { ...seed.settings.features, github: true }, github: { repo: REPO, lastSyncAt: null, write, conflict, ignored: [], managed: { labels: [], milestones: [] }, auto, log: [] } }
+    settings: { ...seed.settings, features: { ...seed.settings.features, sync: true }, sync: { service: 'github', connection: { repo: REPO }, lastSyncAt: null, write, conflict, ignored: [], managed: { labels: [], milestones: [] }, auto, log: [] } }
   });
-  await fake.github.tokens.set('good');
+  await fake.tokens.set('good');
   window.location.hash = hash;
-  render(<App repository={repository} github={fake.github} />);
+  render(<App repository={repository} sync={fake.sync} />);
   await screen.findByRole('heading', { level: 1 });
   return { fake, repository };
 }
@@ -77,7 +77,7 @@ const pass = async (ms: number): Promise<void> => {
   });
 };
 
-const log = async (repository: LocalStorageRepository) => (await repository.load()).settings.github.log;
+const log = async (repository: LocalStorageRepository) => (await repository.load()).settings.sync.log;
 
 describe('the automatic sync', () => {
   it('AC18.2 runs at the start and when the app comes back', async () => {
@@ -123,19 +123,19 @@ describe('the automatic sync', () => {
 
   it('AC18.6 keeps the switch and turns it off when the connection is removed', async () => {
     // Given the switch off in the settings
-    const { fake, repository } = await renderApp({ auto: false, hash: '#/settings/github' });
+    const { fake, repository } = await renderApp({ auto: false, hash: '#/settings/sync' });
     const box = await screen.findByRole('checkbox', { name: 'Synchronise automatically' });
     // When I switch it on
     fireEvent.click(box);
-    await waitFor(async () => expect((await repository.load()).settings.github.auto).toBe(true));
+    await waitFor(async () => expect((await repository.load()).settings.sync.auto).toBe(true));
     // Then it is still on after a reload
     cleanup();
-    render(<App repository={repository} github={fake.github} />);
+    render(<App repository={repository} sync={fake.sync} />);
     expect(await screen.findByRole('checkbox', { name: 'Synchronise automatically' })).toBeChecked();
     // And removing the connection turns it off
     fireEvent.click(screen.getByRole('button', { name: 'Remove connection' }));
     fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Remove connection' }));
-    await waitFor(async () => expect((await repository.load()).settings.github.auto).toBe(false));
+    await waitFor(async () => expect((await repository.load()).settings.sync.auto).toBe(false));
   });
 
   it('AC18.7 starts no second run while one is going on', async () => {
@@ -148,7 +148,7 @@ describe('the automatic sync', () => {
     const gate = new Promise<void>((resolve) => {
       release = resolve;
     });
-    fake.github.source.openIssues = async () => {
+    fake.api.openIssues = async () => {
       calls += 1;
       await gate;
       return [];

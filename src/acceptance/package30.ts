@@ -10,18 +10,18 @@ import type { Criterion } from './types';
  */
 const COMPONENT = 'src/Github.test.tsx';
 const E2E = 'e2e/github.spec.ts';
-const DOMAIN = 'src/domain/github.test.ts';
-const REST = 'src/github/restSource.test.ts';
+const DOMAIN = 'src/sync/github/format.test.ts';
+const REST = 'src/sync/github/restApi.test.ts';
 const ROUNDTRIP = 'src/GithubRoundtrip.test.tsx';
 const RDOMAIN = 'src/domain/githubRoundtrip.test.ts';
-const RUN = 'src/github/runSync.test.ts';
-const CONNECTOR = 'src/github/connector.test.ts';
+const RUN = 'src/sync/runSync.test.ts';
+const CONNECTOR = 'src/sync/github/api.test.ts';
 const SMAP = 'src/domain/githubStoryMap.test.ts';
 const AUTO = 'src/GithubAuto.test.tsx';
 const SYNCLOG = 'src/domain/syncLog.test.ts';
 
-const FEATURES = '#/settings/github';
-const SETTINGS = '#/settings/github';
+const FEATURES = '#/settings/sync';
+const SETTINGS = '#/settings/sync';
 const BACKLOG = '#/backlog';
 
 export const PACKAGE_30: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {

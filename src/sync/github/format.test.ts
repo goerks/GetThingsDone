@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { seedSnapshot } from '../data/seed';
-import { inRepo, issueNumberOf, issueUrl, LABELS_FIELD_ID, linkedNumbersMissingIn, parseRepo, planSync, splitBody, type GithubIssue, type SyncInput } from './github';
-import { DEFAULT_SETTINGS, normalizeSettings } from './settings';
+import { seedSnapshot } from '../../data/seed';
+import { DEFAULT_SETTINGS, normalizeSettings } from '../../domain/settings';
+import { LABELS_FIELD_ID, linkedIdsMissingIn } from '../../domain/sync';
+import { planGithub, type GithubSyncInput } from '../../test/githubPlan';
+import { inRepo, issueNumberOf, issueUrl, parseRepo, splitBody, toItem, type GithubIssue } from './format';
 
 const repo = { owner: 'goerks', name: 'GetThingsDone' };
 const seed = seedSnapshot('2026-10-12');
@@ -19,7 +21,7 @@ const issue = (number: number, extra: Partial<GithubIssue> = {}): GithubIssue =>
 let counter = 0;
 const nextId = (): string => `id-${(counter += 1)}`;
 
-const input = (issues: GithubIssue[], stories = seed.stories, fields = seed.fields, assignments = seed.assignments): SyncInput => ({
+const input = (issues: GithubIssue[], stories = seed.stories, fields = seed.fields, assignments = seed.assignments): GithubSyncInput => ({
   stories,
   fields,
   assignments,
@@ -45,19 +47,26 @@ describe('the repository', () => {
   });
 });
 
-describe('settings of the GitHub connection', () => {
+describe('settings of the synchronisation', () => {
   it('AC1.1 is off by default and has no repository', () => {
-    expect(DEFAULT_SETTINGS.features.github).toBe(false);
-    expect(DEFAULT_SETTINGS.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] });
-    expect(normalizeSettings({ features: { releases: true } }).features.github).toBe(false);
-    expect(normalizeSettings({ features: { github: 'x' } }).features.github).toBe(false);
+    expect(DEFAULT_SETTINGS.features.sync).toBe(false);
+    expect(DEFAULT_SETTINGS.sync).toEqual({ service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] });
+    expect(normalizeSettings({ features: { releases: true } }).features.sync).toBe(false);
+    expect(normalizeSettings({ features: { sync: 'x' } }).features.sync).toBe(false);
   });
 
   it('AC1.5 keeps the repository and the time of the last sync when the feature is switched', () => {
-    const stored = { features: { releases: true, github: '1' }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z' } };
-    expect(normalizeSettings(stored).features.github).toBe(true);
-    expect(normalizeSettings(stored).github).toMatchObject(stored.github);
-    expect(normalizeSettings({ ...stored, features: { github: false } }).github).toMatchObject(stored.github);
+    const stored = { features: { releases: true, sync: '1' }, sync: { connection: { repo: 'goerks/GetThingsDone' }, lastSyncAt: '2026-10-12T10:00:00.000Z' } };
+    expect(normalizeSettings(stored).features.sync).toBe(true);
+    expect(normalizeSettings(stored).sync).toMatchObject(stored.sync);
+    expect(normalizeSettings({ ...stored, features: { sync: false } }).sync).toMatchObject(stored.sync);
+  });
+
+  it('AC11.2 reads the settings of before the generalisation as the synchronisation with GitHub', () => {
+    const before = { features: { releases: true, github: '1' }, github: { repo: 'goerks/GetThingsDone', write: '1', conflict: 'ask', auto: '1', lastSyncAt: '2026-10-12T10:00:00.000Z', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] } };
+    const settings = normalizeSettings(before);
+    expect(settings.features.sync).toBe(true);
+    expect(settings.sync).toMatchObject({ service: 'github', connection: { repo: 'goerks/GetThingsDone' }, write: true, conflict: 'ask', auto: true, lastSyncAt: '2026-10-12T10:00:00.000Z', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] });
   });
 });
 
@@ -96,7 +105,7 @@ describe('the text of an issue', () => {
 
 describe('importing issues', () => {
   it('AC2.1 makes a story of every open issue with title, description, labels, criteria and the link', () => {
-    const plan = planSync(
+    const plan = planGithub(
       input([
         issue(31, { title: 'Login', body: 'Text\n\n## Acceptance criteria\n- [ ] A\n- [x] B', labels: ['feature', 'bug'] }),
         issue(35, { title: 'Export' })
@@ -105,7 +114,7 @@ describe('importing issues', () => {
     const created = plan.stories.slice(seed.stories.length);
     expect(created.map((story) => story.title)).toEqual(['Login', 'Export']);
     const [login] = created;
-    expect(login).toMatchObject({ description: 'Text', status: 'todo', sprintId: null, epicId: null, points: 0, github: { url: issueUrl(repo, 31), state: 'open' } });
+    expect(login).toMatchObject({ description: 'Text', status: 'todo', sprintId: null, epicId: null, points: 0, link: { service: 'github', key: '#31', url: issueUrl(repo, 31), state: 'open' } });
     expect(login.criteria.map(({ text, done }) => ({ text, done }))).toEqual([
       { text: 'A', done: false },
       { text: 'B', done: true }
@@ -114,31 +123,31 @@ describe('importing issues', () => {
     expect(labels?.options.map((option) => option.label)).toEqual(['feature', 'bug']);
     expect(login.values[LABELS_FIELD_ID]).toHaveLength(2);
     expect(plan.assignments.some((item) => item.fieldId === LABELS_FIELD_ID && item.itemType === 'story')).toBe(true);
-    expect(plan.summary.created.map((entry) => entry.number)).toEqual([31, 35]);
+    expect(plan.summary.created.map((entry) => entry.key)).toEqual(['#31', '#35']);
     expect(new Set(plan.stories.map((story) => story.code)).size).toBe(plan.stories.length);
   });
 
   it('AC2.2 does not import an issue twice', () => {
-    const first = planSync(input([issue(31), issue(35)]));
-    const second = planSync(input([issue(31), issue(35)], first.stories, first.fields, first.assignments));
+    const first = planGithub(input([issue(31), issue(35)]));
+    const second = planGithub(input([issue(31), issue(35)], first.stories, first.fields, first.assignments));
     expect(second.stories).toHaveLength(first.stories.length);
     expect(second.summary).toEqual({ created: [], closed: [], updated: [], published: [], overwritten: [], conflicts: [], pending: 0, releasesCreated: [], epicsCreated: [], missingMilestones: [], multipleEpics: [], labelsCreated: [], labelsDeleted: [], milestonesCreated: [], milestonesDeleted: [], missingLabels: [] });
   });
 
   it('AC2.1 does not import a closed issue that has no story', () => {
-    expect(planSync(input([issue(29, { state: 'closed' })])).stories).toHaveLength(seed.stories.length);
+    expect(planGithub(input([issue(29, { state: 'closed' })])).stories).toHaveLength(seed.stories.length);
   });
 
   it('AC2.1 ignores issues of another repository', () => {
-    expect(planSync(input([issue(1, { url: 'https://github.com/other/repo/issues/1' })])).stories).toHaveLength(seed.stories.length);
+    expect(planGithub(input([issue(1, { url: 'https://github.com/other/repo/issues/1' })])).stories).toHaveLength(seed.stories.length);
   });
 });
 
 describe('syncing', () => {
   const imported = (extra: Partial<GithubIssue> = {}) => {
-    const first = planSync(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'], ...extra })]));
+    const first = planGithub(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'], ...extra })]));
     const story = first.stories[first.stories.length - 1];
-    return { first, story, again: (issues: GithubIssue[]) => planSync(input(issues, first.stories, first.fields, first.assignments)) };
+    return { first, story, again: (issues: GithubIssue[]) => planGithub(input(issues, first.stories, first.fields, first.assignments)) };
   };
 
   it('AC3.1 takes title, description and labels from GitHub and tells what changed', () => {
@@ -158,18 +167,18 @@ describe('syncing', () => {
   it('AC3.2 puts a story whose issue was closed into Done, and back to the start when it is opened again', () => {
     const { story, again } = imported();
     const closed = again([issue(31, { title: 'Login', state: 'closed', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })]);
-    expect(closed.stories.find((item) => item.id === story.id)).toMatchObject({ status: 'done', github: { state: 'closed' } });
-    expect(closed.summary.closed.map((entry) => entry.number)).toEqual([31]);
+    expect(closed.stories.find((item) => item.id === story.id)).toMatchObject({ status: 'done', link: { state: 'closed' } });
+    expect(closed.summary.closed.map((entry) => entry.key)).toEqual(['#31']);
     expect(closed.summary.updated).toEqual([]);
-    const reopened = planSync(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], closed.stories, closed.fields, closed.assignments));
-    expect(reopened.stories.find((item) => item.id === story.id)).toMatchObject({ status: 'todo', github: { state: 'open' } });
+    const reopened = planGithub(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], closed.stories, closed.fields, closed.assignments));
+    expect(reopened.stories.find((item) => item.id === story.id)).toMatchObject({ status: 'todo', link: { state: 'open' } });
     expect(reopened.summary.updated[0].changes).toEqual([{ kind: 'reopened' }]);
   });
 
   it('AC3.2 leaves a story that was finished here alone while its issue is still open', () => {
     const { first, story } = imported();
     const done = first.stories.map((item) => (item.id === story.id ? { ...item, status: 'done' } : item));
-    const plan = planSync(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], done, first.fields, first.assignments));
+    const plan = planGithub(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], done, first.fields, first.assignments));
     expect(plan.stories.find((item) => item.id === story.id)?.status).toBe('done');
     expect(plan.summary.updated).toEqual([]);
   });
@@ -177,7 +186,7 @@ describe('syncing', () => {
   it('AC3.3 lets GitHub win over a local change of the title when GitHub changed it too', () => {
     const { first, story } = imported();
     const edited = first.stories.map((item) => (item.id === story.id ? { ...item, title: 'My own title' } : item));
-    const plan = planSync(input([issue(31, { title: 'Login-Seite', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], edited, first.fields, first.assignments));
+    const plan = planGithub(input([issue(31, { title: 'Login-Seite', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], edited, first.fields, first.assignments));
     expect(plan.stories.find((item) => item.id === story.id)?.title).toBe('Login-Seite');
     expect(plan.summary.updated[0].changes[0]).toEqual({ kind: 'title', from: 'My own title', to: 'Login-Seite' });
     expect(plan.summary.overwritten).toMatchObject([{ field: 'title', side: 'local', value: 'My own title' }]);
@@ -186,14 +195,14 @@ describe('syncing', () => {
   it('AC3.4 keeps sprint, points, epic, rank and the column of an open story', () => {
     const { first, story } = imported();
     const planned = first.stories.map((item) => (item.id === story.id ? { ...item, sprintId: 'sprint-2', points: 5, epicId: 'epic-1', status: 'in_progress', rank: 3 } : item));
-    const plan = planSync(input([issue(31, { title: 'Login 2', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], planned, first.fields, first.assignments));
+    const plan = planGithub(input([issue(31, { title: 'Login 2', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [ ] B', labels: ['feature'] })], planned, first.fields, first.assignments));
     expect(plan.stories.find((item) => item.id === story.id)).toMatchObject({ title: 'Login 2', sprintId: 'sprint-2', points: 5, epicId: 'epic-1', status: 'in_progress', rank: 3 });
   });
 
   it('AC3.7 adds, removes and ticks criteria as GitHub has them and overwrites a local tick', () => {
     const { first, story } = imported();
     const ticked = first.stories.map((item) => (item.id === story.id ? { ...item, criteria: item.criteria.map((criterion) => (criterion.text === 'A' ? { ...criterion, done: true } : criterion)) } : item));
-    const plan = planSync(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [x] C\n- [ ] D', labels: ['feature'] })], ticked, first.fields, first.assignments));
+    const plan = planGithub(input([issue(31, { title: 'Login', body: 'Old\n\n## Acceptance criteria\n- [ ] A\n- [x] C\n- [ ] D', labels: ['feature'] })], ticked, first.fields, first.assignments));
     const after = plan.stories.find((item) => item.id === story.id);
     expect(after?.criteria.map(({ text, done }) => ({ text, done }))).toEqual([
       { text: 'A', done: false },
@@ -206,21 +215,22 @@ describe('syncing', () => {
   });
 
   it('AC3.8 counts new, updated and closed issues apart', () => {
-    const first = planSync(input([issue(1), issue(2), issue(3), issue(4)]));
-    const plan = planSync(
+    const first = planGithub(input([issue(1), issue(2), issue(3), issue(4)]));
+    const plan = planGithub(
       input([issue(1, { title: 'One' }), issue(2, { state: 'closed' }), issue(3), issue(4, { title: 'Four' }), issue(5)], first.stories, first.fields, first.assignments)
     );
-    expect(plan.summary.created.map((entry) => entry.number)).toEqual([5]);
-    expect(plan.summary.updated.map((entry) => entry.number)).toEqual([1, 4]);
-    expect(plan.summary.closed.map((entry) => entry.number)).toEqual([2]);
+    expect(plan.summary.created.map((entry) => entry.key)).toEqual(['#5']);
+    expect(plan.summary.updated.map((entry) => entry.key)).toEqual(['#1', '#4']);
+    expect(plan.summary.closed.map((entry) => entry.key)).toEqual(['#2']);
   });
 
   it('asks for the issues of the stories that are no longer in the list of open issues', () => {
-    const first = planSync(input([issue(1), issue(2), issue(3, { state: 'closed' })].filter((item) => item.state === 'open')));
-    const closed = planSync(input([issue(1)], first.stories, first.fields, first.assignments));
-    expect(linkedNumbersMissingIn(first.stories, repo, [issue(1)])).toEqual([2]);
+    const first = planGithub(input([issue(1), issue(2), issue(3, { state: 'closed' })].filter((item) => item.state === 'open')));
+    const closed = planGithub(input([issue(1)], first.stories, first.fields, first.assignments));
+    const idOf = (link: { url: string }): string | null => (inRepo(link.url, repo) ? String(issueNumberOf(link.url)) : null);
+    expect(linkedIdsMissingIn(first.stories, 'github', idOf, [toItem(issue(1))])).toEqual(['2']);
     // A story already known to be closed is not asked for again.
-    const marked = planSync(input([issue(2, { state: 'closed' })], closed.stories, closed.fields, closed.assignments));
-    expect(linkedNumbersMissingIn(marked.stories, repo, [issue(1)])).toEqual([]);
+    const marked = planGithub(input([issue(2, { state: 'closed' })], closed.stories, closed.fields, closed.assignments));
+    expect(linkedIdsMissingIn(marked.stories, 'github', idOf, [toItem(issue(1))])).toEqual([]);
   });
 });

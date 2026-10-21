@@ -1,15 +1,15 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { TFunction } from 'i18next';
-import { useTranslation } from 'react-i18next';
-import { LABELS_FIELD_ID, decisionKey, pendingFields, type ConflictEntry, type Decision, type FieldName, type GithubChange, type SyncEntry } from '../domain/github';
+import { LABELS_FIELD_ID, decisionKey, pendingFields, type ConflictEntry, type Decision, type FieldName, type SyncChange, type SyncEntry } from '../domain/sync';
 import type { ExternalFields } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { useSyncT } from '../sync/useSyncT';
 import { Dialog } from './Dialog';
 import { InfoHint } from './InfoHint';
 import { statusLabel } from './statusLabel';
 import { useFeature } from './useFeature';
 
-export const fieldList = (t: TFunction, names: readonly FieldName[]): string => names.map((name) => t(`github.field.${name}`)).join(', ');
+export const fieldList = (t: TFunction, names: readonly FieldName[]): string => names.map((name) => t(`sync.field.${name}`)).join(', ');
 
 /** One side of a conflict as text. */
 export function valueText(t: TFunction, fields: ExternalFields, name: FieldName): string {
@@ -17,60 +17,60 @@ export function valueText(t: TFunction, fields: ExternalFields, name: FieldName)
     case 'title':
       return fields.title;
     case 'description':
-      return fields.description === '' ? t('github.value.empty') : fields.description;
+      return fields.description === '' ? t('sync.value.empty') : fields.description;
     case 'labels':
-      return fields.labels.length === 0 ? t('github.value.empty') : fields.labels.join(', ');
+      return fields.labels.length === 0 ? t('sync.value.empty') : fields.labels.join(', ');
     case 'criteria':
-      return fields.criteria.length === 0 ? t('github.value.empty') : fields.criteria.map((item) => `${item.done ? '☑' : '☐'} ${item.text}`).join('\n');
+      return fields.criteria.length === 0 ? t('sync.value.empty') : fields.criteria.map((item) => `${item.done ? '☑' : '☐'} ${item.text}`).join('\n');
     case 'done':
-      return fields.done ? t('github.value.done') : t('github.value.open');
+      return fields.done ? t('sync.value.done') : t('sync.value.open');
     case 'release':
-      return fields.release ?? t('github.value.none');
+      return fields.release ?? t('sync.value.none');
     case 'epic':
-      return fields.epic ?? t('github.value.none');
+      return fields.epic ?? t('sync.value.none');
     case 'status':
-      return fields.status ?? t('github.value.firstColumn');
+      return fields.status ?? t('sync.value.firstColumn');
   }
 }
 
-export function changeText(t: TFunction, change: GithubChange, status: string): string {
+export function changeText(t: TFunction, change: SyncChange, status: string): string {
   switch (change.kind) {
     case 'created':
-      return t('github.change.created');
+      return t('sync.change.created');
     case 'title':
-      return t('github.change.title', { from: change.from, to: change.to });
+      return t('sync.change.title', { from: change.from, to: change.to });
     case 'description':
-      return t('github.change.description');
+      return t('sync.change.description');
     case 'labels': {
       const parts = [
-        change.added.length > 0 ? t('github.change.labelsAdded', { labels: change.added.join(', ') }) : '',
-        change.removed.length > 0 ? t('github.change.labelsRemoved', { labels: change.removed.join(', ') }) : ''
+        change.added.length > 0 ? t('sync.change.labelsAdded', { labels: change.added.join(', ') }) : '',
+        change.removed.length > 0 ? t('sync.change.labelsRemoved', { labels: change.removed.join(', ') }) : ''
       ].filter(Boolean);
-      return t('github.change.labels', { parts: parts.join(', ') });
+      return t('sync.change.labels', { parts: parts.join(', ') });
     }
     case 'criteria': {
       const parts = [
-        change.added > 0 ? t('github.change.criteriaAdded', { count: change.added }) : '',
-        change.removed > 0 ? t('github.change.criteriaRemoved', { count: change.removed }) : '',
-        change.changed > 0 ? t('github.change.criteriaTicked', { count: change.changed }) : ''
+        change.added > 0 ? t('sync.change.criteriaAdded', { count: change.added }) : '',
+        change.removed > 0 ? t('sync.change.criteriaRemoved', { count: change.removed }) : '',
+        change.changed > 0 ? t('sync.change.criteriaTicked', { count: change.changed }) : ''
       ].filter(Boolean);
-      return t('github.change.criteria', { parts: parts.length > 0 ? parts.join(', ') : t('github.change.criteriaOrder') });
+      return t('sync.change.criteria', { parts: parts.length > 0 ? parts.join(', ') : t('sync.change.criteriaOrder') });
     }
     case 'release':
-      return t('github.change.release', { from: change.from ?? t('github.value.none'), to: change.to ?? t('github.value.none') });
+      return t('sync.change.release', { from: change.from ?? t('sync.value.none'), to: change.to ?? t('sync.value.none') });
     case 'epic':
-      return t('github.change.epic', { from: change.from ?? t('github.value.none'), to: change.to ?? t('github.value.none') });
+      return t('sync.change.epic', { from: change.from ?? t('sync.value.none'), to: change.to ?? t('sync.value.none') });
     case 'status':
-      return t('github.change.status', { from: change.from ?? t('github.value.firstColumn'), to: change.to ?? t('github.value.firstColumn') });
+      return t('sync.change.status', { from: change.from ?? t('sync.value.firstColumn'), to: change.to ?? t('sync.value.firstColumn') });
     case 'closed':
-      return t('github.change.closed', { status });
+      return t('sync.change.closed', { status });
     case 'reopened':
-      return t('github.change.reopened', { status });
+      return t('sync.change.reopened', { status });
   }
 }
 
 export function Entries({ entries }: { entries: SyncEntry[] }) {
-  const { t } = useTranslation();
+  const { t } = useSyncT();
   const app = useApp();
   return (
     <ul className="github-result__list">
@@ -78,7 +78,7 @@ export function Entries({ entries }: { entries: SyncEntry[] }) {
         const status = statusLabel(t, app.statuses, app.stories.find((story) => story.id === entry.storyId)?.status ?? '');
         return (
           <li key={entry.storyId}>
-            <span className="github-badge github-badge--plain">#{entry.number}</span>
+            <span className="github-badge github-badge--plain">{entry.key}</span>
             <span className="card__code">{entry.code}</span> {entry.title}
             <ul>
               {entry.changes.map((change, index) => (
@@ -93,15 +93,15 @@ export function Entries({ entries }: { entries: SyncEntry[] }) {
 }
 
 function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[]; onApply: (decisions: Record<string, Decision>) => void; onCancel: () => void }) {
-  const { t } = useTranslation();
+  const { t } = useSyncT();
   const app = useApp();
   const id = useId();
   // GitHub is the recommended answer, as it is the default rule.
   const [chosen, setChosen] = useState<Record<string, Decision>>(() => Object.fromEntries(conflicts.map((item) => [decisionKey(item.storyId, item.field), 'remote' as Decision])));
   return (
-    <Dialog title={t('github.conflict.title')} onClose={onCancel} wide>
+    <Dialog title={t('sync.conflict.title')} onClose={onCancel} wide>
       <p>
-        {t('github.conflict.intro')} <InfoHint text={t('github.conflict.hint')} />
+        {t('sync.conflict.intro')} <InfoHint text={t('sync.conflict.hint')} />
       </p>
       {conflicts.map((item, index) => {
         const key = decisionKey(item.storyId, item.field);
@@ -109,33 +109,33 @@ function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[
         return (
           <fieldset key={key} className="github-conflict">
             <legend>
-              {t('github.conflict.group', { field: t(`github.field.${item.field}`), code: item.code })} · {title}
+              {t('sync.conflict.group', { field: t(`sync.field.${item.field}`), code: item.code })} · {title}
             </legend>
             <div className="github-conflict__versions">
               <div className="github-conflict__version">
-                <h4>{t('github.conflict.local')}</h4>
+                <h4>{t('sync.conflict.local')}</h4>
                 {valueText(t, item.local, item.field)}
               </div>
               <div className="github-conflict__version">
-                <h4>{t('github.conflict.remote')}</h4>
+                <h4>{t('sync.conflict.remote')}</h4>
                 {valueText(t, item.remote, item.field)}
               </div>
             </div>
             <label>
-              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'local'} onChange={() => setChosen({ ...chosen, [key]: 'local' })} /> {t('github.conflict.keepLocal')}
+              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'local'} onChange={() => setChosen({ ...chosen, [key]: 'local' })} /> {t('sync.conflict.keepLocal')}
             </label>
             <label>
-              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'remote'} onChange={() => setChosen({ ...chosen, [key]: 'remote' })} /> {t('github.conflict.takeRemote')}
+              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'remote'} onChange={() => setChosen({ ...chosen, [key]: 'remote' })} /> {t('sync.conflict.takeRemote')}
             </label>
           </fieldset>
         );
       })}
       <div className="form__actions">
         <button type="button" className="btn" onClick={onCancel}>
-          {t('github.conflict.cancel')}
+          {t('sync.conflict.cancel')}
         </button>
         <button type="button" className="btn btn--primary" onClick={() => onApply(chosen)}>
-          {t('github.conflict.apply')}
+          {t('sync.conflict.apply')}
         </button>
       </div>
     </Dialog>
@@ -143,14 +143,14 @@ function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[
 }
 
 /** "Synchronise" icon in the head of the backlog, board and story map (#30). The result is a short notice, never a dialog; only a conflict that the PO has to decide opens one. Only while the feature is on. */
-export function GithubSync() {
-  const { t, i18n } = useTranslation();
+export function SyncControl() {
+  const { t, i18n } = useSyncT();
   const app = useApp();
-  const on = useFeature('github');
+  const on = useFeature('sync');
   const [conflicts, setConflicts] = useState<ConflictEntry[] | null>(null);
   const [tick, setTick] = useState(false);
-  const { busy, paused, review } = app.githubSync;
-  const last = app.settings.github.lastSyncAt;
+  const { busy, paused, review } = app.syncState;
+  const last = app.settings.sync.lastSyncAt;
   const first = useRef(true);
 
   // A tick for a moment after every finished sync, by hand or by itself.
@@ -167,7 +167,7 @@ export function GithubSync() {
 
   const sync = async (decisions?: Record<string, Decision>): Promise<void> => {
     if (busy) return;
-    const summary = await app.syncGithub(decisions, 'manual');
+    const summary = await app.syncNow(decisions, 'manual');
     // The rule "I decide" asks right away.
     if (summary && summary.conflicts.length > 0) setConflicts(summary.conflicts);
   };
@@ -175,7 +175,7 @@ export function GithubSync() {
   // "Review" in the notice of an automatic run asks for the same choice.
   useEffect(() => {
     if (!on || !review || busy) return;
-    app.clearGithubReview();
+    app.clearSyncReview();
     void sync();
     // The request is consumed once.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -188,12 +188,12 @@ export function GithubSync() {
     (sum, story) => sum + pendingFields(story, app.fields.find((field) => field.id === LABELS_FIELD_ID), app.statuses, { epics: app.epics, releases: app.releases }).length,
     0
   );
-  const name = t('github.sync.button');
+  const name = t('sync.sync.button');
   const tooltip = [
     name,
-    busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never'),
-    paused ? t('github.sync.paused') : '',
-    pendingCount > 0 ? t('github.sync.pendingCount', { count: pendingCount }) : ''
+    busy ? t('sync.sync.running') : lastText ? t('sync.sync.last', { when: lastText }) : t('sync.sync.never'),
+    paused ? t('sync.sync.paused') : '',
+    pendingCount > 0 ? t('sync.sync.pendingCount', { count: pendingCount }) : ''
   ]
     .filter(Boolean)
     .join(' · ');
@@ -224,10 +224,10 @@ export function GithubSync() {
         )}
       </button>
       <span className="sr-only" role="status">
-        {busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never')}
+        {busy ? t('sync.sync.running') : lastText ? t('sync.sync.last', { when: lastText }) : t('sync.sync.never')}
       </span>
-      {pendingCount > 0 && <span className="sr-only">{t('github.sync.pendingCount', { count: pendingCount })}</span>}
-      {paused && <span className="sr-only">{t('github.sync.paused')}</span>}
+      {pendingCount > 0 && <span className="sr-only">{t('sync.sync.pendingCount', { count: pendingCount })}</span>}
+      {paused && <span className="sr-only">{t('sync.sync.paused')}</span>}
       {conflicts && (
         <Conflicts
           conflicts={conflicts}

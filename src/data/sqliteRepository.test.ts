@@ -11,7 +11,7 @@ import { SqliteRepository, type SqlDatabase } from './sqliteRepository';
 import { EMPTY_DEFINITIONS } from '../domain/definitions';
 
 
-const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql'];
+const MIGRATIONS = ['001_init.sql', '002_epic_palette.sql', '003_sprints.sql', '004_custom_fields.sql', '005_field_defaults.sql', '006_more_field_types.sql', '007_releases.sql', '008_settings.sql', '009_release_events.sql', '010_status_values.sql', '011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql', '016_sync.sql'];
 
 function migration(name: string): string {
   return readFileSync(new URL(`../../src-tauri/migrations/${name}`, import.meta.url), 'utf8');
@@ -186,13 +186,13 @@ describe('migration 007', () => {
 describe('settings', () => {
   it('starts with the default and keeps the rows of the story map', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, team: true, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: seedSnapshot(todayIso()).settings.definitions });
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
-    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'sprints', features: { releases: true, team: true, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: seedSnapshot(todayIso()).settings.definitions });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: true, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: true, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'sprints', features: { releases: true, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
     expect((await repository.load()).settings.mapRows).toBe('sprints');
-    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, team: false, github: false }, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
+    await repository.saveSettings({ mapRows: 'releases', features: { releases: false, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
+    expect((await repository.load()).settings).toEqual({ mapRows: 'releases', features: { releases: false, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
   });
 
   it('falls back to the default for a value it does not know', async () => {
@@ -660,7 +660,7 @@ describe('sprint states (#17)', () => {
         ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
-    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql']);
+    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql', '016_sync.sql']);
     return db;
   }
 
@@ -783,39 +783,62 @@ describe('team members (#18)', () => {
   });
 });
 
-describe('GitHub link of a story (#30)', () => {
+describe('link of a story to its issue (#30, #66)', () => {
   const url = 'https://github.com/goerks/GetThingsDone/issues/31';
+  const base = { title: 'Login', description: '', labels: ['bug'], criteria: [{ text: 'One', done: true }], done: false };
 
   it('AC2.2 keeps the address and the state of an imported story and nothing for the others', async () => {
     const { repository } = await freshRepository();
     const [first] = (await repository.load()).stories;
-    expect(first.github).toBeUndefined();
-    await repository.addStory({ ...first, id: 'imported', code: 'S-99', rank: 99, criteria: [], values: {}, github: { url, state: 'open', base: { title: 'Login', description: '', labels: ['bug'], criteria: [{ text: 'One', done: true }], done: false } } });
-    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.github).toEqual({ url, state: 'open', base: { title: 'Login', description: '', labels: ['bug'], criteria: [{ text: 'One', done: true }], done: false } });
+    expect(first.link).toBeUndefined();
+    await repository.addStory({ ...first, id: 'imported', code: 'S-99', rank: 99, criteria: [], values: {}, link: { service: 'github', key: '#31', url, state: 'open', base } });
+    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.link).toEqual({ service: 'github', key: '#31', url, state: 'open', base });
     const imported = (await repository.load()).stories.find((story) => story.id === 'imported');
     if (!imported) throw new Error('story missing');
-    await repository.updateStory({ ...imported, github: { url, state: 'closed' } });
-    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.github?.state).toBe('closed');
-    expect((await repository.load()).stories.find((story) => story.id === first.id)?.github).toBeUndefined();
+    await repository.updateStory({ ...imported, link: { service: 'github', key: '#31', url, state: 'closed' } });
+    expect((await repository.load()).stories.find((story) => story.id === 'imported')?.link?.state).toBe('closed');
+    expect((await repository.load()).stories.find((story) => story.id === first.id)?.link).toBeUndefined();
   });
 
   it('AC1.5 keeps the repository, the last sync and the switch of the feature in the settings', async () => {
     const { repository } = await freshRepository();
-    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] });
+    expect((await repository.load()).settings.sync).toEqual({ service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] });
     const settings = (await repository.load()).settings;
-    await repository.saveSettings({ ...settings, features: { ...settings.features, github: true }, github: { repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'], managed: { labels: ['epic: Storage'], milestones: ['Herbst'] }, auto: true, log: [{ id: 'run-1', at: '2026-10-12T10:00:00.000Z', runs: 1, trigger: 'auto', error: 'network', summary: null }] } });
+    const connected = { service: 'github' as const, connection: { repo: 'goerks/GetThingsDone' }, lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask' as const, ignored: ['https://github.com/goerks/GetThingsDone/issues/9'], managed: { labels: ['epic: Storage'], milestones: ['Herbst'] }, auto: true, log: [] };
+    await repository.saveSettings({ ...settings, features: { ...settings.features, sync: true }, sync: connected });
     const after = (await repository.load()).settings;
-    expect(after.features.github).toBe(true);
-    expect(after.github).toEqual({ repo: 'goerks/GetThingsDone', lastSyncAt: '2026-10-12T10:00:00.000Z', write: true, conflict: 'ask', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'], managed: { labels: ['epic: Storage'], milestones: ['Herbst'] }, auto: true, log: [{ id: 'run-1', at: '2026-10-12T10:00:00.000Z', runs: 1, trigger: 'auto', error: 'network', summary: null }] });
-    await repository.saveSettings({ ...after, github: { repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS });
-    expect((await repository.load()).settings.github).toEqual({ repo: '', lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] });
+    expect(after.features.sync).toBe(true);
+    expect(after.sync).toEqual(connected);
+    await repository.saveSettings({ ...after, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] } });
+    expect((await repository.load()).settings.sync).toEqual({ service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] });
   });
 
-  it('keeps the stories of version 0.1 when the migration adds the columns', () => {
+  it('keeps the stories of version 0.1 when the migrations add the columns', () => {
+    const db = openDatabase();
+    migrate(db, MIGRATIONS.slice(0, -2));
+    db.exec("INSERT INTO stories (id, code, title, description, points, status, rank) VALUES ('s1', 'S-1', 'A', '', 1, 'todo', 0)");
+    migrate(db, MIGRATIONS.slice(-2));
+    expect(db.prepare('SELECT sync_service, sync_key, sync_url, sync_state FROM stories').all()).toEqual([{ sync_service: null, sync_key: null, sync_url: null, sync_state: null }]);
+  });
+
+  it('AC11.2 takes the links and the settings of the GitHub sync as they were stored before the generalisation', async () => {
+    // Given a database of the version before: a story linked to issue 31, and the settings of the GitHub connection
     const db = openDatabase();
     migrate(db, MIGRATIONS.slice(0, -1));
-    db.exec("INSERT INTO stories (id, code, title, description, points, status, rank) VALUES ('s1', 'S-1', 'A', '', 1, 'todo', 0)");
+    db.exec(`INSERT INTO stories (id, code, title, description, points, status, rank, github_url, github_state, github_base) VALUES
+      ('s1', 'S-1', 'Login', '', 1, 'todo', 0, '${url}', 'open', '${JSON.stringify(base)}'),
+      ('s2', 'S-2', 'Own', '', 1, 'todo', 1, NULL, NULL, NULL)`);
+    db.exec(`INSERT INTO settings (key, value) VALUES ('feature_github', '1'), ('github_repo', 'goerks/GetThingsDone'), ('github_write', '1'), ('github_conflict', 'ask'), ('github_auto', '1'), ('github_last_sync', '2026-10-12T10:00:00.000Z'), ('github_ignored', '["https://github.com/goerks/GetThingsDone/issues/9"]')`);
+    // When the migration of the generalisation runs and the app loads
     migrate(db, MIGRATIONS.slice(-1));
-    expect(db.prepare('SELECT github_url, github_state FROM stories').all()).toEqual([{ github_url: null, github_state: null }]);
+    const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
+    // Then the link is a link to GitHub with its key, the settings are those of the synchronisation, and nothing is left under the old names
+    expect(loaded.stories.find((story) => story.id === 's1')?.link).toEqual({ service: 'github', key: '#31', url, state: 'open', base });
+    expect(loaded.stories.find((story) => story.id === 's2')?.link).toBeUndefined();
+    expect(loaded.settings.features.sync).toBe(true);
+    expect(loaded.settings.sync).toMatchObject({ service: 'github', connection: { repo: 'goerks/GetThingsDone' }, write: true, conflict: 'ask', auto: true, lastSyncAt: '2026-10-12T10:00:00.000Z', ignored: ['https://github.com/goerks/GetThingsDone/issues/9'] });
+    expect(db.prepare("SELECT key FROM settings WHERE key LIKE 'github_%' OR key = 'feature_github'").all()).toEqual([]);
+    // And a second start changes nothing
+    expect((await new SqliteRepository(new NodeDatabase(db)).load()).settings.sync).toEqual(loaded.settings.sync);
   });
 });

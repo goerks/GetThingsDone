@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { LABELS_FIELD_ID, issueUrl, pendingFields, type GithubIssue } from '../domain/github';
+import { LABELS_FIELD_ID, pendingFields } from '../domain/sync';
 import { DEFAULT_STATUSES } from '../domain/statuses';
 import { EPIC_COLOR_KEYS, type ExternalFields, type FieldDefinition, type Story } from '../domain/types';
 import { fakeGithub, fakeIssue, REPO } from '../test/fakeGithub';
 import type { Epic, Release } from '../domain/types';
-import { createOnGithub, runSync, type RunSyncInput } from './runSync';
+import { issueUrl, type GithubIssue } from './github/format';
+import { createInService, runSync, type RunSyncInput } from './runSync';
 
 const repo = { owner: 'goerks', name: 'GetThingsDone' };
 const statuses = DEFAULT_STATUSES.map((status) => ({ ...status }));
@@ -41,14 +42,14 @@ const story = (extra: Partial<Story> = {}, baseExtra: Partial<ExternalFields> = 
   values: {},
   checks: {},
   doneItems: null,
-  github: { url: issueUrl(repo, 31), state: 'open', base: base(baseExtra) },
+  link: { service: 'github', key: '#31', url: issueUrl(repo, 31), state: 'open', base: base(baseExtra) },
   ...extra
 });
 
 const input = (fake: ReturnType<typeof fakeGithub>, stories: Story[], extra: Partial<RunSyncInput> = {}): RunSyncInput => ({
-  connector: fake.github.source,
+  connector: fake.sync.connectors.github,
+  target: repo,
   token: 'good',
-  repo,
   stories,
   fields: [labelsField],
   assignments: [],
@@ -76,7 +77,7 @@ describe('one sync with a connector', () => {
     // Then GitHub has the change, the result names it, and nothing is pending any more
     expect(fake.state.issues[0]).toMatchObject({ title: 'Login-Seite', labels: ['bug'] });
     expect(result.error).toBeNull();
-    expect(result.summary.published).toEqual([{ storyId: 's1', code: 'S-1', number: 31, title: 'Login-Seite', fields: ['title', 'labels'], skippedLabels: [] }]);
+    expect(result.summary.published).toEqual([{ storyId: 's1', code: 'S-1', key: '#31', title: 'Login-Seite', fields: ['title', 'labels'], skippedLabels: [] }]);
     expect(pendingFields(result.plan.stories[0], labelsField, statuses)).toEqual([]);
   });
 
@@ -109,10 +110,10 @@ describe('one sync with a connector', () => {
 
   it('AC7.3 reopens a closed issue whose story left Done, even though it is not in the list of open issues', async () => {
     const fake = fakeGithub([fakeIssue(31, { state: 'closed' })]);
-    const reopened = story({ status: 'in_progress', github: { url: issueUrl(repo, 31), state: 'closed', base: base({ done: true }) } });
+    const reopened = story({ status: 'in_progress', link: { service: 'github', key: '#31', url: issueUrl(repo, 31), state: 'closed', base: base({ done: true }) } });
     const result = await runSync(input(fake, [reopened]));
     expect(fake.state.issues[0].state).toBe('open');
-    expect(result.plan.stories[0].github?.state).toBe('open');
+    expect(result.plan.stories[0].link?.state).toBe('open');
   });
 
   it('AC8.2 asks and changes nothing until the answer is given', async () => {
@@ -129,11 +130,11 @@ describe('one sync with a connector', () => {
 
   it('AC10.1 creates the issue of a story and links the story to it', async () => {
     const fake = fakeGithub([]);
-    const own = story({ title: 'Export as CSV', description: 'Text', github: undefined, values: { [LABELS_FIELD_ID]: ['gh-label-bug', 'gh-label-unknown'] } });
-    const created = await createOnGithub({ connector: fake.github.source, token: 'good', repo, story: own, fields: [labelsField], statuses });
+    const own = story({ title: 'Export as CSV', description: 'Text', link: undefined, values: { [LABELS_FIELD_ID]: ['gh-label-bug', 'gh-label-unknown'] } });
+    const created = await createInService({ connector: fake.sync.connectors.github, target: repo, token: 'good', story: own, fields: [labelsField], statuses });
     expect(fake.state.issues[0]).toMatchObject({ title: 'Export as CSV', body: 'Text', labels: ['bug'] });
     expect(created.skippedLabels).toEqual(['unknown']);
-    expect(created.story.github).toMatchObject({ url: `https://github.com/${REPO}/issues/1`, state: 'open' });
+    expect(created.story.link).toMatchObject({ service: 'github', key: '#1', url: `https://github.com/${REPO}/issues/1`, state: 'open' });
   });
 
   it('AC12.3 publishes the milestone of a release to the issue', async () => {

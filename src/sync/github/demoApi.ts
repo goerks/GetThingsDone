@@ -1,5 +1,6 @@
-import { issueUrl, parseRepo, repoText, type ExternalMilestone, type GithubIssue, type ItemPatch, type RepoRef } from '../domain/github';
-import { GithubError, type TrackerConnector, type WriteResult } from './source';
+import { SyncError } from '../connector';
+import type { GithubApi, GithubWriteResult } from './api';
+import { issueUrl, parseRepo, repoText, type ExternalMilestone, type GithubIssue, type GithubPatch, type RepoRef } from './format';
 
 /*
  * The simulated GitHub of the public preview (#30): one repository with a few issues, kept in this browser. The preview
@@ -101,16 +102,16 @@ export function resetDemoIssues(): void {
 }
 
 function check(repo: RepoRef, token: string): void {
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new GithubError('network');
-  if (token.trim() === '' || token === DEMO_WRONG_TOKEN) throw new GithubError('auth');
-  if (repoText(repo).toLowerCase() !== repoText(DEMO_REPO).toLowerCase() || parseRepo(repoText(repo)) === null) throw new GithubError('notFound');
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new SyncError('network');
+  if (token.trim() === '' || token === DEMO_WRONG_TOKEN) throw new SyncError('auth');
+  if (repoText(repo).toLowerCase() !== repoText(DEMO_REPO).toLowerCase() || parseRepo(repoText(repo)) === null) throw new SyncError('notFound');
 }
 
 /** A GitHub that lives in this browser. Changes are kept in the same place as the issues, so a sync can be tried out in both directions. */
-export function createDemoSource(): TrackerConnector {
+export function createDemoApi(): GithubApi {
   const strip = ({ pullRequest: _pullRequest, ...issue }: DemoIssue): GithubIssue => ({ ...issue, labels: [...issue.labels] });
   const checkWrite = (token: string): void => {
-    if (token === DEMO_READONLY_TOKEN) throw new GithubError('forbidden');
+    if (token === DEMO_READONLY_TOKEN) throw new SyncError('forbidden');
   };
   const known = (name: string): string | undefined => demoLabels().find((label) => label.toLowerCase() === name.toLowerCase());
   const onlyKnown = (wanted: readonly string[]): { labels: string[]; skipped: string[] } => ({
@@ -118,7 +119,6 @@ export function createDemoSource(): TrackerConnector {
     skipped: wanted.filter((name) => known(name) === undefined)
   });
   return {
-    kind: 'github',
     async openIssues(repo, token) {
       check(repo, token);
       return demoIssues()
@@ -130,12 +130,12 @@ export function createDemoSource(): TrackerConnector {
       const found = demoIssues().find((issue) => issue.number === number);
       return found && !found.pullRequest ? strip(found) : null;
     },
-    async updateIssue(repo, token, number, patch: ItemPatch): Promise<WriteResult> {
+    async updateIssue(repo, token, number, patch: GithubPatch): Promise<GithubWriteResult> {
       check(repo, token);
       checkWrite(token);
       const issues = demoIssues();
       const index = issues.findIndex((issue) => issue.number === number && !issue.pullRequest);
-      if (index < 0) throw new GithubError('notFound');
+      if (index < 0) throw new SyncError('notFound');
       const only = patch.labels === undefined ? null : onlyKnown(patch.labels);
       const updated: DemoIssue = {
         ...issues[index],
@@ -147,7 +147,7 @@ export function createDemoSource(): TrackerConnector {
       };
       issues[index] = updated;
       saveDemoIssues(issues);
-      return { item: strip(updated), skippedLabels: only?.skipped ?? [] };
+      return { issue: strip(updated), skippedLabels: only?.skipped ?? [] };
     },
     async listMilestones(repo, token) {
       check(repo, token);
@@ -185,7 +185,7 @@ export function createDemoSource(): TrackerConnector {
       writeList(MILESTONES_KEY, demoMilestones().filter((item) => item.number !== number));
       if (gone) saveDemoIssues(demoIssues().map((issue) => (issue.milestone === gone.title ? { ...issue, milestone: null } : issue)));
     },
-    async createIssue(repo, token, item): Promise<WriteResult> {
+    async createIssue(repo, token, item): Promise<GithubWriteResult> {
       check(repo, token);
       checkWrite(token);
       const issues = demoIssues();
@@ -193,7 +193,7 @@ export function createDemoSource(): TrackerConnector {
       const only = onlyKnown(item.labels);
       const created: DemoIssue = { number, title: item.title, body: item.body, state: 'open', labels: only.labels, url: url(number) };
       saveDemoIssues([...issues, created]);
-      return { item: strip(created), skippedLabels: only.skipped };
+      return { issue: strip(created), skippedLabels: only.skipped };
     }
   };
 }

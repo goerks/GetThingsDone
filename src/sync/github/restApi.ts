@@ -1,6 +1,6 @@
-import type { ExternalMilestone, GithubIssue, ItemPatch, RepoRef } from '../domain/github';
-import { repoText } from '../domain/github';
-import { GithubError, type TrackerConnector, type WriteResult } from './source';
+import { SyncError } from '../connector';
+import type { GithubApi, GithubWriteResult } from './api';
+import { repoText, type ExternalMilestone, type GithubIssue, type GithubPatch, type RepoRef } from './format';
 
 const API = 'https://api.github.com';
 const PAGE_SIZE = 100;
@@ -43,7 +43,7 @@ function toIssue(raw: RawIssue): GithubIssue {
 }
 
 /** Talks to the REST API of GitHub. Reading needs a token that may read issues; changing needs "Issues: read and write". */
-export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(...args)): TrackerConnector {
+export function createRestApi(fetchImpl: typeof fetch = (...args) => fetch(...args)): GithubApi {
   async function call(method: 'GET' | 'POST' | 'PATCH' | 'DELETE', path: string, token: string, body?: unknown): Promise<Response> {
     let response: Response;
     try {
@@ -58,17 +58,17 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
         ...(body === undefined ? {} : { body: JSON.stringify(body) })
       });
     } catch {
-      throw new GithubError('network');
+      throw new SyncError('network');
     }
     if (response.ok) return response;
-    if (response.status === 401) throw new GithubError('auth');
+    if (response.status === 401) throw new SyncError('auth');
     if (response.status === 403) {
-      if (response.headers.get('x-ratelimit-remaining') === '0') throw new GithubError('rateLimit');
+      if (response.headers.get('x-ratelimit-remaining') === '0') throw new SyncError('rateLimit');
       // A token that may read but not write is refused with 403 when it tries to change something.
-      throw new GithubError(method === 'GET' ? 'auth' : 'forbidden');
+      throw new SyncError(method === 'GET' ? 'auth' : 'forbidden');
     }
-    if (response.status === 404) throw new GithubError('notFound');
-    throw new GithubError('other', `HTTP ${response.status}`);
+    if (response.status === 404) throw new SyncError('notFound');
+    throw new SyncError('other', `HTTP ${response.status}`);
   }
   const get = (path: string, token: string): Promise<Response> => call('GET', path, token);
 
@@ -91,7 +91,6 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
   }
 
   return {
-    kind: 'github',
     async openIssues(repo: RepoRef, token: string): Promise<GithubIssue[]> {
       const issues: GithubIssue[] = [];
       for (let page = 1; page <= MAX_PAGES; page += 1) {
@@ -108,11 +107,11 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
         const raw = (await (await get(`/repos/${repoText(repo)}/issues/${number}`, token)).json()) as RawIssue;
         return raw.pull_request === undefined ? toIssue(raw) : null;
       } catch (cause) {
-        if (cause instanceof GithubError && cause.kind === 'notFound') return null;
+        if (cause instanceof SyncError && cause.kind === 'notFound') return null;
         throw cause;
       }
     },
-    async updateIssue(repo: RepoRef, token: string, number: number, patch: ItemPatch): Promise<WriteResult> {
+    async updateIssue(repo: RepoRef, token: string, number: number, patch: GithubPatch): Promise<GithubWriteResult> {
       const body: Record<string, unknown> = {};
       if (patch.title !== undefined) body.title = patch.title;
       if (patch.body !== undefined) body.body = patch.body;
@@ -125,7 +124,7 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
         skipped = only.skipped;
       }
       const raw = (await (await call('PATCH', `/repos/${repoText(repo)}/issues/${number}`, token, body)).json()) as RawIssue;
-      return { item: toIssue(raw), skippedLabels: skipped };
+      return { issue: toIssue(raw), skippedLabels: skipped };
     },
     async listMilestones(repo: RepoRef, token: string): Promise<ExternalMilestone[]> {
       const milestones: ExternalMilestone[] = [];
@@ -153,20 +152,20 @@ export function createRestSource(fetchImpl: typeof fetch = (...args) => fetch(..
         await call('DELETE', `/repos/${repoText(repo)}/labels/${encodeURIComponent(name)}`, token);
       } catch (cause) {
         // A label that is already gone is what was wanted.
-        if (!(cause instanceof GithubError && cause.kind === 'notFound')) throw cause;
+        if (!(cause instanceof SyncError && cause.kind === 'notFound')) throw cause;
       }
     },
     async deleteMilestone(repo: RepoRef, token: string, number: number): Promise<void> {
       try {
         await call('DELETE', `/repos/${repoText(repo)}/milestones/${number}`, token);
       } catch (cause) {
-        if (!(cause instanceof GithubError && cause.kind === 'notFound')) throw cause;
+        if (!(cause instanceof SyncError && cause.kind === 'notFound')) throw cause;
       }
     },
-    async createIssue(repo: RepoRef, token: string, item): Promise<WriteResult> {
+    async createIssue(repo: RepoRef, token: string, item): Promise<GithubWriteResult> {
       const only = await onlyKnown(repo, token, item.labels);
       const raw = (await (await call('POST', `/repos/${repoText(repo)}/issues`, token, { title: item.title, body: item.body, labels: only.labels })).json()) as RawIssue;
-      return { item: toIssue(raw), skippedLabels: only.skipped };
+      return { issue: toIssue(raw), skippedLabels: only.skipped };
     }
   };
 }

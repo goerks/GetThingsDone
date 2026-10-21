@@ -8,15 +8,15 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-10-13T10:00:00+02:00'));
-  await page.goto('/#/settings/github');
-  await expect(page.getByRole('heading', { name: 'GitHub connection', level: 2 })).toBeVisible();
+  await page.goto('/#/settings/sync');
+  await expect(page.getByRole('heading', { name: 'Synchronisation', level: 2 })).toBeVisible();
 });
 
 const REPO = 'goerks/GetThingsDone';
 
 /** Switches the feature on and connects the simulated repository, with the mouse. */
 async function connect(page: Page, token = 'any-token'): Promise<void> {
-  await page.getByRole('switch', { name: /GitHub connection/ }).click();
+  await page.getByRole('switch', { name: /Synchronisation/ }).click();
   await page.getByLabel('Repository (owner/name)').fill(REPO);
   await page.getByLabel('Access token').fill(token);
   await page.getByRole('button', { name: 'Test connection' }).click();
@@ -37,14 +37,14 @@ const synchronise = async (page: Page) => {
 
 /** The changes of the newest run with changes, read from the sync log in the settings; then back to the page. */
 const logOf = async (page: Page): Promise<Locator> => {
-  await page.evaluate(() => void (window.location.hash = '#/settings/github'));
+  await page.evaluate(() => void (window.location.hash = '#/settings/sync'));
   await page.locator('.github-log__toggle:not([disabled])').first().click();
   return page.locator('.github-log__detail').first();
 };
 
 test('AC1.2 and AC1.3 switch the feature on, connect the repository and show a working connection', async ({ page }) => {
   // Given the feature is off and there is no section "GitHub"
-  await expect(page.getByRole('switch', { name: /GitHub connection/ })).not.toBeChecked();
+  await expect(page.getByRole('switch', { name: /Synchronisation/ })).not.toBeChecked();
   await expect(page.getByLabel('Repository (owner/name)')).toHaveCount(0);
   // When I switch it on, enter repository and token and test the connection
   await connect(page);
@@ -56,7 +56,7 @@ test('AC1.2 and AC1.3 switch the feature on, connect the repository and show a w
 
 test('AC1.7 marks the preview as a demo', async ({ page }) => {
   // Given the preview, When I open the section GitHub
-  await page.getByRole('switch', { name: /GitHub connection/ }).click();
+  await page.getByRole('switch', { name: /Synchronisation/ }).click();
   // Then it says "Demo" and offers the simulated GitHub
   await expect(page.locator('.badge--demo').first()).toHaveText('Demo');
   await expect(page.getByRole('region', { name: 'Demo: simulated GitHub' })).toBeVisible();
@@ -76,7 +76,7 @@ test('AC1.6 keeps the repository after a reload but asks for the token again', a
 
 test('AC1.4 says what is wrong with the repository', async ({ page }) => {
   // Given the section GitHub
-  await page.getByRole('switch', { name: /GitHub connection/ }).click();
+  await page.getByRole('switch', { name: /Synchronisation/ }).click();
   await page.getByLabel('Access token').fill('any-token');
   // When I test an empty repository, a wrong form and a repository that does not exist
   await page.getByRole('button', { name: 'Test connection' }).click();
@@ -127,7 +127,7 @@ test('AC3.1 brings the changes of GitHub into the stories and shows them (also A
   await toBacklog(page);
   await synchronise(page);
   // When #31 is renamed and gets a label, #35 is closed on GitHub, and I synchronise
-  await goTo(page, '#/settings/github');
+  await goTo(page, '#/settings/sync');
   await page.getByRole('button', { name: 'Rename #31, new label' }).click();
   await page.getByRole('button', { name: 'Close #35' }).click();
   await goTo(page, '#/backlog');
@@ -140,7 +140,7 @@ test('AC3.1 brings the changes of GitHub into the stories and shows them (also A
   await goTo(page, '#/backlog');
   await expect(page.getByRole('button', { name: 'Login-Seite', exact: true })).toBeVisible();
   // And the criteria of #31 follow GitHub, and #35 goes back to "To do" when it is opened again
-  await goTo(page, '#/settings/github');
+  await goTo(page, '#/settings/sync');
   await page.getByRole('button', { name: 'Change the criteria of #31' }).click();
   await page.getByRole('button', { name: 'Reopen #35' }).click();
   await goTo(page, '#/backlog');
@@ -164,7 +164,7 @@ test('AC5.1 tells me when there is no network, AC5.2 when the token is refused, 
   await expect(page.getByRole('link', { name: /Open issue/ })).toHaveCount(0);
   await context.setOffline(false);
   // And with a refused token, the message says so
-  await page.goto('/#/settings/github');
+  await page.goto('/#/settings/sync');
   await page.getByLabel('Access token').fill('falsch');
   await page.getByRole('button', { name: 'Test connection' }).click();
   await expect(page.getByRole('alert')).toContainText('GitHub refused the access token');
@@ -173,10 +173,10 @@ test('AC5.1 tells me when there is no network, AC5.2 when the token is refused, 
 test('AC6.2 works with the keyboard only, from the switch to the notice after the sync', async ({ page }) => {
   // Given the features page with the focus on the switch
   const keyboard = page.keyboard;
-  await page.getByRole('switch', { name: /GitHub connection/ }).focus();
+  await page.getByRole('switch', { name: /Synchronisation/ }).focus();
   // When I switch the feature on and go to the section GitHub with Enter
   await keyboard.press('Space');
-  await expect(page.getByRole('switch', { name: /GitHub connection/ })).toBeChecked();
+  await expect(page.getByRole('switch', { name: /Synchronisation/ })).toBeChecked();
   // And fill in repository and token with Tab, then test the connection with Enter
   await page.getByLabel('Repository (owner/name)').focus();
   await keyboard.type(REPO);
@@ -202,9 +202,12 @@ test('AC6.2 works with the keyboard only, from the switch to the notice after th
   await expect(page.getByRole('link', { name: 'Open issue #31 on GitHub' })).toBeVisible();
 });
 
-/** The menu of the story with this code in the backlog. */
-async function openMenu(page: Page, code: string): Promise<void> {
-  await page.locator('.backlog__row', { hasText: code }).first().click({ button: 'right' });
+/** The story of my own the tests publish: its own key S-1 stops being shown once it is linked (#66), so it is found by its title. */
+const OWN = 'Create a story with title and description';
+
+/** The menu of the story with this text (key or title) in the backlog. */
+async function openMenu(page: Page, text: string): Promise<void> {
+  await page.locator('.backlog__row', { hasText: text }).first().click({ button: 'right' });
   await expect(page.getByRole('menu')).toBeVisible();
 }
 
@@ -216,12 +219,13 @@ test('AC10.1 creates an issue from a story of my own, links it, and AC10.3 does 
   await page.getByRole('checkbox', { name: 'Also write to GitHub' }).check();
   await toBacklog(page);
   // When I choose "Create on GitHub" in the menu of a story of my own
-  await openMenu(page, 'S-1');
+  await openMenu(page, OWN);
   await page.getByRole('menuitem', { name: 'Create on GitHub' }).click();
   // Then the story shows the number of the new issue as a link
-  await expect(page.locator('.backlog__row', { hasText: 'S-1' }).first().getByRole('link', { name: /Open issue #\d+ on GitHub/ })).toBeVisible();
+  await expect(page.locator('.backlog__row', { hasText: OWN }).first().getByRole('link', { name: /Open issue #\d+ on GitHub/ })).toBeVisible();
+  await expect(page.locator('.backlog__row', { hasText: OWN }).first()).not.toContainText('S-1');
   // And the menu does not offer it again
-  await openMenu(page, 'S-1');
+  await openMenu(page, OWN);
   await expect(page.getByRole('menuitem', { name: 'Create on GitHub' })).toHaveCount(0);
 });
 
@@ -232,16 +236,16 @@ test('AC7.6 says what the token needs when GitHub refuses to write', async ({ pa
   await page.getByRole('checkbox', { name: 'Also write to GitHub' }).check();
   await toBacklog(page);
   // When I try to create an issue
-  await openMenu(page, 'S-1');
+  await openMenu(page, OWN);
   await page.getByRole('menuitem', { name: 'Create on GitHub' }).click();
   // Then a notice names the missing right and the story stays without a number
   await expect(page.getByText(/Issues: read and write/)).toBeVisible();
-  await expect(page.locator('.backlog__row', { hasText: 'S-1' }).first().getByRole('link', { name: /Open issue/ })).toHaveCount(0);
+  await expect(page.locator('.backlog__row', { hasText: OWN }).first().getByRole('link', { name: /Open issue/ })).toHaveCount(0);
 });
 
 test('AC11.1 lists GitHub as connected and the other services as planned', async ({ page }) => {
   await connect(page);
   await expect(page.getByText('✓ Connection ok · 3 open issues')).toBeVisible();
-  const services = page.locator('.github-services li');
-  await expect(services).toHaveText(['GitHubconnected', 'GitLabplanned', 'Jiraplanned', 'Trelloplanned']);
+  const services = page.locator('.sync-service');
+  await expect(services).toHaveText(['GitHubconnected', 'Jiraplanned', 'GitLabplanned']);
 });
