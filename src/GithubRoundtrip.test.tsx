@@ -304,7 +304,7 @@ describe('creating an issue from a story', () => {
     await sync(user);
     expect(fake.state.issues).toHaveLength(1);
     // A linked story has no such item
-    openMenu('G-31');
+    openMenu('#31');
     await screen.findByRole('menu');
     expect(screen.queryByRole('menuitem', { name: 'Create on GitHub' })).not.toBeInTheDocument();
   });

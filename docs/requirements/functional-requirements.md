@@ -683,17 +683,17 @@ Stories, epics, sprints and releases keep a history of versions (#23, ADR 0004).
 Verified by: unit `src/domain/changeLog.test.ts` and `src/domain/textDiff.test.ts` (AC1.3, AC2.1–AC2.6, AC3.1–AC3.4, AC5.2–AC5.3, AC6.1, AC8.1–AC8.4, AC8.6), repositories `src/data/sqliteRepository.test.ts` and `src/data/localStorageRepository.test.ts` (AC5.1), component `src/ChangeHistory.test.tsx` (AC1.1, AC1.3–AC1.4, AC2.3, AC2.7, AC4.2, AC7.3, AC8.2–AC8.5, AC9.1–AC9.3), e2e `e2e/changeHistory.spec.ts` (AC3.1, AC3.3, AC4.1, AC5.1, AC7.1, AC8.1–AC8.2); AC1.2, AC6.2, AC7.2 and AC8.7 are checked by hand
 ## GitHub issues (GH)
 
-Issue #30, ADR 0005. Tests: `src/domain/github.test.ts` and `src/domain/githubRoundtrip.test.ts` (unit), `src/github/restSource.test.ts`, `src/github/connector.test.ts` and `src/github/runSync.test.ts` (the connectors and the sync), `src/Github.test.tsx` and `src/GithubRoundtrip.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration), `e2e/github.spec.ts` (end-to-end, simulated GitHub).
+Issue #30, ADR 0005. Tests: `src/sync/github/format.test.ts` and `src/domain/githubRoundtrip.test.ts` (unit), `src/sync/github/restApi.test.ts`, `src/sync/github/api.test.ts` and `src/sync/runSync.test.ts` (the connectors and the sync), `src/Github.test.tsx` and `src/GithubRoundtrip.test.tsx` (component), `src/data/sqliteRepository.test.ts` (integration), `e2e/github.spec.ts` (end-to-end, simulated GitHub).
 
 ### FR-GH-01 Switch on and connect one repository
 As a team that uses GitHub, we want to connect a GitHub repository in the settings, so that we can plan with its issues.
-- The feature "GitHub connection" is off by default (Settings → Features). While it is off, there is no section "Connections", no "Synchronise" button and no issue numbers; switching it off keeps the imported stories and the connection.
-- Settings → Connections (only while the feature is on) lists the services (GitHub; GitLab, Jira and Trello as planned), takes the repository as `owner/name` and an access token, and "Test connection" says "Connection ok · n open issues" or what is wrong (repository missing, wrong form, not found, token refused, no network). "Remove connection" asks first, then forgets repository and token; the stories stay, without link and marker.
+- The feature "Synchronisation" (Settings → Synchronisation) is off by default. While it is off, there is no connection form, no "Synchronise" button and no issue keys (the stories show their own keys); switching it off keeps the imported stories and the connection.
+- Settings → Synchronisation (only while the feature is on) lists the services as one choice (GitHub; Jira and GitLab as planned, see FR-SYNC-01), takes the repository as `owner/name` and an access token, and "Test connection" says "Connection ok · n open issues" or what is wrong (repository missing, wrong form, not found, token refused, no network). "Remove connection" asks first, then forgets repository and token; the stories stay, without link and marker.
 - "Also write to GitHub" is off by default; the token then needs "Issues: read and write". "When both sides changed the same field": GitHub wins (default), local wins, or I decide.
 - The token is never shown again after it was saved; desktop app: kept in the credential store of the operating system; browser: only in the memory of the page, asked for again after a reload. The public preview is labelled "Demo", uses a simulated GitHub and needs no real token.
 - Fully keyboard operable, all texts in DE, EN, FR and IT.
 
-Source: #30 · Status: Implemented · Verified by: #30 AC1.1–AC1.8, AC6.1, AC6.2, AC11.1, AC11.2 (`src/Github.test.tsx`, `src/GithubRoundtrip.test.tsx`, `e2e/github.spec.ts`, `src/domain/github.test.ts`); keychain: manual check on the Windows app
+Source: #30 · Status: Implemented · Verified by: #30 AC1.1–AC1.8, AC6.1, AC6.2, AC11.1, AC11.2 (`src/Github.test.tsx`, `src/GithubRoundtrip.test.tsx`, `e2e/github.spec.ts`, `src/sync/github/format.test.ts`); keychain: manual check on the Windows app
 
 ### FR-GH-02 Import open issues as stories
 As a team member, I want to import the open issues as stories, so that I do not copy them by hand.
@@ -732,7 +732,7 @@ Source: #30 · Status: Implemented · Verified by: #30 AC7.1–AC7.6, AC9.1, AC9
 ### FR-GH-07 One mechanism, a connector per service
 The sync is one general mechanism: the engine asks a connector for the open items, one item, and tells it what to change. GitHub is the first connector; the settings list GitLab, Jira and Trello as planned. A connector has to pass the shared connector tests (reading, writing, errors); a connection can be removed without touching the stories.
 
-Source: #30 · Status: Implemented · Verified by: #30 AC11.1–AC11.3 (`src/github/connector.test.ts`)
+Source: #30 · Status: Implemented · Verified by: #30 AC11.1–AC11.3 (`src/sync/github/api.test.ts`)
 
 ### FR-GH-08 Story map and board columns through milestones and labels
 As a team that plans with the story map, I want releases, epics and board columns to follow GitHub, so that the whole plan is visible there.
@@ -741,7 +741,7 @@ As a team that plans with the story map, I want releases, epics and board column
 - A board column between the first one and Done is a label "status: <name>" (own columns by their name). An open issue without such a label is in the first column, a closed one is Done. While writing is on, a sync makes the label of a column a story is in and deletes it again once nothing needs it; only labels and milestones the app made (kept in the connection settings) are ever deleted. While writing is off, a column or epic whose label GitHub does not have stays marked as "not on GitHub" and the result names the label.
 - The sync icon (two circular arrows) replaces the text button on Backlog, Board and Story Map; it turns while a sync runs, shows the number of changes that are not on GitHub yet and has the name "Synchronise" for tooltip and screen readers.
 
-Source: #30 · Status: Implemented · Verified by: #30 AC12.1–AC12.7, AC13.1–AC13.7, AC14.1–AC14.7, AC15.1–AC15.9 (`src/domain/githubStoryMap.test.ts`, `src/github/runSync.test.ts`, `src/GithubRoundtrip.test.tsx`)
+Source: #30 · Status: Implemented · Verified by: #30 AC12.1–AC12.7, AC13.1–AC13.7, AC14.1–AC14.7, AC15.1–AC15.9 (`src/domain/githubStoryMap.test.ts`, `src/sync/runSync.test.ts`, `src/GithubRoundtrip.test.tsx`)
 
 ### FR-GH-09 Automatic sync, short notice and sync log
 As a team member, I want the sync to run by itself and to tell me discreetly what it did, so that I never have to press a button or close a report.
@@ -791,3 +791,32 @@ Source: #55 · Status: Implemented · Verified by: #55 AC8.1–AC8.5 (`src/UiUpd
 | FR-SEARCH-06 | Search in a side panel next to the board (rest of variant D) | Open (out of scope of #7) |
 | FR-SEARCH-07 | Saved searches with a name | Proposed (PO undecided) |
 | FR-MAP-07 | Release slices in addition to sprints | Implemented in #10, phase 2 (see FR-REL-09) |
+
+## Synchronisation with one chosen service (SYNC)
+
+Issue #66, ADR 0006. Step 0 of the Jira sync: the shipped GitHub sync is generalised; Jira follows in phases (AC3 to AC10 of #66). Tests: `src/Sync.test.tsx` (component), `src/sync/connector.test.ts` (the series every connector passes), `src/data/sqliteRepository.test.ts`, `src/domain/settings.test.ts`, `src/domain/syncLog.test.ts`, `src/domain/storyKey.test.ts` and `src/domain/search.test.ts` (unit).
+
+### FR-SYNC-01 Choose the service
+As a team, we want to choose one service for the synchronisation, so that exactly one is active.
+- Settings → Synchronisation shows the services as one choice (radio group): GitHub, Jira, GitLab. A service without a connector is "planned" and cannot be chosen. GitHub is chosen by default.
+- Exactly one service is active; its connection form and options follow the choice.
+
+Source: #66 AC1 · Status: Implemented (GitHub; Jira in phase 1) · Verified by: #66 AC1.1, AC1.4 (`src/Sync.test.tsx`)
+
+### FR-SYNC-02 Switch the service
+- Choosing another service asks first and says what happens: the connection to the old service and its token are removed, the stories stay without issue key and link, the first sync with the new service imports all its open issues, and stories of the team can be published one by one. Without any connection nothing is asked.
+- Confirming removes token, connection and links, resets the options (read only, the service wins) and chooses the new service. Cancel or Esc changes nothing.
+
+Source: #66 AC2 · Status: Implemented · Verified by: #66 AC2.1–AC2.4 (`src/Sync.test.tsx`)
+
+### FR-SYNC-03 The issue key is the ID of a linked story
+- A story that is linked to an issue shows the key of the issue (`#31`; `PROJ-123` on Jira) as its ID, as a link to the issue, on the cards, in the backlog, on the story map, in the story dialog, in the search, in the history and in the dialogs, while the synchronisation is on. A story without a link shows its own key (`S-4`).
+- The own key stays stored: the search finds a linked story by both keys, the story dialog shows it small ("Local ID S-4"), and it is shown again when the connection is removed. Entries of the history keep the key they had when they were written.
+
+Source: #66 AC12 · Status: Implemented · Verified by: #66 AC12.1, AC12.3, AC12.4, AC12.6 (`src/Sync.test.tsx`, `src/domain/storyKey.test.ts`, `src/domain/search.test.ts`)
+
+### FR-SYNC-04 One mechanism, a connector per service
+- The sync engine and the settings know no service; a connector turns its issues into neutral items and what the engine publishes into its own calls. A connector passes the same series of tests (reading, writing, errors, a run of the engine). GitLab fits without a change of the engine.
+- The shipped GitHub data is converted when the app starts: links, keys, settings, log and keychain entry; an existing GitHub connection keeps working. Exports and the browser storage of before are read as well.
+
+Source: #66 AC11 · Status: Implemented · Verified by: #66 AC11.1–AC11.3 (`src/sync/connector.test.ts`), AC11.2 (`src/data/sqliteRepository.test.ts`, `src/domain/settings.test.ts`, `src/domain/syncLog.test.ts`)

@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
@@ -10,7 +10,8 @@ import { initI18n } from './i18n';
 import type { TrackerConnector } from './sync/connector';
 import { issueUrl } from './sync/github/format';
 import { exampleTracker } from './test/exampleConnector';
-import { fakeGithub, REPO } from './test/fakeGithub';
+import { fakeGithub, fakeIssue, REPO } from './test/fakeGithub';
+import { sync } from './test/syncHelpers';
 
 beforeAll(() => {
   initI18n('en');
@@ -45,9 +46,10 @@ interface Options {
   stories?: Story[];
   /** A second service that can be chosen (it looks like GitLab), as when the connector of another service exists. */
   second?: boolean;
+  write?: boolean;
 }
 
-async function renderApp(hash: string, { connected = true, featureOn = true, stories = [linkedStory()], second = false }: Options = {}) {
+async function renderApp(hash: string, { connected = true, featureOn = true, stories = [linkedStory()], second = false, write = false }: Options = {}) {
   const fake = fakeGithub([]);
   const repository = new LocalStorageRepository();
   const seed = seedSnapshot(todayIso());
@@ -57,7 +59,7 @@ async function renderApp(hash: string, { connected = true, featureOn = true, sto
     settings: {
       ...seed.settings,
       features: { ...seed.settings.features, sync: featureOn },
-      sync: { service: 'github', connection: connected ? { repo: REPO } : {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }
+      sync: { service: 'github', connection: connected ? { repo: REPO } : {}, lastSyncAt: null, write, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }
     }
   });
   if (connected) await fake.tokens.set('good');
@@ -218,5 +220,50 @@ describe('the issue key is the ID of a story', () => {
     // Then it shows S-90 and no link
     expect(await screen.findByRole('group', { name: /^Rank \d+, S-90: Only here$/ })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Open issue/ })).not.toBeInTheDocument();
+  });
+
+  it('AC12.5 gives a story that was published the key of its new issue as ID, and keeps its own key small', async () => {
+    // Given writing is on and a story that exists only here
+    const user = userEvent.setup();
+    const { repository } = await renderApp('#/backlog', { stories: [linkedStory({ id: 'story-own', code: 'S-90', title: 'Only here', link: undefined })], write: true });
+    // When I create it on GitHub from its menu
+    fireEvent.contextMenu(screen.getByText('S-90').closest('.backlog__row') as HTMLElement);
+    await user.click(await screen.findByRole('menuitem', { name: 'Create on GitHub' }));
+    // Then it shows the key of the new issue as its ID and no longer S-90
+    const link = await screen.findByRole('link', { name: 'Open issue #1 on GitHub' });
+    expect(link).toHaveTextContent('#1');
+    expect(screen.queryByText('S-90')).not.toBeInTheDocument();
+    // And the own key is kept
+    expect((await repository.load()).stories.find((story) => story.id === 'story-own')).toMatchObject({ code: 'S-90', link: { key: '#1' } });
+  });
+});
+
+describe('the sync of before the generalisation', () => {
+  it('AC1.3 keeps working with the connection, the token and the links of the version before', async () => {
+    // Given the stored data of the version before: the feature "github", the settings "github" and a story with its `github` link
+    const user = userEvent.setup();
+    const fake = fakeGithub([fakeIssue(31, { title: 'Login-Seite' })]);
+    const seed = seedSnapshot(todayIso());
+    const { link, ...story } = linkedStory();
+    window.localStorage.setItem(
+      'getitdone.snapshot.v1',
+      JSON.stringify({
+        ...seed,
+        stories: [...seed.stories, { ...story, github: { url: link?.url, state: 'open', base: link?.base } }],
+        settings: { mapRows: 'sprints', features: { releases: true, team: false, github: '1' }, github: { repo: REPO, write: false, conflict: 'remote', auto: false }, definitions: seed.settings.definitions }
+      })
+    );
+    const repository = new LocalStorageRepository();
+    await fake.tokens.set('good');
+    window.location.hash = '#/backlog';
+    render(<App repository={repository} sync={fake.sync} />);
+    await screen.findByRole('heading', { level: 1 });
+    // When I open the backlog and synchronise
+    expect(await screen.findByRole('link', { name: 'Open issue #31 on GitHub' })).toHaveTextContent('#31');
+    await sync(user);
+    // Then the change of the issue is taken, and the settings are those of the synchronisation
+    expect(await screen.findByRole('button', { name: 'Login-Seite' })).toBeInTheDocument();
+    await waitFor(async () => expect((await repository.load()).settings.sync.connection.repo).toBe(REPO));
+    expect((await repository.load()).settings.features.sync).toBe(true);
   });
 });
