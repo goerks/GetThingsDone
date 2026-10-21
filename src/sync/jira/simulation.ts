@@ -34,6 +34,10 @@ export interface DemoJiraIssue {
   status: string;
   /** `Story`, `Task`, `Epic` or `Sub-task`. */
   type: string;
+  /** The key of the epic the issue belongs to. */
+  parent?: string | null;
+  /** The names of the fix versions. */
+  fixVersions?: string[];
   /** The workflow refuses the transition to Done (it needs a resolution), to try the message for it. */
   needsResolution?: boolean;
 }
@@ -41,6 +45,20 @@ export interface DemoJiraIssue {
 const doc = (...content: AdfDoc['content']): AdfDoc => ({ version: 1, type: 'doc', content });
 const para = (text: string) => ({ type: 'paragraph', content: [{ type: 'text', text }] });
 const task = (text: string, done: boolean, id: string) => ({ type: 'taskItem', attrs: { localId: id, state: done ? 'DONE' : 'TODO' }, content: [{ type: 'text', text }] });
+
+export interface DemoJiraVersion {
+  id: string;
+  name: string;
+  description?: string;
+  startDate?: string;
+  releaseDate?: string;
+  released?: boolean;
+}
+
+export const DEMO_JIRA_VERSIONS: readonly DemoJiraVersion[] = [
+  { id: '10001', name: 'v1.0', description: 'First version', releaseDate: '2026-12-31', released: false },
+  { id: '10002', name: 'v2.0', description: 'Second version', releaseDate: '2027-06-30', released: false }
+];
 
 export const DEMO_JIRA_ISSUES: readonly DemoJiraIssue[] = [
   {
@@ -53,9 +71,10 @@ export const DEMO_JIRA_ISSUES: readonly DemoJiraIssue[] = [
     }),
     labels: ['feature'],
     status: 'To Do',
-    type: 'Story'
+    type: 'Story',
+    fixVersions: ['v1.0']
   },
-  { key: 'PROJ-2', summary: 'Export as CSV', description: doc(para('Export the backlog as a CSV file.')), labels: ['feature', 'quick'], status: 'In Progress', type: 'Story' },
+  { key: 'PROJ-2', summary: 'Export as CSV', description: doc(para('Export the backlog as a CSV file.')), labels: ['feature', 'quick'], status: 'In Progress', type: 'Story', parent: 'PROJ-5' },
   { key: 'PROJ-3', summary: 'Dark mode', description: null, labels: [], status: 'To Do', type: 'Story' },
   { key: 'PROJ-4', summary: 'Imprint page', description: doc(para('Closed long ago.')), labels: [], status: 'Done', type: 'Task' },
   { key: 'PROJ-5', summary: 'Payments', description: null, labels: [], status: 'To Do', type: 'Epic' },
@@ -64,6 +83,25 @@ export const DEMO_JIRA_ISSUES: readonly DemoJiraIssue[] = [
 ];
 
 const KEY = 'getitdone.demoJira';
+const VERSIONS_KEY = 'getitdone.demoJiraVersions';
+
+export function demoJiraVersions(): DemoJiraVersion[] {
+  try {
+    const raw = window.localStorage.getItem(VERSIONS_KEY);
+    if (raw) return JSON.parse(raw) as DemoJiraVersion[];
+  } catch {
+    // fall back to the starting data
+  }
+  return DEMO_JIRA_VERSIONS.map((version) => ({ ...version }));
+}
+
+export function saveDemoJiraVersions(versions: readonly DemoJiraVersion[]): void {
+  try {
+    window.localStorage.setItem(VERSIONS_KEY, JSON.stringify(versions));
+  } catch {
+    // the simulation then keeps its starting data
+  }
+}
 
 export function demoJiraIssues(): DemoJiraIssue[] {
   try {
@@ -86,6 +124,7 @@ export function saveDemoJiraIssues(issues: readonly DemoJiraIssue[]): void {
 export function resetDemoJira(): void {
   try {
     window.localStorage.removeItem(KEY);
+    window.localStorage.removeItem(VERSIONS_KEY);
   } catch {
     // nothing to reset
   }
@@ -93,9 +132,11 @@ export function resetDemoJira(): void {
 
 const categoryOf = (status: string): Category => DEMO_STATUSES.find((entry) => entry.name === status)?.category ?? 'new';
 
-const rawIssue = (issue: DemoJiraIssue) => ({
+const rawIssue = (issue: DemoJiraIssue, all: readonly DemoJiraIssue[] = []) => ({
   key: issue.key,
   fields: {
+    parent: issue.parent ? { key: issue.parent, fields: { summary: all.find((entry) => entry.key === issue.parent)?.summary ?? '', issuetype: { name: 'Epic', hierarchyLevel: 1 } } } : undefined,
+    fixVersions: (issue.fixVersions ?? []).map((name) => ({ name })),
     summary: issue.summary,
     description: issue.description,
     labels: issue.labels,
@@ -117,7 +158,12 @@ function tokenOf(request: JiraRequest): string {
 }
 
 /** A simulated Jira Cloud. `load` and `save` hold the issues (the page keeps them in `localStorage`, a test in memory). */
-export function createJiraSimulation(load: () => DemoJiraIssue[] = demoJiraIssues, save: (issues: DemoJiraIssue[]) => void = saveDemoJiraIssues): JiraTransport {
+export function createJiraSimulation(
+  load: () => DemoJiraIssue[] = demoJiraIssues,
+  save: (issues: DemoJiraIssue[]) => void = saveDemoJiraIssues,
+  loadVersions: () => DemoJiraVersion[] = demoJiraVersions,
+  saveVersions: (versions: DemoJiraVersion[]) => void = saveDemoJiraVersions
+): JiraTransport {
   return async (request) => {
     const url = new URL(request.url);
     if (url.origin !== DEMO_SITE) throw new SyncError('network');
@@ -133,6 +179,15 @@ export function createJiraSimulation(load: () => DemoJiraIssue[] = demoJiraIssue
     if (path === '/rest/api/3/myself') return reply(200, { emailAddress: DEMO_EMAIL });
 
     const project = /^\/rest\/api\/3\/project\/([^/]+)(\/statuses)?$/.exec(path);
+    const versionsOf = /^\/rest\/api\/3\/project\/([^/]+)\/versions$/.exec(path);
+    if (versionsOf) return versionsOf[1] === DEMO_PROJECT ? reply(200, loadVersions()) : reply(404);
+    if (path === '/rest/api/3/version' && request.method === 'POST') {
+      const fields = body as { name?: string; description?: string; startDate?: string; releaseDate?: string };
+      const versions = loadVersions();
+      const created: DemoJiraVersion = { id: String(10001 + versions.length), name: fields.name ?? '', description: fields.description, startDate: fields.startDate, releaseDate: fields.releaseDate, released: false };
+      saveVersions([...versions, created]);
+      return reply(201, created);
+    }
     if (project) {
       if (project[1] !== DEMO_PROJECT) return reply(404);
       if (!project[2]) return reply(200, { key: DEMO_PROJECT });
@@ -142,17 +197,18 @@ export function createJiraSimulation(load: () => DemoJiraIssue[] = demoJiraIssue
     if (path === '/rest/api/3/search/jql' && request.method === 'POST') {
       const jql = String(body.jql ?? '');
       if (!jql.includes(`project = "${DEMO_PROJECT}"`)) return reply(200, { issues: [] });
+      if (jql.includes('issuetype = Epic')) return reply(200, { issues: issues.filter((issue) => issue.type === 'Epic').map((issue) => rawIssue(issue, issues)) });
       const open = jql.includes('statusCategory != Done') ? issues.filter((issue) => categoryOf(issue.status) !== 'done') : issues;
-      return reply(200, { issues: open.map(rawIssue) });
+      return reply(200, { issues: open.map((issue) => rawIssue(issue, issues)) });
     }
 
     if (path === '/rest/api/3/issue' && request.method === 'POST') {
-      const fields = (body.fields ?? {}) as { summary?: string; labels?: string[]; description?: AdfDoc | null; issuetype?: { name?: string } };
+      const fields = (body.fields ?? {}) as { summary?: string; labels?: string[]; description?: AdfDoc | null; issuetype?: { name?: string }; parent?: { key?: string } | null; fixVersions?: Array<{ name: string }> };
       const type = fields.issuetype?.name ?? 'Story';
       // The project is a simple one in the second case: it has no "Story" in the demo when the type is unknown.
-      if (type !== 'Story' && type !== 'Task') return reply(400);
+      if (type !== 'Story' && type !== 'Task' && type !== 'Epic') return reply(400);
       const number = Math.max(0, ...issues.map((issue) => Number(issue.key.split('-')[1]) || 0)) + 1;
-      const created: DemoJiraIssue = { key: `${DEMO_PROJECT}-${number}`, summary: fields.summary ?? '', description: fields.description ?? null, labels: fields.labels ?? [], status: 'To Do', type };
+      const created: DemoJiraIssue = { key: `${DEMO_PROJECT}-${number}`, summary: fields.summary ?? '', description: fields.description ?? null, labels: fields.labels ?? [], status: 'To Do', type, parent: fields.parent?.key ?? null, fixVersions: (fields.fixVersions ?? []).map((entry) => entry.name) };
       save([...issues, created]);
       return reply(201, { key: created.key });
     }
@@ -162,9 +218,11 @@ export function createJiraSimulation(load: () => DemoJiraIssue[] = demoJiraIssue
       const issue = find(decodeURIComponent(one[1]));
       if (!issue) return reply(404);
       if (!one[2]) {
-        if (request.method === 'GET') return reply(200, rawIssue(issue));
+        if (request.method === 'GET') return reply(200, rawIssue(issue, issues));
         if (request.method === 'PUT') {
-          const fields = (body.fields ?? {}) as { summary?: string; labels?: string[]; description?: AdfDoc | null };
+          const fields = (body.fields ?? {}) as { summary?: string; labels?: string[]; description?: AdfDoc | null; parent?: { key?: string } | null; fixVersions?: Array<{ name: string }> };
+          if ('parent' in fields) issue.parent = fields.parent?.key ?? null;
+          if (fields.fixVersions !== undefined) issue.fixVersions = fields.fixVersions.map((entry) => entry.name);
           if (fields.summary !== undefined) issue.summary = fields.summary;
           if (fields.labels !== undefined) issue.labels = fields.labels;
           if ('description' in fields) issue.description = fields.description ?? null;
@@ -190,7 +248,8 @@ export function createJiraSimulation(load: () => DemoJiraIssue[] = demoJiraIssue
 }
 
 /** A simulation that keeps its issues in memory, for tests. */
-export function createMemoryJira(initial: readonly DemoJiraIssue[] = DEMO_JIRA_ISSUES): { transport: JiraTransport; issues: () => DemoJiraIssue[] } {
+export function createMemoryJira(initial: readonly DemoJiraIssue[] = DEMO_JIRA_ISSUES): { transport: JiraTransport; issues: () => DemoJiraIssue[]; versions: () => DemoJiraVersion[] } {
   let issues = initial.map((issue) => JSON.parse(JSON.stringify(issue)) as DemoJiraIssue);
-  return { transport: createJiraSimulation(() => issues, (next) => (issues = next)), issues: () => issues };
+  let versions = DEMO_JIRA_VERSIONS.map((version) => ({ ...version }));
+  return { transport: createJiraSimulation(() => issues, (next) => (issues = next), () => versions, (next) => (versions = next)), issues: () => issues, versions: () => versions };
 }

@@ -1465,7 +1465,8 @@
       "config_jira": "The connection is not set up: enter site, e-mail, project and API token in the settings. Your local data is unchanged.",
       "notFound_jira": "Project or site not found, or the account has no access to it. Your local data is unchanged.",
       "forbidden_jira": "{{service}} refused to write. The account needs the right to edit issues and to change their status.",
-      "transition": "{{service}} did not allow the change of status. The workflow may need more (for example a resolution): change it in {{service}} itself. Your local data is unchanged."
+      "transition": "{{service}} did not allow the change of status. The workflow may need more (for example a resolution): change it in {{service}} itself. Your local data is unchanged.",
+      "auth_jira": "{{service}} refused the access token. It may be wrong or expired: create a new one in your Atlassian account. Your local data is unchanged."
     },
     "field": {
       "title": "Title",
@@ -1672,6 +1673,13 @@
       "add": "Add issue PROJ-8",
       "reset": "Reset the issues",
       "done": "The issues in Jira were changed."
+    },
+    "mapping": {
+      "title": "Status mapping",
+      "hint": "Which column of the board a status of the Jira workflow stands for. The first column and “Done” need no entry: “To Do” and the done statuses go there by themselves. A status without a column puts the story into the first column.",
+      "summary": "{{found}} of {{count}} statuses recognised.",
+      "none": "(no column)",
+      "unclear": "not clear, please choose"
     }
   }
 }

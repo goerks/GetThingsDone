@@ -1473,7 +1473,8 @@
       "config_jira": "La connexion n’est pas configurée : saisissez le site, l’e-mail, le projet et le jeton API dans les paramètres. Vos données locales sont inchangées.",
       "notFound_jira": "Projet ou site introuvable, ou le compte n’y a pas accès. Vos données locales sont inchangées.",
       "forbidden_jira": "{{service}} a refusé d’écrire. Le compte doit pouvoir modifier les tickets et changer leur statut.",
-      "transition": "{{service}} n’a pas autorisé le changement de statut. Le workflow demande peut-être plus (par exemple une résolution) : modifiez-le dans {{service}}. Vos données locales sont inchangées."
+      "transition": "{{service}} n’a pas autorisé le changement de statut. Le workflow demande peut-être plus (par exemple une résolution) : modifiez-le dans {{service}}. Vos données locales sont inchangées.",
+      "auth_jira": "{{service}} a refusé le jeton d’accès. Il est peut-être erroné ou expiré : créez-en un nouveau dans votre compte Atlassian. Vos données locales sont inchangées."
     },
     "field": {
       "title": "Titre",
@@ -1680,6 +1681,13 @@
       "add": "Ajouter le ticket PROJ-8",
       "reset": "Réinitialiser les tickets",
       "done": "Les tickets dans Jira ont été modifiés."
+    },
+    "mapping": {
+      "title": "Correspondance des statuts",
+      "hint": "Quelle colonne du tableau correspond à un statut du workflow Jira. La première colonne et « Terminé » n’ont pas besoin d’entrée : « To Do » et les statuts terminés y vont d’eux-mêmes. Un statut sans colonne place la story dans la première colonne.",
+      "summary": "{{found}} statuts sur {{count}} reconnus.",
+      "none": "(aucune colonne)",
+      "unclear": "pas clair, veuillez choisir"
     }
   }
 }

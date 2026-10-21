@@ -1473,7 +1473,8 @@
       "config_jira": "La connessione non è configurata: inserisci sito, e-mail, progetto e token API nelle impostazioni. I tuoi dati locali sono invariati.",
       "notFound_jira": "Progetto o sito non trovato, oppure l’account non ha accesso. I tuoi dati locali sono invariati.",
       "forbidden_jira": "{{service}} ha rifiutato di scrivere. L’account deve poter modificare le issue e cambiarne lo stato.",
-      "transition": "{{service}} non ha consentito il cambio di stato. Il workflow forse richiede di più (per esempio una risoluzione): modificalo direttamente in {{service}}. I tuoi dati locali sono invariati."
+      "transition": "{{service}} non ha consentito il cambio di stato. Il workflow forse richiede di più (per esempio una risoluzione): modificalo direttamente in {{service}}. I tuoi dati locali sono invariati.",
+      "auth_jira": "{{service}} ha rifiutato il token di accesso. Potrebbe essere errato o scaduto: creane uno nuovo nel tuo account Atlassian. I tuoi dati locali sono invariati."
     },
     "field": {
       "title": "Titolo",
@@ -1680,6 +1681,13 @@
       "add": "Aggiungi la issue PROJ-8",
       "reset": "Reimposta le issue",
       "done": "Le issue in Jira sono state modificate."
+    },
+    "mapping": {
+      "title": "Associazione degli stati",
+      "hint": "A quale colonna della board corrisponde uno stato del workflow Jira. La prima colonna e «Completato» non hanno bisogno di una voce: «To Do» e gli stati completati vi vanno da soli. Uno stato senza colonna mette la storia nella prima colonna.",
+      "summary": "{{found}} stati su {{count}} riconosciuti.",
+      "none": "(nessuna colonna)",
+      "unclear": "non chiaro, scegli"
     }
   }
 }

@@ -1,6 +1,6 @@
-import type { Catalog, ExternalItem, ItemPatch, NewItem } from '../../domain/sync';
+import type { Catalog, ExternalItem, ExternalRelease, ItemPatch, NewItem } from '../../domain/sync';
 import type { ExternalFields, ExternalLink } from '../../domain/types';
-import { SyncError, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteResult } from '../connector';
+import { SyncError, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteContext, type WriteResult } from '../connector';
 import { composeAdf, isAdf, readAdf, withCriteriaAdf, type AdfDoc } from './adf';
 import { createClient, isEmail, parseProject, parseSite, type JiraClient, type JiraTarget, type JiraTransport } from './client';
 
@@ -21,8 +21,32 @@ interface RawIssue {
     labels?: string[];
     status?: { name: string; statusCategory?: { key?: string } };
     issuetype?: { name?: string; subtask?: boolean; hierarchyLevel?: number };
+    parent?: { key: string; fields?: { summary?: string; issuetype?: { name?: string; hierarchyLevel?: number } } };
+    fixVersions?: Array<{ name: string }>;
   };
 }
+
+interface RawVersion {
+  id: string;
+  name: string;
+  description?: string;
+  releaseDate?: string;
+  released?: boolean;
+}
+
+/** What the connector keeps in the catalog: the epics of the project and the names of its versions. */
+interface JiraCatalog {
+  epics: Array<{ key: string; name: string }>;
+  versions: string[];
+}
+
+const extraOf = (catalog: Catalog): JiraCatalog => {
+  if (!catalog.extra) {
+    const fresh: JiraCatalog = { epics: [], versions: [] };
+    catalog.extra = fresh;
+  }
+  return catalog.extra as JiraCatalog;
+};
 
 interface Transition {
   id: string;
@@ -39,9 +63,11 @@ interface JiraRaw {
   category: StatusCategory;
 }
 
-const FIELDS = ['summary', 'description', 'labels', 'status', 'issuetype'];
+const FIELDS = ['summary', 'description', 'labels', 'status', 'issuetype', 'parent', 'fixVersions'];
 const PAGE = 100;
 const MAX_PAGES = 30;
+
+const isEpic = (parent: RawIssue['fields']['parent']): boolean => parent?.fields?.issuetype?.hierarchyLevel === 1 || parent?.fields?.issuetype?.name === 'Epic';
 
 const categoryOf = (raw: RawIssue): StatusCategory => {
   const key = raw.fields.status?.statusCategory?.key;
@@ -92,8 +118,8 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       description: read.description,
       labels: [...(raw.fields.labels ?? [])],
       criteria: read.criteria,
-      release: null,
-      epic: null,
+      release: raw.fields.fixVersions?.[0]?.name ?? null,
+      epic: isEpic(raw.fields.parent) ? (raw.fields.parent?.fields?.summary ?? null) : null,
       done,
       status: !done && category === 'indeterminate' ? (target.statusMap[statusName] ?? statusName) : null
     };
@@ -126,9 +152,35 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
     return transitions.find((transition) => category(transition) === 'new') ?? null;
   };
 
+  /** The key of the epic with that name; it is made when the project has none (Jira never deletes, so nothing is ever removed again). */
+  const epicKeyOf = async (client: JiraClient, target: JiraTarget, name: string, context: WriteContext): Promise<string> => {
+    const jira = extraOf(context.catalog);
+    const found = jira.epics.find((epic) => same(epic.name, name));
+    if (found) return found.key;
+    const created = await client.call<{ key: string }>('POST', '/rest/api/3/issue', { fields: { project: { key: target.project }, summary: name, issuetype: { name: 'Epic' } } });
+    if (!created) throw new SyncError('other');
+    jira.epics.push({ key: created.key, name });
+    return created.key;
+  };
+
+  /** Makes the version of a release (with its dates) when the project has none. */
+  const ensureVersion = async (client: JiraClient, target: JiraTarget, title: string, context: WriteContext): Promise<void> => {
+    const jira = extraOf(context.catalog);
+    if (jira.versions.some((name) => same(name, title))) return;
+    const release = context.releases.find((entry) => same(entry.title, title));
+    await client.call('POST', '/rest/api/3/version', {
+      name: title,
+      project: target.project,
+      ...(release?.description ? { description: release.description } : {}),
+      ...(release?.startDate ? { startDate: release.startDate } : {}),
+      ...(release?.endDate ? { releaseDate: release.endDate } : {})
+    });
+    jira.versions.push(title);
+  };
+
   return {
     kind: 'jira',
-    capabilities: { fields: ['title', 'description', 'labels', 'criteria', 'done', 'status'], create: true, tidy: false },
+    capabilities: { fields: ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status'], create: true, tidy: false },
     target: parseTarget,
     normalize,
     skipped: () => skipped,
@@ -161,12 +213,17 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       const prefix = `${target.site}/browse/`;
       return link.url.toLowerCase().startsWith(prefix.toLowerCase()) ? (link.url.slice(prefix.length).split(/[?#]/)[0] || null) : null;
     },
-    async catalog(): Promise<Catalog> {
-      return { releases: [] };
+    async catalog(target, token): Promise<Catalog> {
+      const client = createClient(transport, target, token);
+      const versions = (await client.call<RawVersion[]>('GET', `/rest/api/3/project/${encodeURIComponent(target.project)}/versions`)) ?? [];
+      const epics = await client.call<{ issues?: RawIssue[] }>('POST', '/rest/api/3/search/jql', { jql: `project = "${target.project}" AND issuetype = Epic ORDER BY created ASC`, fields: ['summary'], maxResults: PAGE });
+      const releases: ExternalRelease[] = versions.map((version) => ({ id: version.id, title: version.name, description: version.description ?? '', dueOn: version.releaseDate ?? null, state: version.released ? 'closed' : 'open' }));
+      const extra: JiraCatalog = { epics: (epics?.issues ?? []).map((issue) => ({ key: issue.key, name: (issue.fields.summary ?? '').trim() })), versions: versions.map((version) => version.name) };
+      return { releases, extra };
     },
+    // Epics and versions that Jira lacks are made when the sync may write; nothing is "missing" in the sense of a label.
     lacks: () => null,
     async update(target, token, item: ExternalItem, patch: ItemPatch, context): Promise<WriteResult> {
-      void context;
       const client = createClient(transport, target, token);
       const jira = item.raw as JiraRaw;
       const fields: Record<string, unknown> = {};
@@ -176,6 +233,11 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         const only = labelsOf(patch.labels);
         fields.labels = only.labels;
         skippedLabels = only.skipped;
+      }
+      if (patch.epic !== undefined) fields.parent = patch.epic === null ? null : { key: await epicKeyOf(client, target, patch.epic, context) };
+      if (patch.release !== undefined) {
+        if (patch.release !== null) await ensureVersion(client, target, patch.release, context);
+        fields.fixVersions = patch.release === null ? [] : [{ name: patch.release }];
       }
       if (patch.description !== undefined || patch.criteria !== undefined) {
         let doc: AdfDoc | null = null;
@@ -211,12 +273,13 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       if (!raw) throw new SyncError('notFound');
       return { item: toItem(target, raw), skippedLabels };
     },
-    async create(target, token, item: NewItem): Promise<WriteResult> {
+    async create(target, token, item: NewItem, context): Promise<WriteResult> {
       const client = createClient(transport, target, token);
       const only = labelsOf(item.labels);
       const doc = composeAdf(item.description, item.criteria);
+      const parent = item.epic ? await epicKeyOf(client, target, item.epic, context) : null;
       const make = (type: string) =>
-        client.call<{ key: string }>('POST', '/rest/api/3/issue', { fields: { project: { key: target.project }, summary: item.title, issuetype: { name: type }, labels: only.labels, ...(doc.content.length > 0 ? { description: doc } : {}) } });
+        client.call<{ key: string }>('POST', '/rest/api/3/issue', { fields: { project: { key: target.project }, summary: item.title, issuetype: { name: type }, labels: only.labels, ...(parent ? { parent: { key: parent } } : {}), ...(doc.content.length > 0 ? { description: doc } : {}) } });
       let created: { key: string } | null;
       try {
         created = await make('Story');

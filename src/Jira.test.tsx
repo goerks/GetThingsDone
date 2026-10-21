@@ -111,6 +111,23 @@ describe('connecting to Jira', () => {
   }, 20000);
 });
 
+describe('mapping the statuses', () => {
+  it('AC6.1 proposes the columns by name, marks what is unclear and keeps my choice', async () => {
+    // Given a connected Jira whose workflow has "In Progress" and "In Review"
+    const user = userEvent.setup();
+    const { repository } = await renderApp('#/settings/sync', { connected: true });
+    // Then the board column "in progress" is proposed for "In Progress" and "In Review" is marked as unclear
+    expect(await screen.findByText('1 of 2 statuses recognised.')).toBeInTheDocument();
+    expect(screen.getByLabelText('In Progress')).toHaveValue('in progress');
+    expect(screen.getByLabelText('In Review')).toHaveValue('');
+    // When I choose the column "review" for it
+    await user.selectOptions(screen.getByLabelText('In Review'), 'review');
+    // Then all are recognised and the choice is kept in the connection
+    expect(await screen.findByText('2 of 2 statuses recognised.')).toBeInTheDocument();
+    await waitFor(async () => expect((await repository.load()).settings.sync.connection.statusMap).toBe(JSON.stringify({ 'In Review': 'review' })));
+  }, 20000);
+});
+
 describe('help for the Jira connection', () => {
   it('AC10.3 has a help topic that starts with switching the feature on and links to the settings', async () => {
     // Given the app with Jira chosen

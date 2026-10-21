@@ -3,6 +3,8 @@ import { DEMO_READONLY_TOKEN, DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemo
 import { isSyncDemo, SyncError } from '../sync';
 import { DEMO_EMAIL, DEMO_PROJECT, DEMO_READONLY_TOKEN as JIRA_READONLY_TOKEN, DEMO_SITE, DEMO_WRONG_TOKEN as JIRA_WRONG_TOKEN, demoJiraIssues, resetDemoJira, saveDemoJiraIssues, type DemoJiraIssue } from '../sync/jira/simulation';
 import { isEmail, parseProject, parseSite } from '../sync/jira/client';
+import { middleStatuses, statusName } from '../domain/sync';
+import type { WorkflowStatus } from '../sync/connector';
 import { Dialog } from '../components/Dialog';
 import { InfoHint } from '../components/InfoHint';
 import { SyncLog } from '../components/SyncLog';
@@ -366,7 +368,30 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
   const [problem, setProblem] = useState<JiraProblem | null>(null);
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   const [removing, setRemoving] = useState(false);
+  const [workflow, setWorkflow] = useState<WorkflowStatus[]>([]);
   const connected = (saved.site ?? '') !== '';
+
+  const loadWorkflow = async (connection: Record<string, string>, token: string): Promise<void> => {
+    try {
+      setWorkflow(await app.syncStatuses(connection, token));
+    } catch {
+      setWorkflow([]);
+    }
+  };
+
+  useEffect(() => {
+    if (!connected || !hasToken) return;
+    let cancelled = false;
+    app.syncTokens
+      .get()
+      .then((stored) => (stored && !cancelled ? loadWorkflow(app.settings.sync.connection, stored) : undefined))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+    // Read once when the form opens with a saved connection.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, hasToken]);
 
   const check = (): JiraProblem | null => {
     if (site.trim() === '') return 'siteMissing';
@@ -400,6 +425,7 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
       setSite(parseSite(site) ?? site);
       setProject(parseProject(project) ?? project);
       setStatus({ kind: 'ok', count });
+      await loadWorkflow(connection, stored);
     } catch (cause) {
       setStatus({ kind: 'error', error: syncErrorKey(cause) });
     }
@@ -408,6 +434,7 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
   const disconnect = async (): Promise<void> => {
     setRemoving(false);
     await app.disconnectSync();
+    setWorkflow([]);
     setSite('');
     setEmail('');
     setProject('');
@@ -501,6 +528,7 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
           {t(`sync.errors.${status.error}`)}
         </p>
       )}
+      {workflow.length > 0 && <StatusMapping workflow={workflow} />}
       {removing && (
         <Dialog title={t('sync.disconnect.title')} onClose={() => setRemoving(false)}>
           <p>{t('sync.disconnect.text')}</p>
@@ -559,6 +587,69 @@ function JiraDemoTools() {
       <p role="status" className="muted">
         {done ? t('jira.demo.done') : ''}
       </p>
+    </section>
+  );
+}
+
+/** Which board column a status of the Jira workflow stands for (AC6.1): proposed by name, changeable; what is unclear is marked. */
+function StatusMapping({ workflow }: { workflow: WorkflowStatus[] }) {
+  const { t } = useSyncT();
+  const app = useApp();
+  const id = useId();
+  const columns = middleStatuses(app.statuses).map(statusName);
+  const connection = app.settings.sync.connection;
+  const map = ((): Record<string, string> => {
+    try {
+      return connection.statusMap ? (JSON.parse(connection.statusMap) as Record<string, string>) : {};
+    } catch {
+      return {};
+    }
+  })();
+  const named = (status: string): string => columns.find((column) => column.toLowerCase() === status.toLowerCase()) ?? '';
+  const rows = workflow.filter((status) => status.category === 'indeterminate');
+  const chosen = (status: string): string => map[status] ?? named(status);
+  const recognised = rows.filter((status) => chosen(status.name) !== '').length;
+
+  const change = (status: string, column: string): void => {
+    const next = { ...map };
+    if (column === '' || column === named(status)) delete next[status];
+    else next[status] = column;
+    const { statusMap: _old, ...rest } = connection;
+    void _old;
+    app.setSyncConnection({ ...rest, ...(Object.keys(next).length > 0 ? { statusMap: JSON.stringify(next) } : {}) });
+  };
+
+  if (rows.length === 0) return null;
+  return (
+    <section className="github-demo jira-mapping" aria-label={t('jira.mapping.title')}>
+      <h3>
+        {t('jira.mapping.title')} <InfoHint text={t('jira.mapping.hint')} />
+      </h3>
+      <p role="status" className="muted">
+        {t('jira.mapping.summary', { found: recognised, count: rows.length })}
+      </p>
+      <table className="jira-mapping__table">
+        <tbody>
+          {rows.map((status) => (
+            <tr key={status.name}>
+              <th scope="row">
+                <label htmlFor={`${id}-${status.name}`}>{status.name}</label>
+              </th>
+              <td>
+                <select id={`${id}-${status.name}`} className="input" value={chosen(status.name)} onChange={(event) => change(status.name, event.target.value)}>
+                  <option value="">{t('jira.mapping.none')}</option>
+                  {columns.map((column) => (
+                    <option key={column} value={column}>
+                      {column}
+                    </option>
+                  ))}
+                </select>
+                {chosen(status.name) === '' && <span className="muted"> {t('jira.mapping.unclear')}</span>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }
