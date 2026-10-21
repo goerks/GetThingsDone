@@ -1,6 +1,8 @@
 import { useEffect, useId, useState, type FormEvent } from 'react';
 import { DEMO_READONLY_TOKEN, DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemoIssues, saveDemoIssues } from '../sync/github/demoApi';
 import { isSyncDemo, SyncError } from '../sync';
+import { DEMO_EMAIL, DEMO_PROJECT, DEMO_READONLY_TOKEN as JIRA_READONLY_TOKEN, DEMO_SITE, DEMO_WRONG_TOKEN as JIRA_WRONG_TOKEN, demoJiraIssues, resetDemoJira, saveDemoJiraIssues, type DemoJiraIssue } from '../sync/jira/simulation';
+import { isEmail, parseProject, parseSite } from '../sync/jira/client';
 import { Dialog } from '../components/Dialog';
 import { InfoHint } from '../components/InfoHint';
 import { SyncLog } from '../components/SyncLog';
@@ -92,6 +94,7 @@ function SyncSettings() {
         })}
       </fieldset>
       {sync.service === 'github' ? <GithubForm key={sync.service} hasToken={hasToken} setHasToken={setHasToken} /> : null}
+      {sync.service === 'jira' ? <JiraForm key={sync.service} hasToken={hasToken} setHasToken={setHasToken} /> : null}
       <div className="github-options github-options--row">
         <label>
           <input type="checkbox" checked={sync.write} onChange={(event) => app.setSyncOptions({ write: event.target.checked })} /> {t('sync.settings.write.label')}
@@ -153,6 +156,7 @@ function SyncSettings() {
       )}
       {connected && <SyncLog />}
       {sync.service === 'github' && isSyncDemo() && <DemoTools />}
+      {sync.service === 'jira' && isSyncDemo() && <JiraDemoTools />}
     </div>
   );
 }
@@ -340,6 +344,220 @@ function DemoTools() {
       </div>
       <p role="status" className="muted">
         {done ? t('github.demo.done') : ''}
+      </p>
+    </section>
+  );
+}
+
+type JiraProblem = 'siteMissing' | 'siteFormat' | 'emailMissing' | 'emailFormat' | 'projectMissing' | 'projectFormat' | 'tokenMissing';
+
+/** The connection to Jira Cloud: site, e-mail address, project key and API token, and an optional JQL filter. */
+function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasToken: (value: boolean) => void }) {
+  const { t } = useSyncT();
+  const app = useApp();
+  const id = useId();
+  const saved = app.settings.sync.connection;
+  const demo = isSyncDemo();
+  const [site, setSite] = useState(saved.site ?? '');
+  const [email, setEmail] = useState(saved.email ?? '');
+  const [project, setProject] = useState(saved.project ?? '');
+  const [filter, setFilter] = useState(saved.filter ?? '');
+  const [token, setToken] = useState('');
+  const [problem, setProblem] = useState<JiraProblem | null>(null);
+  const [status, setStatus] = useState<Status>({ kind: 'idle' });
+  const [removing, setRemoving] = useState(false);
+  const connected = (saved.site ?? '') !== '';
+
+  const check = (): JiraProblem | null => {
+    if (site.trim() === '') return 'siteMissing';
+    if (!parseSite(site)) return 'siteFormat';
+    if (email.trim() === '') return 'emailMissing';
+    if (!isEmail(email)) return 'emailFormat';
+    if (project.trim() === '') return 'projectMissing';
+    if (!parseProject(project)) return 'projectFormat';
+    return null;
+  };
+
+  const test = async (event: FormEvent): Promise<void> => {
+    event.preventDefault();
+    const found = check();
+    if (found) return setProblem(found);
+    const entered = token.trim();
+    const stored = entered !== '' ? entered : await app.syncTokens.get();
+    if (!stored) return setProblem('tokenMissing');
+    setProblem(null);
+    const connection = { site, email, project, filter, ...(saved.statusMap ? { statusMap: saved.statusMap } : {}) };
+    if (!app.setSyncConnection(connection)) return setProblem('siteFormat');
+    setStatus({ kind: 'testing' });
+    try {
+      const count = await app.testSync(connection, stored);
+      // The token is only kept once Jira accepted it.
+      if (entered !== '') {
+        await app.syncTokens.set(entered);
+        setToken('');
+        setHasToken(true);
+      }
+      setSite(parseSite(site) ?? site);
+      setProject(parseProject(project) ?? project);
+      setStatus({ kind: 'ok', count });
+    } catch (cause) {
+      setStatus({ kind: 'error', error: syncErrorKey(cause) });
+    }
+  };
+
+  const disconnect = async (): Promise<void> => {
+    setRemoving(false);
+    await app.disconnectSync();
+    setSite('');
+    setEmail('');
+    setProject('');
+    setFilter('');
+    setToken('');
+    setHasToken(false);
+    setProblem(null);
+    setStatus({ kind: 'idle' });
+  };
+
+  const problemText = (...kinds: JiraProblem[]): string | null => (problem && kinds.includes(problem) ? t(`jira.settings.problem.${problem}`) : null);
+  const text = (key: string, label: string, value: string, set: (value: string) => void, placeholder: string, ...kinds: JiraProblem[]) => {
+    const message = problemText(...kinds);
+    return (
+      <div className="field">
+        <label htmlFor={`${id}-${key}`}>{label}</label>
+        <input
+          id={`${id}-${key}`}
+          className="input"
+          value={value}
+          placeholder={placeholder}
+          autoComplete="off"
+          spellCheck={false}
+          aria-invalid={message ? true : undefined}
+          aria-describedby={message ? `${id}-${key}-problem` : undefined}
+          onChange={(event) => set(event.target.value)}
+        />
+        {message && (
+          <p id={`${id}-${key}-problem`} role="alert" className="field-error">
+            {message}
+          </p>
+        )}
+      </div>
+    );
+  };
+  const tokenProblem = problemText('tokenMissing');
+
+  return (
+    <>
+      <form className="form" onSubmit={(event) => void test(event)} noValidate>
+        {text('site', t('jira.settings.site'), site, setSite, 'your-team.atlassian.net', 'siteMissing', 'siteFormat')}
+        {text('email', t('jira.settings.email'), email, setEmail, 'name@example.com', 'emailMissing', 'emailFormat')}
+        {text('project', t('jira.settings.project'), project, setProject, 'PROJ', 'projectMissing', 'projectFormat')}
+        <div className="field">
+          <div className="field__label-row">
+            <label htmlFor={`${id}-token`}>{t('jira.settings.token')}</label>
+            <InfoHint id={`${id}-token-note`} text={t(demo ? 'jira.settings.tokenNoteDemo' : 'jira.settings.tokenNote', { wrong: JIRA_WRONG_TOKEN, readonly: JIRA_READONLY_TOKEN })} />
+          </div>
+          <input
+            id={`${id}-token`}
+            className="input"
+            type="password"
+            value={token}
+            placeholder={hasToken ? t('github.settings.tokenSaved') : ''}
+            autoComplete="off"
+            aria-invalid={tokenProblem ? true : undefined}
+            aria-describedby={`${id}-token-note${tokenProblem ? ` ${id}-token-problem` : ''}`}
+            onChange={(event) => setToken(event.target.value)}
+          />
+          {tokenProblem && (
+            <p id={`${id}-token-problem`} role="alert" className="field-error">
+              {tokenProblem}
+            </p>
+          )}
+          {connected && hasToken === false && !tokenProblem && <p className="muted">{t('github.settings.tokenMissingNote')}</p>}
+        </div>
+        <div className="field">
+          <div className="field__label-row">
+            <label htmlFor={`${id}-filter`}>{t('jira.settings.filter')}</label>
+            <InfoHint text={t('jira.settings.filterHint')} />
+          </div>
+          <input id={`${id}-filter`} className="input" value={filter} placeholder='labels = "team-a"' autoComplete="off" spellCheck={false} onChange={(event) => setFilter(event.target.value)} />
+        </div>
+        <div className="form__actions github-settings__actions">
+          <button type="submit" className="btn btn--primary" disabled={status.kind === 'testing'}>
+            {t('sync.settings.test')}
+          </button>
+          {(connected || hasToken) && (
+            <button type="button" className="btn" onClick={() => setRemoving(true)}>
+              {t('sync.settings.disconnect')}
+            </button>
+          )}
+        </div>
+      </form>
+      <div role="status" className="github-settings__status">
+        {status.kind === 'testing' && <span className="muted">{t('sync.settings.testing')}</span>}
+        {status.kind === 'ok' && <span className="github-ok">✓ {t('sync.settings.ok', { count: status.count })}</span>}
+      </div>
+      {status.kind === 'error' && (
+        <p role="alert" className="notice notice--error">
+          {t(`sync.errors.${status.error}`)}
+        </p>
+      )}
+      {removing && (
+        <Dialog title={t('sync.disconnect.title')} onClose={() => setRemoving(false)}>
+          <p>{t('sync.disconnect.text')}</p>
+          <div className="form__actions">
+            <button type="button" className="btn" onClick={() => setRemoving(false)}>
+              {t('sync.disconnect.cancel')}
+            </button>
+            <button type="button" className="btn btn--primary" onClick={() => void disconnect()}>
+              {t('sync.disconnect.confirm')}
+            </button>
+          </div>
+        </Dialog>
+      )}
+    </>
+  );
+}
+
+/** The simulated Jira of the preview: buttons that change its issues, so a sync can be tried out (#66). */
+function JiraDemoTools() {
+  const { t } = useSyncT();
+  const [done, setDone] = useState<string | null>(null);
+
+  const change = (key: string, work: (issues: DemoJiraIssue[]) => DemoJiraIssue[]): void => {
+    saveDemoJiraIssues(work(demoJiraIssues()));
+    setDone(key);
+  };
+  const patch = (issueKey: string, changes: Partial<DemoJiraIssue>) => (issues: DemoJiraIssue[]) => issues.map((issue) => (issue.key === issueKey ? { ...issue, ...changes } : issue));
+
+  const actions: Array<[string, () => void]> = [
+    ['rename', () => change('rename', patch('PROJ-1', { summary: 'Login page', labels: ['feature', 'bug'] }))],
+    ['progress', () => change('progress', patch('PROJ-3', { status: 'In Progress' }))],
+    ['close', () => change('close', patch('PROJ-2', { status: 'Done' }))],
+    ['reopen', () => change('reopen', patch('PROJ-4', { status: 'To Do' }))],
+    ['add', () => change('add', (issues) => (issues.some((issue) => issue.key === 'PROJ-8') ? issues : [...issues, { key: 'PROJ-8', summary: 'Notifications', description: null, labels: ['feature'], status: 'To Do', type: 'Story' }]))],
+    [
+      'reset',
+      () => {
+        resetDemoJira();
+        setDone('reset');
+      }
+    ]
+  ];
+
+  return (
+    <section className="github-demo" aria-label={t('jira.demo.title')}>
+      <h3>
+        {t('jira.demo.title')} <InfoHint text={t('jira.demo.text', { site: DEMO_SITE, email: DEMO_EMAIL, project: DEMO_PROJECT, wrong: JIRA_WRONG_TOKEN, readonly: JIRA_READONLY_TOKEN })} />
+      </h3>
+      <div className="github-demo__buttons">
+        {actions.map(([key, run]) => (
+          <button key={key} type="button" className="btn btn--small" onClick={run}>
+            {t(`jira.demo.${key}`)}
+          </button>
+        ))}
+      </div>
+      <p role="status" className="muted">
+        {done ? t('jira.demo.done') : ''}
       </p>
     </section>
   );

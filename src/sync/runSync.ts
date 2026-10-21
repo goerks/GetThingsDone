@@ -43,6 +43,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   const { connector, target, token, statuses } = input;
   const labelsField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
   const open = await connector.open(target, token);
+  const skipped = connector.skipped?.() ?? 0;
   const context = { epics: input.epics, releases: input.releases };
   const catalog = await connector.catalog(target, token);
   // A story whose item is no longer in the list of open items may have been closed: ask for those.
@@ -119,7 +120,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   }
   return {
     plan: { ...plan, stories },
-    summary: { ...plan.summary, published, labelsCreated: made.labels, milestonesCreated: made.milestones, labelsDeleted: gone.labels, milestonesDeleted: gone.milestones },
+    summary: { ...plan.summary, ...(skipped > 0 ? { skipped } : {}), published, labelsCreated: made.labels, milestonesCreated: made.milestones, labelsDeleted: gone.labels, milestonesDeleted: gone.milestones },
     managed,
     error
   };

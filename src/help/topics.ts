@@ -77,6 +77,7 @@ export const TOPICS: readonly TopicDef[] = [
   { id: 'team.assign', pages: ['board', 'backlog', 'map', 'settings'], show: { selector: '.member-filter, .team, .assignee', missing: 'plain' }, links: [{ id: 'settingsTeam', hint: 'featureFirst' }, { id: 'board' }, { id: 'backlog' }] },
   { id: 'data.backup', pages: ['settings'], show: { selector: '.data-settings', missing: 'plain' }, links: [{ id: 'settingsData' }] },
   { id: 'sync.basics', pages: ['backlog', 'settings'], show: { selector: '.github-sync, .github-settings', missing: 'plain' }, links: [{ id: 'settingsSync', hint: 'featureFirst' }, { id: 'backlog' }] },
+  { id: 'sync.jira', pages: ['backlog', 'settings'], show: { selector: '.github-settings', missing: 'plain' }, links: [{ id: 'settingsSync', hint: 'featureFirst' }, { id: 'backlog' }] },
   { id: 'search.basics', pages: ALL_VIEWS, general: true },
   { id: 'shortcuts', pages: ALL_VIEWS, general: true }
 ];

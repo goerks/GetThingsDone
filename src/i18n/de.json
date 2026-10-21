@@ -1022,6 +1022,11 @@
         "title": "Synchronisation mit GitHub",
         "keywords": "github issues import sync synchronisieren abgleich repository token verbinden funktion aktivieren einschalten stories labels kriterien schreiben veröffentlichen konflikt verbindungen roundtrip milestone epic label status icon automatisch protokoll meldung synchronisation dienst wechseln",
         "body": "Die offenen Issues eines GitHub-Repositories als Stories importieren und Änderungen in beide Richtungen abgleichen. Das geht nur, wenn die Funktion „Synchronisation“ eingeschaltet und GitHub als Dienst gewählt ist (es ist immer nur ein Dienst aktiv). Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Synchronisation ein (Schalter ganz oben).\n2. Trage unter dem Schalter das Repository (owner/name) und ein Zugriffstoken ein und drücke „Verbindung testen“. Soll die App auch nach GitHub schreiben, schalte „Auch nach GitHub schreiben“ ein (das Token braucht dann „Issues: Lesen und Schreiben“) und wähle, wer bei einem Konflikt gewinnt: GitHub (Standard), lokal, oder du entscheidest.\n3. Öffne das Backlog und drücke „Synchronisieren“. Neue Issues werden zu Stories; was sich nur auf einer Seite geändert hat, geht auf die andere. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch deine Änderungen an Titel, Beschreibung, Labels, Kriterien und Erledigt/Offen. Ohne die automatische Synchronisation (nächster Absatz) geht nichts ohne diesen Knopf nach GitHub. Stories mit Änderungen, die noch nicht auf GitHub sind, sind markiert.\nEine eigene Story legst du über ihr Menü mit „Auf GitHub anlegen“ als Issue an. Sprint, Punkte und Reihenfolge bleiben immer lokal. Ohne Netzverbindung oder mit falschem Token sagt die App es und lässt deine lokalen Daten in Ruhe.\nDas Sync-Icon (zwei runde Pfeile) steht auf Backlog, Board und Story Map; die Zahl daran sind die Änderungen, die noch nicht auf GitHub sind. Releases entsprechen den Milestones, Epics den Labels „epic: Name“, die Board-Spalten zwischen „Offen“ und „Erledigt“ den Labels „status: Name“. Bei eingeschaltetem Schreiben legt der Abgleich die nötigen Milestones und Labels selbst an und löscht die, die er angelegt hat, sobald nichts mehr daran hängt. Was du selbst auf GitHub angelegt hast, löscht er nie.\nDas Ergebnis ist eine kurze Meldung unten, nie ein Dialog; „Protokoll“ darin führt zum Sync-Protokoll unter Einstellungen → Synchronisation, das jeden Lauf und seine einzelnen Änderungen auflistet. Schalte dort „Automatisch synchronisieren“ ein, und die App importiert und gleicht alle offenen Issues von selbst ab: beim Start, wenn du zur App zurückkehrst und alle 15 Minuten, solange sie offen ist. Konflikte bei der Regel „Ich entscheide“ werden dann nur markiert; „Prüfen“ in der Meldung öffnet die Auswahl. Nach drei Fehlern in Folge pausiert die Automatik, bis du das Sync-Symbol drückst.\nSchaltest du die Funktion wieder aus, ist alles ausgeblendet, aber erhalten."
+      },
+      "sync.jira": {
+        "title": "Synchronisation mit Jira",
+        "keywords": "jira atlassian cloud vorgänge issues import sync synchronisieren abgleich site e-mail projekt schlüssel api token verbinden workflow status übergang board spalte epic unteraufgabe filter jql kriterien beschreibung schreiben veröffentlichen simuliert demo",
+        "body": "Die offenen Vorgänge eines Jira-Cloud-Projekts als Stories importieren und Änderungen in beide Richtungen abgleichen. Es funktioniert wie der Abgleich mit GitHub und nur, wenn die Funktion „Synchronisation“ eingeschaltet und Jira als Dienst gewählt ist (es ist immer nur ein Dienst aktiv). Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Synchronisation ein und wähle die Karte „Jira“.\n2. Trage die Jira-Site (dein-team.atlassian.net), die E-Mail-Adresse deines Atlassian-Kontos, den Projektschlüssel und ein API-Token ein (erzeugst du in deinem Atlassian-Konto unter Sicherheit › API-Tokens) und drücke „Verbindung testen“. Ein zusätzlicher Filter (JQL, zum Beispiel labels = \"team-a\") schränkt den Import ein. Soll die App auch nach Jira schreiben, schalte „Auch nach Jira schreiben“ ein und wähle, wer bei einem Konflikt gewinnt.\n3. Öffne das Backlog und drücke „Synchronisieren“. Offene Vorgänge werden zu Stories und zeigen ihren Jira-Schlüssel (zum Beispiel PROJ-12) als ID, als Link zum Vorgang. Epics und Unteraufgaben werden nicht importiert; die Meldung zählt sie. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch Titel, Beschreibung, Labels, Kriterien und den Status.\nDer Status wird als Übergang des Workflows geschrieben: Eine Board-Spalte mit dem Namen eines Jira-Status setzt den Vorgang dorthin; „Erledigt“ schliesst ihn. Erlaubt der Workflow es nicht (er verlangt vielleicht eine Lösung), sagt die Meldung es, und die Änderung bleibt lokal und markiert. Die Kriterien sind die Aufgabenliste unter der Überschrift „Acceptance criteria“ in der Beschreibung. Eine Beschreibung mit Tabellen, Bildern oder Formatierung wird nur gelesen; der Abgleich schreibt sie nie neu. Der Abgleich löscht nie etwas in Jira.\nNur die Desktop-App spricht mit dem echten Jira Cloud. Die Web-Vorschau zeigt ein simuliertes Jira (mit „Demo“ gekennzeichnet) mit Knöpfen, um seine Vorgänge zu ändern."
       }
     },
     "links": {
@@ -1456,7 +1461,11 @@
       "notFound": "Repository nicht gefunden, oder das Token hat keinen Zugriff darauf. Deine lokalen Daten sind unverändert.",
       "rateLimit": "{{service}} erlaubt vorerst keine weiteren Anfragen. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
       "other": "{{service}} war nicht richtig erreichbar. Versuche es später noch einmal. Deine lokalen Daten sind unverändert.",
-      "forbidden": "{{service}} hat das Schreiben abgelehnt. Das Token braucht „Issues: Lesen und Schreiben“."
+      "forbidden": "{{service}} hat das Schreiben abgelehnt. Das Token braucht „Issues: Lesen und Schreiben“.",
+      "config_jira": "Die Verbindung ist nicht eingerichtet: Gib in den Einstellungen Site, E-Mail, Projekt und API-Token ein. Deine lokalen Daten sind unverändert.",
+      "notFound_jira": "Projekt oder Site nicht gefunden, oder das Konto hat keinen Zugriff darauf. Deine lokalen Daten sind unverändert.",
+      "forbidden_jira": "{{service}} hat das Schreiben abgelehnt. Das Konto braucht das Recht, Vorgänge zu bearbeiten und ihren Status zu ändern.",
+      "transition": "{{service}} hat die Statusänderung nicht erlaubt. Der Workflow verlangt vielleicht mehr (zum Beispiel eine Lösung): Ändere ihn direkt in {{service}}. Deine lokalen Daten sind unverändert."
     },
     "field": {
       "title": "Titel",
@@ -1515,7 +1524,8 @@
       "paused": "Automatische Synchronisation nach Fehlern pausiert. Das Sync-Symbol drücken, um fortzufahren.",
       "conflicts": "Konflikte warten auf dich: {{count}}",
       "review": "Prüfen",
-      "log": "Protokoll"
+      "log": "Protokoll",
+      "skipped": "{{count}} Epics oder Unteraufgaben ausgelassen"
     },
     "auto": {
       "label": "Automatisch synchronisieren",
@@ -1562,7 +1572,8 @@
       "where": "Importieren und Abgleichen findest du im Backlog, mit dem Knopf „Synchronisieren“.",
       "write": {
         "label": "Auch nach {{service}} schreiben",
-        "help": "Aus: nur lesen. An: „Synchronisieren“ veröffentlicht auch deine Änderungen. Das Token braucht „Issues: Lesen und Schreiben“."
+        "help": "Aus: nur lesen. An: „Synchronisieren“ veröffentlicht auch deine Änderungen. Das Token braucht „Issues: Lesen und Schreiben“.",
+        "help_jira": "Aus: nur lesen. An: „Synchronisieren“ veröffentlicht auch deine Änderungen. Das API-Token braucht das Recht, Vorgänge zu bearbeiten."
       },
       "conflict": {
         "legend": "Wenn beide Seiten dasselbe Feld geändert haben",
@@ -1629,6 +1640,38 @@
       "add": "Issue #44 hinzufügen",
       "reset": "Issues zurücksetzen",
       "done": "Die Issues auf GitHub wurden geändert."
+    }
+  },
+  "jira": {
+    "settings": {
+      "site": "Jira-Site",
+      "email": "E-Mail-Adresse deines Atlassian-Kontos",
+      "project": "Projektschlüssel",
+      "token": "API-Token",
+      "tokenNote": "Erzeuge das Token in deinem Atlassian-Konto (Sicherheit › API-Tokens). Es liegt im Schlüsselbund des Systems und wird nie wieder angezeigt.",
+      "tokenNoteDemo": "Jeder Text geht, ausser „{{wrong}}“ (abgelehnt) und „{{readonly}}“ (nur lesen). Es wird nichts gesendet.",
+      "filter": "Zusätzlicher Filter (JQL, optional)",
+      "filterHint": "Weitere Bedingungen für die Vorgänge, die importiert werden, zum Beispiel labels = \"team-a\". Epics und Unteraufgaben werden nie importiert. Erledigte Vorgänge auch nicht.",
+      "problem": {
+        "siteMissing": "Die Jira-Site fehlt.",
+        "siteFormat": "Verwende die Form dein-team.atlassian.net.",
+        "emailMissing": "Die E-Mail-Adresse fehlt.",
+        "emailFormat": "Gib eine gültige E-Mail-Adresse ein.",
+        "projectMissing": "Der Projektschlüssel fehlt.",
+        "projectFormat": "Verwende den Projektschlüssel in Grossbuchstaben, zum Beispiel PROJ.",
+        "tokenMissing": "Das API-Token fehlt."
+      }
+    },
+    "demo": {
+      "title": "Demo: simuliertes Jira",
+      "text": "Ein kleines simuliertes Jira in diesem Browser ({{site}}, Projekt {{project}}). Gib irgendeine E-Mail-Adresse ein, zum Beispiel {{email}}. Ändere hier seine Vorgänge und synchronisiere dann. Das Token „{{wrong}}“ wird abgelehnt, „{{readonly}}“ darf nicht schreiben.",
+      "rename": "PROJ-1 umbenennen, neues Label",
+      "progress": "PROJ-3 auf In Progress setzen",
+      "close": "PROJ-2 schliessen",
+      "reopen": "PROJ-4 wieder öffnen",
+      "add": "Vorgang PROJ-8 hinzufügen",
+      "reset": "Vorgänge zurücksetzen",
+      "done": "Die Vorgänge in Jira wurden geändert."
     }
   }
 }

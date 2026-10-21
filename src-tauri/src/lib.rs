@@ -26,6 +26,66 @@ fn sync_token_get(service: String) -> Result<Option<String>, String> {
     }
 }
 
+/// A request of the sync to Jira Cloud (#66, ADR 0007).
+#[derive(serde::Deserialize)]
+struct HttpRequest {
+    method: String,
+    url: String,
+    headers: std::collections::HashMap<String, String>,
+    body: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+struct HttpResponse {
+    status: u16,
+    headers: std::collections::HashMap<String, String>,
+    body: String,
+}
+
+/// Only https to Atlassian is allowed, so the command cannot be used to reach anything else.
+fn allowed_host(url: &reqwest::Url) -> bool {
+    url.scheme() == "https"
+        && url.host_str().is_some_and(|host| {
+            host.ends_with(".atlassian.net") || host == "api.atlassian.com"
+        })
+}
+
+/// Sends one request to Jira and returns the answer as it is (a status of 4xx or 5xx is an answer, not an error).
+#[tauri::command]
+async fn http_request(request: HttpRequest) -> Result<HttpResponse, String> {
+    let url = reqwest::Url::parse(&request.url).map_err(|error| error.to_string())?;
+    if !allowed_host(&url) {
+        return Err("host not allowed".to_string());
+    }
+    let method = match request.method.as_str() {
+        "GET" => reqwest::Method::GET,
+        "POST" => reqwest::Method::POST,
+        "PUT" => reqwest::Method::PUT,
+        _ => return Err("method not allowed".to_string()),
+    };
+    let client = reqwest::Client::builder()
+        .redirect(reqwest::redirect::Policy::none())
+        .timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|error| error.to_string())?;
+    let mut builder = client.request(method, url);
+    for (name, value) in &request.headers {
+        builder = builder.header(name, value);
+    }
+    if let Some(body) = request.body {
+        builder = builder.body(body);
+    }
+    let response = builder.send().await.map_err(|error| error.to_string())?;
+    let status = response.status().as_u16();
+    let headers = response
+        .headers()
+        .iter()
+        .filter_map(|(name, value)| Some((name.to_string(), value.to_str().ok()?.to_string())))
+        .collect();
+    let body = response.text().await.map_err(|error| error.to_string())?;
+    Ok(HttpResponse { status, headers, body })
+}
+
 #[tauri::command]
 fn sync_token_set(service: String, token: String) -> Result<(), String> {
     token_entry(&service)?
@@ -167,6 +227,7 @@ pub fn run() {
             sync_token_get,
             sync_token_set,
             sync_token_delete,
+            http_request,
             open_external
         ])
         .plugin(

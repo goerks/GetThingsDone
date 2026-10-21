@@ -595,7 +595,7 @@ describe('texts', () => {
       Object.entries(value as Record<string, unknown>).flatMap(([key, item]) => (typeof item === 'object' && item !== null ? keys(item, `${prefix}${key}.`) : [`${prefix}${key}`]));
     // When I compare the keys of "sync" and "github" (plural forms differ per language, so they are compared without their ending)
     const base = (name: string): string => name.replace(/_(zero|one|two|few|many|other)$/, '');
-    const names = (file: Record<string, unknown>): string[] => [...new Set([...keys(file.sync, 'sync.'), ...keys(file.github, 'github.')].map(base))].sort();
+    const names = (file: Record<string, unknown>): string[] => [...new Set([...keys(file.sync, 'sync.'), ...keys(file.github, 'github.'), ...keys(file.jira, 'jira.')].map(base))].sort();
     // Then every language has the same texts, and none is empty
     const english = names(files[1][1]);
     for (const [code, file] of files) {

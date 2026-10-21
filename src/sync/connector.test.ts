@@ -9,13 +9,15 @@ import type { GithubApi } from './github/api';
 import { createGithubConnector } from './github/connector';
 import { createDemoApi, DEMO_READONLY_TOKEN, DEMO_REPO, resetDemoIssues, saveDemoIssues } from './github/demoApi';
 import type { GithubIssue } from './github/format';
+import { createJiraConnector } from './jira/connector';
+import { DEMO_EMAIL, DEMO_SITE, createMemoryJira, type DemoJiraIssue } from './jira/simulation';
 import { runSync } from './runSync';
 
 /*
  * One test series that every connector has to pass (#66, AC11.1): reading, writing, errors and a run of the sync engine.
- * The engine knows no service, so a new service is "only" a connector that passes this series. Three connectors run it:
- * the connector of GitHub on the fake and on the simulated GitHub of the preview, and a second service that looks like
- * GitLab and nothing like GitHub.
+ * The engine knows no service, so a new service is "only" a connector that passes this series. Four connectors run it:
+ * the connector of GitHub on the fake and on the simulated GitHub of the preview, the connector of Jira on the simulated
+ * Jira of the preview, and a second service that looks like GitLab and nothing like GitHub.
  */
 
 const repo = { owner: DEMO_REPO.owner, name: DEMO_REPO.name };
@@ -85,9 +87,19 @@ function gitlabLike(): Backend {
   return { connector: connector as unknown as TrackerConnector, target: { project: 'team/app' }, token: (kind) => kind, ids: { open: '12', closed: '10', openKey: '#12', unknown: '999' } };
 }
 
+function jiraOnSimulation(): Backend {
+  const issue = (key: string, summary: string, extra: Partial<DemoJiraIssue> = {}): DemoJiraIssue => ({ key, summary, description: null, labels: [], status: 'To Do', type: 'Story', ...extra });
+  const text = { version: 1 as const, type: 'doc' as const, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Text' }] }] };
+  const memory = createMemoryJira([issue('PROJ-31', 'Login', { description: text, labels: ['feature'] }), issue('PROJ-29', 'Imprint', { status: 'Done' }), issue('PROJ-35', 'Export')]);
+  const tokens = { writer: 'writer', reader: 'nurlesen', wrong: 'falsch' };
+  const target = { site: DEMO_SITE, email: DEMO_EMAIL, project: 'PROJ', filter: '', statusMap: {} };
+  return { connector: createJiraConnector(memory.transport) as unknown as TrackerConnector, target, token: (kind) => tokens[kind], ids: { open: 'PROJ-31', closed: 'PROJ-29', openKey: 'PROJ-31', unknown: 'PROJ-999' } };
+}
+
 const BACKENDS: Array<[string, () => Backend]> = [
   ['GitHub on the fake', githubOnFake],
   ['GitHub on the simulation of the preview', githubOnDemo],
+  ['Jira on the simulation of the preview', jiraOnSimulation],
   ['a second service that looks like GitLab', gitlabLike]
 ];
 

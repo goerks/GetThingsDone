@@ -1022,6 +1022,11 @@
         "title": "Synchronisation with GitHub",
         "keywords": "github issues import sync synchronise repository token connect feature activate switch on enable stories labels criteria write publish conflict connections roundtrip milestone epic label status icon automatic auto log notice synchronisation service switch",
         "body": "Import the open issues of a GitHub repository as stories and sync changes in both directions. This only works while the feature “Synchronisation” is on and GitHub is the chosen service (only one service is active at a time). Go in this order:\n1. Switch the feature on under Settings → Synchronisation (the switch at the top).\n2. Below the switch, enter the repository (owner/name) and an access token and press “Test connection”. If the app should also write to GitHub, switch on “Also write to GitHub” (the token then needs “Issues: read and write”) and choose who wins in a conflict: GitHub (default), local, or you decide.\n3. Open the backlog and press “Sync”. New issues become stories; what changed on one side only goes to the other. With writing on, “Sync” also publishes your changes to title, description, labels, criteria and done/open. Without the automatic sync (next paragraph), nothing goes to GitHub without this button. Stories with changes that are not on GitHub yet are marked.\nYou create an issue from a story of your own with “Create on GitHub” in its menu. Sprint, points and order always stay local. Without a network connection or with a wrong token the app says so and leaves your local data alone.\nThe sync icon (two circular arrows) is on the backlog, the board and the story map; the number on it is the changes that are not on GitHub yet. Releases are the milestones, epics are the labels “epic: Name”, and the board columns between “To do” and “Done” are the labels “status: Name”. While writing is on, the sync makes the milestones and labels it needs and deletes the ones it made itself once nothing needs them any more. Milestones and labels you made on GitHub yourself are never deleted.\nThe result is a short notice at the bottom, never a dialog; “Log” in it leads to the sync log under Settings → Synchronisation, which lists every run and its single changes. Switch on “Synchronise automatically” there and the app imports and compares all open issues by itself: at the start, when you come back to the app and every 15 minutes while it is open. Conflicts under the rule “I decide” are only marked then; “Review” in the notice opens the choice. After three errors in a row the automatic sync pauses until you press the sync icon.\nIf you switch the feature off again, everything is hidden but kept."
+      },
+      "sync.jira": {
+        "title": "Synchronisation with Jira",
+        "keywords": "jira atlassian cloud issues import sync synchronise site email project key api token connect workflow status transition board column epic sub-task filter jql criteria description write publish simulated demo",
+        "body": "Import the open issues of a Jira Cloud project as stories and sync changes in both directions. It works like the sync with GitHub and only while the feature “Synchronisation” is on and Jira is the chosen service (only one service is active at a time). Go in this order:\n1. Switch the feature on under Settings → Synchronisation, then choose the card “Jira”.\n2. Enter the Jira site (your-team.atlassian.net), the e-mail address of your Atlassian account, the project key and an API token (create it in your Atlassian account under Security › API tokens), then press “Test connection”. An extra filter (JQL, for example labels = \"team-a\") limits what is imported. If the app should also write to Jira, switch on “Also write to Jira” and choose who wins in a conflict.\n3. Open the backlog and press “Sync”. Open issues become stories and show their Jira key (for example PROJ-12) as their ID, as a link to the issue. Epics and sub-tasks are not imported; the notice counts them. With writing on, “Sync” also publishes title, description, labels, criteria and the status.\nThe status is written as a transition of the workflow: a column of the board that has the name of a Jira status moves the issue there; “Done” closes it. If the workflow does not allow it (it may need a resolution), the notice says so and the change stays local and marked. The criteria are the task list under the heading “Acceptance criteria” in the description. A description with tables, images or formatting is only read; the sync never rewrites it. The sync never deletes anything in Jira.\nOnly the desktop app talks to the real Jira Cloud. The web preview shows a simulated Jira (marked “Demo”) with buttons to change its issues."
       }
     },
     "links": {
@@ -1456,7 +1461,11 @@
       "notFound": "Repository not found, or the token has no access to it. Your local data is unchanged.",
       "rateLimit": "{{service}} allows no more requests for now. Try again later. Your local data is unchanged.",
       "other": "{{service}} could not be reached properly. Try again later. Your local data is unchanged.",
-      "forbidden": "{{service}} refused to write. The token needs “Issues: read and write”."
+      "forbidden": "{{service}} refused to write. The token needs “Issues: read and write”.",
+      "config_jira": "The connection is not set up: enter site, e-mail, project and API token in the settings. Your local data is unchanged.",
+      "notFound_jira": "Project or site not found, or the account has no access to it. Your local data is unchanged.",
+      "forbidden_jira": "{{service}} refused to write. The account needs the right to edit issues and to change their status.",
+      "transition": "{{service}} did not allow the change of status. The workflow may need more (for example a resolution): change it in {{service}} itself. Your local data is unchanged."
     },
     "field": {
       "title": "Title",
@@ -1515,7 +1524,8 @@
       "paused": "Automatic sync paused after errors. Press the sync icon to resume.",
       "conflicts": "Conflicts waiting for you: {{count}}",
       "review": "Review",
-      "log": "Log"
+      "log": "Log",
+      "skipped": "{{count}} epics or sub-tasks left out"
     },
     "auto": {
       "label": "Synchronise automatically",
@@ -1562,7 +1572,8 @@
       "where": "You find import and sync in the backlog, with the “Sync” button.",
       "write": {
         "label": "Also write to {{service}}",
-        "help": "Off: read only. On: “Sync” also publishes your changes. The token needs “Issues: read and write”."
+        "help": "Off: read only. On: “Sync” also publishes your changes. The token needs “Issues: read and write”.",
+        "help_jira": "Off: read only. On: “Sync” also publishes your changes. The API token needs the right to edit issues."
       },
       "conflict": {
         "legend": "When both sides changed the same field",
@@ -1629,6 +1640,38 @@
       "add": "Add issue #44",
       "reset": "Reset the issues",
       "done": "The issues on GitHub were changed."
+    }
+  },
+  "jira": {
+    "settings": {
+      "site": "Jira site",
+      "email": "E-mail address of your Atlassian account",
+      "project": "Project key",
+      "token": "API token",
+      "tokenNote": "Create the token in your Atlassian account (Security › API tokens). It is kept in the system keychain and never shown again.",
+      "tokenNoteDemo": "Any text works, except “{{wrong}}” (refused) and “{{readonly}}” (read only). Nothing is sent.",
+      "filter": "Extra filter (JQL, optional)",
+      "filterHint": "More conditions for the issues to import, for example labels = \"team-a\". Epics and sub-tasks are never imported. Done issues are not imported.",
+      "problem": {
+        "siteMissing": "The Jira site is missing.",
+        "siteFormat": "Use the form your-team.atlassian.net.",
+        "emailMissing": "The e-mail address is missing.",
+        "emailFormat": "Enter a valid e-mail address.",
+        "projectMissing": "The project key is missing.",
+        "projectFormat": "Use the project key in capitals, for example PROJ.",
+        "tokenMissing": "The API token is missing."
+      }
+    },
+    "demo": {
+      "title": "Demo: simulated Jira",
+      "text": "A small simulated Jira in this browser ({{site}}, project {{project}}). Enter any e-mail address, for example {{email}}. Change its issues here, then sync. Token “{{wrong}}” is refused, “{{readonly}}” may not write.",
+      "rename": "Rename PROJ-1, new label",
+      "progress": "Move PROJ-3 to In Progress",
+      "close": "Close PROJ-2",
+      "reopen": "Reopen PROJ-4",
+      "add": "Add issue PROJ-8",
+      "reset": "Reset the issues",
+      "done": "The issues in Jira were changed."
     }
   }
 }

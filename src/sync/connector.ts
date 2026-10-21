@@ -2,7 +2,7 @@ import type { Catalog, ExternalItem, FieldName, ItemPatch, NewItem } from '../do
 import type { Epic, ExternalLink, Release, ServiceKind, StatusValue } from '../domain/types';
 
 /** Why a call to a service failed. The texts for the user are `sync.errors.<kind>`. */
-export type SyncErrorKind = 'config' | 'network' | 'auth' | 'forbidden' | 'notFound' | 'rateLimit' | 'other';
+export type SyncErrorKind = 'config' | 'network' | 'auth' | 'forbidden' | 'notFound' | 'rateLimit' | 'transition' | 'other';
 
 export class SyncError extends Error {
   constructor(
@@ -88,6 +88,16 @@ export interface TrackerConnector<Target = unknown> {
   create(target: Target, token: string, item: NewItem, context: WriteContext): Promise<WriteResult>;
   /** Deletes what the sync made and nothing needs any more. Only called when `capabilities.tidy` is set. Throws a `SyncError`. */
   tidy(target: Target, token: string, needs: Needs, managed: Made, catalog: Catalog): Promise<TidyResult>;
+  /** How many items the last `open` left out because they are not stories (Jira: epics and sub-tasks). */
+  skipped?(): number;
+  /** The statuses of the target's workflow, so the settings can map them to the columns of the board. */
+  statuses?(target: Target, token: string): Promise<WorkflowStatus[]>;
+}
+
+/** A status of the workflow of a service: its name and what it counts as (not started, in progress, done). */
+export interface WorkflowStatus {
+  name: string;
+  category: 'new' | 'indeterminate' | 'done';
 }
 
 /** The connectors by service; a service without one is planned. */

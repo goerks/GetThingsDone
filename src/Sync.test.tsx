@@ -9,6 +9,8 @@ import type { Story } from './domain/types';
 import { initI18n } from './i18n';
 import type { TrackerConnector } from './sync/connector';
 import { issueUrl } from './sync/github/format';
+import { createJiraConnector } from './sync/jira/connector';
+import { createMemoryJira } from './sync/jira/simulation';
 import { exampleTracker } from './test/exampleConnector';
 import { fakeGithub, fakeIssue, REPO } from './test/fakeGithub';
 import { sync } from './test/syncHelpers';
@@ -63,7 +65,8 @@ async function renderApp(hash: string, { connected = true, featureOn = true, sto
     }
   });
   if (connected) await fake.tokens.set('good');
-  const connectors = second ? { ...fake.sync.connectors, gitlab: exampleTracker([]).connector as unknown as TrackerConnector } : fake.sync.connectors;
+  const withJira = { ...fake.sync.connectors, jira: createJiraConnector(createMemoryJira().transport) };
+  const connectors = second ? { ...withJira, gitlab: exampleTracker([]).connector as unknown as TrackerConnector } : withJira;
   window.location.hash = hash;
   render(<App repository={repository} sync={{ connectors, tokens: fake.sync.tokens }} />);
   await screen.findByRole('heading', { level: 1 });
@@ -71,16 +74,16 @@ async function renderApp(hash: string, { connected = true, featureOn = true, sto
 }
 
 describe('choosing the service', () => {
-  it('AC1.1 shows the services as one choice: GitHub is chosen, the planned ones cannot be chosen', async () => {
+  it('AC1.1 shows the services as one choice: GitHub is chosen, Jira can be chosen, GitLab is planned', async () => {
     // Given the synchronisation is on and GitHub is connected
     await renderApp('#/settings/sync');
     // When I look at the settings
     const group = await screen.findByRole('group', { name: /^Service/ });
     const radios = within(group).getAllByRole('radio') as HTMLInputElement[];
-    // Then there is one choice, GitHub is chosen and Jira and GitLab are planned
-    expect(radios.map((radio) => radio.closest('label')?.textContent)).toEqual(['GitHubconnected', 'Jiraplanned', 'GitLabplanned']);
+    // Then there is one choice, GitHub is chosen, Jira is available and GitLab is planned
+    expect(radios.map((radio) => radio.closest('label')?.textContent)).toEqual(['GitHubconnected', 'Jiraavailable', 'GitLabplanned']);
     expect(radios.map((radio) => radio.checked)).toEqual([true, false, false]);
-    expect(radios.map((radio) => radio.disabled)).toEqual([false, true, true]);
+    expect(radios.map((radio) => radio.disabled)).toEqual([false, false, true]);
   });
 
   it('AC1.4 hides the issue keys when the feature is switched off, keeps the stories, and brings them back when it is on', async () => {
