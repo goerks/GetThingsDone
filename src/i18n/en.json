@@ -1469,7 +1469,8 @@
       "labelDeleted": "Label deleted: {{name}}",
       "milestoneCreated": "Milestone created: {{name}}",
       "milestoneDeleted": "Milestone deleted: {{name}}",
-      "missingLabels": "Label missing on GitHub: {{names}}"
+      "missingLabels": "Label missing on GitHub: {{names}}",
+      "paused": "automatic sync paused"
     },
     "change": {
       "created": "New story",
@@ -1564,6 +1565,48 @@
       "done": "{{code}} was created on GitHub.",
       "skipped": "GitHub does not know these labels, they were not created: {{labels}}",
       "failed": "{{code}} could not be created on GitHub: {{reason}}"
+    },
+    "toast": {
+      "done": "Synchronised: {{parts}}",
+      "upToDate": "Already up to date",
+      "new": "{{count}} new",
+      "updated": "{{count}} updated",
+      "closed": "{{count}} closed",
+      "published": "{{count}} sent to GitHub",
+      "other": "{{count}} labels and milestones",
+      "failed": "Synchronisation failed: {{reason}}",
+      "paused": "Automatic sync paused after errors. Press the sync icon to resume.",
+      "conflicts": "Conflicts waiting for you: {{count}}",
+      "review": "Review",
+      "log": "Log"
+    },
+    "auto": {
+      "label": "Synchronise automatically",
+      "hint": "Imports new issues and compares all open issues by itself: at the start, when you come back to the app and every 15 minutes while it is open. All or none. The sync icon still syncs at once.",
+      "last": "Last run {{when}}",
+      "next": "next run {{when}}",
+      "paused": "paused after errors, press the sync icon to resume"
+    },
+    "log": {
+      "title": "Sync log",
+      "hint": "One row per run. The last {{count}} runs of the last {{days}} days are kept. Runs without changes are joined.",
+      "filter": "Show",
+      "filters": {
+        "all": "All runs",
+        "changes": "With changes",
+        "errors": "Errors"
+      },
+      "clear": "Clear",
+      "empty": "No runs yet.",
+      "trigger": {
+        "start": "Start",
+        "auto": "Automatic",
+        "manual": "Manual"
+      },
+      "ok": "ok",
+      "error": "error",
+      "quiet": "No changes",
+      "quietRuns": "{{count}} runs without changes"
     }
   },
   "info": {

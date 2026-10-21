@@ -449,7 +449,7 @@ export interface SyncPlan {
   pushes: Push[];
 }
 
-const emptySummary = (): SyncSummary => ({
+export const emptySummary = (): SyncSummary => ({
   created: [],
   closed: [],
   updated: [],

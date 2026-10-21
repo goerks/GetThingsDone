@@ -1474,7 +1474,8 @@
       "labelDeleted": "Label supprimé : {{name}}",
       "milestoneCreated": "Jalon créé : {{name}}",
       "milestoneDeleted": "Jalon supprimé : {{name}}",
-      "missingLabels": "Label absent de GitHub : {{names}}"
+      "missingLabels": "Label absent de GitHub : {{names}}",
+      "paused": "synchronisation automatique en pause"
     },
     "change": {
       "created": "Nouvelle story",
@@ -1572,6 +1573,48 @@
       "done": "{{code}} a été créée sur GitHub.",
       "skipped": "GitHub ne connaît pas ces labels, ils n’ont pas été créés : {{labels}}",
       "failed": "{{code}} n’a pas pu être créée sur GitHub : {{reason}}"
+    },
+    "toast": {
+      "done": "Synchronisé : {{parts}}",
+      "upToDate": "Déjà à jour",
+      "new": "{{count}} nouveau(x)",
+      "updated": "{{count}} mis à jour",
+      "closed": "{{count}} fermé(s)",
+      "published": "{{count}} envoyé(s) à GitHub",
+      "other": "{{count}} labels et jalons",
+      "failed": "Échec de la synchronisation : {{reason}}",
+      "paused": "Synchronisation automatique en pause après des erreurs. Appuyez sur l’icône de synchronisation pour reprendre.",
+      "conflicts": "Conflits en attente : {{count}}",
+      "review": "Vérifier",
+      "log": "Journal"
+    },
+    "auto": {
+      "label": "Synchroniser automatiquement",
+      "hint": "Importe les nouvelles issues et compare toutes les issues ouvertes d’elle-même : au démarrage, à votre retour dans l’application et toutes les 15 minutes tant qu’elle est ouverte. Toutes ou aucune. L’icône de synchronisation synchronise toujours tout de suite.",
+      "last": "Dernière exécution {{when}}",
+      "next": "prochaine exécution {{when}}",
+      "paused": "en pause après des erreurs, appuyez sur l’icône pour reprendre"
+    },
+    "log": {
+      "title": "Journal de synchronisation",
+      "hint": "Une ligne par exécution. Les {{count}} dernières exécutions des {{days}} derniers jours sont conservées. Les exécutions sans changement sont regroupées.",
+      "filter": "Afficher",
+      "filters": {
+        "all": "Toutes les exécutions",
+        "changes": "Avec changements",
+        "errors": "Erreurs"
+      },
+      "clear": "Vider",
+      "empty": "Aucune exécution pour le moment.",
+      "trigger": {
+        "start": "Démarrage",
+        "auto": "Automatique",
+        "manual": "Manuel"
+      },
+      "ok": "ok",
+      "error": "erreur",
+      "quiet": "Aucun changement",
+      "quietRuns": "{{count}} exécutions sans changement"
     }
   },
   "info": {

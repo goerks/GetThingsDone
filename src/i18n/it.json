@@ -1474,7 +1474,8 @@
       "labelDeleted": "Label eliminata: {{name}}",
       "milestoneCreated": "Milestone creata: {{name}}",
       "milestoneDeleted": "Milestone eliminata: {{name}}",
-      "missingLabels": "Label mancante su GitHub: {{names}}"
+      "missingLabels": "Label mancante su GitHub: {{names}}",
+      "paused": "sincronizzazione automatica in pausa"
     },
     "change": {
       "created": "Nuova storia",
@@ -1572,6 +1573,48 @@
       "done": "{{code}} è stata creata su GitHub.",
       "skipped": "GitHub non conosce queste label, non sono state create: {{labels}}",
       "failed": "{{code}} non è stata creata su GitHub: {{reason}}"
+    },
+    "toast": {
+      "done": "Sincronizzato: {{parts}}",
+      "upToDate": "Già aggiornato",
+      "new": "{{count}} nuovo/i",
+      "updated": "{{count}} aggiornato/i",
+      "closed": "{{count}} chiuso/i",
+      "published": "{{count}} inviato/i a GitHub",
+      "other": "{{count}} label e milestone",
+      "failed": "Sincronizzazione non riuscita: {{reason}}",
+      "paused": "Sincronizzazione automatica in pausa dopo errori. Premi l’icona di sincronizzazione per riprendere.",
+      "conflicts": "Conflitti in attesa: {{count}}",
+      "review": "Controlla",
+      "log": "Registro"
+    },
+    "auto": {
+      "label": "Sincronizza automaticamente",
+      "hint": "Importa le nuove issue e confronta da sola tutte le issue aperte: all’avvio, quando torni nell’app e ogni 15 minuti finché è aperta. Tutte o nessuna. L’icona di sincronizzazione sincronizza comunque subito.",
+      "last": "Ultima esecuzione {{when}}",
+      "next": "prossima esecuzione {{when}}",
+      "paused": "in pausa dopo errori, premi l’icona per riprendere"
+    },
+    "log": {
+      "title": "Registro di sincronizzazione",
+      "hint": "Una riga per esecuzione. Si conservano le ultime {{count}} esecuzioni degli ultimi {{days}} giorni. Le esecuzioni senza modifiche sono raggruppate.",
+      "filter": "Mostra",
+      "filters": {
+        "all": "Tutte le esecuzioni",
+        "changes": "Con modifiche",
+        "errors": "Errori"
+      },
+      "clear": "Svuota",
+      "empty": "Nessuna esecuzione finora.",
+      "trigger": {
+        "start": "Avvio",
+        "auto": "Automatica",
+        "manual": "Manuale"
+      },
+      "ok": "ok",
+      "error": "errore",
+      "quiet": "Nessuna modifica",
+      "quietRuns": "{{count}} esecuzioni senza modifiche"
     }
   },
   "info": {
