@@ -562,7 +562,7 @@ describe('help for the GitHub connection', () => {
   const openTopic = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
     await user.click(screen.getByRole('button', { name: 'Help' }));
     await user.type(screen.getByRole('searchbox', { name: 'Search help' }), 'GitHub issues');
-    await user.click(within(panel()).getByRole('button', { name: /^GitHub issues/ }));
+    await user.click(within(panel()).getByRole('button', { name: /^Synchronisation with GitHub/ }));
   };
 
   it('Help: tells to switch the feature on first and does not link to the places that need it while it is off', async () => {
@@ -572,8 +572,8 @@ describe('help for the GitHub connection', () => {
     // When I open the help topic
     await openTopic(user);
     // Then the text starts with switching the feature on, and the places that need it are locked
-    expect(within(panel()).getByText(/^1\. Switch the feature on under Settings → GitHub connection/)).toBeInTheDocument();
-    expect(within(panel()).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/sync');
+    expect(within(panel()).getByText(/^1\. Switch the feature on under Settings → Synchronisation/)).toBeInTheDocument();
+    expect(within(panel()).getByRole('link', { name: 'Open Settings → Synchronisation' })).toHaveAttribute('href', '#/settings/sync');
   });
 
   it('Help: links to the section GitHub once the feature is on', async () => {
@@ -583,7 +583,7 @@ describe('help for the GitHub connection', () => {
     // When I open the help topic
     await openTopic(user);
     // Then the section GitHub is a link
-    expect(within(panel()).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/sync');
+    expect(within(panel()).getByRole('link', { name: 'Open Settings → Synchronisation' })).toHaveAttribute('href', '#/settings/sync');
   });
 });
 

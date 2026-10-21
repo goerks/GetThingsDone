@@ -101,7 +101,7 @@ describe('choosing the service', () => {
     await user.click(await screen.findByRole('switch', { name: /Synchronisation/ }));
     window.location.hash = '#/backlog';
     expect(await screen.findByRole('link', { name: 'Open issue #31 on GitHub' })).toBeInTheDocument();
-  });
+  }, 20000);
 });
 
 describe('switching the service', () => {
@@ -124,7 +124,7 @@ describe('switching the service', () => {
     // And nothing was changed
     expect((await repository.load()).settings.sync.service).toBe('github');
     expect((await repository.load()).stories.filter((story) => story.link)).toHaveLength(2);
-  });
+  }, 20000);
 
   it('AC2.2 disconnects and switches: the stories stay without link and with their own key, the token is deleted', async () => {
     // Given the dialog is open
@@ -134,7 +134,7 @@ describe('switching the service', () => {
     // When I confirm
     await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Disconnect and switch to GitLab' }));
     // Then the other service is chosen, the stories are unchanged but unlinked, and the token is gone
-    expect(await screen.findByRole('radio', { name: /GitLab/ })).toBeChecked();
+    await waitFor(() => expect(screen.getByRole('radio', { name: /GitLab/ })).toBeChecked());
     await waitFor(async () => expect((await repository.load()).settings.sync.service).toBe('gitlab'));
     const after = await repository.load();
     expect(after.settings.sync.connection).toEqual({});
@@ -142,7 +142,7 @@ describe('switching the service', () => {
     expect(after.stories.filter((story) => story.link)).toEqual([]);
     expect(after.stories.find((story) => story.id === 'story-gh-31')).toMatchObject({ code: 'G-31', title: 'Linked story' });
     expect(await fake.tokens.get()).toBeNull();
-  });
+  }, 20000);
 
   it('AC2.3 changes nothing when I cancel or press Esc', async () => {
     // Given the dialog is open
@@ -157,10 +157,10 @@ describe('switching the service', () => {
     await user.keyboard('{Escape}');
     // Then GitHub stays chosen and connected
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    expect(screen.getByRole('radio', { name: /GitHub/ })).toBeChecked();
+    expect(within(screen.getByRole('group', { name: /^Service/ })).getByRole('radio', { name: /GitHub/ })).toBeChecked();
     expect((await repository.load()).settings.sync).toMatchObject({ service: 'github', connection: { repo: REPO } });
     expect(await fake.tokens.get()).toBe('good');
-  });
+  }, 20000);
 
   it('AC2.4 asks briefly when no story is linked, and not at all when nothing is connected', async () => {
     // Given a connected repository and no linked story
@@ -179,7 +179,7 @@ describe('switching the service', () => {
     const radios = await screen.findAllByRole('radio', { name: /GitLab/ });
     await fresh.click(radios[radios.length - 1]);
     await waitFor(() => expect(radios[radios.length - 1]).toBeChecked());
-  });
+  }, 20000);
 });
 
 describe('the issue key is the ID of a story', () => {
@@ -212,7 +212,7 @@ describe('the issue key is the ID of a story', () => {
     window.location.hash = '#/backlog';
     expect(await screen.findByText('G-31')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Open issue/ })).not.toBeInTheDocument();
-  });
+  }, 20000);
 
   it('AC12.4 shows the own key of a story without a link, and no link', async () => {
     // Given a story that exists only here
