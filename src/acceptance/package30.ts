@@ -257,7 +257,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Importierte Story aus Issue #31.',
           when: 'Ich sehe Backlog und Story-Dialog an und klicke den Link.',
           then: 'Überall „#31“; der Link öffnet das Issue auf GitHub in einem neuen Tab und öffnet nicht die Story.',
-          tests: [`${COMPONENT} › AC4.1 shows the number as a link to GitHub in the backlog and in the story`, `src/github/openExternal.test.ts › AC4.1 opens the issue through the app on the desktop and takes the click over`]
+          tests: [`${COMPONENT} › AC4.1 shows the number as a link to GitHub in the backlog and in the story`, `src/sync/openExternal.test.ts › AC4.1 opens the issue through the app on the desktop and takes the click over`]
         },
         {
           id: 'AC4.2',
