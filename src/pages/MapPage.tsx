@@ -74,6 +74,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
   const details = useDetails();
   const menu = useStoryMenu();
   const app = useApp();
+  const keyOf = useStoryKey();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -99,7 +100,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
         className={classes}
         data-story-id={story.id}
         {...attributes}
-        aria-label={`${story.code}: ${story.title}`}
+        aria-label={`${keyOf(story)}: ${story.title}`}
         {...listeners}
         onKeyDown={onKeyDown}
         onClick={() => details.openStory(story.id)}

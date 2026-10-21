@@ -389,4 +389,7 @@ export interface Snapshot {
 }
 
 /** What the search reads: the items and the fields, not the releases' history or the settings. */
-export type SearchSnapshot = Pick<Snapshot, 'epics' | 'sprints' | 'stories' | 'statuses' | 'fields' | 'assignments'> & Partial<Pick<Snapshot, 'members'>>;
+export type SearchSnapshot = Pick<Snapshot, 'epics' | 'sprints' | 'stories' | 'statuses' | 'fields' | 'assignments'> & Partial<Pick<Snapshot, 'members'>> & {
+  /** Whether the sync is on: a linked story is then found and shown by the key of its issue (#66). */
+  syncOn?: boolean;
+};

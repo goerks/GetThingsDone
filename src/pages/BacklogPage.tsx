@@ -82,6 +82,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
   const details = useDetails();
   const menu = useStoryMenu();
   const app = useApp();
+  const keyOf = useStoryKey();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('backlog.rowRole') }
@@ -108,7 +109,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
       data-story-id={story.id}
       data-drop-label={dropLabel}
       {...attributes}
-      aria-label={t('backlog.rowLabel', { rank, code: story.code, title: story.title })}
+      aria-label={t('backlog.rowLabel', { rank, code: keyOf(story), title: story.title })}
       {...listeners}
       onKeyDown={onKeyDown}
       onClick={() => details.openStory(story.id)}

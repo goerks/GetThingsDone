@@ -2,6 +2,7 @@ import { criteriaProgress, sortByRank } from './board';
 import { formatValue } from './fields';
 import { boardSprint, mapSprints, sortSprints } from './sprints';
 import type { Epic, FieldDefinition, FieldValue, Member, SearchSnapshot, Sprint, Story } from './types';
+import { storyKey } from './storyKey';
 
 /** What a result is. The order is the order of the groups in the result list. */
 export const RESULT_KINDS = ['story', 'epic', 'sprint'] as const;
@@ -256,8 +257,10 @@ function customTexts(values: Story['values'], fields: readonly FieldDefinition[]
     .filter((item) => item.text.trim() !== '');
 }
 
-function matchStory(story: Story, terms: readonly string[], text: string, fields: readonly FieldDefinition[], assignee: Member | undefined): Ranked | null {
-  const titleTexts = [story.code, story.title];
+function matchStory(story: Story, terms: readonly string[], text: string, fields: readonly FieldDefinition[], assignee: Member | undefined, syncOn: boolean): Ranked | null {
+  // The ID of a linked story is the key of its issue while the sync is on (#66); the own key still finds it.
+  const key = storyKey(story, syncOn);
+  const titleTexts = key === story.code ? [story.code, story.title] : [key, story.code, story.title];
   // The name and the initials of the assignee are found by the free text, like the custom field values.
   const people = assignee ? [assignee.name, assignee.initials] : [];
   const criteriaTexts = story.criteria.map((criterion) => criterion.text);
@@ -265,7 +268,7 @@ function matchStory(story: Story, terms: readonly string[], text: string, fields
   if (terms.length > 0 && !allTermsIn([...titleTexts, story.description, ...criteriaTexts, ...custom.map((item) => item.text), ...people], terms))
     return null;
 
-  const codeRanges = findRanges(story.code, terms);
+  const codeRanges = findRanges(key, terms);
   const titleRanges = findRanges(story.title, terms);
   const inTitle = terms.length === 0 || allTermsIn(titleTexts, terms);
   let snippet: Snippet | null = null;
@@ -279,7 +282,7 @@ function matchStory(story: Story, terms: readonly string[], text: string, fields
     const found = candidates.find((candidate) => findRanges(candidate.text, missing).length > 0);
     if (found) snippet = { ...makeSnippet(found.field, found.text, terms), ...(found.name !== undefined ? { fieldName: found.name } : {}) };
   }
-  const exactCode = fold(text.trim()) === fold(story.code);
+  const exactCode = fold(text.trim()) === fold(story.code) || fold(text.trim()) === fold(key);
   return {
     result: { kind: 'story', id: story.id, story, codeRanges, titleRanges, snippet },
     tier: exactCode ? 0 : inTitle ? 1 : 2,
@@ -307,7 +310,7 @@ export function search(snapshot: SearchSnapshot, query: SearchQuery): SearchResu
 
   for (const story of sortByRank(snapshot.stories)) {
     if (!ok({ kind: 'story', story })) continue;
-    const match = matchStory(story, terms, query.text, fields, story.assigneeId ? (snapshot.members ?? []).find((member) => member.id === story.assigneeId) : undefined);
+    const match = matchStory(story, terms, query.text, fields, story.assigneeId ? (snapshot.members ?? []).find((member) => member.id === story.assigneeId) : undefined, snapshot.syncOn ?? false);
     if (match) ranked.push(match);
   }
   [...snapshot.epics]

@@ -78,6 +78,7 @@ function gitlabLike(): Backend {
       tracker.state.canWrite = token === 'writer';
       return tracker.connector.create(target, tracker.state.goodToken, item, context);
     },
+    catalog: (target) => tracker.connector.catalog(target, tracker.state.goodToken),
     open: (target, token) => tracker.connector.open(target, token === 'wrong' ? token : tracker.state.goodToken),
     item: (target, token, id) => tracker.connector.item(target, token === 'wrong' ? token : tracker.state.goodToken, id)
   };

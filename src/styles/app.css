@@ -6772,6 +6772,20 @@ a.btn {
   white-space: nowrap;
 }
 
+/* The ID of a linked story: the key of its issue, a link to the issue (#66). */
+.story-key {
+  color: var(--accent-soft-ink);
+  text-decoration: none;
+}
+
+a.story-key:hover {
+  text-decoration: underline;
+}
+
+.story-key__local {
+  font-size: 12px;
+}
+
 a.github-badge:hover {
   text-decoration: underline;
 }
