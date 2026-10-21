@@ -11,7 +11,7 @@
 | Custom field | A field a team adds to the field library, for example "Priority". |
 | Linked story | A story that is linked to an issue of the chosen service (#30, #66), made from the issue or published as one. It keeps the address, the key and the base of the issue and shows the key (`#31`) as its ID, as a link; its own key (`S-4`) is kept; the sync keeps both sides up to date in both directions (a field that changed on one side goes to the other; if both changed, the conflict rule decides, GitHub by default). |
 | Base (sync) | What an issue looked like at the last sync, kept on the story. It tells the next sync who changed what (#30, ADR 0005). |
-| Connector | The part of the app that talks to one external service (GitHub first; Jira and GitLab planned); the sync engine knows no service (#30, #66). Only one service is active at a time. |
+| Connector | The part of the app that talks to one external service (GitHub and Jira; GitLab planned); the sync engine knows no service (#30, #66). Only one service is active at a time. |
 | Epic | A larger theme that groups stories. Shown as a coloured dot and name. A story may have no epic. |
 | Field assignment | Puts a field of the library on an item type, with its position. |
 | Field library | All fields of the workspace: system, built-in and custom fields (ADR 0003). |

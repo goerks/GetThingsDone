@@ -276,6 +276,8 @@ export interface SyncSummary {
   milestonesDeleted: string[];
   /** What a story needs for its epic or column that the service does not have, while writing is off. */
   missingLabels: string[];
+  /** Items of the service that are not stories and were left out (Jira: epics and sub-tasks), when there were some. */
+  skipped?: number;
 }
 
 export type Decision = 'local' | 'remote';

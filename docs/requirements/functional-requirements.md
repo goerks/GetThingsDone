@@ -794,7 +794,7 @@ Source: #55 · Status: Implemented · Verified by: #55 AC8.1–AC8.5 (`src/UiUpd
 
 ## Synchronisation with one chosen service (SYNC)
 
-Issue #66, ADR 0006. Step 0 of the Jira sync: the shipped GitHub sync is generalised; Jira follows in phases (AC3 to AC10 of #66). Tests: `src/Sync.test.tsx` (component), `src/sync/connector.test.ts` (the series every connector passes), `src/data/sqliteRepository.test.ts`, `src/domain/settings.test.ts`, `src/domain/syncLog.test.ts`, `src/domain/storyKey.test.ts` and `src/domain/search.test.ts` (unit).
+Issue #66, ADR 0006, ADR 0007. Step 0 of the Jira sync: the shipped GitHub sync is generalised; Jira follows in phases (AC3 to AC10 of #66), phase 1 is FR-SYNC-05. Tests: `src/Sync.test.tsx` (component), `src/sync/connector.test.ts` (the series every connector passes), `src/data/sqliteRepository.test.ts`, `src/domain/settings.test.ts`, `src/domain/syncLog.test.ts`, `src/domain/storyKey.test.ts` and `src/domain/search.test.ts` (unit), `src/Jira.test.tsx` and `src/sync/jira/jira.test.ts` (Jira).
 
 ### FR-SYNC-01 Choose the service
 As a team, we want to choose one service for the synchronisation, so that exactly one is active.
@@ -820,3 +820,12 @@ Source: #66 AC12 · Status: Implemented · Verified by: #66 AC12.1, AC12.3, AC12
 - The shipped GitHub data is converted when the app starts: links, keys, settings, log and keychain entry; an existing GitHub connection keeps working. Exports and the browser storage of before are read as well.
 
 Source: #66 AC11 · Status: Implemented · Verified by: #66 AC11.1–AC11.3 (`src/sync/connector.test.ts`), AC11.2 (`src/data/sqliteRepository.test.ts`, `src/domain/settings.test.ts`, `src/domain/syncLog.test.ts`)
+
+### FR-SYNC-05 Synchronise with Jira Cloud (phase 1)
+As a team that works in Jira, we want to import and update our stories from a Jira project, so that the backlog stays in line with Jira.
+- Choosing the card "Jira" shows the form: site, e-mail address, project key, API token and an optional JQL filter. "Test connection" says "Connection ok · n open issues" or what is wrong (entry missing or wrong form, project not found, token refused, no network). The token is kept in the keychain and never shown again. In the preview a simulated Jira is used and marked "Demo".
+- "Sync" imports the open issues of the project (not the done ones) as stories with the issue key as ID; epics and sub-tasks are left out and counted in the notice.
+- With writing on, a sync publishes title, description, labels (not those with spaces), criteria and the status as a transition of the workflow; a transition that Jira refuses is reported and the change stays local and marked. A description with a table, an image or formatting is never rewritten. A story of the team can be created in Jira from its menu. Nothing is ever deleted in Jira.
+- Not yet: the list of boards, the table of status names, epics, fix versions, sprints, points, order, assignees.
+
+Source: #66 AC3 to AC6, AC8 to AC10.3, AC12.2 · Status: Implemented (phase 1) · Verified by: #66 AC3.1, AC3.2, AC3.4, AC3.5, AC4.1–AC4.4, AC5.2, AC5.9, AC6.2–AC6.5, AC8.1–AC8.3, AC9.1, AC10.3, AC12.2 (`src/Jira.test.tsx`, `src/sync/jira/jira.test.ts`, `src/sync/connector.test.ts`)

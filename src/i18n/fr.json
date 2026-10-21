@@ -1022,6 +1022,11 @@
         "title": "Synchronisation avec GitHub",
         "keywords": "github tickets issues import synchro synchroniser dépôt jeton connecter fonction activer stories labels critères écrire publier conflit connexions aller-retour jalon epic label statut icône automatique journal message synchronisation service changer",
         "body": "Importer les issues ouvertes d’un dépôt GitHub comme stories et synchroniser les modifications dans les deux sens. Cela ne fonctionne que si la fonction « Synchronisation » est activée et que GitHub est le service choisi (un seul service est actif à la fois). Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Synchronisation (l’interrupteur en haut).\n2. Sous l’interrupteur, saisissez le dépôt (owner/name) et un jeton d’accès, puis appuyez sur « Tester la connexion ». Si l’application doit aussi écrire vers GitHub, activez « Écrire aussi vers GitHub » (le jeton doit alors avoir « Issues : lecture et écriture ») et choisissez qui l’emporte en cas de conflit : GitHub (par défaut), le local, ou vous décidez.\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les nouvelles issues deviennent des stories ; ce qui n’a changé que d’un côté passe de l’autre. Avec l’écriture activée, « Synchroniser » publie aussi vos modifications du titre, de la description, des labels, des critères et de fait/ouvert. Sans la synchronisation automatique (paragraphe suivant), rien ne part vers GitHub sans ce bouton. Les stories dont les modifications ne sont pas encore sur GitHub sont marquées.\nVous créez une issue à partir d’une de vos stories avec « Créer sur GitHub » dans son menu. Sprint, points et ordre restent toujours locaux. Sans connexion réseau ou avec un mauvais jeton, l’application le dit et laisse vos données locales tranquilles.\nL’icône de synchronisation (deux flèches circulaires) se trouve sur le backlog, le tableau et la story map ; le nombre affiché est celui des modifications pas encore sur GitHub. Les releases correspondent aux jalons, les epics aux labels « epic : Nom », les colonnes du tableau entre « À faire » et « Terminé » aux labels « status : Nom ». Quand l’écriture est activée, la synchronisation crée elle-même les jalons et labels nécessaires et supprime ceux qu’elle a créés dès que plus rien n’en dépend. Ce que vous avez créé vous-même sur GitHub n’est jamais supprimé.\nLe résultat est un court message en bas, jamais une boîte de dialogue ; « Journal » y mène au journal de synchronisation sous Paramètres → Synchronisation, qui liste chaque exécution et ses modifications. Activez-y « Synchroniser automatiquement » : l’application importe et compare alors toutes les issues ouvertes d’elle-même, au démarrage, à votre retour et toutes les 15 minutes tant qu’elle est ouverte. Avec la règle « Je décide », les conflits sont seulement marqués ; « Vérifier » dans le message ouvre le choix. Après trois erreurs de suite, la synchronisation automatique se met en pause jusqu’à ce que vous appuyiez sur l’icône.\nSi vous désactivez la fonction, tout est masqué mais conservé."
+      },
+      "sync.jira": {
+        "title": "Synchronisation avec Jira",
+        "keywords": "jira atlassian cloud tickets issues import sync synchroniser site e-mail projet clé jeton api connecter workflow statut transition tableau colonne epic sous-tâche filtre jql critères description écrire publier simulé démo",
+        "body": "Importez les tickets ouverts d’un projet Jira Cloud comme stories et synchronisez les modifications dans les deux sens. Cela fonctionne comme la synchronisation avec GitHub, et seulement si la fonction « Synchronisation » est activée et Jira est le service choisi (un seul service est actif à la fois). Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Synchronisation, puis choisissez la carte « Jira ».\n2. Saisissez le site Jira (votre-equipe.atlassian.net), l’adresse e-mail de votre compte Atlassian, la clé du projet et un jeton API (à créer dans votre compte Atlassian sous Sécurité › Jetons API), puis appuyez sur « Tester la connexion ». Un filtre supplémentaire (JQL, par exemple labels = \"team-a\") limite l’import. Si l’app doit aussi écrire vers Jira, activez « Écrire aussi vers Jira » et choisissez qui l’emporte en cas de conflit.\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les tickets ouverts deviennent des stories et affichent leur clé Jira (par exemple PROJ-12) comme ID, avec un lien vers le ticket. Les epics et sous-tâches ne sont pas importés ; la notification les compte. Avec l’écriture activée, « Synchroniser » publie aussi titre, description, labels, critères et statut.\nLe statut est écrit comme une transition du workflow : une colonne du tableau qui porte le nom d’un statut Jira y déplace le ticket ; « Terminé » le ferme. Si le workflow ne l’autorise pas (il peut exiger une résolution), la notification le dit et la modification reste locale et marquée. Les critères sont la liste de tâches sous le titre « Acceptance criteria » de la description. Une description avec tableaux, images ou mise en forme est seulement lue ; la synchronisation ne la réécrit jamais. Elle ne supprime jamais rien dans Jira.\nSeule l’application de bureau parle au vrai Jira Cloud. L’aperçu web montre un Jira simulé (marqué « Démo ») avec des boutons pour modifier ses tickets."
       }
     },
     "links": {
@@ -1464,7 +1469,11 @@
       "notFound": "Dépôt introuvable, ou le jeton n’y a pas accès. Vos données locales sont inchangées.",
       "rateLimit": "{{service}} n’accepte plus de requêtes pour le moment. Réessayez plus tard. Vos données locales sont inchangées.",
       "other": "{{service}} n’a pas pu être joint correctement. Réessayez plus tard. Vos données locales sont inchangées.",
-      "forbidden": "{{service}} a refusé l’écriture. Le jeton a besoin de « Issues : lecture et écriture »."
+      "forbidden": "{{service}} a refusé l’écriture. Le jeton a besoin de « Issues : lecture et écriture ».",
+      "config_jira": "La connexion n’est pas configurée : saisissez le site, l’e-mail, le projet et le jeton API dans les paramètres. Vos données locales sont inchangées.",
+      "notFound_jira": "Projet ou site introuvable, ou le compte n’y a pas accès. Vos données locales sont inchangées.",
+      "forbidden_jira": "{{service}} a refusé d’écrire. Le compte doit pouvoir modifier les tickets et changer leur statut.",
+      "transition": "{{service}} n’a pas autorisé le changement de statut. Le workflow demande peut-être plus (par exemple une résolution) : modifiez-le dans {{service}}. Vos données locales sont inchangées."
     },
     "field": {
       "title": "Titre",
@@ -1523,7 +1532,8 @@
       "paused": "Synchronisation automatique en pause après des erreurs. Appuyez sur l’icône de synchronisation pour reprendre.",
       "conflicts": "Conflits en attente : {{count}}",
       "review": "Vérifier",
-      "log": "Journal"
+      "log": "Journal",
+      "skipped": "{{count}} epics ou sous-tâches ignorés"
     },
     "auto": {
       "label": "Synchroniser automatiquement",
@@ -1570,7 +1580,8 @@
       "where": "L’import et la synchronisation se trouvent dans le backlog, avec le bouton « Synchroniser ».",
       "write": {
         "label": "Écrire aussi vers {{service}}",
-        "help": "Désactivé : lecture seule. Activé : « Synchroniser » publie aussi vos modifications. Le jeton a besoin de « Issues : lecture et écriture »."
+        "help": "Désactivé : lecture seule. Activé : « Synchroniser » publie aussi vos modifications. Le jeton a besoin de « Issues : lecture et écriture ».",
+        "help_jira": "Désactivé : lecture seule. Activé : « Synchroniser » publie aussi vos modifications. Le jeton API doit pouvoir modifier les tickets."
       },
       "conflict": {
         "legend": "Quand les deux côtés ont modifié le même champ",
@@ -1637,6 +1648,38 @@
       "add": "Ajouter le ticket n° 44",
       "reset": "Réinitialiser les tickets",
       "done": "Les tickets sur GitHub ont été modifiés."
+    }
+  },
+  "jira": {
+    "settings": {
+      "site": "Site Jira",
+      "email": "Adresse e-mail de votre compte Atlassian",
+      "project": "Clé du projet",
+      "token": "Jeton API",
+      "tokenNote": "Créez le jeton dans votre compte Atlassian (Sécurité › Jetons API). Il est conservé dans le trousseau du système et plus jamais affiché.",
+      "tokenNoteDemo": "Tout texte convient, sauf « {{wrong}} » (refusé) et « {{readonly}} » (lecture seule). Rien n’est envoyé.",
+      "filter": "Filtre supplémentaire (JQL, facultatif)",
+      "filterHint": "Conditions supplémentaires pour les tickets à importer, par exemple labels = \"team-a\". Les epics et sous-tâches ne sont jamais importés, ni les tickets terminés.",
+      "problem": {
+        "siteMissing": "Le site Jira manque.",
+        "siteFormat": "Utilisez la forme votre-equipe.atlassian.net.",
+        "emailMissing": "L’adresse e-mail manque.",
+        "emailFormat": "Saisissez une adresse e-mail valide.",
+        "projectMissing": "La clé du projet manque.",
+        "projectFormat": "Utilisez la clé du projet en majuscules, par exemple PROJ.",
+        "tokenMissing": "Le jeton API manque."
+      }
+    },
+    "demo": {
+      "title": "Démo : Jira simulé",
+      "text": "Un petit Jira simulé dans ce navigateur ({{site}}, projet {{project}}). Saisissez une adresse e-mail quelconque, par exemple {{email}}. Modifiez ses tickets ici, puis synchronisez. Le jeton « {{wrong}} » est refusé, « {{readonly}} » ne peut pas écrire.",
+      "rename": "Renommer PROJ-1, nouveau label",
+      "progress": "Passer PROJ-3 à In Progress",
+      "close": "Fermer PROJ-2",
+      "reopen": "Rouvrir PROJ-4",
+      "add": "Ajouter le ticket PROJ-8",
+      "reset": "Réinitialiser les tickets",
+      "done": "Les tickets dans Jira ont été modifiés."
     }
   }
 }

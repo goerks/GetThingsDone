@@ -15,7 +15,7 @@
 |---|---|---|
 | Team member | Creates stories, moves cards, orders the backlog, ticks criteria | Board, backlog, story detail |
 | Local file system | – | SQLite database in the app data directory |
-| Issue tracker (optional, #30, #66): GitHub Issues, one service at a time (Jira and GitLab planned) | Open issues of one repository, read, and with a separate switch also written, when the team switched the feature on and presses "Synchronise" (or the automatic sync runs) | Stories with title, description, labels, criteria, done/open and a link to the issue; new issues from stories |
+| Issue tracker (optional, #30, #66): GitHub Issues or Jira Cloud, one service at a time (GitLab planned) | Open issues of one repository, read, and with a separate switch also written, when the team switched the feature on and presses "Synchronise" (or the automatic sync runs) | Stories with title, description, labels, criteria, done/open and a link to the issue; new issues from stories |
 | Credential store of the operating system (desktop) | The access token of the chosen service, one entry per service | – |
 
 Out of scope for release 1: sync between machines, user accounts, connectors to GitLab issues and other trackers. These come later and must build on the repository interface (ADR 0001). The GitHub Issues connector (ADR 0005) is the first one; the sync is one general mechanism with a connector per service, and exactly one service is active at a time (ADR 0006).
