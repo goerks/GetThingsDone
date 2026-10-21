@@ -191,7 +191,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
 
       if (patch.done !== undefined || patch.status !== undefined) {
         const done = patch.done ?? item.fields.done;
-        const column = patch.status !== undefined ? patch.status : item.fields.status;
+        const column = (patch.status !== undefined ? patch.status : item.fields.status) ?? null;
         const answer = await client.call<{ transitions?: Transition[] }>('GET', `/rest/api/3/issue/${encodeURIComponent(item.id)}/transitions`);
         const transitions = answer?.transitions ?? [];
         const wanted = pickTransition(target, transitions, done, column);

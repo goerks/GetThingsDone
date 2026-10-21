@@ -247,5 +247,5 @@ test('AC11.1 lists GitHub as connected and the other services as planned', async
   await connect(page);
   await expect(page.getByText('✓ Connection ok · 3 open issues')).toBeVisible();
   const services = page.locator('.sync-service');
-  await expect(services).toHaveText(['GitHubconnected', 'Jiraplanned', 'GitLabplanned']);
+  await expect(services).toHaveText(['GitHubconnected', 'Jiraavailable', 'GitLabplanned']);
 });
