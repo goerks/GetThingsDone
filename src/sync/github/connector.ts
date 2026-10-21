@@ -49,7 +49,7 @@ export function createGithubConnector(api: GithubApi): TrackerConnector<RepoRef>
     kind: 'github',
     capabilities: { fields: FIELD_NAMES, create: true, tidy: true },
     target: (connection) => parseRepo(connection.repo ?? ''),
-    normalize(connection) {
+    normalize(connection): Record<string, string> | null {
       const text = (connection.repo ?? '').trim();
       if (text === '') return {};
       const repo = parseRepo(text);

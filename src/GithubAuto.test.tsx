@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
-import { issueUrl } from './domain/sync';
+import { issueUrl } from './sync/github/format';
 import { todayIso } from './domain/sprints';
 import { AUTO_INTERVAL_MS } from './domain/syncLog';
 import type { ConflictRule, Story } from './domain/types';

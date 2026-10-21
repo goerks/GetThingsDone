@@ -50,7 +50,10 @@ export function exampleTracker(issues: ExampleIssue[]) {
     kind: 'gitlab',
     capabilities: { fields: EXAMPLE_FIELDS, create: true, tidy: false },
     target: (connection) => (connection.project ? { project: connection.project } : null),
-    normalize: (connection) => (connection.project?.trim() ? { project: connection.project.trim() } : (connection.project ?? '') === '' ? {} : null),
+    normalize(connection): Record<string, string> | null {
+      const project = (connection.project ?? '').trim();
+      return project !== '' ? { project } : (connection.project ?? '') === '' ? {} : null;
+    },
     async open(_target, token) {
       check(token);
       return state.issues.filter((issue) => !issue.closed).map(toItem);

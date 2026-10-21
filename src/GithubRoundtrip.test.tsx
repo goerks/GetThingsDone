@@ -5,7 +5,8 @@ import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
 import { assignTo } from './domain/fields';
-import { LABELS_FIELD_ID, issueUrl } from './domain/sync';
+import { LABELS_FIELD_ID } from './domain/sync';
+import { issueUrl } from './sync/github/format';
 import { todayIso } from './domain/sprints';
 import type { ConflictRule, ExternalFields, FieldDefinition, Release, Story } from './domain/types';
 import { EPIC_COLOR_KEYS } from './domain/types';
@@ -103,16 +104,16 @@ describe('the options of the connection', () => {
     await waitFor(async () => expect((await repository.load()).settings.sync.write).toBe(true));
   });
 
-  it('AC11.1 lists GitHub as connected and GitLab, Jira and Trello as planned', async () => {
+  it('AC11.1 lists GitHub as connected and GitLab and Jira as planned', async () => {
     // Given a connected repository
     await renderApp('#/settings/sync');
     // When I look at the services
-    await screen.findByRole('heading', { name: /^Services/ });
-    const list = document.querySelector('.github-services') as HTMLElement;
-    // Then GitHub is connected and the others are planned
-    const entries = within(list).getAllByRole('listitem');
-    expect(entries.map((item) => item.textContent)).toEqual(['GitHubconnected', 'GitLabplanned', 'Jiraplanned', 'Trelloplanned']);
-    expect(within(list).queryByRole('button')).not.toBeInTheDocument();
+    const group = await screen.findByRole('group', { name: /^Service/ });
+    const radios = within(group).getAllByRole('radio') as HTMLInputElement[];
+    // Then GitHub is chosen and connected, and the others are planned and cannot be chosen
+    expect(radios.map((radio) => radio.closest('label')?.textContent)).toEqual(['GitHubconnected', 'Jiraplanned', 'GitLabplanned']);
+    expect(radios.map((radio) => radio.disabled)).toEqual([false, true, true]);
+    expect(radios[0]).toBeChecked();
   });
 
   it('AC11.2 removes the connection after asking, and the stories stay without link and marker', async () => {
@@ -294,7 +295,7 @@ describe('creating an issue from a story', () => {
     await waitFor(() => expect(fake.state.issues).toHaveLength(1));
     expect(fake.state.issues[0]).toMatchObject({ title: 'Export as CSV', state: 'open' });
     expect(await screen.findByRole('link', { name: 'Open issue #1 on GitHub' })).toBeInTheDocument();
-    expect((await repository.load()).stories.find((story) => story.id === 'story-own')?.github?.url).toBe(`https://github.com/${REPO}/issues/1`);
+    expect((await repository.load()).stories.find((story) => story.id === 'story-own')?.link?.url).toBe(`https://github.com/${REPO}/issues/1`);
   });
 
   it('AC10.2 creates nothing on a sync, and offers the item only for a story without link while writing is on', async () => {
