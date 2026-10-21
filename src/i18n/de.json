@@ -1469,7 +1469,8 @@
       "labelDeleted": "Label gelöscht: {{name}}",
       "milestoneCreated": "Milestone angelegt: {{name}}",
       "milestoneDeleted": "Milestone gelöscht: {{name}}",
-      "missingLabels": "Label fehlt auf GitHub: {{names}}"
+      "missingLabels": "Label fehlt auf GitHub: {{names}}",
+      "paused": "automatische Synchronisation pausiert"
     },
     "change": {
       "created": "Neue Story",
@@ -1564,6 +1565,48 @@
       "done": "{{code}} wurde auf GitHub angelegt.",
       "skipped": "Diese Labels kennt GitHub nicht, sie wurden nicht angelegt: {{labels}}",
       "failed": "{{code}} konnte nicht auf GitHub angelegt werden: {{reason}}"
+    },
+    "toast": {
+      "done": "Synchronisiert: {{parts}}",
+      "upToDate": "Schon auf dem neuesten Stand",
+      "new": "{{count}} neu",
+      "updated": "{{count}} aktualisiert",
+      "closed": "{{count}} geschlossen",
+      "published": "{{count}} zu GitHub gesendet",
+      "other": "{{count}} Labels und Milestones",
+      "failed": "Synchronisation fehlgeschlagen: {{reason}}",
+      "paused": "Automatische Synchronisation nach Fehlern pausiert. Das Sync-Symbol drücken, um fortzufahren.",
+      "conflicts": "Konflikte warten auf dich: {{count}}",
+      "review": "Prüfen",
+      "log": "Protokoll"
+    },
+    "auto": {
+      "label": "Automatisch synchronisieren",
+      "hint": "Importiert neue Tickets und gleicht alle offenen Tickets von selbst ab: beim Start, wenn du zur App zurückkehrst und alle 15 Minuten, solange sie offen ist. Alle oder keine. Das Sync-Symbol synchronisiert weiterhin sofort.",
+      "last": "Letzter Lauf {{when}}",
+      "next": "nächster Lauf {{when}}",
+      "paused": "nach Fehlern pausiert, zum Fortfahren das Sync-Symbol drücken"
+    },
+    "log": {
+      "title": "Sync-Protokoll",
+      "hint": "Eine Zeile pro Lauf. Die letzten {{count}} Läufe der letzten {{days}} Tage bleiben erhalten. Läufe ohne Änderung werden zusammengefasst.",
+      "filter": "Anzeigen",
+      "filters": {
+        "all": "Alle Läufe",
+        "changes": "Mit Änderungen",
+        "errors": "Fehler"
+      },
+      "clear": "Leeren",
+      "empty": "Noch keine Läufe.",
+      "trigger": {
+        "start": "Start",
+        "auto": "Automatisch",
+        "manual": "Manuell"
+      },
+      "ok": "ok",
+      "error": "Fehler",
+      "quiet": "Keine Änderungen",
+      "quietRuns": "{{count}} Läufe ohne Änderungen"
     }
   },
   "info": {

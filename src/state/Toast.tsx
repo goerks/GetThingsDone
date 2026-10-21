@@ -7,15 +7,22 @@ export interface ToastAction {
   onClick: () => void;
 }
 
+/** How a notice differs from the usual one: an error stays until it is closed. */
+export interface ToastOptions {
+  sticky?: boolean;
+  tone?: 'error';
+}
+
 interface ToastItem {
   id: number;
   message: string;
   action?: ToastAction;
+  options?: ToastOptions;
 }
 
 interface ToastApi {
   /** Shows a short notice at the bottom of the window. It goes away by itself and is read out by screen readers. */
-  notify(message: string, action?: ToastAction): void;
+  notify(message: string, action?: ToastAction, options?: ToastOptions): void;
 }
 
 const ToastContext = createContext<ToastApi | null>(null);
@@ -35,8 +42,9 @@ function Toast({ item, onDone }: { item: ToastItem; onDone: (id: number) => void
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const start = useCallback(() => {
     clearTimeout(timer.current);
+    if (item.options?.sticky) return;
     timer.current = setTimeout(() => onDone(item.id), TOAST_MS);
-  }, [item.id, onDone]);
+  }, [item.id, item.options?.sticky, onDone]);
   const stop = (): void => clearTimeout(timer.current);
 
   useEffect(() => {
@@ -45,7 +53,7 @@ function Toast({ item, onDone }: { item: ToastItem; onDone: (id: number) => void
   }, [start]);
 
   return (
-    <div className="toast" onMouseEnter={stop} onMouseLeave={start} onFocus={stop} onBlur={start}>
+    <div className={`toast${item.options?.tone === 'error' ? ' toast--error' : ''}`} onMouseEnter={stop} onMouseLeave={start} onFocus={stop} onBlur={start}>
       <span>{item.message}</span>
       {item.action && (
         <button
@@ -69,10 +77,10 @@ function Toast({ item, onDone }: { item: ToastItem; onDone: (id: number) => void
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const next = useRef(1);
-  const notify = useCallback((message: string, action?: ToastAction) => {
+  const notify = useCallback((message: string, action?: ToastAction, options?: ToastOptions) => {
     const id = next.current++;
     // Only the newest notices stay; a series of actions does not pile up.
-    setItems((current) => [...current.slice(-2), { id, message, action }]);
+    setItems((current) => [...current.slice(-2), { id, message, action, options }]);
   }, []);
   const done = useCallback((id: number) => setItems((current) => current.filter((item) => item.id !== id)), []);
   const api = useMemo<ToastApi>(() => ({ notify }), [notify]);

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 /*
  * End-to-end tests of the GitHub connection in a real browser (#30), following the test cases the PO approved in the
@@ -27,11 +27,19 @@ async function toBacklog(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: 'Backlog', level: 1 })).toBeVisible();
 }
 
+/** Synchronises by hand. The answer is a short notice, never a dialog (AC17). */
 const synchronise = async (page: Page) => {
   await page.getByRole('button', { name: 'Synchronise' }).click();
-  const dialog = page.getByRole('dialog');
-  await expect(dialog).toBeVisible();
-  return dialog;
+  const notice = page.locator('.toast').last();
+  await expect(notice).toBeVisible();
+  return notice;
+};
+
+/** The changes of the newest run with changes, read from the sync log in the settings; then back to the page. */
+const logOf = async (page: Page): Promise<Locator> => {
+  await page.evaluate(() => void (window.location.hash = '#/settings/github'));
+  await page.locator('.github-log__toggle:not([disabled])').first().click();
+  return page.locator('.github-log__detail').first();
 };
 
 test('AC1.2 and AC1.3 switch the feature on, connect the repository and show a working connection', async ({ page }) => {
@@ -90,8 +98,7 @@ test('AC2.1 imports the open issues, AC2.2 imports them only once and AC4.1 show
   // When I synchronise for the first time
   const first = await synchronise(page);
   // Then 3 stories are new, without the closed issue and the pull request
-  await expect(first.locator('.github-result__counts li').first()).toContainText('3');
-  await first.getByRole('button', { name: 'Close' }).click();
+  await expect(first).toContainText('Synchronised: 3 new');
   for (const title of ['Login', 'Export as CSV', 'Dark mode']) await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible();
   await expect(page.getByText('Imprint page')).toHaveCount(0);
   await expect(page.getByText('fix typo')).toHaveCount(0);
@@ -101,10 +108,9 @@ test('AC2.1 imports the open issues, AC2.2 imports them only once and AC4.1 show
   await expect(link).toHaveAttribute('href', 'https://github.com/goerks/GetThingsDone/issues/31');
   await expect(link).toHaveAttribute('target', '_blank');
   // And a second sync adds nothing
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   const second = await synchronise(page);
-  await expect(second.locator('.github-result__counts li').first()).toContainText('0');
-  await expect(second).toContainText('Everything is up to date');
-  await second.getByRole('button', { name: 'Close' }).click();
+  await expect(second).toContainText('Already up to date');
   await expect(page.getByRole('link', { name: /Open issue #31/ })).toHaveCount(1);
   // And the imported stories are still there after a reload
   await page.reload();
@@ -119,27 +125,29 @@ test('AC3.1 brings the changes of GitHub into the stories and shows them (also A
   await connect(page);
   await expect(page.getByText('✓ Connection ok · 3 open issues')).toBeVisible();
   await toBacklog(page);
-  await (await synchronise(page)).getByRole('button', { name: 'Close' }).click();
+  await synchronise(page);
   // When #31 is renamed and gets a label, #35 is closed on GitHub, and I synchronise
   await goTo(page, '#/settings/github');
   await page.getByRole('button', { name: 'Rename #31, new label' }).click();
   await page.getByRole('button', { name: 'Close #35' }).click();
   await goTo(page, '#/backlog');
-  const dialog = await synchronise(page);
-  // Then the dialog names the changes and the closed issue is counted as done
-  await expect(dialog.getByText('Title changed: “Login” → “Login-Seite”')).toBeVisible();
-  await expect(dialog.getByText('Labels: new bug')).toBeVisible();
-  await expect(dialog.getByText('Closed on GitHub → status “Done”')).toBeVisible();
-  await dialog.getByRole('button', { name: 'Close' }).click();
+  await synchronise(page);
+  // Then the log names the changes and the closed issue is counted as done
+  const changes = await logOf(page);
+  await expect(changes.getByText('Title changed: “Login” → “Login-Seite”')).toBeVisible();
+  await expect(changes.getByText('Labels: new bug')).toBeVisible();
+  await expect(changes.getByText('Closed on GitHub → status “Done”')).toBeVisible();
+  await goTo(page, '#/backlog');
   await expect(page.getByRole('button', { name: 'Login-Seite', exact: true })).toBeVisible();
   // And the criteria of #31 follow GitHub, and #35 goes back to "To do" when it is opened again
   await goTo(page, '#/settings/github');
   await page.getByRole('button', { name: 'Change the criteria of #31' }).click();
   await page.getByRole('button', { name: 'Reopen #35' }).click();
   await goTo(page, '#/backlog');
-  const again = await synchronise(page);
-  await expect(again.getByText('Criteria: 1 new')).toBeVisible();
-  await expect(again.getByText('Reopened on GitHub → status “To do”')).toBeVisible();
+  await synchronise(page);
+  const latest = await logOf(page);
+  await expect(latest.getByText('Criteria: 1 new')).toBeVisible();
+  await expect(latest.getByText('Reopened on GitHub → status “To do”')).toBeVisible();
 });
 
 test('AC5.1 tells me when there is no network, AC5.2 when the token is refused, and the app keeps working', async ({ page, context }) => {
@@ -151,8 +159,7 @@ test('AC5.1 tells me when there is no network, AC5.2 when the token is refused, 
   await context.setOffline(true);
   const offline = await synchronise(page);
   // Then a clear message appears and the backlog still works
-  await expect(offline.getByRole('alert')).toHaveText('No connection to GitHub. The app keeps working with your local data.');
-  await offline.getByRole('button', { name: 'Close' }).click();
+  await expect(offline).toContainText('Synchronisation failed: No connection to GitHub. The app keeps working with your local data.');
   await expect(page.getByRole('button', { name: 'Synchronise' })).toBeFocused();
   await expect(page.getByRole('link', { name: /Open issue/ })).toHaveCount(0);
   await context.setOffline(false);
@@ -163,7 +170,7 @@ test('AC5.1 tells me when there is no network, AC5.2 when the token is refused, 
   await expect(page.getByRole('alert')).toContainText('GitHub refused the access token');
 });
 
-test('AC6.2 works with the keyboard only, from the switch to the closed result dialog', async ({ page }) => {
+test('AC6.2 works with the keyboard only, from the switch to the notice after the sync', async ({ page }) => {
   // Given the features page with the focus on the switch
   const keyboard = page.keyboard;
   await page.getByRole('switch', { name: /GitHub connection/ }).focus();
@@ -183,17 +190,14 @@ test('AC6.2 works with the keyboard only, from the switch to the closed result d
   await expect(page.getByRole('button', { name: 'Test connection' })).toBeFocused();
   await keyboard.press('Enter');
   await expect(page.getByText('✓ Connection ok · 3 open issues')).toBeVisible();
-  // And open the backlog, synchronise and close the dialog with Escape
+  // And open the backlog and synchronise
   await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Backlog' }).focus();
   await keyboard.press('Enter');
   await page.getByRole('button', { name: 'Synchronise' }).focus();
   await keyboard.press('Enter');
-  // Then the dialog holds the focus, and Escape gives it back to the button
-  const dialog = page.getByRole('dialog');
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'Close' })).toBeFocused();
-  await keyboard.press('Escape');
-  await expect(dialog).toBeHidden();
+  // Then a notice tells the result, no dialog opens and the focus stays on the button
+  await expect(page.locator('.toast').last()).toContainText('Synchronised: 3 new');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Synchronise' })).toBeFocused();
   await expect(page.getByRole('link', { name: 'Open issue #31 on GitHub' })).toBeVisible();
 });
