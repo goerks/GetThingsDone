@@ -140,7 +140,7 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           given: 'Jira ist in der Windows-App verbunden.',
           when: 'Ich starte die App neu und synchronisiere.',
           then: 'Es funktioniert ohne erneute Token-Eingabe. Das Token steht weder in einer Exportdatei noch in den Einstellungen.',
-          tests: [`${SERIES} › AC11.1 connector series`],
+          tests: [],
           manual: 'Der Schlüsselbund und der echte HTTP-Weg (Rust) gibt es nur in der Windows-App.',
           poCheck: 'Windows-App: Jira verbinden, App neu starten, «Synchronisieren»: ohne neue Token-Eingabe.'
         },
@@ -223,7 +223,7 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           given: '«Auch nach Jira schreiben» ist an, «PROJ-1» ist importiert.',
           when: 'Ich ändere Titel und Labels lokal und synchronisiere.',
           then: 'In Jira stehen der neue Titel und die Labels (Labels mit Leerzeichen gibt es in Jira nicht, sie werden gemeldet). Der Abgleich löscht nie etwas in Jira.',
-          tests: [`${JIRA} › AC5.2 changes the title and the labels, and says which labels Jira cannot hold`, `${SERIES} › AC11.1 connector series`]
+          tests: [`${JIRA} › AC5.2 changes the title and the labels, and says which labels Jira cannot hold`]
         },
         {
           id: 'AC5.9',
@@ -361,7 +361,7 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           given: 'Eine Story aus dem Jira-Vorgang «PROJ-1».',
           when: 'Wie AC12.1.',
           then: 'Überall steht «PROJ-1» als ID, als Link zu Jira.',
-          tests: [`${JIRA} › AC12.2 uses the issue key as the key of the story and tells which issue an address points to`, `${JIRA_UI} › AC4.1 imports the open issues as stories with the issue key as ID, and says what was left out`]
+          tests: [`${JIRA} › AC12.2 uses the issue key as the key of the story and tells which issue an address points to`]
         }
       ]
     },
