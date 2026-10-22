@@ -117,9 +117,9 @@ function Lanes({ withDrop }: { withDrop: boolean }) {
   const epics = new Map(app.epics.map((epic) => [epic.id, epic]));
   const sprintId = app.sprints.find((sprint) => sprint.state === 'running')?.id ?? null;
   return (
-    <div className="board" style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'start' }}>
+    <div className="board" style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', alignItems: 'start' }}>
       {app.statuses.map((status, index) => (
-        <div key={status.id} style={{ width: '17rem' }}>
+        <div key={status.id} style={{ width: '16rem' }}>
           <BoardColumn
             status={status.id}
             stories={index === app.statuses.length - 2 ? [] : app.stories.filter((story) => story.status === status.id).slice(0, 2)}
