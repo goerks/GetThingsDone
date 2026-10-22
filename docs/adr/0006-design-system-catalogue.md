@@ -20,7 +20,8 @@ Options for the documentation: Storybook (React and Vite), Ladle, an in-app page
 6. The catalogue is also published on **GitHub Pages** (`.github/workflows/pages.yml`, after every push to `main`): https://goerks.github.io/GetThingsDone/. One-time setting on GitHub: Settings › Pages › Source "GitHub Actions".
 7. **The design system is guarded automatically**: a token guard for raw values and raw `button`/`input`/`select`/`textarea` tags (`src/styles/designSystem.test.ts`), the contrast of every colour pair in both themes (`src/styles/contrast.test.ts`), and Playwright on the built catalogue: axe (with colour contrast) and a reference image for every story in light and dark (`e2e/designSystemStories.spec.ts`). Reference images are renewed on purpose, on GitHub (Linux), by `.github/workflows/maintain.yml`.
 8. Feature specific buttons and fields use bare components of `src/ui/` (`BareButton`, `BareInput`, `BareTextarea`, `CheckInput`, `DragHandle`) and keep their feature class; no raw tag outside `src/ui/` (the preview-only acceptance panel is exempt).
-9. Packages are installed where the npm registry is reachable (GitHub Actions); cloud sessions of the AI cannot reach it (#67).
+9. The catalogue also shows the real components of the app with the demo data of the preview (`src/design-system/App.stories.tsx`, providers in `DemoApp.tsx`): cards of stories, epics, releases and sprints, board lanes, header, member filter, context menu, notices and the detail dialogs. They get the same accessibility and image checks as the base components; the first run found two real problems (a card with an invalid role, a filter chip whose name did not contain its text), which are fixed.
+10. Packages are installed where the npm registry is reachable (GitHub Actions); cloud sessions of the AI cannot reach it (#67).
 
 ## Consequences
 
