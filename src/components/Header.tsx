@@ -141,10 +141,11 @@ export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) 
         >
           <GearIcon />
         </a>
-        <button
+        <IconButton
           type="button"
           ref={help.buttonRef}
-          className={`icon-btn help-btn${help.open ? ' icon-btn--on' : ''}`}
+          on={help.open}
+          className="help-btn"
           aria-label={t('help.button')}
           title={t('help.button')}
           aria-expanded={help.open}
@@ -152,7 +153,7 @@ export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) 
           onClick={help.toggleHelp}
         >
           <span aria-hidden="true">?</span>
-        </button>
+        </IconButton>
       </div>
     </header>
   );

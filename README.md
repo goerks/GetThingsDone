@@ -44,7 +44,7 @@ npm run tauri build  # installer and executable
 - [Architecture (arc42)](docs/arc42/README.md)
 - [Definition of done](docs/definition-of-done.md)
 - [Architecture decisions](docs/adr)
-- [Design system](docs/design/design-system.md)
+- [Design system: rules](docs/design-system.md), [principles and component notes](docs/design/design-system.md) and the [catalogue (Storybook) on GitHub Pages](https://goerks.github.io/GetThingsDone/)
 
 ## Licence
 

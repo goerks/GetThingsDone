@@ -10,6 +10,7 @@ import { useSearchPage } from '../state/Search';
 import { useMatchClass } from '../components/search/HighlightBar';
 import type { Epic } from '../domain/types';
 import { useNewShortcut } from '../components/useNewShortcut';
+import { BareButton } from '../ui';
 
 /** List of all epics; a click opens the epic in a dialog. */
 export function EpicsPage() {
@@ -50,7 +51,7 @@ function EpicRow({ epic }: { epic: Epic }) {
   const match = useMatchClass(epic.id, 'epic-row', 'epic');
   return (
     <li>
-      <button
+      <BareButton
         type="button"
         className={`epic-row${match ? ` ${match}` : ''}`}
         data-epic-id={epic.id}
@@ -61,7 +62,7 @@ function EpicRow({ epic }: { epic: Epic }) {
         )}
         <span className="epic-row__name">{epic.name}</span>
         <span className="muted epic-row__count">{t('epics.storyCount', { count: storiesInEpic(app.stories, epic.id) })}</span>
-      </button>
+      </BareButton>
     </li>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { BareButton } from '../ui';
 
 export interface MenuItem {
   id: string;
@@ -94,7 +95,7 @@ function MenuList({ items, label, focusIndex, nested, onClose, onBack }: ListPro
         const hasSub = Boolean(item.submenu);
         return (
           <div key={item.id} className="ctx-menu__row" onMouseEnter={() => hasSub && setOpen(index)}>
-            <button
+            <BareButton
               type="button"
               ref={(node) => {
                 refs.current[index] = node;
@@ -120,7 +121,7 @@ function MenuList({ items, label, focusIndex, nested, onClose, onBack }: ListPro
                   ▸
                 </span>
               )}
-            </button>
+            </BareButton>
             {hasSub && open === index && item.submenu && (
               <MenuList
                 items={item.submenu}

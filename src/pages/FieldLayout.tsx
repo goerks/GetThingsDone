@@ -11,7 +11,7 @@ import { CARD_FIELD_LIMIT, cardFieldsFor, layoutFor, type LayoutEntry } from '..
 import type { ItemType } from '../domain/types';
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
-import { Check } from '../ui';
+import { BareButton, Check, DragHandle } from '../ui';
 
 /** Item types with a layout; sprints and releases are shown as planned. */
 const LAYOUT_TYPES: readonly ItemType[] = ['story', 'epic'];
@@ -98,16 +98,16 @@ function CustomRow({ itemType, entry, cardFull }: RowProps) {
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       {/* Rows hold checkboxes, so they are dragged by a handle. */}
-      <button
-        type="button"
+      <DragHandle
+       
         ref={setActivatorNodeRef}
-        className="drag-handle"
+       
         aria-label={t('fields.layout.move', { name })}
         {...attributes}
         {...listeners}
       >
         <GripIcon />
-      </button>
+      </DragHandle>
       <span className="layout-row__name">{name}</span>
       <span className="muted layout-row__type">{t(`fields.type.${field.dataType}`)}</span>
       <span className="layout-row__options">
@@ -164,7 +164,7 @@ export function FieldLayout() {
     <div className="layout">
       <div className="type-tabs" role="tablist" aria-label={t('fields.layout.types')}>
         {LAYOUT_TYPES.map((type) => (
-          <button
+          <BareButton
             key={type}
             type="button"
             role="tab"
@@ -173,7 +173,7 @@ export function FieldLayout() {
             onClick={() => setItemType(type)}
           >
             {t(`fields.itemType.${type}`)}
-          </button>
+          </BareButton>
         ))}
         {PLANNED_TYPES.map((type) => (
           <span key={type} className="type-tabs__tab type-tabs__tab--planned">

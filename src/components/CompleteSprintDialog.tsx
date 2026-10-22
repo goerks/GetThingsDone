@@ -8,7 +8,7 @@ import { Dialog } from './Dialog';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
 import { statusLabel } from './statusLabel';
 import { useBuiltin } from './useBuiltin';
-import { Button } from '../ui';
+import { Button, CheckInput } from '../ui';
 
 interface Props {
   /** The running sprint. */
@@ -145,7 +145,7 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
               <legend>{t('lifecycle.complete.whereLegend', { count: summary.notDone.length })}</legend>
               {nextSprint && (
                 <label className="sprint-option">
-                  <input type="radio" name={`${uid}-target`} checked={target === 'next'} onChange={() => setChosen('next')} />
+                  <CheckInput kind="radio" name={`${uid}-target`} checked={target === 'next'} onChange={() => setChosen('next')} />
                   <span>
                     {t('lifecycle.complete.next', { name: nextSprint.name })}
                     <small>
@@ -159,7 +159,7 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
                 </label>
               )}
               <label className="sprint-option">
-                <input type="radio" name={`${uid}-target`} checked={target === 'new'} onChange={() => setChosen('new')} />
+                <CheckInput kind="radio" name={`${uid}-target`} checked={target === 'new'} onChange={() => setChosen('new')} />
                 <span>
                   {t('lifecycle.complete.newSprint')}
                   {(() => {
@@ -169,7 +169,7 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
                 </span>
               </label>
               <label className="sprint-option">
-                <input type="radio" name={`${uid}-target`} checked={target === 'backlog'} onChange={() => setChosen('backlog')} />
+                <CheckInput kind="radio" name={`${uid}-target`} checked={target === 'backlog'} onChange={() => setChosen('backlog')} />
                 <span>
                   {t('lifecycle.complete.backlog')}
                   <small>{t('lifecycle.complete.backlogDetail')}</small>
@@ -187,18 +187,18 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
               {t('lifecycle.complete.endNote', { planned: formatDayLong(sprint.endDate, i18n.language), today: formatDayLong(today, i18n.language) })}
             </p>
             <label className="sprint-option">
-              <input type="radio" name={`${uid}-end`} checked={endDate === 'today'} onChange={() => setEndDate('today')} />
+              <CheckInput kind="radio" name={`${uid}-end`} checked={endDate === 'today'} onChange={() => setEndDate('today')} />
               <span>{t('lifecycle.complete.endToday', { date: formatDayLong(today, i18n.language) })}</span>
             </label>
             <label className="sprint-option">
-              <input type="radio" name={`${uid}-end`} checked={endDate === 'keep'} onChange={() => setEndDate('keep')} />
+              <CheckInput kind="radio" name={`${uid}-end`} checked={endDate === 'keep'} onChange={() => setEndDate('keep')} />
               <span>{t('lifecycle.complete.endKeep', { date: formatDayLong(sprint.endDate, i18n.language) })}</span>
             </label>
           </fieldset>
         )}
         {next && (
           <label className="sprint-option">
-            <input type="checkbox" checked={startNext} onChange={(event) => setStartNext(event.target.checked)} />
+            <CheckInput checked={startNext} onChange={(event) => setStartNext(event.target.checked)} />
             <span>
               {t('lifecycle.complete.startNext', { name: next.name })}
               <small>{t('lifecycle.complete.startNextHint')}</small>

@@ -5,7 +5,7 @@ import { categoryOf } from '../domain/statuses';
 import { evaluate, inUse, notDone, notReady, type GroupResult, type ItemState, type ListResult } from '../domain/definitions';
 import type { DefinitionItem, DefinitionKind, Story } from '../domain/types';
 import { useApp } from '../state/AppState';
-import { Button, IconButton } from '../ui';
+import { BareButton, Button, IconButton } from '../ui';
 
 /** The text of an item: its own text, or the translated text of an automatic check. */
 export function itemText(t: TFunction, item: DefinitionItem): string {
@@ -52,7 +52,7 @@ export function ItemRow({ story, item, state }: { story: Story; item: Definition
   const label = t(`definitions.state.${state}`);
   return (
     <li className={`definition-item${state === 'na' ? ' definition-item--na' : ''}`} data-state={state}>
-      <button
+      <BareButton
         type="button"
         role="checkbox"
         className={`definition-box definition-box--${state}`}
@@ -64,7 +64,7 @@ export function ItemRow({ story, item, state }: { story: Story; item: Definition
         onClick={advance}
       >
         <span aria-hidden="true">{state === 'checked' ? '✓' : state === 'na' ? '–' : ''}</span>
-      </button>
+      </BareButton>
       <span id={`${id}-text`} className="definition-item__text" onClick={disabled ? undefined : advance}>
         {text}
       </span>
@@ -90,9 +90,9 @@ function GroupView({ story, result, collapsible, onlyOpen }: { story: Story; res
     <div className="definition-group">
       <div className="definition-group__head">
         {collapsible ? (
-          <button type="button" className="definition-group__toggle" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
+          <BareButton type="button" className="definition-group__toggle" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
             <span aria-hidden="true">{open ? '▾' : '▸'}</span> {name}
-          </button>
+          </BareButton>
         ) : (
           <h3 className="definition-group__name">{name}</h3>
         )}
@@ -198,7 +198,7 @@ function CardMenu({ name, onlyOpen, onOnlyOpen, onHide }: { name: string; onlyOp
       </IconButton>
       {open && (
         <div id={uid} ref={menu} role="menu" className="definition-menu__list" onKeyDown={onKeyDown}>
-          <button
+          <BareButton
             type="button"
             role="menuitemcheckbox"
             aria-checked={onlyOpen}
@@ -210,8 +210,8 @@ function CardMenu({ name, onlyOpen, onOnlyOpen, onHide }: { name: string; onlyOp
           >
             <span aria-hidden="true">{onlyOpen ? '✓ ' : ''}</span>
             {t('definitions.menu.onlyOpen')}
-          </button>
-          <button
+          </BareButton>
+          <BareButton
             type="button"
             role="menuitem"
             className="definition-menu__item"
@@ -221,7 +221,7 @@ function CardMenu({ name, onlyOpen, onOnlyOpen, onHide }: { name: string; onlyOp
             }}
           >
             {t('definitions.menu.hide')}
-          </button>
+          </BareButton>
         </div>
       )}
     </div>
@@ -280,7 +280,7 @@ export function DefinitionsPanel({ story }: { story: Story }) {
         return (
           <article key={kind} className="definition-card" data-kind={kind}>
             <div className="definition-card__head">
-              <button
+              <BareButton
                 type="button"
                 className="definition-card__toggle"
                 aria-expanded={open}
@@ -299,7 +299,7 @@ export function DefinitionsPanel({ story }: { story: Story }) {
                     <span aria-hidden="true">{result.open}</span>
                   </span>
                 )}
-              </button>
+              </BareButton>
               <div className="progress definition-card__meter" aria-hidden="true">
                 <div className="progress__bar" style={{ width: `${percent}%` }} />
               </div>

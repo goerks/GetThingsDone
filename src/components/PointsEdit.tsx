@@ -4,7 +4,7 @@ import { parsePoints } from '../domain/board';
 import type { Story } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
-import { TextInput } from '../ui';
+import { BareButton, TextInput } from '../ui';
 
 /** Keeps a press in the points editor from picking up the row (drag) or opening the story. */
 const keepHere = (event: SyntheticEvent): void => event.stopPropagation();
@@ -95,7 +95,7 @@ export function PointsEdit({ story }: { story: Story }) {
   }
 
   return (
-    <button
+    <BareButton
       ref={buttonRef}
       type="button"
       className="pill pill--edit"
@@ -111,6 +111,6 @@ export function PointsEdit({ story }: { story: Story }) {
     >
       {story.points}
       <span className="sr-only"> – {t('edit.action', { field: name })}</span>
-    </button>
+    </BareButton>
   );
 }

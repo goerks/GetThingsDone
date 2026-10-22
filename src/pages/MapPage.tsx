@@ -52,7 +52,7 @@ import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
 import { usePageMatches, useSearchPage } from '../state/Search';
 import { useNewShortcut } from '../components/useNewShortcut';
-import { Button } from '../ui';
+import { BareButton, Button } from '../ui';
 
 const NOT_PLANNED = '-';
 /** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
@@ -218,7 +218,7 @@ function SprintLabel({ sprint, stories, labelId, isTarget }: SprintLabelProps) {
     .join(' ');
 
   return (
-    <button
+    <BareButton
       ref={setNodeRef}
       type="button"
       className={classes}
@@ -236,7 +236,7 @@ function SprintLabel({ sprint, stories, labelId, isTarget }: SprintLabelProps) {
       <span id={`${labelId}-edit`} className="sr-only">
         {movable ? t('map.editOrMoveSprint') : t('map.editSprint')}
       </span>
-    </button>
+    </BareButton>
   );
 }
 
@@ -260,7 +260,7 @@ function ReleaseLabel({ release, stories, labelId, isTarget, today }: ReleaseLab
   const late = storiesAfterReleaseEnd(release, app.stories, app.sprints).length;
   const period = formatPeriod(release, t, i18n.resolvedLanguage ?? 'en');
   return (
-    <button
+    <BareButton
       type="button"
       className={`map-sprint map-release${state === 'running' ? ' map-sprint--running' : ''}${isTarget ? ' map-sprint--target' : ''}`}
       onClick={() => details.openRelease(release.id)}
@@ -274,7 +274,7 @@ function ReleaseLabel({ release, stories, labelId, isTarget, today }: ReleaseLab
       <span className="map-sprint__dates">{period}</span>
       <span className="map-sprint__sum">{builtin.summary(stories.length, totalPoints(stories))}</span>
       {late > 0 && <span className="hint map-release__hint">{t('map.afterEnd', { count: late })}</span>}
-    </button>
+    </BareButton>
   );
 }
 
@@ -630,7 +630,7 @@ export function MapPage() {
               {epics.map((epic) => {
                 const inEpic = shownStories.filter((story) => story.epicId === epic.id);
                 return (
-                  <button
+                  <BareButton
                     type="button"
                     key={epic.id}
                     className={`map-epic${targetEpic === epic.id ? ' map-epic--target' : ''}${matches?.ids.epic.has(epic.id) ? ' map-epic--match' : ''}`}
@@ -644,7 +644,7 @@ export function MapPage() {
                     <span className="map-epic__sum">
                       {builtin.summary(inEpic.length, totalPoints(inEpic))}
                     </span>
-                  </button>
+                  </BareButton>
                 );
               })}
               {hasLooseStories && (
@@ -660,7 +660,7 @@ export function MapPage() {
                   </span>
                 </div>
               )}
-              <button
+              <BareButton
                 type="button"
                 className="map__add-epic"
                 aria-label={t('map.addEpic')}
@@ -668,16 +668,16 @@ export function MapPage() {
                 onClick={() => setDialog({ kind: 'epic' })}
               >
                 +
-              </button>
+              </BareButton>
             </div>
 
             {releaseMode ? (
               <>
                 {releases.map((release) => renderReleaseRow(release))}
                 <div className="map__row map__row--add">
-                  <button type="button" className="map__add-sprint" onClick={() => setDialog({ kind: 'release' })}>
+                  <BareButton type="button" className="map__add-sprint" onClick={() => setDialog({ kind: 'release' })}>
                     {t('map.addRelease')}
-                  </button>
+                  </BareButton>
                 </div>
                 {renderReleaseRow(null)}
               </>
@@ -687,9 +687,9 @@ export function MapPage() {
                   {sprints.map((sprint) => renderRow(sprint))}
                 </SortableContext>
                 <div className="map__row map__row--add">
-                  <button type="button" className="map__add-sprint" onClick={() => setDialog({ kind: 'sprint' })}>
+                  <BareButton type="button" className="map__add-sprint" onClick={() => setDialog({ kind: 'sprint' })}>
                     {t('map.addSprint')}
-                  </button>
+                  </BareButton>
                 </div>
                 {renderRow(null)}
               </>

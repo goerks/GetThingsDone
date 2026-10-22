@@ -6,7 +6,7 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { SprintPlan } from './SprintPlan';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
-import { Button, Select } from '../ui';
+import { Button, CheckInput, Select } from '../ui';
 
 interface Props {
   /** The planned sprint that is selected when the dialog opens. */
@@ -86,14 +86,14 @@ export function StartSprintDialog({ sprintId, onClose }: Props) {
               })}
             </p>
             <label className="sprint-option">
-              <input type="radio" name={`${uid}-dates`} checked={dates === 'today'} onChange={() => setDates('today')} />
+              <CheckInput kind="radio" name={`${uid}-dates`} checked={dates === 'today'} onChange={() => setDates('today')} />
               <span>
                 {t('lifecycle.start.today', { dates: formatSprintDates(fromToday, i18n.language) })}
                 <small>{t('lifecycle.start.todayHint', { days: length + 1 })}</small>
               </span>
             </label>
             <label className="sprint-option">
-              <input type="radio" name={`${uid}-dates`} checked={dates === 'keep'} onChange={() => setDates('keep')} />
+              <CheckInput kind="radio" name={`${uid}-dates`} checked={dates === 'keep'} onChange={() => setDates('keep')} />
               <span>{t('lifecycle.start.keep', { dates: formatSprintDates(sprint, i18n.language) })}</span>
             </label>
           </fieldset>

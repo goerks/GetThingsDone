@@ -12,7 +12,7 @@ import { StoryPicker } from './StoryPicker';
 import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
 import { statusLabel } from './statusLabel';
-import { Button, IconButton, TextInput } from '../ui';
+import { BareButton, Button, IconButton, TextInput } from '../ui';
 
 type Tab = 'details' | 'stories' | 'scope' | 'burndown' | 'history';
 const TABS: readonly Tab[] = ['details', 'stories', 'scope', 'burndown', 'history'];
@@ -117,7 +117,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
 
         <div className="view-tabs" role="tablist" aria-label={t('releases.tabs.label')}>
           {TABS.map((item) => (
-            <button
+            <BareButton
               key={item}
               ref={(element) => {
                 tabRefs.current[item] = element;
@@ -133,7 +133,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
               onKeyDown={onTabKeyDown}
             >
               {t(`releases.tabs.${item}`, { count: own.length })}
-            </button>
+            </BareButton>
           ))}
         </div>
 
@@ -271,9 +271,9 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                           {story.code}
                         </th>
                         <td>
-                          <button type="button" className="title-button" onClick={() => onOpenStory(story.id)}>
+                          <BareButton type="button" className="title-button" onClick={() => onOpenStory(story.id)}>
                             {story.title}
-                          </button>
+                          </BareButton>
                         </td>
                         <td>{epicName(story.epicId)}</td>
                         <td>{sprintName(story.sprintId)}</td>

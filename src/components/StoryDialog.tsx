@@ -26,7 +26,7 @@ import { statusLabel } from './statusLabel';
 import { STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
-import { Button, IconButton, Select, TextInput } from '../ui';
+import { Button, CheckInput, DragHandle, IconButton, Select, TextInput } from '../ui';
 
 interface CriterionProps {
   storyId: string;
@@ -47,18 +47,18 @@ function CriterionRow({ storyId, criterion }: CriterionProps) {
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       {/* Criteria rows hold a checkbox and editable text, so they are dragged by a handle. */}
-      <button
-        type="button"
+      <DragHandle
+       
         ref={setActivatorNodeRef}
-        className="drag-handle"
+       
         aria-label={t('detail.moveCriterion', { text: criterion.text })}
         {...attributes}
         {...listeners}
       >
         <GripIcon />
-      </button>
-      <input
-        type="checkbox"
+      </DragHandle>
+      <CheckInput
+       
         checked={criterion.done}
         aria-label={criterion.text}
         onChange={() => app.toggleCriterion(storyId, criterion.id)}

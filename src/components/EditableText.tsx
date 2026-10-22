@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BareButton, BareInput, BareTextarea } from '../ui';
 
 interface Props {
   value: string;
@@ -66,11 +67,11 @@ export function EditableText({ value, label, onSave, multiline = false, placehol
       onBlur: () => finish(true, false),
       onKeyDown
     };
-    return multiline ? <textarea rows={5} {...common} /> : <input {...common} />;
+    return multiline ? <BareTextarea rows={5} {...common} /> : <BareInput {...common} />;
   }
 
   return (
-    <button
+    <BareButton
       ref={buttonRef}
       type="button"
       className={`editable${className ? ` ${className}` : ''}${value ? '' : ' editable--empty'}`}
@@ -78,6 +79,6 @@ export function EditableText({ value, label, onSave, multiline = false, placehol
     >
       {value || placeholder}
       <span className="sr-only"> – {t('edit.action', { field: label })}</span>
-    </button>
+    </BareButton>
   );
 }

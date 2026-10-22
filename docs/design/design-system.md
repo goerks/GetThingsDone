@@ -1,6 +1,6 @@
 # Design system: Focus
 
-Source of truth for colours, spacing and radii is `tokens.css`. See ADR 0002 for the reasoning. The clickable reference is the "Focus" row of the design canvas.
+Source of truth for all tokens is `tokens.css`. See ADR 0002 for the reasoning. Since #70 the tokens and the shared components are shown in the Storybook catalogue (https://goerks.github.io/GetThingsDone/, per pull request at `<preview address>/design-system/`), and the rules for using them are in [`../design-system.md`](../design-system.md) (mandatory, ADR 0006). This page keeps the principles and the notes on feature specific components below; numbers in it (sizes, radii, z-index) are historic, the tokens are authoritative.
 
 ## Principles
 

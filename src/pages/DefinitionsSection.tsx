@@ -24,7 +24,7 @@ import {
 import { newId } from '../domain/ids';
 import type { DefinitionGroup, DefinitionItem, DefinitionKind, DefinitionList, DefinitionRule } from '../domain/types';
 import { useApp } from '../state/AppState';
-import { Button, IconButton, TextInput } from '../ui';
+import { BareButton, Button, CheckInput, DragHandle, IconButton, TextInput } from '../ui';
 
 interface RowProps {
   id: string;
@@ -36,9 +36,9 @@ interface RowProps {
 function Row({ id, moveLabel, className, children }: RowProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
   const handle = (
-    <button type="button" ref={setActivatorNodeRef} className="drag-handle" aria-label={moveLabel} {...attributes} {...listeners}>
+    <DragHandle ref={setActivatorNodeRef} aria-label={moveLabel} {...attributes} {...listeners}>
       <GripIcon />
-    </button>
+    </DragHandle>
   );
   return (
     <li
@@ -122,8 +122,8 @@ function ItemRow({ item, onChange, onStep }: { item: DefinitionItem; onChange: (
             <span className="sr-only">{t(item.rule ? 'definitions.automatic' : 'definitions.manual')}</span>
           </span>
           <label className="definition-edit__na" title={t('definitions.settings.mayBeIrrelevant')}>
-            <input
-              type="checkbox"
+            <CheckInput
+             
               className="sr-only"
               checked={item.mayBeIrrelevant}
               aria-label={t('definitions.settings.mayBeIrrelevantFor', { text })}
@@ -273,10 +273,10 @@ function GroupBlock({
   return (
     <li ref={setNodeRef} className={`definition-block${isDragging ? ' definition-block--dragging' : ''}`} style={{ transform: CSS.Transform.toString(transform), transition }}>
       <div className="definition-block__head">
-        <button type="button" ref={setActivatorNodeRef} className="drag-handle" aria-label={t('definitions.settings.moveGroup', { name })} {...attributes} {...listeners}>
+        <DragHandle ref={setActivatorNodeRef} aria-label={t('definitions.settings.moveGroup', { name })} {...attributes} {...listeners}>
           <GripIcon />
-        </button>
-        <button
+        </DragHandle>
+        <BareButton
           type="button"
           className="definition-block__fold"
           aria-expanded={open}
@@ -285,7 +285,7 @@ function GroupBlock({
           onClick={() => setOpen(!open)}
         >
           <span aria-hidden="true">{open ? '▾' : '▸'}</span>
-        </button>
+        </BareButton>
         <NameField
           value={group.name}
           label={t('definitions.settings.groupName', { name })}
@@ -320,9 +320,9 @@ function GroupBlock({
             value={text}
             onChange={(event) => setText(event.target.value)}
           />
-          <button type="submit" className="sr-only" aria-label={t('definitions.settings.addItemTo', { name })} disabled={!text.trim()}>
+          <BareButton type="submit" className="sr-only" aria-label={t('definitions.settings.addItemTo', { name })} disabled={!text.trim()}>
             {t('definitions.settings.addItem')}
-          </button>
+          </BareButton>
           <LibraryPicker groupName={name} used={used} onPick={(rule) => onChange((list) => addItem(list, group.id, { id: newId(), text: '', rule, mayBeIrrelevant: false }, newId()))} />
         </form>
       </div>
@@ -385,8 +385,8 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
   return (
     <section className={`definition-listcard${list.enforce ? '' : ' definition-listcard--off'}`} aria-label={name} data-kind={kind}>
       <div className="definition-listcard__head">
-        <input
-          type="checkbox"
+        <CheckInput
+         
           role="switch"
           className="definition-switch"
           checked={list.enforce}
@@ -444,9 +444,9 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
           </DndContext>
           <form className="definition-newgroup" onSubmit={submitGroup}>
             <TextInput aria-label={t('definitions.settings.newGroup')} placeholder={t('definitions.settings.newGroupPlaceholder')} value={newGroup} onChange={(event) => setNewGroup(event.target.value)} />
-            <button type="submit" className="sr-only" disabled={!newGroup.trim()}>
+            <BareButton type="submit" className="sr-only" disabled={!newGroup.trim()}>
               {t('definitions.settings.addGroup')}
-            </button>
+            </BareButton>
           </form>
         </div>
       )}

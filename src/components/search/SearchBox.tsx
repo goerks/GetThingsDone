@@ -23,7 +23,7 @@ import {
 import type { RecentItem } from '../../domain/searchHistory';
 import { useSearch } from '../../state/Search';
 import { ResultRow } from './ResultRow';
-import { TextButton } from '../../ui';
+import { BareButton, BareInput, TextButton } from '../../ui';
 
 /** Results shown per group before "+ n more". */
 export const GROUP_LIMIT = 5;
@@ -570,7 +570,7 @@ export function SearchBox() {
                 =
               </span>
               <span className="search-chip__value">{labels.value(filter.field, filter.value)}</span>
-              <button
+              <BareButton
                 type="button"
                 className="search-chip__remove"
                 aria-label={t('search.removeFilter', { filter: labels.badge(filter) })}
@@ -582,7 +582,7 @@ export function SearchBox() {
                 }}
               >
                 ✕
-              </button>
+              </BareButton>
             </span>
           ))}
           </div>
@@ -596,7 +596,7 @@ export function SearchBox() {
             +{hiddenBadges}
           </span>
         )}
-        <input
+        <BareInput
           ref={search.inputRef}
           className="search__input"
           type="text"
@@ -620,7 +620,7 @@ export function SearchBox() {
           onKeyDown={onInputKeyDown}
         />
         {hasContent && (
-          <button
+          <BareButton
             type="button"
             className="search__clear"
             aria-label={t('search.clear')}
@@ -632,7 +632,7 @@ export function SearchBox() {
             }}
           >
             ✕
-          </button>
+          </BareButton>
         )}
       </div>
 

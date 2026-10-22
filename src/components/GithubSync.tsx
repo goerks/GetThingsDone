@@ -8,7 +8,7 @@ import { Dialog } from './Dialog';
 import { InfoHint } from './InfoHint';
 import { statusLabel } from './statusLabel';
 import { useFeature } from './useFeature';
-import { Button } from '../ui';
+import { Button, CheckInput } from '../ui';
 
 export const fieldList = (t: TFunction, names: readonly FieldName[]): string => names.map((name) => t(`github.field.${name}`)).join(', ');
 
@@ -123,10 +123,10 @@ function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[
               </div>
             </div>
             <label>
-              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'local'} onChange={() => setChosen({ ...chosen, [key]: 'local' })} /> {t('github.conflict.keepLocal')}
+              <CheckInput kind="radio" name={`${id}-${index}`} checked={chosen[key] === 'local'} onChange={() => setChosen({ ...chosen, [key]: 'local' })} /> {t('github.conflict.keepLocal')}
             </label>
             <label>
-              <input type="radio" name={`${id}-${index}`} checked={chosen[key] === 'remote'} onChange={() => setChosen({ ...chosen, [key]: 'remote' })} /> {t('github.conflict.takeRemote')}
+              <CheckInput kind="radio" name={`${id}-${index}`} checked={chosen[key] === 'remote'} onChange={() => setChosen({ ...chosen, [key]: 'remote' })} /> {t('github.conflict.takeRemote')}
             </label>
           </fieldset>
         );
