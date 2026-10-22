@@ -40,6 +40,25 @@ async function showStory(page: Page, id: string, theme: 'light' | 'dark'): Promi
   if (PLAYS.test(id)) await page.waitForTimeout(600);
 }
 
+/** Runs axe on the story. The accessibility addon of Storybook runs it too when a story is shown: wait for that run to end. */
+async function checkAccessibility(page: Page): Promise<Violation[]> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await page.evaluate(async () => {
+        const axe = (window as unknown as { axe: { run: (context: string, options: object) => Promise<{ violations: Violation[] }> } }).axe;
+        const result = await axe.run('#storybook-root', {
+          // A story is a part of a page: no landmarks, no heading one
+          rules: { region: { enabled: false }, 'page-has-heading-one': { enabled: false }, 'landmark-one-main': { enabled: false } }
+        });
+        return result.violations;
+      });
+    } catch (error) {
+      if (attempt >= 20 || !String(error).includes('already running')) throw error;
+      await page.waitForTimeout(250);
+    }
+  }
+}
+
 /** The stories are shared among a few tests per theme, so that they run in parallel. */
 const PARTS = [0, 1, 2, 3];
 const part = (ids: string[], index: number): string[] => ids.filter((_, position) => position % PARTS.length === index);
@@ -57,14 +76,7 @@ for (const theme of ['light', 'dark'] as const) {
         // When a story is shown and checked with axe, including colour contrast
         await showStory(page, id, theme);
         await page.addScriptTag({ path: axePath });
-        const violations = await page.evaluate(async () => {
-          const axe = (window as unknown as { axe: { run: (context: string, options: object) => Promise<{ violations: Violation[] }> } }).axe;
-          const result = await axe.run('#storybook-root', {
-            // A story is a part of a page: no landmarks, no heading one
-            rules: { region: { enabled: false }, 'page-has-heading-one': { enabled: false }, 'landmark-one-main': { enabled: false } }
-          });
-          return result.violations;
-        });
+        const violations = await checkAccessibility(page);
         // Then it has no violation
         for (const violation of violations) problems.push(`${id}: ${violation.id} (${violation.help}) at ${violation.nodes.map((node) => node.target.join(' ')).join(', ')}`);
       }
