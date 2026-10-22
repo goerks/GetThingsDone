@@ -7,6 +7,7 @@ import { syncMessage } from '../github/syncMessage';
 import { useApp } from '../state/AppState';
 import { Entries, fieldList } from './GithubSync';
 import { InfoHint } from './InfoHint';
+import { Button, Select } from '../ui';
 
 const FILTERS: readonly LogFilter[] = ['all', 'changes', 'errors'];
 
@@ -118,16 +119,16 @@ export function GithubLog() {
         <label className="sr-only" htmlFor={`${id}-filter`}>
           {t('github.log.filter')}
         </label>
-        <select id={`${id}-filter`} className="input" value={filter} onChange={(event) => setFilter(event.target.value as LogFilter)}>
+        <Select id={`${id}-filter`} value={filter} onChange={(event) => setFilter(event.target.value as LogFilter)}>
           {FILTERS.map((name) => (
             <option key={name} value={name}>
               {t(`github.log.filters.${name}`)}
             </option>
           ))}
-        </select>
-        <button type="button" className="btn btn--small" disabled={app.settings.github.log.length === 0} onClick={() => app.clearGithubLog()}>
+        </Select>
+        <Button type="button" size="small" disabled={app.settings.github.log.length === 0} onClick={() => app.clearGithubLog()}>
           {t('github.log.clear')}
-        </button>
+        </Button>
       </div>
       {entries.length === 0 ? (
         <p className="muted">{t('github.log.empty')}</p>

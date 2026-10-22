@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { sortSprints } from '../domain/sprints';
 import { useApp } from '../state/AppState';
 import { formatSprintDates } from './sprintFormat';
+import { Select } from '../ui';
 
 const NOT_PLANNED = '';
 
@@ -19,9 +20,9 @@ export function SprintSelect({ id, value, onChange }: Props) {
   const { t, i18n } = useTranslation();
   const app = useApp();
   return (
-    <select
+    <Select
       id={id}
-      className="select"
+     
       value={value ?? NOT_PLANNED}
       onChange={(event) => onChange(event.target.value === NOT_PLANNED ? null : event.target.value)}
     >
@@ -33,6 +34,6 @@ export function SprintSelect({ id, value, onChange }: Props) {
           </option>
         ))}
       <option value={NOT_PLANNED}>{t('sprint.notPlanned')}</option>
-    </select>
+    </Select>
   );
 }

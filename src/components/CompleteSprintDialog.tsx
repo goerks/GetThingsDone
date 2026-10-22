@@ -8,6 +8,7 @@ import { Dialog } from './Dialog';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
 import { statusLabel } from './statusLabel';
 import { useBuiltin } from './useBuiltin';
+import { Button } from '../ui';
 
 interface Props {
   /** The running sprint. */
@@ -205,12 +206,12 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
           </label>
         )}
         <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
+          <Button type="submit" variant="primary">
             {t('lifecycle.complete.submit')}
-          </button>
-          <button type="button" className="btn" onClick={onClose}>
+          </Button>
+          <Button type="button" onClick={onClose}>
             {t('newStory.cancel')}
-          </button>
+          </Button>
         </div>
       </form>
     </Dialog>

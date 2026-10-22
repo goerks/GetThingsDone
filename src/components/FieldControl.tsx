@@ -5,6 +5,7 @@ import { parseOptions, parseValue } from '../domain/fields';
 import type { FieldDefinition, FieldValue } from '../domain/types';
 import { EditableText } from './EditableText';
 import { fieldLabel } from './fieldLabel';
+import { Select, TextInput } from '../ui';
 
 type Problem = 'invalidNumber' | 'invalidUrl' | 'required';
 
@@ -51,9 +52,9 @@ function NumberInput({ id, describedBy, invalid, value, onSave }: NumberInputPro
   };
 
   return (
-    <input
+    <TextInput
       id={id}
-      className="input"
+     
       inputMode="decimal"
       value={draft}
       aria-invalid={invalid || undefined}
@@ -166,9 +167,9 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
         return (
           <div className="field">
             <label htmlFor={inputId}>{heading}</label>
-            <input
+            <TextInput
               id={inputId}
-              className="input"
+             
               type="url"
               inputMode="url"
               value={link}
@@ -206,9 +207,9 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
       return (
         <div className="field">
           <label htmlFor={inputId}>{heading}</label>
-          <input
+          <TextInput
             id={inputId}
-            className="input"
+           
             type="date"
             value={typeof value === 'string' ? value : ''}
             aria-invalid={missing || problem ? true : undefined}
@@ -257,9 +258,9 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
       return (
         <div className="field">
           <label htmlFor={inputId}>{heading}</label>
-          <select
+          <Select
             id={inputId}
-            className="select"
+           
             value={value === undefined ? '' : String(value)}
             aria-invalid={missing || problem ? true : undefined}
             aria-describedby={describedBy}
@@ -271,7 +272,7 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
                 {option.label}
               </option>
             ))}
-          </select>
+          </Select>
           {note}
         </div>
       );

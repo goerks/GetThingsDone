@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button } from '../ui';
 
 interface Props {
   /** Label of the primary button, which submits the form. */
@@ -15,13 +16,13 @@ export function DialogFooter({ submit, onCancel, children }: Props) {
   return (
     <div className="create-footer">
       <div className="form__actions create-footer__buttons">
-        <button type="button" className="btn" onClick={onCancel}>
+        <Button type="button" onClick={onCancel}>
           {t('newStory.cancel')}
-        </button>
+        </Button>
         {children}
-        <button type="submit" className="btn btn--primary">
+        <Button type="submit" variant="primary">
           {submit}
-        </button>
+        </Button>
       </div>
     </div>
   );

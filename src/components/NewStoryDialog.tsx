@@ -13,6 +13,7 @@ import { MemberSelect } from './MemberSelect';
 import { ReleaseSelect } from './ReleaseSelect';
 import { SprintSelect } from './SprintSelect';
 import { useBuiltin } from './useBuiltin';
+import { Button, Select, TextInput, Textarea } from '../ui';
 
 interface Props {
   /** Prefilled sprint: the running one from the board, "not planned" from the backlog, the cell's on the map. */
@@ -100,9 +101,9 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
         )}
         <div className="field">
           <label htmlFor={`${uid}-title`}>{builtin.label('title', t('newStory.title'))}</label>
-          <input
+          <TextInput
             id={`${uid}-title`}
-            className="input"
+           
             value={title}
             onChange={(event) => {
               setTitle(event.target.value);
@@ -123,9 +124,9 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
         {builtin.shown('story', 'description') && (
           <div className="field">
             <label htmlFor={`${uid}-description`}>{builtin.label('description', t('newStory.description'))}</label>
-            <textarea
+            <Textarea
               id={`${uid}-description`}
-              className="input"
+             
               rows={3}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
@@ -140,9 +141,9 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
           {builtin.shown('story', 'points') && (
             <div className="field">
               <label htmlFor={`${uid}-points`}>{builtin.label('points', t('newStory.points'))}</label>
-              <select
+              <Select
                 id={`${uid}-points`}
-                className="select"
+               
                 value={points}
                 onChange={(event) => setPoints(Number(event.target.value))}
               >
@@ -151,7 +152,7 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
                     {value}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           )}
         </div>
@@ -175,9 +176,9 @@ export function NewStoryDialog({ sprintId: initialSprintId, epicId: initialEpicI
         )}
         {custom.fields}
         <DialogFooter submit={t('newStory.add')} onCancel={onClose}>
-          <button type="button" className="btn" onClick={() => create(true)}>
+          <Button type="button" onClick={() => create(true)}>
             {t('newStory.addAnother')}
-          </button>
+          </Button>
         </DialogFooter>
       </form>
     </Dialog>

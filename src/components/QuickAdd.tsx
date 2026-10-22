@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { defaultValuesFor, missingRequired } from '../domain/fields';
 import { useApp } from '../state/AppState';
 import { NewStoryDialog } from './NewStoryDialog';
+import { TextInput } from '../ui';
 
 interface QuickAddProps {
   /** Where the story lands, in words ("In progress", "Sprint 2"); part of the accessible names. */
@@ -80,8 +81,8 @@ export function QuickAdd({ place, variant = 'row', buttonLabel, extraClass, onAd
   return (
     // The open field is as high as the button it replaces, so the page does not shift when a field closes on blur.
     <div className="quick-add quick-add--open">
-      <input
-        className="input quick-add__input"
+      <TextInput
+        className="quick-add__input"
         aria-label={t('quickAdd.input', { place })}
         placeholder={t('quickAdd.placeholder')}
         value={title}

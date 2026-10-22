@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useHelp } from '../../state/Help';
+import { Button } from '../../ui';
 
 /** The invitation on the first start. It never blocks anything and goes away for good with one click. */
 export function WelcomeCard() {
@@ -12,12 +13,12 @@ export function WelcomeCard() {
         <strong>{t('help.invitation.title')}</strong>
         <span className="muted">{t('help.invitation.text')}</span>
       </div>
-      <button type="button" className="btn btn--primary" onClick={help.startTour}>
+      <Button type="button" variant="primary" onClick={help.startTour}>
         {t('help.invitation.start')}
-      </button>
-      <button type="button" className="btn btn--ghost" onClick={help.declineInvitation}>
+      </Button>
+      <Button type="button" variant="ghost" onClick={help.declineInvitation}>
         {t('help.invitation.decline')}
-      </button>
+      </Button>
     </div>
   );
 }

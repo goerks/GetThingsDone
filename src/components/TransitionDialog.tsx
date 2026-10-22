@@ -8,6 +8,7 @@ import type { DefinitionKind } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
 import { useToast } from '../state/Toast';
+import { Button } from '../ui';
 
 /**
  * The quality gate (#26): a status change that crosses a Definition list the story does not meet does not happen. The
@@ -63,12 +64,12 @@ export function TransitionDialog({ storyId, to, gates }: { storyId: string; to: 
             ))}
           </ul>
           <div className="form__actions definition-actions">
-            <button type="button" className="btn" autoFocus onClick={() => setOverriding(false)}>
+            <Button type="button" autoFocus onClick={() => setOverriding(false)}>
               {t('definitions.transition.overrideBack')}
-            </button>
-            <button type="button" className="btn btn--danger" onClick={override}>
+            </Button>
+            <Button type="button" variant="danger" onClick={override}>
               {t('definitions.transition.overrideConfirm')}
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -87,18 +88,18 @@ export function TransitionDialog({ storyId, to, gates }: { storyId: string; to: 
           <ListView story={story} result={result} collapsible={false} />
           <p className="muted definition-keys">{t('definitions.keys')}</p>
           <div className="form__actions definition-actions">
-            <button type="button" className="btn btn--primary" disabled={!result.met} onClick={() => (last ? app.resolveTransition('move') : setStep(step + 1))}>
+            <Button type="button" variant="primary" disabled={!result.met} onClick={() => (last ? app.resolveTransition('move') : setStep(step + 1))}>
               {t(last ? 'definitions.transition.move' : 'definitions.transition.next')}
-            </button>
-            <button type="button" className="btn" onClick={openStory}>
+            </Button>
+            <Button type="button" onClick={openStory}>
               {t('definitions.transition.openStory')}
-            </button>
-            <button type="button" className="btn" onClick={cancel}>
+            </Button>
+            <Button type="button" onClick={cancel}>
               {t('definitions.transition.cancel')}
-            </button>
-            <button type="button" className="btn btn--link" onClick={() => setOverriding(true)}>
+            </Button>
+            <Button type="button" variant="link" onClick={() => setOverriding(true)}>
               {t('definitions.transition.override')}
-            </button>
+            </Button>
           </div>
         </>
       )}

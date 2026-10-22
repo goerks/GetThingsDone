@@ -4,6 +4,7 @@ import { parsePoints } from '../domain/board';
 import type { Story } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
+import { TextInput } from '../ui';
 
 /** Keeps a press in the points editor from picking up the row (drag) or opening the story. */
 const keepHere = (event: SyntheticEvent): void => event.stopPropagation();
@@ -64,8 +65,8 @@ export function PointsEdit({ story }: { story: Story }) {
   if (editing) {
     return (
       <span className="points-edit" onClick={keepHere} onDoubleClick={keepHere}>
-        <input
-          className="input points-edit__input"
+        <TextInput
+          className="points-edit__input"
           inputMode="numeric"
           autoComplete="off"
           autoFocus

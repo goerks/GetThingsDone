@@ -2,6 +2,7 @@ import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sortEpics } from '../domain/epics';
 import { useApp } from '../state/AppState';
+import { Button, Select, TextInput } from '../ui';
 
 const NEW_EPIC = '__new__';
 
@@ -40,9 +41,9 @@ export function EpicSelect({ id, value, onChange }: Props) {
 
   return (
     <div className="epic-select">
-      <select
+      <Select
         id={id}
-        className="select"
+       
         value={creating ? NEW_EPIC : (value ?? '')}
         onChange={(event) => {
           if (event.target.value === NEW_EPIC) setCreating(true);
@@ -59,11 +60,11 @@ export function EpicSelect({ id, value, onChange }: Props) {
           </option>
         ))}
         <option value={NEW_EPIC}>{t('epics.newInSelect')}</option>
-      </select>
+      </Select>
       {creating && (
         <div className="epic-select__new">
-          <input
-            className="input"
+          <TextInput
+           
             aria-label={t('epics.name')}
             placeholder={t('epics.name')}
             value={name}
@@ -71,9 +72,9 @@ export function EpicSelect({ id, value, onChange }: Props) {
             onKeyDown={onKeyDown}
             autoFocus
           />
-          <button type="button" className="btn" onClick={() => create()}>
+          <Button type="button" onClick={() => create()}>
             {t('epics.add')}
-          </button>
+          </Button>
         </div>
       )}
     </div>

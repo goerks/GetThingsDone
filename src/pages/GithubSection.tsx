@@ -9,6 +9,7 @@ import { FeatureTab } from './FeatureTab';
 import type { ConflictRule } from '../domain/types';
 import { parseRepo, repoText, type RepoRef } from '../domain/github';
 import { useApp } from '../state/AppState';
+import { Button, TextInput } from '../ui';
 
 type Status = { kind: 'idle' } | { kind: 'testing' } | { kind: 'ok'; count: number } | { kind: 'error'; error: GithubError['kind'] };
 
@@ -123,9 +124,9 @@ function GithubSettings() {
       <form className="form" onSubmit={(event) => void test(event)} noValidate>
         <div className="field">
           <label htmlFor={`${id}-repo`}>{t('github.settings.repo')}</label>
-          <input
+          <TextInput
             id={`${id}-repo`}
-            className="input"
+           
             value={repoInput}
             placeholder="owner/name"
             autoComplete="off"
@@ -145,9 +146,9 @@ function GithubSettings() {
             <label htmlFor={`${id}-token`}>{t('github.settings.token')}</label>
             <InfoHint id={`${id}-token-note`} text={t(demo ? 'github.settings.tokenNoteDemo' : 'github.settings.tokenNote', { wrong: DEMO_WRONG_TOKEN, readonly: DEMO_READONLY_TOKEN })} />
           </div>
-          <input
+          <TextInput
             id={`${id}-token`}
-            className="input"
+           
             type="password"
             value={token}
             placeholder={hasToken ? t('github.settings.tokenSaved') : ''}
@@ -164,13 +165,13 @@ function GithubSettings() {
           {connected && hasToken === false && !tokenProblem && <p className="muted">{t('github.settings.tokenMissingNote')}</p>}
         </div>
         <div className="form__actions github-settings__actions">
-          <button type="submit" className="btn btn--primary" disabled={status.kind === 'testing'}>
+          <Button type="submit" variant="primary" disabled={status.kind === 'testing'}>
             {t('github.settings.test')}
-          </button>
+          </Button>
           {(connected || hasToken) && (
-            <button type="button" className="btn" onClick={() => setRemoving(true)}>
+            <Button type="button" onClick={() => setRemoving(true)}>
               {t('github.settings.disconnect')}
-            </button>
+            </Button>
           )}
         </div>
       </form>
@@ -219,12 +220,12 @@ function GithubSettings() {
         <Dialog title={t('github.disconnect.title')} onClose={() => setRemoving(false)}>
           <p>{t('github.disconnect.text')}</p>
           <div className="form__actions">
-            <button type="button" className="btn" onClick={() => setRemoving(false)}>
+            <Button type="button" onClick={() => setRemoving(false)}>
               {t('github.disconnect.cancel')}
-            </button>
-            <button type="button" className="btn btn--primary" onClick={() => void disconnect()}>
+            </Button>
+            <Button type="button" variant="primary" onClick={() => void disconnect()}>
               {t('github.disconnect.confirm')}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}
@@ -276,9 +277,9 @@ function DemoTools() {
       </h3>
       <div className="github-demo__buttons">
         {actions.map(([key, run]) => (
-          <button key={key} type="button" className="btn btn--small" onClick={run}>
+          <Button key={key} type="button" size="small" onClick={run}>
             {t(`github.demo.${key}`)}
-          </button>
+          </Button>
         ))}
       </div>
       <p role="status" className="muted">

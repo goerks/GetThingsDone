@@ -24,6 +24,7 @@ import {
 import { newId } from '../domain/ids';
 import type { DefinitionGroup, DefinitionItem, DefinitionKind, DefinitionList, DefinitionRule } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { Button, IconButton, TextInput } from '../ui';
 
 interface RowProps {
   id: string;
@@ -86,8 +87,8 @@ function NameField({
     }
   };
   return (
-    <input
-      className="input definition-edit__name"
+    <TextInput
+      className="definition-edit__name"
       aria-label={label}
       value={draft ?? value}
       placeholder={placeholder}
@@ -133,15 +134,15 @@ function ItemRow({ item, onChange, onStep }: { item: DefinitionItem; onChange: (
             </span>
             <span className="sr-only">{t('definitions.settings.mayBeIrrelevant')}</span>
           </label>
-          <button
+          <IconButton
             type="button"
-            className="icon-btn icon-btn--quiet"
+            quiet
             aria-label={t('definitions.settings.removeItem', { text })}
             title={t('definitions.settings.removeItem', { text })}
             onClick={() => onChange((list) => removeItem(list, item.id))}
           >
             <span aria-hidden="true">✕</span>
-          </button>
+          </IconButton>
         </>
       )}
     </Row>
@@ -200,10 +201,10 @@ function LibraryPicker({ groupName: name, used, onPick }: { groupName: string; u
 
   return (
     <div className="library">
-      <button
+      <Button
         type="button"
         ref={button}
-        className="btn"
+       
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? uid : undefined}
@@ -212,7 +213,7 @@ function LibraryPicker({ groupName: name, used, onPick }: { groupName: string; u
       >
         <span aria-hidden="true">📚 </span>
         {t('definitions.settings.library')} ▾
-      </button>
+      </Button>
       {open && (
         <div className="library__popover">
           <p className="library__title">{t('definitions.settings.libraryTitle')}</p>
@@ -293,15 +294,15 @@ function GroupBlock({
           onStep={(direction) => onStep(group.id, direction)}
         />
         <span className="muted definition-edit__count">{t('definitions.settings.items', { count: group.items.length })}</span>
-        <button
+        <IconButton
           type="button"
-          className="icon-btn icon-btn--quiet"
+          quiet
           aria-label={t('definitions.settings.removeGroup', { name })}
           title={t('definitions.settings.removeGroup', { name })}
           onClick={() => onChange((list) => removeGroup(list, group.id))}
         >
           <span aria-hidden="true">✕</span>
-        </button>
+        </IconButton>
       </div>
       <div id={bodyId} hidden={!open}>
         <SortableContext items={group.items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
@@ -312,8 +313,8 @@ function GroupBlock({
           </ul>
         </SortableContext>
         <form className="definition-block__add" onSubmit={submit}>
-          <input
-            className="input"
+          <TextInput
+           
             aria-label={t('definitions.settings.newItemIn', { name })}
             placeholder={t('definitions.settings.newItemPlaceholder')}
             value={text}
@@ -400,9 +401,9 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
           </p>
         </div>
         {list.enforce && (
-          <button
+          <IconButton
             type="button"
-            className="icon-btn icon-btn--quiet"
+            quiet
             aria-expanded={open}
             aria-controls={bodyId}
             aria-label={t(open ? 'definitions.settings.foldList' : 'definitions.settings.unfoldList', { name })}
@@ -410,18 +411,18 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
             onClick={() => setOpen(!open)}
           >
             <span aria-hidden="true">{open ? '▾' : '▸'}</span>
-          </button>
+          </IconButton>
         )}
       </div>
       {!list.enforce && list.groups.length === 0 && (
         <div role="note" className="definition-cta">
           <p>{t('definitions.settings.emptyOff')}</p>
-          <button type="button" className="btn" onClick={() => change(() => exampleList(kind, newId))}>
+          <Button type="button" onClick={() => change(() => exampleList(kind, newId))}>
             {t('definitions.settings.insertExample')}
-          </button>
-          <button type="button" className="btn" onClick={() => change((current) => setEnforce(current, true))}>
+          </Button>
+          <Button type="button" onClick={() => change((current) => setEnforce(current, true))}>
             {t('definitions.settings.startEmpty')}
-          </button>
+          </Button>
         </div>
       )}
       {!list.enforce && list.groups.length > 0 && (
@@ -442,7 +443,7 @@ function ListCard({ kind }: { kind: DefinitionKind }) {
             </SortableContext>
           </DndContext>
           <form className="definition-newgroup" onSubmit={submitGroup}>
-            <input className="input" aria-label={t('definitions.settings.newGroup')} placeholder={t('definitions.settings.newGroupPlaceholder')} value={newGroup} onChange={(event) => setNewGroup(event.target.value)} />
+            <TextInput aria-label={t('definitions.settings.newGroup')} placeholder={t('definitions.settings.newGroupPlaceholder')} value={newGroup} onChange={(event) => setNewGroup(event.target.value)} />
             <button type="submit" className="sr-only" disabled={!newGroup.trim()}>
               {t('definitions.settings.addGroup')}
             </button>

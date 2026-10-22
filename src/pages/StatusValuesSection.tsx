@@ -38,6 +38,7 @@ import {
 } from '../domain/statuses';
 import type { StatusCategory, StatusValue } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { Button, IconButton, Select, TextInput } from '../ui';
 
 const GROUP_PREFIX = 'status-group:';
 
@@ -114,8 +115,8 @@ function StatusRow({ status, dropBefore, onRemove, onStep }: RowProps) {
         <GripIcon />
       </button>
       <span className="status-row__dot" aria-hidden="true" />
-      <input
-        className="input status-row__name"
+      <TextInput
+        className="status-row__name"
         aria-label={t('statusValues.name', { name })}
         aria-describedby={hintId}
         value={draft ?? name}
@@ -134,9 +135,9 @@ function StatusRow({ status, dropBefore, onRemove, onStep }: RowProps) {
           <span className="sr-only">{t('statusValues.locked', { name, category: t(`statusValues.category.${status.category}`) })}</span>
         </span>
       ) : (
-        <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('statusValues.remove', { name })} onClick={onRemove}>
+        <IconButton type="button" quiet aria-label={t('statusValues.remove', { name })} onClick={onRemove}>
           <TrashIcon />
-        </button>
+        </IconButton>
       )}
     </li>
   );
@@ -150,9 +151,9 @@ function AddStatus({ category }: { category: StatusCategory }) {
 
   if (name === null) {
     return (
-      <button type="button" className="btn status-group__add" onClick={() => setName('')}>
+      <Button type="button" className="status-group__add" onClick={() => setName('')}>
         + {t('statusValues.add', { category: categoryName })}
-      </button>
+      </Button>
     );
   }
   return (
@@ -163,8 +164,8 @@ function AddStatus({ category }: { category: StatusCategory }) {
         if (app.addStatus(category, name)) setName(null);
       }}
     >
-      <input
-        className="input"
+      <TextInput
+       
         autoFocus
         aria-label={t('statusValues.addLabel', { category: categoryName })}
         value={name}
@@ -176,12 +177,12 @@ function AddStatus({ category }: { category: StatusCategory }) {
           }
         }}
       />
-      <button type="submit" className="btn btn--primary" disabled={!name.trim()}>
+      <Button type="submit" variant="primary" disabled={!name.trim()}>
         {t('statusValues.addConfirm')}
-      </button>
-      <button type="button" className="btn" onClick={() => setName(null)}>
+      </Button>
+      <Button type="button" onClick={() => setName(null)}>
         {t('statusValues.cancel')}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -227,7 +228,7 @@ function RemoveDialog({ status, onClose }: { status: StatusValue; onClose: () =>
         {affected.length > 0 && (
           <div className="field">
             <label htmlFor={`${uid}-target`}>{t('statusValues.removeDialog.target')}</label>
-            <select id={`${uid}-target`} className="select" value={target} onChange={(event) => setTarget(event.target.value)}>
+            <Select id={`${uid}-target`} value={target} onChange={(event) => setTarget(event.target.value)}>
               {STATUS_CATEGORIES.map((category) => (
                 <optgroup key={category} label={t(`statusValues.category.${category}`)}>
                   {statusesIn(app.statuses, category)
@@ -239,22 +240,22 @@ function RemoveDialog({ status, onClose }: { status: StatusValue; onClose: () =>
                     ))}
                 </optgroup>
               ))}
-            </select>
+            </Select>
           </div>
         )}
         <div className="form__actions">
-          <button
+          <Button
             type="button"
-            className="btn btn--danger"
+            variant="danger"
             onClick={() => {
               if (app.removeStatus(status.id, affected.length > 0 ? target : null)) onClose();
             }}
           >
             {affected.length > 0 ? t('statusValues.removeDialog.confirmMove', { count: affected.length }) : t('statusValues.removeDialog.confirm')}
-          </button>
-          <button type="button" className="btn" onClick={onClose} autoFocus>
+          </Button>
+          <Button type="button" onClick={onClose} autoFocus>
             {t('statusValues.cancel')}
-          </button>
+          </Button>
         </div>
       </div>
     </Dialog>
@@ -274,19 +275,19 @@ function ConfirmCategoryDialog({ move, onClose }: { move: PendingMove; onClose: 
     <Dialog title={t('statusValues.confirmCategory.title', { name, category: t(`statusValues.category.${move.category}`) })} onClose={onClose}>
       <p>{t(`statusValues.confirmCategory.${key}`, { count: changing.length, codes })}</p>
       <div className="form__actions">
-        <button
+        <Button
           type="button"
-          className="btn btn--primary"
+          variant="primary"
           onClick={() => {
             app.reorderStatuses(move.places);
             onClose();
           }}
         >
           {t('statusValues.confirmCategory.confirm')}
-        </button>
-        <button type="button" className="btn" onClick={onClose} autoFocus>
+        </Button>
+        <Button type="button" onClick={onClose} autoFocus>
           {t('statusValues.cancel')}
-        </button>
+        </Button>
       </div>
     </Dialog>
   );

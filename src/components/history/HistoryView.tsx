@@ -5,6 +5,7 @@ import { useApp } from '../../state/AppState';
 import { CompareDialog } from './CompareDialog';
 import { HistoryList } from './HistoryList';
 import { useHistoryText } from './historyText';
+import { Button } from '../../ui';
 
 interface Props {
   itemType: string;
@@ -41,9 +42,9 @@ export function HistoryView({ itemType, itemId, label }: Props) {
               ? t('history.chosenTwo', { first: text.versionName(older, latest.version), second: text.versionName(newer, latest.version) })
               : t('history.chooseTwo')}
           </span>
-          <button type="button" className="btn btn--primary" disabled={chosen.length !== 2} onClick={() => older && newer && setCompare({ from: older.id, to: newer.id })}>
+          <Button type="button" variant="primary" disabled={chosen.length !== 2} onClick={() => older && newer && setCompare({ from: older.id, to: newer.id })}>
             {t('history.compare')}
-          </button>
+          </Button>
         </div>
       )}
       <HistoryList

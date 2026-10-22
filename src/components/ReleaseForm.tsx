@@ -5,6 +5,7 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { DialogFooter } from './DialogFooter';
 import { useBuiltin } from './useBuiltin';
+import { TextInput, Textarea } from '../ui';
 
 /** Dialog for a new release: title (required), description, and optional start and end day. */
 export function NewReleaseDialog({ onClose, onCreated }: { onClose: () => void; onCreated?: (id: string) => void }) {
@@ -38,24 +39,24 @@ export function NewReleaseDialog({ onClose, onCreated }: { onClose: () => void; 
       <form className="form" onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor={`${uid}-title`}>{builtin.label('title', t('releases.name'))}</label>
-          <input id={`${uid}-title`} className="input" value={input.title} onChange={change('title')} required autoFocus />
+          <TextInput id={`${uid}-title`} value={input.title} onChange={change('title')} required autoFocus />
         </div>
         <div className="field">
           <label htmlFor={`${uid}-description`}>{builtin.label('description', t('releases.description'))}</label>
-          <textarea id={`${uid}-description`} className="input" rows={3} value={input.description} onChange={change('description')} />
+          <Textarea id={`${uid}-description`} rows={3} value={input.description} onChange={change('description')} />
         </div>
         {(showStart || showEnd) && (
           <div className="form__row">
             {showStart && (
               <div className="field">
                 <label htmlFor={`${uid}-start`}>{builtin.label('start', t('releases.start'))}</label>
-                <input id={`${uid}-start`} type="date" className="input" value={input.startDate ?? ''} onChange={change('startDate')} />
+                <TextInput id={`${uid}-start`} type="date" value={input.startDate ?? ''} onChange={change('startDate')} />
               </div>
             )}
             {showEnd && (
               <div className="field">
                 <label htmlFor={`${uid}-end`}>{builtin.label('end', t('releases.end'))}</label>
-                <input id={`${uid}-end`} type="date" className="input" value={input.endDate ?? ''} onChange={change('endDate')} />
+                <TextInput id={`${uid}-end`} type="date" value={input.endDate ?? ''} onChange={change('endDate')} />
               </div>
             )}
           </div>

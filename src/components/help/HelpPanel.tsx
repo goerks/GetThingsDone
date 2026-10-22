@@ -10,6 +10,7 @@ import { useApp } from '../../state/AppState';
 import { featureOn } from '../../domain/settings';
 import { Highlighted } from '../search/Highlighted';
 import { ArrowIcon, CloseIcon, LockIcon, PageLinkIcon, SettingsLinkIcon } from './icons';
+import { Button, IconButton, TextInput } from '../../ui';
 
 /** Moves between the buttons of a list with the arrow keys; the first ArrowUp goes back to the field. */
 function moveInList(event: KeyboardEvent<HTMLElement>, root: HTMLElement | null): void {
@@ -95,9 +96,9 @@ export function HelpPanel({ route }: { route: Route }) {
 
   const showButton = (spec: ShowSpec, pages: readonly PageKey[], page: PageKey) =>
     pages.includes(route.name) ? (
-      <button type="button" className="btn" onClick={() => runShow(spec)}>
+      <Button type="button" onClick={() => runShow(spec)}>
         {t('help.showMe')}
-      </button>
+      </Button>
     ) : (
       <a className="btn" href={hrefs[page]}>
         {t('help.goTo', { page: t(`help.pages.${page}`) })}
@@ -108,9 +109,9 @@ export function HelpPanel({ route }: { route: Route }) {
     <aside ref={root} className="help" aria-label={t('help.panelLabel')} onKeyDown={onKeyDown}>
       <div className="help__head">
         <h2 className="help__title">{t('help.title', { page: pageName })}</h2>
-        <button type="button" className="icon-btn" onClick={help.closeHelp} aria-label={t('help.close')} title={t('help.close')}>
+        <IconButton type="button" onClick={help.closeHelp} aria-label={t('help.close')} title={t('help.close')}>
           <CloseIcon />
-        </button>
+        </IconButton>
       </div>
       {view.name === 'home' && <HomeView route={route} entries={entries} openTopic={openTopic} topicTitle={topicTitle} />}
       {view.name === 'topic' && <TopicView id={view.id} route={route} notice={notice} showButton={showButton} />}
@@ -151,9 +152,9 @@ function HomeView({
   return (
     <div className="help__body" ref={list} onKeyDown={(event) => moveInList(event, list.current)}>
       <div className="help__search">
-        <input
+        <TextInput
           type="search"
-          className="input help__field"
+          className="help__field"
           data-help-field
           data-help-focus
           aria-label={t('help.search.label')}
@@ -162,9 +163,9 @@ function HomeView({
           onChange={(event) => help.setQuery(event.target.value)}
         />
         {query !== '' && (
-          <button
+          <IconButton
             type="button"
-            className="icon-btn help__clear"
+            className="help__clear"
             aria-label={t('help.search.clear')}
             title={t('help.search.clear')}
             onClick={() => {
@@ -173,7 +174,7 @@ function HomeView({
             }}
           >
             <CloseIcon />
-          </button>
+          </IconButton>
         )}
       </div>
 
@@ -188,16 +189,16 @@ function HomeView({
                 <strong>{t('help.search.none', { query: query.trim() })}</strong>
               </p>
               <p className="muted">{t('help.search.noneHint')}</p>
-              <button
+              <Button
                 type="button"
-                className="btn"
+               
                 onClick={() => {
                   help.setQuery('');
                   help.setListAll(true);
                 }}
               >
                 {t('help.search.showAll')}
-              </button>
+              </Button>
             </div>
           ) : (
             <ul className="help__list" aria-label={t('help.search.resultsLabel')}>
@@ -237,9 +238,9 @@ function HomeView({
               )}
               <h3 className="help__heading">{t('help.general')}</h3>
               <ul className="help__list">{general.map(row)}</ul>
-              <button type="button" className="btn help__all" onClick={() => help.setListAll(true)}>
+              <Button type="button" className="help__all" onClick={() => help.setListAll(true)}>
                 {t('help.allTopics')}
-              </button>
+              </Button>
             </>
           )}
         </>
@@ -252,9 +253,9 @@ function BackButton() {
   const { t } = useTranslation();
   const help = useHelp();
   return (
-    <button type="button" className="btn help__back" onClick={() => help.setView({ name: 'home' })}>
+    <Button type="button" className="help__back" onClick={() => help.setView({ name: 'home' })}>
       ← {t('help.back')}
-    </button>
+    </Button>
   );
 }
 
@@ -417,15 +418,15 @@ function TourView({
                     <p>{stepText(id, 'text')}</p>
                     <div className="help__actions">
                       {id === 'board' ? (
-                        <button type="button" className="btn btn--primary" onClick={() => help.confirmStep(id)}>
+                        <Button type="button" variant="primary" onClick={() => help.confirmStep(id)}>
                           {t('help.tour.confirm')}
-                        </button>
+                        </Button>
                       ) : (
                         showButton(view.show, view.pages, view.pages.includes(route.name) ? route.name : pageOfStep(id))
                       )}
-                      <button type="button" className="btn" onClick={() => help.skipStep(id)}>
+                      <Button type="button" onClick={() => help.skipStep(id)}>
                         {t('help.tour.skip')}
-                      </button>
+                      </Button>
                     </div>
                   </>
                 )}
@@ -439,32 +440,32 @@ function TourView({
       </p>
       {current === null && <p className="help__finished">{t('help.tour.finished')}</p>}
       <div className="help__actions help__actions--foot">
-        <button type="button" className="btn" onClick={help.closeHelp}>
+        <Button type="button" onClick={help.closeHelp}>
           {t('help.tour.close')}
-        </button>
+        </Button>
         {!confirming && (
-          <button type="button" className="btn" onClick={() => setConfirming(true)}>
+          <Button type="button" onClick={() => setConfirming(true)}>
             {t('help.tour.restart')}
-          </button>
+          </Button>
         )}
       </div>
       {confirming && (
         <div className="help__confirm" role="group" aria-label={t('help.tour.restart')}>
           <p>{t('help.tour.restartAsk')}</p>
           <div className="help__actions">
-            <button
+            <Button
               type="button"
-              className="btn btn--primary"
+              variant="primary"
               onClick={() => {
                 help.restartTour();
                 setConfirming(false);
               }}
             >
               {t('help.tour.restartYes')}
-            </button>
-            <button type="button" className="btn" onClick={() => setConfirming(false)}>
+            </Button>
+            <Button type="button" onClick={() => setConfirming(false)}>
               {t('help.tour.restartNo')}
-            </button>
+            </Button>
           </div>
         </div>
       )}

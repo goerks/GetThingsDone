@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FeatureKey } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { Button } from '../ui';
 
 /**
  * Settings tab of a feature (#61): the switch at the top, saved at once, and below it the settings of the feature.
@@ -30,9 +31,9 @@ export function FeatureTab({ feature, children }: { feature: FeatureKey; childre
         <div className="feature-tab__start">
           <p className="muted">{t(`settings.features.${feature}.offNote`)}</p>
           <div>
-            <button type="button" className="btn btn--primary" onClick={() => app.setFeature(feature, true)}>
+            <Button type="button" variant="primary" onClick={() => app.setFeature(feature, true)}>
               {t('settings.features.switchOn', { name })}
-            </button>
+            </Button>
           </div>
         </div>
       )}

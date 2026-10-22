@@ -5,6 +5,7 @@ import { useApp } from '../state/AppState';
 import { niceMax } from './ScopeReport';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
 import { useBuiltin } from './useBuiltin';
+import { Button } from '../ui';
 
 const W = 720;
 const H = 260;
@@ -186,17 +187,17 @@ export function VelocityButton() {
 
   return (
     <span className="velocity-menu" ref={root}>
-      <button ref={button} type="button" className="btn velocity-button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(!open)}>
+      <Button ref={button} type="button" className="velocity-button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(!open)}>
         {average ? t('velocity.buttonAverage', { points: average.points }) : t('velocity.button')}
-      </button>
+      </Button>
       {open && (
         <section id={panelId} className="velocity" role="region" aria-label={t('velocity.title')} style={place}>
           <div className="velocity__head">
             <h2 className="velocity__title">{t('velocity.title')}</h2>
             {average && <span className="muted velocity__summary">{text.head}</span>}
-            <button type="button" className="btn btn--small velocity__close" aria-label={t('velocity.close')} onClick={() => { setOpen(false); button.current?.focus(); }}>
+            <Button type="button" size="small" className="velocity__close" aria-label={t('velocity.close')} onClick={() => { setOpen(false); button.current?.focus(); }}>
               ✕
-            </button>
+            </Button>
           </div>
           {all.length === 0 ? (
             <div className="velocity__empty">
@@ -212,9 +213,9 @@ export function VelocityButton() {
                   <span className="scope__key velocity__key--average">{t('velocity.legend.average')}</span>
                 </div>
                 {shown.hasOlder && (
-                  <button type="button" className="btn" onClick={() => setPages(pages + 1)}>
+                  <Button type="button" onClick={() => setPages(pages + 1)}>
                     ‹ {t('velocity.older')}
-                  </button>
+                  </Button>
                 )}
               </div>
               <Chart rows={shown.rows} average={average} line={text.line} label={label} />

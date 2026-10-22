@@ -7,6 +7,7 @@ import { useApp } from '../state/AppState';
 import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
 import { useReportUnit, type ReportUnit } from './useReportUnit';
+import { Button } from '../ui';
 
 const W = 680;
 const H = 284;
@@ -117,9 +118,9 @@ export function ScopeReport({ release }: { release: Release }) {
         {pointsShown ? (
           <div className="unit-switch" role="group" aria-label={t('releases.scope.unit.label')}>
             {(['points', 'tickets'] as const).map((choice) => (
-              <button key={choice} type="button" className={`btn${shownUnit === choice ? ' btn--pressed' : ''}`} aria-pressed={shownUnit === choice} onClick={() => setUnit(choice)}>
+              <Button key={choice} type="button" pressed={shownUnit === choice} aria-pressed={shownUnit === choice} onClick={() => setUnit(choice)}>
                 {t(`releases.scope.unit.${choice}`)}
-              </button>
+              </Button>
             ))}
           </div>
         ) : (

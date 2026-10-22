@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { ResultKind } from '../../domain/search';
 import { usePageMatches } from '../../state/Search';
+import { Button } from '../../ui';
 
 /** While a search is active: how many of the stories on this page match, and a button to clear the search. */
 export function HighlightBar({ storyIds }: { storyIds: readonly string[] }) {
@@ -14,9 +15,9 @@ export function HighlightBar({ storyIds }: { storyIds: readonly string[] }) {
         {t('search.highlightSummary', { matches: count, count: storyIds.length })}{' '}
         <span className="highlight-bar__query">{matches.label}</span>
       </span>
-      <button type="button" className="btn btn--small" onClick={matches.clear}>
+      <Button type="button" size="small" onClick={matches.clear}>
         {t('search.clear')}
-      </button>
+      </Button>
     </div>
   );
 }

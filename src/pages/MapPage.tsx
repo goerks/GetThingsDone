@@ -52,6 +52,7 @@ import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
 import { usePageMatches, useSearchPage } from '../state/Search';
 import { useNewShortcut } from '../components/useNewShortcut';
+import { Button } from '../ui';
 
 const NOT_PLANNED = '-';
 /** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
@@ -583,14 +584,14 @@ export function MapPage() {
           <span aria-hidden="true">{t('map.rows', { rows: t(releaseMode ? 'map.rowsReleases' : 'map.rowsSprints') })}</span>
           <GearIcon />
         </a>
-        <button
+        <Button
           type="button"
-          className={`btn${compact ? ' btn--pressed' : ''}`}
+          pressed={compact}
           aria-pressed={compact}
           onClick={toggleCompact}
         >
           {t('map.compact')}
-        </button>
+        </Button>
         <NewButton label={t('newStory.open')} onClick={() => setDialog({ kind: 'story', epicId: null, sprintId: null })} />
       </div>
 
@@ -605,9 +606,9 @@ export function MapPage() {
       {epics.length === 0 ? (
         <div className="map-empty">
           <p className="muted">{t('map.noEpics')}</p>
-          <button type="button" className="btn btn--primary" onClick={() => setDialog({ kind: 'epic' })}>
+          <Button type="button" variant="primary" onClick={() => setDialog({ kind: 'epic' })}>
             {t('epics.new')}
-          </button>
+          </Button>
         </div>
       ) : (
         <DndContext

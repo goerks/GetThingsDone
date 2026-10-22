@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { selectableReleases } from '../domain/releases';
 import { useApp } from '../state/AppState';
+import { Select } from '../ui';
 
 const NO_RELEASE = '';
 
@@ -15,9 +16,9 @@ export function ReleaseSelect({ id, value, onChange }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   return (
-    <select
+    <Select
       id={id}
-      className="select"
+     
       value={value ?? NO_RELEASE}
       onChange={(event) => onChange(event.target.value === NO_RELEASE ? null : event.target.value)}
     >
@@ -27,6 +28,6 @@ export function ReleaseSelect({ id, value, onChange }: Props) {
           {release.title}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }

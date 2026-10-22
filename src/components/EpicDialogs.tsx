@@ -7,6 +7,7 @@ import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
 import { DialogFooter } from './DialogFooter';
 import { useBuiltin } from './useBuiltin';
+import { TextInput } from '../ui';
 
 interface ColorPickerProps {
   name: string;
@@ -73,9 +74,9 @@ export function NewEpicDialog({ onClose, onCreated }: { onClose: () => void; onC
       <form className="form" onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor={`${uid}-name`}>{builtin.label('title', t('epics.name'))}</label>
-          <input
+          <TextInput
             id={`${uid}-name`}
-            className="input"
+           
             value={name}
             onChange={(event) => {
               setName(event.target.value);

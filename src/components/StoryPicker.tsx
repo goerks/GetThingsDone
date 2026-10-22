@@ -2,6 +2,7 @@ import { useId, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { searchStories } from '../domain/storySearch';
 import type { Story } from '../domain/types';
+import { TextInput } from '../ui';
 
 /** At most this many matches are listed; the rest is reached by typing more. */
 const LIMIT = 8;
@@ -68,9 +69,9 @@ export function StoryPicker({ stories, onPick }: Props) {
       <label htmlFor={`${uid}-input`} className="sr-only">
         {t('releases.addStory')}
       </label>
-      <input
+      <TextInput
         id={`${uid}-input`}
-        className="input story-picker__input"
+        className="story-picker__input"
         type="text"
         role="combobox"
         autoComplete="off"

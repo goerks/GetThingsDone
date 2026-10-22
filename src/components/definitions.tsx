@@ -5,6 +5,7 @@ import { categoryOf } from '../domain/statuses';
 import { evaluate, inUse, notDone, notReady, type GroupResult, type ItemState, type ListResult } from '../domain/definitions';
 import type { DefinitionItem, DefinitionKind, Story } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { Button, IconButton } from '../ui';
 
 /** The text of an item: its own text, or the translated text of an automatic check. */
 export function itemText(t: TFunction, item: DefinitionItem): string {
@@ -182,10 +183,10 @@ function CardMenu({ name, onlyOpen, onOnlyOpen, onHide }: { name: string; onlyOp
   };
   return (
     <div className="definition-menu">
-      <button
+      <IconButton
         type="button"
         ref={button}
-        className="icon-btn icon-btn--quiet"
+        quiet
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? uid : undefined}
@@ -194,7 +195,7 @@ function CardMenu({ name, onlyOpen, onOnlyOpen, onHide }: { name: string; onlyOp
         onClick={() => setOpen(!open)}
       >
         <span aria-hidden="true">⋯</span>
-      </button>
+      </IconButton>
       {open && (
         <div id={uid} ref={menu} role="menu" className="definition-menu__list" onKeyDown={onKeyDown}>
           <button
@@ -261,9 +262,9 @@ export function DefinitionsPanel({ story }: { story: Story }) {
   if (hidden) {
     return (
       <section className="panel definitions-panel definitions-panel--hidden" aria-label={t('definitions.panelLabel')}>
-        <button type="button" ref={showButton} className="btn" onClick={() => setHidden(false)}>
+        <Button type="button" ref={showButton} onClick={() => setHidden(false)}>
           {t('definitions.show')}
-        </button>
+        </Button>
         <span className="muted">{kinds.map((kind) => `${t(`definitions.${kind}`)} ${counterText(t, evaluate(definitions[kind], story))}`).join(' · ')} · {t('definitions.hiddenHint')}</span>
       </section>
     );

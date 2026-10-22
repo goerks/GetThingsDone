@@ -1,6 +1,7 @@
 import { useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DetailNavContext, type DetailNav } from '../state/detailNav';
+import { Button } from '../ui';
 
 interface Props {
   /** Visible heading. Without it, `label` names the dialog for assistive technology. */
@@ -127,29 +128,29 @@ function NavBar({ nav }: { nav: DetailNav }) {
       <span className="detail-nav__query">{nav.label}</span>
       <span className="detail-nav__position">{t('search.nav.position', { position: nav.position, total: nav.total })}</span>
       <span className="detail-nav__buttons">
-        <button
+        <Button
           type="button"
-          className="btn btn--small"
+          size="small"
           onClick={() => nav.previous?.()}
           disabled={!nav.previous}
           aria-label={t('search.nav.previous')}
           title={t('search.nav.previous')}
         >
           ‹
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className="btn btn--small"
+          size="small"
           onClick={() => nav.next?.()}
           disabled={!nav.next}
           aria-label={t('search.nav.next')}
           title={t('search.nav.next')}
         >
           ›
-        </button>
-        <button type="button" className="btn btn--small" onClick={nav.back}>
+        </Button>
+        <Button type="button" size="small" onClick={nav.back}>
           {t('search.nav.back')}
-        </button>
+        </Button>
       </span>
     </nav>
   );
@@ -178,12 +179,12 @@ function DiscardAsk({ onKeepEditing, onDiscard }: { onKeepEditing: () => void; o
       <p id={id} className="discard-ask__text">
         {t('dialog.discardTitle')}
       </p>
-      <button type="button" className="btn" onClick={onKeepEditing} ref={keep}>
+      <Button type="button" onClick={onKeepEditing} ref={keep}>
         {t('dialog.keepEditing')}
-      </button>
-      <button type="button" className="btn btn--danger" onClick={onDiscard}>
+      </Button>
+      <Button type="button" variant="danger" onClick={onDiscard}>
         {t('dialog.discard')}
-      </button>
+      </Button>
     </div>
   );
 }

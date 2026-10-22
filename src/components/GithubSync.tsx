@@ -8,6 +8,7 @@ import { Dialog } from './Dialog';
 import { InfoHint } from './InfoHint';
 import { statusLabel } from './statusLabel';
 import { useFeature } from './useFeature';
+import { Button } from '../ui';
 
 export const fieldList = (t: TFunction, names: readonly FieldName[]): string => names.map((name) => t(`github.field.${name}`)).join(', ');
 
@@ -131,12 +132,12 @@ function Conflicts({ conflicts, onApply, onCancel }: { conflicts: ConflictEntry[
         );
       })}
       <div className="form__actions">
-        <button type="button" className="btn" onClick={onCancel}>
+        <Button type="button" onClick={onCancel}>
           {t('github.conflict.cancel')}
-        </button>
-        <button type="button" className="btn btn--primary" onClick={() => onApply(chosen)}>
+        </Button>
+        <Button type="button" variant="primary" onClick={() => onApply(chosen)}>
           {t('github.conflict.apply')}
-        </button>
+        </Button>
       </div>
     </Dialog>
   );
@@ -200,7 +201,7 @@ export function GithubSync() {
 
   return (
     <span className="github-sync">
-      <button type="button" className="btn btn--icon github-sync__button" aria-label={name} aria-busy={busy || undefined} title={tooltip} aria-disabled={busy || undefined} onClick={() => void sync()}>
+      <Button type="button" className="btn--icon github-sync__button" aria-label={name} aria-busy={busy || undefined} title={tooltip} aria-disabled={busy || undefined} onClick={() => void sync()}>
         <svg className={`github-sync__icon${busy ? ' github-sync__icon--spin' : ''}`} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M21 12a9 9 0 0 0-15.5-6.2L3 8" />
           <path d="M3 3v5h5" />
@@ -222,7 +223,7 @@ export function GithubSync() {
             </span>
           )
         )}
-      </button>
+      </Button>
       <span className="sr-only" role="status">
         {busy ? t('github.sync.running') : lastText ? t('github.sync.last', { when: lastText }) : t('github.sync.never')}
       </span>
