@@ -26,6 +26,7 @@ import { statusLabel } from './statusLabel';
 import { STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
+import { Button, IconButton, Select, TextInput } from '../ui';
 
 interface CriterionProps {
   storyId: string;
@@ -69,15 +70,15 @@ function CriterionRow({ storyId, criterion }: CriterionProps) {
         className="criteria__text"
         onSave={(text) => app.editCriterion(storyId, criterion.id, text)}
       />
-      <button
+      <IconButton
         type="button"
-        className="icon-btn icon-btn--quiet"
+        quiet
         aria-label={t('detail.deleteCriterion', { text: criterion.text })}
         title={t('detail.deleteCriterion', { text: criterion.text })}
         onClick={() => app.deleteCriterion(storyId, criterion.id)}
       >
         <TrashIcon />
-      </button>
+      </IconButton>
     </li>
   );
 }
@@ -98,9 +99,9 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
       <Dialog title={t('detail.notFoundTitle')} onClose={onClose}>
         <p>{t('detail.notFound')}</p>
         <div className="form__actions">
-          <button type="button" className="btn" onClick={onClose}>
+          <Button type="button" onClick={onClose}>
             {t('detail.close')}
-          </button>
+          </Button>
         </div>
       </Dialog>
     );
@@ -147,9 +148,9 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
   return (
     <Dialog label={`${story.code}: ${story.title}`} wide onClose={onClose}>
       <div className="detail-dialog__close">
-        <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('detail.close')} title={t('detail.close')} onClick={onClose}>
+        <IconButton type="button" quiet aria-label={t('detail.close')} title={t('detail.close')} onClick={onClose}>
           ×
-        </button>
+        </IconButton>
       </div>
       <div className="detail">
         <div className="detail__main">
@@ -220,16 +221,16 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
                 <label htmlFor={`${uid}-criterion`} className="sr-only">
                   {t('detail.newCriterion')}
                 </label>
-                <input
+                <TextInput
                   id={`${uid}-criterion`}
-                  className="input"
+                 
                   placeholder={t('detail.newCriterion')}
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                 />
-                <button type="submit" className="btn">
+                <Button type="submit">
                   {t('detail.addCriterion')}
-                </button>
+                </Button>
               </form>
             </section>
           )}
@@ -244,9 +245,9 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
           <div className="form">
             <div className="field">
               <label htmlFor={`${uid}-status`}>{builtin.label('status', t('detail.status'))}</label>
-              <select
+              <Select
                 id={`${uid}-status`}
-                className="select"
+               
                 value={story.status}
                 onChange={(event) => app.updateStory(story.id, { status: event.target.value })}
               >
@@ -259,7 +260,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
                     ))}
                   </optgroup>
                 ))}
-              </select>
+              </Select>
             </div>
             <div className="field">
               <label htmlFor={`${uid}-epic`}>{builtin.label('epic', t('detail.epic'))}</label>
@@ -274,9 +275,9 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
             {builtin.shown('story', 'points') && (
               <div className="field">
                 <label htmlFor={`${uid}-points`}>{builtin.label('points', t('detail.points'))}</label>
-                <select
+                <Select
                   id={`${uid}-points`}
-                  className="select"
+                 
                   value={story.points}
                   onChange={(event) => app.updateStory(story.id, { points: Number(event.target.value) })}
                 >
@@ -285,7 +286,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
                       {value}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
             )}
             <div className="field">
@@ -324,18 +325,18 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
               <div role="group" aria-labelledby={`${uid}-confirm`} className="danger__confirm">
                 <p id={`${uid}-confirm`}>{t('detail.deleteConfirm', { code: story.code, count: story.criteria.length })}</p>
                 <div className="form__actions">
-                  <button type="button" className="btn btn--danger" onClick={remove} autoFocus>
+                  <Button type="button" variant="danger" onClick={remove} autoFocus>
                     {t('detail.deleteYes')}
-                  </button>
-                  <button type="button" className="btn" onClick={() => setConfirmDelete(false)}>
+                  </Button>
+                  <Button type="button" onClick={() => setConfirmDelete(false)}>
                     {t('detail.deleteNo')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
-              <button type="button" className="btn btn--danger-quiet" onClick={() => setConfirmDelete(true)}>
+              <Button type="button" variant="danger-quiet" onClick={() => setConfirmDelete(true)}>
                 {t('detail.delete')}
-              </button>
+              </Button>
             )}
           </div>
         </aside>

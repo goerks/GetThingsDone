@@ -4,6 +4,7 @@ import { compareStates, isList, type ChangeVersion, type CompareRow, type ListEn
 import { diffText } from '../../domain/textDiff';
 import { Dialog } from '../Dialog';
 import { useHistoryText, type HistoryText } from './historyText';
+import { Button, Select } from '../../ui';
 
 interface Props {
   itemType: string;
@@ -53,22 +54,22 @@ export function CompareDialog({ itemType, versions, label, fromId, toId, onClose
     <Dialog title={t('history.compareHeading', { name: label })} wide onClose={onClose}>
       <div className="compare">
         <div className="compare__bar">
-          <button type="button" className="btn btn--small" onClick={onClose}>
+          <Button type="button" size="small" onClick={onClose}>
             {t('history.back')}
-          </button>
+          </Button>
           <div className="field compare__pick">
             <label htmlFor={`${uid}-from`}>{t('history.from')}</label>
-            <select id={`${uid}-from`} className="select" value={left.id} onChange={(event) => setFrom(event.target.value)}>
+            <Select id={`${uid}-from`} value={left.id} onChange={(event) => setFrom(event.target.value)}>
               {[...versions].reverse().map((version) => (
                 <option key={version.id} value={version.id}>
                   {optionText(version)}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
-          <button
+          <Button
             type="button"
-            className="btn btn--small"
+            size="small"
             onClick={() => {
               setFrom(right.id);
               setTo(left.id);
@@ -77,16 +78,16 @@ export function CompareDialog({ itemType, versions, label, fromId, toId, onClose
             title={t('history.swap')}
           >
             ⇄
-          </button>
+          </Button>
           <div className="field compare__pick">
             <label htmlFor={`${uid}-to`}>{t('history.to')}</label>
-            <select id={`${uid}-to`} className="select" value={right.id} onChange={(event) => setTo(event.target.value)}>
+            <Select id={`${uid}-to`} value={right.id} onChange={(event) => setTo(event.target.value)}>
               {[...versions].reverse().map((version) => (
                 <option key={version.id} value={version.id}>
                   {optionText(version)}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
           <label className="compare__only">
             <input type="checkbox" checked={onlyChanges} onChange={(event) => setOnlyChanges(event.target.checked)} />

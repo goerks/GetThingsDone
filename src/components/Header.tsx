@@ -7,6 +7,7 @@ import { GearIcon, KeyboardIcon } from './icons';
 import { useFeature } from './useFeature';
 import { useHelp } from '../state/Help';
 import { SearchBox } from './search/SearchBox';
+import { IconButton, Select } from '../ui';
 
 interface Props {
   route: Route;
@@ -91,19 +92,19 @@ export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) 
 
       <div className="header__tools">
         <SearchBox />
-        <button
+        <IconButton
           type="button"
-          className="icon-btn"
+         
           onClick={onShowShortcuts}
           aria-label={t('header.shortcuts')}
           title={t('header.shortcuts')}
           aria-keyshortcuts="Control+/ Meta+/"
         >
           <KeyboardIcon />
-        </button>
-        <button
+        </IconButton>
+        <IconButton
           type="button"
-          className="icon-btn"
+         
           onClick={onToggleTheme}
           aria-label={dark ? t('header.toLight') : t('header.toDark')}
           title={dark ? t('header.toLight') : t('header.toDark')}
@@ -118,9 +119,9 @@ export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) 
               <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
             </svg>
           )}
-        </button>
-        <select
-          className="select"
+        </IconButton>
+        <Select
+         
           aria-label={t('header.language')}
           value={language}
           onChange={(event) => setLanguage(event.target.value as LanguageCode)}
@@ -130,7 +131,7 @@ export function Header({ route, theme, onToggleTheme, onShowShortcuts }: Props) 
               {item.label}
             </option>
           ))}
-        </select>
+        </Select>
         <a
           href={inSettings ? lastView.current : hrefs.settings}
           className="icon-btn header__settings"

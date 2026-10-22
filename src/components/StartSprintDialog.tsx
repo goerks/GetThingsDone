@@ -6,6 +6,7 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { SprintPlan } from './SprintPlan';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
+import { Button, Select } from '../ui';
 
 interface Props {
   /** The planned sprint that is selected when the dialog opens. */
@@ -44,13 +45,13 @@ export function StartSprintDialog({ sprintId, onClose }: Props) {
       <form className="sprint-dialog" onSubmit={submit}>
         <div className="field">
           <label htmlFor={`${uid}-sprint`}>{t('lifecycle.start.sprint')}</label>
-          <select id={`${uid}-sprint`} className="select" value={sprint.id} onChange={(event) => setSelected(event.target.value)}>
+          <Select id={`${uid}-sprint`} value={sprint.id} onChange={(event) => setSelected(event.target.value)}>
             {options.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.name} ({formatSprintDates(option, i18n.language)})
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div className="sprint-figures">
           <div className="sprint-figure">
@@ -98,12 +99,12 @@ export function StartSprintDialog({ sprintId, onClose }: Props) {
           </fieldset>
         )}
         <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
+          <Button type="submit" variant="primary">
             {t('lifecycle.start.submit')}
-          </button>
-          <button type="button" className="btn" onClick={onClose}>
+          </Button>
+          <Button type="button" onClick={onClose}>
             {t('newStory.cancel')}
-          </button>
+          </Button>
         </div>
       </form>
     </Dialog>

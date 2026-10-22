@@ -4,6 +4,7 @@ import { MAX_INITIALS, freeInitials, initialsFollowName, storiesOfMember, type M
 import type { Member } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { FeatureTab } from './FeatureTab';
+import { Button, TextInput } from '../ui';
 
 /** The form for a new or an existing member: name and initials. Saves with Enter, cancels with Escape. */
 function MemberForm({ member, onDone }: { member: Member | null; onDone: () => void }) {
@@ -45,9 +46,9 @@ function MemberForm({ member, onDone }: { member: Member | null; onDone: () => v
     >
       <div className="field">
         <label htmlFor={`${uid}-name`}>{t('team.name')}</label>
-        <input
+        <TextInput
           id={`${uid}-name`}
-          className="input"
+         
           value={name}
           onChange={(event) => {
             setName(event.target.value);
@@ -60,9 +61,9 @@ function MemberForm({ member, onDone }: { member: Member | null; onDone: () => v
       </div>
       <div className="field team__initials">
         <label htmlFor={`${uid}-initials`}>{t('team.initials')}</label>
-        <input
+        <TextInput
           id={`${uid}-initials`}
-          className="input"
+         
           value={shownInitials}
           maxLength={MAX_INITIALS + 4}
           onChange={(event) => {
@@ -75,12 +76,12 @@ function MemberForm({ member, onDone }: { member: Member | null; onDone: () => v
         />
       </div>
       <div className="form__actions team__actions">
-        <button type="submit" className="btn btn--primary">
+        <Button type="submit" variant="primary">
           {t('team.save')}
-        </button>
-        <button type="button" className="btn" onClick={onDone}>
+        </Button>
+        <Button type="button" onClick={onDone}>
           {t('team.cancel')}
-        </button>
+        </Button>
       </div>
       {problem && (
         <p id={`${uid}-problem`} role="alert" className="field-error team__problem">
@@ -117,27 +118,27 @@ function MemberRow({ member }: { member: Member }) {
         <div role="group" aria-labelledby={`${uid}-confirm`} className="danger__confirm team__confirm">
           <p id={`${uid}-confirm`}>{t('team.removeConfirm', { name: member.name, count })}</p>
           <div className="form__actions">
-            <button type="button" className="btn btn--danger" onClick={() => app.removeMember(member.id)}>
+            <Button type="button" variant="danger" onClick={() => app.removeMember(member.id)}>
               {t('team.removeYes')}
-            </button>
-            <button type="button" className="btn" onClick={() => setConfirming(false)} autoFocus>
+            </Button>
+            <Button type="button" onClick={() => setConfirming(false)} autoFocus>
               {t('team.cancel')}
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
         <span className="team__buttons">
-          <button type="button" className="btn" aria-label={t('team.change', { name: member.name })} onClick={() => setEditing(true)}>
+          <Button type="button" aria-label={t('team.change', { name: member.name })} onClick={() => setEditing(true)}>
             {t('team.changeShort')}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className="btn btn--danger-quiet"
+            variant="danger-quiet"
             aria-label={t('team.remove', { name: member.name })}
             onClick={() => (count > 0 ? setConfirming(true) : app.removeMember(member.id))}
           >
             {t('team.removeShort')}
-          </button>
+          </Button>
         </span>
       )}
     </li>
@@ -171,9 +172,9 @@ export function TeamSection() {
           <MemberForm member={null} onDone={() => setAdding(false)} />
         ) : (
           <div>
-            <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
+            <Button type="button" variant="primary" onClick={() => setAdding(true)}>
               {t('team.add')}
-            </button>
+            </Button>
           </div>
         )}
       </div>

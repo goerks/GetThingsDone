@@ -28,6 +28,7 @@ import {
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
 import { FieldLayout } from './FieldLayout';
+import { Button, IconButton, Select, TextInput } from '../ui';
 
 /** Item types that show custom fields, one column each in the field table. */
 const FIELD_ITEM_TYPES: readonly ItemType[] = ['story', 'epic', 'release'];
@@ -124,9 +125,9 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
       <form className="form" onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor={`${uid}-label`}>{t('fields.label')}</label>
-          <input
+          <TextInput
             id={`${uid}-label`}
-            className="input"
+           
             value={label}
             onChange={(event) => setLabel(event.target.value)}
             required
@@ -135,9 +136,9 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
         </div>
         <div className="field">
           <label htmlFor={`${uid}-type`}>{t('fields.dataType')}</label>
-          <select
+          <Select
             id={`${uid}-type`}
-            className="select"
+           
             value={dataType}
             disabled={typeChoices.length === 1}
             aria-describedby={field ? `${uid}-type-locked` : undefined}
@@ -155,7 +156,7 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
                 {t(`fields.type.${type}`)}
               </option>
             ))}
-          </select>
+          </Select>
           {field && (
             <span id={`${uid}-type-locked`} className="muted">
               {typeChoices.length === 1 ? t('fields.typeLocked') : t('fields.typeConversions')}
@@ -169,15 +170,15 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
               {options.map((option, index) => (
                 <li key={option.key} className="option-row">
                   <span className="epic__dot option-row__dot" style={{ background: `var(--epic-${option.colorKey})` }} aria-hidden="true" />
-                  <input
-                    className="input option-row__label"
+                  <TextInput
+                    className="option-row__label"
                     aria-label={t('fields.option', { position: index + 1 })}
                     value={option.label}
                     onChange={(event) => changeOption(option.key, { label: event.target.value })}
                     autoFocus={option.id === undefined && index > 0}
                   />
-                  <select
-                    className="select"
+                  <Select
+                   
                     aria-label={t('fields.optionColor', { position: index + 1 })}
                     value={option.colorKey}
                     onChange={(event) => changeOption(option.key, { colorKey: event.target.value as EpicColorKey })}
@@ -187,24 +188,24 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
                         {t(`epics.color.${key}`)}
                       </option>
                     ))}
-                  </select>
-                  <button
+                  </Select>
+                  <IconButton
                     type="button"
-                    className="icon-btn icon-btn--quiet"
+                    quiet
                     aria-label={t('fields.removeOption', { position: index + 1 })}
                     title={t('fields.removeOption', { position: index + 1 })}
                     disabled={options.length === 1}
                     onClick={() => setOptions((list) => list.filter((item) => item.key !== option.key))}
                   >
                     <TrashIcon />
-                  </button>
+                  </IconButton>
                 </li>
               ))}
             </ol>
             <div>
-              <button type="button" className="btn" onClick={() => setOptions((list) => [...list, emptyOption(list.length)])}>
+              <Button type="button" onClick={() => setOptions((list) => [...list, emptyOption(list.length)])}>
                 {t('fields.addOption')}
-              </button>
+              </Button>
             </div>
           </fieldset>
         )}
@@ -233,9 +234,9 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
           <div className="field">
             <label htmlFor={`${uid}-default`}>{t('fields.defaultValue')}</label>
             {dataType === 'single_select' ? (
-              <select
+              <Select
                 id={`${uid}-default`}
-                className="select"
+               
                 value={namedOptions.find((option) => defaultOptions.includes(option.key))?.key ?? ''}
                 onChange={(event) => setDefaultOptions(event.target.value ? [event.target.value] : [])}
               >
@@ -245,11 +246,11 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
                     {option.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             ) : (
-              <input
+              <TextInput
                 id={`${uid}-default`}
-                className="input"
+               
                 type={dataType === 'date' ? 'date' : 'text'}
                 inputMode={dataType === 'number' ? 'decimal' : dataType === 'url' ? 'url' : undefined}
                 placeholder={t('fields.noDefault')}
@@ -280,12 +281,12 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
           </div>
         )}
         <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
+          <Button type="submit" variant="primary">
             {field ? t('fields.save') : t('fields.create')}
-          </button>
-          <button type="button" className="btn" onClick={onClose}>
+          </Button>
+          <Button type="button" onClick={onClose}>
             {t('fields.cancel')}
-          </button>
+          </Button>
         </div>
       </form>
     </Dialog>
@@ -305,19 +306,19 @@ function DeleteFieldDialog({ field, onClose }: { field: FieldDefinition; onClose
       {stories > 0 && <p>{t('fields.loseStories', { count: stories })}</p>}
       {epics > 0 && <p>{t('fields.loseEpics', { count: epics })}</p>}
       <div className="form__actions">
-        <button
+        <Button
           type="button"
-          className="btn btn--danger"
+          variant="danger"
           onClick={() => {
             app.deleteField(field.id);
             onClose();
           }}
         >
           {t('fields.deleteYes')}
-        </button>
-        <button type="button" className="btn" onClick={onClose} autoFocus>
+        </Button>
+        <Button type="button" onClick={onClose} autoFocus>
           {t('fields.deleteNo')}
-        </button>
+        </Button>
       </div>
     </Dialog>
   );
@@ -419,18 +420,18 @@ function FieldRow({ field, onEdit, onDelete, onRename }: FieldRowProps) {
       ))}
       <td className="field-table__actions">
         {field.kind !== 'custom' && canRename(field) && (
-          <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('fields.rename', { name })} title={t('fields.rename', { name })} onClick={onRename}>
+          <IconButton type="button" quiet aria-label={t('fields.rename', { name })} title={t('fields.rename', { name })} onClick={onRename}>
             <PencilIcon />
-          </button>
+          </IconButton>
         )}
         {field.kind === 'custom' && (
           <>
-            <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('fields.edit', { name })} title={t('fields.edit', { name })} onClick={onEdit}>
+            <IconButton type="button" quiet aria-label={t('fields.edit', { name })} title={t('fields.edit', { name })} onClick={onEdit}>
               <PencilIcon />
-            </button>
-            <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('fields.delete', { name })} title={t('fields.delete', { name })} onClick={onDelete}>
+            </IconButton>
+            <IconButton type="button" quiet aria-label={t('fields.delete', { name })} title={t('fields.delete', { name })} onClick={onDelete}>
               <TrashIcon />
-            </button>
+            </IconButton>
           </>
         )}
       </td>
@@ -465,28 +466,28 @@ function RenameFieldDialog({ field, onClose }: { field: FieldDefinition; onClose
       <form className="form" onSubmit={save}>
         <div className="field">
           <label htmlFor={`${uid}-label`}>{t('fields.label')}</label>
-          <input id={`${uid}-label`} className="input" value={label} onChange={(event) => setLabel(event.target.value)} autoFocus />
+          <TextInput id={`${uid}-label`} value={label} onChange={(event) => setLabel(event.target.value)} autoFocus />
           <span className="muted">{t('fields.renameHint', { name: standard })}</span>
         </div>
         <div className="form__actions">
-          <button type="submit" className="btn btn--primary">
+          <Button type="submit" variant="primary">
             {t('fields.save')}
-          </button>
+          </Button>
           {field.label !== null && (
-            <button
+            <Button
               type="button"
-              className="btn"
+             
               onClick={() => {
                 app.renameBuiltinField(field.id, null);
                 onClose();
               }}
             >
               {t('fields.resetLabel', { name: standard })}
-            </button>
+            </Button>
           )}
-          <button type="button" className="btn" onClick={onClose}>
+          <Button type="button" onClick={onClose}>
             {t('fields.cancel')}
-          </button>
+          </Button>
         </div>
       </form>
     </Dialog>
@@ -506,9 +507,9 @@ export function FieldsSection() {
       <div className="page-head page-head--section">
         <h2>{t('fields.title')}</h2>
         <span className="muted">{t('fields.hint')}</span>
-        <button type="button" className="btn btn--primary page-head__action" onClick={() => setOpen({ kind: 'new' })}>
+        <Button type="button" variant="primary" className="page-head__action" onClick={() => setOpen({ kind: 'new' })}>
           {t('fields.new')}
-        </button>
+        </Button>
       </div>
       {open?.kind === 'new' && <FieldDialog onClose={close} />}
       {open?.kind === 'edit' && <FieldDialog field={open.field} onClose={close} />}

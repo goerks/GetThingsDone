@@ -6,6 +6,7 @@ import { useApp } from '../state/AppState';
 import { Dialog } from './Dialog';
 import { DialogFooter } from './DialogFooter';
 import { HistoryPanel } from './history/HistoryPanel';
+import { TextInput } from '../ui';
 
 interface Props {
   /** The sprint to edit; without it the dialog creates a new, prefilled sprint. */
@@ -46,16 +47,16 @@ export function SprintDialog({ sprint, onClose }: Props) {
       <form className="form" onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor={`${uid}-name`}>{t('sprint.name')}</label>
-          <input id={`${uid}-name`} className="input" value={input.name} onChange={change('name')} required autoFocus />
+          <TextInput id={`${uid}-name`} value={input.name} onChange={change('name')} required autoFocus />
         </div>
         <div className="form__row">
           <div className="field">
             <label htmlFor={`${uid}-start`}>{t('sprint.start')}</label>
-            <input id={`${uid}-start`} type="date" className="input" value={input.startDate} onChange={change('startDate')} required />
+            <TextInput id={`${uid}-start`} type="date" value={input.startDate} onChange={change('startDate')} required />
           </div>
           <div className="field">
             <label htmlFor={`${uid}-end`}>{t('sprint.end')}</label>
-            <input id={`${uid}-end`} type="date" className="input" value={input.endDate} onChange={change('endDate')} required />
+            <TextInput id={`${uid}-end`} type="date" value={input.endDate} onChange={change('endDate')} required />
           </div>
         </div>
         {showProblem && problem && (

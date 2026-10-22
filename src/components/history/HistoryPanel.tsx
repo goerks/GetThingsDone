@@ -6,6 +6,7 @@ import { Dialog } from '../Dialog';
 import { CompareDialog } from './CompareDialog';
 import { HistoryList } from './HistoryList';
 import { HistoryView } from './HistoryView';
+import { Button } from '../../ui';
 
 interface Props {
   /** `story`, `epic`, `sprint`, `release`, later a custom item type. */
@@ -34,9 +35,9 @@ export function HistoryPanel({ itemType, itemId, label }: Props) {
       <div className="panel__head">
         <h2 id={`${uid}-title`}>{t('history.title')}</h2>
         <span className="muted">{t('history.count', { count: versions.length })}</span>
-        <button type="button" className="btn btn--small history-panel__compare" disabled={versions.length < 2} onClick={() => setCompare({})}>
+        <Button type="button" size="small" className="history-panel__compare" disabled={versions.length < 2} onClick={() => setCompare({})}>
           {t('history.compareButton')}
-        </button>
+        </Button>
       </div>
       <div id={`${uid}-list`}>
         <HistoryList
@@ -62,9 +63,9 @@ export function HistoryPanel({ itemType, itemId, label }: Props) {
         <Dialog title={t('history.allTitle', { name: label })} wide onClose={() => setAll(false)}>
           <HistoryView itemType={itemType} itemId={itemId} label={label} />
           <div className="form__actions">
-            <button type="button" className="btn" onClick={() => setAll(false)}>
+            <Button type="button" onClick={() => setAll(false)}>
               {t('detail.close')}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}

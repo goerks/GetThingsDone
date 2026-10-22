@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../state/AppState';
+import { Select } from '../ui';
 
 interface Props {
   id: string;
@@ -12,13 +13,13 @@ export function MemberSelect({ id, value, onChange }: Props) {
   const { t } = useTranslation();
   const app = useApp();
   return (
-    <select id={id} className="select" value={value ?? ''} onChange={(event) => onChange(event.target.value || null)}>
+    <Select id={id} value={value ?? ''} onChange={(event) => onChange(event.target.value || null)}>
       <option value="">{t('team.nobody')}</option>
       {app.members.map((member) => (
         <option key={member.id} value={member.id}>
           {member.name} ({member.initials})
         </option>
       ))}
-    </select>
+    </Select>
   );
 }

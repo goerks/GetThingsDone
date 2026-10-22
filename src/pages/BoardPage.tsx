@@ -34,6 +34,7 @@ import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar } from '../components/search/HighlightBar';
 import { useSearchPage } from '../state/Search';
+import { Button } from '../ui';
 
 const COMPACT_KEY = 'getitdone.boardCompact';
 
@@ -146,9 +147,9 @@ export function BoardPage() {
         ✓
       </span>
       <span className="sprint-message__text">{message}</span>
-      <button type="button" className="btn btn--small" aria-label={t('lifecycle.closeMessage')} onClick={() => setMessage(null)}>
+      <Button type="button" size="small" aria-label={t('lifecycle.closeMessage')} onClick={() => setMessage(null)}>
         ✕
-      </button>
+      </Button>
     </div>
   );
   const startDialog = startingId && <StartSprintDialog sprintId={startingId} onClose={() => setStartingId(null)} />;
@@ -207,13 +208,13 @@ export function BoardPage() {
         <span className="page-head__actions">
           <GithubSync />
           <VelocityButton />
-          <button type="button" className={`btn${compact ? ' btn--pressed' : ''}`} aria-pressed={compact} onClick={toggleCompact}>
+          <Button type="button" pressed={compact} aria-pressed={compact} onClick={toggleCompact}>
             {t('board.compact')}
-          </button>
+          </Button>
           {sprint.state === 'running' && !ended && (
-            <button type="button" className="btn" onClick={() => setCompleting(true)}>
+            <Button type="button" onClick={() => setCompleting(true)}>
               {t('lifecycle.completeButton')}
-            </button>
+            </Button>
           )}
           <NewButton label={t('newStory.open')} onClick={() => setCreating(true)} />
         </span>
@@ -230,9 +231,9 @@ export function BoardPage() {
             <span className="sprint-hint__title">{t('lifecycle.plannedTitle', { name: sprint.name })}</span>
             <span className="sprint-hint__more">{t('lifecycle.plannedText')}</span>
           </span>
-          <button type="button" className="btn btn--primary" onClick={() => setStartingId(sprint.id)}>
+          <Button type="button" variant="primary" onClick={() => setStartingId(sprint.id)}>
             {t('lifecycle.startButton')}
-          </button>
+          </Button>
         </div>
       )}
       {ended && (
@@ -244,9 +245,9 @@ export function BoardPage() {
             <span className="sprint-hint__title">{t('lifecycle.endedTitle', { name: sprint.name, date: formatDayLong(sprint.endDate, i18n.language) })}</span>
             <span className="sprint-hint__more">{t('lifecycle.endedText')}</span>
           </span>
-          <button type="button" className="btn btn--primary" onClick={() => setCompleting(true)}>
+          <Button type="button" variant="primary" onClick={() => setCompleting(true)}>
             {t('lifecycle.completeButton')}
-          </button>
+          </Button>
         </div>
       )}
 

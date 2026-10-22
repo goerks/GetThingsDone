@@ -7,6 +7,7 @@ import { BACKUP_VERSION, backupFileName, countsOf, parseBackup, serializeBackup,
 import { todayIso } from '../domain/sprints';
 import type { Snapshot } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { Button } from '../ui';
 
 type Message = { kind: 'ok' | 'problem'; text: string };
 type Accepted = Extract<ParsedBackup, { ok: true }> & { fileName: string };
@@ -107,9 +108,9 @@ export function DataSection() {
         <h3 id="data-export-title">{t('settings.data.export.title')}</h3>
         <p className="muted">{t('settings.data.export.text')}</p>
         <div className="data-card__actions">
-          <button type="button" className="btn btn--primary" onClick={onExport}>
+          <Button type="button" variant="primary" onClick={onExport}>
             {t('settings.data.export.button')}
-          </button>
+          </Button>
           <span className="muted">{t('settings.data.export.fileName')}</span>
           <code className="data-card__file">{backupFileName(todayIso())}</code>
         </div>
@@ -125,9 +126,9 @@ export function DataSection() {
         </p>
         {!isTauri() && <p className="muted data-card__demo">{t('settings.data.import.demo')}</p>}
         <div className="data-card__actions">
-          <button type="button" className="btn" onClick={() => input.current?.click()}>
+          <Button type="button" onClick={() => input.current?.click()}>
             {t('settings.data.import.button')}
-          </button>
+          </Button>
           <span className="muted">{t('settings.data.import.safe')}</span>
           <input
             ref={input}
@@ -179,15 +180,15 @@ export function DataSection() {
             <span aria-hidden="true">⚠</span> {t('settings.data.confirm.warning')}
           </p>
           <div className="form__actions data-confirm__actions">
-            <button type="button" className="btn" onClick={() => setPending(null)} disabled={busy}>
+            <Button type="button" onClick={() => setPending(null)} disabled={busy}>
               {t('settings.data.confirm.cancel')}
-            </button>
-            <button type="button" className="btn" onClick={exportNow} disabled={busy}>
+            </Button>
+            <Button type="button" onClick={exportNow} disabled={busy}>
               {t('settings.data.confirm.exportFirst')}
-            </button>
-            <button type="button" className="btn btn--danger" onClick={() => void onReplace()} disabled={busy}>
+            </Button>
+            <Button type="button" variant="danger" onClick={() => void onReplace()} disabled={busy}>
               {t('settings.data.confirm.replace')}
-            </button>
+            </Button>
           </div>
         </Dialog>
       )}

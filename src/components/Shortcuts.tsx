@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from '../router';
 import { Dialog } from './Dialog';
 import { modKey } from './platform';
+import { Button } from '../ui';
 
 interface Entry {
   keys: string[];
@@ -92,9 +93,9 @@ export function ShortcutsDialog({ route, onClose }: { route: Route; onClose: () 
         <p className="muted">{t('shortcuts.note')}</p>
       </div>
       <div className="form__actions dialog__footer">
-        <button type="button" className="btn dialog__footer-end" onClick={onClose}>
+        <Button type="button" className="dialog__footer-end" onClick={onClose}>
           {t('detail.close')}
-        </button>
+        </Button>
       </div>
     </Dialog>
   );

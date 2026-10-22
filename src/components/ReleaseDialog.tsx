@@ -12,6 +12,7 @@ import { StoryPicker } from './StoryPicker';
 import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
 import { statusLabel } from './statusLabel';
+import { Button, IconButton, TextInput } from '../ui';
 
 type Tab = 'details' | 'stories' | 'scope' | 'burndown' | 'history';
 const TABS: readonly Tab[] = ['details', 'stories', 'scope', 'burndown', 'history'];
@@ -51,9 +52,9 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
     return (
       <Dialog title={t('releases.notFound')} onClose={onClose}>
         <div className="form__actions">
-          <button type="button" className="btn" onClick={onClose}>
+          <Button type="button" onClick={onClose}>
             {t('releases.close')}
-          </button>
+          </Button>
         </div>
       </Dialog>
     );
@@ -100,9 +101,9 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
   return (
     <Dialog label={release.title} wide onClose={onClose}>
       <div className="detail-dialog__close">
-        <button type="button" className="icon-btn icon-btn--quiet" aria-label={t('releases.close')} title={t('releases.close')} onClick={onClose}>
+        <IconButton type="button" quiet aria-label={t('releases.close')} title={t('releases.close')} onClick={onClose}>
           ×
-        </button>
+        </IconButton>
       </div>
       <div className="release-dialog">
         <h2 className="dialog__title release-dialog__title">
@@ -154,13 +155,13 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                 {showStart && (
                   <div className="field">
                     <label htmlFor={`${uid}-start`}>{builtin.label('start', t('releases.start'))}</label>
-                    <input id={`${uid}-start`} type="date" className="input" value={dates.start} onChange={(event) => changeDate('start', event.target.value)} />
+                    <TextInput id={`${uid}-start`} type="date" value={dates.start} onChange={(event) => changeDate('start', event.target.value)} />
                   </div>
                 )}
                 {showEnd && (
                   <div className="field">
                     <label htmlFor={`${uid}-end`}>{builtin.label('end', t('releases.end'))}</label>
-                    <input id={`${uid}-end`} type="date" className="input" value={dates.end} onChange={(event) => changeDate('end', event.target.value)} />
+                    <TextInput id={`${uid}-end`} type="date" value={dates.end} onChange={(event) => changeDate('end', event.target.value)} />
                   </div>
                 )}
               </div>
@@ -208,18 +209,18 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                       : t('releases.deleteConfirmEmpty', { title: release.title })}
                   </p>
                   <div className="form__actions">
-                    <button type="button" className="btn btn--danger" onClick={remove} autoFocus>
+                    <Button type="button" variant="danger" onClick={remove} autoFocus>
                       {t('releases.deleteYes')}
-                    </button>
-                    <button type="button" className="btn" onClick={() => setConfirmDelete(false)}>
+                    </Button>
+                    <Button type="button" onClick={() => setConfirmDelete(false)}>
                       {t('releases.deleteNo')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <button type="button" className="btn btn--danger-quiet" onClick={() => setConfirmDelete(true)}>
+                <Button type="button" variant="danger-quiet" onClick={() => setConfirmDelete(true)}>
                   {t('releases.delete')}
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -279,14 +280,14 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                         {pointsShown && <td>{story.points}</td>}
                         <td>{statusLabel(t, app.statuses, story.status)}</td>
                         <td>
-                          <button
+                          <Button
                             type="button"
-                            className="btn"
+                           
                             aria-label={t('releases.remove', { code: story.code })}
                             onClick={() => app.updateStory(story.id, { releaseId: null })}
                           >
                             {t('releases.removeShort')}
-                          </button>
+                          </Button>
                         </td>
                       </tr>
                     ))}
