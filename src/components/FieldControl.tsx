@@ -6,6 +6,7 @@ import type { FieldDefinition, FieldValue } from '../domain/types';
 import { EditableText } from './EditableText';
 import { fieldLabel } from './fieldLabel';
 import { Select, TextInput } from '../ui';
+import { Check } from '../ui';
 
 type Problem = 'invalidNumber' | 'invalidUrl' | 'required';
 
@@ -222,16 +223,13 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
     case 'checkbox':
       return (
         <div className="field">
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={value === true}
+          <Check
+            checked={value === true}
               aria-invalid={missing || problem ? true : undefined}
               aria-describedby={describedBy}
-              onChange={(event) => apply(event.target.checked ? true : null)}
-            />
+              onChange={(event) => apply(event.target.checked ? true : null)}>
             {heading}
-          </label>
+          </Check>
           {note}
         </div>
       );
@@ -244,11 +242,10 @@ export function FieldControl({ field, value, onChange, required = false, mode = 
         <fieldset className="field field--choices" aria-describedby={describedBy}>
           <legend>{heading}</legend>
           {field.options.map((option) => (
-            <label key={option.id} className="check">
-              <input type="checkbox" checked={chosen.includes(option.id)} onChange={(event) => toggle(option.id, event.target.checked)} />
+            <Check key={option.id} checked={chosen.includes(option.id)} onChange={(event) => toggle(option.id, event.target.checked)}>
               <span className="epic__dot" style={{ background: `var(--epic-${option.colorKey})` }} aria-hidden="true" />
               {option.label}
-            </label>
+            </Check>
           ))}
           {note}
         </fieldset>

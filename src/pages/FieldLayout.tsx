@@ -11,6 +11,7 @@ import { CARD_FIELD_LIMIT, cardFieldsFor, layoutFor, type LayoutEntry } from '..
 import type { ItemType } from '../domain/types';
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
+import { Check } from '../ui';
 
 /** Item types with a layout; sprints and releases are shown as planned. */
 const LAYOUT_TYPES: readonly ItemType[] = ['story', 'epic'];
@@ -69,14 +70,12 @@ function ReleaseRow({ entry }: { entry: LayoutEntry }) {
       <span className="layout-row__name">{fieldLabel(t, field)}</span>
       <span className="muted layout-row__type">{t(`fields.type.${field.dataType}`)}</span>
       <span className="layout-row__options">
-        <label className="check">
-          <input type="checkbox" checked={assignment.inCreate} onChange={(event) => update({ inCreate: event.target.checked })} />
+        <Check checked={assignment.inCreate} onChange={(event) => update({ inCreate: event.target.checked })}>
           {t('fields.layout.inCreate')}
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={assignment.onCard} onChange={(event) => update({ onCard: event.target.checked })} />
+        </Check>
+        <Check checked={assignment.onCard} onChange={(event) => update({ onCard: event.target.checked })}>
           {t('fields.layout.onCard')}
-        </label>
+        </Check>
       </span>
     </li>
   );
@@ -112,29 +111,22 @@ function CustomRow({ itemType, entry, cardFull }: RowProps) {
       <span className="layout-row__name">{name}</span>
       <span className="muted layout-row__type">{t(`fields.type.${field.dataType}`)}</span>
       <span className="layout-row__options">
-        <label className="check">
-          <input type="checkbox" checked={assignment.required} onChange={(event) => update({ required: event.target.checked })} />
+        <Check checked={assignment.required} onChange={(event) => update({ required: event.target.checked })}>
           {t('fields.layout.required')}
-        </label>
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={assignment.inCreate || assignment.required}
+        </Check>
+        <Check
+          checked={assignment.inCreate || assignment.required}
             disabled={assignment.required}
-            onChange={(event) => update({ inCreate: event.target.checked })}
-          />
+            onChange={(event) => update({ inCreate: event.target.checked })}>
           {t('fields.layout.inCreate')}
-        </label>
+        </Check>
         {HAS_CARD[itemType] && (
-          <label className="check" title={cardFull && !assignment.onCard ? t('fields.layout.cardFull', { count: CARD_FIELD_LIMIT }) : undefined}>
-            <input
-              type="checkbox"
-              checked={assignment.onCard}
+          <Check title={cardFull && !assignment.onCard ? t('fields.layout.cardFull', { count: CARD_FIELD_LIMIT }) : undefined}
+            checked={assignment.onCard}
               disabled={cardFull && !assignment.onCard}
-              onChange={(event) => update({ onCard: event.target.checked })}
-            />
+              onChange={(event) => update({ onCard: event.target.checked })}>
             {t('fields.layout.onCard')}
-          </label>
+          </Check>
         )}
       </span>
     </li>

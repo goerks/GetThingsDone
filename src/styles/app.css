@@ -2357,6 +2357,12 @@ mark {
   padding: 0 var(--space-px);
 }
 
+.search__footer .text-btn {
+  margin-left: auto;
+  min-height: 32px;
+  padding: 0 var(--space-1);
+}
+
 .search__footer {
   display: flex;
   flex-wrap: wrap;
@@ -2367,22 +2373,6 @@ mark {
   background: var(--bg);
   color: var(--muted);
   font-size: var(--font-size-sm);
-}
-
-.link-button {
-  margin-left: auto;
-  border: 0;
-  background: transparent;
-  color: var(--accent);
-  font: inherit;
-  font-weight: var(--weight-medium);
-  min-height: 32px;
-  padding: 0 var(--space-1);
-  cursor: pointer;
-}
-
-.link-button:hover {
-  text-decoration: underline;
 }
 
 .btn--small {
@@ -5980,7 +5970,7 @@ a.btn {
 
 /* ---------- Change history and comparing versions (#23, design/change-history.md) ---------- */
 
-.link-btn {
+.text-btn {
   padding: 0;
   border: 0;
   background: none;

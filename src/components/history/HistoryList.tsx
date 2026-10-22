@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ChangeVersion } from '../../domain/changeLog';
 import { useHistoryText } from './historyText';
+import { TextButton } from '../../ui';
 
 interface Props {
   itemType: string;
@@ -58,9 +59,9 @@ export function HistoryList({ itemType, versions, limit, selected, onToggle, onC
               {isLatest ? (
                 <span className="history-tag history-entry__current">{t('history.current')}</span>
               ) : (
-                <button type="button" className="link-btn history-entry__compare" onClick={() => onCompareWithCurrent(version)} aria-label={t('history.compareWithCurrentOf', { version: name })}>
+                <TextButton type="button" className="history-entry__compare" onClick={() => onCompareWithCurrent(version)} aria-label={t('history.compareWithCurrentOf', { version: name })}>
                   {t('history.compareWithCurrent')}
-                </button>
+                </TextButton>
               )}
             </div>
             <ul className="history-entry__lines">
