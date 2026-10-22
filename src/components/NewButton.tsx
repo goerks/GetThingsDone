@@ -1,5 +1,6 @@
-interface Props {
 import { Button } from '../ui';
+
+interface Props {
   label: string;
   onClick: () => void;
 }
