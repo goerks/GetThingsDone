@@ -1,6 +1,6 @@
 import type { Catalog, ExternalItem, ExternalRelease, ExternalSprint, FieldName, ItemPatch, NewItem } from '../../domain/sync';
 import type { ExternalFields, ExternalLink } from '../../domain/types';
-import { SyncError, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteContext, type WriteResult } from '../connector';
+import { SyncError, type ServiceBoard, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteContext, type WriteResult } from '../connector';
 import { composeAdf, isAdf, readAdf, withCriteriaAdf, type AdfDoc } from './adf';
 import { createClient, isEmail, parseProject, parseSite, type JiraClient, type JiraTarget, type JiraTransport } from './client';
 
@@ -107,7 +107,7 @@ export function parseTarget(connection: Record<string, string>): JiraTarget | nu
   } catch {
     statusMap = {};
   }
-  return { site, email, project, filter: (connection.filter ?? '').trim(), statusMap };
+  return { site, email, project, filter: (connection.filter ?? '').trim(), board: (connection.board ?? '').trim(), statusMap };
 }
 
 /** The usual form of the settings, `{}` for none (the connection is removed), or null when they are not valid. */
@@ -116,7 +116,7 @@ function normalize(connection: Record<string, string>): Record<string, string> |
   if (!given) return {};
   const target = parseTarget(connection);
   if (!target) return null;
-  return { site: target.site, email: target.email, project: target.project, ...(target.filter ? { filter: target.filter } : {}), ...(Object.keys(target.statusMap).length > 0 ? { statusMap: JSON.stringify(target.statusMap) } : {}) };
+  return { site: target.site, email: target.email, project: target.project, ...(target.filter ? { filter: target.filter } : {}), ...(target.board ? { board: target.board } : {}), ...(Object.keys(target.statusMap).length > 0 ? { statusMap: JSON.stringify(target.statusMap) } : {}) };
 }
 
 /** A name of a Jira status for a name in the board, by the map and then by the names. */
@@ -209,6 +209,12 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
     if (!created) throw new SyncError('other');
     jira.epics.push({ key: created.key, name });
     return created.key;
+  };
+
+  /** The scrum boards of the project; none when the project has no scrum board or the call is refused. */
+  const scrumBoards = async (client: JiraClient, target: JiraTarget): Promise<ServiceBoard[]> => {
+    const answer = await client.call<{ values?: Array<{ id: number; name?: string }> }>('GET', `/rest/agile/1.0/board?projectKeyOrId=${encodeURIComponent(target.project)}&type=scrum`).catch(() => null);
+    return (answer?.values ?? []).map((board) => ({ id: String(board.id), name: board.name ?? `Board ${board.id}` }));
   };
 
   /** The account of the user with that name who may be assigned in the project, or null. */
@@ -313,13 +319,15 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       const versions = (await client.call<RawVersion[]>('GET', `/rest/api/3/project/${encodeURIComponent(target.project)}/versions`)) ?? [];
       const epics = await client.call<{ issues?: RawIssue[] }>('POST', '/rest/api/3/search/jql', { jql: `project = "${target.project}" AND issuetype = Epic ORDER BY created ASC`, fields: ['summary'], maxResults: PAGE });
       const releases: ExternalRelease[] = versions.map((version) => ({ id: version.id, title: version.name, description: version.description ?? '', dueOn: version.releaseDate ?? null, state: version.released ? 'closed' : 'open' }));
-      const boards = await client.call<{ values?: Array<{ id: number }> }>('GET', `/rest/agile/1.0/board?projectKeyOrId=${encodeURIComponent(target.project)}&type=scrum`).catch(() => null);
-      const boardId = boards?.values?.[0]?.id ?? null;
-      hasBoard = boardId !== null && (await fieldIdsOf(client, target)).sprint !== null;
+      const boards = await scrumBoards(client, target);
+      // The chosen board, or the first one when none is chosen (or the chosen one is gone).
+      const boardId = Number((boards.find((board) => board.id === target.board) ?? boards[0])?.id ?? NaN);
+      const chosen = Number.isNaN(boardId) ? null : boardId;
+      hasBoard = chosen !== null && (await fieldIdsOf(client, target)).sprint !== null;
       const raws =
-        boardId === null
+        chosen === null
           ? []
-          : ((await client.call<{ values?: RawSprint[] }>('GET', `/rest/agile/1.0/board/${boardId}/sprint?state=active,future&maxResults=50`).catch(() => null))?.values ?? []);
+          : ((await client.call<{ values?: RawSprint[] }>('GET', `/rest/agile/1.0/board/${chosen}/sprint?state=active,future&maxResults=50`).catch(() => null))?.values ?? []);
       const sprints: ExternalSprint[] = raws.map((sprint) => ({
         id: String(sprint.id),
         name: sprint.name,
@@ -331,7 +339,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       const extra: JiraCatalog = {
         epics: (epics?.issues ?? []).map((issue) => ({ key: issue.key, name: (issue.fields.summary ?? '').trim() })),
         versions: versions.map((version) => version.name),
-        boardId,
+        boardId: chosen,
         sprints: raws.map((sprint) => ({ id: sprint.id, name: sprint.name }))
       };
       return { releases, sprints, extra };
@@ -422,6 +430,9 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
     },
     async tidy(_target, _token, _needs, managed): Promise<TidyResult> {
       return { managed, gone: { labels: [], milestones: [] } };
+    },
+    async boards(target, token) {
+      return scrumBoards(createClient(transport, target, token), target);
     },
     async statuses(target, token) {
       const client = createClient(transport, target, token);

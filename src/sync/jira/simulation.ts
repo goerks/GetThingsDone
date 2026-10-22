@@ -239,9 +239,9 @@ export function createJiraSimulation(
       const query = (url.searchParams.get('query') ?? '').toLowerCase();
       return reply(200, DEMO_JIRA_USERS.filter((user) => user.displayName.toLowerCase().includes(query)));
     }
-    if (path === '/rest/agile/1.0/board') return reply(200, { values: [{ id: 1, name: `${DEMO_PROJECT} Board`, type: 'scrum' }] });
+    if (path === '/rest/agile/1.0/board') return reply(200, { values: [{ id: 1, name: `${DEMO_PROJECT} Board`, type: 'scrum' }, { id: 2, name: `${DEMO_PROJECT} Team B`, type: 'scrum' }] });
     const boardSprints = /^\/rest\/agile\/1\.0\/board\/(\d+)\/sprint$/.exec(path);
-    if (boardSprints) return reply(200, { values: loadSprints().filter((sprint) => sprint.state !== 'closed') });
+    if (boardSprints) return reply(200, { values: boardSprints[1] === '1' ? loadSprints().filter((sprint) => sprint.state !== 'closed') : [] });
     if (path === '/rest/agile/1.0/sprint' && request.method === 'POST') {
       const fields = body as { name?: string; startDate?: string; endDate?: string; goal?: string };
       const sprints = loadSprints();

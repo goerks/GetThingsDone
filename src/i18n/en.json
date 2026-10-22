@@ -1688,6 +1688,11 @@
       "summary": "{{found}} of {{count}} statuses recognised.",
       "none": "(no column)",
       "unclear": "not clear, please choose"
+    },
+    "board": {
+      "label": "Board for the sprints",
+      "hint": "The sprints of this scrum board are synchronised. The first board of the project is used until you choose another one.",
+      "only": "{{name}} (the only scrum board of the project)"
     }
   }
 }

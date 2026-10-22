@@ -111,6 +111,21 @@ describe('connecting to Jira', () => {
   }, 20000);
 });
 
+describe('choosing the board', () => {
+  it('AC3.1 offers the boards when there are several, and keeps the choice in the connection', async () => {
+    // Given a connected Jira whose project has two scrum boards
+    const user = userEvent.setup();
+    const { repository } = await renderApp('#/settings/sync', { connected: true });
+    // Then the first board is chosen
+    const select = await screen.findByLabelText('Board for the sprints');
+    expect(select).toHaveValue('1');
+    // When I choose the other one
+    await user.selectOptions(select, '2');
+    // Then it is kept in the connection
+    await waitFor(async () => expect((await repository.load()).settings.sync.connection.board).toBe('2'));
+  }, 20000);
+});
+
 describe('mapping the statuses', () => {
   it('AC6.1 proposes the columns by name, marks what is unclear and keeps my choice', async () => {
     // Given a connected Jira whose workflow has "In Progress" and "In Review"

@@ -119,8 +119,8 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           given: 'Die Funktion «Synchronisation» ist an, ich wähle die Karte «Jira».',
           when: 'Ich trage Adresse «demo.atlassian.net», eine E-Mail-Adresse, Projekt «PROJ» und ein beliebiges Token ein und drücke «Verbindung testen».',
           then: '«Verbindung ok · 4 offene Vorgänge». Das Token ist nur als Punkte zu sehen, das Feld ist danach leer und das Token nie mehr lesbar.',
-          tests: [`${JIRA_UI} › AC3.1 connects with site, e-mail, project and token, and keeps the token out of sight`],
-          manual: 'Die Liste der Boards gibt es in dieser Phase noch nicht; sie folgt mit den Sprints (Phase 3).',
+          tests: [`${JIRA_UI} › AC3.1 connects with site, e-mail, project and token, and keeps the token out of sight`, `${JIRA_UI} › AC3.1 offers the boards when there are several, and keeps the choice in the connection`, `${JIRA} › AC3.1 lists the scrum boards of the project and reads the sprints of the chosen one`],
+          manual: 'Hat das Projekt mehrere Scrum-Boards, kann ich eines wählen; sonst ist das einzige Board gewählt und nicht änderbar (AC3.1 Boards).',
           poCheck: 'In der Vorschau mit dem simulierten Jira verbinden; in der Windows-App mit der echten Jira-Testinstanz (Adresse, E-Mail, Projekt, API-Token).'
         },
         {

@@ -74,7 +74,7 @@ import { withService } from '../sync/syncT';
 import { hrefs } from '../router';
 import { DEFAULT_SETTINGS, DEFAULT_SYNC } from '../domain/settings';
 import { createConnectors, createTokenVault, SyncError, type Connectors, type TokenStore, type TokenVault } from '../sync';
-import type { WorkflowStatus } from '../sync/connector';
+import type { ServiceBoard, WorkflowStatus } from '../sync/connector';
 import { persistSync } from '../sync/persist';
 import { createInService as createInServiceWith, runSync } from '../sync/runSync';
 import {
@@ -246,6 +246,8 @@ interface AppApi {
   testSync(connection: Record<string, string>, token: string): Promise<number>;
   /** The statuses of the workflow of the connected project (Jira), or an empty list when the service has none. */
   syncStatuses(connection: Record<string, string>, token: string): Promise<WorkflowStatus[]>;
+  /** The boards of the connected project whose sprints can be synchronised (Jira), or an empty list. */
+  syncBoards(connection: Record<string, string>, token: string): Promise<ServiceBoard[]>;
   /**
    * Compares the stories with their issues, takes what changed in the service, publishes what changed here when writing is on,
    * and imports new open issues (#30). `decisions` answer the conflicts of an earlier run that asked. Resolves with what
@@ -1057,6 +1059,12 @@ export function AppProvider({ repository, sync, children }: Props) {
         const target = connector?.target(connection) ?? null;
         if (!connector || target === null) throw new SyncError('notFound');
         return (await connector.open(target, token)).length;
+      },
+      async syncBoards(connection, token) {
+        const connector = syncRef.current.connectors[settingsRef.current.sync.service];
+        const target = connector?.target(connection) ?? null;
+        if (!connector?.boards || target === null) return [];
+        return connector.boards(target, token);
       },
       async syncStatuses(connection, token) {
         const connector = syncRef.current.connectors[settingsRef.current.sync.service];

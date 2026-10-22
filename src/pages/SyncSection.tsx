@@ -4,7 +4,7 @@ import { isSyncDemo, SyncError } from '../sync';
 import { DEMO_EMAIL, DEMO_PROJECT, DEMO_READONLY_TOKEN as JIRA_READONLY_TOKEN, DEMO_SITE, DEMO_WRONG_TOKEN as JIRA_WRONG_TOKEN, demoJiraIssues, resetDemoJira, saveDemoJiraIssues, type DemoJiraIssue } from '../sync/jira/simulation';
 import { isEmail, parseProject, parseSite } from '../sync/jira/client';
 import { middleStatuses, statusName } from '../domain/sync';
-import type { WorkflowStatus } from '../sync/connector';
+import type { ServiceBoard, WorkflowStatus } from '../sync/connector';
 import { Dialog } from '../components/Dialog';
 import { InfoHint } from '../components/InfoHint';
 import { SyncLog } from '../components/SyncLog';
@@ -369,6 +369,7 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   const [removing, setRemoving] = useState(false);
   const [workflow, setWorkflow] = useState<WorkflowStatus[]>([]);
+  const [boards, setBoards] = useState<ServiceBoard[]>([]);
   const connected = (saved.site ?? '') !== '';
 
   const loadWorkflow = async (connection: Record<string, string>, token: string): Promise<void> => {
@@ -376,6 +377,11 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
       setWorkflow(await app.syncStatuses(connection, token));
     } catch {
       setWorkflow([]);
+    }
+    try {
+      setBoards(await app.syncBoards(connection, token));
+    } catch {
+      setBoards([]);
     }
   };
 
@@ -435,6 +441,7 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
     setRemoving(false);
     await app.disconnectSync();
     setWorkflow([]);
+    setBoards([]);
     setSite('');
     setEmail('');
     setProject('');
@@ -528,6 +535,7 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
           {t(`sync.errors.${status.error}`)}
         </p>
       )}
+      {boards.length > 0 && <BoardChoice boards={boards} />}
       {workflow.length > 0 && <StatusMapping workflow={workflow} />}
       {removing && (
         <Dialog title={t('sync.disconnect.title')} onClose={() => setRemoving(false)}>
@@ -651,5 +659,42 @@ function StatusMapping({ workflow }: { workflow: WorkflowStatus[] }) {
         </tbody>
       </table>
     </section>
+  );
+}
+
+/** The board whose sprints are synchronised: a choice when the project has several scrum boards, else the one board, shown and not changeable. */
+function BoardChoice({ boards }: { boards: ServiceBoard[] }) {
+  const { t } = useSyncT();
+  const app = useApp();
+  const id = useId();
+  const connection = app.settings.sync.connection;
+  const chosen = boards.find((board) => board.id === connection.board)?.id ?? boards[0].id;
+
+  const choose = (board: string): void => {
+    const { board: _old, ...rest } = connection;
+    void _old;
+    app.setSyncConnection({ ...rest, ...(board === boards[0].id ? {} : { board }) });
+  };
+
+  return (
+    <div className="field jira-board">
+      <div className="field__label-row">
+        <label htmlFor={`${id}-board`}>{t('jira.board.label')}</label>
+        <InfoHint text={t('jira.board.hint')} />
+      </div>
+      {boards.length > 1 ? (
+        <select id={`${id}-board`} className="input" value={chosen} onChange={(event) => choose(event.target.value)}>
+          {boards.map((board) => (
+            <option key={board.id} value={board.id}>
+              {board.name}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <p id={`${id}-board`} className="muted">
+          {t('jira.board.only', { name: boards[0].name })}
+        </p>
+      )}
+    </div>
   );
 }

@@ -341,6 +341,17 @@ describe('sprints', () => {
     expect(memory.sprints().map((sprint) => sprint.name)).toEqual(['Sprint 14', 'Sprint 15', 'Sprint 16']);
   });
 
+  it('AC3.1 lists the scrum boards of the project and reads the sprints of the chosen one', async () => {
+    const { connector } = setup();
+    expect(await connector.boards?.(target, 'good')).toEqual([
+      { id: '1', name: 'PROJ Board' },
+      { id: '2', name: 'PROJ Team B' }
+    ]);
+    expect((await connector.catalog(target, 'good')).sprints).toHaveLength(2);
+    expect((await connector.catalog({ ...target, board: '2' }, 'good')).sprints).toEqual([]);
+    expect((await connector.catalog({ ...target, board: '99' }, 'good')).sprints).toHaveLength(2);
+  });
+
   it('AC7.3 compares no sprint when the project has no scrum board', async () => {
     const { connector } = setup(DEMO_JIRA_ISSUES, (transport) => async (request) => (request.url.includes('/rest/agile/1.0/board?') ? { status: 400, headers: {}, body: '' } : transport(request)));
     await connector.catalog(target, 'good');

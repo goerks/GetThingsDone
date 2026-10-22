@@ -1688,6 +1688,11 @@
       "summary": "{{found}} von {{count}} Status erkannt.",
       "none": "(keine Spalte)",
       "unclear": "nicht eindeutig, bitte wählen"
+    },
+    "board": {
+      "label": "Board für die Sprints",
+      "hint": "Die Sprints dieses Scrum-Boards werden abgeglichen. Bis du ein anderes wählst, gilt das erste Board des Projekts.",
+      "only": "{{name}} (das einzige Scrum-Board des Projekts)"
     }
   }
 }
