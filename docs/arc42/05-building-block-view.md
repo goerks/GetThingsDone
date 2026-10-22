@@ -35,6 +35,7 @@
 | Data | `src/data/` | `Repository` interface, `SqliteRepository`, `LocalStorageRepository`, `createRepository` (picks one), demo `seed`, `downloadTextFile` (saves a text as a file through the browser or the web view of the desktop app, for the export of #16) |
 | i18n | `src/i18n/` | i18next set-up and the four language files |
 | Theme | `src/theme.ts`, `src/styles/app.css`, `docs/design/tokens.css` | Light and dark theme via `data-theme` and CSS custom properties |
+| Design system (#70, ADR 0006) | `src/ui/`, `src/design-system/`, `.storybook/` | Shared components `Button`, `IconButton`, `TextButton`, `TextInput`, `Textarea`, `Select`, `Check`, `Badge`, `Pill` (same class names as `app.css`), their stories, the catalogue pages for colours, type, spacing, radius, elevation, layers, motion, icons and accessibility rules (read from `tokens.css` and the computed theme), and the Storybook configuration. Built to `dist/design-system` by `npm run build`; not part of the desktop app |
 
 ## Level 2: Tauri shell
 

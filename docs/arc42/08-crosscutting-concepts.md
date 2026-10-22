@@ -68,7 +68,11 @@ Status value decisions (#5, recorded here and in the issue): status values are t
 
 ## Theming
 
-Colours, spacing and radii are CSS custom properties in `docs/design/tokens.css`. Epic colours are `--epic-<key>`; each reaches at least 3:1 against cards and columns in both themes and is always shown with the epic name. The theme is set with `data-theme="light|dark"` on the root element, stored locally and initialised from the system preference.
+Colours, type scale, spacing, radii, elevation, layers, motion and icon sizes are CSS custom properties in `docs/design/tokens.css` (see "Design system" below). Epic colours are `--epic-<key>`; each reaches at least 3:1 against cards and columns in both themes and is always shown with the epic name. The theme is set with `data-theme="light|dark"` on the root element, stored locally and initialised from the system preference.
+
+## Design system (#70, ADR 0006)
+
+The design system has three parts. **Tokens**: `docs/design/tokens.css`, the only place for raw colours, font sizes, line heights, weights, spacings (`--space-*`, a 4 px grid with half steps), radii, shadows (`--elevation-*`), layers (`--z-*`), durations and icon sizes. Breakpoints cannot be custom properties; media queries use 640 px (small) and 760 px (medium). **Components**: `src/ui/` (`Button`, `IconButton`, `TextButton`, `TextInput`, `Textarea`, `Select`, `Check`, `Badge`, `Pill`) and the `Dialog`; they render the class names of `src/styles/app.css`. Feature specific parts (cards, chips, drag handles) are built from the tokens in `app.css`. **Catalogue**: Storybook, `*.stories.tsx` next to the code, foundations in `src/design-system/`, light and dark switch in the toolbar, reachable at `<preview>/design-system/`. How to extend it: use an existing token or component; if none fits, add the token to `tokens.css` or the component to `src/ui/` with a story in the same change. How to use it: `docs/design-system.md`.
 
 ## Error handling
 

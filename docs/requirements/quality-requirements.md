@@ -16,3 +16,4 @@ How the architecture meets these requirements: [arc42 chapter 10](../arc42/10-qu
 | QR-10 | Light install | One small portable executable or a minimal installer, no admin rights | Portable exe and per-user NSIS installer | Implemented |
 | QR-11 | Maintainability | High test coverage of domain logic and UI behaviour; CI green on every push | Unit, component and end-to-end tests, typecheck | Implemented (coverage target not yet enforced) |
 | QR-12 | Traceability | Requirements, ADRs and arc42 are updated with each feature | Definition of done, pull request checklist | Implemented from release 0.1 |
+| QR-13 | Consistency | Every UI element uses the tokens and shared components of the design system; a new element extends the design system with a story in the same change | `docs/design-system.md`, Storybook catalogue, `src/styles/designSystem.test.ts`, pull request checklist | Implemented (#70; automated guard for components and visual regression follow) |
