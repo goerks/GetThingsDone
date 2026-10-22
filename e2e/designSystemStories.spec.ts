@@ -30,52 +30,60 @@ async function storyIds(page: Page): Promise<string[]> {
     .sort();
 }
 
+/** Stories with a play function (hover, focus) are given a moment to finish. */
+const PLAYS = /hover|focus/;
+
 async function showStory(page: Page, id: string, theme: 'light' | 'dark'): Promise<void> {
   await page.goto(`${CATALOGUE}/iframe.html?id=${id}&viewMode=story&globals=theme:${theme}`);
   await page.waitForSelector('body.sb-show-main');
   await page.evaluate(() => document.fonts.ready);
-  // Stories with a play function (hover, focus) are given a moment to finish
-  await page.waitForTimeout(600);
+  if (PLAYS.test(id)) await page.waitForTimeout(600);
 }
 
+/** The stories are shared among a few tests per theme, so that they run in parallel. */
+const PARTS = [0, 1, 2, 3];
+const part = (ids: string[], index: number): string[] => ids.filter((_, position) => position % PARTS.length === index);
+
 for (const theme of ['light', 'dark'] as const) {
-  test(`AC7.2 every story of the catalogue passes the accessibility check in the ${theme} theme`, async ({ page }) => {
-    test.setTimeout(300_000);
-    // Given the catalogue with all its stories
-    const ids = await storyIds(page);
-    expect(ids.length).toBeGreaterThan(20);
-    const problems: string[] = [];
+  for (const index of PARTS) {
+    test(`AC7.2 every story of the catalogue passes the accessibility check in the ${theme} theme (part ${index + 1})`, async ({ page }) => {
+      test.setTimeout(300_000);
+      // Given the catalogue with all its stories
+      const all = await storyIds(page);
+      expect(all.length).toBeGreaterThan(20);
+      const problems: string[] = [];
 
-    for (const id of ids) {
-      // When a story is shown and checked with axe, including colour contrast
-      await showStory(page, id, theme);
-      await page.addScriptTag({ path: axePath });
-      const violations = await page.evaluate(async () => {
-        const axe = (window as unknown as { axe: { run: (context: string, options: object) => Promise<{ violations: Violation[] }> } }).axe;
-        const result = await axe.run('#storybook-root', {
-          // A story is a part of a page: no landmarks, no heading one
-          rules: { region: { enabled: false }, 'page-has-heading-one': { enabled: false }, 'landmark-one-main': { enabled: false } }
+      for (const id of part(all, index)) {
+        // When a story is shown and checked with axe, including colour contrast
+        await showStory(page, id, theme);
+        await page.addScriptTag({ path: axePath });
+        const violations = await page.evaluate(async () => {
+          const axe = (window as unknown as { axe: { run: (context: string, options: object) => Promise<{ violations: Violation[] }> } }).axe;
+          const result = await axe.run('#storybook-root', {
+            // A story is a part of a page: no landmarks, no heading one
+            rules: { region: { enabled: false }, 'page-has-heading-one': { enabled: false }, 'landmark-one-main': { enabled: false } }
+          });
+          return result.violations;
         });
-        return result.violations;
-      });
-      // Then it has no violation
-      for (const violation of violations) problems.push(`${id}: ${violation.id} (${violation.help}) at ${violation.nodes.map((node) => node.target.join(' ')).join(', ')}`);
-    }
+        // Then it has no violation
+        for (const violation of violations) problems.push(`${id}: ${violation.id} (${violation.help}) at ${violation.nodes.map((node) => node.target.join(' ')).join(', ')}`);
+      }
 
-    expect(problems).toEqual([]);
-  });
+      expect(problems).toEqual([]);
+    });
 
-  test(`AC7.3 every story of the catalogue looks like its reference image in the ${theme} theme`, async ({ page }) => {
-    test.setTimeout(300_000);
-    // Given the catalogue and a window of a fixed size
-    await page.setViewportSize({ width: 900, height: 700 });
-    const ids = await storyIds(page);
+    test(`AC7.3 every story of the catalogue looks like its reference image in the ${theme} theme (part ${index + 1})`, async ({ page }) => {
+      test.setTimeout(300_000);
+      // Given the catalogue and a window of a fixed size
+      await page.setViewportSize({ width: 900, height: 700 });
+      const all = await storyIds(page);
 
-    for (const id of ids) {
-      // When a story is shown
-      await showStory(page, id, theme);
-      // Then it looks like its reference image
-      await expect.soft(page).toHaveScreenshot(`${id}-${theme}.png`, { fullPage: true, animations: 'disabled', caret: 'hide', maxDiffPixelRatio: 0.01 });
-    }
-  });
+      for (const id of part(all, index)) {
+        // When a story is shown
+        await showStory(page, id, theme);
+        // Then it looks like its reference image
+        await expect.soft(page).toHaveScreenshot(`${id}-${theme}.png`, { fullPage: true, animations: 'disabled', caret: 'hide', maxDiffPixelRatio: 0.01 });
+      }
+    });
+  }
 }

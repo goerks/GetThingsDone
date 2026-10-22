@@ -58,4 +58,13 @@ describe('design system adherence is mandatory', () => {
     expect(workflow).toContain('path: dist/design-system');
     expect(workflow).toContain('actions/deploy-pages');
   });
+
+  test('AC6.3 the catalogue is built again from main on every push, so a merged change shows up', () => {
+    // Given the workflow of the catalogue
+    const workflow = read('.github/workflows/pages.yml');
+    // Then it installs from the lock file, builds the current state and replaces an older deployment that is still running
+    expect(workflow).toContain('npm ci');
+    expect(workflow).toMatch(/cancel-in-progress: true/);
+    expect(workflow).toContain('workflow_dispatch');
+  });
 });

@@ -1,2 +1,3 @@
-deps: axe-core@latest
+deps:
 snapshots: e2e/designSystemStories.spec.ts
+# renewed 2026-10-22T13:24:59Z

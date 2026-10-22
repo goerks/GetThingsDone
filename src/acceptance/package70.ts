@@ -214,7 +214,7 @@ export const PACKAGE_70: { issue: number; pullRequest: number; title: string; cr
           given: 'Ein weiterer Pull Request ändert einen Baustein und wird gemerged.',
           when: 'Ich öffne den Katalog nach dem Merge neu.',
           then: 'Er zeigt die Änderung.',
-          tests: ['src/test/designSystemRules.test.ts › AC6.1 the catalogue is published on GitHub Pages after every change of main'],
+          tests: ['src/test/designSystemRules.test.ts › AC6.3 the catalogue is built again from main on every push, so a merged change shows up'],
           manual: 'Braucht einen weiteren Merge.',
           poCheck: 'Zeigt der Katalog nach dem nächsten Merge den neuen Stand?'
         }
