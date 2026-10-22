@@ -5,7 +5,8 @@ name: Design system catalogue
 # One-time setting on GitHub: Settings > Pages > Source: "GitHub Actions".
 on:
   push:
-    branches: [main]
+    # The second branch is temporary: it shows the catalogue of pull request #71 before the merge (#70).
+    branches: [main, claude/vigilant-franklin-qtm2o6]
   workflow_dispatch:
 
 permissions:

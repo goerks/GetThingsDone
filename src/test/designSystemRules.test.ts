@@ -53,7 +53,7 @@ describe('design system adherence is mandatory', () => {
     // Given the workflow of the catalogue
     const workflow = read('.github/workflows/pages.yml');
     // Then it runs on every push to main, builds the catalogue and deploys it with GitHub Pages
-    expect(workflow).toMatch(/push:\s*\n\s*branches: \[main\]/);
+    expect(workflow).toMatch(/push:\s*\n(\s*#.*\n)?\s*branches: \[main[,\]]/);
     expect(workflow).toContain('npm run build-storybook');
     expect(workflow).toContain('path: dist/design-system');
     expect(workflow).toContain('actions/deploy-pages');
