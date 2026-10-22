@@ -263,7 +263,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false, compact = f
   const classes = ['card', compact && 'card--compact', isDragging && 'card--dragging', dropBefore && 'drop-before', app.flashed === story.id && 'flash', menu.openId === story.id && 'ctx-target', match].filter(Boolean).join(' ');
 
   return (
-    <article
+    <div
       ref={setNodeRef}
       className={classes}
       data-story-id={story.id}
@@ -275,7 +275,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false, compact = f
       onContextMenu={(event) => menu.openFor(story.id, event)}
     >
       <StoryCardContent story={story} epic={epic} compact={compact} />
-    </article>
+    </div>
   );
 }
 

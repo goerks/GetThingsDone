@@ -1,16 +1,22 @@
 // The design system catalogue (#70): the stories show the real tokens and components.
 import { readFileSync } from 'node:fs';
+import { beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { composeStories } from '@storybook/react-vite';
 import * as foundationStories from './design-system/Foundations.stories';
 import { COLOR_GROUPS } from './design-system/tokens';
 import * as appStories from './design-system/App.stories';
+import { initI18n } from './i18n';
 import * as bareStories from './ui/Bare.stories';
 import * as buttonStories from './ui/Button.stories';
 import * as fieldStories from './ui/Fields.stories';
 import * as iconButtonStories from './ui/IconButton.stories';
 import * as labelStories from './ui/Labels.stories';
+
+beforeAll(() => {
+  initI18n('en');
+});
 
 const foundations = composeStories(foundationStories);
 const buttons = composeStories(buttonStories);
