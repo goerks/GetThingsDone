@@ -29,11 +29,11 @@ export function MemberFilterBar({ filter, onChange }: Props) {
           type="button"
           className="member-filter__chip"
           aria-pressed={filter.kind === 'member' && filter.memberId === member.id}
-          aria-label={member.name}
           title={member.name}
           onClick={() => onChange({ kind: 'member', memberId: member.id })}
         >
-          {member.initials}
+          <span aria-hidden="true">{member.initials}</span>
+          <span className="sr-only">{member.name}</span>
         </BareButton>
       ))}
       <BareButton type="button" className="member-filter__chip" aria-pressed={filter.kind === 'none'} onClick={() => onChange({ kind: 'none' })}>
