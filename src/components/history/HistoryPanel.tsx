@@ -7,6 +7,7 @@ import { CompareDialog } from './CompareDialog';
 import { HistoryList } from './HistoryList';
 import { HistoryView } from './HistoryView';
 import { Button } from '../../ui';
+import { TextButton } from '../../ui';
 
 interface Props {
   /** `story`, `epic`, `sprint`, `release`, later a custom item type. */
@@ -49,13 +50,13 @@ export function HistoryPanel({ itemType, itemId, label }: Props) {
       </div>
       {versions.length > 1 && (
         <div className="history-panel__more">
-          <button type="button" className="link-btn" aria-expanded={open} aria-controls={`${uid}-list`} onClick={() => setOpen((current) => !current)}>
+          <TextButton type="button" aria-expanded={open} aria-controls={`${uid}-list`} onClick={() => setOpen((current) => !current)}>
             {t(open ? 'history.collapse' : 'history.expand')}
-          </button>
+          </TextButton>
           {open && versions.length > recent.length && (
-            <button type="button" className="link-btn history-panel__all" onClick={() => setAll(true)}>
+            <TextButton type="button" className="history-panel__all" onClick={() => setAll(true)}>
               {t('history.showAll', { count: changes })}
-            </button>
+            </TextButton>
           )}
         </div>
       )}

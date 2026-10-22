@@ -23,6 +23,7 @@ import {
 import type { RecentItem } from '../../domain/searchHistory';
 import { useSearch } from '../../state/Search';
 import { ResultRow } from './ResultRow';
+import { TextButton } from '../../ui';
 
 /** Results shown per group before "+ n more". */
 export const GROUP_LIMIT = 5;
@@ -672,14 +673,14 @@ export function SearchBox() {
           {(canClear || canHighlight) && (
             <div className="search__footer">
               {canClear && (
-                <button type="button" className="link-button" onClick={() => search.clearHistory()}>
+                <TextButton type="button" onClick={() => search.clearHistory()}>
                   {t('search.clearHistory')}
-                </button>
+                </TextButton>
               )}
               {canHighlight && (
-                <button type="button" className="link-button search__highlight" onClick={search.showOnPage}>
+                <TextButton type="button" className="search__highlight" onClick={search.showOnPage}>
                   {t('search.showOnPage', { page: page?.label ?? '' })}
-                </button>
+                </TextButton>
               )}
             </div>
           )}

@@ -29,6 +29,7 @@ import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
 import { FieldLayout } from './FieldLayout';
 import { Button, IconButton, Select, TextInput } from '../ui';
+import { Check } from '../ui';
 
 /** Item types that show custom fields, one column each in the field table. */
 const FIELD_ITEM_TYPES: readonly ItemType[] = ['story', 'epic', 'release'];
@@ -213,23 +214,19 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
           <fieldset className="field field--choices">
             <legend>{t('fields.defaultValue')}</legend>
             {namedOptions.map((option) => (
-              <label key={option.key} className="check">
-                <input
-                  type="checkbox"
-                  checked={defaultOptions.includes(option.key)}
+              <Check key={option.key}
+                checked={defaultOptions.includes(option.key)}
                   onChange={(event) =>
                     setDefaultOptions((list) => (event.target.checked ? [...list, option.key] : list.filter((key) => key !== option.key)))
-                  }
-                />
+                  }>
                 {option.label}
-              </label>
+              </Check>
             ))}
           </fieldset>
         ) : dataType === 'checkbox' ? (
-          <label className="check">
-            <input type="checkbox" checked={defaultText === 'true'} onChange={(event) => setDefaultText(event.target.checked ? 'true' : '')} />
+          <Check checked={defaultText === 'true'} onChange={(event) => setDefaultText(event.target.checked ? 'true' : '')}>
             {t('fields.defaultTicked')}
-          </label>
+          </Check>
         ) : (
           <div className="field">
             <label htmlFor={`${uid}-default`}>{t('fields.defaultValue')}</label>
@@ -264,14 +261,11 @@ function FieldDialog({ field, onClose }: FieldDialogProps) {
           <fieldset className="field">
             <legend>{t('fields.usedOn')}</legend>
             {CUSTOM_ITEM_TYPES.map((itemType) => (
-              <label key={itemType} className="check">
-                <input
-                  type="checkbox"
-                  checked={itemTypes.includes(itemType)}
-                  onChange={(event) => toggleType(itemType, event.target.checked)}
-                />
+              <Check key={itemType}
+                checked={itemTypes.includes(itemType)}
+                  onChange={(event) => toggleType(itemType, event.target.checked)}>
                 {t(`fields.itemType.${itemType}`)}
-              </label>
+              </Check>
             ))}
           </fieldset>
         )}

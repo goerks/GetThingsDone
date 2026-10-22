@@ -4,6 +4,7 @@ export { Check } from './Check';
 export { IconButton } from './IconButton';
 export { Pill } from './Pill';
 export { Select } from './Select';
+export { TextButton } from './TextButton';
 export { TextInput } from './TextInput';
 export { Textarea } from './Textarea';
 export { cx } from './classes';
