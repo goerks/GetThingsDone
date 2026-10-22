@@ -783,6 +783,23 @@ The shortcuts keep working and are announced with `aria-keyshortcuts`, but they 
 
 Source: #55 · Status: Implemented · Verified by: #55 AC8.1–AC8.5 (`src/UiUpdate.test.tsx`, `src/help/noShortcutHints.test.ts`, `e2e/uiUpdate.spec.ts`)
 
+## Design system (DS)
+
+### FR-DS-01 Design system catalogue
+Source: #70 · Status: Implemented · Verified by: #70 AC1.1–AC1.4, AC2.1–AC2.2 (stories in `src/design-system/` and `src/ui/`, `src/DesignSystem.test.tsx`, `src/test/designSystemRules.test.ts`); AC1.4: manual
+
+The design system is documented in Storybook: foundations (colour, type, spacing, radius, elevation, layers, motion, icons, accessibility rules) and the shared components with variants and states, in light and dark. It is built from the real code and published with the pull request preview at `/design-system/`.
+
+### FR-DS-02 The app uses the design system
+Source: #70 · Status: Implemented · Verified by: #70 AC3.1–AC3.3 (`src/styles/designSystem.test.ts`, `e2e/designSystem.spec.ts`, the screenshots of `e2e/usability1.spec.ts`); AC4.1: manual (comparison with the before/after in the issue)
+
+Colours, font sizes, line heights, weights, radii, spacings, shadows, layers and transitions of `src/styles/app.css` come from tokens; buttons, text fields, selects, checkboxes and link-like buttons are the shared components. Merged near-duplicates: two link-style buttons became `TextButton`.
+
+### FR-DS-03 Adherence is mandatory
+Source: #70 · Status: Implemented · Verified by: #70 AC5.1, AC5.2 (`src/test/designSystemRules.test.ts`)
+
+`CLAUDE.md`, the Definition of Done, `docs/working-mode.md`, the `go` and `design-vorschlag` skills and the pull request template require every feature to use the design system and to extend it, with a story, where something is missing.
+
 ## Later
 
 | ID | Requirement | Status |

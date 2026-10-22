@@ -14,6 +14,8 @@ Read the issue, its comments and the relevant code and `docs/design/`, so the va
 
 ## 2. Build the variants
 
+Write them in design system terms (`docs/design-system.md`): use the tokens of `docs/design/tokens.css` and the components of `src/ui/`, and say for every variant which tokens or components would be new. A variant that needs a new one extends the design system in the same pull request.
+
 - **Variants** are numbered `1` … `x` (as many as the PO asked for). Each variant is a real alternative, with a name, a mockup and a short description.
 - **Options** are lettered `A` … `D` where a variant has sub-choices; they can be combined (for example `1.a`, `2.c`). Use options only where they help; do not invent them.
 - **Rating** of every variant and option: pros (positive) and cons (negative), short and concrete. Use symbol plus text, never colour alone.

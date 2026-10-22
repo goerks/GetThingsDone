@@ -79,11 +79,15 @@ Every question the AI asks the PO goes through the question tool with short, sel
 | 4 | AI | Proposes one or more **test cases per acceptance criterion**, in German and plain language | Issue comment |
 | 5 | PO | Reviews the test cases from a testing perspective; they are revised until the PO approves them and gives the go | Conversation or issue; the AI records it in the issue |
 | 6 | AI | Builds the feature in one go, without intermediate checks. Turns every test case into at least one automated test with the same ID | Feature branch |
-| 7 | AI | Opens a pull request starting with `Closes #<issue>`, with the acceptance checklist, the test case IDs and the tests that cover them, the web preview and the Windows build | Pull request, linked in the issue |
+| 7 | AI | Opens a pull request starting with `Closes #<issue>`, with the acceptance checklist, the test case IDs and the tests that cover them, the entry "Design system adherence", the web preview (and the design system catalogue under `/design-system/`) and the Windows build | Pull request, linked in the issue |
 | 8 | PO | Tests in the web preview (and the Windows app if the pull request says so) and approves. The preview has an "Abnahme" panel at the bottom left: every test case with a link to its page, a tick box and a comment; Test cases that need other data than the demo data (for example several completed sprints) name test data (`src/acceptance/presets.ts`) that the panel loads with one button, or the PO picks from "Testdaten"; the preset replaces the data in that browser and never belongs to the product. "Ergebnis kopieren" gives the result as text that the PO pastes back into the chat with the AI (no detour through the issue; the AI records it) | Preview, pull request or conversation |
 | 9 | AI | Merges with "Rebase and merge", the only merge method enabled (the branch stays linear); GitHub closes the issue; image links in the issue switch from the branch to `main`, then the branch is deleted | GitHub |
 
 If something during building would change an approved acceptance criterion or test case, the AI stops, updates the issue and asks the PO again.
+
+## The design system
+
+Adhering to the design system is mandatory for every feature (#70, [`design-system.md`](design-system.md)): tokens and shared components only, no raw values, no hand-classed buttons or fields. A missing token or component is added to the design system, with a story in the Storybook catalogue, in the same pull request. Design proposals (`/design-vorschlag`) are written in design system terms and say which tokens and components would be new. Every pull request has the entry "Design system adherence" and links the catalogue at `<preview address>/design-system/`; the AI does not call a feature done without it.
 
 ## The help
 
