@@ -218,7 +218,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
   };
 
   /** Puts an issue into the sprint of that name (made on the board when there is none), or back into the backlog. Needs a scrum board; a sprint is never deleted. */
-  const moveToSprint = async (client: JiraClient, target: JiraTarget, key: string, name: string | null, context: WriteContext): Promise<void> => {
+  const moveToSprint = async (client: JiraClient, key: string, name: string | null, context: WriteContext): Promise<void> => {
     const jira = extraOf(context.catalog);
     if (jira.boardId === null) return;
     if (name === null) {
@@ -376,7 +376,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         }
         if (doc) fields.description = doc.content.length === 0 ? null : doc;
       }
-      if (patch.sprint !== undefined) await moveToSprint(client, target, item.id, patch.sprint, context);
+      if (patch.sprint !== undefined) await moveToSprint(client, item.id, patch.sprint, context);
       if (Object.keys(fields).length > 0) await client.call('PUT', `/rest/api/3/issue/${encodeURIComponent(item.id)}`, { fields });
 
       if (patch.done !== undefined || patch.status !== undefined) {
