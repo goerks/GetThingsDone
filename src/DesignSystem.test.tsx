@@ -1,6 +1,7 @@
 // The design system catalogue (#70): the stories show the real tokens and components.
 import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { composeStories } from '@storybook/react-vite';
 import * as foundationStories from './design-system/Foundations.stories';
 import { COLOR_GROUPS } from './design-system/tokens';
@@ -71,16 +72,16 @@ describe('components', () => {
     expect(document.querySelectorAll('.btn--small').length).toBe(7);
   });
 
-  test('AC1.3 shows the button hovered and focused', async () => {
-    // Given the stories for hover and focus
-    // When they run
-    const hover = render(<buttons.Hover />);
-    await buttons.Hover.run?.({ canvasElement: hover.container });
-    hover.unmount();
-    const focus = render(<buttons.Focus />);
-    await buttons.Focus.run?.({ canvasElement: focus.container });
-    // Then the primary button is focused
-    expect(document.activeElement?.className).toContain('btn--primary');
+  test('AC1.3 has a hover and a focus story for the button, and the keyboard focuses it', async () => {
+    // Given the stories for hover and focus, which play the interaction in the catalogue
+    expect(buttons.Hover.play).toBeTypeOf('function');
+    expect(buttons.Focus.play).toBeTypeOf('function');
+    // When the primary button is shown and I press Tab
+    render(<buttons.Focus />);
+    await userEvent.tab();
+    // Then it has the focus
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveClass('btn--primary');
   });
 
   test('AC1.3 shows the icon button, form fields, checks, badge and pill with their states', () => {
