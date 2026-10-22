@@ -1696,6 +1696,11 @@
       "summary": "{{found}} stati su {{count}} riconosciuti.",
       "none": "(nessuna colonna)",
       "unclear": "non chiaro, scegli"
+    },
+    "board": {
+      "label": "Board per gli sprint",
+      "hint": "Vengono sincronizzati gli sprint di questa board scrum. Finché non ne scegli un’altra, vale la prima board del progetto.",
+      "only": "{{name}} (l’unica board scrum del progetto)"
     }
   }
 }

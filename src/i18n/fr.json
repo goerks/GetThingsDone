@@ -1696,6 +1696,11 @@
       "summary": "{{found}} statuts sur {{count}} reconnus.",
       "none": "(aucune colonne)",
       "unclear": "pas clair, veuillez choisir"
+    },
+    "board": {
+      "label": "Tableau pour les sprints",
+      "hint": "Les sprints de ce tableau scrum sont synchronisés. Le premier tableau du projet est utilisé tant que vous n’en choisissez pas un autre.",
+      "only": "{{name}} (le seul tableau scrum du projet)"
     }
   }
 }

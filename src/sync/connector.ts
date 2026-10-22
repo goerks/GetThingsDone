@@ -15,6 +15,12 @@ export class SyncError extends Error {
 }
 
 /** What a connector can do. The engine only compares the fields a service can hold. */
+/** A board of a service (Jira) that can be chosen for the sprints. */
+export interface ServiceBoard {
+  id: string;
+  name: string;
+}
+
 export interface ConnectorCapabilities {
   /** The compared fields the service can hold. */
   fields: readonly FieldName[];
@@ -95,6 +101,8 @@ export interface TrackerConnector<Target = unknown> {
   skipped?(): number;
   /** The statuses of the target's workflow, so the settings can map them to the columns of the board. */
   statuses?(target: Target, token: string): Promise<WorkflowStatus[]>;
+  /** The boards of the target whose sprints can be synchronised (Jira: the scrum boards of the project). */
+  boards?(target: Target, token: string): Promise<ServiceBoard[]>;
 }
 
 /** A status of the workflow of a service: its name and what it counts as (not started, in progress, done). */

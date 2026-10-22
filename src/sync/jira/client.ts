@@ -31,6 +31,8 @@ export interface JiraTarget {
   project: string;
   /** More JQL for the issues to import, or empty. */
   filter: string;
+  /** The id of the board whose sprints are synchronised; empty or missing for the first scrum board of the project. */
+  board?: string;
   /** Jira status name → name of a column of the board, for the statuses that the names do not match. */
   statusMap: Record<string, string>;
 }
