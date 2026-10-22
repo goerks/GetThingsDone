@@ -15,6 +15,7 @@ Storybook shows the real tokens and components, in light and dark (switch in the
 | Section | What it documents |
 |---|---|
 | Foundations / Colors, Typography, Spacing, Radius, Elevation, Layers, Motion, Icons, Accessibility | Every token with name, value and purpose |
+| App / Story cards, Epic tag list, Release card list, Sprint card list, Board lanes, Header bar, Member filter, Context menu, Toast, dialogs of story, epic, sprint and release | The components of the app with the demo data of the preview (`src/design-system/App.stories.tsx`, providers in `DemoApp.tsx`) |
 | Components / Button, IconButton, Form fields, Badge and pill, Dialog | Every shared component with its variants and states (normal, hover, focus, pressed, disabled, error) |
 
 ## Rules
