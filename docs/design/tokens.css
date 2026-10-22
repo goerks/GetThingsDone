@@ -28,6 +28,18 @@
   --tool-ink: #ffffff;
   --tool-dark: #0b0f14;
 
+  /* Success and its text colour on top of it. Always with an icon and a text. */
+  --ok: #11713a;
+  --ok-soft: #e4f4ea;
+  --ok-ink: #ffffff;
+  /* Text on the solid danger and warning colours. */
+  --danger-ink: #ffffff;
+  --warn-ink: #ffffff;
+  /* Elevation: the soft shadow of cards, the strong one of everything that floats. */
+  --shadow-strong: rgba(0, 0, 0, 0.2);
+  /* Dimmed area behind dialogs and menus. */
+  --overlay: rgba(15, 19, 24, 0.45);
+
   /* Epic palette: at least 3:1 against --surface and --column, the name is always written next to it. */
   --epic-blue: #2457d6;
   --epic-amber: #b45309;
@@ -63,6 +75,14 @@
   --tool-ink: #ffffff;
   --tool-dark: #0b0f14;
 
+  --ok: #11713a;
+  --ok-soft: #14301f;
+  --ok-ink: #ffffff;
+  --danger-ink: #0f1318;
+  --warn-ink: #0f1318;
+  --shadow-strong: rgba(0, 0, 0, 0.45);
+  --overlay: rgba(0, 0, 0, 0.6);
+
   --epic-blue: #7aa2ff;
   --epic-amber: #f0a050;
   --epic-teal: #3fd0b8;
@@ -74,19 +94,91 @@
 }
 
 :root {
+  /* Typography. Sizes are the ones in use; a new size needs a decision of the design system. */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
+  --font-size-2xs: 10px;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 15px;
+  --font-size-xl: 16px;
+  --font-size-2xl: 18px;
+  --font-size-3xl: 20px;
+  --font-size-4xl: 22px;
+  --font-size-5xl: 26px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.35;
+  --leading-normal: 1.45;
+  --leading-relaxed: 1.55;
+  --leading-compact: 18px;
+
+  /* Radius. */
+  --radius-2xs: 2px;
+  --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-pill: 999px;
+  --radius-round: 50%;
 
+  /* Spacing: 4 px grid with half steps. --space-N is N * 4 px. */
+  --space-px: 1px;
+  --space-0-5: 2px;
   --space-1: 4px;
+  --space-1-5: 6px;
   --space-2: 8px;
+  --space-2-5: 10px;
   --space-3: 12px;
+  --space-3-5: 14px;
   --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Elevation. */
+  --elevation-1: 0 1px 2px var(--shadow);
+  --elevation-2: 0 6px 18px var(--shadow-strong);
+  --elevation-3: 0 8px 24px var(--shadow-strong);
+  --elevation-4: 0 16px 48px var(--shadow-strong);
+  --elevation-panel: -8px 0 24px var(--shadow);
+
+  /* Layers. Local layers (1 to 5) only order things inside one component. */
+  --z-raised: 1;
+  --z-lifted: 2;
+  --z-sticky-head: 3;
+  --z-float: 4;
+  --z-popover: 5;
+  --z-dropdown: 20;
+  --z-header: 30;
+  --z-tool: 70;
+  --z-toast: 80;
+  --z-menu-backdrop: 90;
+  --z-menu: 91;
+
+  /* Motion. */
+  --duration-fast: 120ms;
+  --duration-slow: 400ms;
+  --ease: ease;
+
+  /* Icons. */
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 18px;
 
   --target-min: 44px;
 }
+
+/* Breakpoints cannot be custom properties. Use these two widths in media queries:
+   small: 640px (phone), medium: 760px (tablet). */
