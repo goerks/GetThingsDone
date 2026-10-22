@@ -35,7 +35,7 @@ const PLAYS = /hover|focus/;
 
 async function showStory(page: Page, id: string, theme: 'light' | 'dark'): Promise<void> {
   await page.goto(`${CATALOGUE}/iframe.html?id=${id}&viewMode=story&globals=theme:${theme}`);
-  await page.waitForSelector('body.sb-show-main');
+  await page.waitForSelector('body.sb-show-main', { state: 'attached' });
   await page.evaluate(() => document.fonts.ready);
   if (PLAYS.test(id)) await page.waitForTimeout(600);
 }
