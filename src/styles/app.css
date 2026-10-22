@@ -420,7 +420,7 @@ textarea.input {
   background: var(--column);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  transition: background-color var(--duration-fast) var(--ease), box-shadow 120ms ease;
+  transition: background-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
 }
 
 /* The column a dragged story would land in. */
@@ -668,7 +668,7 @@ textarea.input {
   padding: var(--space-3);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-  transition: background-color var(--duration-fast) var(--ease), border-color 120ms ease;
+  transition: background-color var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease);
 }
 
 .backlog__section--sprint {
@@ -1345,7 +1345,7 @@ button.map-sprint:hover .map-sprint__name {
   background: var(--column);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  transition: background-color var(--duration-fast) var(--ease), box-shadow 120ms ease;
+  transition: background-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
 }
 
 .map-cell--unplanned {
@@ -1578,16 +1578,16 @@ button.map-epic:hover .map-epic__name {
 }
 
 .map__row--drop-before::before {
-  top: calc(-0.5 * var(--map-gap) - 2px);
+  top: calc(-0.5 * var(--map-gap) - var(--space-0-5));
 }
 
 .map__row--drop-after::after {
-  bottom: calc(-0.5 * var(--map-gap) - 2px);
+  bottom: calc(-0.5 * var(--map-gap) - var(--space-0-5));
 }
 
 .map-drop-pill {
   position: absolute;
-  left: calc(var(--map-label) + 16px);
+  left: calc(var(--map-label) + var(--space-4));
   z-index: var(--z-popover);
   padding: var(--space-px) var(--space-2-5);
   border-radius: var(--radius-pill);
@@ -1601,11 +1601,11 @@ button.map-epic:hover .map-epic__name {
 }
 
 .map__row--drop-before > .map-drop-pill {
-  top: calc(-0.5 * var(--map-gap) - 11px);
+  top: calc(-0.5 * var(--map-gap) - var(--space-2-5));
 }
 
 .map__row--drop-after > .map-drop-pill {
-  bottom: calc(-0.5 * var(--map-gap) - 11px);
+  bottom: calc(-0.5 * var(--map-gap) - var(--space-2-5));
 }
 
 .btn--pressed {
@@ -1836,7 +1836,7 @@ a.settings__link:hover {
 
 .field-table__fixed svg {
   position: absolute;
-  left: calc(100% + 4px);
+  left: calc(100% + var(--space-1));
   top: 50%;
   transform: translateY(-50%);
 }
@@ -2131,7 +2131,7 @@ kbd {
 .search__dropdown {
   position: absolute;
   z-index: var(--z-dropdown);
-  top: calc(100% + 6px);
+  top: calc(100% + var(--space-1-5));
   right: 0;
   width: min(560px, calc(100vw - 32px));
   background: var(--surface);
@@ -3576,7 +3576,7 @@ mark {
 /* The page stays usable next to the panel: it makes room instead of lying under it. */
 .app--help .main {
   max-width: none;
-  padding-right: calc(var(--help-width) + 28px);
+  padding-right: calc(var(--help-width) + var(--space-7));
 }
 
 .help {
@@ -4086,12 +4086,12 @@ a.linkbtn:hover {
 .ctx-menu--nested {
   position: absolute;
   top: calc(var(--space-1-5) * -1);
-  left: calc(100% - 2px);
+  left: calc(100% - var(--space-0-5));
 }
 
 .ctx-menu--flip {
   left: auto;
-  right: calc(100% - 2px);
+  right: calc(100% - var(--space-0-5));
 }
 
 .ctx-menu__item {
@@ -5510,7 +5510,7 @@ a.btn {
 .library__popover {
   position: absolute;
   right: 0;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + var(--space-1-5));
   z-index: var(--z-popover);
   width: min(380px, 80vw);
   padding: var(--space-2);
@@ -5648,7 +5648,7 @@ a.btn {
 .definition-menu__list {
   position: absolute;
   right: 0;
-  top: calc(100% + 4px);
+  top: calc(100% + var(--space-1));
   z-index: var(--z-popover);
   display: grid;
   min-width: 220px;
@@ -6472,7 +6472,7 @@ a.btn {
   padding: var(--space-2-5) var(--space-3);
   border-color: color-mix(in oklab, var(--border) 85%, var(--text) 15%);
   box-shadow: var(--elevation-1);
-  transition: border-color var(--duration-fast) var(--ease), box-shadow 120ms ease;
+  transition: border-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
 }
 
 .card:hover {
