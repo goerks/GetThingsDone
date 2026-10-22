@@ -1,7 +1,8 @@
 import { nextCode } from './board';
 import { assignTo } from './fields';
 import { startStatus, statusesIn } from './statuses';
-import { EPIC_COLOR_KEYS, type ConflictRule, type Criterion, type Epic, type ExternalFields, type ExternalLink, type FieldAssignment, type FieldDefinition, type FieldOption, type Release, type ServiceKind, type StatusValue, type Story } from './types';
+import { addDays, todayIso } from './sprints';
+import { EPIC_COLOR_KEYS, type ConflictRule, type Criterion, type Epic, type ExternalFields, type ExternalLink, type FieldAssignment, type FieldDefinition, type FieldOption, type Member, type Release, type ServiceKind, type Sprint, type StatusValue, type Story } from './types';
 
 /*
  * Import and sync with an external tracker (#30, #66): the rules, without any network and without knowing a service.
@@ -42,9 +43,21 @@ export interface ExternalRelease {
   state: 'open' | 'closed';
 }
 
+/** A sprint of the service (Jira: a sprint of the board): the counterpart of a sprint here. */
+export interface ExternalSprint {
+  id: string;
+  name: string;
+  goal: string;
+  startDate: string | null;
+  endDate: string | null;
+  state: 'planned' | 'running' | 'completed';
+}
+
 /** What a service holds besides its issues that the issues refer to, read once per sync. `extra` is for the connector only. */
 export interface Catalog {
   releases: ExternalRelease[];
+  /** The sprints of the service, for the services that have them. */
+  sprints?: ExternalSprint[];
   extra?: unknown;
 }
 
@@ -64,6 +77,10 @@ export interface ItemPatch {
   status?: string | null;
   /** The story points; 0 for none. */
   points?: number;
+  /** The name of the sprint, or null for the backlog. */
+  sprint?: string | null;
+  /** The name of the member of the team, or null for nobody. */
+  assignee?: string | null;
 }
 
 /** What a new issue is made of. */
@@ -133,7 +150,7 @@ const same = (a: string | null | undefined, b: string | null | undefined): boole
 
 /* ---------- The fields that are compared ---------- */
 
-export type FieldName = 'title' | 'description' | 'labels' | 'criteria' | 'release' | 'epic' | 'done' | 'status' | 'points';
+export type FieldName = 'title' | 'description' | 'labels' | 'criteria' | 'release' | 'epic' | 'done' | 'status' | 'points' | 'sprint' | 'assignee';
 
 /** The fields GitHub holds. The order matters: done comes before status, so a closed issue is done whatever its column says. A service with more fields lists them itself (Jira adds the points). */
 export const FIELD_NAMES: readonly FieldName[] = ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status'];
@@ -163,6 +180,10 @@ export function sameField(name: FieldName, a: ExternalFields, b: ExternalFields)
       return same(a.status, b.status);
     case 'points':
       return (a.points ?? 0) === (b.points ?? 0);
+    case 'sprint':
+      return same(a.sprint, b.sprint);
+    case 'assignee':
+      return same(a.assignee, b.assignee);
   }
 }
 
@@ -170,6 +191,8 @@ export function sameField(name: FieldName, a: ExternalFields, b: ExternalFields)
 export interface LocalContext {
   epics?: readonly Epic[];
   releases?: readonly Release[];
+  sprints?: readonly Sprint[];
+  members?: readonly Member[];
 }
 
 /** The compared fields of a story. `field` is the labels field, if there is one. */
@@ -186,7 +209,9 @@ export function localFields(story: Story, field: FieldDefinition | undefined, st
     epic: story.epicId === null ? null : (context.epics?.find((item) => item.id === story.epicId)?.name ?? null),
     done: status?.category === 'done',
     status: named && status ? statusName(status) : null,
-    points: story.points
+    points: story.points,
+    sprint: story.sprintId === null ? null : (context.sprints?.find((item) => item.id === story.sprintId)?.name ?? null),
+    assignee: story.assigneeId ? (context.members?.find((item) => item.id === story.assigneeId)?.name ?? null) : null
   };
 }
 
@@ -211,6 +236,8 @@ export type SyncChange =
   | { kind: 'epic'; from: string | null; to: string | null }
   | { kind: 'status'; from: string | null; to: string | null }
   | { kind: 'points'; from: number; to: number }
+  | { kind: 'sprint'; from: string | null; to: string | null }
+  | { kind: 'assignee'; from: string | null; to: string | null }
   | { kind: 'closed' }
   | { kind: 'reopened' };
 
@@ -284,6 +311,10 @@ export interface SyncSummary {
   missingLabels: string[];
   /** Items of the service that are not stories and were left out (Jira: epics and sub-tasks), when there were some. */
   skipped?: number;
+  /** Names of sprints that were made from the sprints of the service. */
+  sprintsCreated?: string[];
+  /** Names of assignees of the service that no member of the team has: the story stays as it is. */
+  unmatchedAssignees?: string[];
 }
 
 export type Decision = 'local' | 'remote';
@@ -307,6 +338,11 @@ export interface SyncInput {
   releases?: readonly Release[];
   /** The releases of the service. */
   externalReleases?: readonly ExternalRelease[];
+  /** The sprints and the members of the app; the sync adds the sprints it finds in the service (always planned). */
+  sprints?: readonly Sprint[];
+  members?: readonly Member[];
+  /** The sprints of the service. */
+  externalSprints?: readonly ExternalSprint[];
   /** What the service lacks for an epic or a column, while writing is off: its text for the notice, or null when it has it. */
   lacks?: (kind: 'epic' | 'status', name: string) => string | null;
   /** Whether the sync may change issues in the service. */
@@ -333,6 +369,7 @@ export interface SyncPlan {
   assignments: FieldAssignment[];
   epics: Epic[];
   releases: Release[];
+  sprints: Sprint[];
   summary: SyncSummary;
   pushes: Push[];
 }
@@ -382,6 +419,9 @@ export function planSync(input: SyncInput): SyncPlan {
   const externalReleases = input.externalReleases ?? [];
   const epics = [...(input.epics ?? [])];
   const releases = [...(input.releases ?? [])];
+  const sprints = [...(input.sprints ?? [])];
+  const members = input.members ?? [];
+  const externalSprints = input.externalSprints ?? [];
   const items = input.items;
   const labelNames = [...new Set(items.flatMap((item) => item.fields.labels))];
   const hadField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
@@ -416,6 +456,18 @@ export function planSync(input: SyncInput): SyncPlan {
     summary.releasesCreated.push(created.title);
     return created;
   };
+  /** The sprint of that name, made as a planned sprint from the sprint of the service when there is none. A sprint of the service is never started or completed here. */
+  const sprintNamed = (name: string): Sprint => {
+    const found = sprints.find((sprint) => same(sprint.name, name));
+    if (found) return found;
+    const external = externalSprints.find((entry) => same(entry.name, name));
+    const startDate = external?.startDate ?? todayIso();
+    const created: Sprint = { id: newId(), name: external?.name ?? name, startDate, endDate: external?.endDate ?? addDays(startDate, 13), state: 'planned', startItems: null, result: null };
+    sprints.push(created);
+    (summary.sprintsCreated ??= []).push(created.name);
+    return created;
+  };
+  const memberNamed = (name: string | null | undefined): Member | null => (name ? (members.find((member) => same(member.name, name)) ?? null) : null);
   /** The status a name stands for, or the start status. */
   const statusNamed = (name: string | null | undefined): string => (name ? (named.find((status) => same(statusName(status), name))?.id ?? start) : start);
 
@@ -436,15 +488,17 @@ export function planSync(input: SyncInput): SyncPlan {
         epicId: remote.epic ? epicNamed(remote.epic).id : null,
         points: remote.points ?? 0,
         status: statusNamed(remote.status),
-        sprintId: null,
+        sprintId: remote.sprint ? sprintNamed(remote.sprint).id : null,
+        assigneeId: memberNamed(remote.assignee)?.id ?? null,
         releaseId: remote.release ? releaseTitled(remote.release).id : null,
         rank: stories.reduce((max, entry) => Math.max(max, entry.rank), -1) + 1,
         criteria: remote.criteria.map((entry) => ({ id: newId(), text: entry.text, done: entry.done })),
         values: optionIds.length > 0 ? { [field.id]: optionIds } : {},
         checks: {},
         doneItems: null,
-        link: { service, key: item.key, url: item.url, state: 'open', base: remote }
+        link: { service, key: item.key, url: item.url, state: 'open', base: remote.assignee && !memberNamed(remote.assignee) ? { ...remote, assignee: null } : remote }
       };
+      if (remote.assignee && !memberNamed(remote.assignee) && !(summary.unmatchedAssignees ??= []).includes(remote.assignee)) summary.unmatchedAssignees.push(remote.assignee);
       stories.push(story);
       if (item.warnings?.includes('multipleEpics')) summary.multipleEpics.push({ code: story.code, key: item.key });
       summary.created.push({ storyId: story.id, code: story.code, key: item.key, title: story.title, changes: [{ kind: 'created' }] });
@@ -452,7 +506,7 @@ export function planSync(input: SyncInput): SyncPlan {
     }
 
     const story = stories[index];
-    const context: LocalContext = { epics, releases };
+    const context: LocalContext = { epics, releases, sprints, members };
     const local = localFields(story, field, statuses, context);
     // A story from a version without a base takes the item as it is: the base is the story, so every difference is the item's.
     const base = story.link?.base ?? local;
@@ -503,13 +557,13 @@ export function planSync(input: SyncInput): SyncPlan {
         }
         case 'release': {
           const releaseId = remote.release ? releaseTitled(remote.release).id : null;
-          changes.push({ kind: 'release', from: localFields(next, field, statuses, { epics, releases }).release ?? null, to: remote.release ?? null });
+          changes.push({ kind: 'release', from: localFields(next, field, statuses, context).release ?? null, to: remote.release ?? null });
           next = { ...next, releaseId };
           return;
         }
         case 'epic': {
           const epicId = remote.epic ? epicNamed(remote.epic).id : null;
-          changes.push({ kind: 'epic', from: localFields(next, field, statuses, { epics, releases }).epic ?? null, to: remote.epic ?? null });
+          changes.push({ kind: 'epic', from: localFields(next, field, statuses, context).epic ?? null, to: remote.epic ?? null });
           next = { ...next, epicId };
           return;
         }
@@ -526,13 +580,31 @@ export function planSync(input: SyncInput): SyncPlan {
         case 'status':
           // A closed item is done whatever its column says: only the base moves on.
           if (remote.done) return;
-          changes.push({ kind: 'status', from: localFields(next, field, statuses, { epics, releases }).status ?? null, to: remote.status ?? null });
+          changes.push({ kind: 'status', from: localFields(next, field, statuses, context).status ?? null, to: remote.status ?? null });
           next = { ...next, status: statusNamed(remote.status) };
           return;
         case 'points':
           changes.push({ kind: 'points', from: next.points, to: remote.points ?? 0 });
           next = { ...next, points: remote.points ?? 0 };
           return;
+        case 'sprint': {
+          const sprintId = remote.sprint ? sprintNamed(remote.sprint).id : null;
+          changes.push({ kind: 'sprint', from: localFields(next, field, statuses, context).sprint ?? null, to: remote.sprint ?? null });
+          next = { ...next, sprintId };
+          return;
+        }
+        case 'assignee': {
+          const member = memberNamed(remote.assignee);
+          if (remote.assignee && !member) {
+            // Nobody of the team has this name: the story stays as it is, and the base stays too, so nothing is published back.
+            if (!(summary.unmatchedAssignees ??= []).includes(remote.assignee)) summary.unmatchedAssignees.push(remote.assignee);
+            nextBase.assignee = base.assignee ?? null;
+            return;
+          }
+          changes.push({ kind: 'assignee', from: localFields(next, field, statuses, context).assignee ?? null, to: remote.assignee ?? null });
+          next = { ...next, assigneeId: member?.id ?? null };
+          return;
+        }
       }
     };
 
@@ -577,7 +649,7 @@ export function planSync(input: SyncInput): SyncPlan {
     }
 
     if (pushFields.length > 0) {
-      const after = localFields(next, field, statuses, { epics, releases });
+      const after = localFields(next, field, statuses, context);
       const patch: ItemPatch = {};
       if (pushFields.includes('title')) patch.title = after.title;
       if (pushFields.includes('labels')) patch.labels = after.labels;
@@ -585,6 +657,8 @@ export function planSync(input: SyncInput): SyncPlan {
       if (pushFields.includes('status')) patch.status = after.status ?? null;
       if (pushFields.includes('release')) patch.release = after.release ?? null;
       if (pushFields.includes('points')) patch.points = after.points ?? 0;
+      if (pushFields.includes('sprint')) patch.sprint = after.sprint ?? null;
+      if (pushFields.includes('assignee')) patch.assignee = after.assignee ?? null;
       if (pushFields.includes('done')) patch.done = after.done;
       if (pushFields.includes('description')) {
         patch.description = after.description;
@@ -605,7 +679,7 @@ export function planSync(input: SyncInput): SyncPlan {
     }
   }
 
-  return { stories, fields, assignments, epics, releases, summary, pushes };
+  return { stories, fields, assignments, epics, releases, sprints, summary, pushes };
 }
 
 /**
@@ -661,6 +735,7 @@ export const isEmptySummary = (summary: SyncSummary): boolean =>
     summary.conflicts.length +
     summary.releasesCreated.length +
     summary.epicsCreated.length +
+    (summary.sprintsCreated?.length ?? 0) +
     summary.labelsCreated.length +
     summary.labelsDeleted.length +
     summary.milestonesCreated.length +

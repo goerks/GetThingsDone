@@ -313,6 +313,63 @@ describe('story points', () => {
   });
 });
 
+describe('sprints', () => {
+  const withBoard = async (connector: ReturnType<typeof setup>['connector']) => ({ ...context, catalog: await connector.catalog(target, 'good'), sprints: [{ id: 's3', name: 'Sprint 16', startDate: '2026-11-30', endDate: '2026-12-13', state: 'planned' as const, startItems: null, result: null }] });
+
+  it('AC7.3 reads the sprint of an issue and the open sprints of the board with their dates and goal', async () => {
+    const { connector, find } = setup();
+    expect((await find('PROJ-2')).fields.sprint).toBe('Sprint 14');
+    expect((await find('PROJ-1')).fields.sprint).toBeNull();
+    const catalog = await connector.catalog(target, 'good');
+    expect(catalog.sprints).toEqual([
+      { id: '14', name: 'Sprint 14', goal: 'Login ready', startDate: '2026-11-02', endDate: '2026-11-15', state: 'running' },
+      { id: '15', name: 'Sprint 15', goal: '', startDate: null, endDate: null, state: 'planned' }
+    ]);
+    expect(connector.capabilities.fields).toContain('sprint');
+  });
+
+  it('AC7.3 puts an issue into another sprint, makes a missing sprint, and back into the backlog', async () => {
+    const { connector, find, memory } = setup();
+    const withCatalog = await withBoard(connector);
+    const moved = await connector.update(target, 'good', await find('PROJ-2'), { sprint: 'Sprint 15' }, withCatalog);
+    expect(moved.item.fields.sprint).toBe('Sprint 15');
+    const made = await connector.update(target, 'good', moved.item, { sprint: 'Sprint 16' }, withCatalog);
+    expect(made.item.fields.sprint).toBe('Sprint 16');
+    expect(memory.sprints().find((sprint) => sprint.name === 'Sprint 16')).toMatchObject({ startDate: '2026-11-30T00:00:00.000Z', endDate: '2026-12-13T00:00:00.000Z' });
+    const none = await connector.update(target, 'good', made.item, { sprint: null }, withCatalog);
+    expect(none.item.fields.sprint).toBeNull();
+    expect(memory.sprints().map((sprint) => sprint.name)).toEqual(['Sprint 14', 'Sprint 15', 'Sprint 16']);
+  });
+
+  it('AC7.3 compares no sprint when the project has no scrum board', async () => {
+    const { connector } = setup(DEMO_JIRA_ISSUES, (transport) => async (request) => (request.url.includes('/rest/agile/1.0/board?') ? { status: 400, headers: {}, body: '' } : transport(request)));
+    await connector.catalog(target, 'good');
+    expect(connector.capabilities.fields).not.toContain('sprint');
+  });
+});
+
+describe('assignees', () => {
+  it('AC7.5 reads the name of the assignee', async () => {
+    const { find } = setup();
+    expect((await find('PROJ-1')).fields.assignee).toBe('Anna Meier');
+    expect((await find('PROJ-2')).fields.assignee).toBeNull();
+  });
+
+  it('AC7.5 assigns a person by name and takes the assignment away again', async () => {
+    const { connector, find } = setup();
+    const assigned = await connector.update(target, 'good', await find('PROJ-2'), { assignee: 'Tom Keller' }, context);
+    expect(assigned.item.fields.assignee).toBe('Tom Keller');
+    const cleared = await connector.update(target, 'good', assigned.item, { assignee: null }, context);
+    expect(cleared.item.fields.assignee).toBeNull();
+  });
+
+  it('AC7.5 changes nothing for a name that nobody has in Jira', async () => {
+    const { connector, find } = setup();
+    const { item } = await connector.update(target, 'good', await find('PROJ-1'), { assignee: 'Nobody Known' }, context);
+    expect(item.fields.assignee).toBe('Anna Meier');
+  });
+});
+
 describe('errors', () => {
   it('AC9.1 tells a wrong token, a project that is not there, a refused write and a missing network apart', async () => {
     const { connector, find } = setup();

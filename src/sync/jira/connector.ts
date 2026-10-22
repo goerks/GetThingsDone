@@ -1,4 +1,4 @@
-import type { Catalog, ExternalItem, ExternalRelease, ItemPatch, NewItem } from '../../domain/sync';
+import type { Catalog, ExternalItem, ExternalRelease, ExternalSprint, FieldName, ItemPatch, NewItem } from '../../domain/sync';
 import type { ExternalFields, ExternalLink } from '../../domain/types';
 import { SyncError, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteContext, type WriteResult } from '../connector';
 import { composeAdf, isAdf, readAdf, withCriteriaAdf, type AdfDoc } from './adf';
@@ -23,8 +23,18 @@ interface RawIssue {
     issuetype?: { name?: string; subtask?: boolean; hierarchyLevel?: number };
     parent?: { key: string; fields?: { summary?: string; issuetype?: { name?: string; hierarchyLevel?: number } } };
     fixVersions?: Array<{ name: string }>;
+    assignee?: { accountId: string; displayName?: string } | null;
     [custom: `customfield_${number}`]: unknown;
   };
+}
+
+interface RawSprint {
+  id: number;
+  name: string;
+  state?: string;
+  goal?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 interface RawVersion {
@@ -39,11 +49,14 @@ interface RawVersion {
 interface JiraCatalog {
   epics: Array<{ key: string; name: string }>;
   versions: string[];
+  /** The scrum board of the project, or null when there is none (then sprints are not synchronised). */
+  boardId: number | null;
+  sprints: Array<{ id: number; name: string }>;
 }
 
 const extraOf = (catalog: Catalog): JiraCatalog => {
   if (!catalog.extra) {
-    const fresh: JiraCatalog = { epics: [], versions: [] };
+    const fresh: JiraCatalog = { epics: [], versions: [], boardId: null, sprints: [] };
     catalog.extra = fresh;
   }
   return catalog.extra as JiraCatalog;
@@ -66,7 +79,9 @@ interface JiraRaw {
 
 /** The names Jira gives the field of the story points. */
 const POINTS_NAMES = ['story point estimate', 'story points'];
-const FIELDS = ['summary', 'description', 'labels', 'status', 'issuetype', 'parent', 'fixVersions'];
+const FIELDS = ['summary', 'description', 'labels', 'status', 'issuetype', 'parent', 'fixVersions', 'assignee'];
+/** An issue in a sprint that is closed counts as in the backlog. */
+const SPRINT_ORDER = ['active', 'future'];
 const PAGE = 100;
 const MAX_PAGES = 30;
 
@@ -110,23 +125,32 @@ const jiraNameFor = (target: JiraTarget, column: string): string | null => Objec
 export function createJiraConnector(transport: JiraTransport): TrackerConnector<JiraTarget> {
   let skipped = 0;
 
-  /** The id of the field of the story points per site, found once with GET /field (it differs per site); null when there is none. */
-  const pointsIds = new Map<string, string | null>();
-  const pointsIdOf = async (client: JiraClient, target: JiraTarget): Promise<string | null> => {
-    if (pointsIds.has(target.site)) return pointsIds.get(target.site) ?? null;
-    const all = (await client.call<Array<{ id: string; name: string }>>('GET', '/rest/api/3/field')) ?? [];
-    const found = all.find((entry) => POINTS_NAMES.includes(entry.name.trim().toLowerCase()))?.id ?? null;
-    pointsIds.set(target.site, found);
+  /** The ids of the fields of the story points and of the sprint per site, found once with GET /field (they differ per site); null when there is none. */
+  const fieldIds = new Map<string, { points: string | null; sprint: string | null }>();
+  const fieldIdsOf = async (client: JiraClient, target: JiraTarget): Promise<{ points: string | null; sprint: string | null }> => {
+    const known = fieldIds.get(target.site);
+    if (known) return known;
+    const all = (await client.call<Array<{ id: string; name: string; schema?: { custom?: string } }>>('GET', '/rest/api/3/field')) ?? [];
+    const found = {
+      points: all.find((entry) => POINTS_NAMES.includes(entry.name.trim().toLowerCase()))?.id ?? null,
+      sprint: all.find((entry) => entry.schema?.custom === 'com.pyxis.greenhopper.jira:gh-sprint' || entry.name.trim().toLowerCase() === 'sprint')?.id ?? null
+    };
+    fieldIds.set(target.site, found);
     return found;
   };
+  const pointsIdOf = async (client: JiraClient, target: JiraTarget): Promise<string | null> => (await fieldIdsOf(client, target)).points;
+  /** Whether the project has a scrum board; the sprint is only compared then (set by the last `catalog`). */
+  let hasBoard = false;
 
   const toItem = (target: JiraTarget, raw: RawIssue): ExternalItem => {
     const adf = isAdf(raw.fields.description) ? raw.fields.description : null;
     const read = readAdf(adf);
     const category = categoryOf(raw);
     const statusName = raw.fields.status?.name ?? '';
-    const pointsId = pointsIds.get(target.site);
-    const pointsValue = pointsId ? raw.fields[pointsId as `customfield_${number}`] : null;
+    const ids = fieldIds.get(target.site);
+    const pointsValue = ids?.points ? raw.fields[ids.points as `customfield_${number}`] : null;
+    const sprints = (ids?.sprint ? raw.fields[ids.sprint as `customfield_${number}`] : null) as Array<{ name: string; state?: string }> | null | undefined;
+    const sprint = SPRINT_ORDER.map((state) => (sprints ?? []).find((entry) => entry.state === state)).find((entry) => entry !== undefined);
     const done = category === 'done';
     const fields: ExternalFields = {
       title: (raw.fields.summary ?? '').trim(),
@@ -137,6 +161,8 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       epic: isEpic(raw.fields.parent) ? (raw.fields.parent?.fields?.summary ?? null) : null,
       done,
       points: typeof pointsValue === 'number' ? pointsValue : 0,
+      sprint: sprint?.name ?? null,
+      assignee: raw.fields.assignee?.displayName ?? null,
       status: !done && category === 'indeterminate' ? (target.statusMap[statusName] ?? statusName) : null
     };
     const jira: JiraRaw = { adf, lossy: read.lossy, statusName, category };
@@ -145,8 +171,8 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
 
   /** The fields to ask for: the compared ones and the story points. */
   const fieldsOf = async (client: JiraClient, target: JiraTarget): Promise<string[]> => {
-    const points = await pointsIdOf(client, target);
-    return points ? [...FIELDS, points] : FIELDS;
+    const ids = await fieldIdsOf(client, target);
+    return [...FIELDS, ...(ids.points ? [ids.points] : []), ...(ids.sprint ? [ids.sprint] : [])];
   };
 
   const getIssue = async (client: JiraClient, target: JiraTarget, key: string): Promise<RawIssue | null> => {
@@ -185,6 +211,35 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
     return created.key;
   };
 
+  /** The account of the user with that name who may be assigned in the project, or null. */
+  const accountOf = async (client: JiraClient, target: JiraTarget, name: string): Promise<string | null> => {
+    const users = (await client.call<Array<{ accountId: string; displayName?: string }>>('GET', `/rest/api/3/user/assignable/search?project=${encodeURIComponent(target.project)}&query=${encodeURIComponent(name)}`)) ?? [];
+    return users.find((user) => same(user.displayName, name))?.accountId ?? null;
+  };
+
+  /** Puts an issue into the sprint of that name (made on the board when there is none), or back into the backlog. Needs a scrum board; a sprint is never deleted. */
+  const moveToSprint = async (client: JiraClient, target: JiraTarget, key: string, name: string | null, context: WriteContext): Promise<void> => {
+    const jira = extraOf(context.catalog);
+    if (jira.boardId === null) return;
+    if (name === null) {
+      await client.call('POST', '/rest/agile/1.0/backlog/issue', { issues: [key] });
+      return;
+    }
+    let sprint = jira.sprints.find((entry) => same(entry.name, name));
+    if (!sprint) {
+      const local = context.sprints?.find((entry) => same(entry.name, name));
+      const made = await client.call<{ id: number }>('POST', '/rest/agile/1.0/sprint', {
+        name,
+        originBoardId: jira.boardId,
+        ...(local ? { startDate: `${local.startDate}T00:00:00.000Z`, endDate: `${local.endDate}T00:00:00.000Z` } : {})
+      });
+      if (!made) throw new SyncError('other');
+      sprint = { id: made.id, name };
+      jira.sprints.push(sprint);
+    }
+    await client.call('POST', `/rest/agile/1.0/sprint/${sprint.id}/issue`, { issues: [key] });
+  };
+
   /** Makes the version of a release (with its dates) when the project has none. */
   const ensureVersion = async (client: JiraClient, target: JiraTarget, title: string, context: WriteContext): Promise<void> => {
     const jira = extraOf(context.catalog);
@@ -202,7 +257,14 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
 
   return {
     kind: 'jira',
-    capabilities: { fields: ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status', 'points'], create: true, tidy: false },
+    capabilities: {
+      // The sprint is only compared when the project has a scrum board.
+      get fields(): readonly FieldName[] {
+        return ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status', 'points', ...(hasBoard ? (['sprint'] as const) : []), 'assignee'];
+      },
+      create: true,
+      tidy: false
+    },
     target: parseTarget,
     normalize,
     skipped: () => skipped,
@@ -210,12 +272,23 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       const client = createClient(transport, target, token);
       // The project is checked first, so a wrong key says "not found" and not "nothing to import".
       await client.call('GET', `/rest/api/3/project/${encodeURIComponent(target.project)}`);
-      const jql = `project = "${target.project}" AND statusCategory != Done${target.filter ? ` AND (${target.filter})` : ''} ORDER BY created ASC`;
+      const where = `project = "${target.project}" AND statusCategory != Done${target.filter ? ` AND (${target.filter})` : ''}`;
+      // New stories come in the order of the rank in Jira; a project without a rank is read by its creation.
+      let jql = `${where} ORDER BY Rank ASC`;
       const items: ExternalItem[] = [];
       skipped = 0;
       let next: string | undefined;
       for (let page = 0; page < MAX_PAGES; page += 1) {
-        const answer = await client.call<{ issues?: RawIssue[]; nextPageToken?: string }>('POST', '/rest/api/3/search/jql', { jql, fields: await fieldsOf(client, target), maxResults: PAGE, ...(next ? { nextPageToken: next } : {}) });
+        const search = (): Promise<{ issues?: RawIssue[]; nextPageToken?: string } | null> =>
+          fieldsOf(client, target).then((fields) => client.call<{ issues?: RawIssue[]; nextPageToken?: string }>('POST', '/rest/api/3/search/jql', { jql, fields, maxResults: PAGE, ...(next ? { nextPageToken: next } : {}) }));
+        let answer;
+        try {
+          answer = await search();
+        } catch (cause) {
+          if (page > 0 || !(cause instanceof SyncError) || cause.kind !== 'other') throw cause;
+          jql = `${where} ORDER BY created ASC`;
+          answer = await search();
+        }
         for (const raw of answer?.issues ?? []) {
           const level = raw.fields.issuetype?.hierarchyLevel;
           // Epics and sub-tasks are not stories.
@@ -240,8 +313,28 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       const versions = (await client.call<RawVersion[]>('GET', `/rest/api/3/project/${encodeURIComponent(target.project)}/versions`)) ?? [];
       const epics = await client.call<{ issues?: RawIssue[] }>('POST', '/rest/api/3/search/jql', { jql: `project = "${target.project}" AND issuetype = Epic ORDER BY created ASC`, fields: ['summary'], maxResults: PAGE });
       const releases: ExternalRelease[] = versions.map((version) => ({ id: version.id, title: version.name, description: version.description ?? '', dueOn: version.releaseDate ?? null, state: version.released ? 'closed' : 'open' }));
-      const extra: JiraCatalog = { epics: (epics?.issues ?? []).map((issue) => ({ key: issue.key, name: (issue.fields.summary ?? '').trim() })), versions: versions.map((version) => version.name) };
-      return { releases, extra };
+      const boards = await client.call<{ values?: Array<{ id: number }> }>('GET', `/rest/agile/1.0/board?projectKeyOrId=${encodeURIComponent(target.project)}&type=scrum`).catch(() => null);
+      const boardId = boards?.values?.[0]?.id ?? null;
+      hasBoard = boardId !== null && (await fieldIdsOf(client, target)).sprint !== null;
+      const raws =
+        boardId === null
+          ? []
+          : ((await client.call<{ values?: RawSprint[] }>('GET', `/rest/agile/1.0/board/${boardId}/sprint?state=active,future&maxResults=50`).catch(() => null))?.values ?? []);
+      const sprints: ExternalSprint[] = raws.map((sprint) => ({
+        id: String(sprint.id),
+        name: sprint.name,
+        goal: sprint.goal ?? '',
+        startDate: sprint.startDate ? sprint.startDate.slice(0, 10) : null,
+        endDate: sprint.endDate ? sprint.endDate.slice(0, 10) : null,
+        state: sprint.state === 'active' ? 'running' : sprint.state === 'closed' ? 'completed' : 'planned'
+      }));
+      const extra: JiraCatalog = {
+        epics: (epics?.issues ?? []).map((issue) => ({ key: issue.key, name: (issue.fields.summary ?? '').trim() })),
+        versions: versions.map((version) => version.name),
+        boardId,
+        sprints: raws.map((sprint) => ({ id: sprint.id, name: sprint.name }))
+      };
+      return { releases, sprints, extra };
     },
     // Epics and versions that Jira lacks are made when the sync may write; nothing is "missing" in the sense of a label.
     lacks: () => null,
@@ -265,6 +358,14 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         if (patch.release !== null) await ensureVersion(client, target, patch.release, context);
         fields.fixVersions = patch.release === null ? [] : [{ name: patch.release }];
       }
+      if (patch.assignee !== undefined) {
+        if (patch.assignee === null) fields.assignee = null;
+        else {
+          const accountId = await accountOf(client, target, patch.assignee);
+          // Nobody in Jira has the name of the member: the assignee stays as it is there.
+          if (accountId) fields.assignee = { accountId };
+        }
+      }
       if (patch.description !== undefined || patch.criteria !== undefined) {
         let doc: AdfDoc | null = null;
         if (patch.description !== undefined) {
@@ -275,6 +376,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         }
         if (doc) fields.description = doc.content.length === 0 ? null : doc;
       }
+      if (patch.sprint !== undefined) await moveToSprint(client, target, item.id, patch.sprint, context);
       if (Object.keys(fields).length > 0) await client.call('PUT', `/rest/api/3/issue/${encodeURIComponent(item.id)}`, { fields });
 
       if (patch.done !== undefined || patch.status !== undefined) {

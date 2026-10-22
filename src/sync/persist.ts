@@ -1,6 +1,6 @@
 import type { Repository } from '../data/repository';
 import { LABELS_FIELD_ID, type SyncPlan } from '../domain/sync';
-import type { Epic, FieldDefinition, Release, Story } from '../domain/types';
+import type { Epic, FieldDefinition, Release, Sprint, Story } from '../domain/types';
 
 const sameJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
 
@@ -10,12 +10,13 @@ const sameJson = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON
  */
 export async function persistSync(
   repo: Repository,
-  before: { stories: readonly Story[]; fields: readonly FieldDefinition[]; epics?: readonly Epic[]; releases?: readonly Release[] },
+  before: { stories: readonly Story[]; fields: readonly FieldDefinition[]; epics?: readonly Epic[]; releases?: readonly Release[]; sprints?: readonly Sprint[] },
   plan: SyncPlan
 ): Promise<void> {
   // Epics and releases the sync made come first: the stories point to them.
   for (const epic of plan.epics) if (!(before.epics ?? []).some((item) => item.id === epic.id)) await repo.addEpic(epic);
   for (const release of plan.releases) if (!(before.releases ?? []).some((item) => item.id === release.id)) await repo.addRelease(release);
+  for (const sprint of plan.sprints) if (!(before.sprints ?? []).some((item) => item.id === sprint.id)) await repo.addSprint(sprint);
   const labels = plan.fields.find((field) => field.id === LABELS_FIELD_ID);
   const hadLabels = before.fields.find((field) => field.id === LABELS_FIELD_ID);
   if (labels && !sameJson(labels, hadLabels)) {
@@ -33,7 +34,7 @@ export async function persistSync(
       continue;
     }
     if (story === was) continue;
-    if (story.title !== was.title || story.description !== was.description || story.status !== was.status || story.epicId !== was.epicId || story.releaseId !== was.releaseId || !sameJson(story.link, was.link)) {
+    if (story.title !== was.title || story.description !== was.description || story.status !== was.status || story.epicId !== was.epicId || story.releaseId !== was.releaseId || story.points !== was.points || story.sprintId !== was.sprintId || story.assigneeId !== was.assigneeId || !sameJson(story.link, was.link)) {
       await repo.updateStory(story);
     }
     for (const criterion of was.criteria) {

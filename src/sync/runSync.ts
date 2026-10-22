@@ -1,5 +1,5 @@
 import { linkedIdsMissingIn, LABELS_FIELD_ID, linkTo, middleStatuses, newItemOf, pendingFields, planSync, statusName, withBase, type Decision, type PublishEntry, type SyncPlan, type SyncSummary } from '../domain/sync';
-import type { ConflictRule, Epic, FieldAssignment, FieldDefinition, Release, StatusValue, Story } from '../domain/types';
+import type { ConflictRule, Epic, FieldAssignment, FieldDefinition, Member, Release, Sprint, StatusValue, Story } from '../domain/types';
 import { SyncError, type Made, type Needs, type TrackerConnector } from './connector';
 
 export interface RunSyncInput {
@@ -13,6 +13,9 @@ export interface RunSyncInput {
   statuses: readonly StatusValue[];
   epics: readonly Epic[];
   releases: readonly Release[];
+  /** The sprints and the members of the team (for the services that have them); the sync adds the sprints it finds, as planned ones. */
+  sprints?: readonly Sprint[];
+  members?: readonly Member[];
   newId: () => string;
   write: boolean;
   conflict: ConflictRule;
@@ -44,7 +47,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   const labelsField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
   const open = await connector.open(target, token);
   const skipped = connector.skipped?.() ?? 0;
-  const context = { epics: input.epics, releases: input.releases };
+  const context = { epics: input.epics, releases: input.releases, sprints: input.sprints, members: input.members };
   const catalog = await connector.catalog(target, token);
   // A story whose item is no longer in the list of open items may have been closed: ask for those.
   const missing = linkedIdsMissingIn(
@@ -66,6 +69,9 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
     statuses,
     items,
     externalReleases: catalog.releases,
+    sprints: input.sprints,
+    members: input.members,
+    externalSprints: catalog.sprints,
     lacks: (kind, name) => connector.lacks(catalog, kind, name),
     epics: input.epics,
     releases: input.releases,
@@ -90,7 +96,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
     for (const push of plan.pushes) {
       let result;
       try {
-        result = await connector.update(target, token, push.item, push.patch, { epics: plan.epics, releases: plan.releases, statuses, catalog, made });
+        result = await connector.update(target, token, push.item, push.patch, { epics: plan.epics, releases: plan.releases, sprints: plan.sprints, members: input.members, statuses, catalog, made });
       } catch (cause) {
         fail(cause);
         break;
@@ -136,12 +142,14 @@ export async function createInService(input: {
   statuses: readonly StatusValue[];
   epics?: readonly Epic[];
   releases?: readonly Release[];
+  sprints?: readonly Sprint[];
+  members?: readonly Member[];
 }): Promise<{ story: Story; skippedLabels: string[]; made: Made }> {
   const { connector, target, token } = input;
   const labelsField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
-  const item = newItemOf(input.story, labelsField, input.statuses, { epics: input.epics, releases: input.releases });
+  const item = newItemOf(input.story, labelsField, input.statuses, { epics: input.epics, releases: input.releases, sprints: input.sprints, members: input.members });
   const catalog = await connector.catalog(target, token);
   const made: Made = { labels: [], milestones: [] };
-  const result = await connector.create(target, token, item, { epics: input.epics ?? [], releases: input.releases ?? [], statuses: input.statuses, catalog, made });
+  const result = await connector.create(target, token, item, { epics: input.epics ?? [], releases: input.releases ?? [], sprints: input.sprints, members: input.members, statuses: input.statuses, catalog, made });
   return { story: { ...input.story, link: linkTo(connector.kind, result.item) }, skippedLabels: result.skippedLabels, made };
 }

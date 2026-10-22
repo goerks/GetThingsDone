@@ -275,6 +275,10 @@ export interface ExternalFields {
   status?: string | null;
   /** The story points (Jira: the field "Story point estimate"); missing or null counts as 0. Not compared by every service. */
   points?: number | null;
+  /** The name of the sprint (Jira: the sprint of the board); null for the backlog. Not compared by every service. */
+  sprint?: string | null;
+  /** The name of the member of the team the issue is assigned to; null for nobody. Not compared by every service. */
+  assignee?: string | null;
 }
 
 /** What happens when the same field changed on both sides: GitHub wins, the local change wins, or the user decides each time. */

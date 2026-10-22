@@ -4,9 +4,8 @@ import type { Criterion } from './types';
  * Sync with several services, step 0 and Jira phase 1 (#66): the acceptance criteria and their test cases for the product owner, in
  * German. One source for the issue comment, the acceptance panel of the preview and the names of the automated tests. This pull
  * request generalises the shipped GitHub sync (AC1, AC2, AC11), makes the issue number the ID of a story (AC12) and adds the first
- * phase of Jira (AC3 to AC6, AC8, AC9, AC10.3): connect, import, title, description, labels, criteria, status by transition, create.
- * In the preview Jira is simulated (Demo); the real Jira Cloud is only reached by the Windows app. Sprints,
- * rank, the list of boards, the table of status names and the message for an expired token follow in later phases.
+ * phase of Jira (AC3 to AC10.3, without the list of boards): connect, import, title, description, labels, criteria, status by transition, create, epics, fix versions, points, sprints, assignees.
+ * In the preview Jira is simulated (Demo); the real Jira Cloud is only reached by the Windows app. The order of new stories follows the rank in Jira (read only), sub-tasks and issue links are not synchronised.
  */
 const SYNC = 'src/Sync.test.tsx';
 const SERIES = 'src/sync/connector.test.ts';
@@ -16,6 +15,7 @@ const LOG = 'src/domain/syncLog.test.ts';
 const SETTINGS = 'src/sync/github/format.test.ts';
 const JIRA = 'src/sync/jira/jira.test.ts';
 const JIRA_UI = 'src/Jira.test.tsx';
+const PEOPLE = 'src/domain/syncPeople.test.ts';
 
 const SETTINGS_PAGE = '#/settings/sync';
 const BACKLOG = '#/backlog';
@@ -329,6 +329,36 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich synchronisiere, ändere lokal auf 8 und synchronisiere erneut (Schreiben an).',
           then: 'Erst 5, dann 8 in Jira. Ein Vorgang ohne Punkte hat 0.',
           tests: [`${JIRA} › AC7.4 reads the story points of an issue, and 0 when it has none`, `${JIRA} › AC7.4 writes the story points, and clears them with 0`]
+        },
+        {
+          id: 'AC7.3',
+          title: 'Sprint',
+          link: BACKLOG,
+          given: 'Im simulierten Jira hat das Board «Sprint 14» (läuft, mit Ziel und Daten); «PROJ-2» ist darin.',
+          when: 'Ich synchronisiere; danach ziehe ich die Story lokal in «Sprint 15» und synchronisiere mit Schreiben an.',
+          then: 'Es gibt den Sprint «Sprint 14» mit Daten, die Story liegt darin (der Sprint ist lokal «geplant»; starten und abschliessen tut nur die App). Danach liegt «PROJ-2» in Jira im Sprint 15. Ein Projekt ohne Scrum-Board hat keinen Sprint-Abgleich.',
+          tests: [
+            `${JIRA} › AC7.3 reads the sprint of an issue and the open sprints of the board with their dates and goal`,
+            `${JIRA} › AC7.3 puts an issue into another sprint, makes a missing sprint, and back into the backlog`,
+            `${JIRA} › AC7.3 compares no sprint when the project has no scrum board`,
+            `${PEOPLE} › AC7.3 makes a planned sprint from the sprint of the service and puts the new story into it`,
+            `${PEOPLE} › AC7.3 uses the sprint of the same name that exists here`
+          ]
+        },
+        {
+          id: 'AC7.5',
+          title: 'Zuständige',
+          link: BACKLOG,
+          given: 'Das Team hat «Anna Meier»; im simulierten Jira ist «PROJ-1» Anna Meier zugewiesen. «PROJ-2» ist niemandem zugewiesen.',
+          when: 'Ich synchronisiere.',
+          then: 'Hat das Team «Anna Meier», ist die Story ihr zugewiesen. Gibt es keinen Treffer, nennt der Hinweis den Namen («kein Teammitglied für …»), die Story bleibt unverändert und nichts wird geraten oder zurückgeschrieben. Eine lokale Zuweisung geht mit Schreiben an nach Jira, wenn dort jemand denselben Namen hat.',
+          tests: [
+            `${JIRA} › AC7.5 reads the name of the assignee`,
+            `${JIRA} › AC7.5 assigns a person by name and takes the assignment away again`,
+            `${JIRA} › AC7.5 changes nothing for a name that nobody has in Jira`,
+            `${PEOPLE} › AC7.5 assigns the member of the team with the name of the assignee`,
+            `${PEOPLE} › AC7.5 reports an assignee nobody of the team has, leaves the story as it is and does not publish it back`
+          ]
         },
         {
           id: 'AC7.6',

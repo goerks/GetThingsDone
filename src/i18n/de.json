@@ -1026,7 +1026,7 @@
       "sync.jira": {
         "title": "Synchronisation mit Jira",
         "keywords": "jira atlassian cloud vorgänge issues import sync synchronisieren abgleich site e-mail projekt schlüssel api token verbinden workflow status übergang board spalte epic unteraufgabe filter jql kriterien beschreibung schreiben veröffentlichen simuliert demo",
-        "body": "Die offenen Vorgänge eines Jira-Cloud-Projekts als Stories importieren und Änderungen in beide Richtungen abgleichen. Es funktioniert wie der Abgleich mit GitHub und nur, wenn die Funktion „Synchronisation“ eingeschaltet und Jira als Dienst gewählt ist (es ist immer nur ein Dienst aktiv). Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Synchronisation ein und wähle die Karte „Jira“.\n2. Trage die Jira-Site (dein-team.atlassian.net), die E-Mail-Adresse deines Atlassian-Kontos, den Projektschlüssel und ein API-Token ein (erzeugst du in deinem Atlassian-Konto unter Sicherheit › API-Tokens) und drücke „Verbindung testen“. Ein zusätzlicher Filter (JQL, zum Beispiel labels = \"team-a\") schränkt den Import ein. Soll die App auch nach Jira schreiben, schalte „Auch nach Jira schreiben“ ein und wähle, wer bei einem Konflikt gewinnt.\n3. Öffne das Backlog und drücke „Synchronisieren“. Offene Vorgänge werden zu Stories und zeigen ihren Jira-Schlüssel (zum Beispiel PROJ-12) als ID, als Link zum Vorgang. Epics und Unteraufgaben werden nicht importiert; die Meldung zählt sie. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch Titel, Beschreibung, Labels, Kriterien und den Status.\nDer Status wird als Übergang des Workflows geschrieben: Eine Board-Spalte mit dem Namen eines Jira-Status setzt den Vorgang dorthin; „Erledigt“ schliesst ihn. Erlaubt der Workflow es nicht (er verlangt vielleicht eine Lösung), sagt die Meldung es, und die Änderung bleibt lokal und markiert. Die Kriterien sind die Aufgabenliste unter der Überschrift „Acceptance criteria“ in der Beschreibung. Eine Beschreibung mit Tabellen, Bildern oder Formatierung wird nur gelesen; der Abgleich schreibt sie nie neu. Der Abgleich löscht nie etwas in Jira.\nNur die Desktop-App spricht mit dem echten Jira Cloud. Die Web-Vorschau zeigt ein simuliertes Jira (mit „Demo“ gekennzeichnet) mit Knöpfen, um seine Vorgänge zu ändern."
+        "body": "Die offenen Vorgänge eines Jira-Cloud-Projekts als Stories importieren und Änderungen in beide Richtungen abgleichen. Es funktioniert wie der Abgleich mit GitHub und nur, wenn die Funktion „Synchronisation“ eingeschaltet und Jira als Dienst gewählt ist (es ist immer nur ein Dienst aktiv). Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Synchronisation ein und wähle die Karte „Jira“.\n2. Trage die Jira-Site (dein-team.atlassian.net), die E-Mail-Adresse deines Atlassian-Kontos, den Projektschlüssel und ein API-Token ein (erzeugst du in deinem Atlassian-Konto unter Sicherheit › API-Tokens) und drücke „Verbindung testen“. Ein zusätzlicher Filter (JQL, zum Beispiel labels = \"team-a\") schränkt den Import ein. Soll die App auch nach Jira schreiben, schalte „Auch nach Jira schreiben“ ein und wähle, wer bei einem Konflikt gewinnt.\n3. Öffne das Backlog und drücke „Synchronisieren“. Offene Vorgänge werden zu Stories und zeigen ihren Jira-Schlüssel (zum Beispiel PROJ-12) als ID, als Link zum Vorgang. Epics und Unteraufgaben werden nicht importiert; die Meldung zählt sie. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch Titel, Beschreibung, Labels, Kriterien und den Status.\nDer Status wird als Übergang des Workflows geschrieben: Eine Board-Spalte mit dem Namen eines Jira-Status setzt den Vorgang dorthin; „Erledigt“ schliesst ihn. Erlaubt der Workflow es nicht (er verlangt vielleicht eine Lösung), sagt die Meldung es, und die Änderung bleibt lokal und markiert. Die Kriterien sind die Aufgabenliste unter der Überschrift „Acceptance criteria“ in der Beschreibung. Eine Beschreibung mit Tabellen, Bildern oder Formatierung wird nur gelesen; der Abgleich schreibt sie nie neu. Der Abgleich löscht nie etwas in Jira.\nNur die Desktop-App spricht mit dem echten Jira Cloud. Die Web-Vorschau zeigt ein simuliertes Jira (mit „Demo“ gekennzeichnet) mit Knöpfen, um seine Vorgänge zu ändern. Epics werden zu Epics (fehlt einer in Jira, wird er angelegt), Fix-Versionen zu Releases (mit ihren Daten), Story Points werden abgeglichen und bei einem Projekt mit Scrum-Board auch der Sprint: Ein Sprint aus Jira entsteht hier als geplanter Sprint (Starten und Abschliessen bleiben in der App). Zuständige werden über den Namen einem Teammitglied zugeordnet; es wird nichts geraten, die Meldung nennt die Namen ohne Treffer. Neue Stories kommen in der Reihenfolge des Rangs in Jira."
       }
     },
     "links": {
@@ -1453,7 +1453,9 @@
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
       "status": "Spalte: {{from}} → {{to}}",
-      "points": "Punkte: {{from}} → {{to}}"
+      "points": "Punkte: {{from}} → {{to}}",
+      "sprint": "Sprint: {{from}} → {{to}}",
+      "assignee": "Zuständig: {{from}} → {{to}}"
     },
     "errors": {
       "config": "Die Verbindung ist nicht eingerichtet: Trage Repository und Token in den Einstellungen ein. Deine lokalen Daten sind unverändert.",
@@ -1478,14 +1480,17 @@
       "release": "Release",
       "epic": "Epic",
       "status": "Spalte",
-      "points": "Punkte"
+      "points": "Punkte",
+      "sprint": "Sprint",
+      "assignee": "Zuständig"
     },
     "value": {
       "done": "Erledigt",
       "open": "Offen",
       "empty": "(leer)",
       "none": "keins",
-      "firstColumn": "erste Spalte"
+      "firstColumn": "erste Spalte",
+      "backlog": "Backlog"
     },
     "overwritten": {
       "local": "Lokale Änderung überschrieben: {{field}}",
@@ -1528,7 +1533,8 @@
       "conflicts": "Konflikte warten auf dich: {{count}}",
       "review": "Prüfen",
       "log": "Protokoll",
-      "skipped": "{{count}} Epics oder Unteraufgaben ausgelassen"
+      "skipped": "{{count}} Epics oder Unteraufgaben ausgelassen",
+      "unmatched": "kein Teammitglied für {{names}}"
     },
     "auto": {
       "label": "Automatisch synchronisieren",
