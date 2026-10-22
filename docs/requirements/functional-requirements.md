@@ -805,6 +805,11 @@ Source: #70 · Status: Implemented · Verified by: #70 AC7.1–AC7.3, AC8.1–AC
 
 The contrast of every colour pair, the accessibility and the look of every story in both themes, and the absence of raw values and raw tags are checked on every push.
 
+### FR-DS-06 The app components in the catalogue
+Source: #70 · Status: Implemented · Verified by: #70 AC9.1–AC9.6 (`src/DesignSystem.test.tsx`, `e2e/designSystemStories.spec.ts`)
+
+The catalogue shows the real components of the app with demo data, in light and dark: story, epic, release and sprint cards, board lanes, status dot, header, member filter, context menu, notices and the detail dialogs. They are checked for accessibility and compared with reference images like the base components.
+
 ### FR-DS-03 Adherence is mandatory
 Source: #70 · Status: Implemented · Verified by: #70 AC5.1, AC5.2 (`src/test/designSystemRules.test.ts`)
 

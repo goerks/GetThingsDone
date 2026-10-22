@@ -283,6 +283,75 @@ export const PACKAGE_70: { issue: number; pullRequest: number; title: string; cr
           tests: ['src/styles/designSystem.test.ts › AC8.2 buttons and form fields come from src/ui, no raw tags elsewhere']
         }
       ]
+    },
+    {
+      id: 'AC9',
+      story: 'S5',
+      title: 'Die Bausteine der App stehen im Katalog',
+      cases: [
+        {
+          id: 'AC9.1',
+          title: 'Karten im Katalog',
+          link: '#/board',
+          given: 'Katalog, Bereich «App».',
+          when: 'Ich öffne «Story cards», «Story cards compact», «Epic tag list», «Release card list» und «Sprint card list».',
+          then: 'Jede Karte erscheint mit ihren Varianten (zum Beispiel Story mit und ohne Epic, mit Punkten, mit Person; Sprint geplant und laufend), in Hell und Dunkel.',
+          tests: ['src/DesignSystem.test.tsx › AC9.1 shows the cards of stories, epics, releases and sprints with demo data'],
+          manual: 'Das Aussehen beurteilt nur eine Person.',
+          poCheck: 'Sehen die Karten aus wie in der App?'
+        },
+        {
+          id: 'AC9.2',
+          title: 'Spalte des Boards',
+          link: '#/board',
+          given: 'Katalog, «Board lanes» und «Board lane drop target».',
+          when: 'Ich schaue die Spalten mit Karten, die leere Spalte und die markierte Zielspalte an.',
+          then: 'Die Spalten sehen aus wie im Board der App (Kopf mit Status-Punkt und Anzahl, Karten, «+ Story»).',
+          tests: ['src/DesignSystem.test.tsx › AC9.2 shows the lanes of the board with cards, an empty lane and the drop target'],
+          manual: 'Das Aussehen beurteilt nur eine Person.',
+          poCheck: 'Sehen die Spalten aus wie im Board?'
+        },
+        {
+          id: 'AC9.3',
+          title: 'Kopfzeile, Filter, Menü, Hinweis',
+          link: '#/board',
+          given: 'Katalog, «Header bar», «Member filter», «Context menu open», «Toast notice», «Toast error».',
+          when: 'Ich öffne jede dieser Seiten.',
+          then: 'Jede zeigt das Element wie in der App, mit seinen Zuständen.',
+          tests: ['src/DesignSystem.test.tsx › AC9.3 shows the header, the filter, the context menu and the notices'],
+          manual: 'Das Aussehen beurteilt nur eine Person.',
+          poCheck: 'Sehen Kopfzeile, Filter, Menü und Hinweise aus wie in der App?'
+        },
+        {
+          id: 'AC9.4',
+          title: 'Detail-Dialoge',
+          link: '#/board',
+          given: 'Katalog, «Story dialog open», «Epic dialog open», «Sprint dialog open», «Release dialog open».',
+          when: 'Ich öffne die vier Seiten.',
+          then: 'Jeder Dialog zeigt Demo-Daten und sieht aus wie in der App.',
+          tests: ['src/DesignSystem.test.tsx › AC9.4 shows the %s dialog with demo data'],
+          manual: 'Das Aussehen beurteilt nur eine Person.',
+          poCheck: 'Sehen die Dialoge aus wie in der App?'
+        },
+        {
+          id: 'AC9.5',
+          title: 'Gleiche Prüfungen wie die Grundbausteine (automatisch)',
+          link: '#/board',
+          given: 'Alle neuen Seiten im Katalog.',
+          when: 'Nichts: die Prüfung läuft bei jedem Push.',
+          then: 'Kein Verstoss bei Kontrast und Barrierefreiheit; jede Seite hat ein Referenzbild in Hell und Dunkel.',
+          tests: ['e2e/designSystemStories.spec.ts › AC9.5 checks every app component page with the same accessibility and image tests']
+        },
+        {
+          id: 'AC9.6',
+          title: 'Die Seiten benutzen die echten Bausteine (automatisch)',
+          link: '#/board',
+          given: 'Der Code der Katalogseiten.',
+          when: 'Nichts: ein Test prüft die Quelle.',
+          then: 'Die Seiten binden die Komponenten der App ein und kopieren kein Markup.',
+          tests: ['src/DesignSystem.test.tsx › AC9.6 the catalogue pages use the components of the app and do not copy their markup']
+        }
+      ]
     }
   ]
 };

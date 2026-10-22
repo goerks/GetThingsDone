@@ -34,11 +34,39 @@ async function storyIds(page: Page): Promise<string[]> {
 const PLAYS = /hover|focus/;
 
 async function showStory(page: Page, id: string, theme: 'light' | 'dark'): Promise<void> {
+  // The demo data of the app stories depend on today's date
+  await page.clock.setFixedTime(new Date('2026-10-13T10:00:00+02:00'));
   await page.goto(`${CATALOGUE}/iframe.html?id=${id}&viewMode=story&globals=theme:${theme}`);
   await page.waitForSelector('body.sb-show-main', { state: 'attached' });
   await page.evaluate(() => document.fonts.ready);
   if (PLAYS.test(id)) await page.waitForTimeout(600);
 }
+
+test('AC9.5 checks every app component page with the same accessibility and image tests', async ({ page }) => {
+  // Given the catalogue
+  const ids = await storyIds(page);
+  // Then the pages of the app components are among its stories, so the checks below cover them
+  const app = ids.filter((id) => id.startsWith('app--'));
+  expect(app).toEqual(
+    expect.arrayContaining([
+      'app--story-cards',
+      'app--story-cards-compact',
+      'app--epic-tag-list',
+      'app--release-card-list',
+      'app--sprint-card-list',
+      'app--board-lanes',
+      'app--board-lane-drop-target',
+      'app--header-bar',
+      'app--member-filter',
+      'app--context-menu-open',
+      'app--toast-notice',
+      'app--story-dialog-open',
+      'app--epic-dialog-open',
+      'app--sprint-dialog-open',
+      'app--release-dialog-open'
+    ])
+  );
+});
 
 /** Runs axe on the story. The accessibility addon of Storybook runs it too when a story is shown: wait for that run to end. */
 async function checkAccessibility(page: Page): Promise<Violation[]> {

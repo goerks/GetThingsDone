@@ -175,7 +175,7 @@ interface SprintLabelProps {
   isTarget: boolean;
 }
 
-function SprintLabelContent({ sprint, stories, labelId }: Omit<SprintLabelProps, 'isTarget'>) {
+export function SprintLabelContent({ sprint, stories, labelId }: Omit<SprintLabelProps, 'isTarget'>) {
   const { t, i18n } = useTranslation();
   const builtin = useBuiltin();
   return (

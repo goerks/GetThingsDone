@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { composeStories } from '@storybook/react-vite';
 import * as foundationStories from './design-system/Foundations.stories';
 import { COLOR_GROUPS } from './design-system/tokens';
+import * as appStories from './design-system/App.stories';
 import * as bareStories from './ui/Bare.stories';
 import * as buttonStories from './ui/Button.stories';
 import * as fieldStories from './ui/Fields.stories';
@@ -14,6 +15,7 @@ import * as labelStories from './ui/Labels.stories';
 const foundations = composeStories(foundationStories);
 const buttons = composeStories(buttonStories);
 const bare = composeStories(bareStories);
+const appCatalogue = composeStories(appStories);
 const iconButtons = composeStories(iconButtonStories);
 const fields = composeStories(fieldStories);
 const labels = composeStories(labelStories);
@@ -143,5 +145,93 @@ describe('bare elements', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(3);
     expect(screen.getAllByRole('radio')).toHaveLength(2);
     expect(screen.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
+  });
+});
+
+describe('app components in the catalogue', () => {
+  test('AC9.1 shows the cards of stories, epics, releases and sprints with demo data', async () => {
+    // Given the catalogue pages with the demo data of the app
+    // When the story cards are shown
+    const cards = render(<appCatalogue.StoryCards />);
+    // Then four story cards with their key and title stand there
+    expect(await screen.findAllByRole('group', { name: /^S-\d+: / })).toHaveLength(4);
+    cards.unmount();
+    // When the compact cards are shown, then there are four of them as well
+    const compact = render(<appCatalogue.StoryCardsCompact />);
+    expect(await screen.findAllByRole('group', { name: /^S-\d+: / })).toHaveLength(4);
+    compact.unmount();
+    // When the epic tags, release cards and sprint cards are shown
+    const epics = render(<appCatalogue.EpicTagList />);
+    // Then the epic names are written, the releases and the sprints are there with their names
+    expect(await screen.findByText('Boards')).toBeInTheDocument();
+    epics.unmount();
+    const releases = render(<appCatalogue.ReleaseCardList />);
+    expect(await screen.findByText('Release 1.0 – Public Beta')).toBeInTheDocument();
+    releases.unmount();
+    render(<appCatalogue.SprintCardList />);
+    expect(await screen.findByText('Sprint 1')).toBeInTheDocument();
+    expect(screen.getByText('Sprint 2')).toBeInTheDocument();
+  });
+
+  test('AC9.2 shows the lanes of the board with cards, an empty lane and the drop target', async () => {
+    // Given the lanes of the board
+    // When they are shown
+    const lanes = render(<appCatalogue.BoardLanes />);
+    // Then there is a lane per status, and one of them is empty
+    expect(await screen.findAllByRole('region')).toHaveLength(4);
+    expect([...lanes.container.querySelectorAll('.column__count')].map((count) => count.textContent)).toContain('0');
+    lanes.unmount();
+    // When a story is dragged over a lane, then the lane is marked
+    const target = render(<appCatalogue.BoardLaneDropTarget />);
+    await screen.findAllByRole('region');
+    expect(target.container.querySelectorAll('[data-drop-target="true"]')).toHaveLength(1);
+  });
+
+  test('AC9.3 shows the header, the filter, the context menu and the notices', async () => {
+    // Given the pages of the catalogue
+    // When the header is shown, then it has the main navigation
+    const header = render(<appCatalogue.HeaderBar />);
+    expect(await screen.findByRole('navigation', { name: 'Main' })).toBeInTheDocument();
+    header.unmount();
+    // When the filter is shown, then "All" is pressed
+    const filter = render(<appCatalogue.MemberFilter />);
+    expect((await screen.findAllByRole('button', { pressed: true })).length).toBe(1);
+    filter.unmount();
+    // When the context menu is shown, then it has its items
+    const menu = render(<appCatalogue.ContextMenuOpen />);
+    expect(await screen.findByRole('menu')).toBeInTheDocument();
+    menu.unmount();
+    // When the notices are shown, then the message and the action are there
+    const notice = render(<appCatalogue.ToastNotice />);
+    expect(await screen.findByText('S-3 moved to Done.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument();
+    notice.unmount();
+    render(<appCatalogue.ToastError />);
+    expect(await screen.findByText('The story could not be saved.')).toBeInTheDocument();
+  });
+
+  test.each([
+    ['story', appCatalogue.StoryDialogOpen],
+    ['epic', appCatalogue.EpicDialogOpen],
+    ['sprint', appCatalogue.SprintDialogOpen],
+    ['release', appCatalogue.ReleaseDialogOpen]
+  ])('AC9.4 shows the %s dialog with demo data', async (_kind, Story) => {
+    // Given the dialog page
+    // When it is shown
+    render(<Story />);
+    // Then the dialog is open
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+
+  test('AC9.6 the catalogue pages use the components of the app and do not copy their markup', () => {
+    // Given the source of the catalogue pages
+    const source = readFileSync('src/design-system/App.stories.tsx', 'utf8');
+    // Then they import the real components
+    for (const name of ['SortableStoryCard', 'BoardColumn', 'ReleaseCard', 'EpicTag', 'StatusDot', 'Header', 'MemberFilterBar', 'ContextMenu', 'SprintLabelContent']) {
+      expect(source).toContain(`import`);
+      expect(source).toMatch(new RegExp(`import \\{[^}]*\\b${name}\\b[^}]*\\} from`));
+    }
+    // And they do not write the classes of a card themselves
+    expect(source).not.toMatch(/className="(card|release-card|column)\b/);
   });
 });
