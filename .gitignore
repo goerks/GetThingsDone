@@ -9,3 +9,6 @@ src-tauri/target
 src-tauri/gen
 playwright-report
 test-results
+
+# Storybook build used by the catalogue checks (#70)
+storybook-static
