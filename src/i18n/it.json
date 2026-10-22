@@ -1026,7 +1026,7 @@
       "sync.jira": {
         "title": "Sincronizzazione con Jira",
         "keywords": "jira atlassian cloud issue import sync sincronizzare sito e-mail progetto chiave token api collegare workflow stato transizione board colonna epic sotto-attività filtro jql criteri descrizione scrivere pubblicare simulato demo",
-        "body": "Importa le issue aperte di un progetto Jira Cloud come storie e sincronizza le modifiche in entrambe le direzioni. Funziona come la sincronizzazione con GitHub e solo se la funzione «Sincronizzazione» è attiva e Jira è il servizio scelto (è attivo un solo servizio alla volta). Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Sincronizzazione, poi scegli la scheda «Jira».\n2. Inserisci il sito Jira (il-tuo-team.atlassian.net), l’indirizzo e-mail del tuo account Atlassian, la chiave del progetto e un token API (da creare nel tuo account Atlassian in Sicurezza › Token API), poi premi «Prova la connessione». Un filtro aggiuntivo (JQL, per esempio labels = \"team-a\") limita l’import. Se l’app deve scrivere anche su Jira, attiva «Scrivi anche su Jira» e scegli chi vince in caso di conflitto.\n3. Apri il backlog e premi «Sincronizza». Le issue aperte diventano storie e mostrano la loro chiave Jira (per esempio PROJ-12) come ID, con un link alla issue. Epic e sotto-attività non vengono importati; l’avviso li conta. Con la scrittura attiva, «Sincronizza» pubblica anche titolo, descrizione, label, criteri e stato.\nLo stato viene scritto come transizione del workflow: una colonna della board con il nome di uno stato Jira sposta lì la issue; «Completato» la chiude. Se il workflow non lo consente (può richiedere una risoluzione), l’avviso lo dice e la modifica resta locale e contrassegnata. I criteri sono l’elenco di attività sotto il titolo «Acceptance criteria» della descrizione. Una descrizione con tabelle, immagini o formattazione viene solo letta; la sincronizzazione non la riscrive mai. Non elimina mai nulla in Jira.\nSolo l’app desktop parla con il vero Jira Cloud. L’anteprima web mostra un Jira simulato (contrassegnato «Demo») con pulsanti per modificarne le issue."
+        "body": "Importa le issue aperte di un progetto Jira Cloud come storie e sincronizza le modifiche in entrambe le direzioni. Funziona come la sincronizzazione con GitHub e solo se la funzione «Sincronizzazione» è attiva e Jira è il servizio scelto (è attivo un solo servizio alla volta). Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Sincronizzazione, poi scegli la scheda «Jira».\n2. Inserisci il sito Jira (il-tuo-team.atlassian.net), l’indirizzo e-mail del tuo account Atlassian, la chiave del progetto e un token API (da creare nel tuo account Atlassian in Sicurezza › Token API), poi premi «Prova la connessione». Un filtro aggiuntivo (JQL, per esempio labels = \"team-a\") limita l’import. Se l’app deve scrivere anche su Jira, attiva «Scrivi anche su Jira» e scegli chi vince in caso di conflitto.\n3. Apri il backlog e premi «Sincronizza». Le issue aperte diventano storie e mostrano la loro chiave Jira (per esempio PROJ-12) come ID, con un link alla issue. Epic e sotto-attività non vengono importati; l’avviso li conta. Con la scrittura attiva, «Sincronizza» pubblica anche titolo, descrizione, label, criteri e stato.\nLo stato viene scritto come transizione del workflow: una colonna della board con il nome di uno stato Jira sposta lì la issue; «Completato» la chiude. Se il workflow non lo consente (può richiedere una risoluzione), l’avviso lo dice e la modifica resta locale e contrassegnata. I criteri sono l’elenco di attività sotto il titolo «Acceptance criteria» della descrizione. Una descrizione con tabelle, immagini o formattazione viene solo letta; la sincronizzazione non la riscrive mai. Non elimina mai nulla in Jira.\nSolo l’app desktop parla con il vero Jira Cloud. L’anteprima web mostra un Jira simulato (contrassegnato «Demo») con pulsanti per modificarne le issue. Gli epic diventano epic (un epic che manca in Jira viene creato), le versioni diventano release (con le loro date), gli story point vengono sincronizzati e, in un progetto con board scrum, anche lo sprint: uno sprint di Jira diventa qui uno sprint pianificato (avviare e completare restano nell’app). Un assegnatario viene associato per nome a un membro del team; non si indovina nulla, l’avviso cita i nomi senza corrispondenza. Le nuove storie arrivano nell’ordine del rank in Jira."
       }
     },
     "links": {
@@ -1461,7 +1461,9 @@
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
       "status": "Colonna: {{from}} → {{to}}",
-      "points": "Punti: {{from}} → {{to}}"
+      "points": "Punti: {{from}} → {{to}}",
+      "sprint": "Sprint: {{from}} → {{to}}",
+      "assignee": "Assegnatario: {{from}} → {{to}}"
     },
     "errors": {
       "config": "La connessione non è configurata: inserisci repository e token nelle impostazioni. I tuoi dati locali sono invariati.",
@@ -1486,14 +1488,17 @@
       "release": "Release",
       "epic": "Epic",
       "status": "Colonna",
-      "points": "Punti"
+      "points": "Punti",
+      "sprint": "Sprint",
+      "assignee": "Assegnatario"
     },
     "value": {
       "done": "Fatto",
       "open": "Aperto",
       "empty": "(vuoto)",
       "none": "nessuna",
-      "firstColumn": "prima colonna"
+      "firstColumn": "prima colonna",
+      "backlog": "backlog"
     },
     "overwritten": {
       "local": "Modifica locale sovrascritta: {{field}}",
@@ -1536,7 +1541,8 @@
       "conflicts": "Conflitti in attesa: {{count}}",
       "review": "Controlla",
       "log": "Registro",
-      "skipped": "{{count}} epic o sotto-attività saltati"
+      "skipped": "{{count}} epic o sotto-attività saltati",
+      "unmatched": "nessun membro del team per {{names}}"
     },
     "auto": {
       "label": "Sincronizza automaticamente",

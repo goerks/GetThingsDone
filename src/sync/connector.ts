@@ -1,5 +1,5 @@
 import type { Catalog, ExternalItem, FieldName, ItemPatch, NewItem } from '../domain/sync';
-import type { Epic, ExternalLink, Release, ServiceKind, StatusValue } from '../domain/types';
+import type { Epic, ExternalLink, Member, Release, ServiceKind, Sprint, StatusValue } from '../domain/types';
 
 /** Why a call to a service failed. The texts for the user are `sync.errors.<kind>`. */
 export type SyncErrorKind = 'config' | 'network' | 'auth' | 'forbidden' | 'notFound' | 'rateLimit' | 'transition' | 'other';
@@ -40,6 +40,9 @@ export interface Made {
 export interface WriteContext {
   epics: readonly Epic[];
   releases: readonly Release[];
+  /** The sprints and the members of the team, when the sync knows them. */
+  sprints?: readonly Sprint[];
+  members?: readonly Member[];
   statuses: readonly StatusValue[];
   catalog: Catalog;
   made: Made;

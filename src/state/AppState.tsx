@@ -1104,7 +1104,7 @@ export function AppProvider({ repository, sync, children }: Props) {
           const target = connector ? connector.target(connection.connection) : null;
           const token = await syncRef.current.tokens(service).get();
           if (!connector || target === null || !token) throw new SyncError('config');
-          const before = { stories: storiesRef.current, fields: fieldsRef.current.fields, epics: epicsRef.current, releases: releasesRef.current };
+          const before = { stories: storiesRef.current, fields: fieldsRef.current.fields, epics: epicsRef.current, releases: releasesRef.current, sprints: sprintsRef.current };
           const result = await runSync({
             connector,
             target,
@@ -1115,6 +1115,8 @@ export function AppProvider({ repository, sync, children }: Props) {
             statuses: statusesRef.current,
             epics: epicsRef.current,
             releases: releasesRef.current,
+            sprints: sprintsRef.current,
+            members: membersRef.current,
             newId,
             write: connection.write,
             conflict: connection.conflict,
@@ -1125,6 +1127,7 @@ export function AppProvider({ repository, sync, children }: Props) {
           const { plan } = result;
           if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
           if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
+          if (plan.sprints.length !== before.sprints.length) updateSprints(plan.sprints);
           update(plan.stories);
           updateFields(plan.fields, plan.assignments);
           summary = result.summary;
@@ -1185,7 +1188,9 @@ export function AppProvider({ repository, sync, children }: Props) {
           fields: fieldsRef.current.fields,
           statuses: statusesRef.current,
           epics: epicsRef.current,
-          releases: releasesRef.current
+          releases: releasesRef.current,
+          sprints: sprintsRef.current,
+          members: membersRef.current
         });
         update(storiesRef.current.map((item) => (item.id === storyId ? linked : item)));
         persist((repoStore) => repoStore.updateStory(linked));

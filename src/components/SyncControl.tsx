@@ -32,6 +32,10 @@ export function valueText(t: TFunction, fields: ExternalFields, name: FieldName)
       return fields.status ?? t('sync.value.firstColumn');
     case 'points':
       return String(fields.points ?? 0);
+    case 'sprint':
+      return fields.sprint ?? t('sync.value.backlog');
+    case 'assignee':
+      return fields.assignee ?? t('sync.value.none');
   }
 }
 
@@ -66,6 +70,10 @@ export function changeText(t: TFunction, change: SyncChange, status: string): st
       return t('sync.change.status', { from: change.from ?? t('sync.value.firstColumn'), to: change.to ?? t('sync.value.firstColumn') });
     case 'points':
       return t('sync.change.points', { from: change.from, to: change.to });
+    case 'sprint':
+      return t('sync.change.sprint', { from: change.from ?? t('sync.value.backlog'), to: change.to ?? t('sync.value.backlog') });
+    case 'assignee':
+      return t('sync.change.assignee', { from: change.from ?? t('sync.value.none'), to: change.to ?? t('sync.value.none') });
     case 'closed':
       return t('sync.change.closed', { status });
     case 'reopened':
