@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BareButton } from '../ui';
 
 /** A button in a notice, such as "Open story". */
 export interface ToastAction {
@@ -56,7 +57,7 @@ function Toast({ item, onDone }: { item: ToastItem; onDone: (id: number) => void
     <div className={`toast${item.options?.tone === 'error' ? ' toast--error' : ''}`} onMouseEnter={stop} onMouseLeave={start} onFocus={stop} onBlur={start}>
       <span>{item.message}</span>
       {item.action && (
-        <button
+        <BareButton
           type="button"
           className="toast__action"
           onClick={() => {
@@ -65,11 +66,11 @@ function Toast({ item, onDone }: { item: ToastItem; onDone: (id: number) => void
           }}
         >
           {item.action.label}
-        </button>
+        </BareButton>
       )}
-      <button type="button" className="toast__close" aria-label={t('toast.close')} title={t('toast.close')} onClick={() => onDone(item.id)}>
+      <BareButton type="button" className="toast__close" aria-label={t('toast.close')} title={t('toast.close')} onClick={() => onDone(item.id)}>
         ×
-      </button>
+      </BareButton>
     </div>
   );
 }

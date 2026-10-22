@@ -95,4 +95,15 @@ describe('design system: no raw values in the app', () => {
     // Then there are none
     expect(found).toEqual([]);
   });
+
+  test('AC8.2 buttons and form fields come from src/ui, no raw tags elsewhere', () => {
+    // Given the components and pages of the app, without the shared components, the tests, the stories and the preview-only acceptance panel
+    const files = sourceFiles(join(root, 'src')).filter(
+      (file) => !/\/src\/(ui|acceptance|design-system)\//.test(file) && !/\.(test|stories)\.tsx?$/.test(file)
+    );
+    // When we look for raw button, input, select and textarea tags
+    const found = files.filter((file) => /<(button|input|select|textarea)[\s>/]/.test(readFileSync(file, 'utf8'))).map((file) => file.replace(root, ''));
+    // Then there are none
+    expect(found).toEqual([]);
+  });
 });

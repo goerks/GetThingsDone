@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { composeStories } from '@storybook/react-vite';
 import * as foundationStories from './design-system/Foundations.stories';
 import { COLOR_GROUPS } from './design-system/tokens';
+import * as bareStories from './ui/Bare.stories';
 import * as buttonStories from './ui/Button.stories';
 import * as fieldStories from './ui/Fields.stories';
 import * as iconButtonStories from './ui/IconButton.stories';
@@ -12,6 +13,7 @@ import * as labelStories from './ui/Labels.stories';
 
 const foundations = composeStories(foundationStories);
 const buttons = composeStories(buttonStories);
+const bare = composeStories(bareStories);
 const iconButtons = composeStories(iconButtonStories);
 const fields = composeStories(fieldStories);
 const labels = composeStories(labelStories);
@@ -125,5 +127,21 @@ describe('components', () => {
     for (const element of document.querySelectorAll('[class]')) element.classList.forEach((name) => classes.add(name));
     const catalogueOnly = (name: string) => name.startsWith('catalogue-');
     for (const name of classes) if (!catalogueOnly(name)) expect(css, name).toContain(`.${name}`);
+  });
+});
+
+describe('bare elements', () => {
+  test('AC1.3 shows the drag handle, check inputs and bare elements', async () => {
+    // Given the catalogue page of the bare elements
+    // When the handles and the check inputs are shown
+    render(<bare.DragHandles />);
+    render(<bare.CheckInputs />);
+    render(<bare.BareElements />);
+    // Then the handles are buttons with a name, the check inputs are checkboxes and radio buttons
+    expect(screen.getByRole('button', { name: 'Move Login page' })).toHaveClass('drag-handle');
+    expect(screen.getByRole('button', { name: 'Move Sort cards' })).toBeDisabled();
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+    expect(screen.getAllByRole('radio')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
   });
 });

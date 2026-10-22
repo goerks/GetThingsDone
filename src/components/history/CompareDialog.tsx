@@ -4,7 +4,7 @@ import { compareStates, isList, type ChangeVersion, type CompareRow, type ListEn
 import { diffText } from '../../domain/textDiff';
 import { Dialog } from '../Dialog';
 import { useHistoryText, type HistoryText } from './historyText';
-import { Button, Select } from '../../ui';
+import { BareButton, Button, CheckInput, Select } from '../../ui';
 
 interface Props {
   itemType: string;
@@ -90,7 +90,7 @@ export function CompareDialog({ itemType, versions, label, fromId, toId, onClose
             </Select>
           </div>
           <label className="compare__only">
-            <input type="checkbox" checked={onlyChanges} onChange={(event) => setOnlyChanges(event.target.checked)} />
+            <CheckInput checked={onlyChanges} onChange={(event) => setOnlyChanges(event.target.checked)} />
             {t('history.onlyChanges')}
           </label>
         </div>
@@ -103,9 +103,9 @@ export function CompareDialog({ itemType, versions, label, fromId, toId, onClose
               <span>{t('history.changedFields', { changed: changed.length, total: rows.length })}</span>
               <span className="compare__chips">
                 {changed.map((row) => (
-                  <button key={row.key} type="button" className="compare__chip" onClick={() => jump(row.key)}>
+                  <BareButton key={row.key} type="button" className="compare__chip" onClick={() => jump(row.key)}>
                     {text.label(itemType, row.key)}
-                  </button>
+                  </BareButton>
                 ))}
               </span>
             </>

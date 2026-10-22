@@ -7,7 +7,7 @@ import { BACKUP_VERSION, backupFileName, countsOf, parseBackup, serializeBackup,
 import { todayIso } from '../domain/sprints';
 import type { Snapshot } from '../domain/types';
 import { useApp } from '../state/AppState';
-import { Button } from '../ui';
+import { BareInput, Button } from '../ui';
 
 type Message = { kind: 'ok' | 'problem'; text: string };
 type Accepted = Extract<ParsedBackup, { ok: true }> & { fileName: string };
@@ -130,7 +130,7 @@ export function DataSection() {
             {t('settings.data.import.button')}
           </Button>
           <span className="muted">{t('settings.data.import.safe')}</span>
-          <input
+          <BareInput
             ref={input}
             type="file"
             accept=".json,application/json"

@@ -1,0 +1,2 @@
+deps: axe-core@latest
+snapshots: e2e/designSystemStories.spec.ts

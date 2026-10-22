@@ -791,9 +791,19 @@ Source: #70 · Status: Implemented · Verified by: #70 AC1.1–AC1.4, AC2.1–AC
 The design system is documented in Storybook: foundations (colour, type, spacing, radius, elevation, layers, motion, icons, accessibility rules) and the shared components with variants and states, in light and dark. It is built from the real code and published with the pull request preview at `/design-system/`.
 
 ### FR-DS-02 The app uses the design system
-Source: #70 · Status: Implemented · Verified by: #70 AC3.1–AC3.3 (`src/styles/designSystem.test.ts`, `e2e/designSystem.spec.ts`, the screenshots of `e2e/usability1.spec.ts`); AC4.1: manual (comparison with the before/after in the issue)
+Source: #70 · Status: Implemented · Verified by: #70 AC3.1–AC3.3, AC8 (`src/styles/designSystem.test.ts`, `e2e/designSystem.spec.ts`, the screenshots of `e2e/usability1.spec.ts`); AC4.1: manual (comparison with the before/after in the issue)
 
 Colours, font sizes, line heights, weights, radii, spacings, shadows, layers and transitions of `src/styles/app.css` come from tokens; buttons, text fields, selects, checkboxes and link-like buttons are the shared components. Merged near-duplicates: two link-style buttons became `TextButton`.
+
+### FR-DS-04 Catalogue on GitHub Pages
+Source: #70 · Status: Implemented · Verified by: #70 AC6.1–AC6.3 (`src/test/designSystemRules.test.ts`); AC6.1 and AC6.3: manual after the merge
+
+The catalogue is published on GitHub Pages after every change of `main`, at https://goerks.github.io/GetThingsDone/, and linked from the README and the design system page.
+
+### FR-DS-05 The design system is guarded automatically
+Source: #70 · Status: Implemented · Verified by: #70 AC7.1–AC7.3, AC8.1–AC8.2 (`src/styles/contrast.test.ts`, `src/styles/designSystem.test.ts`, `e2e/designSystemStories.spec.ts`, `e2e/designSystem.spec.ts`)
+
+The contrast of every colour pair, the accessibility and the look of every story in both themes, and the absence of raw values and raw tags are checked on every push.
 
 ### FR-DS-03 Adherence is mandatory
 Source: #70 · Status: Implemented · Verified by: #70 AC5.1, AC5.2 (`src/test/designSystemRules.test.ts`)

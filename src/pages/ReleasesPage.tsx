@@ -10,6 +10,7 @@ import { releaseState, releaseStats, sortReleases } from '../domain/releases';
 import { todayIso } from '../domain/sprints';
 import { useApp } from '../state/AppState';
 import { useDetails } from '../state/Details';
+import { BareButton } from '../ui';
 
 /** All releases as cards; a click opens the release in a dialog. Ctrl+N or the button in the page head creates a release. */
 export function ReleasesPage() {
@@ -47,7 +48,7 @@ export function ReleasesPage() {
           const delta = (value: number): string => (value > 0 ? `+${value}` : value < 0 ? `−${Math.abs(value)}` : '±0');
           return (
             <li key={release.id}>
-              <button type="button" className="release-card" onClick={() => details.openRelease(release.id)}>
+              <BareButton type="button" className="release-card" onClick={() => details.openRelease(release.id)}>
                 <span className="release-card__top">
                   <span className="release-card__title">{release.title}</span>
                   <span className={`release-state release-state--${state}`}>{t(`releases.state.${state}`)}</span>
@@ -83,7 +84,7 @@ export function ReleasesPage() {
                     )}
                   </span>
                 )}
-              </button>
+              </BareButton>
             </li>
           );
         })}

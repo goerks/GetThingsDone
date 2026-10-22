@@ -7,7 +7,7 @@ import { syncMessage } from '../github/syncMessage';
 import { useApp } from '../state/AppState';
 import { Entries, fieldList } from './GithubSync';
 import { InfoHint } from './InfoHint';
-import { Button, Select } from '../ui';
+import { BareButton, Button, Select } from '../ui';
 
 const FILTERS: readonly LogFilter[] = ['all', 'changes', 'errors'];
 
@@ -88,12 +88,12 @@ function Row({ entry }: { entry: SyncLogEntry }) {
   const detail = entry.summary !== null && !quiet;
   return (
     <li className="github-log__row">
-      <button type="button" className="github-log__toggle" aria-expanded={detail ? open : undefined} aria-controls={detail ? id : undefined} disabled={!detail} onClick={() => setOpen(!open)}>
+      <BareButton type="button" className="github-log__toggle" aria-expanded={detail ? open : undefined} aria-controls={detail ? id : undefined} disabled={!detail} onClick={() => setOpen(!open)}>
         <span>{when}</span>
         <span className="muted">{t(`github.log.trigger.${entry.trigger}`)}</span>
         <span>{text}</span>
         <span className={entry.error ? 'github-log__result--bad' : 'muted'}>{entry.error ? `⚠ ${t('github.log.error')}` : `✓ ${t('github.log.ok')}`}</span>
-      </button>
+      </BareButton>
       {detail && open && entry.summary && (
         <div id={id} className="github-log__detail">
           <Details summary={entry.summary} />

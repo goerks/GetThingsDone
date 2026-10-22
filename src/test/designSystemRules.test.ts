@@ -42,4 +42,20 @@ describe('design system adherence is mandatory', () => {
     expect(tauri.build.beforeBuildCommand).toBe('npm run build:app');
     expect(scripts['build:app']).not.toContain('storybook');
   });
+
+  test('AC6.2 the README and the design system page link the public catalogue', () => {
+    // Given the README and the design system page
+    // Then both name the address of the catalogue on GitHub Pages
+    for (const file of ['README.md', 'docs/design-system.md']) expect(read(file)).toContain('https://goerks.github.io/GetThingsDone/');
+  });
+
+  test('AC6.1 the catalogue is published on GitHub Pages after every change of main', () => {
+    // Given the workflow of the catalogue
+    const workflow = read('.github/workflows/pages.yml');
+    // Then it runs on every push to main, builds the catalogue and deploys it with GitHub Pages
+    expect(workflow).toMatch(/push:\s*\n\s*branches: \[main\]/);
+    expect(workflow).toContain('npm run build-storybook');
+    expect(workflow).toContain('path: dist/design-system');
+    expect(workflow).toContain('actions/deploy-pages');
+  });
 });

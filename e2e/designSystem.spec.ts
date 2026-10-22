@@ -89,3 +89,23 @@ test('AC3.3 opens and closes a dialog with the keyboard only and follows a langu
     await expect(page.getByRole('button', { name: 'New story' })).toHaveCount(0);
   }
 });
+
+test('AC8.1 switches a feature on and off, opens the help and keeps working as before', async ({ page }) => {
+  // Given the team tab of the settings
+  await page.goto('/#/settings/team');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+
+  // When I switch the team off and on again
+  await page.getByRole('switch', { name: 'Team' }).uncheck();
+  await expect(page.getByRole('button', { name: 'Switch on Team' })).toBeVisible();
+  await page.getByRole('button', { name: 'Switch on Team' }).click();
+  // Then the team is on again
+  await expect(page.getByRole('switch', { name: 'Team' })).toBeChecked();
+
+  // When I open and close the help with its button
+  const help = page.getByRole('button', { name: 'Help', exact: true });
+  await help.click();
+  await expect(help).toHaveAttribute('aria-expanded', 'true');
+  await help.click();
+  await expect(help).toHaveAttribute('aria-expanded', 'false');
+});

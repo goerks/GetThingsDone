@@ -9,7 +9,7 @@ import { FeatureTab } from './FeatureTab';
 import type { ConflictRule } from '../domain/types';
 import { parseRepo, repoText, type RepoRef } from '../domain/github';
 import { useApp } from '../state/AppState';
-import { Button, TextInput } from '../ui';
+import { Button, CheckInput, TextInput } from '../ui';
 
 type Status = { kind: 'idle' } | { kind: 'testing' } | { kind: 'ok'; count: number } | { kind: 'error'; error: GithubError['kind'] };
 
@@ -186,14 +186,14 @@ function GithubSettings() {
       )}
       <div className="github-options github-options--row">
         <label>
-          <input type="checkbox" checked={app.settings.github.write} onChange={(event) => app.setGithubOptions({ write: event.target.checked })} /> {t('github.settings.write.label')}
+          <CheckInput checked={app.settings.github.write} onChange={(event) => app.setGithubOptions({ write: event.target.checked })} /> {t('github.settings.write.label')}
         </label>
         <InfoHint text={t('github.settings.write.help')} />
       </div>
       <div className="github-auto">
         <div className="github-options github-options--row">
           <label>
-            <input type="checkbox" checked={app.settings.github.auto} disabled={!connected} onChange={(event) => app.setGithubAuto(event.target.checked)} /> {t('github.auto.label')}
+            <CheckInput checked={app.settings.github.auto} disabled={!connected} onChange={(event) => app.setGithubAuto(event.target.checked)} /> {t('github.auto.label')}
           </label>
           <InfoHint text={t('github.auto.hint')} />
         </div>
@@ -212,7 +212,7 @@ function GithubSettings() {
         <legend>{t('github.settings.conflict.legend')}</legend>
         {(['remote', 'local', 'ask'] as const).map((rule: ConflictRule) => (
           <label key={rule}>
-            <input type="radio" name={`${id}-conflict`} checked={app.settings.github.conflict === rule} onChange={() => app.setGithubOptions({ conflict: rule })} /> {t(`github.settings.conflict.${rule}`)}
+            <CheckInput kind="radio" name={`${id}-conflict`} checked={app.settings.github.conflict === rule} onChange={() => app.setGithubOptions({ conflict: rule })} /> {t(`github.settings.conflict.${rule}`)}
           </label>
         ))}
       </fieldset>

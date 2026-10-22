@@ -28,7 +28,7 @@ import {
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
 import { FieldLayout } from './FieldLayout';
-import { Button, IconButton, Select, TextInput } from '../ui';
+import { BareButton, Button, CheckInput, IconButton, Select, TextInput } from '../ui';
 import { Check } from '../ui';
 
 /** Item types that show custom fields, one column each in the field table. */
@@ -363,8 +363,8 @@ function UseCell({ field, itemType, name }: UseCellProps) {
   if (field.kind === 'builtin' && canHide(field, itemType)) {
     return (
       <td className="field-table__use">
-        <input
-          type="checkbox"
+        <CheckInput
+         
           checked={used}
           aria-label={label}
           onChange={(event) => app.setBuiltinFieldHidden(field.id, itemType, !event.target.checked)}
@@ -377,7 +377,7 @@ function UseCell({ field, itemType, name }: UseCellProps) {
     return (
       <td className="field-table__use">
         <span className="field-table__fixed" title={note}>
-          <input type="checkbox" checked={used} disabled aria-label={`${label}. ${note}`} readOnly />
+          <CheckInput checked={used} disabled aria-label={`${label}. ${note}`} readOnly />
           <LockIcon />
         </span>
       </td>
@@ -385,7 +385,7 @@ function UseCell({ field, itemType, name }: UseCellProps) {
   }
   return (
     <td className="field-table__use">
-      <input type="checkbox" checked={used} aria-label={label} onChange={(event) => app.setFieldUsed(field.id, itemType, event.target.checked)} />
+      <CheckInput checked={used} aria-label={label} onChange={(event) => app.setFieldUsed(field.id, itemType, event.target.checked)} />
     </td>
   );
 }
@@ -511,7 +511,7 @@ export function FieldsSection() {
       {open?.kind === 'rename' && <RenameFieldDialog field={open.field} onClose={close} />}
       <div className="view-tabs" role="tablist" aria-label={t('fields.views')}>
         {(['assign', 'layout'] as const).map((item) => (
-          <button
+          <BareButton
             key={item}
             type="button"
             role="tab"
@@ -520,7 +520,7 @@ export function FieldsSection() {
             onClick={() => setView(item)}
           >
             {t(`fields.view.${item}`)}
-          </button>
+          </BareButton>
         ))}
       </div>
       {!featureOn(app.settings, 'releases') && (

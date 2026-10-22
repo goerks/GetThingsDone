@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ChangeVersion } from '../../domain/changeLog';
 import { useHistoryText } from './historyText';
-import { TextButton } from '../../ui';
+import { CheckInput, TextButton } from '../../ui';
 
 interface Props {
   itemType: string;
@@ -43,9 +43,9 @@ export function HistoryList({ itemType, versions, limit, selected, onToggle, onC
           <li key={version.id} className={`history-entry${selected?.includes(version.id) ? ' history-entry--selected' : ''}`}>
             <div className="history-entry__head">
               {onToggle && (
-                <input
+                <CheckInput
                   id={`${uid}-${version.id}`}
-                  type="checkbox"
+                 
                   className="history-entry__check"
                   checked={selected?.includes(version.id) ?? false}
                   onChange={() => onToggle(version)}

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { defaultValuesFor, missingRequired } from '../domain/fields';
 import { useApp } from '../state/AppState';
 import { NewStoryDialog } from './NewStoryDialog';
-import { TextInput } from '../ui';
+import { BareButton, TextInput } from '../ui';
 
 interface QuickAddProps {
   /** Where the story lands, in words ("In progress", "Sprint 2"); part of the accessible names. */
@@ -52,7 +52,7 @@ export function QuickAdd({ place, variant = 'row', buttonLabel, extraClass, onAd
 
   if (!open) {
     return (
-      <button
+      <BareButton
         type="button"
         ref={(node) => {
           button.current = node;
@@ -74,7 +74,7 @@ export function QuickAdd({ place, variant = 'row', buttonLabel, extraClass, onAd
             <span className="sr-only">{t('quickAdd.in', { place })}</span>
           </>
         )}
-      </button>
+      </BareButton>
     );
   }
 

@@ -1,0 +1,45 @@
+name: Maintain packages and reference images
+
+# Cloud sessions of the AI cannot reach the npm registry (#67) and have no matching browser for reference images.
+# A push that changes `.github/maintain-request.txt` does the listed work here and commits the result to the branch:
+#   deps: <packages>        installs them as development dependencies (package.json, package-lock.json)
+#   snapshots: <spec file>  renews the reference images of that Playwright spec
+on:
+  push:
+    paths: ['.github/maintain-request.txt']
+
+permissions:
+  contents: write
+
+jobs:
+  maintain:
+    name: Do the requested work
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read the request
+        id: request
+        run: |
+          echo "deps=$(grep '^deps:' .github/maintain-request.txt | cut -d: -f2- || true)" >> "$GITHUB_OUTPUT"
+          echo "snapshots=$(grep '^snapshots:' .github/maintain-request.txt | cut -d: -f2- || true)" >> "$GITHUB_OUTPUT"
+      - name: Install
+        run: npm install
+      - name: Install requested packages
+        if: steps.request.outputs.deps != ''
+        run: npm install --save-dev ${{ steps.request.outputs.deps }}
+      - name: Renew reference images
+        if: steps.request.outputs.snapshots != ''
+        run: |
+          npx playwright install --with-deps chromium
+          CI=1 npx playwright test ${{ steps.request.outputs.snapshots }} --update-snapshots || true
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A package.json package-lock.json e2e
+          git commit -m "chore: packages and reference images from the pipeline (#70)" || echo "nothing to commit"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push

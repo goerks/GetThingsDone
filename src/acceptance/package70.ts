@@ -181,6 +181,108 @@ export const PACKAGE_70: { issue: number; pullRequest: number; title: string; cr
           tests: ['src/test/designSystemRules.test.ts › AC5.2 the pull request template has the entry "Design system adherence" with the link to the catalogue']
         }
       ]
+    },
+    {
+      id: 'AC6',
+      story: 'S1',
+      title: 'Der Katalog ist auf GitHub Pages veröffentlicht',
+      cases: [
+        {
+          id: 'AC6.1',
+          title: 'Katalog ist öffentlich erreichbar',
+          link: '#/board',
+          given: 'Der Pull Request ist in «main» gemerged und «Pages» ist auf GitHub eingeschaltet.',
+          when: 'Ich öffne https://goerks.github.io/GetThingsDone/ im Browser, ohne Anmeldung.',
+          then: 'Der Katalog lädt und zeigt dieselben Seiten wie in der Vorschau (Grundlagen und Bausteine, Hell/Dunkel-Umschalter).',
+          tests: ['src/test/designSystemRules.test.ts › AC6.1 the catalogue is published on GitHub Pages after every change of main'],
+          manual: 'Erst nach dem Merge und der einmaligen Einstellung «Pages» auf GitHub prüfbar.',
+          poCheck: 'Nach dem Merge: Lädt die öffentliche Adresse?'
+        },
+        {
+          id: 'AC6.2',
+          title: 'Katalog ist verlinkt',
+          link: '#/board',
+          given: 'Datei «README» und Seite «Design system» im Repository.',
+          when: 'Ich suche den Link zum Katalog.',
+          then: 'In beiden steht die öffentliche Adresse des Katalogs.',
+          tests: ['src/test/designSystemRules.test.ts › AC6.2 the README and the design system page link the public catalogue']
+        },
+        {
+          id: 'AC6.3',
+          title: 'Neuer Stand nach jedem Merge',
+          link: '#/board',
+          given: 'Ein weiterer Pull Request ändert einen Baustein und wird gemerged.',
+          when: 'Ich öffne den Katalog nach dem Merge neu.',
+          then: 'Er zeigt die Änderung.',
+          tests: ['src/test/designSystemRules.test.ts › AC6.1 the catalogue is published on GitHub Pages after every change of main'],
+          manual: 'Braucht einen weiteren Merge.',
+          poCheck: 'Zeigt der Katalog nach dem nächsten Merge den neuen Stand?'
+        }
+      ]
+    },
+    {
+      id: 'AC7',
+      story: 'S9',
+      title: 'Das Design System wird automatisch abgesichert',
+      cases: [
+        {
+          id: 'AC7.1',
+          title: 'Kontrast aller Farbpaare',
+          link: '#/board',
+          given: 'Die Farben der Token-Datei in Hell und Dunkel.',
+          when: 'Nichts: ein Test prüft Text auf Flächen und Epic-Farben auf Karten und Spalten.',
+          then: 'Alle Paare erreichen mindestens 4,5:1 (Text) beziehungsweise 3:1 (Epic-Farben). Wird ein Paar schlechter, schlägt die Prüfung fehl.',
+          tests: [
+            'src/styles/contrast.test.ts › AC7.1 text and surfaces reach 4.5:1 in the ${theme} theme',
+            'src/styles/contrast.test.ts › AC7.1 epic colours reach 3:1 on cards and columns in the ${theme} theme'
+          ]
+        },
+        {
+          id: 'AC7.2',
+          title: 'Barrierefreiheit pro Baustein',
+          link: '#/board',
+          given: 'Jeder Baustein im Katalog, in Hell und Dunkel.',
+          when: 'Nichts: die Prüfung läuft bei jedem Push.',
+          then: 'Es gibt keine Verstösse. Baue ich absichtlich einen Button ohne Namen ein, schlägt die Prüfung fehl.',
+          tests: ['e2e/designSystemStories.spec.ts › AC7.2 every story of the catalogue passes the accessibility check in the ${theme} theme']
+        },
+        {
+          id: 'AC7.3',
+          title: 'Bildvergleich pro Baustein',
+          link: '#/board',
+          given: 'Jeder Baustein im Katalog, in Hell und Dunkel, mit Referenzbild.',
+          when: 'Nichts: die Prüfung läuft bei jedem Push.',
+          then: 'Ändert sich das Aussehen eines Bausteins, schlägt die Prüfung fehl, bis die Änderung bewusst als neue Referenz übernommen wird.',
+          tests: ['e2e/designSystemStories.spec.ts › AC7.3 every story of the catalogue looks like its reference image in the ${theme} theme']
+        }
+      ]
+    },
+    {
+      id: 'AC8',
+      story: 'S8',
+      title: 'Alle Bedienelemente kommen aus den gemeinsamen Bausteinen',
+      cases: [
+        {
+          id: 'AC8.1',
+          title: 'App sieht gleich aus und funktioniert gleich',
+          link: '#/board',
+          given: 'Web-Vorschau und «main» nebeneinander, Demo-Daten.',
+          when: 'Ich bediene Karten, Filter-Chips, Griffe zum Verschieben, Umschalter und Kontrollkästchen auf Backlog, Board, Story Map, Einstellungen und Hilfe.',
+          then: 'Alles sieht aus und funktioniert wie vorher: Story per Drag & Drop in «Done» ziehen, Filter umschalten, Einstellung ein- und ausschalten.',
+          tests: ['e2e/designSystem.spec.ts › AC8.1 switches a feature on and off, opens the help and keeps working as before'],
+          manual: 'Den optischen Vergleich mit «main» macht nur eine Person.',
+          poCheck: 'Sieht die App aus und verhält sie sich wie vorher?'
+        },
+        {
+          id: 'AC8.2',
+          title: 'Keine rohen Bedienelemente mehr (automatisch geprüft)',
+          link: '#/board',
+          given: 'Der Code der App.',
+          when: 'Nichts: ein Test sucht nach rohen Tags.',
+          then: 'Ausserhalb des Ordners der gemeinsamen Bausteine gibt es keine rohen Buttons und Eingabefelder. Ein neues rohes Element lässt den Test fehlschlagen.',
+          tests: ['src/styles/designSystem.test.ts › AC8.2 buttons and form fields come from src/ui, no raw tags elsewhere']
+        }
+      ]
     }
   ]
 };

@@ -17,13 +17,16 @@ Options for the documentation: Storybook (React and Vite), Ladle, an in-app page
 3. **Shared components live in `src/ui/`** (`Button`, `IconButton`, `TextButton`, `TextInput`, `Textarea`, `Select`, `Check`, `Badge`, `Pill`; `Dialog` stays in `src/components/`). They render the existing class names, so styles stay in `app.css`.
 4. `npm run build` builds the web app and then the catalogue into `dist/design-system`, so the public pull request preview serves the catalogue at `<preview address>/design-system/` without a second hosting service. The desktop app is built with `npm run build:app` and does not contain it.
 5. **Adhering to the design system is mandatory** for every feature (`CLAUDE.md`, Definition of Done, working mode). A missing token or component is added to the design system, with a story, in the same pull request.
-6. Packages are installed where the npm registry is reachable (GitHub Actions); cloud sessions of the AI cannot reach it (#67).
+6. The catalogue is also published on **GitHub Pages** (`.github/workflows/pages.yml`, after every push to `main`): https://goerks.github.io/GetThingsDone/. One-time setting on GitHub: Settings › Pages › Source "GitHub Actions".
+7. **The design system is guarded automatically**: a token guard for raw values and raw `button`/`input`/`select`/`textarea` tags (`src/styles/designSystem.test.ts`), the contrast of every colour pair in both themes (`src/styles/contrast.test.ts`), and Playwright on the built catalogue: axe (with colour contrast) and a reference image for every story in light and dark (`e2e/designSystemStories.spec.ts`). Reference images are renewed on purpose, on GitHub (Linux), by `.github/workflows/maintain.yml`.
+8. Feature specific buttons and fields use bare components of `src/ui/` (`BareButton`, `BareInput`, `BareTextarea`, `CheckInput`, `DragHandle`) and keep their feature class; no raw tag outside `src/ui/` (the preview-only acceptance panel is exempt).
+9. Packages are installed where the npm registry is reachable (GitHub Actions); cloud sessions of the AI cannot reach it (#67).
 
 ## Consequences
 
 - One more development dependency tree (Storybook); it is not part of the shipped app.
 - A change of a token or a component is visible in the catalogue in both themes.
-- Phase 4 of #70 (an automated guard against raw values, visual regression and axe per story) is not part of this decision and follows separately.
+- The reference images depend on the browser and fonts of the GitHub runner; they are renewed there, not on a developer machine.
 
 ## Alternatives considered
 

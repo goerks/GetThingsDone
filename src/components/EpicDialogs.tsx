@@ -7,7 +7,7 @@ import { useCreateFields } from './CreateFields';
 import { Dialog } from './Dialog';
 import { DialogFooter } from './DialogFooter';
 import { useBuiltin } from './useBuiltin';
-import { TextInput } from '../ui';
+import { CheckInput, TextInput } from '../ui';
 
 interface ColorPickerProps {
   name: string;
@@ -25,8 +25,8 @@ export function ColorPicker({ name, legend, value, onChange, autoFocus = false }
       <legend className="sr-only">{legend}</legend>
       {EPIC_COLOR_KEYS.map((key) => (
         <label key={key} className="swatch" title={t(`epics.color.${key}`)}>
-          <input
-            type="radio"
+          <CheckInput
+            kind="radio"
             name={name}
             value={key}
             checked={value === key}

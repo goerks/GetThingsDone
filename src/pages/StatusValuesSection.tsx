@@ -38,7 +38,7 @@ import {
 } from '../domain/statuses';
 import type { StatusCategory, StatusValue } from '../domain/types';
 import { useApp } from '../state/AppState';
-import { Button, IconButton, Select, TextInput } from '../ui';
+import { Button, DragHandle, IconButton, Select, TextInput } from '../ui';
 
 const GROUP_PREFIX = 'status-group:';
 
@@ -111,9 +111,9 @@ function StatusRow({ status, dropBefore, onRemove, onStep }: RowProps) {
       data-status={status.id}
       style={{ '--status-color': statusColor(app.statuses, status.id) } as CSSProperties}
     >
-      <button type="button" ref={setActivatorNodeRef} className="drag-handle" aria-label={t('statusValues.move', { name })} {...attributes} {...listeners}>
+      <DragHandle ref={setActivatorNodeRef} aria-label={t('statusValues.move', { name })} {...attributes} {...listeners}>
         <GripIcon />
-      </button>
+      </DragHandle>
       <span className="status-row__dot" aria-hidden="true" />
       <TextInput
         className="status-row__name"

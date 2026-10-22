@@ -10,7 +10,7 @@ import { useApp } from '../../state/AppState';
 import { featureOn } from '../../domain/settings';
 import { Highlighted } from '../search/Highlighted';
 import { ArrowIcon, CloseIcon, LockIcon, PageLinkIcon, SettingsLinkIcon } from './icons';
-import { Button, IconButton, TextInput } from '../../ui';
+import { BareButton, Button, IconButton, TextInput } from '../../ui';
 
 /** Moves between the buttons of a list with the arrow keys; the first ArrowUp goes back to the field. */
 function moveInList(event: KeyboardEvent<HTMLElement>, root: HTMLElement | null): void {
@@ -39,7 +39,7 @@ interface TopicRowProps {
 function TopicRow({ title, hint, snippet, titleRanges = [], onOpen }: TopicRowProps) {
   return (
     <li>
-      <button type="button" className="help__item" data-help-item onClick={onOpen}>
+      <BareButton type="button" className="help__item" data-help-item onClick={onOpen}>
         <span className="help__item-title">
           <Highlighted text={title} ranges={titleRanges} />
         </span>
@@ -51,7 +51,7 @@ function TopicRow({ title, hint, snippet, titleRanges = [], onOpen }: TopicRowPr
             {snippet.cutEnd && ' …'}
           </span>
         )}
-      </button>
+      </BareButton>
     </li>
   );
 }
@@ -217,12 +217,12 @@ function HomeView({
         </>
       ) : (
         <>
-          <button type="button" className="help__tour" data-help-item onClick={help.startTour}>
+          <BareButton type="button" className="help__tour" data-help-item onClick={help.startTour}>
             <span className="help__tour-title">{t('help.tour.title')}</span>
             <span className="help__tour-state">
               {help.state.tourStarted ? t('help.tour.progressShort', { done: progress, total: TOUR_STEPS.length }) : t('help.tour.open')}
             </span>
-          </button>
+          </BareButton>
           {help.listAll ? (
             <>
               <h3 className="help__heading">{t('help.allTopics')}</h3>

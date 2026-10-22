@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import type { Epic } from '../domain/types';
 import { DetailsContextForTag } from '../state/Details';
 import { useBuiltin } from './useBuiltin';
+import { BareButton } from '../ui';
 
 interface Props {
   epic: Epic | undefined;
@@ -24,7 +25,7 @@ export function EpicTag({ epic, inCard = false }: Props) {
   );
   if (!details) return <span className="epic">{content}</span>;
   return (
-    <button
+    <BareButton
       type="button"
       className="epic epic--button"
       tabIndex={inCard ? -1 : undefined}
@@ -35,6 +36,6 @@ export function EpicTag({ epic, inCard = false }: Props) {
       onDoubleClick={(event) => event.stopPropagation()}
     >
       {content}
-    </button>
+    </BareButton>
   );
 }

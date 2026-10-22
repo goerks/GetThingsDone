@@ -15,12 +15,13 @@ import { GithubBadge } from './GithubBadge';
 import { useBuiltin } from './useBuiltin';
 import { useMatchClass } from './search/HighlightBar';
 import { useStoryMenu } from '../state/StoryMenu';
+import { BareButton } from '../ui';
 
 /** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
 export function TitleButton({ story, className, showTitle = false }: { story: Story; className: string; showTitle?: boolean }) {
   const details = useDetails();
   return (
-    <button
+    <BareButton
       type="button"
       className={`title-button ${className}`}
       tabIndex={-1}
@@ -32,7 +33,7 @@ export function TitleButton({ story, className, showTitle = false }: { story: St
       }}
     >
       {story.title}
-    </button>
+    </BareButton>
   );
 }
 

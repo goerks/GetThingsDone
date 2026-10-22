@@ -22,10 +22,19 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 1000 }, ...(executablePath ? { launchOptions: { executablePath } } : {}) }
     }
   ],
-  webServer: {
-    command: 'npx vite build && npx vite preview --port 4173 --strictPort',
-    url: 'http://localhost:4173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000
-  }
+  webServer: [
+    {
+      command: 'npx vite build && npx vite preview --port 4173 --strictPort',
+      url: 'http://localhost:4173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000
+    },
+    {
+      // The design system catalogue (#70): the stories are checked for accessibility and compared with reference images.
+      command: 'npx storybook build -o storybook-static && npx vite preview --outDir storybook-static --port 4174 --strictPort',
+      url: 'http://localhost:4174',
+      reuseExistingServer: !process.env.CI,
+      timeout: 240_000
+    }
+  ]
 });

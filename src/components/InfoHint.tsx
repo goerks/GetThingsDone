@@ -1,5 +1,6 @@
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BareButton } from '../ui';
 
 /**
  * A small "i" that holds an explanation, so the screen stays tidy. The text is the tooltip on hover; a click or Enter
@@ -12,9 +13,9 @@ export function InfoHint({ text, label, id: given }: { text: string; label?: str
   const [open, setOpen] = useState(false);
   return (
     <span className="info-hint">
-      <button type="button" className="info-hint__button" aria-label={label ?? t('info.label')} aria-expanded={open} aria-controls={id} title={text} onClick={() => setOpen(!open)}>
+      <BareButton type="button" className="info-hint__button" aria-label={label ?? t('info.label')} aria-expanded={open} aria-controls={id} title={text} onClick={() => setOpen(!open)}>
         <span aria-hidden="true">i</span>
-      </button>
+      </BareButton>
       <span id={id} role="note" className="info-hint__text" hidden={!open}>
         {text}
       </span>

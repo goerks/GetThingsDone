@@ -1,6 +1,11 @@
 export { Badge } from './Badge';
+export { BareButton } from './BareButton';
+export { BareInput } from './BareInput';
+export { BareTextarea } from './BareTextarea';
 export { Button, type ButtonVariant } from './Button';
 export { Check } from './Check';
+export { CheckInput } from './CheckInput';
+export { DragHandle } from './DragHandle';
 export { IconButton } from './IconButton';
 export { Pill } from './Pill';
 export { Select } from './Select';

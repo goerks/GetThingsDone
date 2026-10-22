@@ -3,6 +3,7 @@ import { MAP_ROWS, effectiveMapRows, featureOn } from '../domain/settings';
 import type { MapRows } from '../domain/types';
 import { hrefs } from '../router';
 import { useApp } from '../state/AppState';
+import { CheckInput } from '../ui';
 
 /** Preview of the choice: a row label column and a few cells, the same for both choices. */
 function Preview() {
@@ -44,8 +45,8 @@ export function MapSection() {
           {MAP_ROWS.map((choice: MapRows) => (
             <label key={choice} className={`choice${rows === choice ? ' choice--selected' : ''}${choice === 'releases' && !releasesEnabled ? ' choice--off' : ''}`}>
               <span className="choice__top">
-                <input
-                  type="radio"
+                <CheckInput
+                  kind="radio"
                   name="map-rows"
                   value={choice}
                   checked={rows === choice}
