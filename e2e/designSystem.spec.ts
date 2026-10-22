@@ -37,7 +37,8 @@ for (const theme of ['light', 'dark'] as const) {
         const body = getComputedStyle(document.body);
         return { surface: root.getPropertyValue('--surface').trim(), font: body.fontSize, color: body.color, background: body.backgroundColor };
       });
-      expect(style.surface).toBe(theme === 'light' ? '#ffffff' : '#171c23');
+      expect(['#ffffff', '#fff', '#171c23']).toContain(style.surface);
+      expect(style.surface === '#171c23').toBe(theme === 'dark');
       expect(style.font).toBe('15px');
       expect(style.color).not.toBe(style.background);
       expect(errors).toEqual([]);

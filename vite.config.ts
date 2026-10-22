@@ -12,7 +12,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
-    css: false,
+    // The token file is read as text by the design system catalogue (src/design-system/tokens.ts).
+    css: { include: [/docs\/design\/tokens\.css/] },
     coverage: { provider: 'v8', include: ['src/**/*.{ts,tsx}'], exclude: ['src/test/**'] }
   }
 });
