@@ -1,6 +1,6 @@
 # ADR 0006: Design system catalogue with Storybook
 
-Status: Proposed (awaiting PO approval)
+Status: Accepted (PO accepted pull request #71 on 2026-10-22)
 Date: 2026-10-22
 Issue: #70
 
