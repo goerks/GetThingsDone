@@ -829,3 +829,10 @@ As a team that works in Jira, we want to import and update our stories from a Ji
 - Not yet: the list of boards, the table of status names, epics, fix versions, sprints, points, order, assignees.
 
 Source: #66 AC3 to AC6, AC8 to AC10.3, AC12.2 · Status: Implemented (phase 1) · Verified by: #66 AC3.1, AC3.2, AC3.4, AC3.5, AC4.1–AC4.4, AC5.2, AC5.9, AC6.2–AC6.5, AC8.1–AC8.3, AC9.1, AC10.3, AC12.2 (`src/Jira.test.tsx`, `src/sync/jira/jira.test.ts`, `src/sync/connector.test.ts`)
+
+### FR-SYNC-06 Jira decides columns, team and sprints (phase 5)
+- With Jira connected, the columns of the board are the statuses of the Jira workflow (name, category, order); columns without a status are removed and their stories move to the first column of the same category. The settings of the status values are locked with a note.
+- The team is the people who can be assigned in the project (bots left out); other members are removed with their assignments. The feature Team is switched on, the team settings are locked with a note.
+- Sprints are connected to Jira sprints (Jira id and base per sprint, migration 017) and compared field by field (name, dates, goal, state) in both directions. A sprint that Jira started or completed is started or completed here by the rules of the app; one started or completed here is started or completed in Jira. A sprint that only exists here is made in Jira; one that only exists in Jira is made here as a planned sprint. Only one sprint runs here; a second running Jira sprint stays planned and is named. A sprint has a goal. Nothing is deleted in Jira.
+
+Source: #66 AC13 to AC15 · Status: Implemented · Verified by: #66 AC13.1–AC13.4, AC14.1–AC14.3, AC15.1–AC15.7 (`src/domain/syncStatuses.test.ts`, `src/domain/syncMembers.test.ts`, `src/domain/syncSprints.test.ts`, `src/Jira.test.tsx`, `src/sync/jira/jira.test.ts`)
