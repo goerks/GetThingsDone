@@ -3,7 +3,6 @@ import { DEMO_READONLY_TOKEN, DEMO_REPO, DEMO_WRONG_TOKEN, demoIssues, resetDemo
 import { isSyncDemo, SyncError } from '../sync';
 import { DEMO_EMAIL, DEMO_PROJECT, DEMO_READONLY_TOKEN as JIRA_READONLY_TOKEN, DEMO_SITE, DEMO_WRONG_TOKEN as JIRA_WRONG_TOKEN, demoJiraIssues, resetDemoJira, saveDemoJiraIssues, type DemoJiraIssue } from '../sync/jira/simulation';
 import { isEmail, parseProject, parseSite } from '../sync/jira/client';
-import { middleStatuses, statusName } from '../domain/sync';
 import type { ServiceBoard, WorkflowStatus } from '../sync/connector';
 import { Dialog } from '../components/Dialog';
 import { InfoHint } from '../components/InfoHint';
