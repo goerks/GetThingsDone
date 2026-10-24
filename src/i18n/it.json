@@ -822,7 +822,8 @@
       "confirm": "Rimuovi",
       "confirmMove_one": "Sposta {{count}} story e rimuovi",
       "confirmMove_other": "Sposta {{count}} story e rimuovi"
-    }
+    },
+    "fromService": "Queste colonne vengono da {{service}} e non si possono modificare qui. Rimuovi la connessione per modificarle."
   },
   "help": {
     "button": "Guida",
@@ -1691,11 +1692,7 @@
       "done": "Le issue in Jira sono state modificate."
     },
     "mapping": {
-      "title": "Associazione degli stati",
-      "hint": "A quale colonna della board corrisponde uno stato del workflow Jira. La prima colonna e «Completato» non hanno bisogno di una voce: «To Do» e gli stati completati vi vanno da soli. Uno stato senza colonna mette la storia nella prima colonna.",
-      "summary": "{{found}} stati su {{count}} riconosciuti.",
-      "none": "(nessuna colonna)",
-      "unclear": "non chiaro, scegli"
+      "fromJira": "La board ha come colonne i {{count}} stati del workflow Jira."
     },
     "board": {
       "label": "Board per gli sprint",

@@ -822,7 +822,8 @@
       "confirm": "Supprimer",
       "confirmMove_one": "Déplacer {{count}} story et supprimer",
       "confirmMove_other": "Déplacer {{count}} stories et supprimer"
-    }
+    },
+    "fromService": "Ces colonnes viennent de {{service}} et ne peuvent pas être modifiées ici. Supprimez la connexion pour les modifier."
   },
   "help": {
     "button": "Aide",
@@ -1691,11 +1692,7 @@
       "done": "Les tickets dans Jira ont été modifiés."
     },
     "mapping": {
-      "title": "Correspondance des statuts",
-      "hint": "Quelle colonne du tableau correspond à un statut du workflow Jira. La première colonne et « Terminé » n’ont pas besoin d’entrée : « To Do » et les statuts terminés y vont d’eux-mêmes. Un statut sans colonne place la story dans la première colonne.",
-      "summary": "{{found}} statuts sur {{count}} reconnus.",
-      "none": "(aucune colonne)",
-      "unclear": "pas clair, veuillez choisir"
+      "fromJira": "Le tableau a pour colonnes les {{count}} statuts du workflow Jira."
     },
     "board": {
       "label": "Tableau pour les sprints",

@@ -1,3 +1,5 @@
+import { startStatus } from '../../domain/statuses';
+import { statusName } from '../../domain/sync';
 import type { Catalog, ExternalItem, ExternalRelease, ExternalSprint, FieldName, ItemPatch, NewItem } from '../../domain/sync';
 import type { ExternalFields, ExternalLink } from '../../domain/types';
 import { SyncError, type ServiceBoard, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteContext, type WriteResult } from '../connector';
@@ -163,7 +165,8 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       points: typeof pointsValue === 'number' ? pointsValue : 0,
       sprint: sprint?.name ?? null,
       assignee: raw.fields.assignee?.displayName ?? null,
-      status: !done && category === 'indeterminate' ? (target.statusMap[statusName] ?? statusName) : null
+      // The first column is no column for the engine: it drops a name that is not one of the named columns.
+      status: done ? null : (target.statusMap[statusName] ?? statusName)
     };
     const jira: JiraRaw = { adf, lossy: read.lossy, statusName, category };
     return { id: raw.key, key: raw.key, url: `${target.site}/browse/${raw.key}`, state: done ? 'closed' : 'open', fields, raw: jira };
@@ -189,14 +192,15 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
     skipped: wanted.filter((label) => /\s/.test(label))
   });
 
-  /** The transition that leads to the state the story is in: done, a board column, or the first column. */
-  const pickTransition = (target: JiraTarget, transitions: readonly Transition[], done: boolean, column: string | null): Transition | null => {
+  /**
+   * The transition that leads to the state the story is in: done, a board column by its name (or the name of the status in the
+   * map), or the first column, which is the status of that name when there is one and else the first status of the category "new".
+   */
+  const pickTransition = (target: JiraTarget, transitions: readonly Transition[], done: boolean, column: string | null, first: boolean): Transition | null => {
     const category = (transition: Transition): string => transition.to.statusCategory?.key ?? '';
     if (done) return transitions.find((transition) => category(transition) === 'done') ?? null;
-    if (column) {
-      const wanted = jiraNameFor(target, column);
-      return transitions.find((transition) => same(transition.to.name, wanted ?? column)) ?? transitions.find((transition) => category(transition) === 'indeterminate' && same(transition.to.name, column)) ?? null;
-    }
+    const byName = column ? (transitions.find((transition) => same(transition.to.name, jiraNameFor(target, column) ?? column)) ?? null) : null;
+    if (byName || !first) return byName;
     return transitions.find((transition) => category(transition) === 'new') ?? null;
   };
 
@@ -269,7 +273,8 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         return ['title', 'description', 'labels', 'criteria', 'release', 'epic', 'done', 'status', 'points', ...(hasBoard ? (['sprint'] as const) : []), 'assignee'];
       },
       create: true,
-      tidy: false
+      tidy: false,
+      statusesFromService: true
     },
     target: parseTarget,
     normalize,
@@ -392,8 +397,11 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
         const column = (patch.status !== undefined ? patch.status : item.fields.status) ?? null;
         const answer = await client.call<{ transitions?: Transition[] }>('GET', `/rest/api/3/issue/${encodeURIComponent(item.id)}/transitions`);
         const transitions = answer?.transitions ?? [];
-        const wanted = pickTransition(target, transitions, done, column);
-        const alreadyThere = wanted === null && (done ? jira.category === 'done' : column ? same(jira.statusName, jiraNameFor(target, column) ?? column) : jira.category === 'new');
+        // No column means the first one: the status with its name when the app knows it.
+        const start = context.statuses.find((entry) => entry.id === startStatus(context.statuses));
+        const wantedName = column ?? (start ? statusName(start) : null);
+        const wanted = pickTransition(target, transitions, done, wantedName, column === null);
+        const alreadyThere = wanted === null && (done ? jira.category === 'done' : wantedName ? same(jira.statusName, jiraNameFor(target, wantedName) ?? wantedName) || (column === null && jira.category === 'new') : jira.category === 'new');
         if (wanted === null && !alreadyThere) throw new SyncError('transition');
         if (wanted) {
           try {

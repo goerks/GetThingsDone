@@ -75,6 +75,7 @@ import { hrefs } from '../router';
 import { DEFAULT_SETTINGS, DEFAULT_SYNC } from '../domain/settings';
 import { createConnectors, createTokenVault, SyncError, type Connectors, type TokenStore, type TokenVault } from '../sync';
 import type { ServiceBoard, WorkflowStatus } from '../sync/connector';
+import { columnsFromService } from '../domain/syncOwners';
 import { persistSync } from '../sync/persist';
 import { createInService as createInServiceWith, runSync } from '../sync/runSync';
 import {
@@ -671,6 +672,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         adopt(prepared);
       },
       addStatus(category, label) {
+        if (columnsFromService(settingsRef.current)) return null;
         const id = newId();
         const after = addStatusIn(statusesRef.current, category, label, id);
         if (!after) return null;
@@ -679,12 +681,14 @@ export function AppProvider({ repository, sync, children }: Props) {
         return id;
       },
       renameStatus(id, label) {
+        if (columnsFromService(settingsRef.current)) return;
         const after = renameStatusIn(statusesRef.current, id, label);
         if (!after || after === statusesRef.current) return;
         update(storiesRef.current, after);
         persist((repo) => repo.saveStatuses(after));
       },
       reorderStatuses(places) {
+        if (columnsFromService(settingsRef.current)) return false;
         const after = reorderStatuses(statusesRef.current, places);
         if (!after) return false;
         update(storiesRef.current, after);
@@ -692,6 +696,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         return true;
       },
       removeStatus(id, targetId) {
+        if (columnsFromService(settingsRef.current)) return false;
         const before = storiesRef.current;
         const result = removeStatusIn(statusesRef.current, before, id, targetId);
         if (!result) return false;
@@ -1136,12 +1141,17 @@ export function AppProvider({ repository, sync, children }: Props) {
           if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
           if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
           if (plan.sprints.length !== before.sprints.length) updateSprints(plan.sprints);
-          update(plan.stories);
+          const statusesChanged = JSON.stringify(result.statuses) !== JSON.stringify(statusesRef.current);
+          if (statusesChanged) update(plan.stories, result.statuses);
+          else update(plan.stories);
           updateFields(plan.fields, plan.assignments);
           summary = result.summary;
           failure = result.error;
           managed = result.managed;
-          persist((repoStore) => persistSync(repoStore, before, plan));
+          persist(async (repoStore) => {
+            if (statusesChanged) await repoStore.saveStatuses(result.statuses);
+            await persistSync(repoStore, before, plan);
+          });
         } catch (cause) {
           failure = cause;
         }

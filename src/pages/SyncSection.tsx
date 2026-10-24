@@ -536,7 +536,7 @@ function JiraForm({ hasToken, setHasToken }: { hasToken: boolean | null; setHasT
         </p>
       )}
       {boards.length > 0 && <BoardChoice boards={boards} />}
-      {workflow.length > 0 && <StatusMapping workflow={workflow} />}
+      {workflow.length > 0 && <p className="muted">{t('jira.mapping.fromJira', { count: workflow.length })}</p>}
       {removing && (
         <Dialog title={t('sync.disconnect.title')} onClose={() => setRemoving(false)}>
           <p>{t('sync.disconnect.text')}</p>
@@ -595,69 +595,6 @@ function JiraDemoTools() {
       <p role="status" className="muted">
         {done ? t('jira.demo.done') : ''}
       </p>
-    </section>
-  );
-}
-
-/** Which board column a status of the Jira workflow stands for (AC6.1): proposed by name, changeable; what is unclear is marked. */
-function StatusMapping({ workflow }: { workflow: WorkflowStatus[] }) {
-  const { t } = useSyncT();
-  const app = useApp();
-  const id = useId();
-  const columns = middleStatuses(app.statuses).map(statusName);
-  const connection = app.settings.sync.connection;
-  const map = ((): Record<string, string> => {
-    try {
-      return connection.statusMap ? (JSON.parse(connection.statusMap) as Record<string, string>) : {};
-    } catch {
-      return {};
-    }
-  })();
-  const named = (status: string): string => columns.find((column) => column.toLowerCase() === status.toLowerCase()) ?? '';
-  const rows = workflow.filter((status) => status.category === 'indeterminate');
-  const chosen = (status: string): string => map[status] ?? named(status);
-  const recognised = rows.filter((status) => chosen(status.name) !== '').length;
-
-  const change = (status: string, column: string): void => {
-    const next = { ...map };
-    if (column === '' || column === named(status)) delete next[status];
-    else next[status] = column;
-    const { statusMap: _old, ...rest } = connection;
-    void _old;
-    app.setSyncConnection({ ...rest, ...(Object.keys(next).length > 0 ? { statusMap: JSON.stringify(next) } : {}) });
-  };
-
-  if (rows.length === 0) return null;
-  return (
-    <section className="github-demo jira-mapping" aria-label={t('jira.mapping.title')}>
-      <h3>
-        {t('jira.mapping.title')} <InfoHint text={t('jira.mapping.hint')} />
-      </h3>
-      <p role="status" className="muted">
-        {t('jira.mapping.summary', { found: recognised, count: rows.length })}
-      </p>
-      <table className="jira-mapping__table">
-        <tbody>
-          {rows.map((status) => (
-            <tr key={status.name}>
-              <th scope="row">
-                <label htmlFor={`${id}-${status.name}`}>{status.name}</label>
-              </th>
-              <td>
-                <select id={`${id}-${status.name}`} className="input" value={chosen(status.name)} onChange={(event) => change(status.name, event.target.value)}>
-                  <option value="">{t('jira.mapping.none')}</option>
-                  {columns.map((column) => (
-                    <option key={column} value={column}>
-                      {column}
-                    </option>
-                  ))}
-                </select>
-                {chosen(status.name) === '' && <span className="muted"> {t('jira.mapping.unclear')}</span>}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </section>
   );
 }

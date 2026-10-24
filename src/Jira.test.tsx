@@ -126,20 +126,23 @@ describe('choosing the board', () => {
   }, 20000);
 });
 
-describe('mapping the statuses', () => {
-  it('AC6.1 proposes the columns by name, marks what is unclear and keeps my choice', async () => {
-    // Given a connected Jira whose workflow has "In Progress" and "In Review"
+describe('the columns of the board', () => {
+  it('AC13.1 takes the columns of the board from the statuses of Jira when I synchronise', async () => {
+    // Given a connected Jira and the default columns
     const user = userEvent.setup();
-    const { repository } = await renderApp('#/settings/sync', { connected: true });
-    // Then the board column "in progress" is proposed for "In Progress" and "In Review" is marked as unclear
-    expect(await screen.findByText('1 of 2 statuses recognised.')).toBeInTheDocument();
-    expect(screen.getByLabelText('In Progress')).toHaveValue('in progress');
-    expect(screen.getByLabelText('In Review')).toHaveValue('');
-    // When I choose the column "review" for it
-    await user.selectOptions(screen.getByLabelText('In Review'), 'review');
-    // Then all are recognised and the choice is kept in the connection
-    expect(await screen.findByText('2 of 2 statuses recognised.')).toBeInTheDocument();
-    await waitFor(async () => expect((await repository.load()).settings.sync.connection.statusMap).toBe(JSON.stringify({ 'In Review': 'review' })));
+    const { repository } = await renderApp('#/backlog', { connected: true });
+    // When I synchronise
+    await sync(user);
+    // Then the board has the four statuses of the workflow as its columns, in this order
+    await waitFor(async () => expect((await repository.load()).statuses.map((status) => status.label)).toEqual(['To Do', 'In Progress', 'In Review', 'Done']));
+  }, 30000);
+
+  it('AC13.4 locks the columns in the settings while Jira is connected', async () => {
+    // Given a connected Jira
+    await renderApp('#/settings/statuses', { connected: true });
+    // Then a note says that Jira decides, and the columns cannot be changed
+    expect(await screen.findByText(/These columns come from Jira and cannot be changed here/)).toBeInTheDocument();
+    expect(document.querySelector('.status-settings [inert]')).not.toBeNull();
   }, 20000);
 });
 

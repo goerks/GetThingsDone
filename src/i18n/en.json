@@ -822,7 +822,8 @@
       "confirm": "Remove",
       "confirmMove_one": "Move {{count}} story and remove",
       "confirmMove_other": "Move {{count}} stories and remove"
-    }
+    },
+    "fromService": "These columns come from {{service}} and cannot be changed here. Remove the connection to edit them."
   },
   "help": {
     "button": "Help",
@@ -1683,11 +1684,7 @@
       "done": "The issues in Jira were changed."
     },
     "mapping": {
-      "title": "Status mapping",
-      "hint": "Which column of the board a status of the Jira workflow stands for. The first column and “Done” need no entry: “To Do” and the done statuses go there by themselves. A status without a column puts the story into the first column.",
-      "summary": "{{found}} of {{count}} statuses recognised.",
-      "none": "(no column)",
-      "unclear": "not clear, please choose"
+      "fromJira": "The board has the {{count}} statuses of the Jira workflow as its columns."
     },
     "board": {
       "label": "Board for the sprints",

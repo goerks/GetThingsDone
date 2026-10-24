@@ -1,3 +1,4 @@
+import { statusesFromService } from '../domain/syncStatuses';
 import { linkedIdsMissingIn, LABELS_FIELD_ID, linkTo, middleStatuses, newItemOf, pendingFields, planSync, statusName, withBase, type Decision, type PublishEntry, type SyncPlan, type SyncSummary } from '../domain/sync';
 import type { ConflictRule, Epic, FieldAssignment, FieldDefinition, Member, Release, Sprint, StatusValue, Story } from '../domain/types';
 import { SyncError, type Made, type Needs, type TrackerConnector } from './connector';
@@ -31,6 +32,8 @@ export interface RunSyncResult {
   summary: SyncSummary;
   /** The labels and milestones the app has made, after this run. */
   managed: Made;
+  /** The columns of the board after this run; they differ from the input when the service decides them. */
+  statuses: StatusValue[];
   /** The first call that failed while publishing. What was done before it is in `plan`; the rest stays for the next sync. */
   error: SyncError | null;
 }
@@ -43,15 +46,26 @@ const same = (a: string | null | undefined, b: string | null | undefined): boole
  * and deletes what it made and nothing needs any more (#30, AC16). Nothing of this knows a service; the connector does.
  */
 export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
-  const { connector, target, token, statuses } = input;
+  const { connector, target, token } = input;
+  let statuses: StatusValue[] = [...input.statuses];
+  let inputStories: readonly Story[] = input.stories;
   const labelsField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
+  // The service decides the columns: they are taken over first, so every story is compared with the new columns.
+  if (connector.capabilities.statusesFromService && connector.statuses) {
+    const workflow = await connector.statuses(target, token);
+    const taken = statusesFromService(statuses, inputStories, workflow, input.newId);
+    if (taken.changed) {
+      statuses = taken.statuses;
+      inputStories = taken.stories;
+    }
+  }
   const open = await connector.open(target, token);
   const skipped = connector.skipped?.() ?? 0;
   const context = { epics: input.epics, releases: input.releases, sprints: input.sprints, members: input.members };
   const catalog = await connector.catalog(target, token);
   // A story whose item is no longer in the list of open items may have been closed: ask for those.
   const missing = linkedIdsMissingIn(
-    input.stories,
+    inputStories,
     connector.kind,
     (link) => connector.idOf(target, link),
     open,
@@ -63,7 +77,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   const plan = planSync({
     service: connector.kind,
     compared: connector.capabilities.fields,
-    stories: input.stories,
+    stories: inputStories,
     fields: input.fields,
     assignments: input.assignments,
     statuses,
@@ -101,7 +115,10 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
         fail(cause);
         break;
       }
-      stories = stories.map((story) => (story.id === push.storyId ? withBase(story, result.item, push.fields) : story));
+      // A column the app does not name as its own (the first one) is no column in the base.
+      const named = middleStatuses(statuses);
+      const item = result.item.fields.status && !named.some((status) => same(statusName(status), result.item.fields.status)) ? { ...result.item, fields: { ...result.item.fields, status: null } } : result.item;
+      stories = stories.map((story) => (story.id === push.storyId ? withBase(story, item, push.fields) : story));
       const story = stories.find((item) => item.id === push.storyId) as Story;
       published.push({ storyId: story.id, code: story.code, key: push.item.key, title: story.title, fields: push.fields, skippedLabels: result.skippedLabels });
     }
@@ -128,6 +145,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
     plan: { ...plan, stories },
     summary: { ...plan.summary, ...(skipped > 0 ? { skipped } : {}), published, labelsCreated: made.labels, milestonesCreated: made.milestones, labelsDeleted: gone.labels, milestonesDeleted: gone.milestones },
     managed,
+    statuses,
     error
   };
 }

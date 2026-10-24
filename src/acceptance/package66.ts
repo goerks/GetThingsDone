@@ -16,6 +16,7 @@ const SETTINGS = 'src/sync/github/format.test.ts';
 const JIRA = 'src/sync/jira/jira.test.ts';
 const JIRA_UI = 'src/Jira.test.tsx';
 const PEOPLE = 'src/domain/syncPeople.test.ts';
+const STATUSES = 'src/domain/syncStatuses.test.ts';
 
 const SETTINGS_PAGE = '#/settings/sync';
 const BACKLOG = '#/backlog';
@@ -242,43 +243,14 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
       title: 'Status über Workflow-Übergänge',
       cases: [
         {
-          id: 'AC6.1',
-          title: 'Status wird zugeordnet',
-          link: SETTINGS_PAGE,
-          target: '.jira-mapping',
-          given: 'Jira ist verbunden; der Workflow hat «To Do», «In Progress», «In Review» und «Done», das Board «Offen», «In Arbeit», «Review», «Erledigt».',
-          when: 'Ich sehe mir unter dem Formular die Status-Zuordnung an.',
-          then: 'Die App schlägt die Zuordnung nach dem Namen vor und nennt, wie viele Status erkannt sind. Was nicht eindeutig ist, ist markiert; ich kann für jeden Status die Spalte wählen, die Wahl bleibt gespeichert.',
-          tests: [`${JIRA_UI} › AC6.1 proposes the columns by name, marks what is unclear and keeps my choice`, `${JIRA} › AC6.1 lists the statuses of the workflow with their category`],
-          poCheck: 'Die Namen der Spalten im Board und die Jira-Status prüfen, die Zuordnung der echten Instanz ansehen.'
-        },
-        {
           id: 'AC6.2',
           title: 'Status von Jira übernehmen',
           link: BACKLOG,
           given: 'Der Vorgang «PROJ-3» steht in Jira auf «To Do».',
           when: 'Ich drücke «PROJ-3 auf In Progress setzen» (Demo-Knopf) und synchronisiere.',
           then: 'Die Story steht in der Spalte «In Progress» des Boards.',
-          tests: [`${JIRA} › AC6.2 takes the name of the workflow status for a column in progress, and the first column for "To Do"`],
+          tests: [`${JIRA} › AC6.2 takes the name of the workflow status as the column`],
           poCheck: 'Der Name der Spalte im Board muss dem Jira-Status entsprechen («In Progress»); eine Tabelle für andere Namen folgt.'
-        },
-        {
-          id: 'AC6.3',
-          title: 'Karte verschieben veröffentlicht einen Übergang',
-          link: BACKLOG,
-          given: 'Schreiben ist an, «PROJ-2» steht in «In Progress».',
-          when: 'Ich ziehe die Karte nach «In Review» und synchronisiere.',
-          then: 'In Jira steht der Vorgang auf «In Review».',
-          tests: [`${JIRA} › AC6.3 moves an issue to a column by a transition of the workflow`, `${JIRA} › AC6.3 uses the map of statuses for a column with another name`]
-        },
-        {
-          id: 'AC6.4',
-          title: 'Übergang nicht erlaubt',
-          link: BACKLOG,
-          given: 'Schreiben ist an. Für «PROJ-7» erlaubt der Workflow «Done» nur mit einer Lösung.',
-          when: 'Ich ziehe die Karte nach «Erledigt» und synchronisiere.',
-          then: 'Eine Meldung nennt den Grund und bleibt stehen. Die Karte bleibt lokal verschoben und markiert «noch nicht in Jira»; Jira ist unverändert.',
-          tests: [`${JIRA} › AC6.4 says "transition" when the workflow does not allow the status, and changes nothing`, `${JIRA} › AC6.4 says "transition" for a column the workflow does not have`]
         },
         {
           id: 'AC6.5',
@@ -453,6 +425,54 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           when: 'Wie AC12.1.',
           then: 'Überall steht «PROJ-1» als ID, als Link zu Jira.',
           tests: [`${JIRA} › AC12.2 uses the issue key as the key of the story and tells which issue an address points to`]
+        }
+      ]
+    },
+    {
+      id: 'AC13',
+      story: 'J10',
+      title: 'Die Spalten kommen von Jira',
+      cases: [
+        {
+          id: 'AC13.1',
+          title: 'Spalten kommen aus Jira',
+          link: BACKLOG,
+          given: 'Jira ist verbunden, der Workflow hat «To Do», «In Progress», «In Review», «Done»; lokal gibt es die Standard-Spalten und «Blockiert».',
+          when: 'Ich synchronisiere.',
+          then: 'Das Board hat genau die vier Spalten in dieser Reihenfolge. Die Story aus «Blockiert» steht in der ersten Spalte mit gleicher Kategorie. Die Tabelle «Status-Zuordnung» gibt es nicht mehr.',
+          tests: [
+            `${JIRA_UI} › AC13.1 takes the columns of the board from the statuses of Jira when I synchronise`,
+            `${STATUSES} › AC13.1 takes names, categories and order from the service and keeps the ids of the columns it can reuse`,
+            `${STATUSES} › AC13.1 changes nothing when the service names no status`
+          ]
+        },
+        {
+          id: 'AC13.2',
+          title: 'Neuer Status in Jira',
+          link: BACKLOG,
+          given: 'In Jira kommt der Status «Testing» dazu.',
+          when: 'Ich synchronisiere.',
+          then: 'Es gibt die Spalte «Testing» an der Stelle des Workflows; Stories in diesem Status stehen dort. Ein zweiter Abgleich ändert nichts.',
+          tests: [`${STATUSES} › AC13.2 adds a column for a new status of the service at its place, and a second run changes nothing`]
+        },
+        {
+          id: 'AC13.3',
+          title: 'Karte verschieben',
+          link: BACKLOG,
+          given: 'Schreiben ist an.',
+          when: 'Ich ziehe eine Karte nach «In Review» und synchronisiere.',
+          then: 'In Jira steht der Vorgang auf «In Review». Erlaubt der Workflow das nicht, bleibt die Karte markiert «noch nicht in Jira» mit Meldung.',
+          tests: [`${JIRA} › AC13.3 moves an issue to a column by a transition of the workflow`, `${JIRA} › AC13.3 says "transition" when the workflow does not allow the status, and changes nothing`]
+        },
+        {
+          id: 'AC13.4',
+          title: 'Spalten sind in der App gesperrt',
+          link: '#/settings/statuses',
+          target: '.status-settings',
+          given: 'Jira ist verbunden.',
+          when: 'Ich öffne die Einstellungen der Status-Werte.',
+          then: 'Ein Hinweis sagt, dass die Spalten von Jira kommen; Anlegen, Umbenennen, Löschen und Umordnen sind gesperrt. Nach «Verbindung entfernen» geht alles wieder.',
+          tests: [`${JIRA_UI} › AC13.4 locks the columns in the settings while Jira is connected`]
         }
       ]
     },

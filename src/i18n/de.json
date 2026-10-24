@@ -822,7 +822,8 @@
       "confirm": "Entfernen",
       "confirmMove_one": "{{count}} Story verschieben und entfernen",
       "confirmMove_other": "{{count}} Stories verschieben und entfernen"
-    }
+    },
+    "fromService": "Diese Spalten kommen von {{service}} und lassen sich hier nicht ändern. Entferne die Verbindung, um sie zu bearbeiten."
   },
   "help": {
     "button": "Hilfe",
@@ -1683,11 +1684,7 @@
       "done": "Die Vorgänge in Jira wurden geändert."
     },
     "mapping": {
-      "title": "Status-Zuordnung",
-      "hint": "Für welche Spalte des Boards ein Status des Jira-Workflows steht. Die erste Spalte und „Erledigt“ brauchen keinen Eintrag: „To Do“ und die erledigten Status gehören von selbst dorthin. Ein Status ohne Spalte legt die Story in die erste Spalte.",
-      "summary": "{{found}} von {{count}} Status erkannt.",
-      "none": "(keine Spalte)",
-      "unclear": "nicht eindeutig, bitte wählen"
+      "fromJira": "Das Board hat die {{count}} Status des Jira-Workflows als Spalten."
     },
     "board": {
       "label": "Board für die Sprints",

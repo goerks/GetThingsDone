@@ -39,6 +39,8 @@ import {
 import type { StatusCategory, StatusValue } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useStoryKey } from '../components/useStoryKey';
+import { columnsFromService } from '../domain/syncOwners';
+import { serviceName } from '../sync/syncT';
 
 const GROUP_PREFIX = 'status-group:';
 
@@ -309,6 +311,7 @@ export function StatusValuesSection() {
   const [message, setMessage] = useState('');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
+  const fromService = columnsFromService(app.settings);
 
   const nameOf = (id: UniqueIdentifier): string => {
     const value = String(id);
@@ -395,6 +398,12 @@ export function StatusValuesSection() {
         <h2>{t('statusValues.title')}</h2>
       </div>
       <p className="muted">{t('statusValues.hint')}</p>
+      {fromService && (
+        <p className="hint hint--info" role="note">
+          {t('statusValues.fromService', { service: serviceName(t, app.settings.sync.service) })}
+        </p>
+      )}
+      <div inert={fromService}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -430,6 +439,7 @@ export function StatusValuesSection() {
           ) : null}
         </DragOverlay>
       </DndContext>
+      </div>
       <p className="muted">{t('statusValues.keyboard')}</p>
       <p className="muted">{t('statusValues.saved')}</p>
       <p className="status-settings__message" role="status">

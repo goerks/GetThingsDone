@@ -28,6 +28,8 @@ export interface ConnectorCapabilities {
   create: boolean;
   /** Whether the sync deletes again what it made in the service (labels, milestones). */
   tidy: boolean;
+  /** Whether the columns of the board come from the statuses of the service (Jira). */
+  statusesFromService?: boolean;
 }
 
 /** The result of a change in the service: the item as it is now, and the labels the service does not know. */

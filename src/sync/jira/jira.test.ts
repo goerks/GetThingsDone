@@ -121,10 +121,10 @@ describe('reading from Jira', () => {
     expect(connector.skipped?.()).toBe(2);
   });
 
-  it('AC6.2 takes the name of the workflow status for a column in progress, and the first column for "To Do"', async () => {
+  it('AC6.2 takes the name of the workflow status as the column', async () => {
     const { find } = setup();
     expect((await find('PROJ-2')).fields.status).toBe('In Progress');
-    expect((await find('PROJ-1')).fields.status).toBeNull();
+    expect((await find('PROJ-1')).fields.status).toBe('To Do');
   });
 
   it('AC6.5 sees an issue in the category done as done', async () => {
@@ -176,7 +176,7 @@ describe('writing to Jira', () => {
     expect(readAdf(stored.description).description).not.toContain('Rewritten');
   });
 
-  it('AC6.3 moves an issue to a column by a transition of the workflow', async () => {
+  it('AC13.3 moves an issue to a column by a transition of the workflow', async () => {
     const { connector, find } = setup();
     const { item } = await connector.update(target, 'good', await find('PROJ-2'), { status: 'In Review' }, context);
     expect(item.fields.status).toBe('In Review');
@@ -197,7 +197,7 @@ describe('writing to Jira', () => {
     expect(reopened.item).toMatchObject({ state: 'open', fields: { done: false } });
   });
 
-  it('AC6.4 says "transition" when the workflow does not allow the status, and changes nothing', async () => {
+  it('AC13.3 says "transition" when the workflow does not allow the status, and changes nothing', async () => {
     const { connector, find, memory } = setup();
     await expect(connector.update(target, 'good', await find('PROJ-7'), { done: true }, context)).rejects.toMatchObject({ kind: 'transition' });
     expect(memory.issues().find((issue) => issue.key === 'PROJ-7')?.status).toBe('To Do');
