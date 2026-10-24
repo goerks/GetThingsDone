@@ -30,7 +30,7 @@ describe('the columns of the board from a service', () => {
 
   it('AC13.2 adds a column for a new status of the service at its place, and a second run changes nothing', () => {
     const first = statusesFromService(DEFAULT_STATUSES, [], workflow, newId);
-    const next = [...workflow.slice(0, 2), { name: 'Testing', category: 'indeterminate' as const }, ...workflow.slice(2)];
+    const next = [...workflow.slice(0, 3), { name: 'Testing', category: 'indeterminate' as const }, ...workflow.slice(3)];
     const result = statusesFromService(first.statuses, [story('a', 'review')], next, newId);
     expect(result.statuses.map((status) => status.label)).toEqual(['To Do', 'In Progress', 'In Review', 'Testing', 'Done']);
     expect(result.stories[0].status).toBe('review');
