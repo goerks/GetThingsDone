@@ -53,6 +53,7 @@ export interface SprintInput {
   name: string;
   startDate: string;
   endDate: string;
+  goal?: string;
 }
 
 /** Prefilled values for a new sprint: "Sprint n", starting after the last sprint (or today), two weeks long. */
@@ -89,7 +90,8 @@ export function createSprint(sprints: Sprint[], input: SprintInput, id: string):
     endDate: input.endDate,
     state: 'planned',
     startItems: null,
-    result: null
+    result: null,
+    ...(input.goal?.trim() ? { goal: input.goal.trim() } : {})
   };
   return { sprints: [...sprints, sprint], sprint };
 }
@@ -97,7 +99,7 @@ export function createSprint(sprints: Sprint[], input: SprintInput, id: string):
 export function updateSprint(sprints: Sprint[], id: string, input: SprintInput): Sprint[] {
   if (validateSprint(input)) return sprints;
   return sprints.map((sprint) =>
-    sprint.id === id ? { ...sprint, name: input.name.trim(), startDate: input.startDate, endDate: input.endDate } : sprint
+    sprint.id === id ? { ...sprint, name: input.name.trim(), startDate: input.startDate, endDate: input.endDate, ...(input.goal !== undefined ? { goal: input.goal.trim() } : {}) } : sprint
   );
 }
 

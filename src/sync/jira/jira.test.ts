@@ -369,6 +369,50 @@ describe('the team', () => {
   });
 });
 
+describe('the sprints themselves', () => {
+  const opsOf = async () => {
+    const made = setup();
+    const ops = made.connector.sprintOps;
+    if (!ops) throw new Error('the connector has no sprint operations');
+    return { ...made, ops, catalog: await made.connector.catalog(target, 'good') };
+  };
+
+  it('AC15.1 reads a sprint by its id, also a completed one, and nothing for an unknown id', async () => {
+    const { ops, memory } = await opsOf();
+    expect(await ops.fetch(target, 'good', '14')).toMatchObject({ name: 'Sprint 14', goal: 'Login ready', state: 'running', startDate: '2026-11-02', endDate: '2026-11-15' });
+    memory.sprints()[1].state = 'closed';
+    expect((await ops.fetch(target, 'good', '15'))?.state).toBe('completed');
+    expect(await ops.fetch(target, 'good', '99')).toBeNull();
+  });
+
+  it('AC15.2 changes name, goal and dates of a sprint', async () => {
+    const { ops, catalog } = await opsOf();
+    const changed = await ops.update(target, 'good', '15', { name: 'Sprint 15b', goal: 'New goal', endDate: '2026-12-06' }, catalog);
+    expect(changed).toMatchObject({ name: 'Sprint 15b', goal: 'New goal', endDate: '2026-12-06', state: 'planned' });
+  });
+
+  it('AC15.3 makes a planned sprint on the board with its dates and goal', async () => {
+    const { ops, catalog, memory } = await opsOf();
+    const made = await ops.create(target, 'good', { name: 'Sprint 16', goal: 'Next', startDate: '2026-11-30', endDate: '2026-12-13', state: 'planned' }, catalog);
+    expect(made).toMatchObject({ name: 'Sprint 16', goal: 'Next', startDate: '2026-11-30', endDate: '2026-12-13', state: 'planned' });
+    expect(memory.sprints().map((sprint) => sprint.name)).toEqual(['Sprint 14', 'Sprint 15', 'Sprint 16']);
+  });
+
+  it('AC15.4 starts a sprint, and completes it, also one that was never started', async () => {
+    const { ops, catalog } = await opsOf();
+    const started = await ops.update(target, 'good', '15', { state: 'running', startDate: '2026-11-16', endDate: '2026-11-29' }, catalog);
+    expect(started).toMatchObject({ state: 'running', startDate: '2026-11-16' });
+    expect((await ops.update(target, 'good', '15', { state: 'completed' }, catalog)).state).toBe('completed');
+    const made = await ops.create(target, 'good', { name: 'Sprint 17', goal: '', startDate: '2026-12-14', endDate: '2026-12-27', state: 'completed' }, catalog);
+    expect(made.state).toBe('completed');
+  });
+
+  it('AC15.6 never deletes: there is no way to remove a sprint', async () => {
+    const { connector } = await opsOf();
+    expect(Object.keys(connector.sprintOps ?? {}).sort()).toEqual(['create', 'fetch', 'update']);
+  });
+});
+
 describe('assignees', () => {
   it('AC7.5 reads the name of the assignee', async () => {
     const { find } = setup();

@@ -220,6 +220,12 @@ pub fn run() {
             sql: include_str!("../migrations/016_sync.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 17,
+            description: "sprint_sync",
+            sql: include_str!("../migrations/017_sprint_sync.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

@@ -1143,7 +1143,7 @@ export function AppProvider({ repository, sync, children }: Props) {
           const { plan } = result;
           if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
           if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
-          if (plan.sprints.length !== before.sprints.length) updateSprints(plan.sprints);
+          if (JSON.stringify(plan.sprints) !== JSON.stringify(before.sprints)) updateSprints(plan.sprints);
           const membersBefore = membersRef.current;
           const membersChanged = JSON.stringify(result.members) !== JSON.stringify(membersBefore);
           if (membersChanged) {
@@ -1169,6 +1169,11 @@ export function AppProvider({ repository, sync, children }: Props) {
             await persistSync(repoStore, before, plan);
             for (const old of membersBefore) if (!result.members.some((member) => member.id === old.id)) await repoStore.deleteMember(old.id);
           });
+          // What the service started or completed is done here by the rules of the app (the scope at the start, the result).
+          for (const action of result.sprintActions) {
+            if (action.action === 'start') api.startSprint(action.sprintId, 'keep');
+            else api.completeSprint(action.sprintId, { target: 'backlog', endDate: 'keep' });
+          }
         } catch (cause) {
           failure = cause;
         }

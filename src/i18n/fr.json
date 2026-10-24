@@ -171,7 +171,8 @@
     },
     "planned": "planifié",
     "ended": "terminé",
-    "completed": "clôturé"
+    "completed": "clôturé",
+    "goal": "Objectif (facultatif)"
   },
   "lifecycle": {
     "startButton": "Démarrer le sprint",
@@ -1544,7 +1545,9 @@
       "review": "Vérifier",
       "log": "Journal",
       "skipped": "{{count}} epics ou sous-tâches ignorés",
-      "unmatched": "aucun membre de l’équipe pour {{names}}"
+      "unmatched": "aucun membre de l’équipe pour {{names}}",
+      "sprints": "{{count}} sprints envoyés vers {{service}}",
+      "concurrent": "en cours chez {{service}} alors qu’un autre sprint est en cours ici : {{names}}"
     },
     "auto": {
       "label": "Synchroniser automatiquement",

@@ -171,7 +171,8 @@
     },
     "planned": "geplant",
     "ended": "beendet",
-    "completed": "abgeschlossen"
+    "completed": "abgeschlossen",
+    "goal": "Ziel (optional)"
   },
   "lifecycle": {
     "startButton": "Sprint starten",
@@ -1536,7 +1537,9 @@
       "review": "Prüfen",
       "log": "Protokoll",
       "skipped": "{{count}} Epics oder Unteraufgaben ausgelassen",
-      "unmatched": "kein Teammitglied für {{names}}"
+      "unmatched": "kein Teammitglied für {{names}}",
+      "sprints": "{{count}} Sprints nach {{service}} gesendet",
+      "concurrent": "läuft bei {{service}}, während hier ein anderer Sprint läuft: {{names}}"
     },
     "auto": {
       "label": "Automatisch synchronisieren",

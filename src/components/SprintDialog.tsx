@@ -19,11 +19,11 @@ export function SprintDialog({ sprint, onClose }: Props) {
   const uid = useId();
   const [initial] = useState<SprintInput>(() =>
     sprint
-      ? { name: sprint.name, startDate: sprint.startDate, endDate: sprint.endDate }
+      ? { name: sprint.name, startDate: sprint.startDate, endDate: sprint.endDate, goal: sprint.goal ?? '' }
       : newSprintDefaults(app.sprints, todayIso(), (number) => t('sprint.defaultName', { number }))
   );
   const [input, setInput] = useState<SprintInput>(initial);
-  const dirty = input.name !== initial.name || input.startDate !== initial.startDate || input.endDate !== initial.endDate;
+  const dirty = input.name !== initial.name || input.startDate !== initial.startDate || input.endDate !== initial.endDate || (input.goal ?? '') !== (initial.goal ?? '');
   const [showProblem, setShowProblem] = useState(false);
   const problem = validateSprint(input);
 
@@ -57,6 +57,10 @@ export function SprintDialog({ sprint, onClose }: Props) {
             <label htmlFor={`${uid}-end`}>{t('sprint.end')}</label>
             <input id={`${uid}-end`} type="date" className="input" value={input.endDate} onChange={change('endDate')} required />
           </div>
+        </div>
+        <div className="field">
+          <label htmlFor={`${uid}-goal`}>{t('sprint.goal')}</label>
+          <input id={`${uid}-goal`} className="input" value={input.goal ?? ''} onChange={change('goal')} />
         </div>
         {showProblem && problem && (
           <p role="alert" className="field-error">

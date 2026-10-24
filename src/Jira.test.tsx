@@ -18,9 +18,10 @@ beforeAll(() => {
 
 interface Options {
   connected?: boolean;
+  noSprints?: boolean;
 }
 
-async function renderApp(hash: string, { connected = false }: Options = {}) {
+async function renderApp(hash: string, { connected = false, noSprints = false }: Options = {}) {
   const github = fakeGithub([]);
   const memory = createMemoryJira();
   const tokens = createMemoryTokenVault();
@@ -28,6 +29,9 @@ async function renderApp(hash: string, { connected = false }: Options = {}) {
   const seed = seedSnapshot(todayIso());
   await repository.replaceAll({
     ...seed,
+    // No sprint of its own: the sprints of Jira are the only ones.
+    sprints: noSprints ? [] : seed.sprints,
+    stories: noSprints ? seed.stories.map((story) => ({ ...story, sprintId: null })) : seed.stories,
     settings: {
       ...seed.settings,
       features: { ...seed.settings.features, sync: true },
@@ -124,6 +128,22 @@ describe('choosing the board', () => {
     // Then it is kept in the connection
     await waitFor(async () => expect((await repository.load()).settings.sync.connection.board).toBe('2'));
   }, 20000);
+});
+
+describe('the sprints', () => {
+  it('AC15.1 takes the sprints of the board: the running one runs here with its goal and dates, the future one is planned', async () => {
+    // Given a connected Jira and no sprint of our own
+    const user = userEvent.setup();
+    const { repository } = await renderApp('#/backlog', { connected: true, noSprints: true });
+    // When I synchronise
+    await sync(user);
+    // Then Sprint 14 runs with goal and dates, Sprint 15 is planned, and the stories are in their sprints
+    await waitFor(async () => expect((await repository.load()).sprints.map((sprint) => [sprint.name, sprint.state])).toEqual([['Sprint 14', 'running'], ['Sprint 15', 'planned']]));
+    const loaded = await repository.load();
+    const running = loaded.sprints.find((sprint) => sprint.name === 'Sprint 14');
+    expect(running).toMatchObject({ goal: 'Login ready', startDate: '2026-11-02', endDate: '2026-11-15', link: { service: 'jira', id: '14' } });
+    expect(loaded.stories.find((story) => story.link?.key === 'PROJ-2')?.sprintId).toBe(running?.id);
+  }, 30000);
 });
 
 describe('the team', () => {

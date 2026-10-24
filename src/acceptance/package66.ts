@@ -17,6 +17,7 @@ const JIRA = 'src/sync/jira/jira.test.ts';
 const JIRA_UI = 'src/Jira.test.tsx';
 const PEOPLE = 'src/domain/syncPeople.test.ts';
 const STATUSES = 'src/domain/syncStatuses.test.ts';
+const SPRINTS = 'src/domain/syncSprints.test.ts';
 const MEMBERS = 'src/domain/syncMembers.test.ts';
 
 const SETTINGS_PAGE = '#/settings/sync';
@@ -514,6 +515,87 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich öffne die Team-Einstellungen.',
           then: 'Ein Hinweis nennt Jira als Quelle; Hinzufügen, Ändern und Entfernen sind gesperrt. Nach «Verbindung entfernen» geht alles wieder.',
           tests: [`${JIRA_UI} › AC14.3 locks the team in the settings while Jira is connected`]
+        }
+      ]
+    },
+    {
+      id: 'AC15',
+      story: 'J12',
+      title: 'Die Sprints in beide Richtungen',
+      cases: [
+        {
+          id: 'AC15.1',
+          title: 'Sprint aus Jira',
+          link: BACKLOG,
+          given: 'Das Board hat «Sprint 14» (läuft, 2.–15. November, Ziel «Login ready») und «Sprint 15» (geplant).',
+          when: 'Ich synchronisiere.',
+          then: '«Sprint 14» läuft mit Daten und Ziel, die Stories darin sind im Sprint; «Sprint 15» ist geplant.',
+          tests: [
+            `${JIRA_UI} › AC15.1 takes the sprints of the board: the running one runs here with its goal and dates, the future one is planned`,
+            `${SPRINTS} › AC15.1 makes a planned sprint for a sprint of the service, with its dates and goal, and starts it when it runs`,
+            `${JIRA} › AC15.1 reads a sprint by its id, also a completed one, and nothing for an unknown id`
+          ]
+        },
+        {
+          id: 'AC15.2',
+          title: 'Sprint ändern',
+          link: BACKLOG,
+          given: 'Schreiben ist an; ein Sprint ist verbunden.',
+          when: 'Ich ändere lokal Name und Enddatum und synchronisiere; danach ändere ich in Jira das Ziel und synchronisiere.',
+          then: 'In Jira heisst der Sprint neu und hat das neue Enddatum, danach steht das neue Ziel auch hier. Es entsteht kein zweiter Sprint.',
+          tests: [
+            `${SPRINTS} › AC15.2 takes what only the service changed, and publishes what only we changed`,
+            `${SPRINTS} › AC15.2 publishes nothing when writing is off`,
+            `${SPRINTS} › AC15.2 follows the rule when both changed the same field`,
+            `${JIRA} › AC15.2 changes name, goal and dates of a sprint`
+          ]
+        },
+        {
+          id: 'AC15.3',
+          title: 'Neuer lokaler Sprint',
+          link: BACKLOG,
+          given: 'Schreiben ist an.',
+          when: 'Ich lege lokal «Sprint 16» an (mit Daten und Ziel) und synchronisiere.',
+          then: '«Sprint 16» gibt es in Jira (geplant), auch ohne Story darin.',
+          tests: [`${SPRINTS} › AC15.3 makes a sprint that exists only here in the service, also without a story, but not a completed one`, `${JIRA} › AC15.3 makes a planned sprint on the board with its dates and goal`]
+        },
+        {
+          id: 'AC15.4',
+          title: 'Sprint starten und abschliessen',
+          link: BACKLOG,
+          given: 'Schreiben ist an.',
+          when: 'Ich starte lokal einen geplanten Sprint und synchronisiere; danach schliesse ich ihn in Jira ab und synchronisiere.',
+          then: 'In Jira läuft der Sprint; nach dem Abschluss in Jira ist er hier abgeschlossen, mit Ergebnis (erledigte Punkte), die offenen Stories gehen ins Backlog.',
+          tests: [`${SPRINTS} › AC15.4 starts a sprint here that the service started, completes one that it completed, and publishes a start and a completion made here`, `${JIRA} › AC15.4 starts a sprint, and completes it, also one that was never started`]
+        },
+        {
+          id: 'AC15.5',
+          title: 'Zwei aktive Sprints in Jira',
+          link: BACKLOG,
+          given: 'In Jira laufen zwei Sprints.',
+          when: 'Ich synchronisiere.',
+          then: 'Hier läuft nur einer; der andere ist geplant und die Meldung nennt ihn. Es geht nichts verloren.',
+          tests: [`${SPRINTS} › AC15.5 lets only one sprint run: the second sprint of the service stays planned and is named`]
+        },
+        {
+          id: 'AC15.6',
+          title: 'Nie löschen',
+          link: BACKLOG,
+          given: 'Schreiben ist an.',
+          when: 'Ich synchronisiere mit Sprints in beide Richtungen.',
+          then: 'In Jira wird nie ein Sprint gelöscht (die App kann Sprints auch nicht löschen, nur abschliessen).',
+          tests: [`${JIRA} › AC15.6 never deletes: there is no way to remove a sprint`]
+        },
+        {
+          id: 'AC15.7',
+          title: 'Bestehende Daten',
+          link: BACKLOG,
+          given: 'Eine Datenbank von vorher mit Sprints ohne Jira-Verknüpfung.',
+          when: 'Ich starte die App und verbinde Jira.',
+          then: 'Sprints mit gleichem Namen werden verknüpft, die übrigen in Jira angelegt; nichts doppelt.',
+          tests: [`${SPRINTS} › AC15.7 connects a sprint with the same name instead of making a second one, and takes the service for the first link`],
+          manual: 'Die Migration der echten Datenbank (Ziel und Verknüpfung der Sprints) gibt es nur in der Windows-App.',
+          poCheck: 'Windows-App mit der Datenbank von vorher starten, Jira verbinden und synchronisieren: die Sprints sind nicht doppelt.'
         }
       ]
     },

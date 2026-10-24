@@ -171,7 +171,8 @@
     },
     "planned": "pianificato",
     "ended": "terminato",
-    "completed": "concluso"
+    "completed": "concluso",
+    "goal": "Obiettivo (facoltativo)"
   },
   "lifecycle": {
     "startButton": "Avvia lo sprint",
@@ -1544,7 +1545,9 @@
       "review": "Controlla",
       "log": "Registro",
       "skipped": "{{count}} epic o sotto-attività saltati",
-      "unmatched": "nessun membro del team per {{names}}"
+      "unmatched": "nessun membro del team per {{names}}",
+      "sprints": "{{count}} sprint inviati a {{service}}",
+      "concurrent": "in corso su {{service}} mentre qui ne è in corso un altro: {{names}}"
     },
     "auto": {
       "label": "Sincronizza automaticamente",

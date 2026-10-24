@@ -250,6 +250,26 @@ export function createJiraSimulation(
       saveSprints([...sprints, created]);
       return reply(201, created);
     }
+    const oneSprint = /^\/rest\/agile\/1\.0\/sprint\/(\d+)$/.exec(path);
+    if (oneSprint) {
+      const sprints = loadSprints();
+      const found = sprints.find((sprint) => sprint.id === Number(oneSprint[1]));
+      if (!found) return reply(404);
+      if (request.method === 'POST') {
+        const fields = body as { name?: string; goal?: string; startDate?: string; endDate?: string; state?: 'active' | 'closed' };
+        if (fields.name !== undefined) found.name = fields.name;
+        if (fields.goal !== undefined) found.goal = fields.goal;
+        if (fields.startDate !== undefined) found.startDate = fields.startDate;
+        if (fields.endDate !== undefined) found.endDate = fields.endDate;
+        if (fields.state === 'active') found.state = 'active';
+        if (fields.state === 'closed') {
+          if (found.state !== 'active') return reply(400);
+          found.state = 'closed';
+        }
+        saveSprints(sprints);
+      }
+      return reply(200, found);
+    }
     const intoSprint = /^\/rest\/agile\/1\.0\/sprint\/(\d+)\/issue$/.exec(path);
     if (intoSprint && request.method === 'POST') {
       const keys = ((body.issues ?? []) as string[]);

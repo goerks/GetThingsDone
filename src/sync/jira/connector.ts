@@ -1,8 +1,10 @@
 import { startStatus } from '../../domain/statuses';
 import { statusName } from '../../domain/sync';
+import type { SprintPatch } from '../../domain/syncSprints';
+import type { SprintFields } from '../../domain/types';
 import type { Catalog, ExternalItem, ExternalRelease, ExternalSprint, FieldName, ItemPatch, NewItem } from '../../domain/sync';
 import type { ExternalFields, ExternalLink } from '../../domain/types';
-import { SyncError, type ServiceBoard, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteContext, type WriteResult } from '../connector';
+import { SyncError, type ServiceBoard, type SprintOps, type TidyResult, type TrackerConnector, type WorkflowStatus, type WriteContext, type WriteResult } from '../connector';
 import { composeAdf, isAdf, readAdf, withCriteriaAdf, type AdfDoc } from './adf';
 import { createClient, isEmail, parseProject, parseSite, type JiraClient, type JiraTarget, type JiraTransport } from './client';
 
@@ -219,6 +221,63 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
   const scrumBoards = async (client: JiraClient, target: JiraTarget): Promise<ServiceBoard[]> => {
     const answer = await client.call<{ values?: Array<{ id: number; name?: string }> }>('GET', `/rest/agile/1.0/board?projectKeyOrId=${encodeURIComponent(target.project)}&type=scrum`).catch(() => null);
     return (answer?.values ?? []).map((board) => ({ id: String(board.id), name: board.name ?? `Board ${board.id}` }));
+  };
+
+  const toExternalSprint = (sprint: RawSprint): ExternalSprint => ({
+    id: String(sprint.id),
+    name: sprint.name,
+    goal: sprint.goal ?? '',
+    startDate: sprint.startDate ? sprint.startDate.slice(0, 10) : null,
+    endDate: sprint.endDate ? sprint.endDate.slice(0, 10) : null,
+    state: sprint.state === 'active' ? 'running' : sprint.state === 'closed' ? 'completed' : 'planned'
+  });
+  const jiraDate = (day: string): string => `${day}T00:00:00.000Z`;
+
+  /** Reading and writing the sprints of the board: a sprint is made, changed, started and completed, never deleted. */
+  const sprintOps: SprintOps<JiraTarget> = {
+    async fetch(target, token, id) {
+      try {
+        const raw = await createClient(transport, target, token).call<RawSprint>('GET', `/rest/agile/1.0/sprint/${encodeURIComponent(id)}`);
+        return raw ? toExternalSprint(raw) : null;
+      } catch (cause) {
+        if (cause instanceof SyncError && cause.kind === 'notFound') return null;
+        throw cause;
+      }
+    },
+    async create(target, token, fields: SprintFields, catalog) {
+      const client = createClient(transport, target, token);
+      const jira = extraOf(catalog);
+      if (jira.boardId === null) throw new SyncError('other');
+      const made = await client.call<RawSprint>('POST', '/rest/agile/1.0/sprint', {
+        name: fields.name,
+        originBoardId: jira.boardId,
+        ...(fields.goal ? { goal: fields.goal } : {}),
+        startDate: jiraDate(fields.startDate),
+        endDate: jiraDate(fields.endDate)
+      });
+      if (!made) throw new SyncError('other');
+      jira.sprints.push({ id: made.id, name: made.name });
+      if (fields.state === 'planned') return toExternalSprint(made);
+      return sprintOps.update(target, token, String(made.id), { state: fields.state }, catalog);
+    },
+    async update(target, token, id, patch: SprintPatch, catalog) {
+      const client = createClient(transport, target, token);
+      const jira = extraOf(catalog);
+      const send = (body: Record<string, unknown>): Promise<RawSprint | null> => client.call<RawSprint>('POST', `/rest/agile/1.0/sprint/${encodeURIComponent(id)}`, body);
+      const dates = { ...(patch.startDate ? { startDate: jiraDate(patch.startDate) } : {}), ...(patch.endDate ? { endDate: jiraDate(patch.endDate) } : {}) };
+      let raw = await send({ ...(patch.name !== undefined ? { name: patch.name } : {}), ...(patch.goal !== undefined ? { goal: patch.goal } : {}), ...dates });
+      // A sprint is started first, and a sprint that was never started is started before it is completed.
+      if (patch.state === 'running' || patch.state === 'completed') {
+        const now = raw ?? (await client.call<RawSprint>('GET', `/rest/agile/1.0/sprint/${encodeURIComponent(id)}`));
+        if (now?.state === 'future') raw = await send({ state: 'active', ...dates });
+        if (patch.state === 'completed') raw = await send({ state: 'closed' });
+      }
+      if (!raw) raw = await client.call<RawSprint>('GET', `/rest/agile/1.0/sprint/${encodeURIComponent(id)}`);
+      if (!raw) throw new SyncError('notFound');
+      const known = jira.sprints.find((entry) => String(entry.id) === id);
+      if (known) known.name = raw.name;
+      return toExternalSprint(raw);
+    }
   };
 
   /** The account of the user with that name who may be assigned in the project, or null. */
@@ -440,6 +499,7 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
     async tidy(_target, _token, _needs, managed): Promise<TidyResult> {
       return { managed, gone: { labels: [], milestones: [] } };
     },
+    sprintOps,
     async members(target, token) {
       const users = (await createClient(transport, target, token).call<Array<{ accountId: string; displayName?: string; accountType?: string; active?: boolean }>>('GET', `/rest/api/3/user/assignable/search?project=${encodeURIComponent(target.project)}&maxResults=200`)) ?? [];
       // Bots and apps (account type "app") and inactive accounts are no team members.

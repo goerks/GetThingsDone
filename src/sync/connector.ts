@@ -1,6 +1,7 @@
-import type { Catalog, ExternalItem, FieldName, ItemPatch, NewItem } from '../domain/sync';
+import type { Catalog, ExternalItem, ExternalSprint, FieldName, ItemPatch, NewItem } from '../domain/sync';
 import type { ServiceMember } from '../domain/syncMembers';
-import type { Epic, ExternalLink, Member, Release, ServiceKind, Sprint, StatusValue } from '../domain/types';
+import type { SprintPatch } from '../domain/syncSprints';
+import type { Epic, ExternalLink, Member, Release, ServiceKind, Sprint, SprintFields, StatusValue } from '../domain/types';
 
 /** Why a call to a service failed. The texts for the user are `sync.errors.<kind>`. */
 export type SyncErrorKind = 'config' | 'network' | 'auth' | 'forbidden' | 'notFound' | 'rateLimit' | 'transition' | 'other';
@@ -16,6 +17,16 @@ export class SyncError extends Error {
 }
 
 /** What a connector can do. The engine only compares the fields a service can hold. */
+/** What a connector does with the sprints of a service (Jira): reads one, makes one, changes one. A sprint is never deleted. */
+export interface SprintOps<Target = unknown> {
+  /** A sprint by its id, also a completed one; null when it is gone. */
+  fetch(target: Target, token: string, id: string): Promise<ExternalSprint | null>;
+  /** Makes a sprint with these fields, and starts or completes it when the state says so. `catalog` learns the new sprint. */
+  create(target: Target, token: string, fields: SprintFields, catalog: Catalog): Promise<ExternalSprint>;
+  /** Changes the given fields of a sprint (a state of "running" starts it, "completed" completes it). */
+  update(target: Target, token: string, id: string, patch: SprintPatch, catalog: Catalog): Promise<ExternalSprint>;
+}
+
 /** A board of a service (Jira) that can be chosen for the sprints. */
 export interface ServiceBoard {
   id: string;
@@ -110,6 +121,8 @@ export interface TrackerConnector<Target = unknown> {
   boards?(target: Target, token: string): Promise<ServiceBoard[]>;
   /** The people who can be assigned in the target, without bots. */
   members?(target: Target, token: string): Promise<ServiceMember[]>;
+  /** Reading and writing the sprints themselves, for the services that have them. */
+  sprintOps?: SprintOps<Target>;
 }
 
 /** A status of the workflow of a service: its name and what it counts as (not started, in progress, done). */

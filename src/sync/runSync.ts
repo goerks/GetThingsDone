@@ -1,4 +1,6 @@
 import { membersFromService } from '../domain/syncMembers';
+import { externalFieldsOf, planSprints, type SprintAction } from '../domain/syncSprints';
+import { todayIso } from '../domain/sprints';
 import { statusesFromService } from '../domain/syncStatuses';
 import { linkedIdsMissingIn, LABELS_FIELD_ID, linkTo, middleStatuses, newItemOf, pendingFields, planSync, statusName, withBase, type Decision, type PublishEntry, type SyncPlan, type SyncSummary } from '../domain/sync';
 import type { ConflictRule, Epic, FieldAssignment, FieldDefinition, Member, Release, Sprint, StatusValue, Story } from '../domain/types';
@@ -35,6 +37,9 @@ export interface RunSyncResult {
   managed: Made;
   /** The columns of the board after this run; they differ from the input when the service decides them. */
   statuses: StatusValue[];
+  /** The sprints after this run, with their links. A sprint that the service started or completed is still as it was: `sprintActions` says what the app has to do. */
+  sprints: Sprint[];
+  sprintActions: SprintAction[];
   /** The team after this run; it differs from the input when the service decides it. */
   members: Member[];
   /** The first call that failed while publishing. What was done before it is in `plan`; the rest stays for the next sync. */
@@ -75,6 +80,46 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   const skipped = connector.skipped?.() ?? 0;
   const context = { epics: input.epics, releases: input.releases, sprints: input.sprints, members };
   const catalog = await connector.catalog(target, token);
+  // The sprints themselves: compared and connected before the stories, so a story finds its sprint.
+  let sprints: Sprint[] = [...(input.sprints ?? [])];
+  let sprintActions: SprintAction[] = [];
+  const sprintSummary: { created: string[]; published: string[]; concurrent: string[] } = { created: [], published: [], concurrent: [] };
+  const ops = connector.capabilities.fields.includes('sprint') ? connector.sprintOps : undefined;
+  let sprintError: SyncError | null = null;
+  if (ops) {
+    const listed = [...(catalog.sprints ?? [])];
+    // A sprint here that the list of the service does not hold may be completed there: ask for it.
+    const absent = sprints.filter((sprint) => sprint.link?.service === connector.kind && sprint.state !== 'completed' && !listed.some((entry) => entry.id === sprint.link?.id));
+    for (const sprint of absent) {
+      const found = await ops.fetch(target, token, sprint.link?.id as string);
+      if (found) listed.push(found);
+    }
+    const today = todayIso();
+    const planned = planSprints({ service: connector.kind, sprints, external: listed, write: input.write, rule: input.conflict, newId: input.newId, today });
+    sprints = planned.sprints;
+    sprintActions = planned.actions;
+    sprintSummary.created = planned.created;
+    sprintSummary.concurrent = planned.concurrent;
+    if (input.write) {
+      try {
+        for (const make of planned.creates) {
+          const made = await ops.create(target, token, make.fields, catalog);
+          listed.push(made);
+          sprints = sprints.map((sprint) => (sprint.id === make.sprintId ? { ...sprint, link: { service: connector.kind, id: made.id, base: externalFieldsOf(made, make.fields, today) } } : sprint));
+          sprintSummary.published.push(make.fields.name);
+        }
+        for (const change of planned.updates) {
+          const updated = await ops.update(target, token, change.id, change.patch, catalog);
+          const at = listed.findIndex((entry) => entry.id === change.id);
+          if (at >= 0) listed[at] = updated;
+          sprintSummary.published.push(sprints.find((sprint) => sprint.id === change.sprintId)?.name ?? updated.name);
+        }
+      } catch (cause) {
+        sprintError = cause instanceof SyncError ? cause : new SyncError('other');
+      }
+    }
+    catalog.sprints = listed;
+  }
   // A story whose item is no longer in the list of open items may have been closed: ask for those.
   const missing = linkedIdsMissingIn(
     inputStories,
@@ -95,7 +140,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
     statuses,
     items,
     externalReleases: catalog.releases,
-    sprints: input.sprints,
+    sprints,
     members,
     externalSprints: catalog.sprints,
     lacks: (kind, name) => connector.lacks(catalog, kind, name),
@@ -113,12 +158,12 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   let managed: Made = { labels: [...input.managed.labels], milestones: [...input.managed.milestones] };
   const made: Made = { labels: [], milestones: [] };
   let gone: Made = { labels: [], milestones: [] };
-  let error: SyncError | null = null;
+  let error: SyncError | null = sprintError;
   const fail = (cause: unknown): void => {
     error = cause instanceof SyncError ? cause : new SyncError('other');
   };
 
-  if (input.write) {
+  if (input.write && !error) {
     for (const push of plan.pushes) {
       let result;
       try {
@@ -155,7 +200,9 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   }
   return {
     plan: { ...plan, stories },
-    summary: { ...plan.summary, ...(skipped > 0 ? { skipped } : {}), published, labelsCreated: made.labels, milestonesCreated: made.milestones, labelsDeleted: gone.labels, milestonesDeleted: gone.milestones },
+    sprints: plan.sprints,
+    sprintActions,
+    summary: { ...plan.summary, ...(skipped > 0 ? { skipped } : {}), published, labelsCreated: made.labels, milestonesCreated: made.milestones, labelsDeleted: gone.labels, milestonesDeleted: gone.milestones, ...(sprintSummary.published.length > 0 ? { sprintsPublished: sprintSummary.published } : {}), ...(sprintSummary.concurrent.length > 0 ? { sprintsConcurrent: sprintSummary.concurrent } : {}), ...(sprintSummary.created.length > 0 ? { sprintsCreated: [...sprintSummary.created, ...(plan.summary.sprintsCreated ?? [])] } : {}) },
     managed,
     statuses,
     members,

@@ -315,6 +315,9 @@ export interface SyncSummary {
   sprintsCreated?: string[];
   /** Names of assignees of the service that no member of the team has: the story stays as it is. */
   unmatchedAssignees?: string[];
+  /** Names of sprints that were made or changed in the service, and of sprints that run there while another one runs here. */
+  sprintsPublished?: string[];
+  sprintsConcurrent?: string[];
 }
 
 export type Decision = 'local' | 'remote';
@@ -736,6 +739,8 @@ export const isEmptySummary = (summary: SyncSummary): boolean =>
     summary.releasesCreated.length +
     summary.epicsCreated.length +
     (summary.sprintsCreated?.length ?? 0) +
+    (summary.sprintsPublished?.length ?? 0) +
+    (summary.sprintsConcurrent?.length ?? 0) +
     summary.labelsCreated.length +
     summary.labelsDeleted.length +
     summary.milestonesCreated.length +

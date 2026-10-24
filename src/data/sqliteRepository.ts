@@ -23,9 +23,11 @@ import type {
   ItemType,
   Release,
   ReleaseEvent,
+  ServiceKind,
   Settings,
   Snapshot,
   Sprint,
+  SprintFields,
   Status,
   StatusCategory,
   StatusValue,
@@ -55,6 +57,10 @@ interface SprintRow {
   state: string | null;
   start_items: string | null;
   result: string | null;
+  goal: string | null;
+  sync_service: string | null;
+  sync_id: string | null;
+  sync_base: string | null;
 }
 
 interface ChangeLogRow {
@@ -208,7 +214,7 @@ export class SqliteRepository implements Repository {
   async load(): Promise<Snapshot> {
     const epicRows = await this.db.select<EpicRow[]>('SELECT id, name, color_key, position FROM epics ORDER BY position, name');
     const sprintRows = await this.db.select<SprintRow[]>(
-      'SELECT id, name, start_date, end_date, state, start_items, result FROM sprints ORDER BY start_date, name'
+      'SELECT id, name, start_date, end_date, state, start_items, result, goal, sync_service, sync_id, sync_base FROM sprints ORDER BY start_date, name'
     );
     const releaseRows = await this.db.select<ReleaseRow[]>(
       'SELECT id, title, description, start_date, end_date FROM releases ORDER BY rowid'
@@ -270,7 +276,9 @@ export class SqliteRepository implements Repository {
       endDate: row.end_date,
       state: (row.state ?? undefined) as Sprint['state'] | undefined,
       startItems: parseJson<Sprint['startItems']>(row.start_items),
-      result: parseJson<Sprint['result']>(row.result)
+      result: parseJson<Sprint['result']>(row.result),
+      ...(row.goal ? { goal: row.goal } : {}),
+      ...(row.sync_service && row.sync_id && row.sync_base ? { link: { service: row.sync_service as ServiceKind, id: row.sync_id, base: parseJson<SprintFields>(row.sync_base) as SprintFields } } : {})
     }));
     const eventRows = await this.db.select<EventRow[]>(
       'SELECT id, at, release_id, story_id, code, kind, points, done FROM release_events ORDER BY at, rowid'
@@ -547,19 +555,23 @@ export class SqliteRepository implements Repository {
 
   async addSprint(sprint: Sprint): Promise<void> {
     await this.db.execute(
-      'INSERT INTO sprints (id, name, start_date, end_date, state, start_items, result) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-      [sprint.id, sprint.name, sprint.startDate, sprint.endDate, sprint.state, json(sprint.startItems), json(sprint.result)]
+      'INSERT INTO sprints (id, name, start_date, end_date, state, start_items, result, goal, sync_service, sync_id, sync_base) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+      [sprint.id, sprint.name, sprint.startDate, sprint.endDate, sprint.state, json(sprint.startItems), json(sprint.result), sprint.goal ?? null, sprint.link?.service ?? null, sprint.link?.id ?? null, json(sprint.link?.base ?? null)]
     );
   }
 
   async updateSprint(sprint: Sprint): Promise<void> {
-    await this.db.execute('UPDATE sprints SET name = $1, start_date = $2, end_date = $3, state = $4, start_items = $5, result = $6 WHERE id = $7', [
+    await this.db.execute('UPDATE sprints SET name = $1, start_date = $2, end_date = $3, state = $4, start_items = $5, result = $6, goal = $7, sync_service = $8, sync_id = $9, sync_base = $10 WHERE id = $11', [
       sprint.name,
       sprint.startDate,
       sprint.endDate,
       sprint.state,
       json(sprint.startItems),
       json(sprint.result),
+      sprint.goal ?? null,
+      sprint.link?.service ?? null,
+      sprint.link?.id ?? null,
+      json(sprint.link?.base ?? null),
       sprint.id
     ]);
   }

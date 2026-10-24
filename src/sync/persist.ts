@@ -16,7 +16,11 @@ export async function persistSync(
   // Epics and releases the sync made come first: the stories point to them.
   for (const epic of plan.epics) if (!(before.epics ?? []).some((item) => item.id === epic.id)) await repo.addEpic(epic);
   for (const release of plan.releases) if (!(before.releases ?? []).some((item) => item.id === release.id)) await repo.addRelease(release);
-  for (const sprint of plan.sprints) if (!(before.sprints ?? []).some((item) => item.id === sprint.id)) await repo.addSprint(sprint);
+  for (const sprint of plan.sprints) {
+    const had = (before.sprints ?? []).find((item) => item.id === sprint.id);
+    if (!had) await repo.addSprint(sprint);
+    else if (!sameJson(had, sprint)) await repo.updateSprint(sprint);
+  }
   const labels = plan.fields.find((field) => field.id === LABELS_FIELD_ID);
   const hadLabels = before.fields.find((field) => field.id === LABELS_FIELD_ID);
   if (labels && !sameJson(labels, hadLabels)) {

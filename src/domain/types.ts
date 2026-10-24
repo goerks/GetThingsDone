@@ -65,9 +65,29 @@ export interface SprintResult {
  * A time box. Dates are local calendar days as `YYYY-MM-DD`; both days belong to the sprint.
  * A sprint runs when it is started, not by its dates (#17).
  */
+/** What a sprint looks like in a service and here: the compared fields of a sprint. */
+export interface SprintFields {
+  name: string;
+  startDate: string;
+  endDate: string;
+  goal: string;
+  state: SprintState;
+}
+
+/** The link of a sprint to a sprint of a service (Jira, #66): its id there, and the fields as they were at the last sync. */
+export interface SprintLink {
+  service: ServiceKind;
+  id: string;
+  base: SprintFields;
+}
+
 export interface Sprint {
   id: string;
   name: string;
+  /** What the sprint is for; synchronised with the goal of a Jira sprint. */
+  goal?: string;
+  /** Set while the sprint is connected to a sprint of the synchronised service. */
+  link?: SprintLink;
   startDate: string;
   endDate: string;
   state: SprintState;

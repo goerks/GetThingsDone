@@ -171,7 +171,8 @@
     },
     "planned": "planned",
     "ended": "ended",
-    "completed": "completed"
+    "completed": "completed",
+    "goal": "Goal (optional)"
   },
   "lifecycle": {
     "startButton": "Start sprint",
@@ -1536,7 +1537,9 @@
       "review": "Review",
       "log": "Log",
       "skipped": "{{count}} epics or sub-tasks left out",
-      "unmatched": "no team member for {{names}}"
+      "unmatched": "no team member for {{names}}",
+      "sprints": "{{count}} sprints sent to {{service}}",
+      "concurrent": "running at {{service}} while another sprint runs here: {{names}}"
     },
     "auto": {
       "label": "Synchronise automatically",
