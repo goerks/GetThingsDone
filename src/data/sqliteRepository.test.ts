@@ -660,7 +660,7 @@ describe('sprint states (#17)', () => {
         ('c', 'S-3', 'Running now', '', NULL, 3, 'todo', 's1', 2),
         ('d', 'S-4', 'Later', '', NULL, 2, 'todo', 's2', 3);
     `);
-    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql', '016_sync.sql']);
+    migrate(db, ['011_sprint_states.sql', '012_definitions.sql', '013_change_log.sql', '014_members.sql', '015_github.sql', '016_sync.sql', '017_sprint_sync.sql']);
     return db;
   }
 
@@ -815,22 +815,22 @@ describe('link of a story to its issue (#30, #66)', () => {
 
   it('keeps the stories of version 0.1 when the migrations add the columns', () => {
     const db = openDatabase();
-    migrate(db, MIGRATIONS.slice(0, -2));
+    migrate(db, MIGRATIONS.slice(0, 14));
     db.exec("INSERT INTO stories (id, code, title, description, points, status, rank) VALUES ('s1', 'S-1', 'A', '', 1, 'todo', 0)");
-    migrate(db, MIGRATIONS.slice(-2));
+    migrate(db, MIGRATIONS.slice(14));
     expect(db.prepare('SELECT sync_service, sync_key, sync_url, sync_state FROM stories').all()).toEqual([{ sync_service: null, sync_key: null, sync_url: null, sync_state: null }]);
   });
 
   it('AC11.2 takes the links and the settings of the GitHub sync as they were stored before the generalisation', async () => {
     // Given a database of the version before: a story linked to issue 31, and the settings of the GitHub connection
     const db = openDatabase();
-    migrate(db, MIGRATIONS.slice(0, -1));
+    migrate(db, MIGRATIONS.slice(0, 15));
     db.exec(`INSERT INTO stories (id, code, title, description, points, status, rank, github_url, github_state, github_base) VALUES
       ('s1', 'S-1', 'Login', '', 1, 'todo', 0, '${url}', 'open', '${JSON.stringify(base)}'),
       ('s2', 'S-2', 'Own', '', 1, 'todo', 1, NULL, NULL, NULL)`);
     db.exec(`INSERT INTO settings (key, value) VALUES ('feature_github', '1'), ('github_repo', 'goerks/GetThingsDone'), ('github_write', '1'), ('github_conflict', 'ask'), ('github_auto', '1'), ('github_last_sync', '2026-10-12T10:00:00.000Z'), ('github_ignored', '["https://github.com/goerks/GetThingsDone/issues/9"]')`);
     // When the migration of the generalisation runs and the app loads
-    migrate(db, MIGRATIONS.slice(-1));
+    migrate(db, MIGRATIONS.slice(15));
     const loaded = await new SqliteRepository(new NodeDatabase(db)).load();
     // Then the link is a link to GitHub with its key, the settings are those of the synchronisation, and nothing is left under the old names
     expect(loaded.stories.find((story) => story.id === 's1')?.link).toEqual({ service: 'github', key: '#31', url, state: 'open', base });
