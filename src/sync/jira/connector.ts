@@ -274,7 +274,8 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
       },
       create: true,
       tidy: false,
-      statusesFromService: true
+      statusesFromService: true,
+      membersFromService: true
     },
     target: parseTarget,
     normalize,
@@ -438,6 +439,11 @@ export function createJiraConnector(transport: JiraTransport): TrackerConnector<
     },
     async tidy(_target, _token, _needs, managed): Promise<TidyResult> {
       return { managed, gone: { labels: [], milestones: [] } };
+    },
+    async members(target, token) {
+      const users = (await createClient(transport, target, token).call<Array<{ accountId: string; displayName?: string; accountType?: string; active?: boolean }>>('GET', `/rest/api/3/user/assignable/search?project=${encodeURIComponent(target.project)}&maxResults=200`)) ?? [];
+      // Bots and apps (account type "app") and inactive accounts are no team members.
+      return users.filter((user) => (user.accountType === undefined || user.accountType === 'atlassian') && user.active !== false && (user.displayName ?? '').trim() !== '').map((user) => ({ id: user.accountId, name: (user.displayName ?? '').trim() }));
     },
     async boards(target, token) {
       return scrumBoards(createClient(transport, target, token), target);

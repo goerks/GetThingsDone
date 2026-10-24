@@ -17,6 +17,7 @@ const JIRA = 'src/sync/jira/jira.test.ts';
 const JIRA_UI = 'src/Jira.test.tsx';
 const PEOPLE = 'src/domain/syncPeople.test.ts';
 const STATUSES = 'src/domain/syncStatuses.test.ts';
+const MEMBERS = 'src/domain/syncMembers.test.ts';
 
 const SETTINGS_PAGE = '#/settings/sync';
 const BACKLOG = '#/backlog';
@@ -326,7 +327,6 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           then: 'Hat das Team «Anna Meier», ist die Story ihr zugewiesen. Gibt es keinen Treffer, nennt der Hinweis den Namen («kein Teammitglied für …»), die Story bleibt unverändert und nichts wird geraten oder zurückgeschrieben. Eine lokale Zuweisung geht mit Schreiben an nach Jira, wenn dort jemand denselben Namen hat.',
           tests: [
             `${JIRA} › AC7.5 reads the name of the assignee`,
-            `${JIRA} › AC7.5 assigns a person by name and takes the assignment away again`,
             `${JIRA} › AC7.5 changes nothing for a name that nobody has in Jira`,
             `${PEOPLE} › AC7.5 assigns the member of the team with the name of the assignee`,
             `${PEOPLE} › AC7.5 reports an assignee nobody of the team has, leaves the story as it is and does not publish it back`
@@ -473,6 +473,47 @@ export const PACKAGE_66: { issue: number; pullRequest: number; title: string; cr
           when: 'Ich öffne die Einstellungen der Status-Werte.',
           then: 'Ein Hinweis sagt, dass die Spalten von Jira kommen; Anlegen, Umbenennen, Löschen und Umordnen sind gesperrt. Nach «Verbindung entfernen» geht alles wieder.',
           tests: [`${JIRA_UI} › AC13.4 locks the columns in the settings while Jira is connected`]
+        }
+      ]
+    },
+    {
+      id: 'AC14',
+      story: 'J11',
+      title: 'Das Team kommt von Jira',
+      cases: [
+        {
+          id: 'AC14.1',
+          title: 'Team kommt aus Jira',
+          link: '#/settings/team',
+          target: '.team',
+          given: 'Jira hat die zuweisbaren Personen «Anna Meier» und «Tom Keller» und einen Bot «Automation»; lokal gibt es «Max Muster».',
+          when: 'Ich synchronisiere.',
+          then: 'Das Team besteht aus «Anna Meier» und «Tom Keller» (AM, TK), ohne den Bot. «Max Muster» ist entfernt, seine Zuweisungen sind weg. Die Funktion «Team» ist eingeschaltet.',
+          tests: [
+            `${JIRA_UI} › AC14.1 makes the people of Jira the team, switches the feature on, and assigns the story of Anna`,
+            `${MEMBERS} › AC14.1 makes the people of the service the team: keeps the members it knows, adds the new ones, removes the others and their assignments`,
+            `${MEMBERS} › AC14.1 changes nothing when the service names nobody, or nothing is different`,
+            `${JIRA} › AC14.1 lists the people who can be assigned and leaves out bots`
+          ]
+        },
+        {
+          id: 'AC14.2',
+          title: 'Zuweisung',
+          link: BACKLOG,
+          given: '«PROJ-1» ist in Jira Anna Meier zugewiesen.',
+          when: 'Ich synchronisiere; danach weise ich lokal Tom Keller zu und synchronisiere erneut (Schreiben an).',
+          then: 'Erst Anna, dann Tom in Jira. Es gibt keine Meldung «kein Teammitglied» mehr.',
+          tests: [`${JIRA} › AC14.2 assigns a person by name and takes the assignment away again`]
+        },
+        {
+          id: 'AC14.3',
+          title: 'Team ist gesperrt',
+          link: '#/settings/team',
+          target: '.team',
+          given: 'Jira ist verbunden.',
+          when: 'Ich öffne die Team-Einstellungen.',
+          then: 'Ein Hinweis nennt Jira als Quelle; Hinzufügen, Ändern und Entfernen sind gesperrt. Nach «Verbindung entfernen» geht alles wieder.',
+          tests: [`${JIRA_UI} › AC14.3 locks the team in the settings while Jira is connected`]
         }
       ]
     },

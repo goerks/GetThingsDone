@@ -1394,7 +1394,8 @@
       "all": "Alle",
       "none": "Nicht zugewiesen",
       "empty": "Keine Stories für diese Person."
-    }
+    },
+    "fromService": "Das Team kommt von {{service}} (die zuweisbaren Personen des Projekts) und lässt sich hier nicht ändern. Entferne die Verbindung, um es zu bearbeiten."
   },
   "sync": {
     "sync": {

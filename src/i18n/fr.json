@@ -1399,7 +1399,8 @@
       "all": "Toutes",
       "none": "Non assignées",
       "empty": "Aucune story pour cette personne."
-    }
+    },
+    "fromService": "L’équipe vient de {{service}} (les personnes assignables du projet) et ne peut pas être modifiée ici. Supprimez la connexion pour la modifier."
   },
   "sync": {
     "sync": {

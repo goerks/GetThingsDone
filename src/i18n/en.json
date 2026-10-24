@@ -1394,7 +1394,8 @@
       "all": "All",
       "none": "Unassigned",
       "empty": "No stories for this person."
-    }
+    },
+    "fromService": "The team comes from {{service}} (the people who can be assigned in the project) and cannot be changed here. Remove the connection to edit it."
   },
   "sync": {
     "sync": {

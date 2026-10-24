@@ -359,6 +359,16 @@ describe('sprints', () => {
   });
 });
 
+describe('the team', () => {
+  it('AC14.1 lists the people who can be assigned and leaves out bots', async () => {
+    const { connector } = setup();
+    expect(await connector.members?.(target, 'good')).toEqual([
+      { id: 'u-anna', name: 'Anna Meier' },
+      { id: 'u-tom', name: 'Tom Keller' }
+    ]);
+  });
+});
+
 describe('assignees', () => {
   it('AC7.5 reads the name of the assignee', async () => {
     const { find } = setup();
@@ -366,7 +376,7 @@ describe('assignees', () => {
     expect((await find('PROJ-2')).fields.assignee).toBeNull();
   });
 
-  it('AC7.5 assigns a person by name and takes the assignment away again', async () => {
+  it('AC14.2 assigns a person by name and takes the assignment away again', async () => {
     const { connector, find } = setup();
     const assigned = await connector.update(target, 'good', await find('PROJ-2'), { assignee: 'Tom Keller' }, context);
     expect(assigned.item.fields.assignee).toBe('Tom Keller');

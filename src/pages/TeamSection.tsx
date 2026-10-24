@@ -2,6 +2,8 @@ import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_INITIALS, freeInitials, initialsFollowName, storiesOfMember, type MemberProblem } from '../domain/members';
 import type { Member } from '../domain/types';
+import { teamFromService } from '../domain/syncOwners';
+import { serviceName } from '../sync/syncT';
 import { useApp } from '../state/AppState';
 import { FeatureTab } from './FeatureTab';
 
@@ -151,10 +153,16 @@ export function TeamSection() {
   const { t } = useTranslation();
   const app = useApp();
   const [adding, setAdding] = useState(false);
+  const fromService = teamFromService(app.settings);
 
   return (
     <FeatureTab feature="team">
-      <div className="team">
+      {fromService && (
+        <p className="hint hint--info" role="note">
+          {t('team.fromService', { service: serviceName(t, app.settings.sync.service) })}
+        </p>
+      )}
+      <div className="team" inert={fromService}>
         <p className="muted">{t('team.intro')}</p>
         {app.members.length === 0 ? (
           <p className="hint hint--info" role="note">

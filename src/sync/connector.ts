@@ -1,4 +1,5 @@
 import type { Catalog, ExternalItem, FieldName, ItemPatch, NewItem } from '../domain/sync';
+import type { ServiceMember } from '../domain/syncMembers';
 import type { Epic, ExternalLink, Member, Release, ServiceKind, Sprint, StatusValue } from '../domain/types';
 
 /** Why a call to a service failed. The texts for the user are `sync.errors.<kind>`. */
@@ -30,6 +31,8 @@ export interface ConnectorCapabilities {
   tidy: boolean;
   /** Whether the columns of the board come from the statuses of the service (Jira). */
   statusesFromService?: boolean;
+  /** Whether the team comes from the people of the service (Jira). */
+  membersFromService?: boolean;
 }
 
 /** The result of a change in the service: the item as it is now, and the labels the service does not know. */
@@ -105,6 +108,8 @@ export interface TrackerConnector<Target = unknown> {
   statuses?(target: Target, token: string): Promise<WorkflowStatus[]>;
   /** The boards of the target whose sprints can be synchronised (Jira: the scrum boards of the project). */
   boards?(target: Target, token: string): Promise<ServiceBoard[]>;
+  /** The people who can be assigned in the target, without bots. */
+  members?(target: Target, token: string): Promise<ServiceMember[]>;
 }
 
 /** A status of the workflow of a service: its name and what it counts as (not started, in progress, done). */

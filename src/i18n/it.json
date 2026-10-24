@@ -1399,7 +1399,8 @@
       "all": "Tutte",
       "none": "Non assegnate",
       "empty": "Nessuna storia per questa persona."
-    }
+    },
+    "fromService": "Il team viene da {{service}} (le persone assegnabili nel progetto) e non si può modificare qui. Rimuovi la connessione per modificarlo."
   },
   "sync": {
     "sync": {

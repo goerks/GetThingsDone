@@ -75,7 +75,7 @@ import { hrefs } from '../router';
 import { DEFAULT_SETTINGS, DEFAULT_SYNC } from '../domain/settings';
 import { createConnectors, createTokenVault, SyncError, type Connectors, type TokenStore, type TokenVault } from '../sync';
 import type { ServiceBoard, WorkflowStatus } from '../sync/connector';
-import { columnsFromService } from '../domain/syncOwners';
+import { columnsFromService, teamFromService } from '../domain/syncOwners';
 import { persistSync } from '../sync/persist';
 import { createInService as createInServiceWith, runSync } from '../sync/runSync';
 import {
@@ -903,6 +903,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         persist((repo) => repo.saveCriteriaOrder(storyId, order));
       },
       createMember(name, initials) {
+        if (teamFromService(settingsRef.current)) return { ok: false, problem: 'nameEmpty' };
         const result = addMemberIn(membersRef.current, newId(), name, initials);
         if (!result.ok) return result;
         membersRef.current = result.members;
@@ -911,6 +912,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         return result;
       },
       updateMember(id, patch) {
+        if (teamFromService(settingsRef.current)) return { ok: false, problem: 'nameEmpty' };
         const result = changeMemberIn(membersRef.current, id, patch);
         if (!result.ok) return result;
         membersRef.current = result.members;
@@ -919,6 +921,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         return result;
       },
       removeMember(id) {
+        if (teamFromService(settingsRef.current)) return 0;
         const count = storiesOfMember(storiesRef.current, id).length;
         const result = removeMemberIn(membersRef.current, storiesRef.current, id);
         // The stories are saved first, so the history shows them as not assigned, then the member goes.
@@ -1141,6 +1144,14 @@ export function AppProvider({ repository, sync, children }: Props) {
           if (plan.epics.length !== before.epics.length) updateEpics(plan.epics);
           if (plan.releases.length !== before.releases.length) updateReleases(plan.releases);
           if (plan.sprints.length !== before.sprints.length) updateSprints(plan.sprints);
+          const membersBefore = membersRef.current;
+          const membersChanged = JSON.stringify(result.members) !== JSON.stringify(membersBefore);
+          if (membersChanged) {
+            membersRef.current = result.members;
+            setSnapshot((current) => ({ ...current, members: result.members }));
+            // The team of the service needs the feature Team.
+            if (!settingsRef.current.features.team && result.members.length > 0) api.setFeature('team', true);
+          }
           const statusesChanged = JSON.stringify(result.statuses) !== JSON.stringify(statusesRef.current);
           if (statusesChanged) update(plan.stories, result.statuses);
           else update(plan.stories);
@@ -1150,7 +1161,13 @@ export function AppProvider({ repository, sync, children }: Props) {
           managed = result.managed;
           persist(async (repoStore) => {
             if (statusesChanged) await repoStore.saveStatuses(result.statuses);
+            for (const member of result.members) {
+              const had = membersBefore.find((item) => item.id === member.id);
+              if (!had) await repoStore.addMember(member);
+              else if (JSON.stringify(had) !== JSON.stringify(member)) await repoStore.updateMember(member);
+            }
             await persistSync(repoStore, before, plan);
+            for (const old of membersBefore) if (!result.members.some((member) => member.id === old.id)) await repoStore.deleteMember(old.id);
           });
         } catch (cause) {
           failure = cause;

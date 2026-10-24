@@ -1,3 +1,4 @@
+import { membersFromService } from '../domain/syncMembers';
 import { statusesFromService } from '../domain/syncStatuses';
 import { linkedIdsMissingIn, LABELS_FIELD_ID, linkTo, middleStatuses, newItemOf, pendingFields, planSync, statusName, withBase, type Decision, type PublishEntry, type SyncPlan, type SyncSummary } from '../domain/sync';
 import type { ConflictRule, Epic, FieldAssignment, FieldDefinition, Member, Release, Sprint, StatusValue, Story } from '../domain/types';
@@ -34,6 +35,8 @@ export interface RunSyncResult {
   managed: Made;
   /** The columns of the board after this run; they differ from the input when the service decides them. */
   statuses: StatusValue[];
+  /** The team after this run; it differs from the input when the service decides it. */
+  members: Member[];
   /** The first call that failed while publishing. What was done before it is in `plan`; the rest stays for the next sync. */
   error: SyncError | null;
 }
@@ -49,6 +52,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
   const { connector, target, token } = input;
   let statuses: StatusValue[] = [...input.statuses];
   let inputStories: readonly Story[] = input.stories;
+  let members: Member[] = [...(input.members ?? [])];
   const labelsField = input.fields.find((field) => field.id === LABELS_FIELD_ID);
   // The service decides the columns: they are taken over first, so every story is compared with the new columns.
   if (connector.capabilities.statusesFromService && connector.statuses) {
@@ -59,9 +63,17 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
       inputStories = taken.stories;
     }
   }
+  // The service decides the team too: the people who can be assigned become the members.
+  if (connector.capabilities.membersFromService && connector.members) {
+    const taken = membersFromService(members, inputStories, await connector.members(target, token), input.newId);
+    if (taken.changed) {
+      members = taken.members;
+      inputStories = taken.stories;
+    }
+  }
   const open = await connector.open(target, token);
   const skipped = connector.skipped?.() ?? 0;
-  const context = { epics: input.epics, releases: input.releases, sprints: input.sprints, members: input.members };
+  const context = { epics: input.epics, releases: input.releases, sprints: input.sprints, members };
   const catalog = await connector.catalog(target, token);
   // A story whose item is no longer in the list of open items may have been closed: ask for those.
   const missing = linkedIdsMissingIn(
@@ -84,7 +96,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
     items,
     externalReleases: catalog.releases,
     sprints: input.sprints,
-    members: input.members,
+    members,
     externalSprints: catalog.sprints,
     lacks: (kind, name) => connector.lacks(catalog, kind, name),
     epics: input.epics,
@@ -110,7 +122,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
     for (const push of plan.pushes) {
       let result;
       try {
-        result = await connector.update(target, token, push.item, push.patch, { epics: plan.epics, releases: plan.releases, sprints: plan.sprints, members: input.members, statuses, catalog, made });
+        result = await connector.update(target, token, push.item, push.patch, { epics: plan.epics, releases: plan.releases, sprints: plan.sprints, members, statuses, catalog, made });
       } catch (cause) {
         fail(cause);
         break;
@@ -146,6 +158,7 @@ export async function runSync(input: RunSyncInput): Promise<RunSyncResult> {
     summary: { ...plan.summary, ...(skipped > 0 ? { skipped } : {}), published, labelsCreated: made.labels, milestonesCreated: made.milestones, labelsDeleted: gone.labels, milestonesDeleted: gone.milestones },
     managed,
     statuses,
+    members,
     error
   };
 }

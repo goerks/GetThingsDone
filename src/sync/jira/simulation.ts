@@ -79,9 +79,10 @@ export const DEMO_JIRA_SPRINTS: readonly DemoJiraSprint[] = [
 ];
 
 /** The people of the simulated Jira who can be assigned. */
-export const DEMO_JIRA_USERS: ReadonlyArray<{ accountId: string; displayName: string }> = [
-  { accountId: 'u-anna', displayName: 'Anna Meier' },
-  { accountId: 'u-tom', displayName: 'Tom Keller' }
+export const DEMO_JIRA_USERS: ReadonlyArray<{ accountId: string; displayName: string; accountType: 'atlassian' | 'app' }> = [
+  { accountId: 'u-anna', displayName: 'Anna Meier', accountType: 'atlassian' },
+  { accountId: 'u-tom', displayName: 'Tom Keller', accountType: 'atlassian' },
+  { accountId: 'u-bot', displayName: 'Automation', accountType: 'app' }
 ];
 
 export const DEMO_JIRA_VERSIONS: readonly DemoJiraVersion[] = [

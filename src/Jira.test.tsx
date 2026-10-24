@@ -126,6 +126,28 @@ describe('choosing the board', () => {
   }, 20000);
 });
 
+describe('the team', () => {
+  it('AC14.1 makes the people of Jira the team, switches the feature on, and assigns the story of Anna', async () => {
+    // Given a connected Jira and an empty team
+    const user = userEvent.setup();
+    const { repository } = await renderApp('#/backlog', { connected: true });
+    // When I synchronise
+    await sync(user);
+    // Then the team is Anna and Tom (no bot), the feature is on and PROJ-1 is assigned to Anna
+    await waitFor(async () => expect((await repository.load()).members.map((member) => member.name)).toEqual(['Anna Meier', 'Tom Keller']));
+    const loaded = await repository.load();
+    expect(loaded.settings.features.team).toBe(true);
+    const anna = loaded.members.find((member) => member.name === 'Anna Meier');
+    expect(loaded.stories.find((item) => item.link?.key === 'PROJ-1')?.assigneeId).toBe(anna?.id);
+  }, 30000);
+
+  it('AC14.3 locks the team in the settings while Jira is connected', async () => {
+    await renderApp('#/settings/team', { connected: true });
+    expect(await screen.findByText(/The team comes from Jira/)).toBeInTheDocument();
+    expect(document.querySelector('.team[inert]')).not.toBeNull();
+  }, 20000);
+});
+
 describe('the columns of the board', () => {
   it('AC13.1 takes the columns of the board from the statuses of Jira when I synchronise', async () => {
     // Given a connected Jira and the default columns
