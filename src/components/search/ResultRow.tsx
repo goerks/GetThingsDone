@@ -5,6 +5,7 @@ import type { SearchSnapshot } from '../../domain/types';
 import { formatSprintDates } from '../sprintFormat';
 import { Highlighted } from './Highlighted';
 import { StatusDot } from '../StatusDot';
+import { storyKey } from '../../domain/storyKey';
 
 const ICON = { story: 'S', epic: 'E', sprint: 'SP' } as const;
 
@@ -26,7 +27,7 @@ export function ResultRow({ result, snapshot, onPage = false }: { result: Search
         <span className="result__main">
           <span className="result__title">
             <span className="card__code">
-              <Highlighted text={story.code} ranges={result.codeRanges} />
+              <Highlighted text={storyKey(story, snapshot.syncOn ?? false)} ranges={result.codeRanges} />
             </span>{' '}
             <Highlighted text={story.title} ranges={result.titleRanges} />
             {badge}

@@ -15,8 +15,8 @@ import { useTranslation } from 'react-i18next';
 import { AssigneeBadge } from '../components/AssigneeBadge';
 import { EpicTag } from '../components/EpicTag';
 import { NewStoryDialog } from '../components/NewStoryDialog';
-import { GithubBadge } from '../components/GithubBadge';
-import { GithubSync } from '../components/GithubSync';
+import { PendingMarker, StoryKey } from '../components/StoryKey';
+import { SyncControl } from '../components/SyncControl';
 import { NewButton } from '../components/NewButton';
 import { SprintPlan } from '../components/SprintPlan';
 import { StoryQuickAdd } from '../components/QuickAdd';
@@ -35,6 +35,7 @@ import { useBuiltin } from '../components/useBuiltin';
 import { PointsEdit } from '../components/PointsEdit';
 import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
 import { useSearchPage } from '../state/Search';
+import { useStoryKey } from '../components/useStoryKey';
 
 /** Group key of a section: the sprint id, or "-" for the unplanned stories. */
 type SectionKey = string;
@@ -59,10 +60,10 @@ function RowContent({ story, epic, editable = true }: Omit<RowProps, 'dropLabel'
   const builtin = useBuiltin();
   return (
     <>
-      <span className="card__code backlog__code">{story.code}</span>
+      <StoryKey story={story} className="card__code backlog__code" />
       <TitleButton story={story} className="backlog__title" />
       <DefinitionChip story={story} kind="ready" />
-      <GithubBadge story={story} />
+      <PendingMarker story={story} />
       <EpicTag epic={epic} inCard />
       <AssigneeBadge story={story} />
       {builtin.shown('story', 'points') &&
@@ -82,6 +83,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
   const details = useDetails();
   const menu = useStoryMenu();
   const app = useApp();
+  const keyOf = useStoryKey();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('backlog.rowRole') }
@@ -108,7 +110,7 @@ function BacklogRow({ story, rank, epic, dropLabel }: RowProps) {
       data-story-id={story.id}
       data-drop-label={dropLabel}
       {...attributes}
-      aria-label={t('backlog.rowLabel', { rank, code: story.code, title: story.title })}
+      aria-label={t('backlog.rowLabel', { rank, code: keyOf(story), title: story.title })}
       {...listeners}
       onKeyDown={onKeyDown}
       onClick={() => details.openStory(story.id)}
@@ -283,7 +285,7 @@ export function BacklogPage() {
       <div className="page-head">
         <h1>{t('backlog.title')}</h1>
         <span className="muted">{t('backlog.hint')}</span>
-        <GithubSync />
+        <SyncControl />
         <NewButton label={t('newStory.open')} onClick={() => setCreating(true)} />
       </div>
 

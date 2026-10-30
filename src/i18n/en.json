@@ -171,7 +171,8 @@
     },
     "planned": "planned",
     "ended": "ended",
-    "completed": "completed"
+    "completed": "completed",
+    "goal": "Goal (optional)"
   },
   "lifecycle": {
     "startButton": "Start sprint",
@@ -455,10 +456,10 @@
         "description": "Assign stories to people: the section \"Team\" in the settings, the field \"Assigned to\", the initials on cards, the filter bar on the board and the search by person. Keep it off if you work alone.",
         "offNote": "Switched off. Members and assignments are kept and come back when you switch it on."
       },
-      "github": {
-        "name": "GitHub connection",
-        "description": "Import open GitHub issues as stories and sync both ways.",
-        "offNote": "Switched off. Imported stories, their issue numbers and the connection are kept and come back when you switch it on."
+      "sync": {
+        "name": "Synchronisation",
+        "description": "Sync stories with the issues of one service (GitHub) in both directions.",
+        "offNote": "Switched off. Linked stories, their issue numbers and the connection are kept and come back when you switch it on."
       }
     },
     "data": {
@@ -822,7 +823,8 @@
       "confirm": "Remove",
       "confirmMove_one": "Move {{count}} story and remove",
       "confirmMove_other": "Move {{count}} stories and remove"
-    }
+    },
+    "fromService": "These columns come from {{service}} and cannot be changed here. Remove the connection to edit them."
   },
   "help": {
     "button": "Help",
@@ -981,7 +983,7 @@
       "settings.basics": {
         "title": "Settings",
         "keywords": "fields status values features story map rows gear switch on activate definitions checklist",
-        "body": "Open the settings with the gear button. They have eight sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Releases, Team and GitHub each have a section of their own, where you switch the feature on or off and set it up. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
+        "body": "Open the settings with the gear button. They have eight sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Releases, Team and Synchronisation each have a section of their own, where you switch the feature on or off and set it up. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -1018,10 +1020,15 @@
         "keywords": "team person member assign assigned initials filter someone works who",
         "body": "Open Settings → Team and switch \"Team\" on. Then add the people you want to assign stories to. A name and initials are enough, there are no accounts. The initials come from the name and can be changed.\nYou assign a story in its dialog, in the field \"Assigned to\", or right when you create a new story. A round badge shows the initials on cards, in the backlog and on the story map. A dashed badge means the story is not assigned.\nAbove the board you filter by one person or by stories nobody works on. The search also finds stories by name or initials.\nWhen you remove a member, their stories stay and are not assigned any more. If you switch \"Team\" off again, members and assignments are kept."
       },
-      "github.basics": {
-        "title": "GitHub issues",
-        "keywords": "github issues import sync synchronise repository token connect feature activate switch on enable stories labels criteria write publish conflict connections roundtrip milestone epic label status icon automatic auto log notice",
-        "body": "Import the open issues of a GitHub repository as stories and sync changes in both directions. This only works while the feature “GitHub connection” is on. Go in this order:\n1. Switch the feature on under Settings → GitHub connection (the switch at the top).\n2. Below the switch, enter the repository (owner/name) and an access token and press “Test connection”. If the app should also write to GitHub, switch on “Also write to GitHub” (the token then needs “Issues: read and write”) and choose who wins in a conflict: GitHub (default), local, or you decide.\n3. Open the backlog and press “Sync”. New issues become stories; what changed on one side only goes to the other. With writing on, “Sync” also publishes your changes to title, description, labels, criteria and done/open. Without the automatic sync (next paragraph), nothing goes to GitHub without this button. Stories with changes that are not on GitHub yet are marked.\nYou create an issue from a story of your own with “Create on GitHub” in its menu. Sprint, points and order always stay local. Without a network connection or with a wrong token the app says so and leaves your local data alone.\nThe sync icon (two circular arrows) is on the backlog, the board and the story map; the number on it is the changes that are not on GitHub yet. Releases are the milestones, epics are the labels “epic: Name”, and the board columns between “To do” and “Done” are the labels “status: Name”. While writing is on, the sync makes the milestones and labels it needs and deletes the ones it made itself once nothing needs them any more. Milestones and labels you made on GitHub yourself are never deleted.\nThe result is a short notice at the bottom, never a dialog; “Log” in it leads to the sync log under Settings → GitHub, which lists every run and its single changes. Switch on “Synchronise automatically” there and the app imports and compares all open issues by itself: at the start, when you come back to the app and every 15 minutes while it is open. Conflicts under the rule “I decide” are only marked then; “Review” in the notice opens the choice. After three errors in a row the automatic sync pauses until you press the sync icon.\nIf you switch the feature off again, everything is hidden but kept."
+      "sync.basics": {
+        "title": "Synchronisation with GitHub",
+        "keywords": "github issues import sync synchronise repository token connect feature activate switch on enable stories labels criteria write publish conflict connections roundtrip milestone epic label status icon automatic auto log notice synchronisation service switch",
+        "body": "Import the open issues of a GitHub repository as stories and sync changes in both directions. This only works while the feature “Synchronisation” is on and GitHub is the chosen service (only one service is active at a time). Go in this order:\n1. Switch the feature on under Settings → Synchronisation (the switch at the top).\n2. Below the switch, enter the repository (owner/name) and an access token and press “Test connection”. If the app should also write to GitHub, switch on “Also write to GitHub” (the token then needs “Issues: read and write”) and choose who wins in a conflict: GitHub (default), local, or you decide.\n3. Open the backlog and press “Sync”. New issues become stories; what changed on one side only goes to the other. With writing on, “Sync” also publishes your changes to title, description, labels, criteria and done/open. Without the automatic sync (next paragraph), nothing goes to GitHub without this button. Stories with changes that are not on GitHub yet are marked.\nYou create an issue from a story of your own with “Create on GitHub” in its menu. Sprint, points and order always stay local. Without a network connection or with a wrong token the app says so and leaves your local data alone.\nThe sync icon (two circular arrows) is on the backlog, the board and the story map; the number on it is the changes that are not on GitHub yet. Releases are the milestones, epics are the labels “epic: Name”, and the board columns between “To do” and “Done” are the labels “status: Name”. While writing is on, the sync makes the milestones and labels it needs and deletes the ones it made itself once nothing needs them any more. Milestones and labels you made on GitHub yourself are never deleted.\nThe result is a short notice at the bottom, never a dialog; “Log” in it leads to the sync log under Settings → Synchronisation, which lists every run and its single changes. Switch on “Synchronise automatically” there and the app imports and compares all open issues by itself: at the start, when you come back to the app and every 15 minutes while it is open. Conflicts under the rule “I decide” are only marked then; “Review” in the notice opens the choice. After three errors in a row the automatic sync pauses until you press the sync icon.\nIf you switch the feature off again, everything is hidden but kept."
+      },
+      "sync.jira": {
+        "title": "Synchronisation with Jira",
+        "keywords": "jira atlassian cloud issues import sync synchronise site email project key api token connect workflow status transition board column epic sub-task filter jql criteria description write publish simulated demo",
+        "body": "Import the open issues of a Jira Cloud project as stories and sync changes in both directions. It works like the sync with GitHub and only while the feature “Synchronisation” is on and Jira is the chosen service (only one service is active at a time). Go in this order:\n1. Switch the feature on under Settings → Synchronisation, then choose the card “Jira”.\n2. Enter the Jira site (your-team.atlassian.net), the e-mail address of your Atlassian account, the project key and an API token (create it in your Atlassian account under Security › API tokens), then press “Test connection”. An extra filter (JQL, for example labels = \"team-a\") limits what is imported. If the app should also write to Jira, switch on “Also write to Jira” and choose who wins in a conflict.\n3. Open the backlog and press “Sync”. Open issues become stories and show their Jira key (for example PROJ-12) as their ID, as a link to the issue. Epics and sub-tasks are not imported; the notice counts them. With writing on, “Sync” also publishes title, description, labels, criteria and the status.\nThe status is written as a transition of the workflow: a column of the board that has the name of a Jira status moves the issue there; “Done” closes it. If the workflow does not allow it (it may need a resolution), the notice says so and the change stays local and marked. The criteria are the task list under the heading “Acceptance criteria” in the description. A description with tables, images or formatting is only read; the sync never rewrites it. The sync never deletes anything in Jira.\nOnly the desktop app talks to the real Jira Cloud. The web preview shows a simulated Jira (marked “Demo”) with buttons to change its issues. Epics become epics (an epic that Jira lacks is made), fix versions become releases (with their dates), story points are synchronised, and on a project with a scrum board the sprint too: a sprint of Jira is made here as a planned sprint (starting and completing stay with the app). An assignee is matched by name with a member of the team; nobody is guessed, and the notice names the ones without a match. New stories come in the order of the rank in Jira. With Jira the columns of the board, the team and the sprints are decided by Jira: the columns are the statuses of the workflow, the team is the people who can be assigned (bots left out), and sprints are compared in both directions including start and completion. These settings are locked until you remove the connection."
       }
     },
     "links": {
@@ -1037,14 +1044,14 @@
       "settingsDefinitions": "Open Settings → Definitions",
       "settingsData": "Open Settings → Data",
       "settingsTeam": "Open Settings → Team",
-      "settingsGithub": "Open Settings → GitHub"
+      "settingsSync": "Open Settings → Synchronisation"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
     "linkHints": {
       "featureFirst": "Switch the feature on first",
       "releaseRows": "Choose “Releases” as the rows",
-      "githubConnect": "Enter repository and token"
+      "syncConnect": "Enter repository and token"
     }
   },
   "dialog": {
@@ -1388,88 +1395,45 @@
       "all": "All",
       "none": "Unassigned",
       "empty": "No stories for this person."
-    }
+    },
+    "fromService": "The team comes from {{service}} (the people who can be assigned in the project) and cannot be changed here. Remove the connection to edit it."
   },
-  "github": {
-    "issueLink": "Open issue #{{number}} on GitHub",
-    "settings": {
-      "title": "Connections",
-      "connected": "Connected",
-      "hint": "Open issues become stories; changes go both ways, only when you press “Sync”.",
-      "repo": "Repository (owner/name)",
-      "token": "Access token",
-      "tokenSaved": "Token saved – enter a new one to replace it",
-      "tokenNote": "To read, read access to the issues is enough; to write, the token needs “Issues: read and write”. It is kept in the system keychain and never shown again.",
-      "tokenNoteDemo": "Any text works, except “{{wrong}}” (refused) and “{{readonly}}” (read only). Nothing is sent.",
-      "tokenMissingNote": "Enter the token again: in the browser it only lasts until the page is reloaded.",
-      "test": "Test connection",
-      "testing": "Testing…",
-      "disconnect": "Remove connection",
-      "ok": "Connection ok · {{count}} open issues",
-      "where": "You find import and sync in the backlog, with the “Sync” button.",
-      "problem": {
-        "repoMissing": "The repository is missing.",
-        "repoFormat": "Use the form owner/name.",
-        "tokenMissing": "The access token is missing."
-      },
-      "write": {
-        "label": "Also write to GitHub",
-        "help": "Off: read only. On: “Sync” also publishes your changes. The token needs “Issues: read and write”."
-      },
-      "conflict": {
-        "legend": "When both sides changed the same field",
-        "remote": "GitHub wins (default)",
-        "local": "Local wins",
-        "ask": "I decide (a dialog shows both versions)"
-      }
-    },
-    "demo": {
-      "badge": "Demo",
-      "title": "Demo: simulated GitHub",
-      "text": "A small simulated GitHub in this browser ({{repo}}). Change its issues here, then sync. Token “{{wrong}}” is refused, “{{readonly}}” may not write.",
-      "rename": "Rename #31, new label",
-      "criteria": "Change the criteria of #31",
-      "close": "Close #35",
-      "reopen": "Reopen #35",
-      "add": "Add issue #44",
-      "reset": "Reset the issues",
-      "done": "The issues on GitHub were changed."
-    },
+  "sync": {
     "sync": {
       "button": "Synchronise",
       "running": "Synchronising…",
-      "last": "GitHub · last sync {{when}}",
-      "never": "GitHub · not synchronised yet",
-      "done": "Synchronised with GitHub",
+      "last": "{{service}} · last sync {{when}}",
+      "never": "{{service}} · not synchronised yet",
+      "done": "Synchronised with {{service}}",
       "failed": "Synchronising failed",
       "nothing": "Everything is up to date.",
       "created": "newly imported",
       "updated": "updated",
-      "closed": "done (closed on GitHub)",
-      "wins": "Changes from GitHub were taken. Sprint, points and order stay unchanged.",
+      "closed": "done (closed on {{service}})",
+      "wins": "Changes from {{service}} were taken. Sprint, points and order stay unchanged.",
       "close": "Close",
-      "toSettings": "Open Settings → GitHub",
-      "pendingCount_one": "{{count}} change not on GitHub yet",
-      "pendingCount_other": "{{count}} changes not on GitHub yet",
-      "publishedCount_one": "{{count}} change published to GitHub",
-      "publishedCount_other": "{{count}} changes published to GitHub",
-      "publishedTitle": "Published to GitHub",
+      "toSettings": "Open Settings → Synchronisation",
+      "pendingCount_one": "{{count}} change not on {{service}} yet",
+      "pendingCount_other": "{{count}} changes not on {{service}} yet",
+      "publishedCount_one": "{{count}} change published to {{service}}",
+      "publishedCount_other": "{{count}} changes published to {{service}}",
+      "publishedTitle": "Published to {{service}}",
       "overwrittenTitle": "Overwritten",
       "pendingNote_one": "Writing is off: {{count}} change not published.",
       "pendingNote_other": "Writing is off: {{count}} changes not published.",
       "conflictsOpen_one": "{{count}} conflict open",
       "conflictsOpen_other": "{{count}} conflicts open",
-      "skippedLabels": "Labels GitHub does not have: {{labels}}",
+      "skippedLabels": "Labels {{service}} does not have: {{labels}}",
       "decide": "Decide conflicts",
       "releaseCreated": "Release new: {{title}}",
       "epicCreated": "Epic new: {{name}}",
-      "missingMilestones": "No milestone on GitHub yet: {{titles}}",
+      "missingMilestones": "No milestone on {{service}} yet: {{titles}}",
       "multipleEpics": "Several epic labels, the first counts: {{issues}}",
       "labelCreated": "Label created: {{name}}",
       "labelDeleted": "Label deleted: {{name}}",
       "milestoneCreated": "Milestone created: {{name}}",
       "milestoneDeleted": "Milestone deleted: {{name}}",
-      "missingLabels": "Label missing on GitHub: {{names}}",
+      "missingLabels": "Label missing on {{service}}: {{names}}",
       "paused": "automatic sync paused"
     },
     "change": {
@@ -1487,39 +1451,28 @@
       "criteriaTicked_one": "{{count}} tick changed",
       "criteriaTicked_other": "{{count}} ticks changed",
       "criteriaOrder": "order changed",
-      "closed": "Closed on GitHub → status “{{status}}”",
-      "reopened": "Reopened on GitHub → status “{{status}}”",
+      "closed": "Closed on {{service}} → status “{{status}}”",
+      "reopened": "Reopened on {{service}} → status “{{status}}”",
       "release": "Release: {{from}} → {{to}}",
       "epic": "Epic: {{from}} → {{to}}",
-      "status": "Column: {{from}} → {{to}}"
+      "status": "Column: {{from}} → {{to}}",
+      "points": "Points: {{from}} → {{to}}",
+      "sprint": "Sprint: {{from}} → {{to}}",
+      "assignee": "Assignee: {{from}} → {{to}}"
     },
     "errors": {
       "config": "The connection is not set up: enter repository and token in the settings. Your local data is unchanged.",
-      "network": "No connection to GitHub. The app keeps working with your local data.",
-      "auth": "GitHub refused the access token. Check the token and its rights. Your local data is unchanged.",
+      "network": "No connection to {{service}}. The app keeps working with your local data.",
+      "auth": "{{service}} refused the access token. Check the token and its rights. Your local data is unchanged.",
       "notFound": "Repository not found, or the token has no access to it. Your local data is unchanged.",
-      "rateLimit": "GitHub allows no more requests for now. Try again later. Your local data is unchanged.",
-      "other": "GitHub could not be reached properly. Try again later. Your local data is unchanged.",
-      "forbidden": "GitHub refused to write. The token needs “Issues: read and write”."
-    },
-    "connections": {
-      "title": "Services",
-      "intro": "One mechanism, one connector per service.",
-      "available": "available",
-      "connected": "connected",
-      "planned": "planned",
-      "names": {
-        "github": "GitHub",
-        "gitlab": "GitLab",
-        "jira": "Jira",
-        "trello": "Trello"
-      }
-    },
-    "disconnect": {
-      "title": "Remove the connection?",
-      "text": "The imported stories stay; their GitHub links go.",
-      "confirm": "Remove connection",
-      "cancel": "Cancel"
+      "rateLimit": "{{service}} allows no more requests for now. Try again later. Your local data is unchanged.",
+      "other": "{{service}} could not be reached properly. Try again later. Your local data is unchanged.",
+      "forbidden": "{{service}} refused to write. The token needs “Issues: read and write”.",
+      "config_jira": "The connection is not set up: enter site, e-mail, project and API token in the settings. Your local data is unchanged.",
+      "notFound_jira": "Project or site not found, or the account has no access to it. Your local data is unchanged.",
+      "forbidden_jira": "{{service}} refused to write. The account needs the right to edit issues and to change their status.",
+      "transition": "{{service}} did not allow the change of status. The workflow may need more (for example a resolution): change it in {{service}} itself. Your local data is unchanged.",
+      "auth_jira": "{{service}} refused the access token. It may be wrong or expired: create a new one in your Atlassian account. Your local data is unchanged."
     },
     "field": {
       "title": "Title",
@@ -1529,42 +1482,46 @@
       "done": "Done/open",
       "release": "Release",
       "epic": "Epic",
-      "status": "Column"
+      "status": "Column",
+      "points": "Points",
+      "sprint": "Sprint",
+      "assignee": "Assignee"
     },
     "value": {
       "done": "Done",
       "open": "Open",
       "empty": "(empty)",
       "none": "none",
-      "firstColumn": "first column"
+      "firstColumn": "first column",
+      "backlog": "backlog"
     },
     "overwritten": {
       "local": "Local change overwritten: {{field}}",
       "localValue": "Local change overwritten: {{field}} “{{value}}”",
-      "github": "GitHub change overwritten: {{field}}",
-      "githubValue": "GitHub change overwritten: {{field}} “{{value}}”"
+      "remote": "{{service}} change overwritten: {{field}}",
+      "remoteValue": "{{service}} change overwritten: {{field}} “{{value}}”"
     },
     "conflict": {
       "title": "Both sides changed the same thing",
       "intro": "Choose which version counts.",
       "local": "Local",
-      "remote": "GitHub",
+      "remote": "{{service}}",
       "keepLocal": "Keep the local version",
-      "takeRemote": "Take the GitHub version",
+      "takeRemote": "Take the {{service}} version",
       "apply": "Apply",
       "cancel": "Cancel",
       "group": "{{field}} of {{code}}",
       "hint": "Nothing changes until you press “Apply”."
     },
     "pending": {
-      "badge": "not on GitHub",
-      "title": "Local changes that are not on GitHub yet: {{fields}}"
+      "badge": "not on {{service}}",
+      "title": "Local changes that are not on {{service}} yet: {{fields}}"
     },
     "create": {
-      "menu": "Create on GitHub",
-      "done": "{{code}} was created on GitHub.",
-      "skipped": "GitHub does not know these labels, they were not created: {{labels}}",
-      "failed": "{{code}} could not be created on GitHub: {{reason}}"
+      "menu": "Create on {{service}}",
+      "done": "{{code}} was created on {{service}}.",
+      "skipped": "{{service}} does not know these labels, they were not created: {{labels}}",
+      "failed": "{{code}} could not be created on {{service}}: {{reason}}"
     },
     "toast": {
       "done": "Synchronised: {{parts}}",
@@ -1572,13 +1529,17 @@
       "new": "{{count}} new",
       "updated": "{{count}} updated",
       "closed": "{{count}} closed",
-      "published": "{{count}} sent to GitHub",
+      "published": "{{count}} sent to {{service}}",
       "other": "{{count}} labels and milestones",
       "failed": "Synchronisation failed: {{reason}}",
       "paused": "Automatic sync paused after errors. Press the sync icon to resume.",
       "conflicts": "Conflicts waiting for you: {{count}}",
       "review": "Review",
-      "log": "Log"
+      "log": "Log",
+      "skipped": "{{count}} epics or sub-tasks left out",
+      "unmatched": "no team member for {{names}}",
+      "sprints": "{{count}} sprints sent to {{service}}",
+      "concurrent": "running at {{service}} while another sprint runs here: {{names}}"
     },
     "auto": {
       "label": "Synchronise automatically",
@@ -1607,9 +1568,133 @@
       "error": "error",
       "quiet": "No changes",
       "quietRuns": "{{count}} runs without changes"
-    }
+    },
+    "disconnect": {
+      "title": "Remove the connection?",
+      "text": "The imported stories stay; their {{service}} links go.",
+      "confirm": "Remove connection",
+      "cancel": "Cancel"
+    },
+    "issueLink": "Open issue {{key}} on {{service}}",
+    "settings": {
+      "connected": "Connected",
+      "hint": "Open issues become stories; changes go both ways, only when you press “Sync”.",
+      "test": "Test connection",
+      "testing": "Testing…",
+      "disconnect": "Remove connection",
+      "ok": "Connection ok · {{count}} open issues",
+      "where": "You find import and sync in the backlog, with the “Sync” button.",
+      "write": {
+        "label": "Also write to {{service}}",
+        "help": "Off: read only. On: “Sync” also publishes your changes. The token needs “Issues: read and write”.",
+        "help_jira": "Off: read only. On: “Sync” also publishes your changes. The API token needs the right to edit issues."
+      },
+      "conflict": {
+        "legend": "When both sides changed the same field",
+        "remote": "{{service}} wins (default)",
+        "local": "Local wins",
+        "ask": "I decide (a dialog shows both versions)"
+      }
+    },
+    "service": {
+      "legend": "Service",
+      "hint": "Only one service is active at a time. Switching removes the connection to the old one; your stories stay.",
+      "planned": "planned",
+      "connected": "connected",
+      "active": "chosen",
+      "available": "available"
+    },
+    "services": {
+      "github": "GitHub",
+      "jira": "Jira",
+      "gitlab": "GitLab"
+    },
+    "switch": {
+      "title": "Switch to {{to}}?",
+      "linked_one": "{{service}} is active, {{count}} story is linked to a {{service}} issue.",
+      "linked_other": "{{service}} is active, {{count}} stories are linked to {{service}} issues.",
+      "connected": "{{service}} is connected.",
+      "removes": "The connection to {{service}} and its token are removed.",
+      "stay_one": "The {{count}} story stays, without issue number and link.",
+      "stay_other": "The {{count}} stories stay, without issue number and link.",
+      "importAgain": "The first sync with {{to}} imports all its open issues as new stories, so the same work can appear twice.",
+      "create": "You can publish stories of your own to {{to}} one by one with “Create on {{to}}” in their menu.",
+      "confirm": "Disconnect and switch to {{to}}",
+      "cancel": "Cancel"
+    },
+    "localId": "Local ID {{code}}",
+    "demo": {
+      "badge": "Demo"
+    },
+    "managedBy": "Managed by {{service}}"
   },
   "info": {
     "label": "More information"
+  },
+  "github": {
+    "settings": {
+      "repo": "Repository (owner/name)",
+      "token": "Access token",
+      "tokenSaved": "Token saved – enter a new one to replace it",
+      "tokenNote": "To read, read access to the issues is enough; to write, the token needs “Issues: read and write”. It is kept in the system keychain and never shown again.",
+      "tokenNoteDemo": "Any text works, except “{{wrong}}” (refused) and “{{readonly}}” (read only). Nothing is sent.",
+      "tokenMissingNote": "Enter the token again: in the browser it only lasts until the page is reloaded.",
+      "problem": {
+        "repoMissing": "The repository is missing.",
+        "repoFormat": "Use the form owner/name.",
+        "tokenMissing": "The access token is missing."
+      }
+    },
+    "demo": {
+      "title": "Demo: simulated GitHub",
+      "text": "A small simulated GitHub in this browser ({{repo}}). Change its issues here, then sync. Token “{{wrong}}” is refused, “{{readonly}}” may not write.",
+      "rename": "Rename #31, new label",
+      "criteria": "Change the criteria of #31",
+      "close": "Close #35",
+      "reopen": "Reopen #35",
+      "add": "Add issue #44",
+      "reset": "Reset the issues",
+      "done": "The issues on GitHub were changed."
+    }
+  },
+  "jira": {
+    "settings": {
+      "site": "Jira site",
+      "email": "E-mail address of your Atlassian account",
+      "project": "Project key",
+      "token": "API token",
+      "tokenNote": "Create the token in your Atlassian account (Security › API tokens). It is kept in the system keychain and never shown again.",
+      "tokenNoteDemo": "Any text works, except “{{wrong}}” (refused) and “{{readonly}}” (read only). Nothing is sent.",
+      "filter": "Extra filter (JQL, optional)",
+      "filterHint": "More conditions for the issues to import, for example labels = \"team-a\". Epics and sub-tasks are never imported. Done issues are not imported.",
+      "problem": {
+        "siteMissing": "The Jira site is missing.",
+        "siteFormat": "Use the form your-team.atlassian.net.",
+        "emailMissing": "The e-mail address is missing.",
+        "emailFormat": "Enter a valid e-mail address.",
+        "projectMissing": "The project key is missing.",
+        "projectFormat": "Use the project key in capitals, for example PROJ.",
+        "tokenMissing": "The API token is missing."
+      }
+    },
+    "demo": {
+      "title": "Demo: simulated Jira",
+      "text": "A small simulated Jira in this browser ({{site}}, project {{project}}). Enter any e-mail address, for example {{email}}. Change its issues here, then sync. Token “{{wrong}}” is refused, “{{readonly}}” may not write.",
+      "rename": "Rename PROJ-1, new label",
+      "progress": "Move PROJ-3 to In Progress",
+      "close": "Close PROJ-2",
+      "reopen": "Reopen PROJ-4",
+      "add": "Add issue PROJ-8",
+      "reset": "Reset the issues",
+      "done": "The issues in Jira were changed."
+    },
+    "mapping": {
+      "fromJira": "The board has the {{count}} statuses of the Jira workflow as its columns."
+    },
+    "board": {
+      "label": "Board for the sprints",
+      "hint": "The sprints of this scrum board are synchronised. The first board of the project is used until you choose another one.",
+      "only": "{{name}} (the only scrum board of the project)"
+    }
   }
 }

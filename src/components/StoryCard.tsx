@@ -11,11 +11,12 @@ import { AssigneeBadge } from './AssigneeBadge';
 import { fieldLabel } from './fieldLabel';
 import { DefinitionChip } from './definitions';
 import { EpicTag } from './EpicTag';
-import { GithubBadge } from './GithubBadge';
+import { PendingMarker, StoryKey } from './StoryKey';
 import { useBuiltin } from './useBuiltin';
 import { useMatchClass } from './search/HighlightBar';
 import { useStoryMenu } from '../state/StoryMenu';
 import { BareButton } from '../ui';
+import { useStoryKey } from './useStoryKey';
 
 /** The story title; a click opens the story. The card itself is the keyboard stop (Enter opens it). */
 export function TitleButton({ story, className, showTitle = false }: { story: Story; className: string; showTitle?: boolean }) {
@@ -192,7 +193,8 @@ export function StoryCardContent({ story, epic, compact }: ContentProps) {
       <>
         <CardLetters letters={letters} />
         <TitleButton story={story} className="card__title" showTitle />
-        <GithubBadge story={story} />
+        <StoryKey story={story} onlyLinked />
+        <PendingMarker story={story} />
         {epic && builtin.shown('epic', 'color') && (
           <span className="card__epic-dot epic__dot" title={epic.name} style={{ background: `var(--epic-${epic.colorKey})` }}>
             <span className="sr-only">{epic.name}</span>
@@ -208,14 +210,14 @@ export function StoryCardContent({ story, epic, compact }: ContentProps) {
   return (
     <>
       <div className="card__head">
-        <span className="card__code">{story.code}</span>
+        <StoryKey story={story} />
         <CardLetters letters={letters} />
         <span className="card__spacer" />
         <AssigneeBadge story={story} />
         <CardPoints story={story} />
       </div>
       <TitleButton story={story} className="card__title" />
-      <GithubBadge story={story} />
+      <PendingMarker story={story} />
       <DefinitionChip story={story} kind="done" />
       <div className="card__meta">
         <EpicTag epic={epic} inCard />
@@ -245,6 +247,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false, compact = f
   const details = useDetails();
   const menu = useStoryMenu();
   const app = useApp();
+  const keyOf = useStoryKey();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -268,7 +271,7 @@ export function SortableStoryCard({ story, epic, dropBefore = false, compact = f
       className={classes}
       data-story-id={story.id}
       {...attributes}
-      aria-label={`${story.code}: ${story.title}`}
+      aria-label={`${keyOf(story)}: ${story.title}`}
       {...listeners}
       onKeyDown={onKeyDown}
       onClick={() => details.openStory(story.id)}

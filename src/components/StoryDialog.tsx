@@ -1,5 +1,5 @@
 import { featureOn } from '../domain/settings';
-import { GithubBadge } from './GithubBadge';
+import { LocalKey, PendingMarker, StoryKey } from './StoryKey';
 import { useId, useState, type FormEvent } from 'react';
 import { DndContext, closestCenter, type Announcements, type DragEndEvent, type UniqueIdentifier } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -27,6 +27,7 @@ import { STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
 import { Button, CheckInput, DragHandle, IconButton, Select, TextInput } from '../ui';
+import { useStoryKey } from './useStoryKey';
 
 interface CriterionProps {
   storyId: string;
@@ -87,6 +88,7 @@ function CriterionRow({ storyId, criterion }: CriterionProps) {
 export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const builtin = useBuiltin();
   const uid = useId();
   const sensors = useDragSensors();
@@ -146,7 +148,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
   };
 
   return (
-    <Dialog label={`${story.code}: ${story.title}`} wide onClose={onClose}>
+    <Dialog label={`${keyOf(story)}: ${story.title}`} wide onClose={onClose}>
       <div className="detail-dialog__close">
         <IconButton type="button" quiet aria-label={t('detail.close')} title={t('detail.close')} onClick={onClose}>
           ×
@@ -156,8 +158,9 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
         <div className="detail__main">
           <div>
             <div className="detail__meta">
-              <span className="card__code">{story.code}</span>
-              <GithubBadge story={story} />
+              <StoryKey story={story} />
+              <PendingMarker story={story} />
+              <LocalKey story={story} />
               <EpicTag epic={epic} />
             </div>
             <h2 className="detail__heading">
@@ -237,7 +240,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
 
           <DefinitionsPanel story={story} />
 
-          <HistoryPanel itemType="story" itemId={story.id} label={`${story.code}: ${story.title}`} />
+          <HistoryPanel itemType="story" itemId={story.id} label={`${keyOf(story)}: ${story.title}`} />
         </div>
 
         <aside className="panel detail__side">
@@ -323,7 +326,7 @@ export function StoryDialog({ id, onClose }: { id: string; onClose: () => void }
           <div className="danger">
             {confirmDelete ? (
               <div role="group" aria-labelledby={`${uid}-confirm`} className="danger__confirm">
-                <p id={`${uid}-confirm`}>{t('detail.deleteConfirm', { code: story.code, count: story.criteria.length })}</p>
+                <p id={`${uid}-confirm`}>{t('detail.deleteConfirm', { code: keyOf(story), count: story.criteria.length })}</p>
                 <div className="form__actions">
                   <Button type="button" variant="danger" onClick={remove} autoFocus>
                     {t('detail.deleteYes')}

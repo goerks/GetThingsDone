@@ -5,6 +5,7 @@ import type { Story } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from './useBuiltin';
 import { BareButton, TextInput } from '../ui';
+import { useStoryKey } from './useStoryKey';
 
 /** Keeps a press in the points editor from picking up the row (drag) or opening the story. */
 const keepHere = (event: SyntheticEvent): void => event.stopPropagation();
@@ -16,6 +17,7 @@ const keepHere = (event: SyntheticEvent): void => event.stopPropagation();
 export function PointsEdit({ story }: { story: Story }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const builtin = useBuiltin();
   const hintId = useId();
   const [editing, setEditing] = useState(false);
@@ -24,7 +26,7 @@ export function PointsEdit({ story }: { story: Story }) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef(false);
   const label = builtin.label('points', t('detail.points'));
-  const name = t('backlog.pointsInput', { label, code: story.code });
+  const name = t('backlog.pointsInput', { label, code: keyOf(story) });
 
   useEffect(() => {
     if (!editing && returnFocus.current) {

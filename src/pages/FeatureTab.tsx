@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FeatureKey } from '../domain/types';
+import { Managed } from '../components/Managed';
 import { useApp } from '../state/AppState';
 import { Button } from '../ui';
 import { Check } from '../ui';
@@ -10,7 +11,7 @@ import { Check } from '../ui';
  * While the feature is off the tab is a start page: what the feature does, that its data is kept, and a button to
  * switch it on. Nothing is deleted by switching it off.
  */
-export function FeatureTab({ feature, children }: { feature: FeatureKey; children?: ReactNode }) {
+export function FeatureTab({ feature, lockedBy = null, children }: { feature: FeatureKey; /** Why the switch cannot be changed ("Managed by Jira"), or null. */ lockedBy?: string | null; children?: ReactNode }) {
   const { t } = useTranslation();
   const app = useApp();
   const on = app.settings.features[feature];
@@ -20,9 +21,11 @@ export function FeatureTab({ feature, children }: { feature: FeatureKey; childre
     <div className="feature-tab">
       <div className="map-settings__head feature-tab__head">
         <h2>{name}</h2>
-        <Check className="feature__toggle" role="switch" aria-label={name} checked={on} onChange={(event) => app.setFeature(feature, event.target.checked)}>
-          <span>{t(on ? 'settings.features.enabled' : 'settings.features.disabled')}</span>
-        </Check>
+        <Managed by={lockedBy}>
+          <Check className="feature__toggle" role="switch" aria-label={name} checked={on} disabled={lockedBy !== null} onChange={(event) => app.setFeature(feature, event.target.checked)}>
+            <span>{t(on ? 'settings.features.enabled' : 'settings.features.disabled')}</span>
+          </Check>
+        </Managed>
       </div>
       <p className="muted">{t(`settings.features.${feature}.description`)}</p>
       {on ? (

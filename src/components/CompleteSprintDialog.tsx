@@ -9,6 +9,7 @@ import { formatDayLong, formatSprintDates } from './sprintFormat';
 import { statusLabel } from './statusLabel';
 import { useBuiltin } from './useBuiltin';
 import { Button, CheckInput } from '../ui';
+import { useStoryKey } from './useStoryKey';
 
 interface Props {
   /** The running sprint. */
@@ -27,6 +28,7 @@ const signed = (value: number): string => (value > 0 ? `+${value}` : value < 0 ?
 export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
   const { t, i18n } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const builtin = useBuiltin();
   const uid = useId();
   const today = todayIso();
@@ -50,7 +52,7 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
 
   const changes: string[] = [];
   if (summary.added.length > 0)
-    changes.push(t('lifecycle.complete.added', { count: summary.added.length, points: summary.addedPoints, codes: summary.added.map((story) => story.code).join(', ') }));
+    changes.push(t('lifecycle.complete.added', { count: summary.added.length, points: summary.addedPoints, codes: summary.added.map((story) => keyOf(story)).join(', ') }));
   if (summary.removed.length > 0)
     changes.push(t('lifecycle.complete.removed', { count: summary.removed.length, points: summary.removedPoints, codes: summary.removed.map((item) => item.code).join(', ') }));
   if (summary.changedPoints !== 0) changes.push(t('lifecycle.complete.changedPoints', { delta: signed(summary.changedPoints) }));
@@ -70,7 +72,7 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
     <ul>
       {stories.map((story) => (
         <li key={story.id}>
-          <span className="mono">{story.code}</span>
+          <span className="mono">{keyOf(story)}</span>
           <span>{story.title}</span>
           <span className="muted">{statusLabel(t, app.statuses, story.status)}</span>
           <span className="pill" title={builtin.pointsTitle(story.points)}>
@@ -118,7 +120,7 @@ export function CompleteSprintDialog({ sprint, onClose, onCompleted }: Props) {
         </div>
         {summary.withoutPoints.length > 0 && (
           <p className="muted">
-            {t('lifecycle.start.withoutPoints', { count: summary.withoutPoints.length, codes: summary.withoutPoints.map((story) => story.code).join(', ') })}
+            {t('lifecycle.start.withoutPoints', { count: summary.withoutPoints.length, codes: summary.withoutPoints.map((story) => keyOf(story)).join(', ') })}
           </p>
         )}
         <details className="sprint-stories">

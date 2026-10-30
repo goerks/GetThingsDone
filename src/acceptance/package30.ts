@@ -10,18 +10,18 @@ import type { Criterion } from './types';
  */
 const COMPONENT = 'src/Github.test.tsx';
 const E2E = 'e2e/github.spec.ts';
-const DOMAIN = 'src/domain/github.test.ts';
-const REST = 'src/github/restSource.test.ts';
+const DOMAIN = 'src/sync/github/format.test.ts';
+const REST = 'src/sync/github/restApi.test.ts';
 const ROUNDTRIP = 'src/GithubRoundtrip.test.tsx';
 const RDOMAIN = 'src/domain/githubRoundtrip.test.ts';
-const RUN = 'src/github/runSync.test.ts';
-const CONNECTOR = 'src/github/connector.test.ts';
+const RUN = 'src/sync/runSync.test.ts';
+const CONNECTOR = 'src/sync/github/api.test.ts';
 const SMAP = 'src/domain/githubStoryMap.test.ts';
 const AUTO = 'src/GithubAuto.test.tsx';
 const SYNCLOG = 'src/domain/syncLog.test.ts';
 
-const FEATURES = '#/settings/github';
-const SETTINGS = '#/settings/github';
+const FEATURES = '#/settings/sync';
+const SETTINGS = '#/settings/sync';
 const BACKLOG = '#/backlog';
 
 export const PACKAGE_30: { issue: number; pullRequest: number; title: string; criteria: Criterion[] } = {
@@ -257,7 +257,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Importierte Story aus Issue #31.',
           when: 'Ich sehe Backlog und Story-Dialog an und klicke den Link.',
           then: 'Überall „#31“; der Link öffnet das Issue auf GitHub in einem neuen Tab und öffnet nicht die Story.',
-          tests: [`${COMPONENT} › AC4.1 shows the number as a link to GitHub in the backlog and in the story`, `src/github/openExternal.test.ts › AC4.1 opens the issue through the app on the desktop and takes the click over`]
+          tests: [`${COMPONENT} › AC4.1 shows the number as a link to GitHub in the backlog and in the story`, `src/sync/openExternal.test.ts › AC4.1 opens the issue through the app on the desktop and takes the click over`]
         },
         {
           id: 'AC4.2',
@@ -529,7 +529,7 @@ export const PACKAGE_30: { issue: number; pullRequest: number; title: string; cr
           given: 'Funktion ist an.',
           when: 'Ich öffne Einstellungen → Verbindungen.',
           then: 'GitHub ist als verbunden gelistet. GitLab, Jira und Trello stehen als „geplant“ da und lassen sich nicht auswählen.',
-          tests: [`${ROUNDTRIP} › AC11.1 lists GitHub as connected and GitLab, Jira and Trello as planned`, `${E2E} › AC11.1 lists GitHub as connected and the other services as planned`]
+          tests: [`${ROUNDTRIP} › AC11.1 lists GitHub as connected and GitLab and Jira as planned`, `${E2E} › AC11.1 lists GitHub as connected and the other services as planned`]
         },
         {
           id: 'AC11.2',
