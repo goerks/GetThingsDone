@@ -6773,7 +6773,7 @@ a.story-key:hover {
 }
 
 .story-key__local {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 a.github-badge:hover {
@@ -6974,22 +6974,22 @@ a.github-badge:hover {
   border: 0;
   padding: 0;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .sync-services legend {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   padding: 0;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1-5);
 }
 
 .sync-service {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  padding: var(--space-2-5) var(--space-3);
   background: var(--surface);
   cursor: pointer;
 }
