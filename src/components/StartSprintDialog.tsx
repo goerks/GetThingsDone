@@ -7,6 +7,7 @@ import { Dialog } from './Dialog';
 import { SprintPlan } from './SprintPlan';
 import { formatDayLong, formatSprintDates } from './sprintFormat';
 import { Button, CheckInput, Select } from '../ui';
+import { useStoryKey } from './useStoryKey';
 
 interface Props {
   /** The planned sprint that is selected when the dialog opens. */
@@ -21,6 +22,7 @@ interface Props {
 export function StartSprintDialog({ sprintId, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const uid = useId();
   const options = startableSprints(app.sprints);
   const [selected, setSelected] = useState(options.some((sprint) => sprint.id === sprintId) ? sprintId : (options[0]?.id ?? ''));
@@ -72,7 +74,7 @@ export function StartSprintDialog({ sprintId, onClose }: Props) {
           <p className="muted">
             {t('lifecycle.start.withoutPoints', {
               count: contents.withoutPoints.length,
-              codes: contents.withoutPoints.map((story) => story.code).join(', ')
+              codes: contents.withoutPoints.map((story) => keyOf(story)).join(', ')
             })}
           </p>
         )}

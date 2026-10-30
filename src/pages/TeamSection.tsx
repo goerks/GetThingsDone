@@ -2,6 +2,9 @@ import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MAX_INITIALS, freeInitials, initialsFollowName, storiesOfMember, type MemberProblem } from '../domain/members';
 import type { Member } from '../domain/types';
+import { teamFromService } from '../domain/syncOwners';
+import { serviceName } from '../sync/syncT';
+import { Managed, useManagedText } from '../components/Managed';
 import { useApp } from '../state/AppState';
 import { FeatureTab } from './FeatureTab';
 import { Button, TextInput } from '../ui';
@@ -99,6 +102,8 @@ function MemberRow({ member }: { member: Member }) {
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const count = storiesOfMember(app.stories, member.id).length;
+  const managedText = useManagedText();
+  const managed = teamFromService(app.settings) ? managedText : null;
 
   if (editing) {
     return (
@@ -128,17 +133,22 @@ function MemberRow({ member }: { member: Member }) {
         </div>
       ) : (
         <span className="team__buttons">
-          <Button type="button" aria-label={t('team.change', { name: member.name })} onClick={() => setEditing(true)}>
-            {t('team.changeShort')}
-          </Button>
-          <Button
-            type="button"
-            variant="danger-quiet"
-            aria-label={t('team.remove', { name: member.name })}
-            onClick={() => (count > 0 ? setConfirming(true) : app.removeMember(member.id))}
-          >
-            {t('team.removeShort')}
-          </Button>
+          <Managed by={managed}>
+            <Button type="button" aria-label={t('team.change', { name: member.name })} disabled={managed !== null} onClick={() => setEditing(true)}>
+              {t('team.changeShort')}
+            </Button>
+          </Managed>
+          <Managed by={managed}>
+            <Button
+              type="button"
+              variant="danger-quiet"
+              aria-label={t('team.remove', { name: member.name })}
+              disabled={managed !== null}
+              onClick={() => (count > 0 ? setConfirming(true) : app.removeMember(member.id))}
+            >
+              {t('team.removeShort')}
+            </Button>
+          </Managed>
         </span>
       )}
     </li>
@@ -152,9 +162,16 @@ export function TeamSection() {
   const { t } = useTranslation();
   const app = useApp();
   const [adding, setAdding] = useState(false);
+  const fromService = teamFromService(app.settings);
+  const managedText = useManagedText();
 
   return (
-    <FeatureTab feature="team">
+    <FeatureTab feature="team" lockedBy={fromService ? managedText : null}>
+      {fromService && (
+        <p className="hint hint--info" role="note">
+          {t('team.fromService', { service: serviceName(t, app.settings.sync.service) })}
+        </p>
+      )}
       <div className="team">
         <p className="muted">{t('team.intro')}</p>
         {app.members.length === 0 ? (
@@ -172,9 +189,11 @@ export function TeamSection() {
           <MemberForm member={null} onDone={() => setAdding(false)} />
         ) : (
           <div>
-            <Button type="button" variant="primary" onClick={() => setAdding(true)}>
-              {t('team.add')}
-            </Button>
+            <Managed by={fromService ? managedText : null}>
+              <Button type="button" variant="primary" disabled={fromService} onClick={() => setAdding(true)}>
+                {t('team.add')}
+              </Button>
+            </Managed>
           </div>
         )}
       </div>

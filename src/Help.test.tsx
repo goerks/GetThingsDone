@@ -684,7 +684,7 @@ describe('links to the right pages', () => {
     await openHelp(user);
     await user.click(within(panel()).getByRole('button', { name: /^Settings/ }));
     const places = within(panel()).getAllByRole('link').map((anchor) => anchor.textContent);
-    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Definitions', 'Open Settings → Releases', 'Open Settings → Team', 'Open Settings → GitHub', 'Open Settings → Data']);
+    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Definitions', 'Open Settings → Releases', 'Open Settings → Team', 'Open Settings → Synchronisation', 'Open Settings → Data']);
   });
 });
 

@@ -1,6 +1,6 @@
 # ADR 0005: Sync with external trackers (GitHub Issues first)
 
-Status: Accepted (PO approved with the pull request of #30 on 2026-10-21)
+Status: Accepted (PO approved with the pull request of #30 on 2026-10-21). Generalised by [ADR 0007](0007-one-sync-service.md) (#66): the names in the text below (`src/github/`, `domain/github.ts`, `Settings.github`, `Story.github`, `github_*`) are those of #30; they are now `src/sync/`, `domain/sync.ts`, `Settings.sync`, `Story.link`, `sync_*`.
 Date: 2026-10-16
 Issue: #30
 

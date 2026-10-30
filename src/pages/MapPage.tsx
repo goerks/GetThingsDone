@@ -13,7 +13,7 @@ import {
   type UniqueIdentifier
 } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
-import { GithubSync } from '../components/GithubSync';
+import { SyncControl } from '../components/SyncControl';
 import { useTranslation } from 'react-i18next';
 import { NewEpicDialog } from '../components/EpicDialogs';
 import { NewStoryDialog } from '../components/NewStoryDialog';
@@ -53,6 +53,7 @@ import { HighlightBar, useMatchClass } from '../components/search/HighlightBar';
 import { usePageMatches, useSearchPage } from '../state/Search';
 import { useNewShortcut } from '../components/useNewShortcut';
 import { BareButton, Button } from '../ui';
+import { useStoryKey } from '../components/useStoryKey';
 
 const NOT_PLANNED = '-';
 /** Key of a cell: epic ("-" for no epic) and sprint ("-" for not planned). */
@@ -75,6 +76,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
   const details = useDetails();
   const menu = useStoryMenu();
   const app = useApp();
+  const keyOf = useStoryKey();
   const { attributes, listeners, setNodeRef, isDragging, active } = useSortable({
     id: story.id,
     attributes: { role: 'group', roleDescription: t('board.cardRole') }
@@ -100,7 +102,7 @@ function MapCard({ story, dropBefore }: { story: Story; dropBefore: boolean }) {
         className={classes}
         data-story-id={story.id}
         {...attributes}
-        aria-label={`${story.code}: ${story.title}`}
+        aria-label={`${keyOf(story)}: ${story.title}`}
         {...listeners}
         onKeyDown={onKeyDown}
         onClick={() => details.openStory(story.id)}
@@ -574,7 +576,7 @@ export function MapPage() {
             ? t('map.summaryReleases', { epics: epics.length, releases: releases.length, stories: shownStories.length })
             : t('map.summary', { epics: epics.length, sprints: sprints.length, stories: shownStories.length })}
         </span>
-        <GithubSync />
+        <SyncControl />
         <a
           href={hrefs.settingsMap}
           className="btn page-head__action map-rows-link"

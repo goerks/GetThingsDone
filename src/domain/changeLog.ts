@@ -1,4 +1,5 @@
 import type { Epic, FieldValue, Member, Release, Sprint, Story } from './types';
+import { storyKey } from './storyKey';
 
 /*
  * Change log of the items (#23, ADR 0004). Every save of an item that changes a tracked field is one version of
@@ -198,7 +199,7 @@ export function statesOf(world: World): Map<string, TrackedItem> {
       criteria: story.criteria.map((criterion) => ({ id: criterion.id, text: criterion.text, done: criterion.done })),
       ...customStates(story.values)
     });
-    if (story.sprintId) inSprint.set(story.sprintId, [...(inSprint.get(story.sprintId) ?? []), { id: story.id, text: story.code, points: story.points }]);
+    if (story.sprintId) inSprint.set(story.sprintId, [...(inSprint.get(story.sprintId) ?? []), { id: story.id, text: storyKey(story), points: story.points }]);
   }
   for (const epic of world.epics) put('epic', epic.id, { title: epic.name, color: epic.colorKey, ...customStates(epic.values) });
   for (const sprint of world.sprints) {

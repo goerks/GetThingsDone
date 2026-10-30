@@ -88,9 +88,9 @@ The interactive help (#33) is documentation for users and grows with every featu
 4. Add a component test for new behaviour in `src/Help.test.tsx` and, for a journey across pages, in `e2e/help.spec.ts`.
 5. The steps of the first steps (`TOUR_STEPS` in `src/domain/helpTour.ts`) are the PO's: no step is added or changed without the PO's approval (see `CLAUDE.md`).
 
-## GitHub connection (#30, ADR 0005)
+## Synchronisation with an issue tracker (#30, #66, ADR 0005, ADR 0007)
 
-The only feature that reaches out of the app. It is off by default and runs only on a button. Reading and writing are separate: the app only reads until the team switches on "Also write to GitHub". Rules: the token never enters the snapshot, a database, `localStorage` or the settings (keychain on the desktop, memory of the page in the browser); the domain (`src/domain/github.ts`) decides what a sync changes and is pure, the network is behind `TrackerConnector`, so tests and the preview use a fake or the simulation and a further service only needs a connector that passes `src/github/connector.test.ts`; every failure is a `GithubError` with a kind and a translated message (`github.errors.<kind>`) and leaves the local data unchanged. Imported stories keep the address of their issue (`Story.github.url`), which is also their identity across syncs, and the base of the last sync (`Story.github.base`), which makes the comparison three-way: only what a side changed since then goes to the other, and a field changed on both sides follows the conflict rule.
+The only feature that reaches out of the app. It is off by default and runs only on a button (or the automatic sync the team switched on). Exactly one service is active at a time; GitHub and Jira have a connector (Jira in the Windows app through the Rust command `http_request`, in the browser a simulated Jira, ADR 0008), GitLab is planned. Reading and writing are separate: the app only reads until the team switches on "Also write to <service>". Rules: the token never enters the snapshot, a database, `localStorage` or the settings (keychain on the desktop with one entry per service, memory of the page in the browser); the domain (`src/domain/sync.ts`) decides what a sync changes, is pure and knows no service; the network and the conventions of a service (GitHub: text, task list, labels "epic: …" and "status: …", milestones) are behind `TrackerConnector`, so tests and the preview use a fake or the simulation and a further service only needs a connector that passes `src/sync/connector.test.ts`; every failure is a `SyncError` with a kind and a translated message (`sync.errors.<kind>`) and leaves the local data unchanged. A linked story keeps its link (`Story.link`: service, key, address, state and the base of the last sync), which makes the comparison three-way: only what a side changed since then goes to the other, and a field changed on both sides follows the conflict rule. The address is the identity of the issue across syncs; the key (`#31`, `PROJ-123`) is the ID of the story on every screen (`storyKey`), while the own key (`S-4`) stays stored, is found by the search and comes back when the connection is removed.
 
 ## Testing
 
@@ -99,7 +99,7 @@ Tests are derived from test cases the PO approves per acceptance criterion (see 
 | Level | Tool | Where |
 |---|---|---|
 | Unit | Vitest | `src/domain/*.test.ts` |
-| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, `src/Help.test.tsx`, `src/Github.test.tsx`, `src/GithubRoundtrip.test.tsx`, with `LocalStorageRepository` as test double |
+| Component | Vitest, Testing Library, jsdom | `src/App.test.tsx`, `src/components/search/Search.test.tsx`, `src/Help.test.tsx`, `src/Github.test.tsx`, `src/GithubRoundtrip.test.tsx`, `src/Sync.test.tsx`, with `LocalStorageRepository` as test double |
 | Integration (data, Tauri boundary) | – | Planned |
 | End-to-end | Playwright, real Chromium, web build with demo data and a fixed clock; visual checks with `toHaveScreenshot` of new elements (baselines in `e2e/*.spec.ts-snapshots`, Chromium on Linux, tolerance 8 % because CI renders text slightly differently) | `e2e/*.spec.ts`, `npm run test:e2e` (story map since #12, help since #33, usability since #32) |
 | Accessibility (axe) | – | Planned |
@@ -107,4 +107,4 @@ Tests are derived from test cases the PO approves per acceptance criterion (see 
 ## Security
 
 - The Tauri capabilities allow only the SQL commands the app needs.
-- No network access at runtime except the GitHub connection when the team switched it on (ADR 0005): read, and write only when switched on, token in the keychain or in memory, never stored with the data. No telemetry, no secrets in the repository. The public preview only has a simulated GitHub.
+- No network access at runtime except the synchronisation with the chosen service when the team switched it on (ADR 0005, ADR 0007): read, and write only when switched on, token in the keychain or in memory, never stored with the data. No telemetry, no secrets in the repository. The public preview only has a simulated GitHub.

@@ -23,7 +23,7 @@ export async function syncAsking(user: User): Promise<HTMLElement> {
 /** The single changes of the newest run with changes, as text, read from the sync log in the settings. */
 export async function logText(user: User): Promise<string> {
   const back = window.location.hash;
-  window.location.hash = '#/settings/github';
+  window.location.hash = '#/settings/sync';
   const toggle = await waitFor(() => {
     const found = document.querySelector<HTMLButtonElement>('.github-log__toggle:not([disabled])');
     if (!found) throw new Error('no run with changes in the log');

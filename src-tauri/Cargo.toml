@@ -18,6 +18,10 @@ tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 # The access token for GitHub (#30) lives in the credential store of the operating system, never in the database.
 keyring = { version = "3", features = ["windows-native", "apple-native", "linux-native"] }
 
+# The calls to Jira Cloud (#66, ADR 0008) go through the Rust side: Jira does not allow requests from a browser with an API token.
+reqwest = { version = "0.12", default-features = false, features = ["default-tls"] }
+serde = { version = "1", features = ["derive"] }
+
 [profile.release]
 codegen-units = 1
 lto = true

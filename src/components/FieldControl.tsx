@@ -1,4 +1,4 @@
-import { openLink } from '../github/openExternal';
+import { openLink } from '../sync/openExternal';
 import { useEffect, useId, useState, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseOptions, parseValue } from '../domain/fields';

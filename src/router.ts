@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 /** Sections of the settings page. */
-export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'releases' | 'team' | 'github' | 'data';
+export type SettingsSection = 'fields' | 'statuses' | 'map' | 'definitions' | 'releases' | 'team' | 'sync' | 'data';
 
 export type Route =
   | { name: 'board' }
@@ -23,7 +23,7 @@ export const hrefs = {
   settingsDefinitions: '#/settings/definitions',
   settingsReleases: '#/settings/releases',
   settingsTeam: '#/settings/team',
-  settingsGithub: '#/settings/github',
+  settingsSync: '#/settings/sync',
   settingsData: '#/settings/data'
 };
 
@@ -37,7 +37,8 @@ export function parseHash(hash: string): Route {
   if (path === 'settings/releases' || path === 'settings/features') return { name: 'settings', section: 'releases' };
   if (path === 'settings/team') return { name: 'settings', section: 'team' };
   if (path === 'settings/data') return { name: 'settings', section: 'data' };
-  if (path === 'settings/github') return { name: 'settings', section: 'github' };
+  // `settings/github` was the address before the sync was general (#66).
+  if (path === 'settings/sync' || path === 'settings/github') return { name: 'settings', section: 'sync' };
   if (path === 'settings/statuses') return { name: 'settings', section: 'statuses' };
   if (path === 'settings/definitions') return { name: 'settings', section: 'definitions' };
   if (path === 'settings/map') return { name: 'settings', section: 'map' };

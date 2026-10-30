@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
 import { VelocityButton } from '../components/VelocityButton';
-import { GithubSync } from '../components/GithubSync';
+import { SyncControl } from '../components/SyncControl';
 import { BoardColumn } from '../components/BoardColumn';
 import { CompleteSprintDialog } from '../components/CompleteSprintDialog';
 import { NewStoryDialog } from '../components/NewStoryDialog';
@@ -163,7 +163,7 @@ export function BoardPage() {
         <div className="page-head">
           <h1>{noSprintAtAll ? t('board.noSprintTitle') : t('lifecycle.allDoneTitle')}</h1>
           <span className="page-head__actions">
-            <GithubSync />
+            <SyncControl />
             <VelocityButton />
           </span>
         </div>
@@ -206,7 +206,7 @@ export function BoardPage() {
           {atStart !== null && atStart !== points && ` (${t('lifecycle.atStart', { points: atStart })})`}
         </span>
         <span className="page-head__actions">
-          <GithubSync />
+          <SyncControl />
           <VelocityButton />
           <Button type="button" pressed={compact} aria-pressed={compact} onClick={toggleCompact}>
             {t('board.compact')}

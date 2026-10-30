@@ -1,6 +1,7 @@
 import { addDays, todayIso } from './sprints';
 import type { IsDone } from './statuses';
 import type { Release, ReleaseEvent, ReleaseEventKind, Story } from './types';
+import { storyKey } from './storyKey';
 
 /** The local calendar day (`YYYY-MM-DD`) of a timestamp. */
 export const dayOf = (at: string): string => todayIso(new Date(at));
@@ -21,7 +22,7 @@ export function releaseEventsFor(
 ): ReleaseEvent[] {
   const events: ReleaseEvent[] = [];
   const entry = (story: Story, kind: ReleaseEventKind, releaseId: string, done: IsDone = isDone): void => {
-    events.push({ id: newId(), at, releaseId, storyId: story.id, code: story.code, kind, points: story.points, done: done(story) });
+    events.push({ id: newId(), at, releaseId, storyId: story.id, code: storyKey(story), kind, points: story.points, done: done(story) });
   };
   const previous = new Map(before.map((story) => [story.id, story]));
   for (const story of after) {
@@ -58,7 +59,7 @@ export function baselineEvents(
     .flatMap((release) =>
       stories
         .filter((story) => story.releaseId === release.id)
-        .map((story): ReleaseEvent => ({ id: newId(), at, releaseId: release.id, storyId: story.id, code: story.code, kind: 'baseline', points: story.points, done: isDone(story) }))
+        .map((story): ReleaseEvent => ({ id: newId(), at, releaseId: release.id, storyId: story.id, code: storyKey(story), kind: 'baseline', points: story.points, done: isDone(story) }))
     );
 }
 

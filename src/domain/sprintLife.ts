@@ -2,6 +2,7 @@ import { moveStoriesToSprint, sortByRank } from './board';
 import { addDays, daysBetween, newSprintDefaults, plannedSprints, runningSprint, sortSprints } from './sprints';
 import type { IsDone } from './statuses';
 import type { Sprint, SprintResult, SprintStartItem, Story } from './types';
+import { storyKey } from './storyKey';
 
 /**
  * Starting and completing a sprint (#17). A sprint is planned, running (at most one) or completed. When it starts,
@@ -16,7 +17,7 @@ export const storiesOf = (stories: readonly Story[], sprintId: string): Story[] 
 
 /** The stories in a sprint as they are now: what a start keeps as the planned scope. */
 export function startItemsOf(stories: readonly Story[], sprintId: string): SprintStartItem[] {
-  return storiesOf(stories, sprintId).map((story) => ({ storyId: story.id, code: story.code, points: story.points }));
+  return storiesOf(stories, sprintId).map((story) => ({ storyId: story.id, code: storyKey(story), points: story.points }));
 }
 
 /** What a sprint holds before it starts: its stories, points and the stories without points. */

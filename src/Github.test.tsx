@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
-import { LABELS_FIELD_ID } from './domain/github';
+import { LABELS_FIELD_ID } from './domain/sync';
 import { todayIso } from './domain/sprints';
 import { initI18n } from './i18n';
 import { fakeGithub, fakeIssue, REPO } from './test/fakeGithub';
@@ -28,11 +28,11 @@ async function renderApp(hash: string, { connected = true, issues = [] }: Option
   const seed = seedSnapshot(todayIso());
   await repository.replaceAll({
     ...seed,
-    settings: { ...seed.settings, features: { ...seed.settings.features, github: connected }, github: { ...seed.settings.github, repo: connected ? REPO : '' } }
+    settings: { ...seed.settings, features: { ...seed.settings.features, sync: connected }, sync: { ...seed.settings.sync, connection: connected ? { repo: REPO } : {} } }
   });
-  if (connected) await fake.github.tokens.set('good');
+  if (connected) await fake.tokens.set('good');
   window.location.hash = hash;
-  render(<App repository={repository} github={fake.github} />);
+  render(<App repository={repository} sync={fake.sync} />);
   await screen.findByRole('heading', { level: 1 });
   return { fake, repository };
 }
@@ -41,9 +41,9 @@ describe('switching the feature on', () => {
   it('AC1.1 is off by default: no section, no button in the backlog', async () => {
     // Given a fresh app that was not set up
     const user = userEvent.setup();
-    await renderApp('#/settings/github', { connected: false });
+    await renderApp('#/settings/sync', { connected: false });
     // When I look at the features and the backlog
-    expect(screen.getByRole('switch', { name: /GitHub connection/ })).not.toBeChecked();
+    expect(screen.getByRole('switch', { name: /Synchronisation/ })).not.toBeChecked();
     // Then the connection is not shown and there is no button "Synchronise"
     expect(screen.queryByLabelText('Repository (owner/name)')).not.toBeInTheDocument();
     await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Backlog' }));
@@ -54,9 +54,9 @@ describe('switching the feature on', () => {
   it('AC1.2 shows the section "GitHub" with repository and token as soon as the feature is on', async () => {
     // Given the feature is off
     const user = userEvent.setup();
-    await renderApp('#/settings/github', { connected: false });
+    await renderApp('#/settings/sync', { connected: false });
     // When I switch it on and open the section
-    await user.click(screen.getByRole('switch', { name: /GitHub connection/ }));
+    await user.click(screen.getByRole('switch', { name: /Synchronisation/ }));
     // Then I can enter the repository and the token
     expect(await screen.findByLabelText('Repository (owner/name)')).toBeInTheDocument();
     expect(screen.getByLabelText('Access token')).toHaveAttribute('type', 'password');
@@ -69,8 +69,8 @@ describe('switching the feature on', () => {
     await sync(user);
     expect(await screen.findByRole('link', { name: 'Open issue #31 on GitHub' })).toBeInTheDocument();
     // When I switch the feature off
-    window.location.hash = '#/settings/github';
-    await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
+    window.location.hash = '#/settings/sync';
+    await user.click(await screen.findByRole('switch', { name: /Synchronisation/ }));
     // Then the connection is gone, and so are the button and the number in the backlog
     expect(screen.queryByLabelText('Repository (owner/name)')).not.toBeInTheDocument();
     window.location.hash = '#/backlog';
@@ -79,11 +79,11 @@ describe('switching the feature on', () => {
     expect(screen.queryByRole('link', { name: /Open issue #31/ })).not.toBeInTheDocument();
     expect(screen.getByText('Login')).toBeInTheDocument();
     // And when I switch it on again, everything is back
-    window.location.hash = '#/settings/github';
-    await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
+    window.location.hash = '#/settings/sync';
+    await user.click(await screen.findByRole('switch', { name: /Synchronisation/ }));
     window.location.hash = '#/backlog';
     expect(await screen.findByRole('link', { name: 'Open issue #31 on GitHub' })).toBeInTheDocument();
-    expect((await repository.load()).settings.github.repo).toBe(REPO);
+    expect((await repository.load()).settings.sync.connection.repo).toBe(REPO);
   });
 });
 
@@ -91,9 +91,9 @@ describe('connecting the repository', () => {
   it('AC1.3 tests the connection, never shows the token again and keeps the repository', async () => {
     // Given the section GitHub without a connection
     const user = userEvent.setup();
-    const { fake, repository } = await renderApp('#/settings/github', { connected: false });
+    const { fake, repository } = await renderApp('#/settings/sync', { connected: false });
     // (the feature is off, so the settings show the features; switch it on first)
-    await user.click(await screen.findByRole('switch', { name: /GitHub connection/ }));
+    await user.click(await screen.findByRole('switch', { name: /Synchronisation/ }));
     fake.state.issues = [fakeIssue(1), fakeIssue(2), fakeIssue(3)];
     // When I enter repository and token and test the connection
     await user.type(await screen.findByLabelText('Repository (owner/name)'), REPO);
@@ -106,8 +106,8 @@ describe('connecting the repository', () => {
     expect(token.value).toBe('');
     expect(token).toHaveAttribute('placeholder', expect.stringContaining('Token saved'));
     expect(document.body.innerHTML).not.toContain('good"');
-    expect(await fake.github.tokens.get()).toBe('good');
-    await waitFor(async () => expect((await repository.load()).settings.github.repo).toBe(REPO));
+    expect(await fake.tokens.get()).toBe('good');
+    await waitFor(async () => expect((await repository.load()).settings.sync.connection.repo).toBe(REPO));
     expect(JSON.stringify(await repository.load())).not.toContain('"good"');
   });
 
@@ -117,7 +117,7 @@ describe('connecting the repository', () => {
   ])('AC1.4 says what is wrong with the repository "%s"', async (text, message) => {
     // Given the section GitHub
     const user = userEvent.setup();
-    await renderApp('#/settings/github', { connected: true });
+    await renderApp('#/settings/sync', { connected: true });
     const field = await screen.findByLabelText('Repository (owner/name)');
     // When I enter the text and test the connection
     await user.clear(field);
@@ -131,7 +131,7 @@ describe('connecting the repository', () => {
   it('AC1.4 says "Repository not found" for a repository that does not exist', async () => {
     // Given the section GitHub
     const user = userEvent.setup();
-    await renderApp('#/settings/github', { connected: true });
+    await renderApp('#/settings/sync', { connected: true });
     const field = await screen.findByLabelText('Repository (owner/name)');
     // When I test a repository GitHub does not know
     await user.clear(field);
@@ -144,12 +144,12 @@ describe('connecting the repository', () => {
 
   it('AC1.6 keeps the repository after a reload but asks for the token again', async () => {
     // Given a connection set up in this page
-    const { repository } = await renderApp('#/settings/github');
+    const { repository } = await renderApp('#/settings/sync');
     expect(await screen.findByLabelText('Access token')).toHaveAttribute('placeholder', expect.stringContaining('Token saved'));
     // When the page is loaded again (a new page has an empty memory)
     const fresh = fakeGithub([]);
     cleanup();
-    render(<App repository={repository} github={fresh.github} />);
+    render(<App repository={repository} sync={fresh.sync} />);
     // Then the repository is there, the token is not, and a note asks for it
     expect(((await screen.findByLabelText('Repository (owner/name)')) as HTMLInputElement).value).toBe(REPO);
     expect(await screen.findByText(/Enter the token again/)).toBeInTheDocument();
@@ -161,8 +161,8 @@ describe('connecting the repository', () => {
     const user = userEvent.setup();
     const repository = new LocalStorageRepository();
     const seed = seedSnapshot(todayIso());
-    await repository.replaceAll({ ...seed, settings: { ...seed.settings, features: { ...seed.settings.features, github: true } } });
-    window.location.hash = '#/settings/github';
+    await repository.replaceAll({ ...seed, settings: { ...seed.settings, features: { ...seed.settings.features, sync: true } } });
+    window.location.hash = '#/settings/sync';
     render(<App repository={repository} />);
     // When I connect with any token
     await user.type(await screen.findByLabelText('Repository (owner/name)'), REPO);
@@ -177,13 +177,13 @@ describe('connecting the repository', () => {
   it('AC1.5 lets me disconnect: the repository and the token are removed', async () => {
     // Given a connection
     const user = userEvent.setup();
-    const { fake, repository } = await renderApp('#/settings/github');
+    const { fake, repository } = await renderApp('#/settings/sync');
     // When I disconnect
     await user.click(await screen.findByRole('button', { name: 'Remove connection' }));
     await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Remove connection' }));
     // Then both are gone
-    expect(await fake.github.tokens.get()).toBeNull();
-    await waitFor(async () => expect((await repository.load()).settings.github.repo).toBe(''));
+    expect(await fake.tokens.get()).toBeNull();
+    await waitFor(async () => expect((await repository.load()).settings.sync.connection.repo).toBeUndefined());
     expect((screen.getByLabelText('Repository (owner/name)') as HTMLInputElement).value).toBe('');
   });
 });
@@ -207,7 +207,7 @@ describe('importing and syncing', () => {
     for (const title of ['Login', 'Export as CSV', 'Dark mode']) expect(screen.getByText(title)).toBeInTheDocument();
     expect(screen.queryByText('Imprint')).not.toBeInTheDocument();
     const login = (await repository.load()).stories.find((story) => story.title === 'Login');
-    expect(login).toMatchObject({ description: 'Users log in.', github: { state: 'open' } });
+    expect(login).toMatchObject({ description: 'Users log in.', link: { state: 'open' } });
     expect(login?.values[LABELS_FIELD_ID]).toHaveLength(1);
   });
 
@@ -269,7 +269,7 @@ describe('importing and syncing', () => {
     // When GitHub has a new title of its own and I synchronise in a new page (it reads what the repository holds)
     fake.state.issues = [fakeIssue(31, { title: 'Login-Seite' })];
     cleanup();
-    render(<App repository={repository} github={fake.github} />);
+    render(<App repository={repository} sync={fake.sync} />);
     await sync(user);
     // Then the title is GitHub's again and the plan is unchanged
     expect(await logText(user)).toContain('Title changed: “My own title” → “Login-Seite”');
@@ -321,7 +321,7 @@ describe('importing and syncing', () => {
     // When GitHub has A (open), C (ticked) and D, and I synchronise in a new page
     fake.state.issues = [fakeIssue(31, { title: 'Login', body: '## Acceptance criteria\n- [ ] A\n- [x] C\n- [ ] D' })];
     cleanup();
-    render(<App repository={repository} github={fake.github} />);
+    render(<App repository={repository} sync={fake.sync} />);
     await sync(user);
     // Then the criteria are GitHub's and the log counts what changed
     expect(await logText(user)).toContain('Criteria: 2 new, 1 removed, 1 tick changed');
@@ -430,7 +430,7 @@ describe('the notice after a sync and the sync log', () => {
     // When I choose "Log"
     await user.click(within(notice).getByRole('button', { name: 'Log' }));
     // Then the sync log in the settings opens
-    await waitFor(() => expect(window.location.hash).toBe('#/settings/github'));
+    await waitFor(() => expect(window.location.hash).toBe('#/settings/sync'));
     expect(await screen.findByRole('heading', { name: /Sync log/ })).toBeInTheDocument();
   });
 
@@ -452,7 +452,7 @@ describe('the notice after a sync and the sync log', () => {
 
   it('AC18.1 has the automatic sync off by default and runs nothing by itself', async () => {
     // Given a connected repository
-    const { fake } = await renderApp('#/settings/github', { issues: [fakeIssue(1)] });
+    const { fake } = await renderApp('#/settings/sync', { issues: [fakeIssue(1)] });
     // Then the switch is off, nothing was fetched and there is no notice
     expect(await screen.findByRole('checkbox', { name: 'Synchronise automatically' })).not.toBeChecked();
     expect(fake.state.calls).toBe(0);
@@ -466,7 +466,7 @@ describe('the notice after a sync and the sync log', () => {
     await renderApp('#/backlog', { issues: [fakeIssue(1)] });
     await sync(user);
     // When I open the sync log
-    window.location.hash = '#/settings/github';
+    window.location.hash = '#/settings/sync';
     // Then there is a row with the trigger "Manual" and the result
     const toggle = await waitFor(() => {
       const found = document.querySelector<HTMLElement>('.github-log__toggle');
@@ -496,16 +496,16 @@ describe('the notice after a sync and the sync log', () => {
     const user = userEvent.setup();
     const { fake, repository } = await renderApp('#/backlog', { issues: [fakeIssue(1)] });
     await sync(user);
-    await waitFor(async () => expect((await repository.load()).settings.github.log).toHaveLength(1));
+    await waitFor(async () => expect((await repository.load()).settings.sync.log).toHaveLength(1));
     cleanup();
-    window.location.hash = '#/settings/github';
-    render(<App repository={repository} github={fake.github} />);
+    window.location.hash = '#/settings/sync';
+    render(<App repository={repository} sync={fake.sync} />);
     expect(await screen.findByRole('button', { name: /Synchronised: 1 new/ })).toBeInTheDocument();
     // When I press "Clear"
     await user.click(screen.getByRole('button', { name: 'Clear' }));
     // Then the log is empty, also in the stored data
     expect(await screen.findByText('No runs yet.')).toBeInTheDocument();
-    await waitFor(async () => expect((await repository.load()).settings.github.log).toEqual([]));
+    await waitFor(async () => expect((await repository.load()).settings.sync.log).toEqual([]));
   });
 });
 
@@ -523,7 +523,7 @@ describe('when something goes wrong', () => {
     // Then a clear message appears and nothing changed
     expect(notice).toHaveTextContent('Synchronisation failed: No connection to GitHub. The app keeps working with your local data.');
     expect(titles()).toEqual(before);
-    expect((await repository.load()).stories.some((story) => story.github)).toBe(false);
+    expect((await repository.load()).stories.some((story) => story.link)).toBe(false);
     // And I can keep working: the board is there
     await user.click(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: 'Board' }));
     await waitFor(() => expect(window.location.hash).toBe('#/board'));
@@ -534,7 +534,7 @@ describe('when something goes wrong', () => {
     // Given a token that GitHub refuses
     const user = userEvent.setup();
     const { fake, repository } = await renderApp('#/backlog', { issues: [fakeIssue(1)] });
-    await fake.github.tokens.set('expired');
+    await fake.tokens.set('expired');
     const count = (await repository.load()).stories.length;
     // When I synchronise
     const notice = await sync(user);
@@ -547,13 +547,13 @@ describe('when something goes wrong', () => {
     // Given a repository without a token (a new page has no token in memory)
     const user = userEvent.setup();
     const { fake } = await renderApp('#/backlog');
-    await fake.github.tokens.clear();
+    await fake.tokens.clear();
     // When I synchronise
     const notice = await sync(user);
     // Then the message says so and the log button leads to the settings
     expect(notice).toHaveTextContent('The connection is not set up');
     await user.click(within(notice).getByRole('button', { name: 'Log' }));
-    await waitFor(() => expect(window.location.hash).toBe('#/settings/github'));
+    await waitFor(() => expect(window.location.hash).toBe('#/settings/sync'));
   });
 });
 
@@ -562,7 +562,7 @@ describe('help for the GitHub connection', () => {
   const openTopic = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
     await user.click(screen.getByRole('button', { name: 'Help' }));
     await user.type(screen.getByRole('searchbox', { name: 'Search help' }), 'GitHub issues');
-    await user.click(within(panel()).getByRole('button', { name: /^GitHub issues/ }));
+    await user.click(within(panel()).getByRole('button', { name: /^Synchronisation with GitHub/ }));
   };
 
   it('Help: tells to switch the feature on first and does not link to the places that need it while it is off', async () => {
@@ -572,8 +572,8 @@ describe('help for the GitHub connection', () => {
     // When I open the help topic
     await openTopic(user);
     // Then the text starts with switching the feature on, and the places that need it are locked
-    expect(within(panel()).getByText(/^1\. Switch the feature on under Settings → GitHub connection/)).toBeInTheDocument();
-    expect(within(panel()).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/github');
+    expect(within(panel()).getByText(/^1\. Switch the feature on under Settings → Synchronisation/)).toBeInTheDocument();
+    expect(within(panel()).getByRole('link', { name: 'Open Settings → Synchronisation' })).toHaveAttribute('href', '#/settings/sync');
   });
 
   it('Help: links to the section GitHub once the feature is on', async () => {
@@ -583,7 +583,7 @@ describe('help for the GitHub connection', () => {
     // When I open the help topic
     await openTopic(user);
     // Then the section GitHub is a link
-    expect(within(panel()).getByRole('link', { name: 'Open Settings → GitHub' })).toHaveAttribute('href', '#/settings/github');
+    expect(within(panel()).getByRole('link', { name: 'Open Settings → Synchronisation' })).toHaveAttribute('href', '#/settings/sync');
   });
 });
 
@@ -593,15 +593,15 @@ describe('texts', () => {
     const files = await Promise.all(['de', 'en', 'fr', 'it'].map(async (code) => [code, (await import(`./i18n/${code}.json`)).default] as const));
     const keys = (value: unknown, prefix = ''): string[] =>
       Object.entries(value as Record<string, unknown>).flatMap(([key, item]) => (typeof item === 'object' && item !== null ? keys(item, `${prefix}${key}.`) : [`${prefix}${key}`]));
-    // When I compare the keys of "github" (plural forms differ per language, so they are compared without their ending)
+    // When I compare the keys of "sync" and "github" (plural forms differ per language, so they are compared without their ending)
     const base = (name: string): string => name.replace(/_(zero|one|two|few|many|other)$/, '');
-    const names = (file: Record<string, unknown>): string[] => [...new Set(keys(file.github).map(base))].sort();
+    const names = (file: Record<string, unknown>): string[] => [...new Set([...keys(file.sync, 'sync.'), ...keys(file.github, 'github.'), ...keys(file.jira, 'jira.')].map(base))].sort();
     // Then every language has the same texts, and none is empty
     const english = names(files[1][1]);
     for (const [code, file] of files) {
       expect(names(file), code).toEqual(english);
-      expect(keys(file.github).length, code).toBeGreaterThan(40);
-      const flat = JSON.stringify(file.github);
+      expect(keys(file.sync).length, code).toBeGreaterThan(40);
+      const flat = JSON.stringify([file.sync, file.github]);
       expect(flat, code).not.toContain('""');
     }
   });

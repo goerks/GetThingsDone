@@ -39,6 +39,10 @@ import {
 import type { StatusCategory, StatusValue } from '../domain/types';
 import { useApp } from '../state/AppState';
 import { Button, DragHandle, IconButton, Select, TextInput } from '../ui';
+import { useStoryKey } from '../components/useStoryKey';
+import { columnsFromService } from '../domain/syncOwners';
+import { serviceName } from '../sync/syncT';
+import { Managed, useManagedText } from '../components/Managed';
 
 const GROUP_PREFIX = 'status-group:';
 
@@ -76,7 +80,9 @@ function StatusRow({ status, dropBefore, onRemove, onStep }: RowProps) {
   const hintId = useId();
   const count = storiesWithStatus(app.stories, status.id).length;
   const locked = isLastOfRequired(app.statuses, status.id);
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useSortable({ id: status.id });
+  const managedText = useManagedText();
+  const managed = columnsFromService(app.settings) ? managedText : null;
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging } = useSortable({ id: status.id, disabled: managed !== null });
   const isDefault = DEFAULT_STATUS_IDS.includes(status.id);
 
   const commit = (): void => {
@@ -111,12 +117,16 @@ function StatusRow({ status, dropBefore, onRemove, onStep }: RowProps) {
       data-status={status.id}
       style={{ '--status-color': statusColor(app.statuses, status.id) } as CSSProperties}
     >
-      <DragHandle ref={setActivatorNodeRef} aria-label={t('statusValues.move', { name })} {...attributes} {...listeners}>
-        <GripIcon />
-      </DragHandle>
+      <Managed by={managed}>
+        <DragHandle ref={setActivatorNodeRef} aria-label={t('statusValues.move', { name })} disabled={managed !== null} {...attributes} {...listeners}>
+          <GripIcon />
+        </DragHandle>
+      </Managed>
       <span className="status-row__dot" aria-hidden="true" />
       <TextInput
         className="status-row__name"
+        title={managed ?? undefined}
+        disabled={managed !== null}
         aria-label={t('statusValues.name', { name })}
         aria-describedby={hintId}
         value={draft ?? name}
@@ -135,9 +145,11 @@ function StatusRow({ status, dropBefore, onRemove, onStep }: RowProps) {
           <span className="sr-only">{t('statusValues.locked', { name, category: t(`statusValues.category.${status.category}`) })}</span>
         </span>
       ) : (
-        <IconButton type="button" quiet aria-label={t('statusValues.remove', { name })} onClick={onRemove}>
-          <TrashIcon />
-        </IconButton>
+        <Managed by={managed}>
+          <IconButton type="button" quiet aria-label={t('statusValues.remove', { name })} disabled={managed !== null} onClick={onRemove}>
+            <TrashIcon />
+          </IconButton>
+        </Managed>
       )}
     </li>
   );
@@ -148,12 +160,16 @@ function AddStatus({ category }: { category: StatusCategory }) {
   const app = useApp();
   const [name, setName] = useState<string | null>(null);
   const categoryName = t(`statusValues.category.${category}`);
+  const managedText = useManagedText();
+  const managed = columnsFromService(app.settings) ? managedText : null;
 
   if (name === null) {
     return (
-      <Button type="button" className="status-group__add" onClick={() => setName('')}>
-        + {t('statusValues.add', { category: categoryName })}
-      </Button>
+      <Managed by={managed}>
+        <Button type="button" className="status-group__add" disabled={managed !== null} onClick={() => setName('')}>
+          + {t('statusValues.add', { category: categoryName })}
+        </Button>
+      </Managed>
     );
   }
   return (
@@ -215,11 +231,12 @@ function StatusGroup({ category, target, empty, children }: { category: StatusCa
 function RemoveDialog({ status, onClose }: { status: StatusValue; onClose: () => void }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const name = statusLabel(t, app.statuses, status.id);
   const affected = storiesWithStatus(app.stories, status.id);
   const [target, setTarget] = useState(() => defaultTarget(app.statuses, status.id) ?? '');
   const uid = useId();
-  const codes = codesOf(affected.map((story) => story.code));
+  const codes = codesOf(affected.map((story) => keyOf(story)));
 
   return (
     <Dialog title={t('statusValues.removeDialog.title', { name })} onClose={onClose}>
@@ -265,10 +282,11 @@ function RemoveDialog({ status, onClose }: { status: StatusValue; onClose: () =>
 function ConfirmCategoryDialog({ move, onClose }: { move: PendingMove; onClose: () => void }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const name = statusLabel(t, app.statuses, move.status.id);
   const after = reorderStatuses(app.statuses, move.places) ?? app.statuses;
   const changing = storiesChangingDone(app.stories, app.statuses, after);
-  const codes = codesOf(changing.map((story) => story.code));
+  const codes = codesOf(changing.map((story) => keyOf(story)));
   const key = move.category === 'done' ? 'toDone' : 'fromDone';
 
   return (
@@ -307,6 +325,7 @@ export function StatusValuesSection() {
   const [message, setMessage] = useState('');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hover, setHover] = useState<Hover | null>(null);
+  const fromService = columnsFromService(app.settings);
 
   const nameOf = (id: UniqueIdentifier): string => {
     const value = String(id);
@@ -393,6 +412,11 @@ export function StatusValuesSection() {
         <h2>{t('statusValues.title')}</h2>
       </div>
       <p className="muted">{t('statusValues.hint')}</p>
+      {fromService && (
+        <p className="hint hint--info" role="note">
+          {t('statusValues.fromService', { service: serviceName(t, app.settings.sync.service) })}
+        </p>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

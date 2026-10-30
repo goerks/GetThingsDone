@@ -7,11 +7,13 @@ import { sortEpics } from '../domain/epics';
 import { sortSprints } from '../domain/sprints';
 import { STATUS_CATEGORIES, statusColor, statusesIn } from '../domain/statuses';
 import { POINT_VALUES } from '../domain/types';
-import { githubErrorKey } from '../pages/GithubSection';
+import { syncErrorKey } from '../pages/SyncSection';
+import { withService } from '../sync/syncT';
 import { featureOn } from '../domain/settings';
 import { useApp } from './AppState';
 import { useToast } from './Toast';
 import { useDetails } from './Details';
+import { useStoryKey } from '../components/useStoryKey';
 
 interface StoryMenuApi {
   /** Opens the menu of a story at the pointer, or at the card when the menu key or Shift+F10 was used. */
@@ -40,6 +42,7 @@ interface Open {
 export function StoryMenuProvider({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const details = useDetails();
   const builtin = useBuiltin();
   const toast = useToast();
@@ -136,20 +139,21 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
         }))
       });
     }
-    // Only a story that exists just here can become an issue, and only while the app may write to GitHub (#30).
-    if (featureOn(app.settings, 'github') && app.settings.github.write && app.settings.github.repo !== '' && !story.github) {
+    // Only a story that exists just here can become an issue, and only while the app may write to the service (#30, #66).
+    if (featureOn(app.settings, 'sync') && app.settings.sync.write && Object.keys(app.settings.sync.connection).length > 0 && !story.link) {
+      const st = withService(t, app.settings.sync.service);
       list.push({
-        id: 'github-create',
-        label: t('github.create.menu'),
+        id: 'sync-create',
+        label: st('sync.create.menu'),
         onSelect: () => {
           setOpen(null);
           app
-            .createOnGithub(story.id)
+            .createInService(story.id)
             .then((skipped) => {
-              toast.notify(t('github.create.done', { code: story.code }));
-              if (skipped.length > 0) toast.notify(t('github.create.skipped', { labels: skipped.join(', ') }));
+              toast.notify(st('sync.create.done', { code: story.code }));
+              if (skipped.length > 0) toast.notify(st('sync.create.skipped', { labels: skipped.join(', ') }));
             })
-            .catch((cause: unknown) => toast.notify(t('github.create.failed', { code: story.code, reason: t(`github.errors.${githubErrorKey(cause)}`) })));
+            .catch((cause: unknown) => toast.notify(st('sync.create.failed', { code: story.code, reason: st(`sync.errors.${syncErrorKey(cause)}`) })));
         }
       });
     }
@@ -164,7 +168,7 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
   return (
     <StoryMenuContext.Provider value={api}>
       {children}
-      {open && story && <ContextMenu x={open.x} y={open.y} label={t('menu.label', { code: story.code })} items={items} onClose={close} />}
+      {open && story && <ContextMenu x={open.x} y={open.y} label={t('menu.label', { code: keyOf(story) })} items={items} onClose={close} />}
     </StoryMenuContext.Provider>
   );
 }

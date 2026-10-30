@@ -5,7 +5,8 @@ import App from './App';
 import { LocalStorageRepository } from './data/localStorageRepository';
 import { seedSnapshot } from './data/seed';
 import { assignTo } from './domain/fields';
-import { LABELS_FIELD_ID, issueUrl } from './domain/github';
+import { LABELS_FIELD_ID } from './domain/sync';
+import { issueUrl } from './sync/github/format';
 import { todayIso } from './domain/sprints';
 import type { ConflictRule, ExternalFields, FieldDefinition, Release, Story } from './domain/types';
 import { EPIC_COLOR_KEYS } from './domain/types';
@@ -41,7 +42,7 @@ const linked = (number: number, extra: Partial<Story> = {}, base: Partial<Extern
   values: {},
   checks: {},
   doneItems: null,
-  github: { url: issueUrl(repoRef, number), state: 'open', base: baseOf(base) },
+  link: { service: 'github', key: `#${number}`, url: issueUrl(repoRef, number), state: 'open', base: baseOf(base) },
   ...extra
 });
 
@@ -77,13 +78,13 @@ async function renderApp(hash: string, { stories = [], issues = [], write = true
     releases: [...seed.releases, ...releases],
     settings: {
       ...seed.settings,
-      features: { ...seed.settings.features, github: featureOn },
-      github: { repo: REPO, lastSyncAt: null, write, conflict, ignored: [], managed, auto: false, log: [] }
+      features: { ...seed.settings.features, sync: featureOn },
+      sync: { service: 'github', connection: { repo: REPO }, lastSyncAt: null, write, conflict, ignored: [], managed, auto: false, log: [] }
     }
   });
-  await fake.github.tokens.set('good');
+  await fake.tokens.set('good');
   window.location.hash = hash;
-  render(<App repository={repository} github={fake.github} />);
+  render(<App repository={repository} sync={fake.sync} />);
   await screen.findByRole('heading', { level: 1 });
   return { fake, repository };
 }
@@ -91,7 +92,7 @@ async function renderApp(hash: string, { stories = [], issues = [], write = true
 describe('the options of the connection', () => {
   it('AC1.8 has writing off by default and says which right the token needs', async () => {
     // Given a connected repository with the default settings
-    const { repository } = await renderApp('#/settings/github', { write: false });
+    const { repository } = await renderApp('#/settings/sync', { write: false });
     // When I open the connections
     const box = await screen.findByRole('checkbox', { name: 'Also write to GitHub' });
     // Then writing is off and the hint names the right
@@ -100,35 +101,35 @@ describe('the options of the connection', () => {
     expect(screen.getByRole('radio', { name: 'GitHub wins (default)' })).toBeChecked();
     // And switching it on is kept
     await userEvent.setup().click(box);
-    await waitFor(async () => expect((await repository.load()).settings.github.write).toBe(true));
+    await waitFor(async () => expect((await repository.load()).settings.sync.write).toBe(true));
   });
 
-  it('AC11.1 lists GitHub as connected and GitLab, Jira and Trello as planned', async () => {
+  it('AC11.1 lists GitHub as connected and GitLab and Jira as planned', async () => {
     // Given a connected repository
-    await renderApp('#/settings/github');
+    await renderApp('#/settings/sync');
     // When I look at the services
-    await screen.findByRole('heading', { name: /^Services/ });
-    const list = document.querySelector('.github-services') as HTMLElement;
-    // Then GitHub is connected and the others are planned
-    const entries = within(list).getAllByRole('listitem');
-    expect(entries.map((item) => item.textContent)).toEqual(['GitHubconnected', 'GitLabplanned', 'Jiraplanned', 'Trelloplanned']);
-    expect(within(list).queryByRole('button')).not.toBeInTheDocument();
+    const group = await screen.findByRole('group', { name: /^Service/ });
+    const radios = within(group).getAllByRole('radio') as HTMLInputElement[];
+    // Then GitHub is chosen and connected, and the others are planned and cannot be chosen
+    expect(radios.map((radio) => radio.closest('label')?.textContent)).toEqual(['GitHubconnected', 'Jiraplanned', 'GitLabplanned']);
+    expect(radios.map((radio) => radio.disabled)).toEqual([false, true, true]);
+    expect(radios[0]).toBeChecked();
   });
 
   it('AC11.2 removes the connection after asking, and the stories stay without link and marker', async () => {
     // Given a connection and a linked story with a change that is not on GitHub yet
     const user = userEvent.setup();
-    const { fake, repository } = await renderApp('#/settings/github', { stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { title: 'Login' })] });
+    const { fake, repository } = await renderApp('#/settings/sync', { stories: [linked(31, { title: 'Anmeldung' })], issues: [fakeIssue(31, { title: 'Login' })] });
     // When I remove the connection and confirm
     await user.click(await screen.findByRole('button', { name: 'Remove connection' }));
     expect(await screen.findByRole('dialog')).toHaveTextContent(/imported stories stay/);
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove connection' }));
     // Then token and repository are gone, the story is still there and no longer linked
-    await waitFor(async () => expect((await repository.load()).settings.github.repo).toBe(''));
-    expect(await fake.github.tokens.get()).toBeNull();
+    await waitFor(async () => expect((await repository.load()).settings.sync.connection.repo).toBeUndefined());
+    expect(await fake.tokens.get()).toBeNull();
     const story = (await repository.load()).stories.find((item) => item.id === 'story-gh-31');
     expect(story?.title).toBe('Anmeldung');
-    expect(story?.github).toBeUndefined();
+    expect(story?.link).toBeUndefined();
     expect(fake.state.writes).toEqual([]);
   });
 });
@@ -277,7 +278,7 @@ describe('what is not on GitHub yet', () => {
 });
 
 describe('creating an issue from a story', () => {
-  const own: Story = { ...linked(9), id: 'story-own', code: 'S-90', title: 'Export as CSV', github: undefined };
+  const own: Story = { ...linked(9), id: 'story-own', code: 'S-90', title: 'Export as CSV', link: undefined };
 
   const openMenu = (code: string): void => {
     fireEvent.contextMenu(screen.getByText(code).closest('.backlog__row') as HTMLElement);
@@ -294,7 +295,7 @@ describe('creating an issue from a story', () => {
     await waitFor(() => expect(fake.state.issues).toHaveLength(1));
     expect(fake.state.issues[0]).toMatchObject({ title: 'Export as CSV', state: 'open' });
     expect(await screen.findByRole('link', { name: 'Open issue #1 on GitHub' })).toBeInTheDocument();
-    expect((await repository.load()).stories.find((story) => story.id === 'story-own')?.github?.url).toBe(`https://github.com/${REPO}/issues/1`);
+    expect((await repository.load()).stories.find((story) => story.id === 'story-own')?.link?.url).toBe(`https://github.com/${REPO}/issues/1`);
   });
 
   it('AC10.2 creates nothing on a sync, and offers the item only for a story without link while writing is on', async () => {
@@ -303,7 +304,7 @@ describe('creating an issue from a story', () => {
     await sync(user);
     expect(fake.state.issues).toHaveLength(1);
     // A linked story has no such item
-    openMenu('G-31');
+    openMenu('#31');
     await screen.findByRole('menu');
     expect(screen.queryByRole('menuitem', { name: 'Create on GitHub' })).not.toBeInTheDocument();
   });
@@ -321,7 +322,8 @@ describe('creating an issue from a story', () => {
     openMenu('S-90');
     await user.click(await screen.findByRole('menuitem', { name: 'Create on GitHub' }));
     await screen.findByRole('link', { name: 'Open issue #1 on GitHub' });
-    openMenu('S-90');
+    // The story shows the number of its issue as its ID now (#66)
+    openMenu('#1');
     await screen.findByRole('menu');
     expect(screen.queryByRole('menuitem', { name: 'Create on GitHub' })).not.toBeInTheDocument();
   });
@@ -368,7 +370,7 @@ describe('the sync icon', () => {
     const gate = new Promise<void>((resolve) => {
       release = resolve;
     });
-    fake.github.source.openIssues = async () => {
+    fake.api.openIssues = async () => {
       calls += 1;
       await gate;
       return [];
@@ -448,33 +450,33 @@ describe('labels and milestones that the sync makes and deletes', () => {
 
 describe('texts of the story map sync', () => {
   const KEYS = [
-    'github.toast.done',
-    'github.toast.upToDate',
-    'github.toast.failed',
-    'github.toast.paused',
-    'github.toast.conflicts',
-    'github.auto.label',
-    'github.auto.hint',
-    'github.log.title',
-    'github.log.empty',
-    'github.log.trigger.start',
-    'github.log.trigger.auto',
-    'github.log.trigger.manual',
-    'github.sync.labelCreated',
-    'github.sync.labelDeleted',
-    'github.sync.milestoneCreated',
-    'github.sync.milestoneDeleted',
-    'github.sync.missingLabels',
-    'github.sync.releaseCreated',
-    'github.sync.epicCreated',
-    'github.sync.missingMilestones',
-    'github.sync.multipleEpics',
-    'github.field.release',
-    'github.field.epic',
-    'github.field.status',
-    'github.change.release',
-    'github.change.epic',
-    'github.change.status'
+    'sync.toast.done',
+    'sync.toast.upToDate',
+    'sync.toast.failed',
+    'sync.toast.paused',
+    'sync.toast.conflicts',
+    'sync.auto.label',
+    'sync.auto.hint',
+    'sync.log.title',
+    'sync.log.empty',
+    'sync.log.trigger.start',
+    'sync.log.trigger.auto',
+    'sync.log.trigger.manual',
+    'sync.sync.labelCreated',
+    'sync.sync.labelDeleted',
+    'sync.sync.milestoneCreated',
+    'sync.sync.milestoneDeleted',
+    'sync.sync.missingLabels',
+    'sync.sync.releaseCreated',
+    'sync.sync.epicCreated',
+    'sync.sync.missingMilestones',
+    'sync.sync.multipleEpics',
+    'sync.field.release',
+    'sync.field.epic',
+    'sync.field.status',
+    'sync.change.release',
+    'sync.change.epic',
+    'sync.change.status'
   ];
   const lookup = (tree: unknown, path: string): unknown => path.split('.').reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], tree);
   const languages: Array<[string, unknown]> = [['de', de], ['en', en], ['fr', fr], ['it', it_]];

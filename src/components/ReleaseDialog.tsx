@@ -13,6 +13,7 @@ import { formatDay } from './releaseFormat';
 import { useBuiltin } from './useBuiltin';
 import { statusLabel } from './statusLabel';
 import { BareButton, Button, IconButton, TextInput } from '../ui';
+import { useStoryKey } from './useStoryKey';
 
 type Tab = 'details' | 'stories' | 'scope' | 'burndown' | 'history';
 const TABS: readonly Tab[] = ['details', 'stories', 'scope', 'burndown', 'history'];
@@ -39,6 +40,7 @@ const inputOf = (release: Release, patch: Partial<Release> = {}) => ({
 export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
   const { t, i18n } = useTranslation();
   const app = useApp();
+  const keyOf = useStoryKey();
   const builtin = useBuiltin();
   const uid = useId();
   const release = app.releases.find((item) => item.id === id);
@@ -197,7 +199,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
             </div>
             {late.length > 0 && release.endDate && (
               <p className="hint" role="note">
-                {t('releases.afterEnd', { count: late.length, date: formatDay(release.endDate, language), codes: late.map((story) => story.code).join(', ') })}
+                {t('releases.afterEnd', { count: late.length, date: formatDay(release.endDate, language), codes: late.map((story) => keyOf(story)).join(', ') })}
               </p>
             )}
             <div className="danger">
@@ -268,7 +270,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                     {own.map((story) => (
                       <tr key={story.id}>
                         <th scope="row" className="release-table__code">
-                          {story.code}
+                          {keyOf(story)}
                         </th>
                         <td>
                           <BareButton type="button" className="title-button" onClick={() => onOpenStory(story.id)}>
@@ -282,8 +284,7 @@ export function ReleaseDialog({ id, onClose, onOpenStory }: Props) {
                         <td>
                           <Button
                             type="button"
-                           
-                            aria-label={t('releases.remove', { code: story.code })}
+                            aria-label={t('releases.remove', { code: keyOf(story) })}
                             onClick={() => app.updateStory(story.id, { releaseId: null })}
                           >
                             {t('releases.removeShort')}
