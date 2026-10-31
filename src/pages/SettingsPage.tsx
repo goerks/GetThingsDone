@@ -4,6 +4,7 @@ import { FieldsSection } from './FieldsSection';
 import { MapSection } from './MapSection';
 import { DefinitionsSection } from './DefinitionsSection';
 import { ReleasesSection } from './ReleasesSection';
+import { WorkflowsSection } from './WorkflowsSection';
 import { DataSection } from './DataSection';
 import { TeamSection } from './TeamSection';
 import { SyncSection } from './SyncSection';
@@ -45,6 +46,9 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <a href={hrefs.settingsDefinitions} className="settings__link" aria-current={section === 'definitions' ? 'page' : undefined}>
               {t('definitions.title')}
             </a>
+            <a href={hrefs.settingsWorkflows} className="settings__link" aria-current={section === 'workflows' ? 'page' : undefined}>
+              {t('workflow.title')}
+            </a>
             <a href={hrefs.settingsData} className="settings__link" aria-current={section === 'data' ? 'page' : undefined}>
               {t('settings.data.title')}
             </a>
@@ -68,6 +72,8 @@ export function SettingsPage({ section }: { section: SettingsSection }) {
             <MapSection />
           ) : section === 'definitions' ? (
             <DefinitionsSection />
+          ) : section === 'workflows' ? (
+            <WorkflowsSection />
           ) : section === 'releases' ? (
             <ReleasesSection />
           ) : section === 'team' ? (

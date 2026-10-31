@@ -7,6 +7,7 @@ import { seedSnapshot } from './data/seed';
 import { addDays, todayIso } from './domain/sprints';
 import { initI18n } from './i18n';
 import { EMPTY_DEFINITIONS } from './domain/definitions';
+import { DEFAULT_WORKFLOW } from './domain/workflow';
 
 
 beforeAll(() => {
@@ -185,7 +186,7 @@ describe('recording the history', () => {
     const user = userEvent.setup();
     const repository = new LocalStorageRepository();
     const seed = seedSnapshot(todayIso());
-    await repository.replaceAll({ ...seed, settings: { mapRows: 'releases', features: { releases: true, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS } });
+    await repository.replaceAll({ ...seed, settings: { mapRows: 'releases', features: { releases: true, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW } });
     window.location.hash = '#/map';
     render(<App repository={repository} />);
     await screen.findByRole('heading', { name: 'Story Map', level: 1 });

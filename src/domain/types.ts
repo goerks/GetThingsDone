@@ -386,6 +386,38 @@ export interface SyncSettings {
   log: SyncLogEntry[];
 }
 
+/** The end of a story's life ("delete") as a target of a transition in the workflow (#49). It is no status value. */
+export const WORKFLOW_END = '~end';
+
+/** The workflow of the stories (#49). It lists what is not allowed, so a new status value starts with every transition allowed. */
+export interface StoryWorkflow {
+  /** Status values in "not started" where a new story may start; null means the first one. */
+  start: string[] | null;
+  /** Forbidden targets by status id: status ids and `WORKFLOW_END`. */
+  blocked: Record<string, string[]>;
+  /** The switch "free transitions within the category". With exceptions it stays on. */
+  free: Record<StatusCategory, boolean>;
+}
+
+/** A saved state of the workflow of the stories (#49, AC12). Versions are never deleted; going back adds a new one. */
+export interface WorkflowVersion {
+  id: string;
+  /** When the state was saved, ISO 8601. */
+  at: string;
+  /** A name the user gave, optional. */
+  name?: string;
+  story: StoryWorkflow;
+}
+
+/** The workflow of the team. Off by default: while it is off every transition is allowed and its data is kept. */
+export interface Workflow {
+  enabled: boolean;
+  /** Every change of the workflow adds a version, oldest first. The last one is the current state. */
+  versions: WorkflowVersion[];
+  /** One workflow per item type; only stories have one for now (epics have none). */
+  story: StoryWorkflow;
+}
+
 /** Settings of the workspace, shared by the whole team. */
 export interface Settings {
   mapRows: MapRows;
@@ -394,6 +426,8 @@ export interface Settings {
   /** The Definition of Ready and the Definition of Done (#26). */
   definitions: Definitions;
   sync: SyncSettings;
+  /** The allowed transitions between status values (#49). */
+  workflow: Workflow;
 }
 
 export interface Snapshot {

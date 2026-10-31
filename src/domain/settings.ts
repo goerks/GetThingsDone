@@ -1,5 +1,6 @@
 import { normalizeLog } from './syncLog';
 import { EMPTY_DEFINITIONS, normalizeDefinitions } from './definitions';
+import { DEFAULT_WORKFLOW, normalizeWorkflow } from './workflow';
 import type { ConflictRule, FeatureKey, Features, MapRows, ServiceKind, Settings, SyncSettings } from './types';
 
 export const MAP_ROWS: readonly MapRows[] = ['sprints', 'releases'];
@@ -15,7 +16,7 @@ export const SERVICE_KINDS: readonly ServiceKind[] = ['github', 'jira', 'gitlab'
 
 export const DEFAULT_SYNC: SyncSettings = { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] };
 
-export const DEFAULT_SETTINGS: Settings = { mapRows: 'sprints', features: DEFAULT_FEATURES, sync: DEFAULT_SYNC, definitions: EMPTY_DEFINITIONS };
+export const DEFAULT_SETTINGS: Settings = { mapRows: 'sprints', features: DEFAULT_FEATURES, sync: DEFAULT_SYNC, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW };
 
 const isOff = (value: unknown): boolean => value === false || value === 'false' || value === '0';
 const isOn = (value: unknown): boolean => value === true || value === 'true' || value === '1';
@@ -40,6 +41,7 @@ export interface StoredSettings {
   /** Before the generalisation (#66) the GitHub connection had its own key; it is read as the synchronisation with GitHub. */
   github?: StoredSync | null;
   definitions?: unknown;
+  workflow?: unknown;
 }
 
 const names = (value: unknown): string[] => (Array.isArray(value) ? (value as unknown[]).filter((item): item is string => typeof item === 'string') : []);
@@ -84,7 +86,7 @@ export function normalizeSettings(stored: StoredSettings | null | undefined): Se
     // A missing or unknown value gives the default of the feature.
     if (DEFAULT_FEATURES[key] ? isOff(value) : isOn(value)) features[key] = !DEFAULT_FEATURES[key];
   }
-  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, sync: normalizeSync(stored?.sync ?? stored?.github), definitions: normalizeDefinitions(stored?.definitions) };
+  return { mapRows: mapRows ?? DEFAULT_SETTINGS.mapRows, features, sync: normalizeSync(stored?.sync ?? stored?.github), definitions: normalizeDefinitions(stored?.definitions), workflow: normalizeWorkflow(stored?.workflow) };
 }
 
 /** Whether a feature is switched on. */

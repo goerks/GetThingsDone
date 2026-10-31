@@ -78,6 +78,7 @@ import type { ServiceBoard, WorkflowStatus } from '../sync/connector';
 import { columnsFromService, teamFromService } from '../domain/syncOwners';
 import { persistSync } from '../sync/persist';
 import { createInService as createInServiceWith, runSync } from '../sync/runSync';
+import { canDelete, canMove, canStartIn, nameVersion, newStoryStatus, pruneWorkflow, recordVersion, restoreVersion } from '../domain/workflow';
 import {
   DEFAULT_STATUSES,
   addStatus as addStatusIn,
@@ -86,7 +87,6 @@ import {
   renameStatus as renameStatusIn,
   reorderStatuses,
   repairStatuses,
-  startStatus,
   type IsDone,
   type StatusPlace
 } from '../domain/statuses';
@@ -94,6 +94,7 @@ import type {
   DefinitionCheck,
   DefinitionKind,
   Definitions,
+  Workflow,
   Epic,
   FieldAssignment,
   FieldDefinition,
@@ -191,6 +192,12 @@ interface AppApi {
   changeStory(id: string, patch: StoryPatch): void;
   /** Sets the Definition of Ready and Done lists of the team (#26); checks of removed items are dropped. */
   setDefinitions(definitions: Definitions): void;
+  /** Sets the workflow of the team (#49): the switch, the start, the allowed transitions and the end. */
+  setWorkflow(workflow: Workflow): void;
+  /** Gives a version of the workflow a name (#49, AC12.2). */
+  nameWorkflowVersion(id: string, name: string): void;
+  /** Goes back to an earlier version of the workflow: it becomes the current one as a new version, nothing is deleted (#49, AC12.3). */
+  restoreWorkflowVersion(id: string): void;
   /** Sets an item of a story to "checked" or "not relevant", or makes it open again (null). */
   setCheck(storyId: string, itemId: string, state: DefinitionCheck | null): void;
   /**
@@ -203,7 +210,8 @@ interface AppApi {
   flashed: string | null;
   /** Whether the highlighted story is also scrolled into view: not after a drag, the drop put it where the user is looking. */
   flashScroll: boolean;
-  deleteStory(id: string): void;
+  /** Deletes a story. False when the workflow does not allow it from the story's status (#49): nothing is deleted and the reason is shown. */
+  deleteStory(id: string): boolean;
   toggleCriterion(storyId: string, criterionId: string): void;
   addCriterion(storyId: string, text: string): void;
   editCriterion(storyId: string, criterionId: string, text: string): void;
@@ -555,6 +563,21 @@ export function AppProvider({ repository, sync, children }: Props) {
   }, []);
 
   /**
+   * Refuses a change of status the workflow forbids (#49): says why and returns true. The pickers only offer allowed
+   * targets, so this catches drag and drop, the keyboard and anything else that asks for a forbidden change.
+   */
+  const refuse = useCallback(
+    (storyId: string, to: string): boolean => {
+      const story = storiesRef.current.find((item) => item.id === storyId);
+      if (!story || canMove(settingsRef.current.workflow, story.status, to)) return false;
+      const statuses = statusesRef.current;
+      toast.notify(t('workflow.refused', { code: story.code, from: statusLabel(t, statuses, story.status), to: statusLabel(t, statuses, to) }));
+      return true;
+    },
+    [toast, t]
+  );
+
+  /**
    * Removes the connection of the chosen service (#30, #66): its token, the settings of the connection and the ignored
    * issues are forgotten, and the stories lose their link and stay. A switch of the service (`reset`) also resets the
    * options (read only, the service wins) and chooses the next service.
@@ -610,6 +633,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         const after = dropStory(before, activeId, overId, placement);
         if (after === before) return;
         const target = after.find((story) => story.id === activeId)?.status;
+        if (target !== undefined && refuse(activeId, target)) return;
         if (target !== undefined && gate(activeId, target, () => api.drop(activeId, overId, placement))) return;
         update(after);
         announceMove(before, after, activeId, false);
@@ -701,6 +725,14 @@ export function AppProvider({ repository, sync, children }: Props) {
         const result = removeStatusIn(statusesRef.current, before, id, targetId);
         if (!result) return false;
         update(result.stories, result.statuses);
+        // The transitions of the removed value go with it (#49).
+        const pruned = pruneWorkflow(settingsRef.current.workflow, result.statuses);
+        const workflow = recordVersion(settingsRef.current.workflow, pruned, new Date().toISOString(), newId);
+        if (workflow !== settingsRef.current.workflow) {
+          const settings = { ...settingsRef.current, workflow };
+          updateSettings(settings);
+          persist((repo) => repo.saveSettings(settings));
+        }
         const changed = changedPositions(before, result.stories);
         // The stories move first, so no story is left with a status that is gone.
         persist(async (repo) => {
@@ -802,7 +834,10 @@ export function AppProvider({ repository, sync, children }: Props) {
       },
       createStory(input) {
         const id = newId();
-        const result = createStoryIn(storiesRef.current, input, id, startStatus(statusesRef.current));
+        // With the workflow on a story starts only where the workflow lets it start (#49).
+        const workflow = settingsRef.current.workflow;
+        const status = workflow.enabled && input.status && !canStartIn(workflow, statusesRef.current, input.status) ? undefined : input.status;
+        const result = createStoryIn(storiesRef.current, { ...input, status }, id, newStoryStatus(workflow, statusesRef.current));
         update(result.stories);
         persist((repo) => repo.addStory(result.story));
         notify('created');
@@ -814,6 +849,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         const after = updateStoryIn(storiesRef.current, id, patch);
         const story = after.find((item) => item.id === id);
         if (!story) return;
+        if (patch.status !== undefined && refuse(id, patch.status)) return;
         if (patch.status !== undefined && gate(id, patch.status, () => api.updateStory(id, patch))) return;
         update(after);
         persist((repo) => repo.updateStory(story));
@@ -824,6 +860,7 @@ export function AppProvider({ repository, sync, children }: Props) {
         const story = after.find((item) => item.id === id);
         const was = before.find((item) => item.id === id);
         if (!story || !was || (Object.keys(patch) as Array<keyof StoryPatch>).every((key) => was[key] === story[key])) return;
+        if (patch.status !== undefined && refuse(id, patch.status)) return;
         if (patch.status !== undefined && gate(id, patch.status, () => api.changeStory(id, patch))) return;
         update(after);
         persist((repo) => repo.updateStory(story));
@@ -836,6 +873,26 @@ export function AppProvider({ repository, sync, children }: Props) {
         // Items that are gone take their states with them.
         const pruned = pruneChecks(storiesRef.current, definitions);
         if (pruned !== storiesRef.current) update(pruned);
+      },
+      setWorkflow(workflow) {
+        if (settingsRef.current.workflow === workflow) return;
+        // Every change of the transitions adds a version (#49, AC12).
+        const settings = { ...settingsRef.current, workflow: recordVersion(settingsRef.current.workflow, workflow, new Date().toISOString(), newId) };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
+      },
+      nameWorkflowVersion(id, name) {
+        const workflow = nameVersion(settingsRef.current.workflow, id, name);
+        const settings = { ...settingsRef.current, workflow };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
+      },
+      restoreWorkflowVersion(id) {
+        // The old state may name status values that are gone since: drop those, as when a status is removed.
+        const restored = pruneWorkflow(restoreVersion(settingsRef.current.workflow, id, new Date().toISOString(), newId), statusesRef.current);
+        const settings = { ...settingsRef.current, workflow: restored };
+        updateSettings(settings);
+        persist((repo) => repo.saveSettings(settings));
       },
       setCheck(storyId, itemId, state) {
         update(setCheckIn(storiesRef.current, storyId, itemId, state));
@@ -856,7 +913,12 @@ export function AppProvider({ repository, sync, children }: Props) {
       flashed,
       flashScroll,
       deleteStory(id) {
-        const url = storiesRef.current.find((story) => story.id === id)?.link?.url;
+        const story = storiesRef.current.find((item) => item.id === id);
+        if (story && !canDelete(settingsRef.current.workflow, story.status)) {
+          toast.notify(t('workflow.deleteRefused', { code: story.code, status: statusLabel(t, statusesRef.current, story.status) }));
+          return false;
+        }
+        const url = story?.link?.url;
         update(deleteStoryIn(storiesRef.current, id));
         persist((repo) => repo.deleteStory(id));
         if (url) {
@@ -865,6 +927,7 @@ export function AppProvider({ repository, sync, children }: Props) {
           updateSettings(settings);
           persist((repo) => repo.saveSettings(settings));
         }
+        return true;
       },
       toggleCriterion(storyId, criterionId) {
         const before = storiesRef.current;
