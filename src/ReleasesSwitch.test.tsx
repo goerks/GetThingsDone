@@ -7,6 +7,7 @@ import { seedSnapshot } from './data/seed';
 import { initI18n } from './i18n';
 import { todayIso } from './domain/sprints';
 import { EMPTY_DEFINITIONS } from './domain/definitions';
+import { DEFAULT_WORKFLOW } from './domain/workflow';
 
 
 beforeAll(() => {
@@ -17,7 +18,7 @@ const mainNav = (): HTMLElement => screen.getByRole('navigation', { name: 'Main'
 
 async function renderApp(hash: string, releasesEnabled: boolean, mapRows: 'sprints' | 'releases' = 'sprints'): Promise<LocalStorageRepository> {
   const repository = new LocalStorageRepository();
-  await repository.replaceAll({ ...seedSnapshot(todayIso()), settings: { mapRows, features: { releases: releasesEnabled, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS } });
+  await repository.replaceAll({ ...seedSnapshot(todayIso()), settings: { mapRows, features: { releases: releasesEnabled, team: false, sync: false }, sync: { service: 'github', connection: {}, lastSyncAt: null, write: false, conflict: 'remote', ignored: [], managed: { labels: [], milestones: [] }, auto: false, log: [] }, definitions: EMPTY_DEFINITIONS, workflow: DEFAULT_WORKFLOW } });
   window.location.hash = hash;
   render(<App repository={repository} />);
   await screen.findByRole('heading', { level: 1 });

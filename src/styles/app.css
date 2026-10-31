@@ -7229,3 +7229,351 @@ a.github-badge:hover {
 .managed > * {
   pointer-events: none;
 }
+
+
+/* Workflows (#49) */
+
+.column--locked {
+  background: repeating-linear-gradient(135deg, var(--column) 0 8px, var(--pill) 8px 16px);
+}
+
+/* The note with the reason stays fully readable while the rest of a locked column is dimmed. */
+.column--locked > :not(.column__reason) {
+  opacity: 0.6;
+}
+
+.column__lock {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.column__reason {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+  font-size: var(--font-size-sm);
+}
+
+.workflow-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.workflow-warning {
+  margin: 0;
+}
+
+.workflow-group__note {
+  margin: 0;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-md);
+}
+
+.workflow-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 170px) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+  align-items: start;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+
+.workflow-row:first-child {
+  border-top: 0;
+}
+
+.workflow-row__name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+  font-weight: var(--weight-semibold);
+}
+
+.workflow-row__name::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-round);
+  background: var(--status-color, var(--text));
+}
+
+.workflow-row__targets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+
+.workflow-row__to {
+  color: var(--muted);
+  font-size: var(--font-size-md);
+}
+
+.workflow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: 28px;
+  padding: 0 var(--space-2-5);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--font-size-md);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.workflow-chip--on {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.workflow-chip--end.workflow-chip--on {
+  border-color: var(--danger, var(--accent));
+  background: var(--danger-soft, var(--accent-soft));
+  color: var(--danger, var(--accent-soft-ink));
+}
+
+.workflow-chip__mark {
+  min-width: 1ch;
+  font-weight: var(--weight-bold);
+}
+
+.workflow-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.workflow-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.workflow-free {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-md);
+  font-weight: var(--weight-regular);
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+}
+
+.workflow-free__switch {
+  width: 36px;
+  height: 20px;
+}
+
+.workflow-free__switch::after {
+  width: 12px;
+  height: 12px;
+  top: var(--space-0-5);
+}
+
+.workflow-free__switch:checked::after {
+  left: var(--space-4-5);
+}
+
+@media (max-width: 640px) {
+  .workflow-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Versions of the workflow (#49, AC12) */
+.workflow-versions {
+  margin-top: var(--space-6);
+}
+.workflow-version-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.workflow-version {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.workflow-version--current {
+  border-color: var(--accent, var(--border));
+}
+.workflow-version__name {
+  flex: 1 1 10rem;
+  min-width: 8rem;
+}
+.workflow-version__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  flex-basis: 100%;
+}
+
+.acceptance__intro {
+  padding: var(--space-2) var(--space-2-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+}
+
+.acceptance__intro summary {
+  cursor: pointer;
+  font-weight: var(--weight-semibold);
+}
+
+.acceptance__intro p {
+  margin: var(--space-1-5) 0;
+}
+
+.acceptance__intro ol {
+  margin: 0;
+  padding-left: var(--space-4-5);
+}
+
+/* Workflow as a UML state diagram (#49, AC13 to AC15) */
+.workflow-view {
+  display: flex;
+  gap: var(--space-2);
+}
+.workflow-diagram__scroll {
+  overflow-x: auto;
+}
+.workflow-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.workflow-diagram[data-orientation='horizontal'] svg {
+  min-width: 640px;
+}
+.workflow-diagram-edit {
+  margin-top: var(--space-3);
+}
+.workflow-free-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-2);
+}
+.wd-frame rect {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.wd-frame text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--weight-semibold);
+  fill: var(--text);
+}
+.wd-frame line {
+  stroke: var(--text);
+  stroke-width: 1;
+}
+.wd-state {
+  cursor: pointer;
+}
+.wd-state rect {
+  fill: var(--surface);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.wd-state text {
+  font-size: var(--font-size-md);
+  font-weight: var(--weight-medium);
+  fill: var(--text);
+}
+.wd-state:focus-visible,
+.wd-start:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.wd-state.wd-on rect {
+  stroke-width: 3;
+}
+.wd-start {
+  cursor: pointer;
+}
+.wd-start circle {
+  fill: var(--text);
+}
+.wd-start .wd-hit {
+  fill: transparent;
+}
+.wd-start.wd-on circle:first-child {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.wd-final circle {
+  fill: var(--text);
+}
+.wd-final .wd-final__ring {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.8;
+}
+.wd-edge {
+  stroke-width: 1.8;
+}
+.wd-edge--forward,
+.wd-edge--both,
+.wd-edge--start {
+  stroke: var(--accent);
+}
+.wd-edge--back {
+  stroke: var(--warn);
+  stroke-dasharray: 7 4;
+}
+.wd-edge--end {
+  stroke: var(--danger);
+}
+.wd-head {
+  fill: none;
+  stroke-width: 1.8;
+}
+.wd-head--forward {
+  stroke: var(--accent);
+}
+.wd-head--back {
+  stroke: var(--warn);
+}
+.wd-head--end {
+  stroke: var(--danger);
+}
+.wd-junction {
+  fill: var(--danger);
+}
+.wd-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--weight-medium);
+  fill: var(--accent);
+}
+

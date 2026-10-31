@@ -30,6 +30,7 @@ import { hrefs } from '../router';
 import { CATEGORY_COLORS, STATUS_CATEGORIES, statusesIn } from '../domain/statuses';
 import type { Status } from '../domain/types';
 import { statusLabel } from '../components/statusLabel';
+import { canMove } from '../domain/workflow';
 import { useApp } from '../state/AppState';
 import { useBuiltin } from '../components/useBuiltin';
 import { HighlightBar } from '../components/search/HighlightBar';
@@ -127,6 +128,15 @@ export function BoardPage() {
   };
 
   const activeStory = activeId ? app.stories.find((story) => story.id === activeId) : undefined;
+  // While a story is dragged, the columns it may not move to are locked (#49).
+  const hoveredColumn = hover ? (parseColumnId(hover.overId) ?? app.stories.find((story) => story.id === hover.overId)?.status ?? null) : null;
+  const lockOf = (status: string): { reason: string; hovered: boolean } | undefined => {
+    if (!activeStory || canMove(app.settings.workflow, activeStory.status, status)) return undefined;
+    return {
+      reason: t('workflow.locked', { from: statusLabel(t, app.statuses, activeStory.status), to: statusLabel(t, app.statuses, status) }),
+      hovered: hoveredColumn === status
+    };
+  };
   const inSprint = sprintStories(app.stories, sprintId);
   useSearchPage(t('nav.board'), { story: inSprint.map((story) => story.id), sprint: sprintId ? [sprintId] : [] });
 
@@ -303,7 +313,8 @@ export function BoardPage() {
                       stories={shown(status.id)}
                       epics={epics}
                       compact={compact}
-                      drop={target?.group === status.id ? { beforeId: target.beforeId } : undefined}
+                      drop={target?.group === status.id && !lockOf(status.id) ? { beforeId: target.beforeId } : undefined}
+                      locked={lockOf(status.id)}
                     />
                   ))}
                 </div>

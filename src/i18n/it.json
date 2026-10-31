@@ -983,7 +983,7 @@
       "settings.basics": {
         "title": "Impostazioni",
         "keywords": "campi valori di stato funzioni story map righe ingranaggio attivare definizioni lista",
-        "body": "Apri le impostazioni con l’ingranaggio. Hanno otto sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. Release, Team e Sincronizzazione hanno ciascuna una sezione propria, dove attivi o disattivi la funzione e la configuri. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
+        "body": "Apri le impostazioni con l’ingranaggio. Hanno nove sezioni:\nI campi descrivono le story. I valori di stato sono le colonne della board. Story map definisce le righe della Story Map. Le definizioni contengono le liste Definition of Ready e Definition of Done. I workflow stabiliscono quali passaggi tra gli stati sono consentiti. Release, Team e Sincronizzazione hanno ciascuna una sezione propria, dove attivi o disattivi la funzione e la configuri. Dati esporta e importa tutti i tuoi dati.\nL’ingranaggio ti riporta alla pagina da cui vieni."
       },
       "search.basics": {
         "title": "Ricerca",
@@ -1029,6 +1029,11 @@
         "title": "Sincronizzazione con Jira",
         "keywords": "jira atlassian cloud issue import sync sincronizzare sito e-mail progetto chiave token api collegare workflow stato transizione board colonna epic sotto-attività filtro jql criteri descrizione scrivere pubblicare simulato demo",
         "body": "Importa le issue aperte di un progetto Jira Cloud come storie e sincronizza le modifiche in entrambe le direzioni. Funziona come la sincronizzazione con GitHub e solo se la funzione «Sincronizzazione» è attiva e Jira è il servizio scelto (è attivo un solo servizio alla volta). Procedi in quest’ordine:\n1. Attiva la funzione in Impostazioni → Sincronizzazione, poi scegli la scheda «Jira».\n2. Inserisci il sito Jira (il-tuo-team.atlassian.net), l’indirizzo e-mail del tuo account Atlassian, la chiave del progetto e un token API (da creare nel tuo account Atlassian in Sicurezza › Token API), poi premi «Prova la connessione». Un filtro aggiuntivo (JQL, per esempio labels = \"team-a\") limita l’import. Se l’app deve scrivere anche su Jira, attiva «Scrivi anche su Jira» e scegli chi vince in caso di conflitto.\n3. Apri il backlog e premi «Sincronizza». Le issue aperte diventano storie e mostrano la loro chiave Jira (per esempio PROJ-12) come ID, con un link alla issue. Epic e sotto-attività non vengono importati; l’avviso li conta. Con la scrittura attiva, «Sincronizza» pubblica anche titolo, descrizione, label, criteri e stato.\nLo stato viene scritto come transizione del workflow: una colonna della board con il nome di uno stato Jira sposta lì la issue; «Completato» la chiude. Se il workflow non lo consente (può richiedere una risoluzione), l’avviso lo dice e la modifica resta locale e contrassegnata. I criteri sono l’elenco di attività sotto il titolo «Acceptance criteria» della descrizione. Una descrizione con tabelle, immagini o formattazione viene solo letta; la sincronizzazione non la riscrive mai. Non elimina mai nulla in Jira.\nSolo l’app desktop parla con il vero Jira Cloud. L’anteprima web mostra un Jira simulato (contrassegnato «Demo») con pulsanti per modificarne le issue. Gli epic diventano epic (un epic che manca in Jira viene creato), le versioni diventano release (con le loro date), gli story point vengono sincronizzati e, in un progetto con board scrum, anche lo sprint: uno sprint di Jira diventa qui uno sprint pianificato (avviare e completare restano nell’app). Un assegnatario viene associato per nome a un membro del team; non si indovina nulla, l’avviso cita i nomi senza corrispondenza. Le nuove storie arrivano nell’ordine del rank in Jira. Con Jira, Jira decide le colonne della board, il team e gli sprint: le colonne sono gli stati del workflow, il team le persone assegnabili (senza bot), e gli sprint vengono confrontati in entrambe le direzioni, compresi avvio e chiusura. Queste impostazioni sono bloccate finché non rimuovi la connessione."
+      },
+      "workflow.basics": {
+        "title": "Workflow: cambi di stato consentiti",
+        "keywords": "workflow transizione consentito vietato stato passaggio inizio fine elimina blocco categoria libero versione versioni cronologia ripristinare tornare diagramma stato uml frecce riquadro",
+        "body": "Un workflow indica verso quali stati una story può passare dopo, dove iniziano le nuove story e da quali stati possono essere eliminate. Vale per le story; gli epic non ne hanno.\n1. Apri Impostazioni → Workflow e attiva «Attiva il workflow». È disattivato per impostazione predefinita e, finché lo è, ogni passaggio è consentito. Ciò che imposti resta salvato.\n2. L’elenco «da qui verso …» ha una riga per stato. Un pulsante attivo significa consentito. «Fine (elimina)» decide se le story possono essere eliminate da quello stato. Nella riga «Nuova story» scegli dove iniziano le nuove story; almeno un inizio resta attivo.\n3. Ogni categoria ha un interruttore «Transizioni libere nella categoria». Se attivo, ogni passaggio nella categoria è consentito; puoi comunque vietarne alcuni («con eccezioni»).\nSulla bacheca, una story trascinata blocca le colonne in cui non può andare; passa il puntatore per leggere il motivo. Rilasciarla lì non cambia nulla e ne dice il motivo. La finestra della story e i menu offrono solo gli stati consentiti. Le story già in uno stato vi restano quando il workflow cambia.\nOgni modifica del workflow viene salvata come versione (data e ora, facoltativamente un nome) sotto «Versioni» nella stessa pagina. Dopo una conferma puoi tornare a qualsiasi versione precedente; diventa quella attuale e non viene eliminato nulla.\nLa pagina mostra prima il workflow come diagramma di stato: inizio, un riquadro per categoria, gli stati e frecce per i passaggi consentiti (continue in avanti, tratteggiate indietro, rosse verso la fine). Fai clic su uno stato o sull’inizio per cambiare le sue destinazioni sotto il diagramma. «Elenco» passa all’elenco; sul telefono il diagramma è verticale."
       }
     },
     "links": {
@@ -1044,7 +1049,8 @@
       "settingsDefinitions": "Apri Impostazioni → Definizioni",
       "settingsData": "Apri Impostazioni → Dati",
       "settingsTeam": "Apri Impostazioni → Team",
-      "settingsSync": "Apri Impostazioni → Sincronizzazione"
+      "settingsSync": "Apri Impostazioni → Sincronizzazione",
+      "settingsWorkflows": "Apri Impostazioni → Workflow"
     },
     "linksTitle": "Dove trovarlo",
     "linkLocked": "Attiva prima la funzione «{{feature}}»",
@@ -1703,6 +1709,70 @@
       "label": "Board per gli sprint",
       "hint": "Vengono sincronizzati gli sprint di questa board scrum. Finché non ne scegli un’altra, vale la prima board del progetto.",
       "only": "{{name}} (l’unica board scrum del progetto)"
+    }
+  },
+  "workflow": {
+    "title": "Workflow",
+    "intro": "Definisci verso quali stati una story può passare dopo, dove iniziano le nuove story e da quali stati possono essere eliminate.",
+    "refused": "{{code}} resta in «{{from}}»: il passaggio a «{{to}}» non è consentito.",
+    "deleteRefused": "{{code}} non può essere eliminata da «{{status}}»: il workflow non lo consente.",
+    "locked": "{{from}} → {{to}} non è consentito",
+    "to": "→ verso",
+    "end": "Fine (elimina)",
+    "hint": "Un pulsante attivo significa consentito. Disattiva «Fine (elimina)» per uno stato, così lì le story non si possono eliminare.",
+    "targetsOf": "Dove può andare una story da {{name}}",
+    "settings": {
+      "activate": "Attiva il workflow",
+      "hintOff": "Disattivato per impostazione predefinita. Finché è disattivato, tutti i passaggi tra gli stati sono consentiti e nell’app non si parla di workflow. Ciò che imposti resta salvato.",
+      "hintOn": "Attivo: le story passano solo lungo le transizioni qui sotto. Le modifiche vengono salvate subito."
+    },
+    "start": {
+      "title": "Inizio · nuova story",
+      "row": "Nuova story",
+      "group": "Dove può iniziare una nuova story",
+      "last": "Una nuova story ha bisogno di un punto di partenza: l’ultimo stato iniziale resta attivo."
+    },
+    "chip": {
+      "transition": "Da {{from}} a {{to}}",
+      "start": "Una nuova story inizia in {{status}}",
+      "end": "Da {{from}} alla fine (elimina)",
+      "lastStart": "Le nuove story devono iniziare da qualche parte: l’ultimo stato iniziale resta attivo"
+    },
+    "free": {
+      "label": "Transizioni libere in «{{name}}»",
+      "exceptions": "con eccezioni",
+      "single": "un solo stato"
+    },
+    "warning": {
+      "noEnd": "Nessuno stato porta alla fine, quindi nessuna story può essere eliminata. Puoi comunque salvare."
+    },
+    "versions": {
+      "title": "Versioni",
+      "hint": "Ogni modifica del workflow viene salvata come versione. Puoi tornare a qualsiasi versione precedente; non viene eliminato nulla.",
+      "empty": "Nessuna modifica finora. La prima modifica crea una versione.",
+      "current": "Attuale",
+      "name": "Nome della versione del {{at}}",
+      "namePlaceholder": "Nome (facoltativo)",
+      "restore": "Torna a questa versione",
+      "restoreLabel": "Torna alla versione del {{at}}",
+      "confirm": "Tornare alla versione del {{at}}? Diventa la versione attuale; tutte le versioni vengono mantenute.",
+      "confirmYes": "Torna indietro",
+      "cancel": "Annulla",
+      "restored": "Il workflow è tornato alla versione del {{at}}."
+    },
+    "view": {
+      "label": "Vista",
+      "diagram": "Diagramma",
+      "list": "Elenco"
+    },
+    "diagram": {
+      "label": "Workflow come diagramma di stato: inizio, stati nelle loro categorie, fine",
+      "free": "libero",
+      "start": "Inizio",
+      "transitions": "Tutte le transizioni",
+      "hint": "Scegli uno stato o l’inizio per cambiare dove una story può andare dopo. Le frecce continue vanno avanti, quelle tratteggiate tornano indietro, quelle rosse portano alla fine (eliminazione).",
+      "choose": "Scegli uno stato nel diagramma.",
+      "complete": "Tutto è consentito, quindi sono disegnate solo le frecce tra stati vicini. Appena vieti una transizione, compaiono le altre frecce."
     }
   }
 }

@@ -666,6 +666,19 @@ describe('links to the right pages', () => {
     expect(link('Open Settings → Status values')).not.toHaveClass('linkbtn--first');
   });
 
+  it('explains the workflow (#49): it starts with switching it on and links to Settings → Workflows', async () => {
+    // Given the board with the help open
+    const user = userEvent.setup();
+    await renderApp('#/board');
+    // When I search for "Workflows"
+    await openTopic(user, 'Workflows: allowed status changes');
+    // Then the topic starts with switching the workflow on and links to the settings
+    expect(within(panel()).getByText(/Open Settings → Workflows and switch on “Activate the workflow”/)).toBeInTheDocument();
+    expect(within(panel()).getByText(/off by default/)).toBeInTheDocument();
+    expect(link('Open Settings → Workflows')).toHaveAttribute('href', '#/settings/workflows');
+    expect(link('Open Settings → Status values')).toBeInTheDocument();
+  });
+
   it('AC6.2 explains the definitions of Ready and Done and links to where to set them up', async () => {
     // Given the board with the help open
     const user = userEvent.setup();
@@ -684,7 +697,7 @@ describe('links to the right pages', () => {
     await openHelp(user);
     await user.click(within(panel()).getByRole('button', { name: /^Settings/ }));
     const places = within(panel()).getAllByRole('link').map((anchor) => anchor.textContent);
-    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Definitions', 'Open Settings → Releases', 'Open Settings → Team', 'Open Settings → Synchronisation', 'Open Settings → Data']);
+    expect(places).toEqual(['Open Settings → Status values', 'Open Settings → Story map', 'Open Settings → Definitions', 'Open Settings → Workflows', 'Open Settings → Releases', 'Open Settings → Team', 'Open Settings → Synchronisation', 'Open Settings → Data']);
   });
 });
 

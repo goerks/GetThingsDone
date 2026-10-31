@@ -31,3 +31,11 @@ export interface Criterion {
   title: string;
   cases: TestCase[];
 }
+
+/** A short introduction the acceptance panel shows above the test cases: what the pull request is about and what the product owner is asked to do. In German. */
+export interface Intro {
+  /** What the ticket is about, in two or three plain sentences. */
+  about: string;
+  /** What the product owner does, as short steps. */
+  todo: string[];
+}

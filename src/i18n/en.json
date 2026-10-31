@@ -983,7 +983,7 @@
       "settings.basics": {
         "title": "Settings",
         "keywords": "fields status values features story map rows gear switch on activate definitions checklist",
-        "body": "Open the settings with the gear button. They have eight sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Releases, Team and Synchronisation each have a section of their own, where you switch the feature on or off and set it up. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
+        "body": "Open the settings with the gear button. They have nine sections:\nFields describe your stories. Status values are the columns of the board. Story map sets the rows of the Story Map. Definitions hold the checklists Definition of Ready and Definition of Done. Workflows set which moves between statuses are allowed. Releases, Team and Synchronisation each have a section of their own, where you switch the feature on or off and set it up. Data exports and imports all your data.\nThe gear takes you back to the page you came from."
       },
       "search.basics": {
         "title": "Search",
@@ -1029,6 +1029,11 @@
         "title": "Synchronisation with Jira",
         "keywords": "jira atlassian cloud issues import sync synchronise site email project key api token connect workflow status transition board column epic sub-task filter jql criteria description write publish simulated demo",
         "body": "Import the open issues of a Jira Cloud project as stories and sync changes in both directions. It works like the sync with GitHub and only while the feature “Synchronisation” is on and Jira is the chosen service (only one service is active at a time). Go in this order:\n1. Switch the feature on under Settings → Synchronisation, then choose the card “Jira”.\n2. Enter the Jira site (your-team.atlassian.net), the e-mail address of your Atlassian account, the project key and an API token (create it in your Atlassian account under Security › API tokens), then press “Test connection”. An extra filter (JQL, for example labels = \"team-a\") limits what is imported. If the app should also write to Jira, switch on “Also write to Jira” and choose who wins in a conflict.\n3. Open the backlog and press “Sync”. Open issues become stories and show their Jira key (for example PROJ-12) as their ID, as a link to the issue. Epics and sub-tasks are not imported; the notice counts them. With writing on, “Sync” also publishes title, description, labels, criteria and the status.\nThe status is written as a transition of the workflow: a column of the board that has the name of a Jira status moves the issue there; “Done” closes it. If the workflow does not allow it (it may need a resolution), the notice says so and the change stays local and marked. The criteria are the task list under the heading “Acceptance criteria” in the description. A description with tables, images or formatting is only read; the sync never rewrites it. The sync never deletes anything in Jira.\nOnly the desktop app talks to the real Jira Cloud. The web preview shows a simulated Jira (marked “Demo”) with buttons to change its issues. Epics become epics (an epic that Jira lacks is made), fix versions become releases (with their dates), story points are synchronised, and on a project with a scrum board the sprint too: a sprint of Jira is made here as a planned sprint (starting and completing stay with the app). An assignee is matched by name with a member of the team; nobody is guessed, and the notice names the ones without a match. New stories come in the order of the rank in Jira. With Jira the columns of the board, the team and the sprints are decided by Jira: the columns are the statuses of the workflow, the team is the people who can be assigned (bots left out), and sprints are compared in both directions including start and completion. These settings are locked until you remove the connection."
+      },
+      "workflow.basics": {
+        "title": "Workflows: allowed status changes",
+        "keywords": "workflow transition allowed forbidden status move start end delete lock category free version versions history restore back diagram state uml arrows frame",
+        "body": "A workflow says which statuses a story may move to next, where new stories start and from which statuses they can be deleted. It applies to stories; epics have none.\n1. Open Settings → Workflows and switch on “Activate the workflow”. It is off by default, and while it is off every move is allowed. What you set stays saved.\n2. The list “from here to …” has a row for each status. A button that is on means allowed. “End (delete)” decides whether stories can be deleted from that status. In the row “New story” you choose where new stories start; at least one start stays on.\n3. Each category has a switch “Free transitions within the category”. Turned on, every move inside the category is allowed; you can still forbid single ones (“with exceptions”).\nOn the board, a dragged story locks the columns it may not go to; hold the pointer over one to read why. Dropping there changes nothing and says why. The story dialog and the menus only offer allowed statuses. Stories already in a status stay there when the workflow changes.\nEvery change of the workflow is saved as a version (date and time, optionally a name) under “Versions” on the same page. You can go back to any earlier version after a confirmation; it becomes the current one and nothing is deleted.\nThe page shows the workflow first as a state diagram: start, a frame for each category, the statuses and arrows for the allowed moves (solid forward, dashed back, red to the end). Click a status or the start to change its targets below the diagram. “List” switches to the list; on a phone the diagram stands upright."
       }
     },
     "links": {
@@ -1044,7 +1049,8 @@
       "settingsDefinitions": "Open Settings → Definitions",
       "settingsData": "Open Settings → Data",
       "settingsTeam": "Open Settings → Team",
-      "settingsSync": "Open Settings → Synchronisation"
+      "settingsSync": "Open Settings → Synchronisation",
+      "settingsWorkflows": "Open Settings → Workflows"
     },
     "linksTitle": "Where to find it",
     "linkLocked": "Switch the feature “{{feature}}” on first",
@@ -1695,6 +1701,70 @@
       "label": "Board for the sprints",
       "hint": "The sprints of this scrum board are synchronised. The first board of the project is used until you choose another one.",
       "only": "{{name}} (the only scrum board of the project)"
+    }
+  },
+  "workflow": {
+    "title": "Workflows",
+    "intro": "Define which statuses a story may move to next, where new stories start, and from which statuses they can be deleted.",
+    "refused": "{{code}} stays in “{{from}}”: moving to “{{to}}” is not allowed.",
+    "deleteRefused": "{{code}} cannot be deleted from “{{status}}”: the workflow does not allow it.",
+    "locked": "{{from}} → {{to}} is not allowed",
+    "to": "→ to",
+    "end": "End (delete)",
+    "hint": "A button that is on means allowed. Turn “End (delete)” off for a status so stories cannot be deleted there.",
+    "targetsOf": "Where a story may move from {{name}}",
+    "settings": {
+      "activate": "Activate the workflow",
+      "hintOff": "Off by default. While it is off, every move between statuses is allowed and nothing in the app mentions the workflow. What you set stays saved.",
+      "hintOn": "On: stories only move along the transitions below. Changes are saved at once."
+    },
+    "start": {
+      "title": "Start · new story",
+      "row": "New story",
+      "group": "Where a new story may start",
+      "last": "A new story needs a place to start: the last start status stays on."
+    },
+    "chip": {
+      "transition": "From {{from}} to {{to}}",
+      "start": "A new story starts in {{status}}",
+      "end": "From {{from}} to the end (delete)",
+      "lastStart": "New stories must start somewhere: the last start status stays on"
+    },
+    "free": {
+      "label": "Free transitions within “{{name}}”",
+      "exceptions": "with exceptions",
+      "single": "only one status"
+    },
+    "warning": {
+      "noEnd": "No status leads to the end, so no story can be deleted. You can still save this."
+    },
+    "versions": {
+      "title": "Versions",
+      "hint": "Every change of the workflow is saved as a version. You can go back to any earlier version; nothing is deleted.",
+      "empty": "No changes yet. The first change creates a version.",
+      "current": "Current",
+      "name": "Name of the version from {{at}}",
+      "namePlaceholder": "Name (optional)",
+      "restore": "Go back to this version",
+      "restoreLabel": "Go back to the version from {{at}}",
+      "confirm": "Go back to the version from {{at}}? It becomes the current version; all versions are kept.",
+      "confirmYes": "Go back",
+      "cancel": "Cancel",
+      "restored": "The workflow is back at the version from {{at}}."
+    },
+    "view": {
+      "label": "View",
+      "diagram": "Diagram",
+      "list": "List"
+    },
+    "diagram": {
+      "label": "Workflow as a state diagram: start, statuses in their categories, end",
+      "free": "free",
+      "start": "Start",
+      "transitions": "All transitions",
+      "hint": "Choose a status or the start to change where a story may go next. Solid arrows go forward, dashed ones go back, red ones lead to the end (delete).",
+      "choose": "Choose a status in the diagram.",
+      "complete": "Everything is allowed, so only the neighbouring arrows are drawn. As soon as you forbid a transition, the other arrows appear."
     }
   }
 }

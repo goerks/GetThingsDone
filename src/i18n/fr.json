@@ -983,7 +983,7 @@
       "settings.basics": {
         "title": "Paramètres",
         "keywords": "champs valeurs de statut fonctions story map lignes roue activer définitions liste",
-        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont huit sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Releases, Équipe et Synchronisation ont chacune leur section, où vous activez ou désactivez la fonction et la réglez. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
+        "body": "Ouvrez les paramètres avec la roue dentée. Ils ont neuf sections :\nLes champs décrivent vos stories. Les valeurs de statut sont les colonnes du tableau. Story map fixe les lignes de la Story Map. Les définitions contiennent les listes Definition of Ready et Definition of Done. Les workflows fixent les passages autorisés entre statuts. Releases, Équipe et Synchronisation ont chacune leur section, où vous activez ou désactivez la fonction et la réglez. Les données exportent et importent toutes vos données.\nLa roue vous ramène à la page d’où vous venez."
       },
       "search.basics": {
         "title": "Recherche",
@@ -1029,6 +1029,11 @@
         "title": "Synchronisation avec Jira",
         "keywords": "jira atlassian cloud tickets issues import sync synchroniser site e-mail projet clé jeton api connecter workflow statut transition tableau colonne epic sous-tâche filtre jql critères description écrire publier simulé démo",
         "body": "Importez les tickets ouverts d’un projet Jira Cloud comme stories et synchronisez les modifications dans les deux sens. Cela fonctionne comme la synchronisation avec GitHub, et seulement si la fonction « Synchronisation » est activée et Jira est le service choisi (un seul service est actif à la fois). Procédez dans cet ordre :\n1. Activez la fonction sous Paramètres → Synchronisation, puis choisissez la carte « Jira ».\n2. Saisissez le site Jira (votre-equipe.atlassian.net), l’adresse e-mail de votre compte Atlassian, la clé du projet et un jeton API (à créer dans votre compte Atlassian sous Sécurité › Jetons API), puis appuyez sur « Tester la connexion ». Un filtre supplémentaire (JQL, par exemple labels = \"team-a\") limite l’import. Si l’app doit aussi écrire vers Jira, activez « Écrire aussi vers Jira » et choisissez qui l’emporte en cas de conflit.\n3. Ouvrez le backlog et appuyez sur « Synchroniser ». Les tickets ouverts deviennent des stories et affichent leur clé Jira (par exemple PROJ-12) comme ID, avec un lien vers le ticket. Les epics et sous-tâches ne sont pas importés ; la notification les compte. Avec l’écriture activée, « Synchroniser » publie aussi titre, description, labels, critères et statut.\nLe statut est écrit comme une transition du workflow : une colonne du tableau qui porte le nom d’un statut Jira y déplace le ticket ; « Terminé » le ferme. Si le workflow ne l’autorise pas (il peut exiger une résolution), la notification le dit et la modification reste locale et marquée. Les critères sont la liste de tâches sous le titre « Acceptance criteria » de la description. Une description avec tableaux, images ou mise en forme est seulement lue ; la synchronisation ne la réécrit jamais. Elle ne supprime jamais rien dans Jira.\nSeule l’application de bureau parle au vrai Jira Cloud. L’aperçu web montre un Jira simulé (marqué « Démo ») avec des boutons pour modifier ses tickets. Les epics deviennent des epics (un epic absent de Jira est créé), les versions deviennent des releases (avec leurs dates), les story points sont synchronisés, et sur un projet avec un tableau scrum le sprint aussi : un sprint de Jira devient ici un sprint planifié (démarrer et terminer restent dans l’app). Un responsable est associé par son nom à un membre de l’équipe ; rien n’est deviné, la notification cite les noms sans correspondance. Les nouvelles stories arrivent dans l’ordre du rang dans Jira. Avec Jira, Jira décide des colonnes du tableau, de l’équipe et des sprints : les colonnes sont les statuts du workflow, l’équipe les personnes assignables (sans bots), et les sprints sont comparés dans les deux sens, démarrage et clôture compris. Ces réglages sont verrouillés jusqu’à la suppression de la connexion."
+      },
+      "workflow.basics": {
+        "title": "Workflows : changements de statut autorisés",
+        "keywords": "workflow transition autorisé interdit statut passage début fin supprimer verrou catégorie libre version versions historique revenir restaurer diagramme états uml flèches cadre",
+        "body": "Un workflow dit vers quels statuts une story peut passer ensuite, où les nouvelles stories commencent et depuis quels statuts elles peuvent être supprimées. Il s’applique aux stories ; les epics n’en ont pas.\n1. Ouvrez Paramètres → Workflows et activez « Activer le workflow ». Il est désactivé par défaut, et tant qu’il l’est, tout passage est autorisé. Ce que vous réglez reste enregistré.\n2. La liste « depuis ici vers … » a une ligne par statut. Un bouton activé signifie autorisé. « Fin (supprimer) » décide si les stories peuvent être supprimées depuis ce statut. Dans la ligne « Nouvelle story », vous choisissez où les nouvelles stories commencent ; au moins un départ reste activé.\n3. Chaque catégorie a un interrupteur « Transitions libres dans la catégorie ». Activé, tout passage dans la catégorie est autorisé ; vous pouvez quand même en interdire certains (« avec exceptions »).\nSur le tableau, une story déplacée verrouille les colonnes où elle ne peut pas aller ; passez le pointeur dessus pour lire pourquoi. La déposer là ne change rien et en donne la raison. La fenêtre de la story et les menus n’offrent que les statuts autorisés. Les stories déjà dans un statut y restent quand le workflow change.\nChaque modification du workflow est enregistrée comme version (date et heure, éventuellement un nom) sous « Versions » sur la même page. Après confirmation, vous pouvez revenir à toute version antérieure ; elle devient la version actuelle et rien n’est supprimé.\nLa page montre d’abord le workflow sous forme de diagramme d’états : début, un cadre par catégorie, les statuts et des flèches pour les passages autorisés (pleines en avant, en pointillés en arrière, rouges vers la fin). Cliquez sur un statut ou sur le début pour changer ses cibles sous le diagramme. « Liste » passe à la liste ; sur téléphone le diagramme est vertical."
       }
     },
     "links": {
@@ -1044,7 +1049,8 @@
       "settingsDefinitions": "Ouvrir Paramètres → Définitions",
       "settingsData": "Ouvrir Paramètres → Données",
       "settingsTeam": "Ouvrir Paramètres → Équipe",
-      "settingsSync": "Ouvrir Paramètres → Synchronisation"
+      "settingsSync": "Ouvrir Paramètres → Synchronisation",
+      "settingsWorkflows": "Ouvrir Paramètres → Workflows"
     },
     "linksTitle": "Où le trouver",
     "linkLocked": "Activez d’abord la fonction « {{feature}} »",
@@ -1703,6 +1709,70 @@
       "label": "Tableau pour les sprints",
       "hint": "Les sprints de ce tableau scrum sont synchronisés. Le premier tableau du projet est utilisé tant que vous n’en choisissez pas un autre.",
       "only": "{{name}} (le seul tableau scrum du projet)"
+    }
+  },
+  "workflow": {
+    "title": "Workflows",
+    "intro": "Définissez vers quels statuts une story peut passer ensuite, où les nouvelles stories commencent et depuis quels statuts elles peuvent être supprimées.",
+    "refused": "{{code}} reste dans « {{from}} » : le passage vers « {{to}} » n’est pas autorisé.",
+    "deleteRefused": "{{code}} ne peut pas être supprimée depuis « {{status}} » : le workflow ne l’autorise pas.",
+    "locked": "{{from}} → {{to}} n’est pas autorisé",
+    "to": "→ vers",
+    "end": "Fin (supprimer)",
+    "hint": "Un bouton activé signifie autorisé. Désactivez « Fin (supprimer) » pour un statut afin d’y empêcher la suppression des stories.",
+    "targetsOf": "Où une story peut aller depuis {{name}}",
+    "settings": {
+      "activate": "Activer le workflow",
+      "hintOff": "Désactivé par défaut. Tant qu’il est désactivé, tous les passages entre statuts sont autorisés et rien dans l’application ne mentionne le workflow. Vos réglages restent enregistrés.",
+      "hintOn": "Activé : les stories ne passent que par les transitions ci-dessous. Les modifications sont enregistrées aussitôt."
+    },
+    "start": {
+      "title": "Début · nouvelle story",
+      "row": "Nouvelle story",
+      "group": "Où une nouvelle story peut commencer",
+      "last": "Une nouvelle story a besoin d’un point de départ : le dernier statut de départ reste activé."
+    },
+    "chip": {
+      "transition": "De {{from}} vers {{to}}",
+      "start": "Une nouvelle story commence dans {{status}}",
+      "end": "De {{from}} vers la fin (supprimer)",
+      "lastStart": "Les nouvelles stories doivent commencer quelque part : le dernier statut de départ reste activé"
+    },
+    "free": {
+      "label": "Transitions libres dans « {{name}} »",
+      "exceptions": "avec exceptions",
+      "single": "un seul statut"
+    },
+    "warning": {
+      "noEnd": "Aucun statut ne mène à la fin, aucune story ne peut donc être supprimée. Vous pouvez quand même enregistrer."
+    },
+    "versions": {
+      "title": "Versions",
+      "hint": "Chaque modification du workflow est enregistrée comme version. Vous pouvez revenir à toute version antérieure ; rien n’est supprimé.",
+      "empty": "Aucune modification pour l’instant. La première modification crée une version.",
+      "current": "Actuelle",
+      "name": "Nom de la version du {{at}}",
+      "namePlaceholder": "Nom (facultatif)",
+      "restore": "Revenir à cette version",
+      "restoreLabel": "Revenir à la version du {{at}}",
+      "confirm": "Revenir à la version du {{at}} ? Elle devient la version actuelle ; toutes les versions sont conservées.",
+      "confirmYes": "Revenir",
+      "cancel": "Annuler",
+      "restored": "Le workflow est revenu à la version du {{at}}."
+    },
+    "view": {
+      "label": "Affichage",
+      "diagram": "Diagramme",
+      "list": "Liste"
+    },
+    "diagram": {
+      "label": "Workflow sous forme de diagramme d’états : début, statuts dans leurs catégories, fin",
+      "free": "libre",
+      "start": "Début",
+      "transitions": "Toutes les transitions",
+      "hint": "Choisissez un statut ou le début pour changer où une story peut aller ensuite. Les flèches pleines vont en avant, celles en pointillés reviennent en arrière, les rouges mènent à la fin (suppression).",
+      "choose": "Choisissez un statut dans le diagramme.",
+      "complete": "Tout est autorisé, seules les flèches entre voisins sont dessinées. Dès que vous interdisez une transition, les autres flèches apparaissent."
     }
   }
 }

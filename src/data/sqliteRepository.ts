@@ -350,7 +350,8 @@ export class SqliteRepository implements Repository {
         managed: parseJson<unknown>(settingRows.find((row) => row.key === 'sync_managed')?.value ?? null),
         auto: settingRows.find((row) => row.key === 'sync_auto')?.value,
         log: parseJson<unknown>(settingRows.find((row) => row.key === 'sync_log')?.value ?? null)
-      }
+      },
+      workflow: parseJson<unknown>(settingRows.find((row) => row.key === 'workflow')?.value ?? null)
     });
     const statusRows = await this.db.select<{ id: string; label: string | null; category: string }[]>(
       'SELECT id, label, category FROM status_values ORDER BY position'
@@ -624,6 +625,7 @@ export class SqliteRepository implements Repository {
     await this.db.execute(upsert, ['sync_log', JSON.stringify(sync.log)]);
     if (sync.lastSyncAt) await this.db.execute(upsert, ['sync_last_sync', sync.lastSyncAt]);
     else await this.db.execute('DELETE FROM settings WHERE key = $1', ['sync_last_sync']);
+    await this.db.execute(upsert, ['workflow', JSON.stringify(settings.workflow)]);
   }
 
   async addRelease(release: Release): Promise<void> {

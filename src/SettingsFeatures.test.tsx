@@ -62,7 +62,7 @@ describe('settings with one tab per feature (#61)', () => {
     // Then the groups hold the sections in this order
     const workspace = within(nav()).getByRole('group', { name: 'Workspace' });
     const features = within(nav()).getByRole('group', { name: 'Features' });
-    expect(names(workspace)).toEqual(['Fields', 'Status values', 'Story map', 'Definitions', 'Data']);
+    expect(names(workspace)).toEqual(['Fields', 'Status values', 'Story map', 'Definitions', 'Workflows', 'Data']);
     expect(names(features)).toEqual(['Releases On', 'Team On', 'Synchronisation Off']);
   });
 

@@ -983,7 +983,7 @@
       "settings.basics": {
         "title": "Einstellungen",
         "keywords": "felder status werte funktionen story map zeilen zahnrad einschalten aktivieren definitionen checkliste",
-        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben acht Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Releases, Team und Synchronisation haben je einen eigenen Bereich, in dem du die Funktion ein- oder ausschaltest und einstellst. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
+        "body": "Die Einstellungen öffnest du mit dem Zahnrad. Sie haben neun Bereiche:\nFelder beschreiben deine Stories. Status-Werte sind die Spalten des Boards. Story Map legt die Zeilen der Story Map fest. Definitionen enthalten die Checklisten Definition of Ready und Definition of Done. Workflows legen fest, welche Wechsel zwischen Status erlaubt sind. Releases, Team und Synchronisation haben je einen eigenen Bereich, in dem du die Funktion ein- oder ausschaltest und einstellst. Daten exportiert und importiert alle deine Daten.\nDas Zahnrad bringt dich zurück zur Seite, von der du gekommen bist."
       },
       "search.basics": {
         "title": "Suche",
@@ -1029,6 +1029,11 @@
         "title": "Synchronisation mit Jira",
         "keywords": "jira atlassian cloud vorgänge issues import sync synchronisieren abgleich site e-mail projekt schlüssel api token verbinden workflow status übergang board spalte epic unteraufgabe filter jql kriterien beschreibung schreiben veröffentlichen simuliert demo",
         "body": "Die offenen Vorgänge eines Jira-Cloud-Projekts als Stories importieren und Änderungen in beide Richtungen abgleichen. Es funktioniert wie der Abgleich mit GitHub und nur, wenn die Funktion „Synchronisation“ eingeschaltet und Jira als Dienst gewählt ist (es ist immer nur ein Dienst aktiv). Gehe in dieser Reihenfolge vor:\n1. Schalte die Funktion unter Einstellungen → Synchronisation ein und wähle die Karte „Jira“.\n2. Trage die Jira-Site (dein-team.atlassian.net), die E-Mail-Adresse deines Atlassian-Kontos, den Projektschlüssel und ein API-Token ein (erzeugst du in deinem Atlassian-Konto unter Sicherheit › API-Tokens) und drücke „Verbindung testen“. Ein zusätzlicher Filter (JQL, zum Beispiel labels = \"team-a\") schränkt den Import ein. Soll die App auch nach Jira schreiben, schalte „Auch nach Jira schreiben“ ein und wähle, wer bei einem Konflikt gewinnt.\n3. Öffne das Backlog und drücke „Synchronisieren“. Offene Vorgänge werden zu Stories und zeigen ihren Jira-Schlüssel (zum Beispiel PROJ-12) als ID, als Link zum Vorgang. Epics und Unteraufgaben werden nicht importiert; die Meldung zählt sie. Mit eingeschaltetem Schreiben veröffentlicht „Synchronisieren“ auch Titel, Beschreibung, Labels, Kriterien und den Status.\nDer Status wird als Übergang des Workflows geschrieben: Eine Board-Spalte mit dem Namen eines Jira-Status setzt den Vorgang dorthin; „Erledigt“ schliesst ihn. Erlaubt der Workflow es nicht (er verlangt vielleicht eine Lösung), sagt die Meldung es, und die Änderung bleibt lokal und markiert. Die Kriterien sind die Aufgabenliste unter der Überschrift „Acceptance criteria“ in der Beschreibung. Eine Beschreibung mit Tabellen, Bildern oder Formatierung wird nur gelesen; der Abgleich schreibt sie nie neu. Der Abgleich löscht nie etwas in Jira.\nNur die Desktop-App spricht mit dem echten Jira Cloud. Die Web-Vorschau zeigt ein simuliertes Jira (mit „Demo“ gekennzeichnet) mit Knöpfen, um seine Vorgänge zu ändern. Epics werden zu Epics (fehlt einer in Jira, wird er angelegt), Fix-Versionen zu Releases (mit ihren Daten), Story Points werden abgeglichen und bei einem Projekt mit Scrum-Board auch der Sprint: Ein Sprint aus Jira entsteht hier als geplanter Sprint (Starten und Abschliessen bleiben in der App). Zuständige werden über den Namen einem Teammitglied zugeordnet; es wird nichts geraten, die Meldung nennt die Namen ohne Treffer. Neue Stories kommen in der Reihenfolge des Rangs in Jira. Bei Jira bestimmt Jira die Spalten des Boards, das Team und die Sprints: Die Spalten sind die Status des Workflows, das Team die zuweisbaren Personen (ohne Bots), und Sprints werden in beide Richtungen abgeglichen, auch Start und Abschluss. Diese Einstellungen sind gesperrt, bis du die Verbindung entfernst."
+      },
+      "workflow.basics": {
+        "title": "Workflows: erlaubte Statuswechsel",
+        "keywords": "workflow übergang übergänge erlaubt gesperrt status wechsel start ende löschen sperre kategorie frei version versionen verlauf zurück wiederherstellen diagramm statusdiagramm uml pfeile rahmen",
+        "body": "Ein Workflow legt fest, in welche Status eine Story als Nächstes wechseln darf, wo neue Stories starten und aus welchen Status sie gelöscht werden können. Er gilt für Stories; Epics haben keinen.\n1. Öffne Einstellungen → Workflows und schalte „Workflow aktivieren“ ein. Standardmässig ist er aus, und solange er aus ist, ist jeder Wechsel erlaubt. Was du einstellst, bleibt gespeichert.\n2. Die Liste „von hier aus nach …“ hat eine Zeile pro Status. Eine eingeschaltete Schaltfläche bedeutet erlaubt. „Ende (löschen)“ bestimmt, ob Stories aus diesem Status gelöscht werden können. In der Zeile „Neue Story“ wählst du, wo neue Stories starten; mindestens ein Start bleibt an.\n3. Jede Kategorie hat einen Schalter „Freie Übergänge innerhalb der Kategorie“. Eingeschaltet ist jeder Wechsel innerhalb der Kategorie erlaubt; einzelne kannst du trotzdem sperren („mit Ausnahmen“).\nAuf dem Board sperrt eine gezogene Story die Spalten, in die sie nicht darf; fahre mit dem Zeiger darüber, um den Grund zu lesen. Loslassen dort ändert nichts und nennt den Grund. Das Story-Fenster und die Menüs bieten nur erlaubte Status an. Stories, die schon in einem Status stehen, bleiben dort, wenn der Workflow sich ändert.\nJede Änderung des Workflows wird auf derselben Seite unter „Versionen“ als Version gespeichert (Datum und Uhrzeit, optional ein Name). Nach einer Bestätigung kannst du zu jeder früheren Version zurückkehren; sie wird zur aktuellen, und nichts wird gelöscht.\nDie Seite zeigt den Workflow zuerst als Statusdiagramm: Start, ein Rahmen pro Kategorie, die Status und Pfeile für die erlaubten Wechsel (durchgezogen vorwärts, gestrichelt zurück, rot zum Ende). Klicke einen Status oder den Start, um seine Ziele unter dem Diagramm zu ändern. „Liste“ wechselt zur Liste; am Handy steht das Diagramm hochkant."
       }
     },
     "links": {
@@ -1044,7 +1049,8 @@
       "settingsDefinitions": "Einstellungen → Definitionen öffnen",
       "settingsData": "Einstellungen → Daten öffnen",
       "settingsTeam": "Einstellungen → Team öffnen",
-      "settingsSync": "Einstellungen → Synchronisation öffnen"
+      "settingsSync": "Einstellungen → Synchronisation öffnen",
+      "settingsWorkflows": "Einstellungen → Workflows öffnen"
     },
     "linksTitle": "Hier findest du es",
     "linkLocked": "Schalte zuerst die Funktion «{{feature}}» ein",
@@ -1695,6 +1701,70 @@
       "label": "Board für die Sprints",
       "hint": "Die Sprints dieses Scrum-Boards werden abgeglichen. Bis du ein anderes wählst, gilt das erste Board des Projekts.",
       "only": "{{name}} (das einzige Scrum-Board des Projekts)"
+    }
+  },
+  "workflow": {
+    "title": "Workflows",
+    "intro": "Lege fest, in welche Status eine Story als Nächstes wechseln darf, wo neue Stories starten und aus welchen Status sie gelöscht werden können.",
+    "refused": "{{code}} bleibt in «{{from}}»: Der Wechsel nach «{{to}}» ist nicht erlaubt.",
+    "deleteRefused": "{{code}} kann in «{{status}}» nicht gelöscht werden: Der Workflow erlaubt es nicht.",
+    "locked": "{{from}} → {{to}} ist nicht erlaubt",
+    "to": "→ nach",
+    "end": "Ende (löschen)",
+    "hint": "Eine eingeschaltete Schaltfläche bedeutet erlaubt. Schalte «Ende (löschen)» bei einem Status aus, damit dort keine Stories gelöscht werden können.",
+    "targetsOf": "Wohin eine Story von {{name}} aus wechseln darf",
+    "settings": {
+      "activate": "Workflow aktivieren",
+      "hintOff": "Standardmässig aus. Solange er aus ist, sind alle Wechsel zwischen Status erlaubt und nirgends in der App ist von einem Workflow die Rede. Was du einstellst, bleibt gespeichert.",
+      "hintOn": "An: Stories wechseln nur entlang der Übergänge unten. Änderungen werden sofort gespeichert."
+    },
+    "start": {
+      "title": "Start · neue Story",
+      "row": "Neue Story",
+      "group": "Wo eine neue Story starten darf",
+      "last": "Eine neue Story braucht einen Startplatz: Der letzte Start-Status bleibt eingeschaltet."
+    },
+    "chip": {
+      "transition": "Von {{from}} nach {{to}}",
+      "start": "Eine neue Story startet in {{status}}",
+      "end": "Von {{from}} zum Ende (löschen)",
+      "lastStart": "Neue Stories müssen irgendwo starten: Der letzte Start-Status bleibt eingeschaltet"
+    },
+    "free": {
+      "label": "Freie Übergänge innerhalb von «{{name}}»",
+      "exceptions": "mit Ausnahmen",
+      "single": "nur ein Status"
+    },
+    "warning": {
+      "noEnd": "Von keinem Status führt ein Übergang zum Ende, deshalb kann keine Story gelöscht werden. Du kannst trotzdem speichern."
+    },
+    "versions": {
+      "title": "Versionen",
+      "hint": "Jede Änderung des Workflows wird als Version gespeichert. Du kannst zu jeder früheren Version zurückkehren; nichts wird gelöscht.",
+      "empty": "Noch keine Änderungen. Die erste Änderung legt eine Version an.",
+      "current": "Aktuell",
+      "name": "Name der Version vom {{at}}",
+      "namePlaceholder": "Name (optional)",
+      "restore": "Zu dieser Version zurückkehren",
+      "restoreLabel": "Zur Version vom {{at}} zurückkehren",
+      "confirm": "Zur Version vom {{at}} zurückkehren? Sie wird zur aktuellen Version; alle Versionen bleiben erhalten.",
+      "confirmYes": "Zurückkehren",
+      "cancel": "Abbrechen",
+      "restored": "Der Workflow ist wieder bei der Version vom {{at}}."
+    },
+    "view": {
+      "label": "Ansicht",
+      "diagram": "Diagramm",
+      "list": "Liste"
+    },
+    "diagram": {
+      "label": "Workflow als Statusdiagramm: Start, Status in ihren Kategorien, Ende",
+      "free": "frei",
+      "start": "Start",
+      "transitions": "Alle Übergänge",
+      "hint": "Wähle einen Status oder den Start, um zu ändern, wohin eine Story als Nächstes darf. Durchgezogene Pfeile gehen vorwärts, gestrichelte zurück, rote führen zum Ende (Löschen).",
+      "choose": "Wähle einen Status im Diagramm.",
+      "complete": "Es ist alles erlaubt, darum sind nur die Pfeile zwischen Nachbarn gezeichnet. Sobald du einen Übergang sperrst, erscheinen die übrigen Pfeile."
     }
   }
 }

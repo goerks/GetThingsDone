@@ -6,6 +6,7 @@ import { useBuiltin } from '../components/useBuiltin';
 import { sortEpics } from '../domain/epics';
 import { sortSprints } from '../domain/sprints';
 import { STATUS_CATEGORIES, statusColor, statusesIn } from '../domain/statuses';
+import { canMove } from '../domain/workflow';
 import { POINT_VALUES } from '../domain/types';
 import { syncErrorKey } from '../pages/SyncSection';
 import { withService } from '../sync/syncT';
@@ -89,7 +90,10 @@ export function StoryMenuProvider({ children }: { children: ReactNode }) {
       {
         id: 'status',
         label: t('menu.status'),
-        submenu: STATUS_CATEGORIES.flatMap((category) => statusesIn(app.statuses, category)).map((status) => ({
+        submenu: STATUS_CATEGORIES.flatMap((category) => statusesIn(app.statuses, category))
+          // With the workflow on only the current status and the allowed targets are offered (#49).
+          .filter((status) => status.id === story.status || canMove(app.settings.workflow, story.status, status.id))
+          .map((status) => ({
           id: status.id,
           label: statusLabel(t, app.statuses, status.id),
           dot: statusColor(app.statuses, status.id),
