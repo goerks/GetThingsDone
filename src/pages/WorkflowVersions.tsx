@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { currentVersionId, versionsNewestFirst } from '../domain/workflow';
 import type { WorkflowVersion } from '../domain/types';
 import { useApp } from '../state/AppState';
+import { Button, TextInput } from '../ui';
 
 /** Date and time of a version in the language of the app. */
 function when(language: string, at: string): string {
@@ -19,8 +20,7 @@ function VersionRow({ version, current }: { version: WorkflowVersion; current: b
     <li className={`workflow-version${current ? ' workflow-version--current' : ''}`} data-version={version.id}>
       <span className="workflow-version__at">{at}</span>
       {current && <span className="badge">{t('workflow.versions.current')}</span>}
-      <input
-        type="text"
+      <TextInput
         className="workflow-version__name"
         aria-label={t('workflow.versions.name', { at })}
         placeholder={t('workflow.versions.namePlaceholder')}
@@ -33,26 +33,26 @@ function VersionRow({ version, current }: { version: WorkflowVersion; current: b
         }}
       />
       {!current && !asking && (
-        <button type="button" className="btn" aria-label={t('workflow.versions.restoreLabel', { at })} onClick={() => setAsking(true)}>
+        <Button type="button" aria-label={t('workflow.versions.restoreLabel', { at })} onClick={() => setAsking(true)}>
           {t('workflow.versions.restore')}
-        </button>
+        </Button>
       )}
       {asking && (
         <span className="workflow-version__confirm" role="group" aria-label={t('workflow.versions.confirm', { at })}>
           <span>{t('workflow.versions.confirm', { at })}</span>
-          <button
+          <Button
             type="button"
-            className="btn btn--primary"
+            variant="primary"
             onClick={() => {
               app.restoreWorkflowVersion(version.id);
               setAsking(false);
             }}
           >
             {t('workflow.versions.confirmYes')}
-          </button>
-          <button type="button" className="btn" onClick={() => setAsking(false)}>
+          </Button>
+          <Button type="button" onClick={() => setAsking(false)}>
             {t('workflow.versions.cancel')}
-          </button>
+          </Button>
         </span>
       )}
     </li>

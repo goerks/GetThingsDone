@@ -4,6 +4,7 @@ import { statusLabel } from '../components/statusLabel';
 import { CATEGORY_COLORS, STATUS_CATEGORIES, statusColor, statusesIn } from '../domain/statuses';
 import type { StatusCategory } from '../domain/types';
 import { WORKFLOW_END, canBeFree, canDelete, canMove, canSwitchOffStart, hasExceptions, leadsToEnd, setEnabled, setFree, setStart, setTransition, startStatuses } from '../domain/workflow';
+import { BareButton, Button, CheckInput } from '../ui';
 import { useApp } from '../state/AppState';
 import { WorkflowDiagram } from './WorkflowDiagram';
 import { WorkflowVersions } from './WorkflowVersions';
@@ -12,12 +13,12 @@ import { DIAGRAM_START } from '../domain/workflowDiagram';
 /** A target of a transition as a toggle button: on means allowed. */
 function Chip({ on, label, name, end, disabled, title, onToggle }: { on: boolean; label: string; name: string; end?: boolean; disabled?: boolean; title?: string; onToggle: () => void }) {
   return (
-    <button type="button" className={`workflow-chip${on ? ' workflow-chip--on' : ''}${end ? ' workflow-chip--end' : ''}`} aria-pressed={on} aria-label={name} disabled={disabled} title={title ?? name} onClick={onToggle}>
+    <BareButton type="button" className={`workflow-chip${on ? ' workflow-chip--on' : ''}${end ? ' workflow-chip--end' : ''}`} aria-pressed={on} aria-label={name} disabled={disabled} title={title ?? name} onClick={onToggle}>
       <span aria-hidden="true" className="workflow-chip__mark">
         {on ? '✓' : ''}
       </span>
       {label}
-    </button>
+    </BareButton>
   );
 }
 
@@ -61,9 +62,8 @@ function FreeSwitch({ category }: { category: StatusCategory }) {
   const name = t(`statusValues.category.${category}`);
   return (
     <label className="workflow-free" htmlFor={uid}>
-      <input
+      <CheckInput
         id={uid}
-        type="checkbox"
         role="switch"
         className="definition-switch workflow-free__switch"
         checked={on}
@@ -166,8 +166,7 @@ export function WorkflowsSection() {
       <p className="muted">{t('workflow.intro')}</p>
       <section className={`definition-listcard${workflow.enabled ? '' : ' definition-listcard--off'}`} aria-label={t('workflow.settings.activate')}>
         <div className="definition-listcard__head">
-          <input
-            type="checkbox"
+          <CheckInput
             role="switch"
             className="definition-switch"
             checked={workflow.enabled}
@@ -192,9 +191,9 @@ export function WorkflowsSection() {
           )}
           <div className="workflow-view" role="group" aria-label={t('workflow.view.label')}>
             {(['diagram', 'list'] as const).map((item) => (
-              <button key={item} type="button" className={`btn${view === item ? ' is-on' : ''}`} aria-pressed={view === item} onClick={() => setView(item)}>
+              <Button key={item} type="button" pressed={view === item} aria-pressed={view === item} onClick={() => setView(item)}>
                 {t(`workflow.view.${item}`)}
-              </button>
+              </Button>
             ))}
           </div>
           {view === 'diagram' ? (

@@ -7029,19 +7029,19 @@ a.github-badge:hover {
 }
 
 .column__reason {
-  margin: 0 0 8px;
-  padding: 6px 8px;
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--text);
   color: var(--bg);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .workflow-editor {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
 }
 
 .workflow-warning {
@@ -7050,14 +7050,14 @@ a.github-badge:hover {
 
 .workflow-group__note {
   margin: 0;
-  padding: 0 12px;
-  font-size: 13px;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-md);
 }
 
 .workflow-rows {
   list-style: none;
   margin: 0;
-  padding: 0 12px;
+  padding: 0 var(--space-3);
   display: flex;
   flex-direction: column;
 }
@@ -7065,9 +7065,9 @@ a.github-badge:hover {
 .workflow-row {
   display: grid;
   grid-template-columns: minmax(120px, 170px) minmax(0, 1fr);
-  gap: 8px 12px;
+  gap: var(--space-2) var(--space-3);
   align-items: start;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
   border-top: 1px solid var(--border);
 }
 
@@ -7078,9 +7078,9 @@ a.github-badge:hover {
 .workflow-row__name {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-height: 28px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .workflow-row__name::before {
@@ -7088,7 +7088,7 @@ a.github-badge:hover {
   flex: none;
   width: 10px;
   height: 10px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--status-color, var(--text));
 }
 
@@ -7096,27 +7096,27 @@ a.github-badge:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1-5);
   min-width: 0;
 }
 
 .workflow-row__to {
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--font-size-md);
 }
 
 .workflow-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1-5);
   height: 28px;
-  padding: 0 10px;
+  padding: 0 var(--space-2-5);
   border: 1px dashed var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 13px;
+  font-size: var(--font-size-md);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -7135,7 +7135,7 @@ a.github-badge:hover {
 
 .workflow-chip__mark {
   min-width: 1ch;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .workflow-chip:disabled {
@@ -7367,9 +7367,9 @@ a.github-badge:hover {
 .workflow-free {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 400;
+  gap: var(--space-2);
+  font-size: var(--font-size-md);
+  font-weight: var(--weight-regular);
   text-transform: none;
   letter-spacing: 0;
   color: var(--text);
@@ -7383,11 +7383,11 @@ a.github-badge:hover {
 .workflow-free__switch::after {
   width: 12px;
   height: 12px;
-  top: 3px;
+  top: var(--space-0-5);
 }
 
 .workflow-free__switch:checked::after {
-  left: 19px;
+  left: var(--space-4-5);
 }
 
 @media (max-width: 640px) {
@@ -7398,7 +7398,7 @@ a.github-badge:hover {
 
 /* Versions of the workflow (#49, AC12) */
 .workflow-versions {
-  margin-top: 1.5rem;
+  margin-top: var(--space-6);
 }
 .workflow-version-list {
   list-style: none;
@@ -7406,16 +7406,16 @@ a.github-badge:hover {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 .workflow-version {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 .workflow-version--current {
   border-color: var(--accent, var(--border));
@@ -7428,35 +7428,35 @@ a.github-badge:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   flex-basis: 100%;
 }
 
 .acceptance__intro {
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-2-5);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
 }
 
 .acceptance__intro summary {
   cursor: pointer;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .acceptance__intro p {
-  margin: 6px 0;
+  margin: var(--space-1-5) 0;
 }
 
 .acceptance__intro ol {
   margin: 0;
-  padding-left: 18px;
+  padding-left: var(--space-4-5);
 }
 
 /* Workflow as a UML state diagram (#49, AC13 to AC15) */
 .workflow-view {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 .workflow-diagram__scroll {
   overflow-x: auto;
@@ -7471,13 +7471,13 @@ a.github-badge:hover {
   min-width: 640px;
 }
 .workflow-diagram-edit {
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
 }
 .workflow-free-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  margin-top: 0.5rem;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-2);
 }
 .wd-frame rect {
   fill: none;
@@ -7485,8 +7485,8 @@ a.github-badge:hover {
   stroke-width: 1.5;
 }
 .wd-frame text {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--weight-semibold);
   fill: var(--text);
 }
 .wd-frame line {
@@ -7502,8 +7502,8 @@ a.github-badge:hover {
   stroke-width: 1.5;
 }
 .wd-state text {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-md);
+  font-weight: var(--weight-medium);
   fill: var(--text);
 }
 .wd-state:focus-visible,
@@ -7567,7 +7567,7 @@ a.github-badge:hover {
   fill: var(--danger);
 }
 .wd-label {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--weight-medium);
   fill: var(--accent);
 }
