@@ -7009,141 +7009,6 @@ a.github-badge:hover {
 }
 
 .sync-service:focus-within {
-
-/* Workflows (#49) */
-
-.column--locked {
-  background: repeating-linear-gradient(135deg, var(--column) 0 8px, var(--pill) 8px 16px);
-}
-
-/* The note with the reason stays fully readable while the rest of a locked column is dimmed. */
-.column--locked > :not(.column__reason) {
-  opacity: 0.6;
-}
-
-.column__lock {
-  display: inline-flex;
-  align-items: center;
-  margin-left: auto;
-  color: var(--muted);
-}
-
-.column__reason {
-  margin: 0 0 var(--space-2);
-  padding: var(--space-1-5) var(--space-2);
-  border-radius: var(--radius-sm);
-  background: var(--text);
-  color: var(--bg);
-  font-size: var(--font-size-sm);
-}
-
-.workflow-editor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  margin-top: var(--space-3);
-}
-
-.workflow-warning {
-  margin: 0;
-}
-
-.workflow-group__note {
-  margin: 0;
-  padding: 0 var(--space-3);
-  font-size: var(--font-size-md);
-}
-
-.workflow-rows {
-  list-style: none;
-  margin: 0;
-  padding: 0 var(--space-3);
-  display: flex;
-  flex-direction: column;
-}
-
-.workflow-row {
-  display: grid;
-  grid-template-columns: minmax(120px, 170px) minmax(0, 1fr);
-  gap: var(--space-2) var(--space-3);
-  align-items: start;
-  padding: var(--space-2) 0;
-  border-top: 1px solid var(--border);
-}
-
-.workflow-row:first-child {
-  border-top: 0;
-}
-
-.workflow-row__name {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 28px;
-  font-weight: var(--weight-semibold);
-}
-
-.workflow-row__name::before {
-  content: '';
-  flex: none;
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-round);
-  background: var(--status-color, var(--text));
-}
-
-.workflow-row__targets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1-5);
-  min-width: 0;
-}
-
-.workflow-row__to {
-  color: var(--muted);
-  font-size: var(--font-size-md);
-}
-
-.workflow-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1-5);
-  height: 28px;
-  padding: 0 var(--space-2-5);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: var(--font-size-md);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.workflow-chip--on {
-  border: 1px solid var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-soft-ink);
-}
-
-.workflow-chip--end.workflow-chip--on {
-  border-color: var(--danger, var(--accent));
-  background: var(--danger-soft, var(--accent-soft));
-  color: var(--danger, var(--accent-soft-ink));
-}
-
-.workflow-chip__mark {
-  min-width: 1ch;
-  font-weight: var(--weight-bold);
-}
-
-.workflow-chip:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.workflow-chip:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
@@ -7363,6 +7228,146 @@ a.github-badge:hover {
 }
 .managed > * {
   pointer-events: none;
+}
+
+
+/* Workflows (#49) */
+
+.column--locked {
+  background: repeating-linear-gradient(135deg, var(--column) 0 8px, var(--pill) 8px 16px);
+}
+
+/* The note with the reason stays fully readable while the rest of a locked column is dimmed. */
+.column--locked > :not(.column__reason) {
+  opacity: 0.6;
+}
+
+.column__lock {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.column__reason {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+  font-size: var(--font-size-sm);
+}
+
+.workflow-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.workflow-warning {
+  margin: 0;
+}
+
+.workflow-group__note {
+  margin: 0;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-md);
+}
+
+.workflow-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 170px) minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+  align-items: start;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border);
+}
+
+.workflow-row:first-child {
+  border-top: 0;
+}
+
+.workflow-row__name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+  font-weight: var(--weight-semibold);
+}
+
+.workflow-row__name::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-round);
+  background: var(--status-color, var(--text));
+}
+
+.workflow-row__targets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+
+.workflow-row__to {
+  color: var(--muted);
+  font-size: var(--font-size-md);
+}
+
+.workflow-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  height: 28px;
+  padding: 0 var(--space-2-5);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--font-size-md);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.workflow-chip--on {
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-soft-ink);
+}
+
+.workflow-chip--end.workflow-chip--on {
+  border-color: var(--danger, var(--accent));
+  background: var(--danger-soft, var(--accent-soft));
+  color: var(--danger, var(--accent-soft-ink));
+}
+
+.workflow-chip__mark {
+  min-width: 1ch;
+  font-weight: var(--weight-bold);
+}
+
+.workflow-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.workflow-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 .workflow-free {
   display: inline-flex;
@@ -7571,3 +7576,4 @@ a.github-badge:hover {
   font-weight: var(--weight-medium);
   fill: var(--accent);
 }
+
