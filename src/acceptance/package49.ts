@@ -15,7 +15,7 @@ export const PACKAGE_49: {
   criteria: Criterion[];
 } = {
   issue: 49,
-  pullRequest: 53,
+  pullRequest: 77,
   title: 'Workflows',
   intro: {
     about:
